@@ -9,18 +9,18 @@ operating system memory model. Example projects where DynAdjust can and has been
 the adjustment of small survey control networks, engineering surveys, deformation monitoring
 surveys, national and state geodetic networks and digital cadastral database upgrade initiatives.
 DynAdjust provides the following capabilities:
-• Import of data in geographic, cartesian and/or projection (UTM) coordinates contained in
+* Import of data in geographic, cartesian and/or projection (UTM) coordinates contained in
 DNA, DynaML and SINEX data formats;
-• Input of a diverse range of measurement types;
-• Transformation of station coordinates and measurements between several static and dynamic
+* Input of a diverse range of measurement types;
+* Transformation of station coordinates and measurements between several static and dynamic
 reference frames;
-• Rigorous application of geoid–ellipsoid separations and deflections of the vertical;
-• Simultaneous (traditional) and phased adjustment modes;
-• Automatic segmentation and adjustment of extremely large networks in an efficient manner;
-• Rigorous estimation of positional uncertainty for all points in a network;
-• Detailed statistical analysis of adjusted measurements and station corrections;
-• Production of high quality network plots;
-• Automated processing and analysis with minimal user interaction.
+* Rigorous application of geoid–ellipsoid separations and deflections of the vertical;
+* Simultaneous (traditional) and phased adjustment modes;
+* Automatic segmentation and adjustment of extremely large networks in an efficient manner;
+* Rigorous estimation of positional uncertainty for all points in a network;
+* Detailed statistical analysis of adjusted measurements and station corrections;
+* Production of high quality network plots;
+* Automated processing and analysis with minimal user interaction.
 
 
 ## License Details
