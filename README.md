@@ -8,6 +8,7 @@ unlimited, other than by the limitations imposed by a computer’s processor, ph
 operating system memory model. Example projects where DynAdjust can and has been used include
 the adjustment of small survey control networks, engineering surveys, deformation monitoring
 surveys, national and state geodetic networks and digital cadastral database upgrade initiatives.
+
 DynAdjust provides the following capabilities:
 * Import of data in geographic, cartesian and/or projection (UTM) coordinates contained in
 DNA, DynaML and SINEX data formats;
