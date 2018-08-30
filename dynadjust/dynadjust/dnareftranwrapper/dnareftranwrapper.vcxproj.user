@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LocalDebuggerCommandArguments>itrf1996 -r itrf2014 -e 01.01.2020</LocalDebuggerCommandArguments>
+    <LocalDebuggerWorkingDirectory>$(dist)\2016_gda2020\</LocalDebuggerWorkingDirectory>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LocalDebuggerCommandArguments>itrf1996 -r itrf2014 -e 01.01.2020</LocalDebuggerCommandArguments>
+    <LocalDebuggerWorkingDirectory>$(dist)\2016_gda2020\</LocalDebuggerWorkingDirectory>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LocalDebuggerCommandArguments>gda94_ITRF92 -r itrf92 -e 06.02.1990</LocalDebuggerCommandArguments>
+    <LocalDebuggerWorkingDirectory>$(dist)\2016_gda2020\</LocalDebuggerWorkingDirectory>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LocalDebuggerCommandArguments>gda94_GDA2020 -r gda2020</LocalDebuggerCommandArguments>
+    <LocalDebuggerWorkingDirectory>$(dist)\2016_gda2020\</LocalDebuggerWorkingDirectory>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ShowAllFiles>false</ShowAllFiles>
+  </PropertyGroup>
+</Project>

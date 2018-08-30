@@ -1,0 +1,25 @@
+List of tasks to do
+2017-12-19
+
+TO DO
+----------
+* Add functionality to permit addition of global and station-specific
+  Type B uncertainties to standard uncertainties.
+* Add functionality to dump to individual stn/msr files the 
+  measurements that are identified as duplicates.
+* Add functionality to obtain the right plate motion model 
+  parameters according to location.  Currently, only the Australian
+  plate motion model has been implemented.
+* Move DNA file related code in dnainterop.cpp to dnaiodna.cpp.
+* Add functionality to permit users to define their own colour scheme for
+  plots.
+* Add a new option to adjust to allow users to choose whether to save the
+  state of an adjustment (default is save state to .mtx files).
+* Create a thread to display progress of interpolation from grid file.
+* Create a thread to display progress of transformations.
+* Add an option to revert to EGM when geoid grid interpolation of a point 
+  lies outside the extents of a supplied grid.
+* Consider splitting up large source code files into smaller files (of 
+  common functionality):
+  dnaadjust.cpp is > 12,500 lines of code
+  dnainterop.cpp is > 6,500 lines of code

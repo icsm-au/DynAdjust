@@ -1,0 +1,18 @@
+LIBRARY "dnageoid"
+
+EXPORTS
+    DNAGEOID_CreateGridIndex         @1
+    DNAGEOID_ReportGridVersion       @2
+    DNAGEOID_ReportGridProperties    @3
+    DNAGEOID_CreateNTv2Grid          @4
+    DNAGEOID_InterpolatePoint        @5
+    DNAGEOID_BiLinearTransformation  @6
+    DNAGEOID_BiCubicTransformation   @7
+    DNAGEOID_FileTransformation      @8
+    DNAGEOID_ExporttoAscii           @9
+    DNAGEOID_ExporttoBinary          @10
+    DNAGEOID_ReturnFileProgress      @11
+    DNAGEOID_GetByteOffset           @12
+    DNAGEOID_SetByteOffset           @13
+    DNAGEOID_PointsInterpolated      @14
+    DNAGEOID_PointsNotInterpolated   @15

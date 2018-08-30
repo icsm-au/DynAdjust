@@ -1,0 +1,16 @@
+BUILD INSTRUCTIONS FOR dnageoid.dll
+
+When building dnageoid.dll with standard C API:
+1.	On line 50 of dnageoid.hpp, uncomment the following line to define BUILD_DNAGEOID_C_DLL
+
+	//  #define BUILD_DNAGEOID_C_DLL
+
+2.	Optionally, add def file to project
+	.\dynadjust_1_00_00\dynadjust\dnageoid\dnageoid_ext.def
+	dnageoid > Properties > Configuration Properties > Linker > Input > Module Definition File = dnageoid_ext.def
+
+	Note: this def file doesn't need to be included in order to build driver, but
+	should be included to permit backward compatibility.  That is, if a new exported method is added to the dll,
+	programs which rely on this dll don't need to be recompiled because the def file preserves the order of
+	the entry points. This way, new versions of dnageoid.dll can be rebuilt without having to rebuild the driver.
+

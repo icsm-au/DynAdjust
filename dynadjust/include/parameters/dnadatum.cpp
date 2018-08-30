@@ -1,0 +1,209 @@
+//============================================================================
+// Name         : dnadatum.hpp
+// Author       : Roger Fraser
+// Contributors :
+// Version      : 1.00
+// Copyright    : Copyright 2017 Geoscience Australia
+//
+//                Licensed under the Apache License, Version 2.0 (the "License");
+//                you may not use this file except in compliance with the License.
+//                You may obtain a copy of the License at
+//               
+//                http ://www.apache.org/licenses/LICENSE-2.0
+//               
+//                Unless required by applicable law or agreed to in writing, software
+//                distributed under the License is distributed on an "AS IS" BASIS,
+//                WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//                See the License for the specific language governing permissions and
+//                limitations under the License.
+//
+// Description  : DynAdjust Datum Library
+//============================================================================
+
+#include <include/parameters/dnadatum.hpp>
+#include <include/parameters/dnaepsg.hpp>
+
+using namespace dynadjust::epsg;
+
+namespace dynadjust {
+namespace datum_parameters {
+
+// default to GDA94
+CDnaDatum::CDnaDatum(void)
+	// "GDA94 (3D)" - geographic
+	: epsgCode_(DEFAULT_EPSG_U)
+	, epoch_(date(1994, 1, 1))
+	, datumType_(STATIC_DATUM)
+	, datumName_(DEFAULT_DATUM)
+{
+	ellipsoid_.SetEllipsoid(epsgCode_);
+}
+
+CDnaDatum::CDnaDatum(const UINT32& epsgCode)
+{
+	// Set datum with default epoch of today
+	SetDatum(epsgCode);
+}
+
+CDnaDatum::CDnaDatum(const UINT32& epsgCode, const date& epoch)
+{
+	SetDatum(epsgCode, epoch);
+}
+
+CDnaDatum::CDnaDatum(const string& epsgCode, const string& epoch)
+{
+	SetDatumFromEpsg(epsgCode, epoch);
+}
+	
+//// datumName corresponds to the name given in epsg
+//// epoch is a space delimited string: YYY MM DD
+//CDnaDatum::CDnaDatum(const string& datumName, const string& epoch)
+//{
+//	datumName_ = datumName;
+//	SetDatumFromName(datumName, epoch);
+//}
+
+CDnaDatum::CDnaDatum(const CDnaDatum& newDatum)
+{
+	epsgCode_ = newDatum.epsgCode_;
+	ellipsoid_ = newDatum.ellipsoid_;
+	epoch_ = newDatum.epoch_;
+	datumType_ = newDatum.datumType_;
+	datumName_ = newDatum.datumName_;
+}
+
+CDnaDatum& CDnaDatum::operator=(const CDnaDatum& rhs)
+{
+	if (this == &rhs)	// check for assignment to self!
+		return *this;
+
+	epsgCode_ = rhs.epsgCode_;
+	ellipsoid_ = rhs.ellipsoid_;
+	epoch_ = rhs.epoch_;
+	datumType_ = rhs.datumType_;
+	datumName_ = rhs.datumName_;
+
+	return *this;
+}
+
+bool CDnaDatum::operator==(const CDnaDatum& rhs) const
+{
+	return (
+		epsgCode_ == rhs.epsgCode_ &&
+		ellipsoid_ == rhs.ellipsoid_ &&
+		epoch_ == rhs.epoch_ &&
+		datumType_ == rhs.datumType_
+		);
+}
+
+bool CDnaDatum::isSameFrame(const CDnaDatum& rhs) const
+{
+	return (
+		epsgCode_ == rhs.epsgCode_ &&
+		ellipsoid_ == rhs.ellipsoid_ &&
+		datumType_ == rhs.datumType_
+		);
+}
+
+void CDnaDatum::initialiseDatumFromEpsgCode()
+{
+	// Initialise ellipsoid using epsg code and set epoch if static
+	ellipsoid_.SetEllipsoid(epsgCode_);
+	
+	// datum type?
+	if (isEpsgDatumStatic(epsgCode_))
+		datumType_ = STATIC_DATUM;
+	else
+		datumType_ = DYNAMIC_DATUM;
+	
+	// Set name
+	datumName_ = datumFromEpsgCode<string, UINT32>(epsgCode_);
+}
+	
+// returns dd.mm.yyyy
+string CDnaDatum::GetEpoch_s() const
+{
+	return stringFromDate<date>(epoch_);
+}
+	
+string CDnaDatum::GetEpsgCode_s() const 
+{
+	char epsgCode[8];
+	sprintf(epsgCode, "%d\0", epsgCode_);
+	return string(epsgCode); 
+}
+
+void CDnaDatum::SetDatum(const UINT32& epsgCode)
+{
+	epsgCode_ = epsgCode;
+	epoch_ = dateFromString<date>(referenceepochFromEpsgCode(epsgCode_));
+
+	// set datum parameters using epsg code
+	initialiseDatumFromEpsgCode();
+}
+
+void CDnaDatum::SetDatum(const UINT32& epsgCode, const date& epoch)
+{
+	epsgCode_ = epsgCode;
+	epoch_ = epoch;
+
+	// set datum parameters using epsg code
+	initialiseDatumFromEpsgCode();
+}
+
+void CDnaDatum::SetDatum(const string& epsgCode)
+{
+	// Reuse
+	SetDatum(LongFromString<UINT32>(trimstr(epsgCode)));
+}
+
+void CDnaDatum::SetDatum(const string& epsgCode, const date& epoch)
+{
+	// Reuse
+	SetDatum(LongFromString<UINT32>(trimstr(epsgCode)), epoch);
+}
+
+void CDnaDatum::SetEpoch(const string& epoch)
+{
+	// Parse epoch
+	if (epoch.empty())
+		epoch_ = dateFromString<date>(referenceepochFromEpsgCode(epsgCode_));
+	else
+		epoch_ = dateFromString<date>(epoch);
+}
+
+void CDnaDatum::SetEpoch(const double& decimal_year)
+{
+	epoch_ = dateFromDouble_doy_year<date, double>(decimal_year);
+
+}
+
+void CDnaDatum::SetDatumFromName(const string& datumName, const string& epoch)
+{
+	// Get epsg code
+	epsgCode_ = epsgCodeFromName<UINT32, string>(datumName);
+
+	// Parse epoch
+	SetEpoch(epoch);
+
+	// set datum parameters using epsg code
+	initialiseDatumFromEpsgCode();
+}
+
+void CDnaDatum::SetDatumFromEpsg(const string& epsgCode, const string& epoch)
+{
+	// Get epsg code
+	epsgCode_ = LongFromString<UINT32>(trimstr(epsgCode));
+
+	// Check valid epsg code (throws an exception on unknown code)
+	validateEpsgCode(epsgCode_);
+
+	// Parse epoch
+	SetEpoch(epoch);
+
+	// set datum parameters using epsg code
+	initialiseDatumFromEpsgCode();
+}
+
+}	// namespace datum_parameters
+}	// namespace dynadjust
