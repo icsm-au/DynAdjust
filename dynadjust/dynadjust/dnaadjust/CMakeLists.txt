@@ -5,7 +5,7 @@ set (CMAKE_BUILD_TYPE "Release")
 
 add_definitions(-DBUILD_DNAADJUST_DLL -DBUILD_EXPORTDNATYPES -DMULTI_THREAD_ADJUST -DMKL_ILP64 -openmp)
 
-include_directories (../../..)
+include_directories (${PROJECT_SOURCE_DIR})
 
 add_library (${PROJECT_NAME} SHARED
              ${CMAKE_SOURCE_DIR}/include/io/dnaioadj.cpp
