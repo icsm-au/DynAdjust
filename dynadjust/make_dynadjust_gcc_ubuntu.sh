@@ -4,12 +4,12 @@
 #
 # This script configures the environment and installs DynAdjust using:
 #
-#   g++: 		7.3.0
-#   boost: 		BOOST_LIB_VERSION "1_65_1"
-#   xerces-c:		3.2.0
-#   XSD:		CodeSynthesis XSD XML Schema to C++ compiler 4.0.0
-#   MKL:		INTEL_MKL_VERSION 20180001
-#   CMake:              cmake version 3.10.2
+#   g++:        7.3.0
+#   boost:      BOOST_LIB_VERSION "1_65_1"
+#   xerces-c:   3.2.0
+#   XSD:        CodeSynthesis XSD XML Schema to C++ compiler 4.0.0
+#   MKL:        INTEL_MKL_VERSION 20180001
+#   CMake:      cmake version 3.10.2
 #
 # This script builds and installs DynAdjust on Ubuntu Linux machine:
 #
