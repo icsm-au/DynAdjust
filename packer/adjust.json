@@ -24,6 +24,11 @@
 
     "provisioners": [
         {
+            "type": "file",
+            "source": "scripts",
+            "destination": "/tmp"
+        },
+        {
             "type": "shell",
             "script": "./provisioners.sh"
         }

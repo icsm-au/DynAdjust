@@ -1,0 +1,79 @@
+# This file contains parameters needed by the install script
+# install_gmt for GMT Version 4.5.18.  Give this file
+# as the argument to the install_gmt script and the whole
+# installation process can be placed in the background.
+# Default answers will be selected where none is given.
+# You can edit the values, but do not remove definitions!
+#
+# Assembled by gmt_install_form.html, $Revision: 10410 $
+# Processed by install_gmt_form.pl : 10410  on
+#
+#	Tue Nov 20 22:12:08 HST 2018
+#
+# Do NOT add any spaces around the = signs.  The
+# file MUST conform to Bourne shell syntax
+#---------------------------------------------
+#	GMT VERSION
+#---------------------------------------------
+GMT_version=4.5.18
+#---------------------------------------------
+#	SYSTEM UTILITIES AND FTP SETTING
+#---------------------------------------------
+GMT_make=make
+passive_ftp=y
+#---------------------------------------------
+#	NETCDF SECTION
+#---------------------------------------------
+netcdf_path=/usr/bin/nc-config
+#---------------------------------------------
+#	GSHHG SECTION
+#---------------------------------------------
+GSHHG_ftp=n
+GSHHG_install=y
+GSHHG_path=/tmp/scripts
+#---------------------------------------------
+#	GDAL SECTION
+#---------------------------------------------
+use_gdal=n
+gdal_path=
+#---------------------------------------------
+#	GMT FTP SECTION
+#---------------------------------------------
+GMT_ftp=n
+GMT_ftpsite=99
+GMT_inst_gmt=y
+#---------------------------------------------
+#	GMT SUPPLEMENTS SELECT SECTION
+#---------------------------------------------
+GMT_suppl_mex=n
+GMT_mex_type=octave
+GMT_suppl_xgrid=y
+#---------------------------------------------
+#	GMT ENVIRONMENT SECTION
+#---------------------------------------------
+GMT_si=y
+GMT_ps=y
+GMT_prefix=/usr/local
+GMT_bin=
+GMT_lib=
+GMT_share=
+GMT_include=
+GMT_man=
+GMT_doc=
+GMT_sharedir=
+#---------------------------------------------
+#	COMPILING & LINKING SECTION
+#---------------------------------------------
+GMT_sharedlib=y
+GMT_cc=cc
+GMT_64=
+GMT_flock=y
+GMT_triangle=n
+#---------------------------------------------
+#	TEST & print FILE SECTION
+#---------------------------------------------
+GMT_run_examples=y
+GMT_delete=n
+#---------------------------------------------
+#	MEX SECTION
+#---------------------------------------------
