@@ -8,7 +8,7 @@
 # Assembled by gmt_install_form.html, $Revision: 10410 $
 # Processed by install_gmt_form.pl : 10410  on
 #
-#	Tue Nov 20 22:12:08 HST 2018
+#	Wed Nov 21 13:22:02 HST 2018
 #
 # Do NOT add any spaces around the = signs.  The
 # file MUST conform to Bourne shell syntax
@@ -28,9 +28,9 @@ netcdf_path=/usr/bin/nc-config
 #---------------------------------------------
 #	GSHHG SECTION
 #---------------------------------------------
-GSHHG_ftp=n
 GSHHG_install=y
-GSHHG_path=/tmp/scripts
+GSHHG_ftp=y
+GSHHG_path=
 #---------------------------------------------
 #	GDAL SECTION
 #---------------------------------------------
@@ -39,13 +39,13 @@ gdal_path=
 #---------------------------------------------
 #	GMT FTP SECTION
 #---------------------------------------------
-GMT_ftp=n
-GMT_ftpsite=99
+GMT_ftp=y
+GMT_ftpsite=1
 GMT_inst_gmt=y
 #---------------------------------------------
 #	GMT SUPPLEMENTS SELECT SECTION
 #---------------------------------------------
-GMT_suppl_mex=n
+GMT_suppl_mex=y
 GMT_mex_type=octave
 GMT_suppl_xgrid=y
 #---------------------------------------------
@@ -73,7 +73,7 @@ GMT_triangle=n
 #	TEST & print FILE SECTION
 #---------------------------------------------
 GMT_run_examples=y
-GMT_delete=n
+GMT_delete=y
 #---------------------------------------------
 #	MEX SECTION
 #---------------------------------------------

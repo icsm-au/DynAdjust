@@ -812,7 +812,7 @@ if [ "$GMT_ftp" = "y" ] || [ "$GSHHG_ftp" = "y" ]; then
 	echo "Getting GMT4 by anonymous ftp from $ftp_ip (be patient)..." >&2
 
 	before=`du -sk . | cut -f1`
-	ftp -dn $ftp_ip < gmt_install.ftp_list || ( echo "fpt failed - try again later >&2"; exit )
+	ftp -dnp $ftp_ip < gmt_install.ftp_list || ( echo "fpt failed - try again later >&2"; exit )
 	after=`du -sk . | cut -f1`
 	rm -f gmt_install.ftp_list
 	newstuff=`echo $before $after | awk '{print $2 - $1}'`
