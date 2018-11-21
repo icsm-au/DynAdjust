@@ -5,12 +5,11 @@
 # XERCESC_LIBRARY     - List of fully qualified libraries to link against when using Xerces.
 # XERCESC_FOUND       - Do not attempt to use Xerces if "no" or undefined.
 
-# SET THE ROOT DIRECTORY WHERE XERCES-C++ IS INSTALLED
-SET(XERCESC_ROOT_DIR /usr/include/xerces-c)
+SET (XERCESC_ROOT_DIR /usr)
 
-# DO NOT CHANGE
-SET (XERCESC_LIBRARY_DIR /usr/lib/x86_64-linux-gnu)
-SET (XERCESC_INCLUDE_DIR /usr/include/xercesc)
+SET (XERCESC_LIBRARY_DIR ${XERCESC_ROOT_DIR}/lib)
+
+SET (XERCESC_INCLUDE_DIR ${XERCESC_ROOT_DIR}/include)
 
 FIND_PATH(XERCESC_INCLUDE_DIR dom/DOM.hpp
     PATH_SUFFIXES xerces-c

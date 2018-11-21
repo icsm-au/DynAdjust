@@ -14,7 +14,7 @@ if(UNIX)
    set(DNA_PROGRAM_PREFIX "dna")
 endif(UNIX)
 
-set (CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR};${CMAKE_MODULE_PATH}")
+set (CMAKE_MODULE_PATH "${CMAKE_CURRENT_BINARY_DIR};${CMAKE_MODULE_PATH}")
 set (CMAKE_CXX_STANDARD 11)
 add_definitions(-Wno-deprecated-declarations)
 

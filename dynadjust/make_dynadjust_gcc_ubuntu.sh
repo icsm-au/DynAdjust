@@ -3,27 +3,50 @@
 ################################################################################
 #
 # This script configures the environment and installs DynAdjust using:
-#   gcc 7.2.1
-#   boost 1.58
-#   xerces-c 3.1.4
+#
+#   g++: 		7.3.0
+#   boost: 		BOOST_LIB_VERSION "1_65_1"
+#   xerces-c:		3.2.0
+#   XSD:		CodeSynthesis XSD XML Schema to C++ compiler 4.0.0
+#   MKL:		INTEL_MKL_VERSION 20180001
+#
+# This script builds and installs DynAdjust on Ubuntu Linux machine:
+#
+# 	$ lsb_release -a
+# 	No LSB modules are available.
+# 	Distributor ID: Ubuntu
+# 	Description:    Ubuntu 18.04.1 LTS
+# 	Release:        18.04
+# 	Codename:       bionic
+#
+# Perhaps could ONLY build release version?
+#
+#	$ ./make_dynadjust_gcc_ubuntu.sh release
 #
 ################################################################################
 
 # Needed in order to find boost installation
-export BOOST_ROOT=/opt/boost/gcc/1.58
+export BOOST_ROOT=/usr
+
+# Needed in order to find XSD
+export XSD_INCLUDE_DIR=/usr/include
 
 if [ -d "./build-gcc" ]; then
     cd ./build-gcc
+    if [ -f "./Makefile" ]; then
+        make clean
+    fi
     rm -rf CMakeCache.txt CMakeFiles cmake_install.cmake dynadjust Makefile
-    make distclean
 else
     mkdir ./build-gcc
     cd ./build-gcc
 fi
 
-cp ../FindXercesC_ubunutu.cmake ./
-cp ../FindMKL_ubuntu.cmake ./
-cp ../FindXSD.cmake ./
+cp ../FindXercesC_ubuntu.cmake ./FindXercesC.cmake
+# XercesC is special
+
+cp ../FindMKL.cmake ./
+cp ../FindXSD_ubuntu.cmake ./FindXSD.cmake
 
 REL_BUILD_TYPE="Release"
 DBG_BUILD_TYPE="Debug"
@@ -91,7 +114,7 @@ fi
 
 cmake ../
 
-make -j
+make -j 4
 
 #exit
 
@@ -108,6 +131,10 @@ fi
 
 if [ ! -d $DYNADJUST_INSTALL_PATH ]; then
     sudo mkdir $DYNADJUST_INSTALL_PATH
+fi
+
+if [ ! -d ~/bin ]; then
+    mkdir ~/bin
 fi
 
 echo "Copying libraries and binaries to $DYNADJUST_INSTALL_PATH ..."
