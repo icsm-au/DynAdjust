@@ -42,6 +42,10 @@ popd
 # build and install DynAdjust
 sh -c 'git clone https://github.com/icsm-au/DynAdjust.git'
 pushd DynAdjust/dynadjust
+cp -f /tmp/scripts/make_dynadjust_gcc_ubuntu.sh ./
+cp -f /tmp/scripts/CMakeLists.release.txt ./
+cp -f /tmp/scripts/FindXercesC_ubuntu.cmake ./
+cp -f /tmp/scripts/FindXSD_ubuntu.cmake ./
 sudo sh make_dynadjust_gcc_ubuntu.sh release
 popd
 
