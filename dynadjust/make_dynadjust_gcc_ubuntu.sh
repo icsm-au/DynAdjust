@@ -44,7 +44,9 @@ else
 fi
 
 cp ../FindXercesC_ubuntu.cmake ./FindXercesC.cmake
-# XercesC is special
+# TODO XercesC is special
+# This file seems to be unnecessary for CMake (version 3.10.2) for include path?
+# however we may still need to specify XercesC libary for linker?
 
 cp ../FindMKL.cmake ./
 cp ../FindXSD_ubuntu.cmake ./FindXSD.cmake
