@@ -9,7 +9,7 @@ add_subdirectory (${CMAKE_SOURCE_DIR}/dynadjust/dnageoid ${CMAKE_BINARY_DIR}/dyn
 
 add_definitions (-DBUILD_GEOID_EXE)
 
-include_directories (../../..)
+include_directories (${PROJECT_SOURCE_DIR})
 
 add_executable (${PROJECT_NAME}
                 ${CMAKE_SOURCE_DIR}/include/config/dnaprojectfile.cpp
