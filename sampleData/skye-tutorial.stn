@@ -1,0 +1,13 @@
+!#=DNA 3.01 STN    26.06.2017         GDA94    01.01.1994         6
+* Created by:   dnaInterop.dll, DynaNet file exchange library. 
+* Version:      3.3.0, Release (64-bit). 
+* Build:        Mar 16 2017, 23:02:51 (MSVC++ 10.0)
+* File type:    Station file
+* Project name: skye-tutorial
+* Source files: skye.stn 
+261907650           FFF LLH      -38.0656499900      145.1052501400             32.2120    FRANKSTON PM  765
+302508300           FFF LLH      -38.0605865930      145.1149901690             37.6120    LYNDHURST PM  830
+302509800           FFF LLH      -38.0648545340      145.1147907930             48.7500    LYNDHURST PM  980
+302513640           FFF LLH      -38.0639589510      145.1143143410             44.3850    LYNDHURST PM 1364
+302513650           FFF LLH      -38.0640725180      145.1152627430             48.3990    LYNDHURST PM 1365
+302502400           FFF LLH      -38.0648929390      145.1159806180             58.2540    LYNDHURST PM  240, FORD
