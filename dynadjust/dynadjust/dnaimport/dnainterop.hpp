@@ -222,7 +222,7 @@ private:
 	string ParseAngularValue(const string& sBuf, const string& calling_function);
 	string ParseLinearValue(const string& sBuf, const string& msrName, const string& calling_function);
 	string ParseGPSMsrValue(const string& sBuf, const string& element, const string& calling_function);
-	string ParseGPSVarValue(const string& sBuf, const string& element, const UINT16 location, const UINT16 width, const string& calling_function);
+	string ParseGPSVarValue(const string& sBuf, const string& element, const UINT32 location, const UINT32 width, const string& calling_function);
 	string ParseInstrumentValue(const string& sBuf, const string& calling_function);
 	string ParseTargetValue(const string& sBuf, const string& calling_function);
 	string ParseTarget2Value(const string& sBuf, const string& calling_function);

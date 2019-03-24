@@ -148,7 +148,7 @@ void CDnaCovariance::WriteDynaMLMsr(std::ofstream* dynaml_stream, bool bSubMeasu
 
 void CDnaCovariance::WriteDNAMsr(std::ofstream* dynaml_stream, const dna_msr_fields& dmw, bool bSubMeasurement /*= false*/) const
 {
-	UINT16 pad(dmw.msr_type + dmw.msr_ignore + dmw.msr_inst + dmw.msr_targ1 + dmw.msr_targ2 + dmw.msr_gps);
+	UINT32 pad(dmw.msr_type + dmw.msr_ignore + dmw.msr_inst + dmw.msr_targ1 + dmw.msr_targ2 + dmw.msr_gps);
 	// X
 	*dynaml_stream << setw(pad) << " ";
 	*dynaml_stream <<

@@ -87,7 +87,7 @@ void dna_io_adj::print_stn_info_col_header(ostream& os,
 	os << setw(STATION) << left << "Station" << setw(CONSTRAINT) << left << "Const";
 
 	_it_str_const it_s;
-	UINT32 width;
+	UINT32 width(0);
 
 	UINT32 j(STATION+CONSTRAINT);
 	bool validType(true);

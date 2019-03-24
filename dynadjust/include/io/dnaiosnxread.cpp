@@ -232,7 +232,7 @@ bool dna_io_snx::parse_sinex_header(std::ifstream** snx_file, CDnaDatum& datum, 
 	/*
 	%=SNX 2.00 AUS 11:182:57860 IGS 11:157:00000 11:157:86370 P 00054 0 S          
 	*/
-	char c = (*snx_file)->peek();
+	char c = static_cast<char>((*snx_file)->peek());
 	if (c != '%')
 	{
 		// The SINEX file doesn't have a header.
@@ -249,7 +249,6 @@ bool dna_io_snx::parse_sinex_header(std::ifstream** snx_file, CDnaDatum& datum, 
 		getline((**snx_file), sBuf);
 	}
 	catch (...) {
-		stringstream ss;
 		ss << "parse_sinex_header(): Could not read from the SINEX file.  " << endl << ".";
 		throw boost::enable_current_exception(runtime_error(ss.str()));
 	}
@@ -955,7 +954,7 @@ void dna_io_snx::parse_sinex_stn(std::ifstream** snx_file, const char* sinexRec,
 				stn_ptr->SetXAxisStdDev_d(DoubleFromString<double>(trimstr(sBuf.substr(68, 12))));
 			}
 			catch (const runtime_error& f) {
-				stringstream ss;
+				ss.str("");
 				ss << "  - line " << lineNo;
 				ss << ", column " <<  columnNo << endl;
 				ss << "  - " << f.what();
@@ -1044,13 +1043,12 @@ void dna_io_snx::parse_sinex_stn(std::ifstream** snx_file, const char* sinexRec,
 	// Do we need to remove sites in the case of unwanted discontinuities?
 	if (containsDiscontinuities_ && !applyDiscontinuities_)
 	{
-		UINT32 stn;
 		// Go in reverse direction so that stnCount can be used
-		for (stn=(*stnCount); stn>0; --stn)
+		for (ptrdiff_t i = static_cast<ptrdiff_t>(*stnCount); i>0; --i)
 		{
-			if (!siteOccurrence_.at(stn-1).last_occurrence)
+			if (!siteOccurrence_.at(i-1).last_occurrence)
 			{
-				vStations->erase(vStations->begin() + (stn - 1));
+				vStations->erase(vStations->begin() + (i - 1));
 				parsestn_tally.removestation("FFF");
 			}
 		}
@@ -1097,7 +1095,6 @@ void dna_io_snx::parse_sinex_msr(std::ifstream** snx_file, const char* sinexRec,
 	// default covariance matrix assumes 
 	matrix_2d covariance_all(dimension_all, dimension_all);
 	char cBuf[MAX_RECORD_LENGTH];
-	char* p;
 
 	// Get all covariances (whether discontinuities or velocities exist or not) and store
 	// in covariance_all.  The unwanted elements will be stripped later
@@ -1113,13 +1110,13 @@ void dna_io_snx::parse_sinex_msr(std::ifstream** snx_file, const char* sinexRec,
 		if (cBuf[0] == '-')
 			break;
 
-		p = cBuf;
+		char* p = cBuf;
 		while (*p == ' ')
 			p++;
 
 		if ((count = GetFields(p, ' ', true, "ddfff", &param1, &param2, &dparam[0], &dparam[1], &dparam[2])) < 3)
 		{
-			stringstream ss;
+			ss.str("");
 			ss << "parse_sinex_msr: Failed to read covariance elements from the record  " << cBuf << ".";
 			throw boost::enable_current_exception(runtime_error(ss.str()));
 		}
@@ -1317,7 +1314,7 @@ void dna_io_snx::parse_sinex_msr(std::ifstream** snx_file, const char* sinexRec,
 
 	UINT32 cov_count, ci;
 
-	for (UINT32 k, c, p(0); p<vStations->size(); ++p)
+	for (UINT32 p(0); p<vStations->size(); ++p)
 	{
 		dnaGpsPoint.reset(new CDnaGpsPoint);
 		dnaGpsPoint->SetType("Y");
@@ -1343,7 +1340,7 @@ void dna_io_snx::parse_sinex_msr(std::ifstream** snx_file, const char* sinexRec,
 		dnaGpsPoint->SetYAxis(vStations->at(p)->GetYAxis());
 		dnaGpsPoint->SetZAxis(vStations->at(p)->GetZAxis());
 
-		k = p * 3;
+		UINT32 k = p * 3;
 
 		dnaGpsPoint->SetSigmaXX(covariance.get(k,k));
 		dnaGpsPoint->SetSigmaXY(covariance.get(k,k+1));
@@ -1355,7 +1352,7 @@ void dna_io_snx::parse_sinex_msr(std::ifstream** snx_file, const char* sinexRec,
 		cov_count = static_cast<UINT32>(vStations->size()) - p - 1;
 		
 		// add covariances
-		for (c=0; c<cov_count; ++c)
+		for (UINT32 c=0; c<cov_count; ++c)
 		{
 			ci = 3 + k + (c * 3);
 

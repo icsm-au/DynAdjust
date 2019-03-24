@@ -225,7 +225,6 @@ _SEGMENT_STATUS_ dna_segment::SegmentNetwork(project_settings* p, string* succes
 		trace_file << "Block " << currentBlock_ << "..." << endl;
 	
 	cpu_timer time;
-	streamsize ssz = 0;
 
 	v_ContiguousNetList_.clear();
 	v_ContiguousNetList_.push_back(currentNetwork_ = 0);
@@ -548,7 +547,7 @@ void dna_segment::BuildNextBlock()
 		SignalExceptionSerialise("BuildNextBlock(): An invalid junction list has been created.  This is most likely a bug.", 0, NULL);
 	}
 
-	UINT32 stn_index, previousJSLSize(static_cast<UINT32>(vCurrJunctStnList_.size()));
+	UINT32 stn_index;
 	UINT32 currentTotalSize;
 	bool block_threshold_reached = false;
 
@@ -1063,7 +1062,7 @@ void dna_segment::SignalExceptionSerialise(const string& msg, const int& i, cons
 
 void dna_segment::LoadAssociationFiles(const string& aslfileName, const string& amlfileName)
 {
-	UINT32 stn, stnCount;
+	UINT32 stn, stnCount(0);
 	
 	try {
 		dna_io_asl asl;

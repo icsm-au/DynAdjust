@@ -1258,7 +1258,7 @@ matrix_2d matrix_2d::gaussianinverse()
 
 	identity();
 	
-	int nRow, nCol, k, rows(_rows), columns(_cols);
+	int nRow, nCol, k, columns(_cols);
 	double dTemp;
 	const double epsilon = PRECISION_1E35;
 
