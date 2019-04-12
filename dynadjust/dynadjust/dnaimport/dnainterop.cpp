@@ -376,8 +376,6 @@ _PARSE_STATUS_ dna_import::ParseInputFile(const string& fileName, vdnaStnPtr* vS
 		SignalExceptionParse(ss.str(), 0);
 	}
 	
-	size_t pos = 0;
-
 	/////////////////////////////////////////
 	// Test file type and handle accordingly
 	//
@@ -1531,7 +1529,7 @@ void dna_import::ParseDNAMSR(vdnaStnPtr* vStations, pvdnaMsrPtr vMeasurements, P
 		try {
 			tmp = trimstr(sBuf.substr(dml_.msr_type, 1));
 			cType = (tmp.c_str())[0];
-			cType = toupper(cType);
+			cType = static_cast<char>(toupper(cType));
 		}
 		catch (...) {
 			stringstream ss;
@@ -2637,7 +2635,7 @@ string dna_import::ParseGPSMsrValue(const string& sBuf, const string& element, c
 	return "";
 }
 
-string dna_import::ParseGPSVarValue(const string& sBuf, const string& element, const UINT16 location, const UINT16 width, const string& calling_function)
+string dna_import::ParseGPSVarValue(const string& sBuf, const string& element, const UINT32 location, const UINT32 width, const string& calling_function)
 {
 	try {
 		return trimstr(sBuf.substr(location, width));		// variance
@@ -3486,7 +3484,6 @@ void dna_import::ExtractAssociatedStns(vdnaMsrPtr* vMeasurements, pvstring pvUse
 
 		if (_it_msr->get()->GetFirst().empty())
 		{
-			size_t msr_no(distance(vMeasurements->begin(), _it_msr));
 			throw XMLInteropException("Empty \"First\" station name.", 0);
 		}
 
@@ -6184,8 +6181,6 @@ void dna_import::FindUnusedStationsInIgnoredMeasurements(vdnaMsrPtr* vMeasuremen
 	vASLPtr::iterator _it_asl(vAssocStnList->begin()), _it_asl_begin(vAssocStnList->begin());
 
 	it_vUINT32 it_ignmsr, _it_stn_newend;
-
-	bool invalid(true);
 
 	vector<CDnaDirection>* vDirns;
 	vector<CDnaDirection>::iterator it_Dirns;

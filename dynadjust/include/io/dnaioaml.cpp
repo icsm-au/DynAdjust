@@ -301,7 +301,6 @@ void dna_io_aml::write_aml_file_txt(const string& bms_filename, const string& am
 	it_vUINT32_const _it_aml(vbinary_aml->begin());
 	
 	UINT32 stn_index(0);
-	UINT32 msrcount(0);
 
 	UINT32 nextAMLStationIndex(vAssocStnList->at(stn_index)->GetAMLStnIndex() + vAssocStnList->at(stn_index)->GetAssocMsrCount());
 	UINT32 currAMLStationIndex(0);

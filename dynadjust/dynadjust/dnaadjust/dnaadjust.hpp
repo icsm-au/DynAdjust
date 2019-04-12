@@ -295,7 +295,7 @@ public:
 	inline UINT32 GetUnknownsCount() const { return unknownParams_; }
 	inline double GetChiSquared() const { return chiSquared_; }
 	inline double GetSigmaZero() const { return sigmaZero_; }
-	inline double GetPotentialOutlierCount() const { return potentialOutlierCount_; }
+	inline UINT32 GetPotentialOutlierCount() const { return potentialOutlierCount_; }
 	inline double GetChiSquaredUpperLimit() const { return chiSquaredUpperLimit_; }
 	inline double GetChiSquaredLowerLimit() const { return chiSquaredLowerLimit_; }
 	inline double GetGlobalPelzerRel() const { return globalPelzerReliability_; }
@@ -412,7 +412,7 @@ private:
 	bool InitialiseandValidateMsrPointer(const it_vUINT32& _it_block_msr, it_vmsr_t& _it_msr);
 	bool InitialiseMeasurement(pit_vmsr_t _it_msr, bool buildnewMatrices);
 
-	void RebuildNormals(const UINT32 block, adjustOperation DIRECTION, bool AddConstraintStationstoNormals, bool BackupNormals);
+	void RebuildNormals(const UINT32 block, adjustOperation direction, bool AddConstraintStationstoNormals, bool BackupNormals);
 	void UpdateAdjustment(bool iterate);	
 	void ValidateandFinaliseAdjustment(cpu_timer& tot_time);
 	void PrintAdjustmentStatus();

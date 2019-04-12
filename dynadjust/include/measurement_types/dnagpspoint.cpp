@@ -330,7 +330,7 @@ void CDnaGpsPoint::WriteDNAMsr(std::ofstream* dynaml_stream, const dna_msr_field
 	*dynaml_stream << endl;
 
 	UINT32 precision = 4;
-	UINT16 pad(dmw.msr_type + dmw.msr_ignore + dmw.msr_inst + dmw.msr_targ1 + dmw.msr_targ2);
+	UINT32 pad(dmw.msr_type + dmw.msr_ignore + dmw.msr_inst + dmw.msr_targ1 + dmw.msr_targ2);
 
 	// X
 	*dynaml_stream << setw(pad) << " ";

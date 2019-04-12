@@ -53,6 +53,7 @@ dna_adjust::dna_adjust()
 	, isPreparing_(false)
 	, isAdjusting_(false)
 	, isCombining_(false)
+	, forward_(true)
 	, isFirstTimeAdjustment_(true)
 	, currentBlock_(0)
 	, blockCount_(1)
@@ -1338,7 +1339,6 @@ void dna_adjust::CarryStnEstimatesandVariancesReverse(const UINT32& nextBlock, c
 	UINT32 est(0);
 
 	matrix_2d* junctionVariances(&v_junctionVariances_.at(nextBlock));
-	matrix_2d* junctionEstimates(&v_junctionEstimatesRev_.at(thisBlock));
 	matrix_2d* aposterioriVariances(&v_normals_.at(thisBlock));
 	matrix_2d* estimatedStationsThis(&v_estimatedStations_.at(thisBlock));
 	matrix_2d* estimatedStationsNext(&v_estimatedStations_.at(nextBlock));
@@ -2732,7 +2732,7 @@ bool dna_adjust::PrintEstimatedStationCoordinatestoSNX(string& sinex_filename)
 	string sinexBasename = projectSettings_.g.output_folder + FOLDER_SLASH + projectSettings_.g.network_name;
 	stringstream ssBlock;
 
-	matrix_2d *estimates, *variances;
+	matrix_2d *estimates = nullptr, *variances = nullptr;
 
 	bool success(true);
 
@@ -3454,7 +3454,7 @@ void dna_adjust::AdjustPhasedBlock1()
 	
 
 // Used to rebuild normals for stage adjustments
-void dna_adjust::RebuildNormals(const UINT32 block, adjustOperation DIRECTION, bool AddConstraintStationstoNormals, bool BackupNormals)
+void dna_adjust::RebuildNormals(const UINT32 block, adjustOperation direction, bool AddConstraintStationstoNormals, bool BackupNormals)
 {
 	// Update measurements-computed vector using new estimatess
 	FillDesignNormalMeasurementsMatrices(false, block, false);
@@ -3467,7 +3467,7 @@ void dna_adjust::RebuildNormals(const UINT32 block, adjustOperation DIRECTION, b
 		return;
 
 	// Add parameter stations
-	switch (DIRECTION)
+	switch (direction)
 	{
 	case __forward__:
 
@@ -4342,7 +4342,6 @@ void dna_adjust::AdjustPhasedReverse()
 	forward_ = false;
 	isCombining_ = false;
 	UINT32 currentBlock(blockCount_ - 1);
-	UINT32 pseudomsrJSLCount(0), previousBlock;
 
 	// For staged adjustments, load the last block from mapped memory file
 	if (projectSettings_.a.stage)
@@ -4351,8 +4350,6 @@ void dna_adjust::AdjustPhasedReverse()
 	for (UINT32 block=0; block<blockCount_; ++block, --currentBlock)
 	{
 		SetcurrentBlock(currentBlock);
-	
-		previousBlock = currentBlock + 1;
 
 		// If currentBlock is a single block, then there is no need to perform a 
 		// reverse adjustment (i.e. continue);
@@ -4803,7 +4800,6 @@ void dna_adjust::UpdateDesignNormalMeasMatrices(pit_vmsr_t _it_msr, UINT32& desi
 			measMinusComp, estimatedStations, normals, design, AtVinv, buildnewMatrices);
 		break;
 	default:
-		stringstream ss;
 		ss << "UpdateDesignNormalMeasMatrices(): Unknown measurement type - '" <<
 			(*_it_msr)->measType << "'." << endl;
 		SignalExceptionAdjustment(ss.str(), block);
@@ -7453,7 +7449,7 @@ void dna_adjust::Solve(bool COMPUTE_INVERSE, const UINT32& block)
 		//
 
 		// 1. Create scalar matrix
-		matrix_2d *S, *SN;
+		matrix_2d *S = nullptr, *SN = nullptr;
 
 		if (projectSettings_.a.scale_normals_to_unity)
 		{
@@ -7881,8 +7877,6 @@ void dna_adjust::UpdateMsrTstatistic_GXY(it_vmsr_t& _it_msr)
 
 void dna_adjust::UpdateMsrTstatistic(const UINT32& block)
 {
-	UINT32 measurement_index(0);
-
 	it_vUINT32 _it_block_msr;
 	it_vmsr_t _it_msr;
 
@@ -10413,8 +10407,6 @@ void dna_adjust::PrintAdjMeasurements(v_uint32_u32u32_pair msr_block, bool print
 	if (projectSettings_.o._database_ids)
 		_it_dbid = v_msr_db_map.begin();
 
-	UINT32 precadjmsr_row(0);
-
 	for (_it_block_msr=msr_block.begin(); _it_block_msr!=msr_block.end(); ++_it_block_msr)
 	{
 		_it_msr = bmsBinaryRecords_.begin() + (_it_block_msr->first);
@@ -10712,7 +10704,6 @@ void dna_adjust::PrintCompMeasurements_GXY(const UINT32& block, it_vmsr_t& _it_m
 	UINT32 cluster_msr, cluster_count(_it_msr->vectorCount1);
 	UINT32 covariance_count;
 	bool nextElement(false);
-	bool yclusterLLH(false);
 	double computed;
 	string ignoreFlag;
 
@@ -12439,8 +12430,6 @@ void dna_adjust::LoadSegmentationMetrics()
 	// Remove duplicates from the parameterStations list and
 	// compute the total unknowns for the entire network	
 	strip_duplicates(parameterStations);
-
-	it_vUINT32 _it_const;
 
 	// Update "unknowns' count for whole of adjustment
 	for_each(parameterStations.begin(), parameterStations.end(),

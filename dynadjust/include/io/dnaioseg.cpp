@@ -63,8 +63,6 @@ void dna_io_seg::load_seg_file_header(const string& seg_filename, istream& seg_f
 	stringstream ss_err;	
 	ss_err << "load_seg_file_header(): An error was encountered when reading from " << seg_filename << "." << endl;
 
-	UINT32 blkCount(0), netID(0), jslCount(0), islCount(0), msrCount(0), stnCount(0);
-	
 	char line[PRINT_LINE_LENGTH];
 	memset(line, '\0', PRINT_LINE_LENGTH);
 		
