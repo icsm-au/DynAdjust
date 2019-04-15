@@ -3484,6 +3484,7 @@ void dna_import::ExtractAssociatedStns(vdnaMsrPtr* vMeasurements, pvstring pvUse
 
 		if (_it_msr->get()->GetFirst().empty())
 		{
+			// size_t msr_no(distance(vMeasurements->begin(), _it_msr));
 			throw XMLInteropException("Empty \"First\" station name.", 0);
 		}
 
