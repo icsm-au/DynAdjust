@@ -91,7 +91,7 @@ fi
 
 cmake ../
 
-make -j
+make -j2
 
 #exit
 
