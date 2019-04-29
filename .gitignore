@@ -1,0 +1,14 @@
+# CMake generated files
+CMakeCache.txt
+CMakeFiles
+Makefile
+cmake_install.cmake
+
+# Compiled Dynamic libraries
+*.so
+
+# ignore compiled dynadjust wrappers & binaries
+dynadjust/build-gcc/
+dynadjust/dynadjust/dna*wrapper/
+dynadjust/dynadjust/dynadjust/dynadjust
+
