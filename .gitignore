@@ -12,3 +12,8 @@ dynadjust/build-gcc/
 dynadjust/dynadjust/dna*wrapper/
 dynadjust/dynadjust/dynadjust/dynadjust
 
+*.suo
+*.VC.db
+*.VC.opendb
+*.json
+*.sqlite

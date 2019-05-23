@@ -814,6 +814,7 @@ bool dna_segment::AddtoCurrentMsrList(const UINT32& amlIndex, const vUINT32& msr
 		_it_aml = vAssocFreeMsrList_.begin() + vAssocStnList_.at(*_it_stn).GetAMLStnIndex();
 		msrCount = vASLCount_.at(*_it_stn);
 		
+		// consume measurement and decrement measurement count
 		for (m=0; m<msrCount; ++m, ++_it_aml)
 		{
 			// is this measurement ignored or already used?
