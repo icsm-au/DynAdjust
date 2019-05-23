@@ -167,7 +167,13 @@ void dna_import::UpdateEpoch(const vifm_t* vinput_file_meta)
 	// Inspect the first file that was loaded.
 	// Assume that the epoch in that file is the desired epoch.
 
-	string epoch = vinput_file_meta->at(0).epoch;
+	string epoch("");
+
+	if (vinput_file_meta->empty())
+		// Do nothing
+		return;
+
+	epoch = vinput_file_meta->at(0).epoch;
 
 	if (epoch.empty())
 		// Do nothing
