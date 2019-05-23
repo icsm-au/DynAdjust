@@ -577,6 +577,7 @@ int main(int argc, char* argv[])
 
 			if (vm.count(PLOT_MSRS))
 			{
+				str_toupper<int>(measurement_types);
 				for	(_it_str _it_msr(measurement_types.begin()); _it_msr!=measurement_types.end(); ++_it_msr)
 					p.p._separate_msrs.push_back((*_it_msr));
 			}
