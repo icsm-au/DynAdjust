@@ -435,6 +435,7 @@ string referenceepochFromEpsgCode(const U& epsgCode)
 		ss << "referenceepochFromEpsgCode: EPSG code " << epsgCode << " is not yet supported." << endl;
 		throw boost::enable_current_exception(runtime_error(ss.str()));
 	}
+	return "";
 }
 
 template <typename S, typename U>
@@ -506,6 +507,7 @@ S datumFromEpsgCode(const U& epsgCode)
 		ss << "datumFromEpsgCode: EPSG code " << epsgCode << " is not yet supported." << endl;
 		throw boost::enable_current_exception(runtime_error(ss.str()));
 	}
+	return "";
 }
 
 template <typename S>
@@ -578,6 +580,7 @@ bool validateEpsgCode(const U& epsgCode)
 		ss << "validateEpsgCode: EPSG code " << epsgCode << " is not yet supported." << endl;
 		throw boost::enable_current_exception(runtime_error(ss.str()));
 	}
+	return false;
 }
 
 }	// namespace epsg
