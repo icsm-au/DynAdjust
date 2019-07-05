@@ -1095,6 +1095,7 @@ void dna_io_snx::parse_sinex_msr(std::ifstream** snx_file, const char* sinexRec,
 	// default covariance matrix assumes 
 	matrix_2d covariance_all(dimension_all, dimension_all);
 	char cBuf[MAX_RECORD_LENGTH];
+	char* p;
 
 	// Get all covariances (whether discontinuities or velocities exist or not) and store
 	// in covariance_all.  The unwanted elements will be stripped later
@@ -1110,7 +1111,7 @@ void dna_io_snx::parse_sinex_msr(std::ifstream** snx_file, const char* sinexRec,
 		if (cBuf[0] == '-')
 			break;
 
-		char* p = cBuf;
+		p = cBuf;
 		while (*p == ' ')
 			p++;
 
@@ -1314,7 +1315,7 @@ void dna_io_snx::parse_sinex_msr(std::ifstream** snx_file, const char* sinexRec,
 
 	UINT32 cov_count, ci;
 
-	for (UINT32 p(0); p<vStations->size(); ++p)
+	for (UINT32 k, c, p(0); p<vStations->size(); ++p)
 	{
 		dnaGpsPoint.reset(new CDnaGpsPoint);
 		dnaGpsPoint->SetType("Y");
@@ -1340,7 +1341,7 @@ void dna_io_snx::parse_sinex_msr(std::ifstream** snx_file, const char* sinexRec,
 		dnaGpsPoint->SetYAxis(vStations->at(p)->GetYAxis());
 		dnaGpsPoint->SetZAxis(vStations->at(p)->GetZAxis());
 
-		UINT32 k = p * 3;
+		k = p * 3;
 
 		dnaGpsPoint->SetSigmaXX(covariance.get(k,k));
 		dnaGpsPoint->SetSigmaXY(covariance.get(k,k+1));
@@ -1352,7 +1353,7 @@ void dna_io_snx::parse_sinex_msr(std::ifstream** snx_file, const char* sinexRec,
 		cov_count = static_cast<UINT32>(vStations->size()) - p - 1;
 		
 		// add covariances
-		for (UINT32 c=0; c<cov_count; ++c)
+		for (c=0; c<cov_count; ++c)
 		{
 			ci = 3 + k + (c * 3);
 

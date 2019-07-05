@@ -408,7 +408,7 @@ void dna_segment::VerifyStationsandBuildBlock(bool validationOnly)
 		{			
 			// Ok, find it and remove it
 			if ((_it_freeisl = find_if(vfreeStnList_.begin(), vfreeStnList_.end(),
-				bind1st(equal_to<UINT32>(), _it_stnmap->second))) != vfreeStnList_.end())
+				bind1st(std::equal_to<UINT32>(), _it_stnmap->second))) != vfreeStnList_.end())
 			{
 				if (!validationOnly)
 					MoveFreeStnToInnerList(_it_freeisl, _it_stnmap->second);
