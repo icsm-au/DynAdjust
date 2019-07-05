@@ -2433,14 +2433,19 @@ string dna_import::ParseTarget2Value(const string& sBuf, const string& calling_f
 
 string dna_import::ParseStdDevValue(const string& sBuf, const string& calling_function)
 {
+	string tmp;
 	try {
-		return trimstr(sBuf.substr(dml_.msr_stddev, dmw_.msr_stddev));		// standard deviation
+		tmp = trimstr(sBuf.substr(dml_.msr_stddev, dmw_.msr_stddev));		// standard deviation
 	}
 	catch (...) {
 		SignalExceptionParseDNA(calling_function + "(): Could not extract standard deviation from the record:  ",
 			sBuf, dml_.msr_stddev);
 	}
-	return "";
+
+	if (DoubleFromString<double>(tmp) < PRECISION_1E25)
+		SignalExceptionParseDNA(calling_function + "(): Invalid standard deviation (" + tmp + "). Values cannot be zero or negative:  ",
+			sBuf, dml_.msr_stddev);
+	return tmp;
 }
 
 string dna_import::ParseInstHeightValue(const string& sBuf, const string& calling_function)

@@ -8,12 +8,14 @@ cmake_install.cmake
 *.so
 
 # ignore compiled dynadjust wrappers & binaries
-dynadjust/build-gcc/
-dynadjust/dynadjust/dna*wrapper/
-dynadjust/dynadjust/dynadjust/dynadjust
+dynadjust/build/
+dynadjust/bin/
 
 *.suo
 *.VC.db
 *.VC.opendb
 *.json
 *.sqlite
+*.ipch
+*.db-shm
+*.db-wal

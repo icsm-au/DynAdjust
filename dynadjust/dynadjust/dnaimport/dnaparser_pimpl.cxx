@@ -404,7 +404,14 @@ void DnaMeasurement_pimpl::StdDev(const ::std::string& StdDev)
 		if (StdDev.empty())
 		{
 			stringstream ss;
-			ss << "\"StdDev\" element cannot be empty for measurements (first station: " << _dnaCurrentMsr->GetFirst() << ").";
+			ss << "\"StdDev\" element cannot be empty for " << _dnaCurrentMsr->GetTypeC() << " measurements (first station: " << _dnaCurrentMsr->GetFirst() << ").";
+			throw XMLInteropException(ss.str(), 0);
+		}
+
+		if (DoubleFromString<double>(StdDev) < PRECISION_1E25)
+		{
+			stringstream ss;
+			ss << "\"StdDev\" element cannot contain a zero or negative value for " << _dnaCurrentMsr->GetTypeC() << " measurements (first station: " << _dnaCurrentMsr->GetFirst() << ").";
 			throw XMLInteropException(ss.str(), 0);
 		}
 	}

@@ -1373,8 +1373,6 @@ void DnaMeasurement_pskel::
 void DnaMeasurement_pskel::
 	ReferenceFrame (const ::std::string&)
 {
-	::xml_schema::parsing parsing_error;
-	unsigned long l = parsing_error.diagnostics().at(0).line();
 }
 
 void DnaMeasurement_pskel::
