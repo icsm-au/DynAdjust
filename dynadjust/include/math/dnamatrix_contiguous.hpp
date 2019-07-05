@@ -223,42 +223,42 @@ public:
 	// overloaded operators
 	// equality
 	bool operator==(const matrix_2d& rhs) const {
-		if (_mem_cols != _mem_cols)
+		if (_mem_cols != rhs._mem_cols)
 			return false;
-		if (_mem_rows != _mem_rows)
+		if (_mem_rows != rhs._mem_rows)
 			return false;
-		if (_cols != _cols)
+		if (_cols != rhs._cols)
 			return false;
-		if (_rows != _rows)
+		if (_rows != rhs._rows)
 			return false;
-		if (*_buffer != *_buffer)
+		if (*_buffer != *rhs._buffer)
 			return false;
-		if (_maxvalCol != _maxvalCol)
+		if (_maxvalCol != rhs._maxvalCol)
 			return false;
-		if (_maxvalRow != _maxvalRow)
+		if (_maxvalRow != rhs._maxvalRow)
 			return false;
-		if (_matrixType != _matrixType)
+		if (_matrixType != rhs._matrixType)
 			return false;
 		return true;
 	}
 
 	// equality
 	bool operator!=(const matrix_2d& rhs) const {
-		if (_mem_cols == _mem_cols)
+		if (_mem_cols == rhs._mem_cols)
 			return false;
-		if (_mem_rows == _mem_rows)
+		if (_mem_rows == rhs._mem_rows)
 			return false;
-		if (_cols == _cols)
+		if (_cols == rhs._cols)
 			return false;
-		if (_rows == _rows)
+		if (_rows == rhs._rows)
 			return false;
-		if (*_buffer == *_buffer)
+		if (*_buffer == *rhs._buffer)
 			return false;
-		if (_maxvalCol == _maxvalCol)
+		if (_maxvalCol == rhs._maxvalCol)
 			return false;
-		if (_maxvalRow == _maxvalRow)
+		if (_maxvalRow == rhs._maxvalRow)
 			return false;
-		if (_matrixType == _matrixType)
+		if (_matrixType == rhs._matrixType)
 			return false;
 		return true;
 	}

@@ -197,7 +197,7 @@ bool CDnaDirectionSet::IsRepeatedDirection(string strTarget)
 	vector<CDnaDirection>::const_iterator _it_dirn;
 
 	if (find_if(m_vTargetDirections.begin(), m_vTargetDirections.end(),
-		bind2nd(operator_on_mem(&CDnaDirection::m_strTarget, equal_to<string>()), strTarget)) != m_vTargetDirections.end())
+		bind2nd(operator_on_mem(&CDnaDirection::m_strTarget, std::equal_to<string>()), strTarget)) != m_vTargetDirections.end())
 		return true;
 	return false;
 }

@@ -34,6 +34,14 @@
 #ifndef DYNA_ML_PSKEL_HXX
 #define DYNA_ML_PSKEL_HXX
 
+
+#if defined(_MSC_VER)
+#if defined(LIST_INCLUDES_ON_BUILD) 
+#pragma message("  " __FILE__) 
+#endif
+#endif
+
+
 // Begin prologue.
 //
 //
