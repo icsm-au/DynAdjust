@@ -363,7 +363,7 @@ void SplitDelimitedString(const T& str, const T& separator, vector<T>* tokenList
 	typedef tokenizer<char_separator<char> > tokenizer;
 	char_separator<char> sepa(separator.c_str());
 	tokenizer tokens(str, sepa);
-
+	tokenList->clear();
 	try {
 		for_each(tokens.begin(), tokens.end(), 
 			[&tokenList](const string& s) {

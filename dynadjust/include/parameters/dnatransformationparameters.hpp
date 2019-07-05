@@ -1591,11 +1591,18 @@ class ITRF2014_GDA2020 : public _itrf2014_to_gda2020_<T, U>
 public:
 };
 
+
+////////////////////////////////////////////////////////////////////////////////////
+// PLATE MOTION MODELS
+
+// AUS
 template <class T, class U>
 class AUS_PLATE_MOTION_MODEL : public _itrf2014_to_gda2020_<T, U>
 {
 public:
 };
+
+
 ////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -2114,6 +2121,9 @@ class ITRF1996_GDA94 : public _itrf1996_to_gda94_<T, U>
 {
 public:
 };
+
+
+
 
 }	// namespace datum_parameters
 }	// namespace dynadjust
