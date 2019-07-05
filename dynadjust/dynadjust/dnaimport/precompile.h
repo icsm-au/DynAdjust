@@ -3,6 +3,7 @@
 // are changed infrequently
 //
 
+
 #pragma once
 
 #include <include/config/dnaexports.hpp>
@@ -29,6 +30,7 @@
 #include <include/functions/dnatemplatestnmsrfuncs.hpp>
 #include <include/functions/dnaiostreamfuncs.hpp>
 #include <include/functions/dnastringfuncs.hpp>
+#include <include/functions/dnafilepathfuncs.hpp>
 
 #include <include/parameters/dnaepsg.hpp>
 #include <include/parameters/dnadatum.hpp>

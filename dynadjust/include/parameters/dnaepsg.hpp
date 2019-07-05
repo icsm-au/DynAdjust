@@ -435,6 +435,7 @@ string referenceepochFromEpsgCode(const U& epsgCode)
 		ss << "referenceepochFromEpsgCode: EPSG code " << epsgCode << " is not yet supported." << endl;
 		throw boost::enable_current_exception(runtime_error(ss.str()));
 	}
+	return "";
 }
 
 template <typename S, typename U>

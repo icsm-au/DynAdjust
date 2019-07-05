@@ -3503,7 +3503,8 @@ void dna_plot::LoadPosUncertaintyFile()
 		apu_file.ignore(PRINT_LINE_LENGTH, '\n');		// Version
 		apu_file.ignore(PRINT_LINE_LENGTH, '\n');		// Build
 		apu_file.ignore(PRINT_LINE_LENGTH, '\n');		// File created
-
+		apu_file.ignore(PRINT_LINE_LENGTH, '\n');		// File name
+		apu_file.ignore(PRINT_LINE_LENGTH, '\n');		// 
 		apu_file.ignore(PRINT_LINE_LENGTH, '\n');		// PU Confidence interval
 
 		apu_file.getline(line, PRINT_LINE_LENGTH);		// Stations printed in blocks
@@ -3548,6 +3549,7 @@ void dna_plot::LoadPosUncertaintyFile()
 		if (fullCovarianceMatrix)
 			dataBlocks = true;
 		
+		apu_file.ignore(PRINT_LINE_LENGTH, '\n');		// ------------------------
 		apu_file.ignore(PRINT_LINE_LENGTH, '\n');		// 
 		apu_file.ignore(PRINT_LINE_LENGTH, '\n');		// Positional uncertainty of ...
 		apu_file.ignore(PRINT_LINE_LENGTH, '\n');		// ------------------------

@@ -8,6 +8,12 @@
 #ifndef DYNA_ML_PIMPL_HXX
 #define DYNA_ML_PIMPL_HXX
 
+#if defined(_MSC_VER)
+#if defined(LIST_INCLUDES_ON_BUILD) 
+#pragma message("  " __FILE__) 
+#endif
+#endif
+
 #include <dynadjust/dnaimport/dnaparser_pskel.hxx>
 #include <include/measurement_types/dnameasurement_types.hpp>
 #include <include/functions/dnatemplatestnmsrfuncs.hpp>
