@@ -110,8 +110,6 @@ S measurement_name(const C& type)
 }
 
 
-
-
 // forward declarations
 class CDnaGpsBaseline;
 class CDnaGpsPoint;
