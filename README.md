@@ -33,3 +33,9 @@ NOTE: DynAdjust makes use of Boost C++, Apache's Xerces-C++ XML Parser (Apache 2
 * https://www.codesynthesis.com/products/xsd/license.xhtml
 
 The free licence of CodeSynthesis XSD is GPL2, which requires any software that uses it to also be open source.  However, the CodeSynthesis site above states that you can use XSD generated code in proprietary applications provided that the lines of code do not exceed 10,000 lines.  The files generated for DynaML from XSD (dnaparser_pimpl.hxx/cxx and dnaparser_pskel.hxx/cxx), all of which have been heavily modified after they were originally generated, contain less than 10,000 lines. 
+
+DynAdjust also makes use of Intel's performance libraries - Math Kernel Library (MKL) and Threaded Building Blocks (TBB). Given the size of the associated libraries, it is not possible to upload the binaries to this site. Please visit the following website to download the latest versions:
+
+* https://software.seek.intel.com/performance-libraries
+
+As stated on this website, Intel's performance libraries are *free to use for personal and commercial applications.*
