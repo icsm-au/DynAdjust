@@ -5,9 +5,9 @@ read -p "Press [Enter] key to start installation..."
 sudo dnf install bzip2 boost boost-devel cmake make gcc-c++ git wget
 #
 # install intel mkl
-#read -p "Press [Enter] key to install Intel MKL..."
-#sudo dnf config-manager --add-repo https://yum.repos.intel.com/mkl/setup/intel-mkl.repo
-#sudo rpm --import https://yum.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB
+read -p "Press [Enter] key to install Intel MKL..."
+sudo dnf config-manager --add-repo https://yum.repos.intel.com/mkl/setup/intel-mkl.repo
+sudo rpm --import https://yum.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB
 sudo dnf install intel-mkl
 #
 # INSTALL XERCES-C (3.1.4)
