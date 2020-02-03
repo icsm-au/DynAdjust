@@ -1200,8 +1200,11 @@ int main(int argc, char* argv[])
 		cout << setw(PRINT_VAR_PAD) << left << "  Binary measurement output file: " << p.i.bms_file << endl;
 		
 		if (!p.i.reference_frame.empty())
-			cout << setw(PRINT_VAR_PAD) << left << "  Default reference frame" << p.i.reference_frame << endl;
+			cout << setw(PRINT_VAR_PAD) << left << "  Default reference frame:" << p.i.reference_frame << endl;
 	
+		if (p.i.override_input_rfame)
+			cout << setw(PRINT_VAR_PAD) << left << "  Override input file ref frame:" << yesno_string(p.i.override_input_rfame) << endl;
+
 		if (p.i.export_dynaml)
 		{
 			if (p.i.export_single_xml_file)
