@@ -19,3 +19,4 @@ dynadjust/bin/
 *.ipch
 *.db-shm
 *.db-wal
+*.user
