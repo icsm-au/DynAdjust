@@ -5,7 +5,11 @@
 # XSD_FOUND       - Do not attempt to use Xerces if "no" or undefined.
 
 # SET THE ROOT DIRECTORY WHERE XERCES-C++ IS INSTALLED
-SET(XSD_INCLUDE_DIR /opt/xsd/xsd-4.0.0-x86_64-linux-gnu/libxsd/)
+IF (UNIX)
+  SET (XSD_INCLUDE_DIR /opt/xsd/xsd-4.0.0-x86_64-linux-gnu/libxsd/)
+ELSE ()
+  SET (XSD_INCLUDE_DIR "C:/Program Files (x86)/CodeSynthesis XSD 4.0/include")
+ENDIF ()  
 
 FIND_PATH(XSD_INCLUDE_DIR xsd/cxx/config.hxx
     PATHS "${XSD_INCLUDE_DIR}")

@@ -10,22 +10,29 @@
 set(MKLROOT_PATH $ENV{MKLROOT})
 set(ICCROOT_PATH "$ENV{ICCROOT}")
 
-if (NOT MKLROOT_PATH)
-	# try to find at /opt/intel/mkl
-		
-	if (EXISTS "/opt/intel/mkl")
-		set(MKLROOT_PATH "/opt/intel/mkl")
-	endif (EXISTS "/opt/intel/mkl")
-endif (NOT MKLROOT_PATH)
+if (UNIX)
 
-if (NOT ICCROOT_PATH)
-	# try to find at /opt/intel/lib
+	if (NOT MKLROOT_PATH)
+		# try to find at /opt/intel/mkl
 		
-	if (EXISTS "/opt/intel")
-		set(ICCROOT_PATH "/opt/intel")
-	endif (EXISTS "/opt/intel")
-endif (NOT ICCROOT_PATH)
+		if (EXISTS "/opt/intel/mkl")
+			set(MKLROOT_PATH "/opt/intel/mkl")
+		endif (EXISTS "/opt/intel/mkl")
+	endif (NOT MKLROOT_PATH)
 
+	if (NOT ICCROOT_PATH)
+		# try to find at /opt/intel/lib
+		
+		if (EXISTS "/opt/intel")
+			set(ICCROOT_PATH "/opt/intel")
+		endif (EXISTS "/opt/intel")
+	endif (NOT ICCROOT_PATH)
+else ()
+  # Windows
+  
+  set(MKLROOT_PATH "C:/Program Files (x86)/IntelSWTools/compilers_and_libraries_2019.2.190/windows/mkl")
+
+endif ()
 
 # Stage 2: find include path and libraries
 if (ICCROOT_PATH)
