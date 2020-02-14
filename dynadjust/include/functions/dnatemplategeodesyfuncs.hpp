@@ -217,8 +217,11 @@ void CartToGeo(const T& X, const T& Y, const T& Z,
 	else if (x < 0.0 && y < 0.0)
 		*longitude = -(PI - *longitude);
 
-	if (*longitude < 0.)
-		*longitude += TWO_PI;
+	// The following line causes an issue for west longitudes, which by nature are negative!
+	// Not sure why this was introduced.  Removing the conditional absolute has no adverse impact on
+	// positions which are located in the eastern hemisphere,
+	//if (*longitude < 0.)
+	//	*longitude += TWO_PI;
 	
 	// Compute height
 	*height = sqrt(((p - p_E) * (p - p_E)) + ((z - Z_E) * (z - Z_E)));

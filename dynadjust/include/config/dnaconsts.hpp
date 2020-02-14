@@ -40,10 +40,10 @@ const UINT16 GEOLAB_COUT(2);
 const UINT16 NEWGAN_COUT(3);
 const UINT16 GMT_OUT(4);
 
-const char* const DEFAULT_DATUM(GDA94_s);
-const char* const DEFAULT_EPSG_S(GDA94_c);
-const UINT32 DEFAULT_EPSG_U(GDA94_i);
-const char* const DEFAULT_EPOCH(GDA94_epoch);
+const char* const DEFAULT_DATUM(GDA2020_s);
+const char* const DEFAULT_EPSG_S(GDA2020_c);
+const UINT32 DEFAULT_EPSG_U(GDA2020_i);
+const char* const DEFAULT_EPOCH(GDA2020_epoch);
 
 const char* const XYZ_type("XYZ");
 const char* const LLh_type("LLh");
