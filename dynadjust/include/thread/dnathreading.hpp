@@ -96,7 +96,7 @@ public:
 
 	inline string print_adjusted_forward_blocks() {
 		stringstream ss("");
-		lock_guard<mutex> lock(forward_mutex);
+		boost::lock_guard<boost::mutex> lock(forward_mutex);
 		ss << "Forward blocks (" << v_fwd_blocks.size() << "):" << endl;
 		for (UINT32 i=0; i<v_fwd_blocks.size(); ++i)
 			if (v_fwd_blocks.at(i).adjusted)
@@ -105,7 +105,7 @@ public:
 	}
 
 	inline string print_adjusted_reverse_blocks() {
-		lock_guard<mutex> lock(reverse_mutex);
+		boost::lock_guard<boost::mutex> lock(reverse_mutex);
 		stringstream ss;
 		ss << "Reverse blocks (" << v_fwd_blocks.size() << "):" << endl;
 		for (UINT32 i=0; i<v_rev_blocks.size(); ++i)
@@ -124,52 +124,52 @@ public:
 
 	// Set started state to true
 	inline void combine_run_started() {					// combine run
-		lock_guard<mutex> lock(cmb_state_mutex);
+		boost::lock_guard<boost::mutex> lock(cmb_state_mutex);
 		combine_is_running = true; 
 	}
 	inline void forward_run_started() {					// forward run 
-		lock_guard<mutex> lock(fwd_state_mutex);
+		boost::lock_guard<boost::mutex> lock(fwd_state_mutex);
 		forward_is_running = true; 
 	}
 	inline void reverse_run_started() {					// reverse run
-		lock_guard<mutex> lock(rev_state_mutex);
+		boost::lock_guard<boost::mutex> lock(rev_state_mutex);
 		reverse_is_running = true; 
 	}
 	
 	// Set finished state to true
 	inline void combine_run_stopped() {					// combine run
-		lock_guard<mutex> lock(cmb_state_mutex);		
+		boost::lock_guard<boost::mutex> lock(cmb_state_mutex);
 		combine_is_running = false;						
 	}													
 	inline void forward_run_finished() {				// forward run
-		lock_guard<mutex> lock(fwd_state_mutex);		
+		boost::lock_guard<boost::mutex> lock(fwd_state_mutex);
 		forward_is_running = false;						
 	}													
 	inline void reverse_run_finished() {				// reverse run
-		lock_guard<mutex> lock(rev_state_mutex);
+		boost::lock_guard<boost::mutex> lock(rev_state_mutex);
 		reverse_is_running = false; 
 	}
 	
 	// Get running state
 	inline bool get_combine_state() {		// combine run
-		lock_guard<mutex> lock(cmb_state_mutex);  
+		boost::lock_guard<boost::mutex> lock(cmb_state_mutex);
 		return combine_is_running;				  
 	}											  
 	inline bool get_forward_state() {		// forward run
-		lock_guard<mutex> lock(fwd_state_mutex);  
+		boost::lock_guard<boost::mutex> lock(fwd_state_mutex);
 		return forward_is_running;				  
 	}											  
 	inline bool get_reverse_state() {		// reverse run
-		lock_guard<mutex> lock(rev_state_mutex);
+		boost::lock_guard<boost::mutex> lock(rev_state_mutex);
 		return reverse_is_running; 
 	}
 	
 	inline bool is_forward_finished() {		// forward run
-		lock_guard<mutex> lock(fwd_state_mutex);  
+		boost::lock_guard<boost::mutex> lock(fwd_state_mutex);
 		return forward_is_running == false;				  
 	}											  
 	inline bool is_reverse_finished() {		// reverse run
-		lock_guard<mutex> lock(rev_state_mutex);  
+		boost::lock_guard<boost::mutex> lock(rev_state_mutex);
 		return reverse_is_running == false;				  
 	}											  
 	
@@ -179,31 +179,31 @@ public:
 	inline bool any_still_running() { 
 		if (get_forward_state())
 			return true;		
-		lock_guard<mutex> lock_r(rev_state_mutex);
+		boost::lock_guard<boost::mutex> lock_r(rev_state_mutex);
 		return reverse_is_running; 
 	}
 	inline bool finished_all_runs() { 
 		if (get_forward_state())
 			return false;		
-		lock_guard<mutex> lock_r(rev_state_mutex);
+		boost::lock_guard<boost::mutex> lock_r(rev_state_mutex);
 		return !reverse_is_running; 
 	}
 	
 	inline void set_forward_block_adjusted(const T& block) {
-		lock_guard<mutex> lock(forward_mutex);
+		boost::lock_guard<boost::mutex> lock(forward_mutex);
 		v_fwd_blocks.at(block).solution();
 	}
 	inline void set_reverse_block_adjusted(const T& block) {
-		lock_guard<mutex> lock(reverse_mutex);
+		boost::lock_guard<boost::mutex> lock(reverse_mutex);
 		v_rev_blocks.at(block).solution();
 	}
 	
 	inline bool forward_block_adjusted(const T& block) {
-		lock_guard<mutex> lock(forward_mutex);
+		boost::lock_guard<boost::mutex> lock(forward_mutex);
 		return v_fwd_blocks.at(block).adjusted;
 	}	
 	inline bool reverse_block_adjusted(const T& block) {
-		lock_guard<mutex> lock(reverse_mutex);
+		boost::lock_guard<boost::mutex> lock(reverse_mutex);
 		return v_rev_blocks.at(block).adjusted;
 	}
 private:
@@ -214,8 +214,8 @@ private:
 	vector< sequential_adj_t<T, bool> > v_fwd_blocks;
 	vector< sequential_adj_t<T, bool> > v_rev_blocks;
 
-	mutable mutex forward_mutex, reverse_mutex, combine_mutex;
-	mutable mutex fwd_state_mutex, rev_state_mutex, cmb_state_mutex;
+	mutable boost::mutex forward_mutex, reverse_mutex, combine_mutex;
+	mutable boost::mutex fwd_state_mutex, rev_state_mutex, cmb_state_mutex;
 
 };
 
@@ -230,7 +230,7 @@ public:
 
 	inline void push_data(const vector<T>& data)
 	{
-		lock_guard<mutex> ql(queue_mutex);
+		boost::lock_guard<boost::mutex> ql(queue_mutex);
 		// push a vector of data elements
 		for_each(
 			data.begin(), 
@@ -243,7 +243,7 @@ public:
 
 	inline void push_and_notify(const T data)
 	{
-		lock_guard<mutex> ql(queue_mutex);
+		boost::lock_guard<boost::mutex> ql(queue_mutex);
 		the_queue.push(data);
 		// notify all (potential) threads waiting on the_queue
 		the_condition.notify_all();
@@ -251,19 +251,19 @@ public:
 
 	inline bool not_empty() const
 	{
-		lock_guard<mutex> ql(queue_mutex);
+		boost::lock_guard<boost::mutex> ql(queue_mutex);
 		return !the_queue.empty();
 	}
 
 	inline bool is_empty() const
 	{
-		lock_guard<mutex> ql(queue_mutex);
+		boost::lock_guard<boost::mutex> ql(queue_mutex);
 		return the_queue.empty();
 	}
 
 	inline bool front_and_pop(T& popped_value)
 	{
-		lock_guard<mutex> ql(queue_mutex);
+		boost::lock_guard<boost::mutex> ql(queue_mutex);
 		if (the_queue.empty())
 			return false;        
 		popped_value = the_queue.front();
@@ -279,7 +279,7 @@ public:
 	inline bool wait_front_and_pop(T& popped_value)
 	{
 		// wait if the queue is empty
-		unique_lock<mutex> ql(queue_mutex);
+		unique_lock<boost::mutex> ql(queue_mutex);
 		the_condition.wait(ql, [this] {return !this->the_queue.empty();});
 		if (the_queue.empty())
 			return false;
@@ -290,26 +290,26 @@ public:
 
 	inline void wait_if_queue_is_empty() 
 	{
-		unique_lock<mutex> ql(queue_mutex);
+		boost::unique_lock<boost::mutex> ql(queue_mutex);
 		the_condition.wait(ql, [this] { return !this->the_queue.empty();});
 	}
 
 	inline void queue_exhausted()
 	{
-		lock_guard<mutex> ql(exhausted_mutex);
+		boost::lock_guard<boost::mutex> ql(exhausted_mutex);
 		more_blocks_coming_ = false;
 		the_condition.notify_all();
 	}
 
 	inline void reset_blocks_coming() 
 	{ 
-		lock_guard<mutex> el(exhausted_mutex);
+		boost::lock_guard<boost::mutex> el(exhausted_mutex);
 		more_blocks_coming_ = true; 
 	}
 
 	inline bool more_blocks_coming() 
 	{ 
-		lock_guard<mutex> el(exhausted_mutex);
+		boost::lock_guard<boost::mutex> el(exhausted_mutex);
 		return more_blocks_coming_; 
 	}
 
@@ -327,10 +327,10 @@ public:
 	
 
 private:
-	mutable mutex queue_mutex;
-	mutable mutex exhausted_mutex;
+	mutable boost::mutex queue_mutex;
+	mutable boost::mutex exhausted_mutex;
 	std::queue<T> the_queue;
-	condition_variable the_condition;
+	boost::condition_variable the_condition;
 
 	bool more_blocks_coming_;
 };
@@ -344,12 +344,12 @@ public:
 
 	void wrtie(std::ofstream& ofs, const T& data)
 	{
-		lock_guard<mutex> lock(the_mutex);
+		boost::lock_guard<boost::mutex> lock(the_mutex);
 		if(ofs.good())
 			ofs << data;
 	}
 private:
-	mutable mutex the_mutex;
+	mutable boost::mutex the_mutex;
 };
 
 template<typename T>
@@ -361,12 +361,12 @@ public:
 
 	// Set started state to true
 	inline bool messagebank_empty() {
-		lock_guard<mutex> lock(message_mutex);
+		boost::lock_guard<boost::mutex> lock(message_mutex);
 		return messages.empty(); 
 	}
 	
 	inline T get_message(const UINT32& i) const {
-		lock_guard<mutex> lock(message_mutex);
+		boost::lock_guard<boost::mutex> lock(message_mutex);
 		if (i >= messages.size())
 		{
 			T msg(0);
@@ -376,18 +376,18 @@ public:
 	}
 	
 	inline void add_message(const T& msg) {
-		lock_guard<mutex> lock(message_mutex);
+		boost::lock_guard<boost::mutex> lock(message_mutex);
 		messages.push_back(msg);
 	}
 	
 	inline void clear_messages() {
-		lock_guard<mutex> lock(message_mutex);
+		boost::lock_guard<boost::mutex> lock(message_mutex);
 		messages.clear();
 	}
 
 private:
 	vector<T> messages;
-	mutable mutex message_mutex;
+	mutable boost::mutex message_mutex;
 };
 
 template<typename T>
@@ -401,23 +401,23 @@ public:
 	virtual ~protected_var() {}
 
 	inline void write(const T& var) {
-		lock_guard<mutex> lock(var_mutex);
+		boost::lock_guard<boost::mutex> lock(var_mutex);
 		var_ = var;
 	}
 	
 	inline T read() const {
-		lock_guard<mutex> lock(var_mutex);
+		boost::lock_guard<boost::mutex> lock(var_mutex);
 		return var_;
 	}
 
 private:
-	protected_var(const protected_var& pv, const mutex::scoped_lock& lock)
+	protected_var(const protected_var& pv, const boost::mutex::scoped_lock& lock)
 		:  var_(pv.var) {}
 
 
 private:
 	T var_;
-	mutable mutex var_mutex;
+	mutable boost::mutex var_mutex;
 };
 
 #endif /* DNATHREADING_H_ */

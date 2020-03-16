@@ -1284,7 +1284,7 @@ void dna_segment::SetAvailableMsrCount()
 		_it_asl!=vAssocStnList_.end();
 		++_it_asl)
 	{
-		stn_index = static_cast<UINT32>(distance(vAssocStnList_.begin(), _it_asl));
+		stn_index = static_cast<UINT32>(std::distance(vAssocStnList_.begin(), _it_asl));
 
 		_it_asl->SetAvailMsrCount(_it_asl->GetAssocMsrCount());
 

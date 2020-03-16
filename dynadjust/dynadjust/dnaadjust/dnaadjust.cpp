@@ -240,7 +240,7 @@ void dna_adjust::coutVersion()
 UINT32 dna_adjust::CurrentIteration() const 
 { 
 #ifdef MULTI_THREAD_ADJUST
-	lock_guard<mutex> lock(current_iterationMutex);		
+	boost::lock_guard<boost::mutex> lock(current_iterationMutex);
 #endif
 	return currentIteration_; 
 }
@@ -248,7 +248,7 @@ UINT32 dna_adjust::CurrentIteration() const
 UINT32& dna_adjust::incrementIteration() 
 { 
 #ifdef MULTI_THREAD_ADJUST
-	lock_guard<mutex> lock(current_iterationMutex);		
+	boost::lock_guard<boost::mutex> lock(current_iterationMutex);
 #endif
 	return ++currentIteration_; 
 }
@@ -1203,7 +1203,7 @@ void dna_adjust::CarryStnEstimatesandVariancesForward(const UINT32& thisBlock, c
 	for (_it_jsl=v_JSL_.at(thisBlock).begin(); _it_jsl!=v_JSL_.at(thisBlock).end(); ++_it_jsl)
 	{
 		// get index of this JSL
-		jslvar = static_cast<UINT32>(distance(v_JSL_.at(thisBlock).begin(), _it_jsl) * 3);
+		jslvar = static_cast<UINT32>(std::distance(v_JSL_.at(thisBlock).begin(), _it_jsl) * 3);
 		jsl = v_blockStationsMap_.at(thisBlock)[*_it_jsl] * 3;
 		
 		// copy variance elements for this JSL
@@ -1223,7 +1223,7 @@ void dna_adjust::CarryStnEstimatesandVariancesForward(const UINT32& thisBlock, c
 			if (*_it_jsl_cov == *_it_jsl)
 				continue;
 
-			jslcovar = static_cast<UINT32>(distance(v_JSL_.at(thisBlock).begin(), _it_jsl_cov) * 3);
+			jslcovar = static_cast<UINT32>(std::distance(v_JSL_.at(thisBlock).begin(), _it_jsl_cov) * 3);
 			jsl_cov = v_blockStationsMap_.at(thisBlock)[*_it_jsl_cov] * 3;
 			v_junctionVariances_.at(thisBlock).copyelements(jslvar, jslcovar, 
 				v_normals_.at(thisBlock), jsl, jsl_cov, 3, 3);
@@ -1272,7 +1272,7 @@ void dna_adjust::CarryStnEstimatesandVariancesForward(const UINT32& thisBlock, c
 	{
 		// get index of this JSL in the next block
 		jsl = v_blockStationsMap_.at(nextBlock)[*_it_jsl] * 3;		// next block
-		jslvar = static_cast<UINT32>(distance(v_JSL_.at(thisBlock).begin(), _it_jsl) * 3);
+		jslvar = static_cast<UINT32>(std::distance(v_JSL_.at(thisBlock).begin(), _it_jsl) * 3);
 
 		// add variance elements for this JSL to normals of the next block
 		v_normals_.at(nextBlock).blockadd(jsl, jsl,
@@ -1310,7 +1310,7 @@ void dna_adjust::CarryStnEstimatesandVariancesForward(const UINT32& thisBlock, c
 			if (*_it_jsl_cov == *_it_jsl)
 				continue;
 
-			jslcovar = static_cast<UINT32>(distance(v_JSL_.at(thisBlock).begin(), _it_jsl_cov) * 3);
+			jslcovar = static_cast<UINT32>(std::distance(v_JSL_.at(thisBlock).begin(), _it_jsl_cov) * 3);
 			jsl_cov = v_blockStationsMap_.at(nextBlock)[*_it_jsl_cov] * 3;		// next block
 
 			// copy covariance elements for this JSL to normals of the next block
@@ -1365,7 +1365,7 @@ void dna_adjust::CarryStnEstimatesandVariancesReverse(const UINT32& nextBlock, c
 	for (_it_jsl=v_JSL_.at(nextBlock).begin(); _it_jsl!=v_JSL_.at(nextBlock).end(); ++_it_jsl)
 	{
 		// get index of this JSL
-		jsl_var_next = static_cast<UINT32>(distance(v_JSL_.at(nextBlock).begin(), _it_jsl) * 3);
+		jsl_var_next = static_cast<UINT32>(std::distance(v_JSL_.at(nextBlock).begin(), _it_jsl) * 3);
 		jsl_var_order_this = v_blockStationsMap_.at(thisBlock)[*_it_jsl] * 3;
 		
 		// copy junction variance elements
@@ -1385,7 +1385,7 @@ void dna_adjust::CarryStnEstimatesandVariancesReverse(const UINT32& nextBlock, c
 			if (*_it_jsl_cov == *_it_jsl)
 				continue;
 
-			jsl_covar_next = static_cast<UINT32>(distance(v_JSL_.at(nextBlock).begin(), _it_jsl_cov) * 3);
+			jsl_covar_next = static_cast<UINT32>(std::distance(v_JSL_.at(nextBlock).begin(), _it_jsl_cov) * 3);
 			jsl_covar_order_this = v_blockStationsMap_.at(thisBlock)[*_it_jsl_cov] * 3;
 			junctionVariances->copyelements(jsl_var_next, jsl_covar_next, 
 				aposterioriVariances, jsl_var_order_this, jsl_covar_order_this, 3, 3);
@@ -1430,7 +1430,7 @@ void dna_adjust::CarryStnEstimatesandVariancesReverse(const UINT32& nextBlock, c
 		++_it_jsl, paramCount+=3)
 	{
 		// get index of this JSL in the next block
-		jsl_var_next = static_cast<UINT32>(distance(v_JSL_.at(nextBlock).begin(), _it_jsl) * 3);
+		jsl_var_next = static_cast<UINT32>(std::distance(v_JSL_.at(nextBlock).begin(), _it_jsl) * 3);
 		jsl_var_order_this = v_blockStationsMap_.at(thisBlock)[*_it_jsl] * 3;		// previous block
 		jsl_var_order_next = v_blockStationsMap_.at(nextBlock)[*_it_jsl] * 3;
 
@@ -1470,7 +1470,7 @@ void dna_adjust::CarryStnEstimatesandVariancesReverse(const UINT32& nextBlock, c
 			if (*_it_jsl_cov == *_it_jsl)
 				continue;
 
-			jsl_covar_next = static_cast<UINT32>(distance(v_JSL_.at(nextBlock).begin(), _it_jsl_cov) * 3);
+			jsl_covar_next = static_cast<UINT32>(std::distance(v_JSL_.at(nextBlock).begin(), _it_jsl_cov) * 3);
 			jsl_covar_order_next = v_blockStationsMap_.at(nextBlock)[*_it_jsl_cov] * 3;
 
 			// add covariance elements for this JSL to normals of the next block
@@ -2097,7 +2097,7 @@ void dna_adjust::BuildUniqueBlockStationMap()
 				v_blockStationsMapUnique_.push_back(
 					u32u32_uint32_pair(
 						uint32_uint32_pair(_it_m->first, _it_m->second),	// station, block index
-						static_cast<UINT32>(distance(v_blockStationsMap_.begin(), _it_vm))));	// block
+						static_cast<UINT32>(std::distance(v_blockStationsMap_.begin(), _it_vm))));	// block
 			}			
 		}
 	}
@@ -4001,7 +4001,7 @@ void dna_adjust::CarryStnEstimatesandVariancesCombine(
 	{
 		// get index of this JSL in the next block
 		jsl = v_blockStationsMap_.at(thisBlock)[*_it_jsl] * 3;
-		jslvar = static_cast<UINT32>(distance(v_JSL_.at(nextBlock).begin(), _it_jsl) * 3);
+		jslvar = static_cast<UINT32>(std::distance(v_JSL_.at(nextBlock).begin(), _it_jsl) * 3);
 
 		// add variances for this JSL to normals
 		normals->blockadd(jsl, jsl, 
@@ -4040,7 +4040,7 @@ void dna_adjust::CarryStnEstimatesandVariancesCombine(
 				continue;
 			
 			// get index of all covariances for this JSL in the next block
-			jslcovar = static_cast<UINT32>(distance(v_JSL_.at(nextBlock).begin(), _it_jsl_cov) * 3);
+			jslcovar = static_cast<UINT32>(std::distance(v_JSL_.at(nextBlock).begin(), _it_jsl_cov) * 3);
 			jsl_cov1 = v_blockStationsMap_.at(thisBlock)[*_it_jsl_cov] * 3;
 			
 			// add covariances for this JSL to normals

@@ -3495,7 +3495,7 @@ void dna_import::ExtractAssociatedStns(vdnaMsrPtr* vMeasurements, pvstring pvUse
 
 		if (_it_msr->get()->GetFirst().empty())
 		{
-			// size_t msr_no(distance(vMeasurements->begin(), _it_msr));
+			// size_t msr_no(std::distance(vMeasurements->begin(), _it_msr));
 			throw XMLInteropException("Empty \"First\" station name.", 0);
 		}
 
@@ -5427,7 +5427,7 @@ void dna_import::MapMeasurementStations(vdnaMsrPtr* vMeasurements, pvASLPtr vAss
 		// The only requirement is that a check be made on stations which become
 		// unused as a consequence of ignoring a measurement.
 		if (_it_msr->get()->GetIgnore())
-			vIgnoredMsrs->push_back(static_cast<UINT32>(distance(vMeasurements->begin(), _it_msr)));
+			vIgnoredMsrs->push_back(static_cast<UINT32>(std::distance(vMeasurements->begin(), _it_msr)));
 		
 		// 1. Handle nested type measurements (D, G, X, Y) separately
 		switch (_it_msr->get()->GetTypeC())
@@ -5447,7 +5447,7 @@ void dna_import::MapMeasurementStations(vdnaMsrPtr* vMeasurements, pvASLPtr vAss
 
 		if (_it_msr->get()->GetFirst().empty())
 		{
-			//UINT32 msr_no(distance(vMeasurements->begin(), _it_msr));
+			//UINT32 msr_no(std::distance(vMeasurements->begin(), _it_msr));
 			throw XMLInteropException("Empty \"First\" station name.", 0);
 		}
 
@@ -5655,7 +5655,7 @@ void dna_import::MapMeasurementStations(vdnaMsrPtr* vMeasurements, pvASLPtr vAss
 	{
 		if (!_it_asl->get())	// unused station
 		{
-			d = static_cast<UINT32>(distance(_it_asl_begin, _it_asl));
+			d = static_cast<UINT32>(std::distance(_it_asl_begin, _it_asl));
 			vUnusedStns->push_back(vStnsMap_sortName_.at(d).first);
 			_it_asl->reset(new CAStationList(false));
 		}			
