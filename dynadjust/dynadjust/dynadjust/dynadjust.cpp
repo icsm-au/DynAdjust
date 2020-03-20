@@ -292,7 +292,7 @@ int main(int argc, char* argv[])
 		// end time
 		PrintSuccessStatusMessage(dynadjust_log);
 
-		this_thread::sleep(milliseconds(40));
+		boost::this_thread::sleep(milliseconds(40));
 	}
 	
 	// Run reftran (optional)
@@ -313,7 +313,7 @@ int main(int argc, char* argv[])
 		// end time
 		PrintSuccessStatusMessage(dynadjust_log);
 
-		this_thread::sleep(milliseconds(40));
+		boost::this_thread::sleep(milliseconds(40));
 	}
 	
 	// Run geoid (optional)
@@ -334,7 +334,7 @@ int main(int argc, char* argv[])
 		// end time
 		PrintSuccessStatusMessage(dynadjust_log);
 
-		this_thread::sleep(milliseconds(40));
+		boost::this_thread::sleep(milliseconds(40));
 	}
 		
 	// Run segment (optional)
@@ -355,7 +355,7 @@ int main(int argc, char* argv[])
 		// end time
 		PrintSuccessStatusMessage(dynadjust_log);
 
-		this_thread::sleep(milliseconds(40));
+		boost::this_thread::sleep(milliseconds(40));
 	}
 	
 	// Run adjust (optional)
@@ -376,7 +376,7 @@ int main(int argc, char* argv[])
 		// end time
 		PrintSuccessStatusMessage(dynadjust_log);
 
-		this_thread::sleep(milliseconds(40));
+		boost::this_thread::sleep(milliseconds(40));
 	}
 
 	return CloseLogandReturn(dynadjust_log, EXIT_SUCCESS);

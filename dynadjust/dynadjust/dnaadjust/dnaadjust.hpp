@@ -281,7 +281,7 @@ public:
 	inline void SetmaxCorr(const double c) { 
 
 #ifdef MULTI_THREAD_ADJUST
-		lock_guard<mutex> lock(maxCorrMutex);		
+		boost::lock_guard<boost::mutex> lock(maxCorrMutex);
 #endif
 		maxCorr_ = c; 
 	};

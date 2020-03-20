@@ -102,7 +102,7 @@ void file_opener(
 	}
 	catch (const ios_base::failure) {
 		stringstream ss;
-		if (fileMustExist && !filesystem::exists(str.c_str()))
+		if (fileMustExist && !boost::filesystem::exists(str.c_str()))
 			ss << "file_opener(): Can't find " << str << ". \n";
 		else
 			ss << "file_opener(): An error was encountered when opening " << 

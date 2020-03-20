@@ -109,7 +109,7 @@ public:
 		} 
 		catch (const XMLInteropException &e) {
 			running = false;
-			this_thread::sleep(milliseconds(50));
+			boost::this_thread::sleep(milliseconds(50));
 			stringstream err_msg;
 			cout_mutex.lock();
 			err_msg << endl << "- Error: " << e.what() << endl;
@@ -164,7 +164,7 @@ public:
 				cout.flush();
 				cout_mutex.unlock();
 			}
-			this_thread::sleep(milliseconds(10));
+			boost::this_thread::sleep(milliseconds(10));
 			percentComplete = _dnaParse->GetProgress();
 		}
 	}
