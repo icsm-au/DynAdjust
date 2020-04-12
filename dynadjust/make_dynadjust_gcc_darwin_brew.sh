@@ -24,9 +24,9 @@ else
 fi
 
 echo $PWD
-cp ../FindXercesC_darwin_brew.cmake ./
-cp ../FindMKL_darwin.cmake ./
-cp ../FindXSD_darwin_brew.cmake ./
+cp ../FindXercesC.cmake ./
+cp ../FindMKL.cmake ./
+cp ../FindXSD.cmake ./
 
 REL_BUILD_TYPE="Release"
 DBG_BUILD_TYPE="Debug"

@@ -19,7 +19,11 @@ set (CMAKE_CXX_STANDARD 11)
 add_definitions(-Wno-deprecated-declarations)
 
 set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -ggdb -debug all -O0")
-set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl")
+if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl")
+else()
+    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--no-as-needed")
+endif()
 
 message (STATUS "Looking for xerces-c..." )
 find_package (XercesC COMPONENTS xerces-c REQUIRED)
