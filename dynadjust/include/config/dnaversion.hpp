@@ -95,6 +95,9 @@
 #define __HARDWARE__ "Sun"
 #elif defined(__unix__)
 #define __HARDWARE__ "UNIX"
+#elif defined(__APPLE__)
+#define __HARDWARE__ "Apple"
+
 #endif
 
 const char* const __geoidint_app_name__ = "GeoidInt";
@@ -144,7 +147,7 @@ const char* const __dynadjust_app_name__ = "dynadjust";
 	const char* const __adjust_dll_name__ = "dnaAdjust.dll";
 	const char* const __plot_dll_name__ = "dnaPlot.dll";
 
-#elif defined(__linux) || defined(sun) || defined(__unix__)
+#elif defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
 	#ifdef NDEBUG
 		#define __BINARY_BUILDTYPE__ "Release"
 	#else

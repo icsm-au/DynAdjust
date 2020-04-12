@@ -279,7 +279,7 @@ public:
 	inline bool wait_front_and_pop(T& popped_value)
 	{
 		// wait if the queue is empty
-		unique_lock<boost::mutex> ql(queue_mutex);
+		boost::unique_lock<boost::mutex> ql(queue_mutex);
 		the_condition.wait(ql, [this] {return !this->the_queue.empty();});
 		if (the_queue.empty())
 			return false;
@@ -395,7 +395,7 @@ class protected_var
 {
 public:
 	protected_var(const protected_var& v)
-		:  protected_var(v, mutex::scoped_lock(v.var_mutex)) {}
+		:  protected_var(v, boost::mutex::scoped_lock(v.var_mutex)) {}
 
 	protected_var() {}
 	virtual ~protected_var() {}

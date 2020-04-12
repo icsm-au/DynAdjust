@@ -17,6 +17,7 @@ add_library (dnasegment SHARED
              ${CMAKE_SOURCE_DIR}/include/io/dnaioseg.cpp
              ${CMAKE_SOURCE_DIR}/include/measurement_types/dnastation.cpp
              ${CMAKE_SOURCE_DIR}/include/measurement_types/dnamsrtally.cpp
+             ${CMAKE_SOURCE_DIR}/include/functions/dnastringfuncs.cpp
              dnasegment.cpp)
 
 target_link_libraries (dnasegment ${Boost_LIBRARIES})

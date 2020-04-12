@@ -50,7 +50,7 @@ string dna_io_pdf::form_pdf_action_command_string(const string& pdf_filename, co
 		return ss.str();
 	}
 
-#elif defined(__linux) || defined(sun) || defined(__unix__)
+#elif defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
  
 
 #endif
