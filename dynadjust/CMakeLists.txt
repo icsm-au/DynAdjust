@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.6)
+cmake_minimum_required (VERSION 3.0)
 
 project (dynadjust)
 
@@ -19,7 +19,11 @@ set (CMAKE_CXX_STANDARD 11)
 add_definitions(-Wno-deprecated-declarations)
 
 set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -ggdb -debug all -O0")
-set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--no-as-needed")
+if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl")
+else()
+    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--no-as-needed")
+endif()
 
 message (STATUS "Looking for xerces-c..." )
 find_package (XercesC COMPONENTS xerces-c REQUIRED)
@@ -67,7 +71,11 @@ else ()
 endif ()
 message (STATUS " ")
 
-find_library(IOMP5_LIB iomp5 PATHS /opt/intel/lib/intel64)
+if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+    find_library(IOMP5_LIB iomp5 PATHS /opt/intel/lib)
+else()
+    find_library(IOMP5_LIB iomp5 PATHS /opt/intel/lib/intel64)
+endif()
 if( NOT IOMP5_LIB )
    set(DNA_BUILD_ERROR 1)
    set (IOMP5_FIND_ERROR 1)

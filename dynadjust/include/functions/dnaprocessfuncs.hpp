@@ -44,7 +44,7 @@
 // Why?  I have no idea!
 #if defined(_WIN32) || defined(__WIN32__)
 	#include <windows.h>			// for CreateProcess(...) called by run_command(...)
-#elif defined(__linux) || defined(sun) || defined(__unix__)
+#elif defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
 	#include <unistd.h>
 	#include <sys/wait.h>
 #endif

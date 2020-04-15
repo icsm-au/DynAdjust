@@ -77,6 +77,60 @@ bool execute(char **argv, char **env)
 	
 	}
 }
+#elif defined(__APPLE__)
+void  parse(char *line, char **argv)
+{
+	 while (*line != '\0') {       /* if not the end of line ....... */
+		  while (*line == ' ' || *line == '\t' || *line == '\n')
+			   *line++ = '\0';     /* replace white spaces with 0    */
+		  *argv++ = line;          /* save the argument position     */
+		  while (*line != '\0' && *line != ' ' &&
+				 *line != '\t' && *line != '\n')
+			   line++;             /* skip the argument until ...    */
+	 }
+	 *argv = NULL;                 /* mark the end of argument list  */
+}
+
+bool execute(char **argv, char **env)
+{
+	pid_t const cpid = fork();
+	int status(0);
+
+	if (cpid < 0)
+		return false;
+	else if (cpid == 0) {
+		// Child process
+		//int success;
+		execve(*argv, argv, env);
+
+		return true;
+
+	}
+	else {
+		// Parent process
+		int status;
+
+		// Wait for child to complete...
+		wait(&status);
+
+		//return true;
+
+		if(WEXITSTATUS(status) == 0)
+		{
+			// Program succeeded
+			//delme << " Program succeeded" << endl;
+			return true;
+		}
+		else
+		{
+			// Program failed but exited normally
+			//delme << " Program failed but exited normally: " << WEXITSTATUS(status) << endl;
+			return false;
+		}
+
+	}
+}
+
 #endif
 
 bool run_command(const string& exec_path_name, bool validateReturnCode)

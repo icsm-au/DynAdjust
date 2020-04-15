@@ -31,7 +31,7 @@
 
 #if defined(_WIN32) || defined(__WIN32__)
 	#include <io.h>
-#elif defined(__linux) || defined(sun) || defined(__unix__)
+#elif defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
 	#include <unistd.h>
 #endif
 

@@ -86,6 +86,7 @@
 #include <include/parameters/dnadatum.hpp>
 #include <include/math/dnamatrix_contiguous.hpp>
 #include <include/memory/dnafile_mapping.hpp>
+#include <include/parameters/dnaprojection.hpp>
 
 using namespace std;
 using namespace boost;
