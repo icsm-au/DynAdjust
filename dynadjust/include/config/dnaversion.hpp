@@ -168,7 +168,7 @@ const char* const __dynadjust_app_name__ = "dynadjust";
 #endif
 
 #define __CONTACT_EMAIL__   "geodesy@ga.gov.au"
-#define __COPYRIGHT_YEAR__  "2018"
+#define __COPYRIGHT_YEAR__  "2020"
 #define __COPYRIGHT_OWNER__ "Geoscience Australia"
 #define __COPYRIGHT_MSG__   "This software is released under the Apache License."
 

@@ -632,7 +632,7 @@ void VincentyInverse(const T& dLatitudeAT, const T& dLongitudeAT, const T& dAzim
 }
 
 template <class T>
-void ComputeLocalElements(const T X1, const T Y1, const T Z1,
+void ComputeLocalElements3D(const T X1, const T Y1, const T Z1,
 			const T X2, const T Y2, const T Z2, 
 			const T currentLatitude, const T currentLongitude,
 			T* local_12e, T* local_12n, T* local_12up)
@@ -659,6 +659,30 @@ void ComputeLocalElements(const T X1, const T Y1, const T Z1,
 }
 
 template <class T>
+void ComputeLocalElements2D(const T X1, const T Y1, const T Z1,
+	const T X2, const T Y2, const T Z2,
+	const T currentLatitude, const T currentLongitude,
+	T* local_12e, T* local_12n)
+{
+	// 1->2
+	T dX12(X2 - X1);
+	T dY12(Y2 - Y1);
+	T dZ12(Z2 - Z1);
+
+	// helpers
+	T sin_lat(sin(currentLatitude));
+	T cos_lat(cos(currentLatitude));
+	T sin_long(sin(currentLongitude));
+	T cos_long(cos(currentLongitude));
+
+
+	*local_12e = -sin_long * dX12 + cos_long * dY12;
+	*local_12n = -sin_lat * cos_long * dX12 -
+		sin_lat * sin_long * dY12 +
+		cos_lat * dZ12;
+}
+
+template <class T>
 T Direction(const T local_12e, const T local_12n)
 {
 	// "computed" direction 1->2
@@ -681,17 +705,8 @@ T Direction(const T X1, const T Y1, const T Z1,
 			const T currentLatitude, const T currentLongitude,
 			T* local_12e, T* local_12n)
 {
-	// compute vectors [1->2] & [1->3] in the local reference frame
-	//
-	// 1->2
-	T dX12(X2 - X1);
-	T dY12(Y2 - Y1);
-	T dZ12(Z2 - Z1);
-
-	*local_12e = -sin(currentLongitude) * dX12 + cos(currentLongitude) * dY12;
-	*local_12n = -sin(currentLatitude) * cos(currentLongitude) * dX12 - 
-		sin(currentLatitude) * sin(currentLongitude) * dY12 +
-		cos(currentLatitude) * dZ12;
+	ComputeLocalElements2D(X1, Y1, Z1, X2, Y2, Z2, currentLatitude, currentLongitude,
+		local_12e, local_12n);
 
 	return Direction(*local_12e, *local_12n);
 }
@@ -1199,4 +1214,12 @@ T HzAngleDeflectionCorrection(const T azimuth12, const T zenith12,
 		DirectionDeflectionCorrection(azimuth12, zenith12, deflPrimeV, deflPrimeM);
 }
 
+template <class T>
+T HzAngleDeflectionCorrections(const T azimuth12, const T zenith12,
+	const T azimuth13, const T zenith13,
+	const T deflPrimeV, const T deflPrimeM, T& correction12, T& correction13)
+{
+	return (correction13 = DirectionDeflectionCorrection(azimuth13, zenith13, deflPrimeV, deflPrimeM)) -
+		(correction12 = DirectionDeflectionCorrection(azimuth12, zenith12, deflPrimeV, deflPrimeM));
+}
 #endif /* DNATEMPLATEGEODESYFUNCS_H_ */

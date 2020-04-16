@@ -84,7 +84,8 @@ enum settingMode
 enum printMeasurementsMode
 {
 	adjustedMsrs = 0,
-	computedMsrs = 1
+	computedMsrs = 1,
+	ignoredMsrs = 2
 };
 
 enum plotGraphMode
@@ -439,6 +440,7 @@ public:
 		, _adj_gnss_units (0)
 		, _adj_msr_tstat(0)
 		, _database_ids(0)
+		, _print_ignored_msrs(0)
 		, _output_stn_blocks(0)
 		, _output_msr_blocks(0)
 		, _sort_stn_file_order(0)
@@ -472,7 +474,8 @@ public:
 			_cmp_msr_iteration == o._cmp_msr_iteration && _adj_stat_iteration == o._adj_stat_iteration && 
 			_output_stn_blocks == o._output_stn_blocks && _output_msr_blocks == o._output_msr_blocks &&
 			_sort_stn_file_order == o._sort_stn_file_order && 
-			_adj_msr_final == o._adj_msr_final && _adj_msr_tstat == o._adj_msr_tstat && o._database_ids == _database_ids &&
+			_adj_msr_final == o._adj_msr_final && _adj_msr_tstat == o._adj_msr_tstat &&
+			_database_ids == o._database_ids && _print_ignored_msrs == o._print_ignored_msrs &&
 			_sort_adj_msr == o._sort_adj_msr &&
 			_adj_gnss_units == o._adj_gnss_units &&
 			_init_stn_corrections == o._init_stn_corrections && _msr_to_stn == o._msr_to_stn &&
@@ -504,6 +507,7 @@ public:
 	UINT16			_adj_msr_final;			// Outputs final adjusted measurements for each block within each iteration
 	UINT16			_adj_msr_tstat;			// Outputs tstats for adjusted measurements
 	UINT16			_database_ids;			// Output msr id and cluster id
+	UINT16			_print_ignored_msrs;	// Output adjusted measurement statistics for ignored measurements
 	UINT16			_adj_gnss_units;		// Units of output adjusted GNSS measurements
 	UINT16			_output_stn_blocks;		// For phased adjustments, output station information for each segmented block.
 	UINT16			_output_msr_blocks;		// For phased adjustments, output adjusted measurement information for each segmented block.

@@ -519,6 +519,8 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 		p.o._adj_msr_tstat = 1;
 	if (vm.count(OUTPUT_ADJ_MSR_DBID))
 		p.o._database_ids = 1;
+	if (vm.count(OUTPUT_IGNORED_MSRS))
+		p.o._print_ignored_msrs = 1;
 	if (vm.count(PURGE_STAGE_FILES))
 		p.a.purge_stage_files = 1;
 	if (vm.count(RECREATE_STAGE_FILES))
@@ -778,6 +780,8 @@ int main(int argc, char* argv[])
 				"Output t-statistics for adjusted measurements.")
 			(OUTPUT_ADJ_MSR_DBID,
 				"Output measurement and cluster ids for database mapping.")
+			(OUTPUT_IGNORED_MSRS,
+				"Output adjusted measurement statistics for ignored measurements.")
 			(OUTPUT_ADJ_MSR_SORTBY, value<UINT16>(&p.o._sort_adj_msr),
 				string("Sort order for adjusted measurements.\n  " + 
 					StringFromT(orig_adj_msr_sort_ui) + ": Original input file order (default)\n  " + 
