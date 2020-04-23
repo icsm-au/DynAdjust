@@ -8349,6 +8349,7 @@ void dna_adjust::ComputePrecisionAdjMsrs(const UINT32& block /*= 0*/)
 	it_vmsr_t _it_msr;
 
 	matrix_2d *design(&v_design_.at(block)), *aposterioriVariances(&v_normals_.at(block));
+	matrix_2d* estimatedStations(&v_estimatedStations_.at(block));
 
 	// Measurements can only ever appear once in the whole CML.  That is, no one measurement will be found
 	// in two or more blocks.  Therefore, unlike precisions of adjusted stations (which may appear in one
@@ -8370,6 +8371,17 @@ void dna_adjust::ComputePrecisionAdjMsrs(const UINT32& block /*= 0*/)
 				design_row, precadjmsr_row);
 			break;
 		case 'D':	// Direction set
+			// Since direction sets are reduced to angles, adjustment statistics
+			// are based on the reduced angles.  However, the adjusted measurements
+			// table in the adj file should report on statistics for each direction.
+			// So, if the user requires the adj file, compute statistics for each
+			// direction, but do not alter the adjustment statistics
+			if (projectSettings_.o._adj_msr_final)
+			{
+				it_vmsr_t _it_msr_dirn(_it_msr);
+				ComputePrecisionAdjMsrs_Dd(block, _it_msr_dirn,
+					estimatedStations, aposterioriVariances);
+			}
 			// When a target direction is found, continue to next element.  
 			if (_it_msr->vectorCount1 < 1)
 				continue;
@@ -8489,7 +8501,7 @@ void dna_adjust::ComputePrecisionAdjMsrs_Da(const UINT32& block, it_vmsr_t& _it_
 // Since the adjustment of direction sets is based upon the derived angles, partial derivatives will not have
 // have been formed (held in design) and therefore need to be formed here.
 void dna_adjust::ComputePrecisionAdjMsrs_Dd(const UINT32& block, it_vmsr_t& _it_msr,
-	matrix_2d* estimatedStations, matrix_2d* aposterioriVariances, UINT32& design_row, UINT32& precadjmsr_row)
+	matrix_2d* estimatedStations, matrix_2d* aposterioriVariances)
 {
 	UINT32 stn1, stn2;
 	UINT32 d, direction_count(_it_msr->vectorCount1);		// number of directions including the RO
@@ -8499,7 +8511,7 @@ void dna_adjust::ComputePrecisionAdjMsrs_Dd(const UINT32& block, it_vmsr_t& _it_
 	UINT32 stations[2];
 	UINT32 station_count(2);
 	UINT32 station_i[2] = { 0, 3 };
-	UINT32 var, elem(0);
+	UINT32 var1, var2, elem(0);
 	UINT32 j, i, s;
 	double precisionAdjMsr(0.);
 
@@ -8510,10 +8522,10 @@ void dna_adjust::ComputePrecisionAdjMsrs_Dd(const UINT32& block, it_vmsr_t& _it_
 	// term1 = measured direction
 	// term2 = variance (direction)
 	// term3 = direction deflection correction (1->2)
-	// term4 = direction deflection correction (1->3)
+	// term4 = 
 	// scale1 = derived angle corrected for deflection of the vertical
 	// scale2 = variance (angle)
-	// scale3 = covariance (angle)
+	// scale3 = 
 	// scale4 = computed direction
 	// preAdjMeas = original derived angle
 
@@ -8532,11 +8544,11 @@ void dna_adjust::ComputePrecisionAdjMsrs_Dd(const UINT32& block, it_vmsr_t& _it_
 
 		ComputeLocalElements2D<double>(
 			estimatedStations->get(stn1, 0),		// X1
-			estimatedStations->get(stn1 + 1, 0),	// Y1
-			estimatedStations->get(stn1 + 2, 0),	// Z1
+			estimatedStations->get(stn1+1, 0),		// Y1
+			estimatedStations->get(stn1+2, 0),		// Z1
 			estimatedStations->get(stn2, 0), 		// X2
-			estimatedStations->get(stn2 + 1, 0),	// Y2
-			estimatedStations->get(stn2 + 2, 0),	// Z2
+			estimatedStations->get(stn2+1, 0),		// Y2
+			estimatedStations->get(stn2+2, 0),		// Z2
 			stn1_it->currentLatitude,
 			stn1_it->currentLongitude,
 			&local_12e, &local_12n);
@@ -8560,27 +8572,28 @@ void dna_adjust::ComputePrecisionAdjMsrs_Dd(const UINT32& block, it_vmsr_t& _it_
 		design[s++] = -design[1];
 		design[s] = -design[2];
 
-		for (s = 0; s < station_count; ++s)		// for every station
+		for (s=0; s<station_count; ++s)		// for every station
 		{
-			for (i = 0; i < 3; ++i)				// X, Y, Z
+			for (i=0; i<3; ++i)				// X, Y, Z
 			{
-				for (j = 0; j < station_count; ++j)			// for every correlated station
+				for (j=0; j<station_count; ++j)			// for every correlated station
 				{
-					var = stations[j];
-					part_1[elem] += design[var] * aposterioriVariances->get(var, stations[s] + i);
-					part_1[elem] += design[var + 1] * aposterioriVariances->get(var + 1, stations[s] + i);
-					part_1[elem] += design[var + 2] * aposterioriVariances->get(var + 2, stations[s] + i);
+					var1 = station_i[j];
+					var2 = stations[j];
+					part_1[elem] += design[var1] * aposterioriVariances->get(var2, stations[s] + i);
+					part_1[elem] += design[var1+1] * aposterioriVariances->get(var2+1, stations[s] + i);
+					part_1[elem] += design[var1+2] * aposterioriVariances->get(var2+2, stations[s] + i);
 				}
 				elem++;
 			}
 		}
 
-		for (s = 0; s < station_count; ++s)	// for every station
-			for (i = 0; i < 3; ++i)		// X, Y, Z
-				precisionAdjMsr += part_1[station_i[s] + i] * design[stations[s] + i];
+		for (s=0; s<station_count; ++s)	// for every station
+			for (i=0; i<3; ++i)		// X, Y, Z
+				precisionAdjMsr += part_1[station_i[s] + i] * design[station_i[s] + i];
 		
 		// store the adjusted direction precision
-		TRACE("Msr %.6f, Adj %.6f\n", _it_msr->term2, Seconds(sqrt(precisionAdjMsr)));
+		_it_msr->scale3 = precisionAdjMsr;
 
 		_it_msr++;
 	}
@@ -8605,10 +8618,10 @@ void dna_adjust::ComputePrecisionAdjMsrs_BCEKLMSVZ(const UINT32& block, const UI
 		{
 			for (j=0; j<station_count; ++j)			// for every correlated station
 			{	
-				var = stations[j];
+				var = stations[j];				
 				part_1[elem] += design->get(design_row, var) * aposterioriVariances->get(var, stations[s]+i);
 				part_1[elem] += design->get(design_row, var+1) * aposterioriVariances->get(var+1, stations[s]+i);
-				part_1[elem] += design->get(design_row, var+2) * aposterioriVariances->get(var+2, stations[s]+i);
+				part_1[elem] += design->get(design_row, var+2) * aposterioriVariances->get(var+2, stations[s] + i);
 			}
 			elem++;
 		}		
@@ -9053,11 +9066,17 @@ void dna_adjust::ComputeChiSquare_D(it_vmsr_t& _it_msr, UINT32& measurement_inde
 {
 	UINT32 a, angle_count(_it_msr->vectorCount1 - 1);
 
+	//TRACE("chi square d: %.6G\n", (_it_msr->term1 - _it_msr->scale4) * (_it_msr->term1 - _it_msr->scale4) / _it_msr->term2);
+
 	// move to first direction record which contains the derived angles
 	_it_msr++;
+
+	//TRACE("chi square d: %.6G\n", (_it_msr->term1 - _it_msr->scale4) * (_it_msr->term1 - _it_msr->scale4) / _it_msr->term2);
 	
 	for (a=0; a<angle_count; ++a)		// for each angle
 	{
+		//TRACE("chi square a: %.6G\n", (measMinusComp->get(measurement_index, 0) * measMinusComp->get(measurement_index, 0) / _it_msr->scale2));
+
 		chiSquared_ +=
 			measMinusComp->get(measurement_index, 0) * 
 			measMinusComp->get(measurement_index, 0) / _it_msr->scale2;		//variance (angle)
@@ -12374,12 +12393,16 @@ void dna_adjust::PrintMeasurementsAngular(const char cardinal, const double& mea
 		precision = _it_msr->term2;		// Precision (Meas)
 	}
 
-	double preAdjMeas(RadtoDms(_it_msr->preAdjMeas));
+	double preAdjMeas(_it_msr->preAdjMeas);
+	double adjPrec(_it_msr->measAdjPrec);
+	double residualPrec(_it_msr->residualPrec);
 	// get the pre adjustment measurement
 	switch (_it_msr->measType)
 	{
 	case 'D':
-		preAdjMeas = RadtoDms(_it_msr->term1);
+		preAdjMeas = _it_msr->term1;
+		adjPrec = _it_msr->scale3;
+		residualPrec = precision - _it_msr->scale3;
 	}
 	
 	// Which angular format?
@@ -12390,43 +12413,43 @@ void dna_adjust::PrintMeasurementsAngular(const char cardinal, const double& mea
 		case SEPARATED_WITH_SYMBOLS:
 			// ddd\B0 mm' ss.sss"
 			adj_file << 
-				setw(MSR) << right << FormatDmsString(preAdjMeas, 4+PRECISION_SEC_MSR, 			// Measured (less correction  
-					true, true) <<																					// for deflections if applied)
-				setw(MSR) << right << FormatDmsString(RadtoDms(measurement), 4+PRECISION_SEC_MSR,					// Adjusted
+				setw(MSR) << right << FormatDmsString(RadtoDms(preAdjMeas), 4+PRECISION_SEC_MSR, 							// Measured (less correction  
+					true, true) <<																				// for deflections if applied)
+				setw(MSR) << right << FormatDmsString(RadtoDms(measurement), 4+PRECISION_SEC_MSR,				// Adjusted
 					true, true);
 			break;
 		case HP_NOTATION:
 			// ddd.mmssssss
-			adj_file << setw(MSR) << right << StringFromT(preAdjMeas, 4+PRECISION_SEC_MSR) <<	// Measured (less correction for deflections)
-				setw(MSR) << right << StringFromT(RadtoDms(measurement), 4+PRECISION_SEC_MSR);						// Adjusted
+			adj_file << setw(MSR) << right << StringFromT(RadtoDms(preAdjMeas), 4+PRECISION_SEC_MSR) <<					// Measured (less correction for deflections)
+				setw(MSR) << right << StringFromT(RadtoDms(measurement), 4+PRECISION_SEC_MSR);					// Adjusted
 			break;
 		case SEPARATED:
 		default:
 			// ddd mm ss.ssss
 			adj_file << 
-				setw(MSR) << right << FormatDmsString(preAdjMeas, 4+PRECISION_SEC_MSR,			// Measured (less correction  
-					true, false) <<																					// for deflections if applied)
-				setw(MSR) << right << FormatDmsString(RadtoDms(measurement), 4+PRECISION_SEC_MSR,					// Computed
+				setw(MSR) << right << FormatDmsString(RadtoDms(preAdjMeas), 4+PRECISION_SEC_MSR,							// Measured (less correction  
+					true, false) <<																				// for deflections if applied)
+				setw(MSR) << right << FormatDmsString(RadtoDms(measurement), 4+PRECISION_SEC_MSR,				// Computed
 					true, false);
 			break;
 		}
 
 		adj_file << 
 			setw(CORR) << right << StringFromT(removeNegativeZero(Seconds(correction), PRECISION_SEC_MSR), PRECISION_SEC_MSR) <<	// correction
-			setw(PREC) << right << StringFromT(Seconds(sqrt(precision)), PRECISION_SEC_MSR);						// Precision (Meas)
+			setw(PREC) << right << StringFromT(Seconds(sqrt(precision)), PRECISION_SEC_MSR);					// Precision (Meas)
 
 		if (printAdjMsr)
 		{
 			adj_file << 
-				setw(PREC) << right << StringFromT(Seconds(sqrt(_it_msr->measAdjPrec)), PRECISION_SEC_MSR) <<		// Precision (Adjusted)
-				setw(PREC) << right << StringFromT(Seconds(sqrt(_it_msr->residualPrec)), PRECISION_SEC_MSR);		// Precision (Residual)
+				setw(PREC) << right << StringFromT(Seconds(sqrt(adjPrec)), PRECISION_SEC_MSR) <<	// Precision (Adjusted)
+				setw(PREC) << right << StringFromT(Seconds(sqrt(residualPrec)), PRECISION_SEC_MSR);	// Precision (Residual)
 		}
 	}
 	else	// DDEG
 	{
 		// ddd.dddddddd
 		//TODO - is longitude being printed?  If so, use DegreesL
-		adj_file << setw(MSR) << right << StringFromT(Degrees(_it_msr->preAdjMeas), 4+PRECISION_SEC_MSR) <<			// Measured (less correction for deflections)
+		adj_file << setw(MSR) << right << StringFromT(Degrees(preAdjMeas), 4+PRECISION_SEC_MSR) <<				// Measured (less correction for deflections)
 			setw(MSR) << right << StringFromT(Degrees(measurement), 4+PRECISION_SEC_MSR) <<						// Adjusted
 			setw(CORR) << right << StringFromT(removeNegativeZero(Degrees(correction), PRECISION_SEC_MSR), PRECISION_SEC_MSR) <<	// Correction
 			setw(PREC) << right << StringFromT(Degrees(sqrt(precision)), PRECISION_SEC_MSR);					// Precision (Meas)
@@ -12434,8 +12457,8 @@ void dna_adjust::PrintMeasurementsAngular(const char cardinal, const double& mea
 		if (printAdjMsr)
 		{
 			adj_file <<
-				setw(PREC) << right << StringFromT(Degrees(sqrt(_it_msr->measAdjPrec)), PRECISION_SEC_MSR) <<	// Precision (Adjusted)
-				setw(PREC) << right << StringFromT(Degrees(sqrt(_it_msr->residualPrec)), PRECISION_SEC_MSR);	// Precision (Residual)
+				setw(PREC) << right << StringFromT(Degrees(sqrt(adjPrec)), PRECISION_SEC_MSR) <<	// Precision (Adjusted)
+				setw(PREC) << right << StringFromT(Degrees(sqrt(residualPrec)), PRECISION_SEC_MSR);	// Precision (Residual)
 		}
 	}
 }
@@ -12622,20 +12645,40 @@ void dna_adjust::PrintMeasurementCorrection(const char cardinal, const it_vmsr_t
 
 void dna_adjust::PrintAdjMeasurementStatistics(const char cardinal, const it_vmsr_t& _it_msr)
 {
+	double nStat(_it_msr->NStat);
+	double tStat(_it_msr->TStat);
+	double pelzerRel(_it_msr->PelzerRel);
+	double residualPrec(_it_msr->term2 - _it_msr->scale3);
+
+	// get the pre adjustment measurement
+	switch (_it_msr->measType)
+	{
+	case 'D':
+		// resolve small negative values (e.g. -1.5 e-35)
+		if (residualPrec < 0.0)
+			residualPrec = fabs(residualPrec);
+		// Normal statistic = correction / precision of the correction 
+		nStat = (_it_msr->term1 - _it_msr->scale4) / sqrt(residualPrec);
+		// Student's t statistic 
+		tStat = nStat / sigmaZeroSqRt_;
+		// Pelzer reliability = measurement precision / (measurement precision - adjusted precision)
+		pelzerRel = sqrt(_it_msr->term2) / sqrt(residualPrec);
+	}
+
 	adj_file << setw(STAT) << setprecision(2) << fixed << right << 
-		removeNegativeZero(_it_msr->NStat, 2);												// N Stat
+		removeNegativeZero(nStat, 2);												// N Stat
 
 	if (projectSettings_.o._adj_msr_tstat)
 		adj_file << setw(STAT) << setprecision(2) << fixed << right << 
-			removeNegativeZero(_it_msr->TStat, 2);												// T Stat
+			removeNegativeZero(tStat, 2);												// T Stat
 	
-	adj_file << setw(REL) << setprecision(2) << fixed << right << _it_msr->PelzerRel;		// Pelzer's reliability
+	adj_file << setw(REL) << setprecision(2) << fixed << right << pelzerRel;		// Pelzer's reliability
 
 	// Print measurement correction
 	PrintMeasurementCorrection(cardinal, _it_msr);
 
 	// Print asterisk for values which exceed the critical value
-	if (fabs(_it_msr->NStat) > criticalValue_)
+	if (fabs(nStat) > criticalValue_)
 		adj_file << setw(OUTLIER) << right << "*";
 	else
 		adj_file << setw(OUTLIER) << right << " ";

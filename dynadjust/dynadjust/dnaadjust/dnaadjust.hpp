@@ -707,7 +707,7 @@ private:
 	void ComputePrecisionAdjMsrs_Da(const UINT32& block, it_vmsr_t& _it_msr, 
 		matrix_2d* design, matrix_2d* aposterioriVariances, UINT32& design_row, UINT32& precadjmsr_row);
 	void ComputePrecisionAdjMsrs_Dd(const UINT32& block, it_vmsr_t& _it_msr,
-		matrix_2d* estimatedStations, matrix_2d* aposterioriVariances, UINT32& design_row, UINT32& precadjmsr_row);
+		matrix_2d* estimatedStations, matrix_2d* aposterioriVariances);
 	void ComputePrecisionAdjMsrs_BCEKLMSVZ(const UINT32& block, const UINT32& stn1, const UINT32& stn2, 
 		matrix_2d* design, matrix_2d* aposterioriVariances, UINT32& design_row, UINT32& precadjmsr_row);
 	void ComputePrecisionAdjMsrs_HIJPQR(const UINT32& block, const UINT32& stn1, 
