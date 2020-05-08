@@ -33,7 +33,7 @@
 	#include <windows.h>
 	#include <winbase.h>
 	#include <ShellAPI.h>		// for FindExecutable
-#elif defined(__linux) || defined(sun) || defined(__unix__)
+#elif defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
 	#include <unistd.h>
 #endif
 

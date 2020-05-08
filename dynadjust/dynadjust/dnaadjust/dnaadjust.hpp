@@ -86,6 +86,7 @@
 #include <include/parameters/dnadatum.hpp>
 #include <include/math/dnamatrix_contiguous.hpp>
 #include <include/memory/dnafile_mapping.hpp>
+#include <include/parameters/dnaprojection.hpp>
 
 using namespace std;
 using namespace boost;
@@ -281,7 +282,7 @@ public:
 	inline void SetmaxCorr(const double c) { 
 
 #ifdef MULTI_THREAD_ADJUST
-		lock_guard<mutex> lock(maxCorrMutex);		
+		boost::lock_guard<boost::mutex> lock(maxCorrMutex);
 #endif
 		maxCorr_ = c; 
 	};
@@ -502,78 +503,77 @@ private:
 	void UpdateDesignNormalMeasMatrices(pit_vmsr_t _it_msr, UINT32& design_row, bool buildnewMatrices, const UINT32& block, bool MT_ReverseOrCombine);
 
 	void UpdateDesignNormalMeasMatrices_A(pit_vmsr_t _it_msr, UINT32& design_row, const UINT32& block,
-											matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
-											matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, 
-											double& direction12, double& direction13,bool buildnewMatrices);
+											  matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
+											  matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
 	void UpdateDesignNormalMeasMatrices_BK(pit_vmsr_t _it_msr, UINT32& design_row, const UINT32& block,
-											matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
-											matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
+											  matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
+											  matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
 	void UpdateDesignNormalMeasMatrices_C(pit_vmsr_t _it_msr, UINT32& design_row, const UINT32& block,
-											matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
-											matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
+											  matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
+											  matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
 	void UpdateDesignNormalMeasMatrices_CEM(pit_vmsr_t _it_msr, UINT32& design_row, const UINT32& block,
-											matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
-											matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
+											  matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
+											  matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
 	void UpdateDesignNormalMeasMatrices_D(pit_vmsr_t _it_msr, UINT32& design_row, const UINT32& block,
-											matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
-											matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
+											  matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
+											  matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
 	void UpdateDesignNormalMeasMatrices_E(pit_vmsr_t _it_msr, UINT32& design_row, const UINT32& block,
-											matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
-											matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
+											  matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
+											  matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
 	void UpdateDesignMeasMatrices_GX(pit_vmsr_t _it_msr, UINT32& design_row, const UINT32& block,
 											matrix_2d* measMinusComp, matrix_2d* estimatedStations, matrix_2d* design,
 											const UINT32& stn1, const UINT32& stn2, bool buildnewMatrices);
 	void UpdateDesignNormalMeasMatrices_G(pit_vmsr_t _it_msr, UINT32& design_row, const UINT32& block,
-											matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
-											matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
+											  matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
+											  matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
 	void UpdateDesignNormalMeasMatrices_H(pit_vmsr_t _it_msr, UINT32& design_row, const UINT32& block,
-											matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
-											matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
+											  matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
+											  matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
 	void UpdateDesignNormalMeasMatrices_HR(pit_vmsr_t _it_msr, UINT32& design_row, const UINT32& block,
-											matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
-											matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
+											  matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
+											  matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
 	void UpdateDesignNormalMeasMatrices_I(pit_vmsr_t _it_msr, UINT32& design_row, const UINT32& block,
-											matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
-											matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
+											  matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
+											  matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
 	void UpdateDesignNormalMeasMatrices_IP(pit_vmsr_t _it_msr, UINT32& design_row, const UINT32& block,
-											matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
-											matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
+											  matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
+											  matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
 	void UpdateDesignNormalMeasMatrices_J(pit_vmsr_t _it_msr, UINT32& design_row, const UINT32& block,
-											matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
-											matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
+											  matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
+											  matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
 	void UpdateDesignNormalMeasMatrices_JQ(pit_vmsr_t _it_msr, UINT32& design_row, const UINT32& block,
-											matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
-											matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
+											  matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
+											  matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
 	void UpdateDesignNormalMeasMatrices_L(pit_vmsr_t _it_msr, UINT32& design_row, const UINT32& block,
-											matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
-											matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
+											  matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
+											  matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
 	void UpdateDesignNormalMeasMatrices_M(pit_vmsr_t _it_msr, UINT32& design_row, const UINT32& block,
-											matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
-											matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
+											  matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
+											  matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
 	void UpdateDesignNormalMeasMatrices_P(pit_vmsr_t _it_msr, UINT32& design_row, const UINT32& block,
-											matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
-											matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
+											  matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
+											  matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
 	void UpdateDesignNormalMeasMatrices_Q(pit_vmsr_t _it_msr, UINT32& design_row, const UINT32& block,
-											matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
-											matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
+											  matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
+											  matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
 	void UpdateDesignNormalMeasMatrices_R(pit_vmsr_t _it_msr, UINT32& design_row, const UINT32& block,
-											matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
-											matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
+											  matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
+											  matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
 	void UpdateDesignNormalMeasMatrices_S(pit_vmsr_t _it_msr, UINT32& design_row, const UINT32& block,
-											matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
-											matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
+											  matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
+											  matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
 	void UpdateDesignNormalMeasMatrices_V(pit_vmsr_t _it_msr, UINT32& design_row, const UINT32& block,
-											matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
-											matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
+											  matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
+											  matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
 	void UpdateDesignNormalMeasMatrices_X(pit_vmsr_t _it_msr, UINT32& design_row, const UINT32& block,
-											matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
-											matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
+											  matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
+											  matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
 	void UpdateDesignNormalMeasMatrices_Y(pit_vmsr_t _it_msr, UINT32& design_row, const UINT32& block,
-											matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
-											matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
+											  matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
+											  matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
 	void UpdateDesignNormalMeasMatrices_Z(pit_vmsr_t _it_msr, UINT32& design_row, const UINT32& block,
-											matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
-											matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
+											  matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
+											  matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
 	
 	void UpdateIgnoredMeasurements(pit_vmsr_t _it_msr, bool storeOriginalMeasurement);
 	void UpdateIgnoredMeasurements_A(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement);
@@ -704,10 +704,8 @@ private:
 	void ComputePrecisionAdjMsrs(const UINT32& block = 0);
 	void ComputePrecisionAdjMsrs_A(const UINT32& block, const UINT32& stn1, const UINT32& stn2, const UINT32& stn3, 
 		matrix_2d* design, matrix_2d* aposterioriVariances, UINT32& design_row, UINT32& precadjmsr_row);
-	void ComputePrecisionAdjMsrs_Da(const UINT32& block, it_vmsr_t& _it_msr, 
+	void ComputePrecisionAdjMsrs_D(const UINT32& block, it_vmsr_t& _it_msr, 
 		matrix_2d* design, matrix_2d* aposterioriVariances, UINT32& design_row, UINT32& precadjmsr_row);
-	void ComputePrecisionAdjMsrs_Dd(const UINT32& block, it_vmsr_t& _it_msr,
-		matrix_2d* estimatedStations, matrix_2d* aposterioriVariances);
 	void ComputePrecisionAdjMsrs_BCEKLMSVZ(const UINT32& block, const UINT32& stn1, const UINT32& stn2, 
 		matrix_2d* design, matrix_2d* aposterioriVariances, UINT32& design_row, UINT32& precadjmsr_row);
 	void ComputePrecisionAdjMsrs_HIJPQR(const UINT32& block, const UINT32& stn1, 
@@ -718,7 +716,7 @@ private:
 		matrix_2d* design, matrix_2d* aposterioriVariances, UINT32& design_row, UINT32& precadjmsr_row);
 	
 	void UpdateMsrRecords(const UINT32& block = 0);
-	void UpdateMsrRecord(const UINT32& block, it_vmsr_t& _it_msr, const UINT32& msr_row, const UINT32& precadjmsr_row, const double& measPrec, double* measAdj = 0);
+	void UpdateMsrRecord(const UINT32& block, it_vmsr_t& _it_msr, const UINT32& msr_row, const UINT32& precadjmsr_row, const double& measPrec);
 	void UpdateMsrRecords_D(const UINT32& block, it_vmsr_t& _it_msr, UINT32& msr_row, UINT32& precadjmsr_row);
 	void UpdateMsrRecords_GXY(const UINT32& block, it_vmsr_t& _it_msr, UINT32& msr_row, UINT32& precadjmsr_row);
 	void UpdateMsrRecordStats(it_vmsr_t& _it_msr, const double& measPrec);

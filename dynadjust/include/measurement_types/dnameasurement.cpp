@@ -122,7 +122,7 @@ void CDnaCovariance::coutCovarianceData(ostream &os) const
 }
 	
 
-void CDnaCovariance::WriteDynaMLMsr(std::ofstream* dynaml_stream, bool bSubMeasurement /*= false*/) const
+void CDnaCovariance::WriteDynaMLMsr(std::ofstream* dynaml_stream) const
 {
 	if (GetTypeC() == 'X')
 		*dynaml_stream << "      <GPSCovariance>" << endl;
@@ -140,13 +140,15 @@ void CDnaCovariance::WriteDynaMLMsr(std::ofstream* dynaml_stream, bool bSubMeasu
 	*dynaml_stream << "        <m33>" << m_dM33 << "</m33>" << endl;
 	
 	if (GetTypeC() == 'X')
-		*dynaml_stream << "      </GPSCovariance>" << endl;
+		*dynaml_stream << "      </GPSCovariance>";
 	else
-		*dynaml_stream << "      </PointCovariance>" << endl;
+		*dynaml_stream << "      </PointCovariance>";
 }
 	
 
-void CDnaCovariance::WriteDNAMsr(std::ofstream* dynaml_stream, const dna_msr_fields& dmw, bool bSubMeasurement /*= false*/) const
+void CDnaCovariance::WriteDNAMsr(std::ofstream* dynaml_stream, 
+	const dna_msr_fields& dmw, const dna_msr_fields& dml, 
+	const msr_database_id_map& dbidmap, bool dbidSet) const
 {
 	UINT32 pad(dmw.msr_type + dmw.msr_ignore + dmw.msr_inst + dmw.msr_targ1 + dmw.msr_targ2 + dmw.msr_gps);
 	// X
@@ -154,21 +156,45 @@ void CDnaCovariance::WriteDNAMsr(std::ofstream* dynaml_stream, const dna_msr_fie
 	*dynaml_stream <<
 		right << setw(dmw.msr_gps_vcv_1) << scientific << setprecision(13) << m_dM11 <<
 		right << setw(dmw.msr_gps_vcv_2) << m_dM12 <<
-		right << setw(dmw.msr_gps_vcv_3) << m_dM13 << endl;
+		right << setw(dmw.msr_gps_vcv_3) << m_dM13;
+
+	if (dbidSet)
+	{
+		*dynaml_stream << setw(dmw.msr_id_msr) << dbidmap.msr_id;
+		*dynaml_stream << setw(dmw.msr_id_cluster) << dbidmap.cluster_id;
+	}
+
+	*dynaml_stream << endl;
 		
 	// Y
 	*dynaml_stream << setw(pad) << " ";
 	*dynaml_stream << 
 		right << setw(dmw.msr_gps_vcv_1) << scientific << setprecision(13) << m_dM21 <<
 		right << setw(dmw.msr_gps_vcv_2) << m_dM22 <<
-		right << setw(dmw.msr_gps_vcv_3) << m_dM23 << endl;
+		right << setw(dmw.msr_gps_vcv_3) << m_dM23;
+
+	if (dbidSet)
+	{
+		*dynaml_stream << setw(dmw.msr_id_msr) << dbidmap.msr_id;
+		*dynaml_stream << setw(dmw.msr_id_cluster) << dbidmap.cluster_id;
+	}
+
+	*dynaml_stream << endl;
 
 	// Z
 	*dynaml_stream << setw(pad) << " ";
 	*dynaml_stream << 
 		right << setw(dmw.msr_gps_vcv_1) << scientific << setprecision(13) << m_dM31 <<
 		right << setw(dmw.msr_gps_vcv_2) << m_dM32 <<
-		right << setw(dmw.msr_gps_vcv_3) << m_dM33 << endl;
+		right << setw(dmw.msr_gps_vcv_3) << m_dM33;
+
+	if (dbidSet)
+	{
+		*dynaml_stream << setw(dmw.msr_id_msr) << dbidmap.msr_id;
+		*dynaml_stream << setw(dmw.msr_id_cluster) << dbidmap.cluster_id;
+	}
+
+	*dynaml_stream << endl;
 }
 	
 

@@ -1077,35 +1077,35 @@ public:
 };
 
 // Baseline scalar functions
-template <typename T = scalar_t>
-class CompareBaselineScalar {
-public:
-
-	CompareBaselineScalar(vector<T>* scalars)
-		: _scalars(scalars)
-	{
-	}
-
-	bool operator()(const T& left, const T& right) {
-		if (equals(left.station1, right->station1))
-			return left.station2 < right->station2;
-		else
-			return left.station1 < right->station1;
-	}
-
-	bool operator()(const string& station1, const string& station2) {
-		// not right
-		if (!lower_bound(_scalars.begin(), _scalars.end(), 
-			boost::bind(CompareScalarStation1<scalar_t, string>(), station1)))
-			return false;
-		if (!binary_search(_scalars.begin(), _scalars.end(), 
-			boost::bind(CompareScalarStation2<scalar_t, string>(), station2)))
-			return false;
-		return true;
-	}
-private:
-	vector<T>*	_scalars;
-};
+//template <typename T = scalar_t>
+//class CompareBaselineScalar {
+//public:
+//
+//	CompareBaselineScalar(vector<T>* scalars)
+//		: _scalars(scalars)
+//	{
+//	}
+//
+//	bool operator()(const T& left, const T& right) {
+//		if (equals(left.station1, right->station1))
+//			return left.station2 < right->station2;
+//		else
+//			return left.station1 < right->station1;
+//	}
+//
+//	bool operator()(const string& station1, const string& station2) {
+//		// not right
+//		if (!lower_bound(_scalars.begin(), _scalars.end(),
+//			boost::bind(CompareScalarStation1<scalar_t, string>(), station1)))
+//			return false;
+//		if (!binary_search(_scalars.begin(), _scalars.end(),
+//			boost::bind(CompareScalarStation2<scalar_t, string>(), station2)))
+//			return false;
+//		return true;
+//	}
+//private:
+//	vector<T>*	_scalars;
+//};
 
 
 // M = measurement_t

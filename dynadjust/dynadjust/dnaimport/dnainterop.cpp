@@ -1714,6 +1714,7 @@ void dna_import::ParseDNAMSRLinear(const string& sBuf, dnaMsrPtr& msr_ptr)
 	msr_ptr->SetStdDev(ParseStdDevValue(sBuf, "ParseLinear"));
 
 	// Capture msr_id and cluster_id (for database referencing)
+	m_databaseIdSet = false;
 	ParseDatabaseIds(sBuf, "ParseLinear", msr_ptr->GetTypeC());
 	msr_ptr->SetDatabaseMap(m_msr_db_map, m_databaseIdSet);
 
@@ -1779,6 +1780,7 @@ void dna_import::ParseDNAMSRCoordinate(const string& sBuf, dnaMsrPtr& msr_ptr)
 
 	// Capture msr_id and cluster_id (for database referencing), then set
 	// database id info
+	m_databaseIdSet = false;
 	ParseDatabaseIds(sBuf, "ParseDNAMSRCoordinate", msr_ptr->GetTypeC());
 	msr_ptr->SetDatabaseMap(m_msr_db_map, m_databaseIdSet);
 }
@@ -1808,8 +1810,16 @@ void dna_import::ParseDNAMSRGPSBaselines(string& sBuf, dnaMsrPtr& msr_ptr, bool 
 	covTmp.SetType(tmp);
 	covTmp.SetIgnore(ignoreMsr);
 
-	bslTmp.SetClusterID(msr_ptr->GetClusterID());
-	covTmp.SetClusterID(msr_ptr->GetClusterID());
+	// So no need to read database ID
+	if (!projectSettings_.i.simulate_measurements)
+	{
+		// Capture msr_id and cluster_id (for database referencing)
+		m_databaseIdSet = false;
+		ParseDatabaseIds(sBuf, "ParseDNAMSRGPSBaselines", msr_ptr->GetTypeC());
+		msr_ptr->SetDatabaseMap(m_msr_db_map, m_databaseIdSet);
+		bslTmp.SetClusterID(msr_ptr->GetClusterID());
+		covTmp.SetClusterID(msr_ptr->GetClusterID());
+	}
 
 	// Instrument station
 	msr_ptr->SetFirst(ParseInstrumentValue(sBuf, "ParseDNAMSRGPSBaselines"));
@@ -2008,8 +2018,16 @@ void dna_import::ParseDNAMSRGPSPoints(string& sBuf, dnaMsrPtr& msr_ptr, bool ign
 	covTmp.SetType(tmp);
 	covTmp.SetIgnore(ignoreMsr);
 
-	pntTmp.SetClusterID(msr_ptr->GetClusterID());
-	covTmp.SetClusterID(msr_ptr->GetClusterID());
+	// So no need to read database ID
+	if (!projectSettings_.i.simulate_measurements)
+	{
+		// Capture msr_id and cluster_id (for database referencing)
+		m_databaseIdSet = false;
+		ParseDatabaseIds(sBuf, "ParseDNAMSRGPSPoints", msr_ptr->GetTypeC());
+		msr_ptr->SetDatabaseMap(m_msr_db_map, m_databaseIdSet);
+		pntTmp.SetClusterID(msr_ptr->GetClusterID());
+		covTmp.SetClusterID(msr_ptr->GetClusterID());
+	}
 
 	// Instrument station
 	msr_ptr->SetFirst(ParseInstrumentValue(sBuf, "ParseDNAMSRGPSPoints"));
@@ -2276,7 +2294,7 @@ void dna_import::ParseDatabaseIds(const string& sBuf, const string& calling_func
 string dna_import::ParseDatabaseClusterId(const string& sBuf, const string& calling_function)
 {
 	string parsed_value;
-	// degrees value
+	// Cluster ID
 	try {
 		parsed_value = trimstr(sBuf.substr(dml_.msr_id_cluster));
 		if (!parsed_value.empty())
@@ -2296,7 +2314,7 @@ string dna_import::ParseDatabaseClusterId(const string& sBuf, const string& call
 string dna_import::ParseDatabaseMsrId(const string& sBuf, const string& calling_function)
 {
 	string parsed_value;
-	// degrees value
+	// Measurement ID
 	try {
 		parsed_value = trimstr(sBuf.substr(dml_.msr_id_msr, dmw_.msr_id_msr));
 		if (!parsed_value.empty())
@@ -2697,6 +2715,7 @@ void dna_import::ParseDNAMSRAngular(const string& sBuf, dnaMsrPtr& msr_ptr)
 
 	// Capture msr_id and cluster_id (for database referencing), then set
 	// database id info
+	m_databaseIdSet = false;
 	ParseDatabaseIds(sBuf, "ParseDNAMSRAngular", msr_ptr->GetTypeC());
 	msr_ptr->SetDatabaseMap(m_msr_db_map, m_databaseIdSet);
 
@@ -2756,14 +2775,13 @@ void dna_import::ParseDNAMSRDirections(string& sBuf, dnaMsrPtr& msr_ptr, bool ig
 	
 	CDnaDirection dirnTmp;
 	dirnTmp.SetRecordedTotal(0);
-	dirnTmp.SetClusterID(msr_ptr->GetClusterID());
-
+	
 	// If import is being used to simulate measurements, return as the
 	// expected input is:
 	//	 Measurement
 	//	 From station
 	//	 To station
-	// So no need to read direction values
+	// So no need to read direction values or database ID
 	if (!projectSettings_.i.simulate_measurements)
 	{
 		// Value
@@ -2773,8 +2791,10 @@ void dna_import::ParseDNAMSRDirections(string& sBuf, dnaMsrPtr& msr_ptr, bool ig
 		msr_ptr->SetStdDev(ParseStdDevValue(sBuf, "ParseDNAMSRDirections"));
 
 		// Capture msr_id and cluster_id (for database referencing)
+		m_databaseIdSet = false;
 		ParseDatabaseIds(sBuf, "ParseDNAMSRDirections", msr_ptr->GetTypeC());
 		msr_ptr->SetDatabaseMap(m_msr_db_map, m_databaseIdSet);
+		dirnTmp.SetClusterID(msr_ptr->GetClusterID());
 	}
 
 	for (UINT32 dirn=0; dirn<dirnCount; ++dirn)
@@ -3495,7 +3515,7 @@ void dna_import::ExtractAssociatedStns(vdnaMsrPtr* vMeasurements, pvstring pvUse
 
 		if (_it_msr->get()->GetFirst().empty())
 		{
-			// size_t msr_no(distance(vMeasurements->begin(), _it_msr));
+			// size_t msr_no(std::distance(vMeasurements->begin(), _it_msr));
 			throw XMLInteropException("Empty \"First\" station name.", 0);
 		}
 
@@ -3957,7 +3977,7 @@ void dna_import::SerialiseDNA(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements,
 
 		// print measurements
 		for (_it_msr=vMeasurements->begin(); _it_msr!=vMeasurements->end(); _it_msr++)
-			_it_msr->get()->WriteDNAMsr(&dna_msr_file, dmw_);
+			_it_msr->get()->WriteDNAMsr(&dna_msr_file, dmw_, dml_);
 
 		dna_msr_file.close();
 
@@ -5378,7 +5398,7 @@ void dna_import::SimulateMSR(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements,
 		// print measurements
 		for_each(vMeasurements->begin(), vMeasurements->end(),
 			[this, &dna_msr_file](dnaMsrPtr _it_msr){
-				_it_msr->WriteDNAMsr(&dna_msr_file, dmw_);
+				_it_msr->WriteDNAMsr(&dna_msr_file, dmw_, dml_);
 		});
 
 		dna_msr_file.close();
@@ -5427,7 +5447,7 @@ void dna_import::MapMeasurementStations(vdnaMsrPtr* vMeasurements, pvASLPtr vAss
 		// The only requirement is that a check be made on stations which become
 		// unused as a consequence of ignoring a measurement.
 		if (_it_msr->get()->GetIgnore())
-			vIgnoredMsrs->push_back(static_cast<UINT32>(distance(vMeasurements->begin(), _it_msr)));
+			vIgnoredMsrs->push_back(static_cast<UINT32>(std::distance(vMeasurements->begin(), _it_msr)));
 		
 		// 1. Handle nested type measurements (D, G, X, Y) separately
 		switch (_it_msr->get()->GetTypeC())
@@ -5447,7 +5467,7 @@ void dna_import::MapMeasurementStations(vdnaMsrPtr* vMeasurements, pvASLPtr vAss
 
 		if (_it_msr->get()->GetFirst().empty())
 		{
-			//UINT32 msr_no(distance(vMeasurements->begin(), _it_msr));
+			//UINT32 msr_no(std::distance(vMeasurements->begin(), _it_msr));
 			throw XMLInteropException("Empty \"First\" station name.", 0);
 		}
 
@@ -5655,7 +5675,7 @@ void dna_import::MapMeasurementStations(vdnaMsrPtr* vMeasurements, pvASLPtr vAss
 	{
 		if (!_it_asl->get())	// unused station
 		{
-			d = static_cast<UINT32>(distance(_it_asl_begin, _it_asl));
+			d = static_cast<UINT32>(std::distance(_it_asl_begin, _it_asl));
 			vUnusedStns->push_back(vStnsMap_sortName_.at(d).first);
 			_it_asl->reset(new CAStationList(false));
 		}			

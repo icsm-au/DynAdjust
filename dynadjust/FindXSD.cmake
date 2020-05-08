@@ -5,7 +5,10 @@
 # XSD_FOUND       - Do not attempt to use Xerces if "no" or undefined.
 
 # SET THE ROOT DIRECTORY WHERE XERCES-C++ IS INSTALLED
-IF (UNIX)
+
+IF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+    SET(XSD_INCLUDE_DIR /usr/local/Cellar/xsd/4.0.0_1/include)
+ELSEIF (UNIX)
   SET (XSD_INCLUDE_DIR /opt/xsd/xsd-4.0.0-x86_64-linux-gnu/libxsd/)
 ELSE ()
   SET (XSD_INCLUDE_DIR "C:/Program Files (x86)/CodeSynthesis XSD 4.0/include")

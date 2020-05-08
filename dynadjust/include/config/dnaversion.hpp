@@ -95,6 +95,9 @@
 #define __HARDWARE__ "Sun"
 #elif defined(__unix__)
 #define __HARDWARE__ "UNIX"
+#elif defined(__APPLE__)
+#define __HARDWARE__ "Apple"
+
 #endif
 
 const char* const __geoidint_app_name__ = "GeoidInt";
@@ -144,7 +147,7 @@ const char* const __dynadjust_app_name__ = "dynadjust";
 	const char* const __adjust_dll_name__ = "dnaAdjust.dll";
 	const char* const __plot_dll_name__ = "dnaPlot.dll";
 
-#elif defined(__linux) || defined(sun) || defined(__unix__)
+#elif defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
 	#ifdef NDEBUG
 		#define __BINARY_BUILDTYPE__ "Release"
 	#else
@@ -188,7 +191,7 @@ const char* const __dynadjust_app_name__ = "dynadjust";
 // 2.2.0.a1    02020001		Alpha release 
 // 2.2.0.b2    02020002		Beta release
 // 2.2.0.rc2   02020003		Release candidate 1 (unless bug notification is received, this is taken to be the final release)
-#define __BINARY_VERSION__ "1.0.1"
+#define __BINARY_VERSION__ "1.0.2"
 #define __SHORT_VERSION__ "10001"	// used to record DynAdjust version in binary file header
 
 // define executable name

@@ -106,7 +106,7 @@ void dna_adjust::AdjustPhasedMultiThread()
 	boost::shared_ptr<thread> f, r, c;
 	vector< boost::shared_ptr<thread> > mt_adjust_threads_sp;
 #else
-	vector<thread> mt_adjust_threads;
+	vector<boost::thread> mt_adjust_threads;
 #endif	
 
 	concurrentAdjustments.resize_runs(blockCount_);
@@ -139,8 +139,8 @@ void dna_adjust::AdjustPhasedMultiThread()
 		r.reset(new thread(adjust_reverse_thread(this, boost::ref(rev_error))));
 		mt_adjust_threads_sp.push_back(r);
 #else
-		mt_adjust_threads.push_back(thread(adjust_forward_thread(this, boost::ref(fwd_error))));
-		mt_adjust_threads.push_back(thread(adjust_reverse_thread(this, boost::ref(rev_error))));
+		mt_adjust_threads.push_back(boost::thread(adjust_forward_thread(this, boost::ref(fwd_error))));
+		mt_adjust_threads.push_back(boost::thread(adjust_reverse_thread(this, boost::ref(rev_error))));
 #endif			
 		
 		// Combination thread fires up as many threads as there are cores
@@ -153,7 +153,7 @@ void dna_adjust::AdjustPhasedMultiThread()
 		}
 #else
 		if (CombinationThreadRequired())
-			mt_adjust_threads.push_back(thread(adjust_combine_thread(this, boost::ref(cmb_error))));
+			mt_adjust_threads.push_back(boost::thread(adjust_combine_thread(this, boost::ref(cmb_error))));
 #endif	
 
 		// Start the clock
@@ -164,7 +164,7 @@ void dna_adjust::AdjustPhasedMultiThread()
 #if defined(__ICC) || defined(__INTEL_COMPILER)		// Intel compiler
 		for_each(mt_adjust_threads_sp.begin(), mt_adjust_threads_sp.end(), boost::mem_fn(&thread::join));
 #else
-		for_each(mt_adjust_threads.begin(), mt_adjust_threads.end(), boost::mem_fn(&thread::join));
+		for_each(mt_adjust_threads.begin(), mt_adjust_threads.end(), boost::mem_fn(&boost::thread::join));
 #endif
 		// This point is reached when the threads have finished
 		iteration_time = milliseconds(it_time.elapsed().wall/MILLI_TO_NANO);
@@ -607,7 +607,7 @@ void adjust_process_combine_thread::operator()()
 			// Wait here until blocks have been placed on the queue
 			if (!combineAdjustmentQueue.front_and_pop(currentBlock))
 			{
-				this_thread::sleep(milliseconds(2));
+				boost::this_thread::sleep(milliseconds(2));
 				continue;
 			}
 
@@ -661,7 +661,7 @@ void adjust_combine_thread::operator()()
 	boost::shared_ptr<thread> c;
 	vector< boost::shared_ptr<thread> > mt_combine_threads_sp;
 #else
-	vector<thread> mt_combine_threads;
+	vector<boost::thread> mt_combine_threads;
 #endif	
 
 	for (thread_id=0; thread_id<cores; ++thread_id)
@@ -677,7 +677,7 @@ void adjust_combine_thread::operator()()
 
 		mt_combine_threads_sp.push_back(c);
 #else
-		mt_combine_threads.push_back(thread(
+		mt_combine_threads.push_back(boost::thread(
 			adjust_process_combine_thread(
 				main_adj_,								// pointer to main adjustment object
 				thread_id,								// this new thread's ID (1..n, where n = # cores)
@@ -690,7 +690,7 @@ void adjust_combine_thread::operator()()
 #if defined(__ICC) || defined(__INTEL_COMPILER)		// Intel compiler
 	for_each(mt_combine_threads_sp.begin(), mt_combine_threads_sp.end(), boost::mem_fn(&thread::join));
 #else
-	for_each(mt_combine_threads.begin(), mt_combine_threads.end(), boost::mem_fn(&thread::join));
+	for_each(mt_combine_threads.begin(), mt_combine_threads.end(), boost::mem_fn(&boost::thread::join));
 #endif	
 
 	// cmb_error is set during combineThreadProcessor
@@ -726,7 +726,7 @@ void adjust_process_prepare_thread::operator()()
 			// Wait here until blocks have been placed on the queue
 			if (!prepareAdjustmentQueue.front_and_pop(currentBlock))
 			{
-				this_thread::sleep(milliseconds(2));
+				boost::this_thread::sleep(milliseconds(2));
 				continue;
 			}
 
@@ -768,7 +768,7 @@ void adjust_prepare_thread::operator()()
 	boost::shared_ptr<thread> p;
 	vector< boost::shared_ptr<thread> > mt_prepare_threads_sp;
 #else
-	vector<thread> mt_prepare_threads;
+	vector<boost::thread> mt_prepare_threads;
 #endif	
 	
 
@@ -784,7 +784,7 @@ void adjust_prepare_thread::operator()()
 
 		mt_prepare_threads_sp.push_back(p);
 #else
-		mt_prepare_threads.push_back(thread(
+		mt_prepare_threads.push_back(boost::thread(
 			adjust_process_prepare_thread(
 				main_adj_,				// pointer to main adjustment object
 				thread_id,				// this new thread's ID (1..n, where n = # cores)
@@ -796,7 +796,7 @@ void adjust_prepare_thread::operator()()
 #if defined(__ICC) || defined(__INTEL_COMPILER)		// Intel compiler
 	for_each(mt_prepare_threads_sp.begin(), mt_prepare_threads_sp.end(), boost::mem_fn(&thread::join));
 #else
-	for_each(mt_prepare_threads.begin(), mt_prepare_threads.end(), boost::mem_fn(&thread::join));
+	for_each(mt_prepare_threads.begin(), mt_prepare_threads.end(), boost::mem_fn(&boost::thread::join));
 #endif	
 
 	// prep_error is set during prepareThreadProcessor
@@ -815,7 +815,7 @@ void dna_adjust::PrepareAdjustmentMultiThread()
 {
 	prepareAdjustmentQueue.reset_blocks_coming();
 	
-	thread mt_prepare_thread(adjust_prepare_thread(this, boost::ref(prep_error)));
+	boost::thread mt_prepare_thread(adjust_prepare_thread(this, boost::ref(prep_error)));
 
 	// Start the forward, reverse and combine threads, which commences the
 	// network adjustment

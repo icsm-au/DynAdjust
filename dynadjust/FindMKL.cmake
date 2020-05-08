@@ -14,7 +14,6 @@ if (UNIX)
 
 	if (NOT MKLROOT_PATH)
 		# try to find at /opt/intel/mkl
-		
 		if (EXISTS "/opt/intel/mkl")
 			set(MKLROOT_PATH "/opt/intel/mkl")
 		endif (EXISTS "/opt/intel/mkl")
@@ -42,6 +41,8 @@ if (ICCROOT_PATH)
 	    else (CMAKE_SIZEOF_VOID_P MATCHES 8)
 	        set(EXPECT_ICC_LIBPATH "${ICCROOT_PATH}/lib/ia32")
 	    endif (CMAKE_SIZEOF_VOID_P MATCHES 8)
+	elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+			set(EXPECT_ICC_LIBPATH "${ICCROOT_PATH}/lib/")
 	endif (CMAKE_SYSTEM_NAME MATCHES "Linux")
 endif (ICCROOT_PATH)
 
@@ -52,13 +53,14 @@ message(STATUS "EXPECT_ICC_LIBPATH ${EXPECT_ICC_LIBPATH}")
 	
 if (MKLROOT_PATH)
 	# root-path found
-	
 	if (CMAKE_SYSTEM_NAME MATCHES "Linux")
 	    if (CMAKE_SIZEOF_VOID_P MATCHES 8)
 	        set(EXPECT_MKL_LIBPATH "${MKLROOT_PATH}/lib/intel64")
 	    else (CMAKE_SIZEOF_VOID_P MATCHES 8)
 	        set(EXPECT_MKL_LIBPATH "${MKLROOT_PATH}/lib/ia32")
 	    endif (CMAKE_SIZEOF_VOID_P MATCHES 8)
+	elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin")
+			set(EXPECT_MKL_LIBPATH "${MKLROOT_PATH}/lib/")
 	endif (CMAKE_SYSTEM_NAME MATCHES "Linux")
 	
 	#message(STATUS "EXPECT_MKL_LIBPATH:")

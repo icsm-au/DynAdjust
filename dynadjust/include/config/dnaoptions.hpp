@@ -504,7 +504,7 @@ public:
 	UINT16			_adj_msr_iteration;		// Outputs adjusted measurements for each block within each iteration
 	UINT16			_cmp_msr_iteration;		// Outputs computed measurements for each block within each iteration
 	UINT16			_adj_stat_iteration;	// Outputs statistical summary for each block within each iteration
-	UINT16			_adj_msr_final;			// Outputs final adjusted measurements for each block within each iteration
+	UINT16			_adj_msr_final;			// Outputs final adjusted measurements
 	UINT16			_adj_msr_tstat;			// Outputs tstats for adjusted measurements
 	UINT16			_database_ids;			// Output msr id and cluster id
 	UINT16			_print_ignored_msrs;	// Output adjusted measurement statistics for ignored measurements

@@ -240,7 +240,7 @@ void dna_adjust::coutVersion()
 UINT32 dna_adjust::CurrentIteration() const 
 { 
 #ifdef MULTI_THREAD_ADJUST
-	lock_guard<mutex> lock(current_iterationMutex);		
+	boost::lock_guard<boost::mutex> lock(current_iterationMutex);
 #endif
 	return currentIteration_; 
 }
@@ -248,7 +248,7 @@ UINT32 dna_adjust::CurrentIteration() const
 UINT32& dna_adjust::incrementIteration() 
 { 
 #ifdef MULTI_THREAD_ADJUST
-	lock_guard<mutex> lock(current_iterationMutex);		
+	boost::lock_guard<boost::mutex> lock(current_iterationMutex);
 #endif
 	return ++currentIteration_; 
 }
@@ -1203,7 +1203,7 @@ void dna_adjust::CarryStnEstimatesandVariancesForward(const UINT32& thisBlock, c
 	for (_it_jsl=v_JSL_.at(thisBlock).begin(); _it_jsl!=v_JSL_.at(thisBlock).end(); ++_it_jsl)
 	{
 		// get index of this JSL
-		jslvar = static_cast<UINT32>(distance(v_JSL_.at(thisBlock).begin(), _it_jsl) * 3);
+		jslvar = static_cast<UINT32>(std::distance(v_JSL_.at(thisBlock).begin(), _it_jsl) * 3);
 		jsl = v_blockStationsMap_.at(thisBlock)[*_it_jsl] * 3;
 		
 		// copy variance elements for this JSL
@@ -1223,7 +1223,7 @@ void dna_adjust::CarryStnEstimatesandVariancesForward(const UINT32& thisBlock, c
 			if (*_it_jsl_cov == *_it_jsl)
 				continue;
 
-			jslcovar = static_cast<UINT32>(distance(v_JSL_.at(thisBlock).begin(), _it_jsl_cov) * 3);
+			jslcovar = static_cast<UINT32>(std::distance(v_JSL_.at(thisBlock).begin(), _it_jsl_cov) * 3);
 			jsl_cov = v_blockStationsMap_.at(thisBlock)[*_it_jsl_cov] * 3;
 			v_junctionVariances_.at(thisBlock).copyelements(jslvar, jslcovar, 
 				v_normals_.at(thisBlock), jsl, jsl_cov, 3, 3);
@@ -1272,7 +1272,7 @@ void dna_adjust::CarryStnEstimatesandVariancesForward(const UINT32& thisBlock, c
 	{
 		// get index of this JSL in the next block
 		jsl = v_blockStationsMap_.at(nextBlock)[*_it_jsl] * 3;		// next block
-		jslvar = static_cast<UINT32>(distance(v_JSL_.at(thisBlock).begin(), _it_jsl) * 3);
+		jslvar = static_cast<UINT32>(std::distance(v_JSL_.at(thisBlock).begin(), _it_jsl) * 3);
 
 		// add variance elements for this JSL to normals of the next block
 		v_normals_.at(nextBlock).blockadd(jsl, jsl,
@@ -1310,7 +1310,7 @@ void dna_adjust::CarryStnEstimatesandVariancesForward(const UINT32& thisBlock, c
 			if (*_it_jsl_cov == *_it_jsl)
 				continue;
 
-			jslcovar = static_cast<UINT32>(distance(v_JSL_.at(thisBlock).begin(), _it_jsl_cov) * 3);
+			jslcovar = static_cast<UINT32>(std::distance(v_JSL_.at(thisBlock).begin(), _it_jsl_cov) * 3);
 			jsl_cov = v_blockStationsMap_.at(nextBlock)[*_it_jsl_cov] * 3;		// next block
 
 			// copy covariance elements for this JSL to normals of the next block
@@ -1365,7 +1365,7 @@ void dna_adjust::CarryStnEstimatesandVariancesReverse(const UINT32& nextBlock, c
 	for (_it_jsl=v_JSL_.at(nextBlock).begin(); _it_jsl!=v_JSL_.at(nextBlock).end(); ++_it_jsl)
 	{
 		// get index of this JSL
-		jsl_var_next = static_cast<UINT32>(distance(v_JSL_.at(nextBlock).begin(), _it_jsl) * 3);
+		jsl_var_next = static_cast<UINT32>(std::distance(v_JSL_.at(nextBlock).begin(), _it_jsl) * 3);
 		jsl_var_order_this = v_blockStationsMap_.at(thisBlock)[*_it_jsl] * 3;
 		
 		// copy junction variance elements
@@ -1385,7 +1385,7 @@ void dna_adjust::CarryStnEstimatesandVariancesReverse(const UINT32& nextBlock, c
 			if (*_it_jsl_cov == *_it_jsl)
 				continue;
 
-			jsl_covar_next = static_cast<UINT32>(distance(v_JSL_.at(nextBlock).begin(), _it_jsl_cov) * 3);
+			jsl_covar_next = static_cast<UINT32>(std::distance(v_JSL_.at(nextBlock).begin(), _it_jsl_cov) * 3);
 			jsl_covar_order_this = v_blockStationsMap_.at(thisBlock)[*_it_jsl_cov] * 3;
 			junctionVariances->copyelements(jsl_var_next, jsl_covar_next, 
 				aposterioriVariances, jsl_var_order_this, jsl_covar_order_this, 3, 3);
@@ -1430,7 +1430,7 @@ void dna_adjust::CarryStnEstimatesandVariancesReverse(const UINT32& nextBlock, c
 		++_it_jsl, paramCount+=3)
 	{
 		// get index of this JSL in the next block
-		jsl_var_next = static_cast<UINT32>(distance(v_JSL_.at(nextBlock).begin(), _it_jsl) * 3);
+		jsl_var_next = static_cast<UINT32>(std::distance(v_JSL_.at(nextBlock).begin(), _it_jsl) * 3);
 		jsl_var_order_this = v_blockStationsMap_.at(thisBlock)[*_it_jsl] * 3;		// previous block
 		jsl_var_order_next = v_blockStationsMap_.at(nextBlock)[*_it_jsl] * 3;
 
@@ -1470,7 +1470,7 @@ void dna_adjust::CarryStnEstimatesandVariancesReverse(const UINT32& nextBlock, c
 			if (*_it_jsl_cov == *_it_jsl)
 				continue;
 
-			jsl_covar_next = static_cast<UINT32>(distance(v_JSL_.at(nextBlock).begin(), _it_jsl_cov) * 3);
+			jsl_covar_next = static_cast<UINT32>(std::distance(v_JSL_.at(nextBlock).begin(), _it_jsl_cov) * 3);
 			jsl_covar_order_next = v_blockStationsMap_.at(nextBlock)[*_it_jsl_cov] * 3;
 
 			// add covariance elements for this JSL to normals of the next block
@@ -2097,7 +2097,7 @@ void dna_adjust::BuildUniqueBlockStationMap()
 				v_blockStationsMapUnique_.push_back(
 					u32u32_uint32_pair(
 						uint32_uint32_pair(_it_m->first, _it_m->second),	// station, block index
-						static_cast<UINT32>(distance(v_blockStationsMap_.begin(), _it_vm))));	// block
+						static_cast<UINT32>(std::distance(v_blockStationsMap_.begin(), _it_vm))));	// block
 			}			
 		}
 	}
@@ -3084,7 +3084,6 @@ void dna_adjust::PrintAdjustedNetworkMeasurements()
 		break;
 	}
 }
-
 	
 
 void dna_adjust::CreateMsrToStnTally()
@@ -4012,7 +4011,7 @@ void dna_adjust::CarryStnEstimatesandVariancesCombine(
 	{
 		// get index of this JSL in the next block
 		jsl = v_blockStationsMap_.at(thisBlock)[*_it_jsl] * 3;
-		jslvar = static_cast<UINT32>(distance(v_JSL_.at(nextBlock).begin(), _it_jsl) * 3);
+		jslvar = static_cast<UINT32>(std::distance(v_JSL_.at(nextBlock).begin(), _it_jsl) * 3);
 
 		// add variances for this JSL to normals
 		normals->blockadd(jsl, jsl, 
@@ -4051,7 +4050,7 @@ void dna_adjust::CarryStnEstimatesandVariancesCombine(
 				continue;
 			
 			// get index of all covariances for this JSL in the next block
-			jslcovar = static_cast<UINT32>(distance(v_JSL_.at(nextBlock).begin(), _it_jsl_cov) * 3);
+			jslcovar = static_cast<UINT32>(std::distance(v_JSL_.at(nextBlock).begin(), _it_jsl_cov) * 3);
 			jsl_cov1 = v_blockStationsMap_.at(thisBlock)[*_it_jsl_cov] * 3;
 			
 			// add covariances for this JSL to normals
@@ -4719,9 +4718,8 @@ void dna_adjust::UpdateDesignNormalMeasMatrices(pit_vmsr_t _it_msr, UINT32& desi
 	switch ((*_it_msr)->measType)
 	{
 	case 'A':	// Horizontal angle
-		double direction12, direction13;
 		UpdateDesignNormalMeasMatrices_A(_it_msr, design_row, block,
-			measMinusComp, estimatedStations, normals, design, AtVinv, direction12, direction13, buildnewMatrices);
+			measMinusComp, estimatedStations, normals, design, AtVinv, buildnewMatrices);
 		break;
 	case 'B':	// Geodetic azimuth
 	case 'K':	// Astronomic azimuth
@@ -5574,9 +5572,8 @@ void dna_adjust::AddMsrtoMeasMinusComp(pit_vmsr_t _it_msr, const UINT32& design_
 	
 
 void dna_adjust::UpdateDesignNormalMeasMatrices_A(pit_vmsr_t _it_msr, UINT32& design_row, const UINT32& block,
-											matrix_2d* measMinusComp, matrix_2d* estimatedStations,
-											matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, 
-											double& direction12, double& direction13, bool buildnewMatrices)
+											  matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
+											  matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices)
 {
 	UINT32 stn1(GetBlkMatrixElemStn1(block, _it_msr)); 
 	UINT32 stn2(GetBlkMatrixElemStn2(block, _it_msr));
@@ -5584,7 +5581,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_A(pit_vmsr_t _it_msr, UINT32& de
 
 	it_vstn_t_const stn1_it(bstBinaryRecords_.begin() + (*_it_msr)->station1);
 
-	double local_12e, local_12n, local_13e, local_13n;
+	double direction12, direction13, local_12e, local_12n, local_13e, local_13n;
 
 	// compute angle 1 -> 2 -> 3 from estimated coordinates
 	double comp_msr(HorizontalAngle(
@@ -5619,7 +5616,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_A(pit_vmsr_t _it_msr, UINT32& de
 			// of the vertical via "Laplace correction".  This correction requires zenith 
 			// distance (zenith12, zenith13) and geodetic azimuth (direction12, direction13), 
 			// both of which must be computed from coordinates.
-		
+
 			////////////////////////////////////////////////////////////////////////////
 			// Compute zenith distance 1 -> 2
 			double zenith12(ZenithDistance<double>(
@@ -5650,36 +5647,21 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_A(pit_vmsr_t _it_msr, UINT32& de
 				stn3_it->currentLatitude,
 				stn3_it->currentLongitude,
 				(*_it_msr)->term3,							// instrument height
-				(*_it_msr)->term4));						/*target height*/
+				(*_it_msr)->term4));						// target height
 
 			// Laplace correction 1 -> 2 -> 3
-			switch ((*_it_msr)->measType)
-			{
-			case 'D':
-				// capture individual deflection corrections for the two directions that
-				// have yielded the subtended angle
-				(*_it_msr)->preAdjCorr = HzAngleDeflectionCorrections<double>(
-					direction12,								// geodetic azimuth 1 -> 2
-					zenith12,									// zenith distance 1 -> 2
-					direction13,								// geodetic azimuth 1 -> 3
-					zenith13,									// zenith distance 1 -> 3
-					stn1_it->verticalDef,						// deflection in prime vertical
-					stn1_it->meridianDef,						// deflection in prime meridian
-					(*_it_msr)->term3,							// deflection correction 1->2
-					(*_it_msr)->term4);							// deflection correction 1->3
-				break;
-			default:
-				(*_it_msr)->preAdjCorr = HzAngleDeflectionCorrection<double>(
-					direction12,								// geodetic azimuth 1 -> 2
-					zenith12,									// zenith distance 1 -> 2
-					direction13,								// geodetic azimuth 1 -> 3
-					zenith13,									// zenith distance 1 -> 3
-					stn1_it->verticalDef,						// deflection in prime vertical
-					stn1_it->meridianDef);						// deflection in prime meridian
-			}			
+			(*_it_msr)->preAdjCorr = HzAngleDeflectionCorrection<double>(		
+				direction12,								// geodetic azimuth 1 -> 2
+				zenith12,									// zenith distance 1 -> 2
+				direction13,								// geodetic azimuth 1 -> 3
+				zenith13,									// zenith distance 1 -> 3
+				stn1_it->verticalDef,						// deflection in prime vertical
+				stn1_it->meridianDef);						// deflection in prime meridian
 
 			(*_it_msr)->term1 -= (*_it_msr)->preAdjCorr;	// apply deflection correction
 		}
+		else
+			(*_it_msr)->preAdjCorr = 0.0;
 
 		if (projectSettings_.a.stage)
 			return;
@@ -5814,6 +5796,8 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_BK(pit_vmsr_t _it_msr, UINT32& d
 			// scale4 must be used since term3 and term4 are station and target heights respectively
 			(*_it_msr)->term1 -= (*_it_msr)->preAdjCorr;			// apply deflection correction
 		}
+		else
+			(*_it_msr)->preAdjCorr = 0.0;
 
 		if (projectSettings_.a.stage)
 			return;
@@ -5929,19 +5913,18 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_D(pit_vmsr_t _it_msr, UINT32& de
 	it_vmsr_t it_angle(angleRec.begin());
 
 	double previousDirection((*_it_msr)->term1);
-	double direction12, direction13;
 
 	(*_it_msr)++;
 
 	// set derived angle, variance and covariance to the binary records
 	// term1 = measured direction
 	// term2 = variance (direction)
-	// term3 = direction deflection correction (1->2)
-	// term4 = direction deflection correction (1->3)
+	// term3 = instrument height (not used)
+	// term4 = target height (not used)
 	// scale1 = derived angle corrected for deflection of the vertical
 	// scale2 = variance (angle)
-	// scale3 = covariance (angle)
-	// scale4 = computed direction
+	// scale3 = covariance (angle) - for the context of vmsr_t angleRec only, so as to 
+	//          properly form the normals from covariances formed from directions SDs
 	// preAdjMeas = original derived angle
 	
 	if (projectSettings_.g.verbose > 6)
@@ -5982,33 +5965,12 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_D(pit_vmsr_t _it_msr, UINT32& de
 				// derived angle corrected for deflection of vertical
 				it_angle->term1 = (*_it_msr)->scale1;
 			
-			// initialise instrument and target heights
-			it_angle->term3 = 0.;
-			it_angle->term4 = 0.;
-
 			// normals not needed
 			UpdateDesignNormalMeasMatrices_A(&it_angle, design_row, block,
-				measMinusComp, estimatedStations, 0, design, AtVinv, 
-				direction12, direction13, buildnewMatrices);
-
-			// update computed values
-			if (a == 0)
-				// update computed direction (previous)
-				_it_msr_first->scale4 = direction12;
-			
-			// update computed direction (this)
-			(*_it_msr)->scale4 = direction13;
+				measMinusComp, estimatedStations, 0, design, AtVinv, buildnewMatrices);
 
 			if (buildnewMatrices)
 			{
-				// update computed values
-				if (a == 0)
-					// deflection correction (previous)
-					_it_msr_first->term3 = it_angle->term3;
-				
-				// deflection correction (this)
-				(*_it_msr)->term3 = it_angle->term4;
-				
 				// Update derived angle, corrected for deflection of vertical
 				(*_it_msr)->scale1 = it_angle->term1;
 				// Update derived angle, uncorrected for deflection of vertical
@@ -6380,6 +6342,8 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_V(pit_vmsr_t _it_msr, UINT32& de
 			(*_it_msr)->term1 -= (*_it_msr)->preAdjCorr;						// apply deflection correction
 			////////////////////////////////////////////////////////////////////////////
 		}
+		else
+			(*_it_msr)->preAdjCorr = 0.0;
 
 		if (projectSettings_.a.stage)
 			return;
@@ -6485,6 +6449,8 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_Z(pit_vmsr_t _it_msr, UINT32& de
 			(*_it_msr)->term1 -= (*_it_msr)->preAdjCorr;						// apply deflection correction
 			////////////////////////////////////////////////////////////////////////////
 		}
+		else
+			(*_it_msr)->preAdjCorr = 0.0;
 
 		if (projectSettings_.a.stage)
 			return;
@@ -6631,6 +6597,8 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_I(pit_vmsr_t _it_msr, UINT32& de
 			(*_it_msr)->preAdjCorr = stn1_it->meridianDef;						// deflection in the prime meridian
 			(*_it_msr)->term1 -= (*_it_msr)->preAdjCorr;						// apply deflection correction
 		}
+		else
+			(*_it_msr)->preAdjCorr = 0.0;
 
 		if (projectSettings_.a.stage)
 			return;
@@ -6660,6 +6628,8 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_J(pit_vmsr_t _it_msr, UINT32& de
 				stn1_it->verticalDef / cos(stn1_it->currentLatitude);		// sec(a) = 1/cos(a)
 			(*_it_msr)->term1 -= (*_it_msr)->preAdjCorr;					// apply deflection correction
 		}
+		else
+			(*_it_msr)->preAdjCorr = 0.0;
 
 		if (projectSettings_.a.stage)
 			return;
@@ -8349,7 +8319,6 @@ void dna_adjust::ComputePrecisionAdjMsrs(const UINT32& block /*= 0*/)
 	it_vmsr_t _it_msr;
 
 	matrix_2d *design(&v_design_.at(block)), *aposterioriVariances(&v_normals_.at(block));
-	matrix_2d* estimatedStations(&v_estimatedStations_.at(block));
 
 	// Measurements can only ever appear once in the whole CML.  That is, no one measurement will be found
 	// in two or more blocks.  Therefore, unlike precisions of adjusted stations (which may appear in one
@@ -8371,21 +8340,10 @@ void dna_adjust::ComputePrecisionAdjMsrs(const UINT32& block /*= 0*/)
 				design_row, precadjmsr_row);
 			break;
 		case 'D':	// Direction set
-			// Since direction sets are reduced to angles, adjustment statistics
-			// are based on the reduced angles.  However, the adjusted measurements
-			// table in the adj file should report on statistics for each direction.
-			// So, if the user requires the adj file, compute statistics for each
-			// direction, but do not alter the adjustment statistics
-			if (projectSettings_.o._adj_msr_final)
-			{
-				it_vmsr_t _it_msr_dirn(_it_msr);
-				ComputePrecisionAdjMsrs_Dd(block, _it_msr_dirn,
-					estimatedStations, aposterioriVariances);
-			}
 			// When a target direction is found, continue to next element.  
 			if (_it_msr->vectorCount1 < 1)
 				continue;
-			ComputePrecisionAdjMsrs_Da(block, _it_msr, 
+			ComputePrecisionAdjMsrs_D(block, _it_msr, 
 				design, aposterioriVariances,
 				design_row, precadjmsr_row);
 			break;
@@ -8474,7 +8432,7 @@ void dna_adjust::ComputePrecisionAdjMsrs_A(const UINT32& block, const UINT32& st
 }
 	
 
-void dna_adjust::ComputePrecisionAdjMsrs_Da(const UINT32& block, it_vmsr_t& _it_msr, 
+void dna_adjust::ComputePrecisionAdjMsrs_D(const UINT32& block, it_vmsr_t& _it_msr, 
 											  matrix_2d* design, matrix_2d* aposterioriVariances, 
 											  UINT32& design_row, UINT32& precadjmsr_row)
 {
@@ -8492,110 +8450,6 @@ void dna_adjust::ComputePrecisionAdjMsrs_Da(const UINT32& block, it_vmsr_t& _it_
 
 		ComputePrecisionAdjMsrs_A(block, stn1, stn2, stn3, 
 			design, aposterioriVariances, design_row, precadjmsr_row);
-	}
-}
-
-// This function is used to compute the adjustment statistics for each direction within a directions set.
-// In essence, it behaves similar to ComputePrecisionAdjMsrs_BCEKLMSVZ, but doesn't store the result in
-// v_precAdjMsrsFull_.  Rather, it is called when printing to the adj file only.
-// Since the adjustment of direction sets is based upon the derived angles, partial derivatives will not have
-// have been formed (held in design) and therefore need to be formed here.
-void dna_adjust::ComputePrecisionAdjMsrs_Dd(const UINT32& block, it_vmsr_t& _it_msr,
-	matrix_2d* estimatedStations, matrix_2d* aposterioriVariances)
-{
-	UINT32 stn1, stn2;
-	UINT32 d, direction_count(_it_msr->vectorCount1);		// number of directions including the RO
-
-	double part_1[6] = { 0.,0.,0.,0.,0.,0. };
-	double design[6] = { 0.,0.,0.,0.,0.,0. };
-	UINT32 stations[2];
-	UINT32 station_count(2);
-	UINT32 station_i[2] = { 0, 3 };
-	UINT32 var1, var2, elem(0);
-	UINT32 j, i, s;
-	double precisionAdjMsr(0.);
-
-	double local_12e, local_12n, cos_lat, sin_lat, cos_long, sin_long, 
-		sinlat_coslong, sinlat_sinlong, cos2_dir12_div_n122;
-
-	// Adjustments are based upon derived angle, variance and covariance, as follows
-	// term1 = measured direction
-	// term2 = variance (direction)
-	// term3 = direction deflection correction (1->2)
-	// term4 = 
-	// scale1 = derived angle corrected for deflection of the vertical
-	// scale2 = variance (angle)
-	// scale3 = 
-	// scale4 = computed direction
-	// preAdjMeas = original derived angle
-
-	for (d = 0; d < direction_count; ++d)
-	{
-		// On the first time this loop is entered, the stn1 and stn2 will be instrument and RO
-		// Then, all following directions will be instrument and target.
-		stn1 = GetBlkMatrixElemStn1(block, &_it_msr);
-		stn2 = GetBlkMatrixElemStn2(block, &_it_msr);
-
-		stations[0] = stn1;
-		stations[1] = stn2;
-		
-		it_vstn_t_const stn1_it(bstBinaryRecords_.begin() + _it_msr->station1);
-		it_vstn_t_const stn2_it(bstBinaryRecords_.begin() + _it_msr->station2);
-
-		ComputeLocalElements2D<double>(
-			estimatedStations->get(stn1, 0),		// X1
-			estimatedStations->get(stn1+1, 0),		// Y1
-			estimatedStations->get(stn1+2, 0),		// Z1
-			estimatedStations->get(stn2, 0), 		// X2
-			estimatedStations->get(stn2+1, 0),		// Y2
-			estimatedStations->get(stn2+2, 0),		// Z2
-			stn1_it->currentLatitude,
-			stn1_it->currentLongitude,
-			&local_12e, &local_12n);
-
-		////////////////////////////////////////////////////////////////////////////
-		// compute partial derivatives for normals
-		cos_lat = (cos(stn1_it->currentLatitude));
-		sin_lat = (sin(stn1_it->currentLatitude));
-		cos_long = (cos(stn1_it->currentLongitude));
-		sin_long = (sin(stn1_it->currentLongitude));
-		sinlat_coslong = (sin_lat*cos_long);
-		sinlat_sinlong = (sin_lat*sin_long);
-		cos2_dir12_div_n122 = (cos(_it_msr->scale4) * cos(_it_msr->scale4) / (local_12n * local_12n));
-
-		// Add partial derivatives dA/dX1, dA/dY1, dA/dZ1 to design matrix
-		s = 0;
-		design[s++] = cos2_dir12_div_n122 * (local_12n * sin_long - local_12e * sinlat_coslong);
-		design[s++] = cos2_dir12_div_n122 * (-local_12n * cos_long - local_12e * sinlat_sinlong);
-		design[s++] = cos2_dir12_div_n122 * local_12e * cos_lat;
-		design[s++] = -design[0];
-		design[s++] = -design[1];
-		design[s] = -design[2];
-
-		for (s=0; s<station_count; ++s)		// for every station
-		{
-			for (i=0; i<3; ++i)				// X, Y, Z
-			{
-				for (j=0; j<station_count; ++j)			// for every correlated station
-				{
-					var1 = station_i[j];
-					var2 = stations[j];
-					part_1[elem] += design[var1] * aposterioriVariances->get(var2, stations[s] + i);
-					part_1[elem] += design[var1+1] * aposterioriVariances->get(var2+1, stations[s] + i);
-					part_1[elem] += design[var1+2] * aposterioriVariances->get(var2+2, stations[s] + i);
-				}
-				elem++;
-			}
-		}
-
-		for (s=0; s<station_count; ++s)	// for every station
-			for (i=0; i<3; ++i)		// X, Y, Z
-				precisionAdjMsr += part_1[station_i[s] + i] * design[station_i[s] + i];
-		
-		// store the adjusted direction precision
-		_it_msr->scale3 = precisionAdjMsr;
-
-		_it_msr++;
 	}
 }
 	
@@ -8618,10 +8472,10 @@ void dna_adjust::ComputePrecisionAdjMsrs_BCEKLMSVZ(const UINT32& block, const UI
 		{
 			for (j=0; j<station_count; ++j)			// for every correlated station
 			{	
-				var = stations[j];				
+				var = stations[j];
 				part_1[elem] += design->get(design_row, var) * aposterioriVariances->get(var, stations[s]+i);
 				part_1[elem] += design->get(design_row, var+1) * aposterioriVariances->get(var+1, stations[s]+i);
-				part_1[elem] += design->get(design_row, var+2) * aposterioriVariances->get(var+2, stations[s] + i);
+				part_1[elem] += design->get(design_row, var+2) * aposterioriVariances->get(var+2, stations[s]+i);
 			}
 			elem++;
 		}		
@@ -8775,14 +8629,13 @@ void dna_adjust::UpdateMsrRecords(const UINT32& block)
 void dna_adjust::UpdateMsrRecords_D(const UINT32& block, it_vmsr_t& _it_msr, UINT32& msr_row, UINT32& precadjmsr_row)
 {
 	UINT32 a, angle_count(_it_msr->vectorCount1 - 1);
-	double cumulative_direction(_it_msr->term1);
-
+	
 	// move to first direction record which contains the derived angles
 	_it_msr++;
 	
 	for (a=0; a<angle_count; ++a)		// for each angle
 	{
-		UpdateMsrRecord(block, _it_msr, msr_row, precadjmsr_row, _it_msr->scale2, &cumulative_direction);
+		UpdateMsrRecord(block, _it_msr, msr_row, precadjmsr_row, _it_msr->scale2);
 		_it_msr++;
 		msr_row++;
 		precadjmsr_row++;
@@ -8827,16 +8680,15 @@ void dna_adjust::UpdateMsrRecords_GXY(const UINT32& block, it_vmsr_t& _it_msr, U
 	
 
 void dna_adjust::UpdateMsrRecord(const UINT32& block, it_vmsr_t& _it_msr, 
-	const UINT32& msr_row, const UINT32& precadjmsr_row, const double& measPrec, double* measAdj)
+	const UINT32& msr_row, const UINT32& precadjmsr_row, const double& measPrec)
 {																			// adjusted measurement
 	_it_msr->measCorr = -v_measMinusComp_.at(block).get(msr_row, 0);			// correction
 	
 	if (_it_msr->measType == 'D')
 	{
-		*measAdj += _it_msr->scale1 + _it_msr->measCorr;
-		if (*measAdj > TWO_PI)
-			*measAdj -= TWO_PI;
-		_it_msr->measAdj = *measAdj;
+		_it_msr->measAdj = _it_msr->scale1 + _it_msr->measCorr;
+		if (_it_msr->measAdj > TWO_PI)
+			_it_msr->measAdj -= TWO_PI;
 	}
 	else
 		_it_msr->measAdj = _it_msr->term1 + _it_msr->measCorr;
@@ -9066,17 +8918,11 @@ void dna_adjust::ComputeChiSquare_D(it_vmsr_t& _it_msr, UINT32& measurement_inde
 {
 	UINT32 a, angle_count(_it_msr->vectorCount1 - 1);
 
-	//TRACE("chi square d: %.6G\n", (_it_msr->term1 - _it_msr->scale4) * (_it_msr->term1 - _it_msr->scale4) / _it_msr->term2);
-
 	// move to first direction record which contains the derived angles
 	_it_msr++;
-
-	//TRACE("chi square d: %.6G\n", (_it_msr->term1 - _it_msr->scale4) * (_it_msr->term1 - _it_msr->scale4) / _it_msr->term2);
 	
 	for (a=0; a<angle_count; ++a)		// for each angle
 	{
-		//TRACE("chi square a: %.6G\n", (measMinusComp->get(measurement_index, 0) * measMinusComp->get(measurement_index, 0) / _it_msr->scale2));
-
 		chiSquared_ +=
 			measMinusComp->get(measurement_index, 0) * 
 			measMinusComp->get(measurement_index, 0) / _it_msr->scale2;		//variance (angle)
@@ -10358,9 +10204,6 @@ void dna_adjust::UpdateGeographicCoords()
 
 void dna_adjust::PrintCompMeasurements(const UINT32& block, const string type)
 {
-	// Print heading
-	adj_file << endl;
-
 	// Print header
 	string table_heading("Computed Measurements");
 	string col_heading("Computed");
@@ -10443,7 +10286,7 @@ void dna_adjust::PrintCompMeasurements(const UINT32& block, const string type)
 			break;
 		}
 	}
-	adj_file << endl;
+	adj_file << endl << endl;
 }
 	
 
@@ -10542,7 +10385,7 @@ void dna_adjust::PrintAdjMeasurementsHeader(bool printHeader, const string& tabl
 	}
 
 	// Adjusted, computed and ignored measurements
-	// Print database ids
+	// Print database ids?
 	if (projectSettings_.o._database_ids)
 	{
 		j += STDDEV + STDDEV;
@@ -10553,7 +10396,7 @@ void dna_adjust::PrintAdjMeasurementsHeader(bool printHeader, const string& tabl
 
 	adj_file << endl;
 
-	for (i; i < j; ++i)
+	for (i; i<j; ++i)
 		adj_file << "-";
 
 	adj_file << endl;
@@ -10737,66 +10580,82 @@ void dna_adjust::UpdateIgnoredMeasurements_CEM(pit_vmsr_t _it_msr, const UINT32&
 void dna_adjust::UpdateIgnoredMeasurements_D(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement)
 {
 	it_vmsr_t _it_msr_first(*_it_msr);
-	UINT32 d, direction_count((*_it_msr)->vectorCount1);
+	UINT32 a, angle_count((*_it_msr)->vectorCount1 - 1);		// number of directions excluding the RO
 	
-	UINT32 stn1, stn2;
-	it_vstn_t_const stn1_it, stn2_it;
+	vmsr_t angleRec;
+	angleRec.push_back(*(*_it_msr));
+	it_vmsr_t it_angle(angleRec.begin());
 
-	for (d=0; d<direction_count; ++d)
+	double previousDirection((*_it_msr)->term1);
+	double previousVariance((*_it_msr)->term2);
+
+	(*_it_msr)++;
+
+	// set derived angle, variance and covariance to the binary records
+	// term1 = measured direction
+	// term2 = variance (direction)
+	// term3 = instrument height (not used)
+	// term4 = target height (not used)
+	// scale1 = derived angle corrected for deflection of the vertical
+	// scale2 = variance (angle)
+	// scale3 = covariance (angle) - for the context of vmsr_t angleRec only, so as to 
+	//          properly form the normals from covariances formed from directions SDs
+	// preAdjMeas = original derived angle
+
+	if (projectSettings_.g.verbose > 6)
+		debug_file << "Reduced angles from raw directions: ";
+
+	try
 	{
-		// initialise measurement (on the first adjustment only!)
-		if (storeOriginalMeasurement)
-			(*_it_msr)->preAdjMeas = (*_it_msr)->term1;
-
-		// Compute the geodetic azimuth
-		UpdateIgnoredMeasurements_BK(_it_msr, block, estimatedStations, storeOriginalMeasurement);
-
-		stn1 = (GetBlkMatrixElemStn1(block, _it_msr));
-		stn2 = (GetBlkMatrixElemStn2(block, _it_msr));
-
-		stn1_it = (bstBinaryRecords_.begin() + (*_it_msr)->station1);
-		stn2_it = (bstBinaryRecords_.begin() + (*_it_msr)->station2);
-
-		if ((fabs(stn1_it->verticalDef) > E4_SEC_DEFLECTION ||	// deflections available?
-			fabs(stn1_it->meridianDef) > E4_SEC_DEFLECTION))
+		for (a=0; a<angle_count; ++a)
 		{
-			////////////////////////////////////////////////////////////////////////////
-			// Directions must be corrected for deflection of the vertical via
-			// "Laplace correction".  This correction requires zenith angle and geodetic 
-			// azimuth (comp_msr), both of which must be computed from coordinates.
+			it_angle->station3 = (*_it_msr)->station2;
 
-			////////////////////////////////////////////////////////////////////////////
-			// Compute zenith distance
-			double zenith(ZenithDistance<double>(
-				estimatedStations->get(stn1, 0),					// X1
-				estimatedStations->get(stn1 + 1, 0),				// Y1
-				estimatedStations->get(stn1 + 2, 0),				// Z1
-				estimatedStations->get(stn2, 0), 					// X2
-				estimatedStations->get(stn2 + 1, 0),				// Y2
-				estimatedStations->get(stn2 + 2, 0),				// Z2
-				stn1_it->currentLatitude,
-				stn1_it->currentLongitude,
-				stn2_it->currentLatitude,
-				stn2_it->currentLongitude,
-				(*_it_msr)->term3,									// instrument height
-				(*_it_msr)->term4));								// target height
+			if (storeOriginalMeasurement)
+			{				
+				// Derive the angle from two directions
+				it_angle->term1 = (*_it_msr)->term1 - previousDirection;
+				if (it_angle->term1 < 0)
+					it_angle->term1 += TWO_PI;
+				if (it_angle->term1 > TWO_PI)
+					it_angle->term1 -= TWO_PI;
+				// Derive the variance of the angle
+				(*_it_msr)->scale2 = previousVariance + (*_it_msr)->term2;
+			}
+			
+			UpdateIgnoredMeasurements_A(&it_angle, block, estimatedStations, storeOriginalMeasurement);
+						
+			// apply correction for deflections in the vertical
+			(*_it_msr)->scale1 = it_angle->preAdjMeas;
+			// compute adjustment correction
+			(*_it_msr)->measCorr = it_angle->measCorr;
+			// Update correction for deflection of the vertical
+			(*_it_msr)->preAdjCorr = it_angle->preAdjCorr;
 
-			// Compute pre adjustment correction
-			(*_it_msr)->term3 = DirectionDeflectionCorrection<double>( // deflection correction
-				(*_it_msr)->measAdj,								// geodetic azimuth
-				zenith,												// zenith distance
-				stn1_it->verticalDef,								// deflection in prime vertical
-				stn1_it->meridianDef);								// deflection in prime meridian
+			if (a + 1 == angle_count)
+				break;
+
+			if (storeOriginalMeasurement)
+			{
+				previousDirection = (*_it_msr)->term1;
+				previousVariance = (*_it_msr)->term2;
+			}
+
+			// prepare for next angle
+			angleRec.push_back(*(*_it_msr));
+			it_angle = angleRec.end() - 1;
+
+			(*_it_msr)++;
 		}
-		else
-			(*_it_msr)->preAdjCorr = 0.;
 
-		// apply correction for deflections in the vertical
-		(*_it_msr)->measAdj += (*_it_msr)->preAdjCorr;
-		// compute adjustment correction
-		(*_it_msr)->measCorr = (*_it_msr)->measAdj - (*_it_msr)->preAdjMeas;
+	}
+	catch (...) {
 
-		(*_it_msr)++;
+		// Print error message to adj file and throw exception
+		stringstream ss;
+		ss << "UpdateIgnoredMeasurements_D(): An error was encountered whilst" << endl <<
+			"  calculating ignored measurement details" << endl;
+		SignalExceptionAdjustment(ss.str(), block);
 	}
 	
 }
@@ -11980,90 +11839,41 @@ void dna_adjust::PrintCompMeasurements_CELMS(const UINT32& block, it_vmsr_t& _it
 // respective directions to angles.  Therefore, the "adjusted measurements" are
 // the adjusted angles.
 void dna_adjust::PrintCompMeasurements_D(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode)
-{		
-	// set derived angle, variance and covariance to the binary records
-	// term1 = direction
-	// term2 = variance (angle)
-	// term3 = direction deflection correction (1->2)
-	// term4 = direction deflection correction (1->3)
-	// scale1 = derived angle corrected for deflection of the vertical
-	// scale2 = variance (angle)
-	// scale3 = covariance (angle)
-	// scale4 = computed direction
-	// preAdjMeas = original derived angle
-
-	//////////////////////////////////////////////////////////////////////////////
-	//
-	// WARNING: DynAdjust converts all direction sets to angles, and introduces these
-	// measurements into the adjustment.  Following adjustment, local and global
-	// statistics are computed in ComputeStatistics(), which calls:
-	//  - ComputeAdjustedMsrPrecisions();
-	//  - ComputeChiSquareNetwork();
-	//  - ComputeGlobalNetStat();
-	//  - ComputeTstatistics(); if required
-	//  - ComputeGlobalPelzer(), and;
-	//  - ComputeGlobalTestStat().
-	//
-	// All statistics are based on the angles.
-	// However, users require statistics relating to the input directions, not the 
-	// angles.  For this reason, statistics per direction need to be computed here (or,
-	// when --output-adj-msr is supplied.
-	// 
-	// However, since coupling these calculations with a print function is undesirable,
-	// these calculations will be inserted in the respective funcitions above.
-	//////////////////////////////////////////////////////////////////////////////
-
+{
 	// normal format
 	adj_file << left << setw(STATION) << bstBinaryRecords_.at(_it_msr->station1).stationName;
 	adj_file << left << setw(STATION) << bstBinaryRecords_.at(_it_msr->station2).stationName;
 	adj_file << left << setw(STATION) << " ";
 
-	double computed, correction;	
-	UINT32 d, direction_count(_it_msr->vectorCount1);
-
-	it_vmsr_t _it_msr_next(_it_msr);
-	_it_msr_next++;
+	double computed;
 	
-	for (d=0; d<direction_count; ++d)
-	{
-		switch (printMode)
-		{
-		case computedMsrs:
-			// compute direction = [ computed direction (1->3) - computed angle + deflection (1->2) ]
-			if (d == 0)
-				_it_msr->scale4 = _it_msr_next->scale4 - _it_msr_next->scale1 + _it_msr->term3;
-			else
-				_it_msr->scale4 = _it_msr->scale4 - _it_msr->term4;
-			
-			correction = _it_msr->scale4 - _it_msr->term4 - _it_msr->term1;
-			computed = _it_msr->scale4;
-			break;
-		case ignoredMsrs:
-		default:
-			correction = _it_msr->measCorr + _it_msr->term3;
-			computed = _it_msr->measAdj + _it_msr->term3;
-			break;
-		}
+	string ignoreFlag(" ");
+	if (_it_msr->ignore)
+		ignoreFlag = "*";
 
-		if (d > 0)
-		{
-			adj_file << left << setw(PAD2) << " ";
-			adj_file << left << setw(STATION) << " ";
-			adj_file << left << setw(STATION) << " ";
-			adj_file << left << setw(STATION) << bstBinaryRecords_.at(_it_msr->station2).stationName;
-		}
+	adj_file << setw(PAD3) << left << ignoreFlag << setw(PAD2) << left << " " << endl;
+
+	UINT32 angle_count(_it_msr->vectorCount1 - 1);
+
+	_it_msr++;
+
+	for (UINT32 a(0); a<angle_count; ++a)
+	{
+		computed = _it_msr->term1 - v_measMinusComp_.at(block).get(design_row, 0);
+
+		adj_file << left << setw(PAD2) << " ";						// measurement type
+		adj_file << left << setw(STATION) << " ";					// station1	(Instrument)
+		adj_file << left << setw(STATION) << " ";					// station2 (RO)
+		adj_file << left << setw(STATION) << 
+			bstBinaryRecords_.at(_it_msr->station2).stationName;	// target
 		
 		// Print angular measurement, taking care of user requirements for 
 		// type, format and precision
-		PrintCompMeasurementsAngular(' ', computed, correction, _it_msr);
+		PrintCompMeasurementsAngular(' ', computed, -v_measMinusComp_.at(block).get(design_row, 0), _it_msr);
 		
 		design_row++;
 		_it_msr++;
 	}
-
-	// Design matrix rows record angles, not directions, so subtract 1 accordingly
-	if (computedMsrs)
-		design_row--;
 }
 	
 
@@ -12337,9 +12147,23 @@ void dna_adjust::PrintMeasurementsAngular(const char cardinal, const double& mea
 {
 	string ignoreFlag(" ");
 
-	if (_it_msr->ignore)
-		ignoreFlag = "*";
-	
+	double preAdjMeas(_it_msr->preAdjMeas);
+
+	switch (_it_msr->measType)
+	{
+	case 'D':
+		// capture derived angle
+		preAdjMeas = _it_msr->scale1 + _it_msr->preAdjCorr;
+
+		// Don't print ignore flag for target directions
+		break;
+	default:
+		// Print ignore flag if required
+		if (_it_msr->ignore)
+			ignoreFlag = "*";
+		break;
+	}
+
 	// Is this is longitude or elevation for GNSS?
 	switch (cardinal)
 	{
@@ -12389,20 +12213,13 @@ void dna_adjust::PrintMeasurementsAngular(const char cardinal, const double& mea
 			break;
 		}
 		break;
+	case 'D':
+		// Precision of subtended angle derived from successive
+		// direction set measurement precisions
+		precision = _it_msr->scale2;
+		break;
 	default:
 		precision = _it_msr->term2;		// Precision (Meas)
-	}
-
-	double preAdjMeas(_it_msr->preAdjMeas);
-	double adjPrec(_it_msr->measAdjPrec);
-	double residualPrec(_it_msr->residualPrec);
-	// get the pre adjustment measurement
-	switch (_it_msr->measType)
-	{
-	case 'D':
-		preAdjMeas = _it_msr->term1;
-		adjPrec = _it_msr->scale3;
-		residualPrec = precision - _it_msr->scale3;
 	}
 	
 	// Which angular format?
@@ -12413,36 +12230,36 @@ void dna_adjust::PrintMeasurementsAngular(const char cardinal, const double& mea
 		case SEPARATED_WITH_SYMBOLS:
 			// ddd\B0 mm' ss.sss"
 			adj_file << 
-				setw(MSR) << right << FormatDmsString(RadtoDms(preAdjMeas), 4+PRECISION_SEC_MSR, 							// Measured (less correction  
-					true, true) <<																				// for deflections if applied)
-				setw(MSR) << right << FormatDmsString(RadtoDms(measurement), 4+PRECISION_SEC_MSR,				// Adjusted
+				setw(MSR) << right << FormatDmsString(RadtoDms(preAdjMeas), 4+PRECISION_SEC_MSR, 					// Measured (less correction  
+					true, true) <<																					// for deflections if applied)
+				setw(MSR) << right << FormatDmsString(RadtoDms(measurement), 4+PRECISION_SEC_MSR,					// Adjusted
 					true, true);
 			break;
 		case HP_NOTATION:
 			// ddd.mmssssss
-			adj_file << setw(MSR) << right << StringFromT(RadtoDms(preAdjMeas), 4+PRECISION_SEC_MSR) <<					// Measured (less correction for deflections)
-				setw(MSR) << right << StringFromT(RadtoDms(measurement), 4+PRECISION_SEC_MSR);					// Adjusted
+			adj_file << setw(MSR) << right << StringFromT(RadtoDms(preAdjMeas), 4+PRECISION_SEC_MSR) <<				// Measured (less correction for deflections)
+				setw(MSR) << right << StringFromT(RadtoDms(measurement), 4+PRECISION_SEC_MSR);						// Adjusted
 			break;
 		case SEPARATED:
 		default:
 			// ddd mm ss.ssss
 			adj_file << 
-				setw(MSR) << right << FormatDmsString(RadtoDms(preAdjMeas), 4+PRECISION_SEC_MSR,							// Measured (less correction  
-					true, false) <<																				// for deflections if applied)
-				setw(MSR) << right << FormatDmsString(RadtoDms(measurement), 4+PRECISION_SEC_MSR,				// Computed
+				setw(MSR) << right << FormatDmsString(RadtoDms(preAdjMeas), 4+PRECISION_SEC_MSR,					// Measured (less correction  
+					true, false) <<																					// for deflections if applied)
+				setw(MSR) << right << FormatDmsString(RadtoDms(measurement), 4+PRECISION_SEC_MSR,					// Computed
 					true, false);
 			break;
 		}
 
 		adj_file << 
 			setw(CORR) << right << StringFromT(removeNegativeZero(Seconds(correction), PRECISION_SEC_MSR), PRECISION_SEC_MSR) <<	// correction
-			setw(PREC) << right << StringFromT(Seconds(sqrt(precision)), PRECISION_SEC_MSR);					// Precision (Meas)
+			setw(PREC) << right << StringFromT(Seconds(sqrt(precision)), PRECISION_SEC_MSR);						// Precision (Meas)
 
 		if (printAdjMsr)
 		{
 			adj_file << 
-				setw(PREC) << right << StringFromT(Seconds(sqrt(adjPrec)), PRECISION_SEC_MSR) <<	// Precision (Adjusted)
-				setw(PREC) << right << StringFromT(Seconds(sqrt(residualPrec)), PRECISION_SEC_MSR);	// Precision (Residual)
+				setw(PREC) << right << StringFromT(Seconds(sqrt(_it_msr->measAdjPrec)), PRECISION_SEC_MSR) <<		// Precision (Adjusted)
+				setw(PREC) << right << StringFromT(Seconds(sqrt(_it_msr->residualPrec)), PRECISION_SEC_MSR);		// Precision (Residual)
 		}
 	}
 	else	// DDEG
@@ -12457,8 +12274,8 @@ void dna_adjust::PrintMeasurementsAngular(const char cardinal, const double& mea
 		if (printAdjMsr)
 		{
 			adj_file <<
-				setw(PREC) << right << StringFromT(Degrees(sqrt(adjPrec)), PRECISION_SEC_MSR) <<	// Precision (Adjusted)
-				setw(PREC) << right << StringFromT(Degrees(sqrt(residualPrec)), PRECISION_SEC_MSR);	// Precision (Residual)
+				setw(PREC) << right << StringFromT(Degrees(sqrt(_it_msr->measAdjPrec)), PRECISION_SEC_MSR) <<	// Precision (Adjusted)
+				setw(PREC) << right << StringFromT(Degrees(sqrt(_it_msr->residualPrec)), PRECISION_SEC_MSR);	// Precision (Residual)
 		}
 	}
 }
@@ -12466,17 +12283,26 @@ void dna_adjust::PrintMeasurementsAngular(const char cardinal, const double& mea
 
 void dna_adjust::PrintAdjMeasurementsAngular(const char cardinal, const it_vmsr_t& _it_msr)
 {
-	double adjusted(_it_msr->measAdj), correction(_it_msr->measCorr);
+	double measAdj(_it_msr->measAdj);
 
 	switch (_it_msr->measType)
 	{
+	case 'A':
 	case 'D':
-		adjusted = _it_msr->scale4 + _it_msr->term3;
-		correction = adjusted - _it_msr->term1;
+	case 'J':
+	case 'I':
+	case 'K':
+	case 'V':
+	case 'Z':
+		// add deflection of the vertical to adjusted value
+		// Does a check need to be performed that it has been calculated?
+		//if (fabs(_it_msr->preAdjCorr) > E4_SEC_DEFLECTION)
+		measAdj += _it_msr->preAdjCorr;
+		break;
 	}
 
 	// Print adjusted angular measurements
-	PrintMeasurementsAngular(cardinal, adjusted, correction, _it_msr);
+	PrintMeasurementsAngular(cardinal, measAdj, _it_msr->measCorr, _it_msr);
 
 	// Print adjusted statistics
 	PrintAdjMeasurementStatistics(cardinal, _it_msr);
@@ -12589,13 +12415,9 @@ void dna_adjust::PrintMeasurementCorrection(const char cardinal, const it_vmsr_t
 {
 	switch (_it_msr->measType)
 	{
-	case 'D':
-		// Pre adjustment correction for deflections
-		adj_file << setw(PACORR) << setprecision(PRECISION_SEC_MSR) << fixed << right <<
-			removeNegativeZero(Seconds(_it_msr->term3), PRECISION_SEC_MSR);
-		break;
 	case 'A':
 	case 'B':
+	case 'D':
 	case 'I':
 	case 'J':
 	case 'K':
@@ -12645,40 +12467,20 @@ void dna_adjust::PrintMeasurementCorrection(const char cardinal, const it_vmsr_t
 
 void dna_adjust::PrintAdjMeasurementStatistics(const char cardinal, const it_vmsr_t& _it_msr)
 {
-	double nStat(_it_msr->NStat);
-	double tStat(_it_msr->TStat);
-	double pelzerRel(_it_msr->PelzerRel);
-	double residualPrec(_it_msr->term2 - _it_msr->scale3);
-
-	// get the pre adjustment measurement
-	switch (_it_msr->measType)
-	{
-	case 'D':
-		// resolve small negative values (e.g. -1.5 e-35)
-		if (residualPrec < 0.0)
-			residualPrec = fabs(residualPrec);
-		// Normal statistic = correction / precision of the correction 
-		nStat = (_it_msr->term1 - _it_msr->scale4) / sqrt(residualPrec);
-		// Student's t statistic 
-		tStat = nStat / sigmaZeroSqRt_;
-		// Pelzer reliability = measurement precision / (measurement precision - adjusted precision)
-		pelzerRel = sqrt(_it_msr->term2) / sqrt(residualPrec);
-	}
-
 	adj_file << setw(STAT) << setprecision(2) << fixed << right << 
-		removeNegativeZero(nStat, 2);												// N Stat
+		removeNegativeZero(_it_msr->NStat, 2);												// N Stat
 
 	if (projectSettings_.o._adj_msr_tstat)
 		adj_file << setw(STAT) << setprecision(2) << fixed << right << 
-			removeNegativeZero(tStat, 2);												// T Stat
+			removeNegativeZero(_it_msr->TStat, 2);												// T Stat
 	
-	adj_file << setw(REL) << setprecision(2) << fixed << right << pelzerRel;		// Pelzer's reliability
+	adj_file << setw(REL) << setprecision(2) << fixed << right << _it_msr->PelzerRel;		// Pelzer's reliability
 
 	// Print measurement correction
 	PrintMeasurementCorrection(cardinal, _it_msr);
 
 	// Print asterisk for values which exceed the critical value
-	if (fabs(nStat) > criticalValue_)
+	if (fabs(_it_msr->NStat) > criticalValue_)
 		adj_file << setw(OUTLIER) << right << "*";
 	else
 		adj_file << setw(OUTLIER) << right << " ";
@@ -12749,30 +12551,25 @@ void dna_adjust::PrintAdjMeasurements_D(it_vmsr_t& _it_msr)
 	adj_file << left << setw(STATION) << bstBinaryRecords_.at(_it_msr->station2).stationName;
 	adj_file << left << setw(STATION) << " ";
 
-	//string ignoreFlag(" ");
-	//if (_it_msr->ignore)
-	//	ignoreFlag = "*";
+	string ignoreFlag(" ");
+	if (_it_msr->ignore)
+		ignoreFlag = "*";
 
-	//adj_file << setw(PAD3) << left << ignoreFlag << setw(PAD2) << left << " " << endl;
+	adj_file << setw(PAD3) << left << ignoreFlag << setw(PAD2) << left << " " << endl;
 
-	//UINT32 a, angle_count(_it_msr->vectorCount1 - 1);
-	UINT32 d, direction_count(_it_msr->vectorCount1);
+	UINT32 a, angle_count(_it_msr->vectorCount1 - 1);
 
-	//_it_msr++;
-	//if (projectSettings_.o._database_ids)
-	//	_it_dbid++;
+	_it_msr++;
+	if (projectSettings_.o._database_ids)
+		_it_dbid++;
 
-	//for (a=0; a<angle_count; ++a)
-	for (d = 0; d < direction_count; ++d)
+	for (a=0; a<angle_count; ++a)
 	{
-		if (d > 0)
-		{
-			adj_file << left << setw(PAD2) << " ";						// measurement type
-			adj_file << left << setw(STATION) << " ";					// station1	(Instrument)
-			adj_file << left << setw(STATION) << " ";					// station2 (RO)
-			adj_file << left << setw(STATION) <<
-				bstBinaryRecords_.at(_it_msr->station2).stationName;	// target
-		}
+		adj_file << left << setw(PAD2) << " ";						// measurement type
+		adj_file << left << setw(STATION) << " ";					// station1	(Instrument)
+		adj_file << left << setw(STATION) << " ";					// station2 (RO)
+		adj_file << left << setw(STATION) << 
+			bstBinaryRecords_.at(_it_msr->station2).stationName;	// target
 
 		// Print angular measurement, taking care of user requirements for 
 		// type, format and precision	
@@ -12780,7 +12577,7 @@ void dna_adjust::PrintAdjMeasurements_D(it_vmsr_t& _it_msr)
 
 		_it_msr++;
 		if (projectSettings_.o._database_ids)
-		//	if (a < angle_count-1)
+			if (a < angle_count-1)
 				_it_dbid++;
 	}
 }

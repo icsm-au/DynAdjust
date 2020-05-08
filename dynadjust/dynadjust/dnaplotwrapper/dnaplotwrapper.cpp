@@ -530,7 +530,7 @@ int main(int argc, char* argv[])
 			if (vm.count(PLOT_CONSTRAINT_LABELS))
 				p.p._plot_station_constraints = true;
 
-#if defined(__linux) || defined(sun) || defined(__unix__)
+#if defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
 
 			// Whilst GMT can handle either R/G/B or #rrggbb, problems have been experienced
 			// in linux with specifying pen colours in legend symbols using #rrggbb.
@@ -701,7 +701,7 @@ int main(int argc, char* argv[])
 			{
 				eps_maker = p.g.output_folder + FOLDER_SLASH + p.p._gnuplot_cmd_file;
 
-#if defined(__linux) || defined(sun) || defined(__unix__)
+#if defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
 				// POSIX
 				// Create absolute path				
 				sf << absolute(eps_maker.c_str());
@@ -714,7 +714,7 @@ int main(int argc, char* argv[])
 			{
 				eps_maker = p.g.output_folder + FOLDER_SLASH + p.p._gmt_cmd_file;
 
-#if defined(__linux) || defined(sun) || defined(__unix__)
+#if defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
 				// POSIX
 				// Create absolute path				
 				sf << absolute(eps_maker.c_str());
@@ -724,7 +724,7 @@ int main(int argc, char* argv[])
 				sprintf(command_path, "\"%s\"", eps_maker.c_str());
 			}
 
-#if defined(__linux) || defined(sun) || defined(__unix__)
+#if defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
 			// POSIX
 			// Change file permission
 			string system_file_cmd("chmod +x " + eps_maker);
@@ -749,7 +749,7 @@ int main(int argc, char* argv[])
 			// create pdf			
 			pdf_maker = p.g.output_folder + FOLDER_SLASH + p.p._pdf_cmd_file;
 
-#if defined(__linux) || defined(sun) || defined(__unix__)
+#if defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
 			// POSIX
 			// Create absolute path
 			sf.str("");
@@ -759,7 +759,7 @@ int main(int argc, char* argv[])
 
 			sprintf(command_path, "\"%s\"", pdf_maker.c_str());
 
-#if defined(__linux) || defined(sun) || defined(__unix__)
+#if defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
 			// POSIX
 			// Change file permission
 			system_file_cmd = "chmod +x " + pdf_maker;
@@ -790,7 +790,7 @@ int main(int argc, char* argv[])
 				if (exists(pdf_maker))
 					remove(pdf_maker);
 
-#elif defined(__linux) || defined(sun) || defined(__unix__)
+#elif defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
 				// remove files
 				system_file_cmd = "rm -f " + pdf_maker + " " + eps_maker;
 				std::system(system_file_cmd.c_str());
