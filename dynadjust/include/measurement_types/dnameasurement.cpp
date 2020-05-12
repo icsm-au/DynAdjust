@@ -343,6 +343,19 @@ void CDnaCovariance::WriteBinaryMsr(std::ofstream *binary_stream, PUINT32 msrInd
 	binary_stream->write(reinterpret_cast<char *>(&measRecord), sizeof(measurement_t));
 }
 
+void CDnaCovariance::SerialiseDatabaseMap(std::ofstream* os, const UINT32& msr_id, const UINT32& cluster_id)
+{
+	// X
+	os->write(reinterpret_cast<const char *>(&msr_id), sizeof(UINT32));
+	os->write(reinterpret_cast<const char *>(&cluster_id), sizeof(UINT32));
+	// Y
+	os->write(reinterpret_cast<const char *>(&msr_id), sizeof(UINT32));
+	os->write(reinterpret_cast<const char *>(&cluster_id), sizeof(UINT32));
+	// Z
+	os->write(reinterpret_cast<const char *>(&msr_id), sizeof(UINT32));
+	os->write(reinterpret_cast<const char *>(&cluster_id), sizeof(UINT32));
+}
+
 void CDnaCovariance::SetM11(const string& str)
 {
 	DoubleFromString(m_dM11, trimstr(str));
@@ -503,16 +516,16 @@ void CDnaMeasurement::SetDatabaseMap(const msr_database_id_map& dbidmap, bool db
 		m_msr_db_map = dbidmap;
 }
 
-UINT32 CDnaMeasurement::CalcDbidRecordCount() const
-{
-	return 1;
-}
+// UINT32 CDnaMeasurement::CalcDbidRecordCount() const
+// {
+// 	return 1;
+// }
 	
 
 void CDnaMeasurement::SerialiseDatabaseMap(std::ofstream* os)
 {
-	os->write(reinterpret_cast<const char *>(&m_msr_db_map.msr_index), sizeof(UINT32));
-	os->write(reinterpret_cast<const char *>(&m_msr_db_map.bms_index), sizeof(UINT32));
+	//os->write(reinterpret_cast<const char *>(&m_msr_db_map.msr_index), sizeof(UINT32));
+	//os->write(reinterpret_cast<const char *>(&m_msr_db_map.bms_index), sizeof(UINT32));
 	os->write(reinterpret_cast<const char *>(&m_msr_db_map.msr_id), sizeof(UINT32));
 	os->write(reinterpret_cast<const char *>(&m_msr_db_map.cluster_id), sizeof(UINT32));
 }

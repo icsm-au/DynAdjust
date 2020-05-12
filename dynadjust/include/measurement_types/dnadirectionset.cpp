@@ -220,23 +220,20 @@ void CDnaDirectionSet::coutMeasurementData(ostream &os, const UINT16& uType) con
 		os << endl;
 }
 	
-void CDnaDirectionSet::SetDatabaseMap_bmsIndex(const UINT32& bmsIndex) 
-{ 
-	m_msr_db_map.bms_index = bmsIndex; 
-	UINT32 i(bmsIndex+1);
-	for_each(m_vTargetDirections.begin(), m_vTargetDirections.end(),
-		[this, &i](const CDnaDirection& dir) {
-			((CDnaMeasurement*)&dir)->SetDatabaseMap_bmsIndex(i++);
-	});
-}
+//void CDnaDirectionSet::SetDatabaseMap_bmsIndex(const UINT32& bmsIndex) 
+//{ 
+//	m_msr_db_map.bms_index = bmsIndex; 
+//	UINT32 i(bmsIndex+1);
+//	for_each(m_vTargetDirections.begin(), m_vTargetDirections.end(),
+//		[this, &i](const CDnaDirection& dir) {
+//			((CDnaMeasurement*)&dir)->SetDatabaseMap_bmsIndex(i++);
+//	});
+//}
 	
 
 void CDnaDirectionSet::SerialiseDatabaseMap(std::ofstream* os)
 {
-	os->write(reinterpret_cast<const char *>(&m_msr_db_map.msr_index), sizeof(UINT32));
-	os->write(reinterpret_cast<const char *>(&m_msr_db_map.bms_index), sizeof(UINT32));
-	os->write(reinterpret_cast<const char *>(&m_msr_db_map.msr_id), sizeof(UINT32));
-	os->write(reinterpret_cast<const char *>(&m_msr_db_map.cluster_id), sizeof(UINT32));
+	CDnaMeasurement::SerialiseDatabaseMap(os);
 
 	for_each(m_vTargetDirections.begin(), m_vTargetDirections.end(),
 		[this, os](const CDnaDirection& dir) {
@@ -244,16 +241,16 @@ void CDnaDirectionSet::SerialiseDatabaseMap(std::ofstream* os)
 	});
 }
 
-UINT32 CDnaDirectionSet::CalcDbidRecordCount() const
-{
-	// Direction set has 1 RO direction and n directions
-	UINT32 recordCount(1);
-	for_each(m_vTargetDirections.begin(), m_vTargetDirections.end(),
-		[&recordCount](const CDnaDirection& dir) {
-			recordCount += dir.CalcDbidRecordCount();
-	});
-	return recordCount;
-}
+// UINT32 CDnaDirectionSet::CalcDbidRecordCount() const
+// {
+// 	// Direction set has 1 RO direction and n directions
+// 	UINT32 recordCount(1);
+// 	for_each(m_vTargetDirections.begin(), m_vTargetDirections.end(),
+// 		[&recordCount](const CDnaDirection& dir) {
+// 			recordCount += dir.CalcDbidRecordCount();
+// 	});
+// 	return recordCount;
+// }
 	
 UINT32 CDnaDirectionSet::CalcBinaryRecordCount() const
 {
@@ -419,7 +416,7 @@ UINT32 CDnaDirectionSet::SetMeasurementRec(std::ifstream* ifs_stns, std::ifstrea
 	m_dStdDev = sqrt(measRecord->term2);
 	
 	// measRecord holds the full number of measurement blocks, which is 
-	// the numberofdirections in the vector plus one for the RO
+	// the number of directions in the vector plus one for the RO
 	m_lRecordedTotal = measRecord->vectorCount1 - 1;
 
 	m_lsetID = measRecord->clusterID;
@@ -465,7 +462,7 @@ UINT32 CDnaDirectionSet::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& i
 	m_dStdDev = sqrt(it_msr->term2);
 	
 	// it_msr holds the full number of measurement blocks, which is 
-	// the numberofdirections in the vector plus one for the RO
+	// the number of directions in the vector plus one for the RO
 	m_lRecordedTotal = it_msr->vectorCount1 - 1;
 
 	m_lsetID = it_msr->clusterID;

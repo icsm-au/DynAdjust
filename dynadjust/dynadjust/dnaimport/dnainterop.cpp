@@ -68,7 +68,7 @@ dna_import::dna_import()
 #endif
 	
 	// Initialise database ids
-	m_msr_db_map.msr_index = 0;
+	//m_msr_db_map.msr_index = 0;
 
 	m_strProjectDefaultEpsg = DEFAULT_EPSG_S;
 	m_strProjectDefaultEpoch = DEFAULT_EPOCH;
@@ -1669,7 +1669,7 @@ void dna_import::ParseDNAMSR(vdnaStnPtr* vStations, pvdnaMsrPtr vMeasurements, P
 		measurementRead = true;
 		
 		// Increment msr index
-		m_msr_db_map.msr_index ++;
+		//m_msr_db_map.msr_index ++;
 
 		// set ignore flag
 		msr_ptr->SetIgnore(ignoreMsr);
@@ -2271,7 +2271,7 @@ void dna_import::ParseDatabaseIds(const string& sBuf, const string& calling_func
 	
 	// Initialise bms index.  This member will be set
 	// in SerialiseBms() 
-	m_msr_db_map.bms_index = 0;
+	//m_msr_db_map.bms_index = 0;
 
 	// Initialise cluster id.  ParseDatabaseClusterId will 
 	// update this member if a value is found
@@ -3772,7 +3772,7 @@ void dna_import::RemoveNonMeasurements(const UINT32& block, pvmsr_t binaryMsr)
 	CompareNonMeasStart<measurement_t, UINT32> measstartCompareFunc(binaryMsr, xMeas);
 	sort(v_CML_.at(block).begin(), v_CML_.at(block).end(), measstartCompareFunc);
 	erase_if(v_CML_.at(block), measstartCompareFunc);
-	CompareFileOrder<measurement_t, UINT32> fileorderCompareFunc(binaryMsr);
+	CompareMsrFileOrder<measurement_t, UINT32> fileorderCompareFunc(binaryMsr);
 	sort(v_CML_.at(block).begin(), v_CML_.at(block).end(), fileorderCompareFunc);
 }
 	
@@ -4431,14 +4431,19 @@ void dna_import::SerialiseBms(const string& bms_filename, vdnaMsrPtr* vMeasureme
 {
 	// Calculate number of measurement records
 	m_binaryRecordCount = 0;
-	m_dbidRecordCount = 0;
+	//m_dbidRecordCount = 0;
 	for_each(vMeasurements->begin(), vMeasurements->end(),
 		[this](dnaMsrPtr msr) {
 			// update database map
-			msr->SetDatabaseMap_bmsIndex(m_binaryRecordCount);
+			//msr->SetDatabaseMap_bmsIndex(m_binaryRecordCount);
 			m_binaryRecordCount += msr->CalcBinaryRecordCount();
-			m_dbidRecordCount += msr->CalcDbidRecordCount();
+			//m_dbidRecordCount += msr->CalcDbidRecordCount();
 	});
+
+	// the database ID vector is set to the same size as the 
+	// binary measurement vector to enable efficient 1:1 lookup
+	// of database IDs
+	m_dbidRecordCount = m_binaryRecordCount;
 
 	dna_io_bms bms;
 

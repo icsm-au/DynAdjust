@@ -671,6 +671,24 @@ void CDnaGpsBaseline::WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIn
 		_it_cov->WriteBinaryMsr(binary_stream, msrIndex, m_epsgCode, m_epoch);
 }
 
+void CDnaGpsBaseline::SerialiseDatabaseMap(std::ofstream* os)
+{
+	// X
+	CDnaMeasurement::SerialiseDatabaseMap(os);
+	
+	// Y
+	CDnaMeasurement::SerialiseDatabaseMap(os);
+	
+	// Z
+	CDnaMeasurement::SerialiseDatabaseMap(os);
+
+	for_each(m_vGpsCovariances.begin(), m_vGpsCovariances.end(),
+		[this, os](const CDnaCovariance& cov) {
+		((CDnaCovariance*)&cov)->SerialiseDatabaseMap(os, m_msr_db_map.msr_id, m_msr_db_map.cluster_id);
+	});
+}
+
+
 
 void CDnaGpsBaseline::SetX(const string& str)
 {
@@ -972,34 +990,35 @@ void CDnaGpsBaselineCluster::coutMeasurementData(ostream &os, const UINT16& uTyp
 }
 
 
-void CDnaGpsBaselineCluster::SetDatabaseMap_bmsIndex(const UINT32& bmsIndex) 
-{
-	UINT32 i(bmsIndex);
-	for_each(m_vGpsBaselines.begin(), m_vGpsBaselines.end(),
-		[this, &i](const CDnaGpsBaseline& bsl) {
-			((CDnaMeasurement*)&bsl)->SetDatabaseMap_bmsIndex(i);
-			i += bsl.CalcBinaryRecordCount();
-	});
-}
+//void CDnaGpsBaselineCluster::SetDatabaseMap_bmsIndex(const UINT32& bmsIndex) 
+//{
+//	UINT32 i(bmsIndex);
+//	for_each(m_vGpsBaselines.begin(), m_vGpsBaselines.end(),
+//		[this, &i](const CDnaGpsBaseline& bsl) {
+//			((CDnaMeasurement*)&bsl)->SetDatabaseMap_bmsIndex(i);
+//			i += bsl.CalcBinaryRecordCount();
+//	});
+//}
 	
 
 void CDnaGpsBaselineCluster::SerialiseDatabaseMap(std::ofstream* os)
 {
 	for_each(m_vGpsBaselines.begin(), m_vGpsBaselines.end(),
 		[this, os](const CDnaGpsBaseline& bsl) {
-			((CDnaMeasurement*)&bsl)->SerialiseDatabaseMap(os);
+		((CDnaGpsBaseline*)&bsl)->SerialiseDatabaseMap(os);
 	});
+	
 }
 
-UINT32 CDnaGpsBaselineCluster::CalcDbidRecordCount() const
-{
-	UINT32 recordCount(0);
-	for_each(m_vGpsBaselines.begin(), m_vGpsBaselines.end(),
-		[&recordCount](const CDnaGpsBaseline& bsl) {
-			recordCount += bsl.CalcDbidRecordCount();
-	});
-	return recordCount;
-}
+// UINT32 CDnaGpsBaselineCluster::CalcDbidRecordCount() const
+// {
+// 	UINT32 recordCount(0);
+// 	for_each(m_vGpsBaselines.begin(), m_vGpsBaselines.end(),
+// 		[&recordCount](const CDnaGpsBaseline& bsl) {
+// 			recordCount += bsl.CalcDbidRecordCount();
+// 	});
+// 	return recordCount;
+// }
 	
 UINT32 CDnaGpsBaselineCluster::CalcBinaryRecordCount() const
 {

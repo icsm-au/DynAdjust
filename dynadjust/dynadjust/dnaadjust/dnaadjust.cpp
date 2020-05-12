@@ -53,6 +53,7 @@ dna_adjust::dna_adjust()
 	, isPreparing_(false)
 	, isAdjusting_(false)
 	, isCombining_(false)
+	, databaseIDsLoaded_(false)
 	, forward_(true)
 	, isFirstTimeAdjustment_(true)
 	, currentBlock_(0)
@@ -345,12 +346,17 @@ void dna_adjust::PrepareAdjustment(const project_settings& projectSettings)
 
 	if (!projectSettings_.a.report_mode)
 	{
+		string block_str(" block");
+		if (blockCount_ > 1)
+			block_str.append("s");
+		block_str.append(")... ");
+
 		adj_file << endl << "+ Preparing for adjustment";
 		switch (projectSettings_.a.adjust_mode)
 		{
 		case Phased_Block_1Mode:
 		case PhasedMode:
-			adj_file << left << " (" << blockCount_<< " blocks)... ";
+			adj_file << left << " (" << blockCount_<< block_str;
 			if (projectSettings_.a.multi_thread && projectSettings_.g.verbose > 2)
 				adj_file << endl;
 			break;
@@ -2374,6 +2380,9 @@ _ADJUST_STATUS_ dna_adjust::AdjustNetwork()
 	isAdjusting_ = true;
 	iterationCorrections_.clear_messages();
 
+	if (projectSettings_.o._database_ids)
+		LoadDatabaseId();
+
 	switch (projectSettings_.a.adjust_mode)
 	{
 	case SimultaneousMode:
@@ -2505,9 +2514,27 @@ void dna_adjust::PrintAdjustedNetworkStations()
 	
 // First item in the file is a UINT32 value - the number of records in the file
 // All records are of type UINT32
-void dna_adjust::LoadDatabaseId(const string& dbid_filename)
+void dna_adjust::LoadDatabaseId()
 {
-	v_msr_db_map.clear();
+	if (!projectSettings_.o._database_ids)
+		return;
+
+	if (databaseIDsLoaded_)
+		return;
+
+	string dbid_filename = formPath<string>(projectSettings_.g.output_folder,
+		projectSettings_.g.network_name, "dbid");
+
+	// When printing database ids, force printing adjusted measurements 
+	// as a contiguous list in original sort order.  Why?  To simplify 
+	// reading adj file when loading adjusted measurement info to
+	// the database.
+	projectSettings_.o._output_msr_blocks = 0;
+	projectSettings_.o._sort_adj_msr = orig_adj_msr_sort_ui;
+	// Do not print computed measurements
+	//projectSettings_.o._cmp_msr_iteration = 0;
+	
+	v_msr_db_map_.clear();
 	
 	std::ifstream dbid_file;
 	try {
@@ -2525,21 +2552,22 @@ void dna_adjust::LoadDatabaseId(const string& dbid_filename)
 	try {
 		// get size and reserve vector size
 		dbid_file.read(reinterpret_cast<char *>(&recordCount), sizeof(UINT32));
-		v_msr_db_map.reserve(recordCount);
+		v_msr_db_map_.reserve(recordCount);
 		
 		for (r=0; r<recordCount; r++)
 		{
 			// Read data
-			dbid_file.read(reinterpret_cast<char *>(&rec.msr_index), sizeof(UINT32));
-			dbid_file.read(reinterpret_cast<char *>(&rec.bms_index), sizeof(UINT32));
+			//dbid_file.read(reinterpret_cast<char *>(&rec.msr_index), sizeof(UINT32));
+			//dbid_file.read(reinterpret_cast<char *>(&rec.bms_index), sizeof(UINT32));
 			dbid_file.read(reinterpret_cast<char *>(&rec.msr_id), sizeof(UINT32));
 			dbid_file.read(reinterpret_cast<char *>(&rec.cluster_id), sizeof(UINT32));
 		
 			// push back
-			v_msr_db_map.push_back(rec);
+			v_msr_db_map_.push_back(rec);
 		}
 
 		dbid_file.close();
+		databaseIDsLoaded_ = true;
 	}
 	catch (const std::ifstream::failure f) {
 		SignalExceptionAdjustment(f.what(), 0);
@@ -3026,20 +3054,8 @@ void dna_adjust::PrintAdjustedNetworkMeasurements()
 	bool printHeader(true);
 
 	if (projectSettings_.o._database_ids)
-	{
-		string dbid_file = formPath<string>(projectSettings_.g.output_folder, 
-			projectSettings_.g.network_name, "dbid");
-		LoadDatabaseId(dbid_file);
-
-		// When printing database ids, force printing adjusted measurements 
-		// as a contiguous list in original sort order.  Why?  To simplify 
-		// reading adj file when loading adjusted measurement info to
-		// the database.
-		projectSettings_.o._output_msr_blocks = 0;
-		projectSettings_.o._sort_adj_msr = orig_adj_msr_sort_ui;
-		// Do not print computed measurements
-		projectSettings_.o._cmp_msr_iteration = 0;
-	}
+		if (!databaseIDsLoaded_ || v_msr_db_map_.empty())
+			LoadDatabaseId();
 
 	_it_uint32_u32u32_pair begin, end;
 
@@ -10235,6 +10251,10 @@ void dna_adjust::PrintCompMeasurements(const UINT32& block, const string type)
 
 	UINT32 design_row(0);
 
+	// Initialise database id iterator
+	if (projectSettings_.o._database_ids)
+		_it_dbid = v_msr_db_map_.begin();
+
 	for (_it_block_msr=v_CML_.at(block).begin(); _it_block_msr!=v_CML_.at(block).end(); ++_it_block_msr)
 	{
 		if (InitialiseandValidateMsrPointer(_it_block_msr, _it_msr))
@@ -10285,7 +10305,12 @@ void dna_adjust::PrintCompMeasurements(const UINT32& block, const string type)
 			PrintCompMeasurements_GXY(block, _it_msr, design_row, computedMsrs);
 			break;
 		}
+
+		// Set iterator to the correct element
+		//if (projectSettings_.o._database_ids)
+		//	_it_dbid++;
 	}
+
 	adj_file << endl << endl;
 }
 	
@@ -11465,6 +11490,10 @@ void dna_adjust::PrintIgnoredAdjMeasurements(bool printHeader)
 		UpdateIgnoredMeasurements(&_it_msr, storeOriginalMeasurement);
 	}
 
+	// Initialise database id iterator
+	if (projectSettings_.o._database_ids)
+		_it_dbid = v_msr_db_map_.begin();
+
 	// Print measurements
 	for (_it_ign = ignored_msrs.begin(); _it_ign != ignored_msrs.end(); ++_it_ign)
 	{
@@ -11547,8 +11576,8 @@ void dna_adjust::PrintIgnoredAdjMeasurements(bool printHeader)
 		}
 
 		// Set iterator to the correct element
-		if (projectSettings_.o._database_ids)
-			_it_dbid++;
+		//if (projectSettings_.o._database_ids)
+		//	_it_dbid++;
 	}
 
 	adj_file << endl << endl;
@@ -11643,7 +11672,7 @@ void dna_adjust::PrintAdjMeasurements(v_uint32_u32u32_pair msr_block, bool print
 
 	// Initialise database id iterator
 	if (projectSettings_.o._database_ids)
-		_it_dbid = v_msr_db_map.begin();
+		_it_dbid = v_msr_db_map_.begin();
 
 	for (_it_block_msr=msr_block.begin(); _it_block_msr!=msr_block.end(); ++_it_block_msr)
 	{
@@ -11719,8 +11748,8 @@ void dna_adjust::PrintAdjMeasurements(v_uint32_u32u32_pair msr_block, bool print
 		}
 
 		// Set iterator to the correct element
-		if (projectSettings_.o._database_ids)
-			_it_dbid++;
+		//if (projectSettings_.o._database_ids)
+		//	_it_dbid++;
 	}
 	
 	adj_file << endl;
@@ -11735,6 +11764,9 @@ void dna_adjust::PrintCompMeasurementsAngular(const char cardinal, const double&
 	// Print measurement correction
 	PrintMeasurementCorrection(cardinal, _it_msr);
 
+	// Print measurement database ids
+	PrintMeasurementDatabaseID(_it_msr);
+
 	adj_file << endl;
 }
 	
@@ -11746,6 +11778,9 @@ void dna_adjust::PrintCompMeasurementsLinear(const char cardinal, const double& 
 
 	// Print measurement correction
 	PrintMeasurementCorrection(cardinal, _it_msr);
+
+	// Print measurement database ids
+	PrintMeasurementDatabaseID(_it_msr);
 
 	adj_file << endl;
 }
@@ -11856,6 +11891,8 @@ void dna_adjust::PrintCompMeasurements_D(const UINT32& block, it_vmsr_t& _it_msr
 	UINT32 angle_count(_it_msr->vectorCount1 - 1);
 
 	_it_msr++;
+	//if (projectSettings_.o._database_ids)
+	//	_it_dbid++;
 
 	for (UINT32 a(0); a<angle_count; ++a)
 	{
@@ -11873,6 +11910,9 @@ void dna_adjust::PrintCompMeasurements_D(const UINT32& block, it_vmsr_t& _it_msr
 		
 		design_row++;
 		_it_msr++;
+		//if (projectSettings_.o._database_ids)
+		//	if (a < angle_count - 1)
+		//		_it_dbid++;
 	}
 }
 	
@@ -12075,7 +12115,11 @@ void dna_adjust::PrintCompMeasurements_GXY(const UINT32& block, it_vmsr_t& _it_m
 		_it_msr += covariance_count * 3;
 		
 		if (covariance_count > 0)
+		{
 			_it_msr++;
+			//if (projectSettings_.o._database_ids)
+			//	_it_dbid++;
+		}
 	}
 }
 	
@@ -12465,6 +12509,29 @@ void dna_adjust::PrintMeasurementCorrection(const char cardinal, const it_vmsr_t
 	
 }
 
+void dna_adjust::PrintMeasurementDatabaseID(const it_vmsr_t& _it_msr)
+{
+	if (projectSettings_.o._database_ids)
+	{
+		size_t d = distance(bmsBinaryRecords_.begin(), _it_msr);
+		_it_dbid = v_msr_db_map_.begin() + d;
+
+		// Print measurement id
+		adj_file << setw(STDDEV) << right << _it_dbid->msr_id;
+
+		// Print cluster id?
+		switch (_it_msr->measType)
+		{
+		case 'D':
+		case 'G':
+		case 'X':
+		case 'Y':
+			adj_file << setw(STDDEV) << right << _it_dbid->cluster_id;
+		}
+	}
+}
+	
+
 void dna_adjust::PrintAdjMeasurementStatistics(const char cardinal, const it_vmsr_t& _it_msr)
 {
 	adj_file << setw(STAT) << setprecision(2) << fixed << right << 
@@ -12485,22 +12552,9 @@ void dna_adjust::PrintAdjMeasurementStatistics(const char cardinal, const it_vms
 	else
 		adj_file << setw(OUTLIER) << right << " ";
 
-	// Print database info?
-	if (projectSettings_.o._database_ids)
-	{
-		// Print measurement id
-		adj_file << setw(STDDEV) << right << _it_dbid->msr_id;
+	// Print measurement database ids
+	PrintMeasurementDatabaseID(_it_msr);
 
-		// Print cluster id?
-		switch (_it_msr->measType)
-		{
-		case 'D':
-		case 'G':
-		case 'X':
-		case 'Y':
-			adj_file << setw(STDDEV) << right << _it_dbid->cluster_id;
-		}
-	}
 	adj_file << endl;
 }
 
@@ -12560,8 +12614,8 @@ void dna_adjust::PrintAdjMeasurements_D(it_vmsr_t& _it_msr)
 	UINT32 a, angle_count(_it_msr->vectorCount1 - 1);
 
 	_it_msr++;
-	if (projectSettings_.o._database_ids)
-		_it_dbid++;
+	//if (projectSettings_.o._database_ids)
+	//	_it_dbid++;
 
 	for (a=0; a<angle_count; ++a)
 	{
@@ -12576,9 +12630,9 @@ void dna_adjust::PrintAdjMeasurements_D(it_vmsr_t& _it_msr)
 		PrintAdjMeasurementsAngular(' ', _it_msr);
 
 		_it_msr++;
-		if (projectSettings_.o._database_ids)
-			if (a < angle_count-1)
-				_it_dbid++;
+		//if (projectSettings_.o._database_ids)
+		//f (a < angle_count-1)
+		//		_it_dbid++;
 	}
 }
 
@@ -12874,8 +12928,8 @@ void dna_adjust::PrintAdjMeasurements_GXY(it_vmsr_t& _it_msr, const uint32_uint3
 		if (covariance_count > 0)
 		{
 			_it_msr++;
-			if (projectSettings_.o._database_ids)
-				_it_dbid++;
+			//if (projectSettings_.o._database_ids)
+			//	_it_dbid++;
 		}
 	}
 }
@@ -13928,7 +13982,7 @@ void dna_adjust::RemoveNonMeasurements(const UINT32& block)
 	erase_if(v_CML_.at(block), measstartCompareFunc);
 	
 	// Sort CML on file order (default option)
-	CompareFileOrder<measurement_t, UINT32> fileorderCompareFunc(&bmsBinaryRecords_);
+	CompareMsrFileOrder<measurement_t, UINT32> fileorderCompareFunc(&bmsBinaryRecords_);
 	sort(v_CML_.at(block).begin(), v_CML_.at(block).end(), fileorderCompareFunc);
 	
 }

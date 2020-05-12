@@ -41,14 +41,14 @@ using namespace dynadjust::exception;
 
 
 typedef struct msr_database_t {
-	UINT32 msr_index;
-	UINT32 bms_index;
+	//UINT32 msr_index;
+	//UINT32 bms_index;
 	UINT32 msr_id;
 	UINT32 cluster_id;
 
 	msr_database_t ()
-		: msr_index(0), bms_index(0)
-		, msr_id(0), cluster_id(0) {}
+		: /*msr_index(0), bms_index(0)
+		,*/ msr_id(0), cluster_id(0) {}
 
 } msr_database_id_map;
 

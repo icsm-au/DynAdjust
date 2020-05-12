@@ -526,10 +526,10 @@ private:
 
 // M = measurement_t, U = UINT32
 template<typename M, typename U>
-class CompareFileOrder
+class CompareMsrFileOrder
 {
 public:
-	CompareFileOrder(vector<M>* m)
+	CompareMsrFileOrder(vector<M>* m)
 		:  _m(m) {}
 	bool operator()(const U& lhs, const U& rhs) {
 		return _m->at(lhs).fileOrder < _m->at(rhs).fileOrder;

@@ -55,15 +55,21 @@ void PrintSummaryMessage(dna_adjust* netAdjust, const project_settings* p, milli
 	}
 
 	cout << left << "+ Done." << endl;
+
+	UINT32 block_count(netAdjust->blockCount());
+	string block_str(" block");
+	if (block_count > 1)
+		block_str.append("s");
+	block_str.append(".");
 	
 	switch (p->a.adjust_mode)
 	{
 	case Phased_Block_1Mode:
 	case PhasedMode:
 		if (netAdjust->GetStatus() == ADJUST_SUCCESS)
-			cout << "+ Successfully adjusted " << netAdjust->blockCount() << " blocks.";
+			cout << "+ Successfully adjusted " << block_count << block_str;
 		else
-			cout << "+ Attempted to adjust " << netAdjust->blockCount() << " blocks.";
+			cout << "+ Attempted to adjust " << netAdjust->blockCount() << block_str;
 		cout << endl;
 	}
 	

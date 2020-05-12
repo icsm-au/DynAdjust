@@ -180,7 +180,7 @@ void CDnaDirection::WriteDynaMLMsr(std::ofstream* dynaml_stream, bool bSubMeasur
 			<< RadtoDms(m_drValue) << "</Value>" << endl;
 		*dynaml_stream << "      <StdDev>" << scientific << setprecision(6) << Seconds(m_dStdDev) << "</StdDev>" << endl;	
 		if (m_databaseIdSet)
-			*dynaml_stream << "    <MeasurementID>" << m_msr_db_map.msr_id << "</MeasurementID>" << endl;
+			*dynaml_stream << "      <MeasurementID>" << m_msr_db_map.msr_id << "</MeasurementID>" << endl;
 		*dynaml_stream << "    </Directions>" << endl;
 	}
 	else

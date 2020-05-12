@@ -239,6 +239,8 @@ public:
 		const msr_database_id_map& dbidmap, bool dbidSet) const;
 	virtual void SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* ellipsoid);
 
+	void SerialiseDatabaseMap(std::ofstream* os, const UINT32& msr_id, const UINT32& cluster_id);
+
 	inline void SetClusterID(const UINT32& id) { m_lclusterID = id; }
 	inline void SetStn1Index(const UINT32& stn) { m_lstn1Index = stn; }
 	inline void SetStn2Index(const UINT32& stn) { m_lstn2Index = stn; }
@@ -342,7 +344,7 @@ public:
 	// pure virtual functions overridden by specialised classes
 	virtual void coutMeasurementData(ostream &os, const UINT16& uType = 0) const = 0;
 	virtual UINT32 CalcBinaryRecordCount() const = 0;
-	virtual UINT32 CalcDbidRecordCount() const;
+	//virtual UINT32 CalcDbidRecordCount() const;
 	virtual void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) const = 0;
 	virtual UINT32 SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord) = 0;
 	virtual UINT32 SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr) = 0;
@@ -433,7 +435,7 @@ public:
 	virtual void coutBaselineData(ostream &os, const int& pad, const UINT16& uType = 0) {}
 
 	void SetDatabaseMap(const msr_database_id_map& dbidmap, bool dbidSet);
-	virtual inline void SetDatabaseMap_bmsIndex(const UINT32& bmsIndex) { m_msr_db_map.bms_index = bmsIndex; }
+	//virtual inline void SetDatabaseMap_bmsIndex(const UINT32& bmsIndex) { m_msr_db_map.bms_index = bmsIndex; }
 	
 	virtual void SerialiseDatabaseMap(std::ofstream* os);
 

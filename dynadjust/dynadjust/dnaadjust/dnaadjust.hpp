@@ -754,6 +754,7 @@ private:
 	void PrintMeasurementsAngular(const char cardinal, const double& measurement, const double& correction, const it_vmsr_t& _it_msr, bool printAdjMsr = true);
 	void PrintMeasurementsLinear(const char cardinal, const double& measurement, const double& correction, const it_vmsr_t& _it_msr, bool printAdjMsr = true);
 	void PrintMeasurementCorrection(const char cardinal, const it_vmsr_t& _it_msr);
+	void PrintMeasurementDatabaseID(const it_vmsr_t& _it_msr);
 
 	void FormUniqueMsrList();
 	void PrintAdjMeasurementsHeader(bool printHeader, const string& table_heading,
@@ -762,7 +763,7 @@ private:
 	void PrintAdjMeasurementsAngular(const char cardinal, const it_vmsr_t& _it_msr);
 	void PrintAdjMeasurementsLinear(const char cardinal, const it_vmsr_t& _it_msr);
 	void PrintAdjGNSSAlternateUnits(it_vmsr_t& _it_msr, const uint32_uint32_pair& b_pam);
-	void PrintAdjMeasurementStatistics(const char cardinal, const it_vmsr_t& _it_msr);
+	void PrintAdjMeasurementStatistics(const char cardinal, const it_vmsr_t& _it_msr);	
 	
 	void PrintIgnoredAdjMeasurements(bool printHeader);
 
@@ -977,9 +978,11 @@ private:
 #endif // MULTI_THREAD_ADJUST
 
 	// Database management
-	v_msr_database_id_map	v_msr_db_map;
-	it_vdbid_t _it_dbid;
-	void LoadDatabaseId(const string& dbid_filename);
+	v_msr_database_id_map	v_msr_db_map_;
+	it_vdbid_t				_it_dbid;
+	bool					databaseIDsLoaded_;
+
+	void LoadDatabaseId();
 };
 
 }	// namespace networkadjust

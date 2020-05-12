@@ -120,6 +120,8 @@ public:
 	virtual void WriteDNAMsr(std::ofstream* dynaml_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool bSubMeasurement = false) const;
 	virtual void SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* ellipsoid);
 
+	virtual void SerialiseDatabaseMap(std::ofstream* os);
+
 	string m_strTarget;
 
 	inline double GetVscale() const { return m_dVscale; }
@@ -130,7 +132,7 @@ public:
 	inline double GetValue() const { return sqrt(m_dX*m_dX + m_dY*m_dY + m_dZ*m_dZ); }			// Virtual magnitude
 	inline double GetStdDev() const { return sqrt(m_dSigmaXX + m_dSigmaYY + m_dSigmaZZ); }		// RMS
 
-	virtual inline void SetDatabaseMap_bmsIndex(const UINT32& bmsIndex) { m_msr_db_map.bms_index = bmsIndex; }
+	//virtual inline void SetDatabaseMap_bmsIndex(const UINT32& bmsIndex) { m_msr_db_map.bms_index = bmsIndex; }
 protected:
 
 	UINT32 m_lRecordedTotal;
@@ -223,7 +225,7 @@ public:
 
 	virtual void coutMeasurementData(ostream &os, const UINT16& uType = 0) const;
 	virtual UINT32 CalcBinaryRecordCount() const;
-	virtual UINT32 CalcDbidRecordCount() const;
+	//virtual UINT32 CalcDbidRecordCount() const;
 	virtual void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) const;
 	virtual UINT32 SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord);
 	virtual UINT32 SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr);
@@ -232,7 +234,7 @@ public:
 	virtual void SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* ellipsoid);
 
 	virtual void SerialiseDatabaseMap(std::ofstream* os);
-	virtual void SetDatabaseMap_bmsIndex(const UINT32& bmsIndex);
+	//virtual void SetDatabaseMap_bmsIndex(const UINT32& bmsIndex);
 
 protected:
 

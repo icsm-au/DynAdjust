@@ -660,6 +660,24 @@ void CDnaGpsPoint::WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex
 }
 
 
+void CDnaGpsPoint::SerialiseDatabaseMap(std::ofstream* os)
+{
+	// X
+	CDnaMeasurement::SerialiseDatabaseMap(os);
+	
+	// Y
+	CDnaMeasurement::SerialiseDatabaseMap(os);
+	
+	// Z
+	CDnaMeasurement::SerialiseDatabaseMap(os);
+
+	for_each(m_vPointCovariances.begin(), m_vPointCovariances.end(),
+		[this, os](const CDnaCovariance& cov) {
+		((CDnaCovariance*)&cov)->SerialiseDatabaseMap(os, m_msr_db_map.msr_id, m_msr_db_map.cluster_id);
+	});
+}
+	
+
 void CDnaGpsPoint::coutPointData(ostream &os) const
 {
 	os << left << setw(4) << " " << setw(INST_WIDTH) << m_strFirst;
@@ -1016,33 +1034,33 @@ void CDnaGpsPointCluster::coutMeasurementData(ostream &os, const UINT16& uType) 
 		os << endl;
 }
 
-void CDnaGpsPointCluster::SetDatabaseMap_bmsIndex(const UINT32& bmsIndex) 
-{ 
-	UINT32 i(bmsIndex);
-	for_each(m_vGpsPoints.begin(), m_vGpsPoints.end(),
-		[this, &i](const CDnaGpsPoint& pnt) {
-			((CDnaMeasurement*)&pnt)->SetDatabaseMap_bmsIndex(i++);
-	});
-}
+// void CDnaGpsPointCluster::SetDatabaseMap_bmsIndex(const UINT32& bmsIndex) 
+// { 
+// 	UINT32 i(bmsIndex);
+// 	for_each(m_vGpsPoints.begin(), m_vGpsPoints.end(),
+// 		[this, &i](const CDnaGpsPoint& pnt) {
+// 			((CDnaMeasurement*)&pnt)->SetDatabaseMap_bmsIndex(i++);
+// 	});
+// }
 	
 
 void CDnaGpsPointCluster::SerialiseDatabaseMap(std::ofstream* os)
 {
 	for_each(m_vGpsPoints.begin(), m_vGpsPoints.end(),
 		[this, os](const CDnaGpsPoint& pnt) {
-			((CDnaMeasurement*)&pnt)->SerialiseDatabaseMap(os);
+			((CDnaGpsPoint*)&pnt)->SerialiseDatabaseMap(os);
 	});
 }
 
-UINT32 CDnaGpsPointCluster::CalcDbidRecordCount() const
-{
-	UINT32 recordCount(0);
-	for_each(m_vGpsPoints.begin(), m_vGpsPoints.end(),
-		[&recordCount](const CDnaGpsPoint& pnt) {
-			recordCount += pnt.CalcDbidRecordCount();
-	});
-	return recordCount;
-}
+// UINT32 CDnaGpsPointCluster::CalcDbidRecordCount() const
+// {
+// 	UINT32 recordCount(0);
+// 	for_each(m_vGpsPoints.begin(), m_vGpsPoints.end(),
+// 		[&recordCount](const CDnaGpsPoint& pnt) {
+// 			recordCount += pnt.CalcDbidRecordCount();
+// 	});
+// 	return recordCount;
+// }
 	
 UINT32 CDnaGpsPointCluster::CalcBinaryRecordCount() const
 {
