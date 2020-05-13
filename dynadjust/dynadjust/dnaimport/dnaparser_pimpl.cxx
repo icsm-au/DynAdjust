@@ -73,6 +73,12 @@ void Clusterpoint_pimpl::Z (const ::std::string& Z)
 	g_parsemsr_tally.Y++;
 }
 
+void Clusterpoint_pimpl::MeasurementDBID(const ::std::string& MeasurementID)
+{
+	_dnaGpsPoint->SetMeasurementDBID(MeasurementID);
+}
+
+
 void Clusterpoint_pimpl::SigmaXX (const ::std::string& SigmaXX)
 {
 	_dnaGpsPoint->SetSigmaXX(SigmaXX);
@@ -149,6 +155,13 @@ void Directions_pimpl::StdDev(const ::std::string& StdDev)
 	_dnaDirection->SetStdDev(StdDev);
 
 }
+	
+
+void Directions_pimpl::MeasurementDBID(const ::std::string& MeasurementID)
+{
+	_dnaDirection->SetMeasurementDBID(MeasurementID);
+}
+	
 
 void Directions_pimpl::post_Directions()
 {
@@ -628,7 +641,31 @@ void DnaMeasurement_pimpl::Source(const ::std::string& Source)
 	else
 		_dnaCurrentMsr->SetSource(Source);
 }
+	
 
+void DnaMeasurement_pimpl::MeasurementDBID(const ::std::string& MeasurementID)
+{
+	if (!_dnaCurrentMsr)
+		throw XMLInteropException("\"Type\" element must be the first element within \"DnaMeasurement\".", 0);
+
+	if (MeasurementID.empty())
+		_dnaCurrentMsr->SetMeasurementDBID("");
+	else
+		_dnaCurrentMsr->SetMeasurementDBID(MeasurementID);
+}
+	
+
+void DnaMeasurement_pimpl::ClusterDBID(const ::std::string& ClusterID)
+{
+	if (!_dnaCurrentMsr)
+		throw XMLInteropException("\"Type\" element must be the first element within \"DnaMeasurement\".", 0);
+
+	if (ClusterID.empty())
+		_dnaCurrentMsr->SetClusterDBID("");
+	else
+		_dnaCurrentMsr->SetClusterDBID(ClusterID);
+}
+	
 
 void DnaMeasurement_pimpl::post_DnaMeasurement()
 {
@@ -898,6 +935,12 @@ void GPSBaseline_pimpl::Z(const ::std::string& Z)
 		g_parsemsr_tally.X++;
 		break;
 	}
+}
+
+void GPSBaseline_pimpl::MeasurementDBID(const ::std::string& MeasurementID)
+{
+	if (_dnaGpsBaseline)
+		_dnaGpsBaseline->SetMeasurementDBID(MeasurementID);
 }
 
 void GPSBaseline_pimpl::SigmaXX(const ::std::string& SigmaXX)

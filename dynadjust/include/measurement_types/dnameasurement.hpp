@@ -434,6 +434,12 @@ public:
 
 	virtual void coutBaselineData(ostream &os, const int& pad, const UINT16& uType = 0) {}
 
+	virtual void SetMeasurementDBID(const string& str) {}
+	virtual void SetClusterDBID(const string& str) {}
+
+	//virtual inline UINT32 GetClusterDBID() const { return 0; }
+	//virtual inline UINT32 GetMeasurementDBID() const { return 0; }
+
 	void SetDatabaseMap(const msr_database_id_map& dbidmap, bool dbidSet);
 	//virtual inline void SetDatabaseMap_bmsIndex(const UINT32& bmsIndex) { m_msr_db_map.bms_index = bmsIndex; }
 	

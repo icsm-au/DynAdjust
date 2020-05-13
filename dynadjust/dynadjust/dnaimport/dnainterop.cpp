@@ -530,19 +530,19 @@ void dna_import::ParseXML(const string& fileName, vdnaStnPtr* vStations, PUINT32
 
 		DnaMeasurement_p.parsers (string_p, string_p, string_p, string_p, string_p, string_p, string_p, string_p,
 				string_p, string_p, Directions_p, string_p, string_p, string_p, GPSBaseline_p, string_p, string_p,
-				string_p, Clusterpoint_p, string_p, string_p,
+				string_p, Clusterpoint_p, string_p, string_p, string_p, string_p,
 				(projectSettings_.i.prefer_single_x_as_g == TRUE ? true : false));
 
-		Directions_p.parsers (string_p, string_p, string_p, string_p);
+		Directions_p.parsers (string_p, string_p, string_p, string_p, string_p);
 
 		GPSBaseline_p.parsers (string_p, string_p, string_p, string_p, string_p, string_p, string_p, string_p,
-				 string_p, GPSCovariance_p);
+				 string_p, string_p, GPSCovariance_p);
 
 		GPSCovariance_p.parsers (string_p, string_p, string_p, string_p, string_p, string_p,
 				string_p, string_p, string_p);
 
 		Clusterpoint_p.parsers (string_p, string_p, string_p, string_p, string_p, string_p, string_p, string_p,
-				string_p, PointCovariance_p);
+				string_p, string_p, PointCovariance_p);
 
 		PointCovariance_p.parsers (string_p, string_p, string_p, string_p, string_p, string_p,
 				string_p, string_p, string_p);
@@ -3896,7 +3896,7 @@ void dna_import::SerialiseDNA(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements,
 
 	try {
 		// print stations
-		// Has the user specified --flag-unused-stations, in wich case, do not
+		// Has the user specified --flag-unused-stations, in which case, do not
 		// print stations marked unused?
 		UINT32 count(0);
 		if (flagUnused) 
@@ -4511,6 +4511,7 @@ void dna_import::SerialiseDatabaseId(const string& dbid_filename, pvdnaMsrPtr vM
 		SignalExceptionInterop(static_cast<string>(e.what()), 0, NULL);
 	}
 }
+	
 
 void dna_import::PrintMeasurementsToStations(string& m2s_file, MsrTally* parsemsrTally,
 	string& bst_file, string& bms_file, string& aml_file, pvASLPtr vAssocStnList)
