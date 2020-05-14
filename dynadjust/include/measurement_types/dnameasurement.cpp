@@ -503,7 +503,18 @@ void CDnaMeasurement::coutMeasurement(ostream& os) const
 	os << setw(2) << left << "+ " << setw(2) << m_strType;
 }
 
-void CDnaMeasurement::SetType(const string& str) 
+void CDnaMeasurement::SetMeasurementDBID(const string& str)
+{
+	m_msr_db_map.msr_id = LongFromString<UINT32>(str);
+	m_databaseIdSet = true;
+}
+
+void CDnaMeasurement::SetClusterDBID(const string& str)
+{
+	m_msr_db_map.cluster_id = LongFromString<UINT32>(str);
+}
+
+void CDnaMeasurement::SetType(const string& str)
 { 
 	m_strType = trimstr(str);
 	str_toupper<int>(m_strType);

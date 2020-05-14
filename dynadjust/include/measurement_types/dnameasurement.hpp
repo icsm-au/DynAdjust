@@ -434,9 +434,14 @@ public:
 
 	virtual void coutBaselineData(ostream &os, const int& pad, const UINT16& uType = 0) {}
 
-	virtual void SetMeasurementDBID(const string& str) {}
-	virtual void SetClusterDBID(const string& str) {}
-
+	void SetMeasurementDBID(const string& str);
+	void SetClusterDBID(const string& str);
+	
+	inline void SetClusterDBID(const UINT32& u) { m_msr_db_map.cluster_id = u; }
+	inline void SetMeasurementDBID(const UINT32& u) { m_msr_db_map.msr_id = u; }
+	
+	inline UINT32 GetClusterDBID() { return m_msr_db_map.cluster_id; }
+	inline UINT32 GetMeasurementDBID() { return m_msr_db_map.msr_id; }
 	//virtual inline UINT32 GetClusterDBID() const { return 0; }
 	//virtual inline UINT32 GetMeasurementDBID() const { return 0; }
 
