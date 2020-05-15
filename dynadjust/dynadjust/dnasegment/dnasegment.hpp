@@ -105,6 +105,7 @@ public:
 	void coutSummary() const;
 	void coutCurrentBlockSummary(ostream &os);
 
+
 	void LoadNetFile();
 	void LoadBinaryFiles(const string& bstrfileName, const string& bmsrfileName);
 	void LoadAssociationFiles(const string& aslfileName, const string& amlfileName);
@@ -159,6 +160,7 @@ private:
 	void BuildFreeStationAvailabilityList(vASL& assocStnList, v_freestn_pair& freeStnList);
 	void BuildStationAppearanceList();
 	void CalculateAverageBlockSize();
+
 
 	void VerifyStationConnections_Block(const UINT32& block);
 	void VerifyStationsandBuildBlock(bool validationOnly=false);

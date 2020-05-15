@@ -20,3 +20,4 @@ dynadjust/bin/
 *.db-shm
 *.db-wal
 *.user
+/.idea/

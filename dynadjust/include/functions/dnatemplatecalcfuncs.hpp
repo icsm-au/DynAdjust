@@ -366,7 +366,7 @@ T atan_2(const T& x, const T& y)
 		else						// fourth quadrant
 			return theta + TWO_PI;
 	}
-	return 0.;
+  return 0.;
 }
 
 #endif /* DNATEMPLATECALCFUNCS_H_ */

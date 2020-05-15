@@ -222,6 +222,7 @@ string snx_softwarehardware_text()
 	// hardware
 	str << " HARDWARE           " << left << setw(60) << __HARDWARE__ << endl;
 
+
 	return str.str();
 }
 	
