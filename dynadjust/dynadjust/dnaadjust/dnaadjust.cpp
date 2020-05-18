@@ -11195,7 +11195,17 @@ void dna_adjust::PrintAdjMeasurements_D(it_vmsr_t& _it_msr)
 	if (_it_msr->ignore)
 		ignoreFlag = "*";
 
-	adj_file << setw(PAD3) << left << ignoreFlag << setw(PAD2) << left << " " << endl;
+  adj_file << setw(PAD3) << left << ignoreFlag << setw(PAD2) << left << " ";
+  
+  if (projectSettings_.o._database_ids)
+  {
+    // Measured + Computed + Correction + Measured + Adjusted + Residual + N Stat + T Stat + Pelzer + Pre Adj Corr + Outlier
+    UINT32 b(MSR + MSR + CORR + PREC + PREC + PREC + STAT + REL + PACORR + OUTLIER + STDDEV);
+    if (projectSettings_.o._adj_msr_tstat)
+       b += STAT;
+    adj_file << setw(b) << right << _it_dbid->msr_id;
+  }
+  adj_file << endl;
 
 	UINT32 a, angle_count(_it_msr->vectorCount1 - 1);
 
