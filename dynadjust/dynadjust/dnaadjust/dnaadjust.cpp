@@ -10306,9 +10306,6 @@ void dna_adjust::PrintCompMeasurements(const UINT32& block, const string type)
 			break;
 		}
 
-		// Set iterator to the correct element
-		//if (projectSettings_.o._database_ids)
-		//	_it_dbid++;
 	}
 
 	adj_file << endl << endl;
@@ -11575,9 +11572,6 @@ void dna_adjust::PrintIgnoredAdjMeasurements(bool printHeader)
 			break;
 		}
 
-		// Set iterator to the correct element
-		//if (projectSettings_.o._database_ids)
-		//	_it_dbid++;
 	}
 
 	adj_file << endl << endl;
@@ -11747,9 +11741,6 @@ void dna_adjust::PrintAdjMeasurements(v_uint32_u32u32_pair msr_block, bool print
 			break;
 		}
 
-		// Set iterator to the correct element
-		//if (projectSettings_.o._database_ids)
-		//	_it_dbid++;
 	}
 	
 	adj_file << endl;
@@ -11886,17 +11877,25 @@ void dna_adjust::PrintCompMeasurements_D(const UINT32& block, it_vmsr_t& _it_msr
 	if (_it_msr->ignore)
 		ignoreFlag = "*";
 
-	adj_file << setw(PAD3) << left << ignoreFlag << setw(PAD2) << left << " " << endl;
-
 	UINT32 angle_count(_it_msr->vectorCount1 - 1);
 
+	adj_file << setw(PAD3) << left << ignoreFlag << setw(PAD2) << left << angle_count;
+
+	if (projectSettings_.o._database_ids)
+	{
+		// Measured + Computed + Correction + Meas SD + Pre Adj Corr
+		UINT32 b(MSR + MSR + CORR + PREC + PACORR);
+		adj_file << setw(b) << " ";
+
+		PrintMeasurementDatabaseID(_it_msr);
+	}
+	adj_file << endl;
+
 	_it_msr++;
-	//if (projectSettings_.o._database_ids)
-	//	_it_dbid++;
 
 	for (UINT32 a(0); a<angle_count; ++a)
 	{
-		computed = _it_msr->term1 - v_measMinusComp_.at(block).get(design_row, 0);
+		computed = _it_msr->term1 + _it_msr->measCorr;
 
 		adj_file << left << setw(PAD2) << " ";						// measurement type
 		adj_file << left << setw(STATION) << " ";					// station1	(Instrument)
@@ -11906,13 +11905,10 @@ void dna_adjust::PrintCompMeasurements_D(const UINT32& block, it_vmsr_t& _it_msr
 		
 		// Print angular measurement, taking care of user requirements for 
 		// type, format and precision
-		PrintCompMeasurementsAngular(' ', computed, -v_measMinusComp_.at(block).get(design_row, 0), _it_msr);
+		PrintCompMeasurementsAngular(' ', computed, _it_msr->measCorr, _it_msr);
 		
 		design_row++;
 		_it_msr++;
-		//if (projectSettings_.o._database_ids)
-		//	if (a < angle_count - 1)
-		//		_it_dbid++;
 	}
 }
 	
@@ -12115,11 +12111,7 @@ void dna_adjust::PrintCompMeasurements_GXY(const UINT32& block, it_vmsr_t& _it_m
 		_it_msr += covariance_count * 3;
 		
 		if (covariance_count > 0)
-		{
 			_it_msr++;
-			//if (projectSettings_.o._database_ids)
-			//	_it_dbid++;
-		}
 	}
 }
 	
@@ -12192,12 +12184,17 @@ void dna_adjust::PrintMeasurementsAngular(const char cardinal, const double& mea
 	string ignoreFlag(" ");
 
 	double preAdjMeas(_it_msr->preAdjMeas);
+	double adjMeas(measurement);
 
 	switch (_it_msr->measType)
 	{
 	case 'D':
-		// capture derived angle
-		preAdjMeas = _it_msr->scale1 + _it_msr->preAdjCorr;
+		// capture original direction
+		preAdjMeas = _it_msr->term1;
+
+		// "adjusted direction" is the original direction plus the 
+		// least squares estimated angle correction.
+		adjMeas = _it_msr->term1 + correction;
 
 		// Don't print ignore flag for target directions
 		break;
@@ -12276,13 +12273,13 @@ void dna_adjust::PrintMeasurementsAngular(const char cardinal, const double& mea
 			adj_file << 
 				setw(MSR) << right << FormatDmsString(RadtoDms(preAdjMeas), 4+PRECISION_SEC_MSR, 					// Measured (less correction  
 					true, true) <<																					// for deflections if applied)
-				setw(MSR) << right << FormatDmsString(RadtoDms(measurement), 4+PRECISION_SEC_MSR,					// Adjusted
+				setw(MSR) << right << FormatDmsString(RadtoDms(adjMeas), 4+PRECISION_SEC_MSR,					// Adjusted
 					true, true);
 			break;
 		case HP_NOTATION:
 			// ddd.mmssssss
 			adj_file << setw(MSR) << right << StringFromT(RadtoDms(preAdjMeas), 4+PRECISION_SEC_MSR) <<				// Measured (less correction for deflections)
-				setw(MSR) << right << StringFromT(RadtoDms(measurement), 4+PRECISION_SEC_MSR);						// Adjusted
+				setw(MSR) << right << StringFromT(RadtoDms(adjMeas), 4+PRECISION_SEC_MSR);						// Adjusted
 			break;
 		case SEPARATED:
 		default:
@@ -12290,7 +12287,7 @@ void dna_adjust::PrintMeasurementsAngular(const char cardinal, const double& mea
 			adj_file << 
 				setw(MSR) << right << FormatDmsString(RadtoDms(preAdjMeas), 4+PRECISION_SEC_MSR,					// Measured (less correction  
 					true, false) <<																					// for deflections if applied)
-				setw(MSR) << right << FormatDmsString(RadtoDms(measurement), 4+PRECISION_SEC_MSR,					// Computed
+				setw(MSR) << right << FormatDmsString(RadtoDms(adjMeas), 4+PRECISION_SEC_MSR,					// Computed
 					true, false);
 			break;
 		}
@@ -12311,7 +12308,7 @@ void dna_adjust::PrintMeasurementsAngular(const char cardinal, const double& mea
 		// ddd.dddddddd
 		//TODO - is longitude being printed?  If so, use DegreesL
 		adj_file << setw(MSR) << right << StringFromT(Degrees(preAdjMeas), 4+PRECISION_SEC_MSR) <<				// Measured (less correction for deflections)
-			setw(MSR) << right << StringFromT(Degrees(measurement), 4+PRECISION_SEC_MSR) <<						// Adjusted
+			setw(MSR) << right << StringFromT(Degrees(adjMeas), 4+PRECISION_SEC_MSR) <<						// Adjusted
 			setw(CORR) << right << StringFromT(removeNegativeZero(Degrees(correction), PRECISION_SEC_MSR), PRECISION_SEC_MSR) <<	// Correction
 			setw(PREC) << right << StringFromT(Degrees(sqrt(precision)), PRECISION_SEC_MSR);					// Precision (Meas)
 		
@@ -12513,8 +12510,8 @@ void dna_adjust::PrintMeasurementDatabaseID(const it_vmsr_t& _it_msr)
 {
 	if (projectSettings_.o._database_ids)
 	{
-		size_t d = distance(bmsBinaryRecords_.begin(), _it_msr);
-		_it_dbid = v_msr_db_map_.begin() + d;
+		size_t dbindex = distance(bmsBinaryRecords_.begin(), _it_msr);
+		_it_dbid = v_msr_db_map_.begin() + dbindex;
 
 		// Print measurement id
 		adj_file << setw(STDDEV) << right << _it_dbid->msr_id;
@@ -12609,13 +12606,23 @@ void dna_adjust::PrintAdjMeasurements_D(it_vmsr_t& _it_msr)
 	if (_it_msr->ignore)
 		ignoreFlag = "*";
 
-	adj_file << setw(PAD3) << left << ignoreFlag << setw(PAD2) << left << " " << endl;
-
 	UINT32 a, angle_count(_it_msr->vectorCount1 - 1);
 
+	adj_file << setw(PAD3) << left << ignoreFlag << setw(PAD2) << left << angle_count;
+
+	if (projectSettings_.o._database_ids)
+	{
+		// Measured + Computed + Correction + Measured + Adjusted + Residual + N Stat + T Stat + Pelzer + Pre Adj Corr + Outlier
+		UINT32 b(MSR + MSR + CORR + PREC + PREC + PREC + STAT + REL + PACORR + OUTLIER);
+		if (projectSettings_.o._adj_msr_tstat)
+			b += STAT;
+		adj_file << setw(b) << " ";
+
+		PrintMeasurementDatabaseID(_it_msr);
+	}
+	adj_file << endl;
+
 	_it_msr++;
-	//if (projectSettings_.o._database_ids)
-	//	_it_dbid++;
 
 	for (a=0; a<angle_count; ++a)
 	{
@@ -12630,9 +12637,6 @@ void dna_adjust::PrintAdjMeasurements_D(it_vmsr_t& _it_msr)
 		PrintAdjMeasurementsAngular(' ', _it_msr);
 
 		_it_msr++;
-		//if (projectSettings_.o._database_ids)
-		//f (a < angle_count-1)
-		//		_it_dbid++;
 	}
 }
 
@@ -12926,11 +12930,7 @@ void dna_adjust::PrintAdjMeasurements_GXY(it_vmsr_t& _it_msr, const uint32_uint3
 		_it_msr += covariance_count * 3;
 		
 		if (covariance_count > 0)
-		{
 			_it_msr++;
-			//if (projectSettings_.o._database_ids)
-			//	_it_dbid++;
-		}
 	}
 }
 	
