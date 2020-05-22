@@ -10376,7 +10376,7 @@ void dna_adjust::PrintAdjMeasurementsHeader(bool printHeader, const string& tabl
 		j += PREC + PREC + STAT;
 		adj_file <<
 			setw(PREC) << right << "Adj. SD" <<
-			setw(PREC) << right << "Residual" <<
+			setw(PREC) << right << "Corr. SD" <<
 			setw(STAT) << right << "N-stat";
 
 		// print t-statistics?
