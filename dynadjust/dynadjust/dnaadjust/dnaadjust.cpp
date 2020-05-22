@@ -20,13 +20,16 @@
 // Description  : DynAdjust Network Adjustment library
 //============================================================================
 
-// To determine number of lines of code, hit ctrl+shift+f (Find in files), and:
-// - enter   ^:b*[^:b#/]+.*$ into the "Find what:" box,
+// To determine number of lines of code, hit ctrl+shift+f (Find in files), and 
+// - enter the following into the "Find what:" box:
+//   * for Visual Studio 2012 and later, enter:    ^(?([^rn])s)*[^s+?/]+[^n]*$
+//   * for Visual Studio versions prior to 2012, enter:    ^:b*[^:b#/]+.*$
 // - choose u:\vs9\projects\geodesy\dev\ folder from "Look in", then
 // - select "Use:" and "regular expression" from "Find options"
 // - Only look at file types *.c;*.cpp;*.cxx;*.h;*.hpp;*.hxx;
 // The total count is displayed at the bottom of the Find results window.
-// At 09.05.2018, Matching lines: 56923    Matching files: 147    Total files searched: 180
+// At 09.05.2018, Matching lines : 56923    Matching files : 147    Total files searched : 180
+// At 22.05.2020, Matching lines : 53780    Matching files : 193    Total files searched : 193
 
 #include <dynadjust/dnaadjust/dnaadjust.hpp>
 
@@ -2557,8 +2560,6 @@ void dna_adjust::LoadDatabaseId()
 		for (r=0; r<recordCount; r++)
 		{
 			// Read data
-			//dbid_file.read(reinterpret_cast<char *>(&rec.msr_index), sizeof(UINT32));
-			//dbid_file.read(reinterpret_cast<char *>(&rec.bms_index), sizeof(UINT32));
 			dbid_file.read(reinterpret_cast<char *>(&rec.msr_id), sizeof(UINT32));
 			dbid_file.read(reinterpret_cast<char *>(&rec.cluster_id), sizeof(UINT32));
 		
