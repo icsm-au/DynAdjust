@@ -527,16 +527,8 @@ void CDnaMeasurement::SetDatabaseMap(const msr_database_id_map& dbidmap, bool db
 		m_msr_db_map = dbidmap;
 }
 
-// UINT32 CDnaMeasurement::CalcDbidRecordCount() const
-// {
-// 	return 1;
-// }
-	
-
 void CDnaMeasurement::SerialiseDatabaseMap(std::ofstream* os)
 {
-	//os->write(reinterpret_cast<const char *>(&m_msr_db_map.msr_index), sizeof(UINT32));
-	//os->write(reinterpret_cast<const char *>(&m_msr_db_map.bms_index), sizeof(UINT32));
 	os->write(reinterpret_cast<const char *>(&m_msr_db_map.msr_id), sizeof(UINT32));
 	os->write(reinterpret_cast<const char *>(&m_msr_db_map.cluster_id), sizeof(UINT32));
 }

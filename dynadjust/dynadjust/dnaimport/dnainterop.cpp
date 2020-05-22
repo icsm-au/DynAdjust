@@ -67,9 +67,6 @@ dna_import::dna_import()
 #endif
 #endif
 	
-	// Initialise database ids
-	//m_msr_db_map.msr_index = 0;
-
 	m_strProjectDefaultEpsg = DEFAULT_EPSG_S;
 	m_strProjectDefaultEpoch = DEFAULT_EPOCH;
 
@@ -1668,9 +1665,6 @@ void dna_import::ParseDNAMSR(vdnaStnPtr* vStations, pvdnaMsrPtr vMeasurements, P
 
 		measurementRead = true;
 		
-		// Increment msr index
-		//m_msr_db_map.msr_index ++;
-
 		// set ignore flag
 		msr_ptr->SetIgnore(ignoreMsr);
 
