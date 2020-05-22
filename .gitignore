@@ -19,5 +19,5 @@ dynadjust/bin/
 *.ipch
 *.db-shm
 *.db-wal
-*.vxproj.user
+*.vcxproj.user
 /.idea/
