@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 3.0)
 
 project (dynadjust)
 
-set (DYNADJUST_VERSION "1.0.0")
+set (DYNADJUST_VERSION "1.0.2")
 
 message (STATUS " " )
 message (STATUS "**********************************************" )

@@ -67,9 +67,6 @@ dna_import::dna_import()
 #endif
 #endif
 	
-	// Initialise database ids
-	m_msr_db_map.msr_index = 0;
-
 	m_strProjectDefaultEpsg = DEFAULT_EPSG_S;
 	m_strProjectDefaultEpoch = DEFAULT_EPOCH;
 
@@ -530,19 +527,19 @@ void dna_import::ParseXML(const string& fileName, vdnaStnPtr* vStations, PUINT32
 
 		DnaMeasurement_p.parsers (string_p, string_p, string_p, string_p, string_p, string_p, string_p, string_p,
 				string_p, string_p, Directions_p, string_p, string_p, string_p, GPSBaseline_p, string_p, string_p,
-				string_p, Clusterpoint_p, string_p, string_p,
+				string_p, Clusterpoint_p, string_p, string_p, string_p, string_p,
 				(projectSettings_.i.prefer_single_x_as_g == TRUE ? true : false));
 
-		Directions_p.parsers (string_p, string_p, string_p, string_p);
+		Directions_p.parsers (string_p, string_p, string_p, string_p, string_p);
 
 		GPSBaseline_p.parsers (string_p, string_p, string_p, string_p, string_p, string_p, string_p, string_p,
-				 string_p, GPSCovariance_p);
+				 string_p, string_p, GPSCovariance_p);
 
 		GPSCovariance_p.parsers (string_p, string_p, string_p, string_p, string_p, string_p,
 				string_p, string_p, string_p);
 
 		Clusterpoint_p.parsers (string_p, string_p, string_p, string_p, string_p, string_p, string_p, string_p,
-				string_p, PointCovariance_p);
+				string_p, string_p, PointCovariance_p);
 
 		PointCovariance_p.parsers (string_p, string_p, string_p, string_p, string_p, string_p,
 				string_p, string_p, string_p);
@@ -1668,9 +1665,6 @@ void dna_import::ParseDNAMSR(vdnaStnPtr* vStations, pvdnaMsrPtr vMeasurements, P
 
 		measurementRead = true;
 		
-		// Increment msr index
-		m_msr_db_map.msr_index ++;
-
 		// set ignore flag
 		msr_ptr->SetIgnore(ignoreMsr);
 
@@ -1714,6 +1708,7 @@ void dna_import::ParseDNAMSRLinear(const string& sBuf, dnaMsrPtr& msr_ptr)
 	msr_ptr->SetStdDev(ParseStdDevValue(sBuf, "ParseLinear"));
 
 	// Capture msr_id and cluster_id (for database referencing)
+	m_databaseIdSet = false;
 	ParseDatabaseIds(sBuf, "ParseLinear", msr_ptr->GetTypeC());
 	msr_ptr->SetDatabaseMap(m_msr_db_map, m_databaseIdSet);
 
@@ -1779,6 +1774,7 @@ void dna_import::ParseDNAMSRCoordinate(const string& sBuf, dnaMsrPtr& msr_ptr)
 
 	// Capture msr_id and cluster_id (for database referencing), then set
 	// database id info
+	m_databaseIdSet = false;
 	ParseDatabaseIds(sBuf, "ParseDNAMSRCoordinate", msr_ptr->GetTypeC());
 	msr_ptr->SetDatabaseMap(m_msr_db_map, m_databaseIdSet);
 }
@@ -1808,8 +1804,16 @@ void dna_import::ParseDNAMSRGPSBaselines(string& sBuf, dnaMsrPtr& msr_ptr, bool 
 	covTmp.SetType(tmp);
 	covTmp.SetIgnore(ignoreMsr);
 
-	bslTmp.SetClusterID(msr_ptr->GetClusterID());
-	covTmp.SetClusterID(msr_ptr->GetClusterID());
+	// So no need to read database ID
+	if (!projectSettings_.i.simulate_measurements)
+	{
+		// Capture msr_id and cluster_id (for database referencing)
+		m_databaseIdSet = false;
+		ParseDatabaseIds(sBuf, "ParseDNAMSRGPSBaselines", msr_ptr->GetTypeC());
+		msr_ptr->SetDatabaseMap(m_msr_db_map, m_databaseIdSet);
+		bslTmp.SetClusterID(msr_ptr->GetClusterID());
+		covTmp.SetClusterID(msr_ptr->GetClusterID());
+	}
 
 	// Instrument station
 	msr_ptr->SetFirst(ParseInstrumentValue(sBuf, "ParseDNAMSRGPSBaselines"));
@@ -2008,8 +2012,16 @@ void dna_import::ParseDNAMSRGPSPoints(string& sBuf, dnaMsrPtr& msr_ptr, bool ign
 	covTmp.SetType(tmp);
 	covTmp.SetIgnore(ignoreMsr);
 
-	pntTmp.SetClusterID(msr_ptr->GetClusterID());
-	covTmp.SetClusterID(msr_ptr->GetClusterID());
+	// So no need to read database ID
+	if (!projectSettings_.i.simulate_measurements)
+	{
+		// Capture msr_id and cluster_id (for database referencing)
+		m_databaseIdSet = false;
+		ParseDatabaseIds(sBuf, "ParseDNAMSRGPSPoints", msr_ptr->GetTypeC());
+		msr_ptr->SetDatabaseMap(m_msr_db_map, m_databaseIdSet);
+		pntTmp.SetClusterID(msr_ptr->GetClusterID());
+		covTmp.SetClusterID(msr_ptr->GetClusterID());
+	}
 
 	// Instrument station
 	msr_ptr->SetFirst(ParseInstrumentValue(sBuf, "ParseDNAMSRGPSPoints"));
@@ -2253,7 +2265,7 @@ void dna_import::ParseDatabaseIds(const string& sBuf, const string& calling_func
 	
 	// Initialise bms index.  This member will be set
 	// in SerialiseBms() 
-	m_msr_db_map.bms_index = 0;
+	//m_msr_db_map.bms_index = 0;
 
 	// Initialise cluster id.  ParseDatabaseClusterId will 
 	// update this member if a value is found
@@ -2276,7 +2288,7 @@ void dna_import::ParseDatabaseIds(const string& sBuf, const string& calling_func
 string dna_import::ParseDatabaseClusterId(const string& sBuf, const string& calling_function)
 {
 	string parsed_value;
-	// degrees value
+	// Cluster ID
 	try {
 		parsed_value = trimstr(sBuf.substr(dml_.msr_id_cluster));
 		if (!parsed_value.empty())
@@ -2296,7 +2308,7 @@ string dna_import::ParseDatabaseClusterId(const string& sBuf, const string& call
 string dna_import::ParseDatabaseMsrId(const string& sBuf, const string& calling_function)
 {
 	string parsed_value;
-	// degrees value
+	// Measurement ID
 	try {
 		parsed_value = trimstr(sBuf.substr(dml_.msr_id_msr, dmw_.msr_id_msr));
 		if (!parsed_value.empty())
@@ -2697,6 +2709,7 @@ void dna_import::ParseDNAMSRAngular(const string& sBuf, dnaMsrPtr& msr_ptr)
 
 	// Capture msr_id and cluster_id (for database referencing), then set
 	// database id info
+	m_databaseIdSet = false;
 	ParseDatabaseIds(sBuf, "ParseDNAMSRAngular", msr_ptr->GetTypeC());
 	msr_ptr->SetDatabaseMap(m_msr_db_map, m_databaseIdSet);
 
@@ -2756,14 +2769,13 @@ void dna_import::ParseDNAMSRDirections(string& sBuf, dnaMsrPtr& msr_ptr, bool ig
 	
 	CDnaDirection dirnTmp;
 	dirnTmp.SetRecordedTotal(0);
-	dirnTmp.SetClusterID(msr_ptr->GetClusterID());
-
+	
 	// If import is being used to simulate measurements, return as the
 	// expected input is:
 	//	 Measurement
 	//	 From station
 	//	 To station
-	// So no need to read direction values
+	// So no need to read direction values or database ID
 	if (!projectSettings_.i.simulate_measurements)
 	{
 		// Value
@@ -2773,8 +2785,10 @@ void dna_import::ParseDNAMSRDirections(string& sBuf, dnaMsrPtr& msr_ptr, bool ig
 		msr_ptr->SetStdDev(ParseStdDevValue(sBuf, "ParseDNAMSRDirections"));
 
 		// Capture msr_id and cluster_id (for database referencing)
+		m_databaseIdSet = false;
 		ParseDatabaseIds(sBuf, "ParseDNAMSRDirections", msr_ptr->GetTypeC());
 		msr_ptr->SetDatabaseMap(m_msr_db_map, m_databaseIdSet);
+		dirnTmp.SetClusterID(msr_ptr->GetClusterID());
 	}
 
 	for (UINT32 dirn=0; dirn<dirnCount; ++dirn)
@@ -3752,7 +3766,7 @@ void dna_import::RemoveNonMeasurements(const UINT32& block, pvmsr_t binaryMsr)
 	CompareNonMeasStart<measurement_t, UINT32> measstartCompareFunc(binaryMsr, xMeas);
 	sort(v_CML_.at(block).begin(), v_CML_.at(block).end(), measstartCompareFunc);
 	erase_if(v_CML_.at(block), measstartCompareFunc);
-	CompareFileOrder<measurement_t, UINT32> fileorderCompareFunc(binaryMsr);
+	CompareMsrFileOrder<measurement_t, UINT32> fileorderCompareFunc(binaryMsr);
 	sort(v_CML_.at(block).begin(), v_CML_.at(block).end(), fileorderCompareFunc);
 }
 	
@@ -3876,7 +3890,7 @@ void dna_import::SerialiseDNA(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements,
 
 	try {
 		// print stations
-		// Has the user specified --flag-unused-stations, in wich case, do not
+		// Has the user specified --flag-unused-stations, in which case, do not
 		// print stations marked unused?
 		UINT32 count(0);
 		if (flagUnused) 
@@ -3957,7 +3971,7 @@ void dna_import::SerialiseDNA(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements,
 
 		// print measurements
 		for (_it_msr=vMeasurements->begin(); _it_msr!=vMeasurements->end(); _it_msr++)
-			_it_msr->get()->WriteDNAMsr(&dna_msr_file, dmw_);
+			_it_msr->get()->WriteDNAMsr(&dna_msr_file, dmw_, dml_);
 
 		dna_msr_file.close();
 
@@ -4411,14 +4425,19 @@ void dna_import::SerialiseBms(const string& bms_filename, vdnaMsrPtr* vMeasureme
 {
 	// Calculate number of measurement records
 	m_binaryRecordCount = 0;
-	m_dbidRecordCount = 0;
+	//m_dbidRecordCount = 0;
 	for_each(vMeasurements->begin(), vMeasurements->end(),
 		[this](dnaMsrPtr msr) {
 			// update database map
-			msr->SetDatabaseMap_bmsIndex(m_binaryRecordCount);
+			//msr->SetDatabaseMap_bmsIndex(m_binaryRecordCount);
 			m_binaryRecordCount += msr->CalcBinaryRecordCount();
-			m_dbidRecordCount += msr->CalcDbidRecordCount();
+			//m_dbidRecordCount += msr->CalcDbidRecordCount();
 	});
+
+	// the database ID vector is set to the same size as the 
+	// binary measurement vector to enable efficient 1:1 lookup
+	// of database IDs
+	m_dbidRecordCount = m_binaryRecordCount;
 
 	dna_io_bms bms;
 
@@ -4486,6 +4505,7 @@ void dna_import::SerialiseDatabaseId(const string& dbid_filename, pvdnaMsrPtr vM
 		SignalExceptionInterop(static_cast<string>(e.what()), 0, NULL);
 	}
 }
+	
 
 void dna_import::PrintMeasurementsToStations(string& m2s_file, MsrTally* parsemsrTally,
 	string& bst_file, string& bms_file, string& aml_file, pvASLPtr vAssocStnList)
@@ -5378,7 +5398,7 @@ void dna_import::SimulateMSR(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements,
 		// print measurements
 		for_each(vMeasurements->begin(), vMeasurements->end(),
 			[this, &dna_msr_file](dnaMsrPtr _it_msr){
-				_it_msr->WriteDNAMsr(&dna_msr_file, dmw_);
+				_it_msr->WriteDNAMsr(&dna_msr_file, dmw_, dml_);
 		});
 
 		dna_msr_file.close();

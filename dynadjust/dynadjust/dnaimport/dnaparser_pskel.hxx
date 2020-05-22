@@ -303,82 +303,45 @@ public:
 	// virtual void
 	// pre ();
 
-	virtual void
-		X (const ::std::string&);
-
-	virtual void
-		Y (const ::std::string&);
-
-	virtual void
-		Z (const ::std::string&);
-
-	virtual void
-		SigmaXX (const ::std::string&);
-
-	virtual void
-		SigmaXY (const ::std::string&);
-
-	virtual void
-		SigmaXZ (const ::std::string&);
-
-	virtual void
-		SigmaYY (const ::std::string&);
-
-	virtual void
-		SigmaYZ (const ::std::string&);
-
-	virtual void
-		SigmaZZ (const ::std::string&);
-
-	virtual void
-		PointCovariance ();
-
-	virtual void
-		post_Clusterpoint ();
+	virtual void X (const ::std::string&);
+	virtual void Y (const ::std::string&);
+	virtual void Z (const ::std::string&);
+	virtual void MeasurementDBID (const ::std::string&);
+	virtual void SigmaXX (const ::std::string&);
+	virtual void SigmaXY (const ::std::string&);
+	virtual void SigmaXZ (const ::std::string&);
+	virtual void SigmaYY (const ::std::string&);
+	virtual void SigmaYZ (const ::std::string&);
+	virtual void SigmaZZ (const ::std::string&);
+	virtual void PointCovariance ();
+	virtual void post_Clusterpoint ();
 
 	// Parser construction API.
 	//
-	void
-		X_parser (::xml_schema::string_pskel&);
+	void X_parser (::xml_schema::string_pskel&);
+	void Y_parser (::xml_schema::string_pskel&);
+	void Z_parser (::xml_schema::string_pskel&);
+	void MeasurementDBID_parser (::xml_schema::string_pskel&);
+	void SigmaXX_parser (::xml_schema::string_pskel&);
+	void SigmaXY_parser (::xml_schema::string_pskel&);
+	void SigmaXZ_parser (::xml_schema::string_pskel&);
+	void SigmaYY_parser (::xml_schema::string_pskel&);
+	void SigmaYZ_parser (::xml_schema::string_pskel&);
+	void SigmaZZ_parser (::xml_schema::string_pskel&);
+	void PointCovariance_parser (::PointCovariance_pskel&);
 
-	void
-		Y_parser (::xml_schema::string_pskel&);
-
-	void
-		Z_parser (::xml_schema::string_pskel&);
-
-	void
-		SigmaXX_parser (::xml_schema::string_pskel&);
-
-	void
-		SigmaXY_parser (::xml_schema::string_pskel&);
-
-	void
-		SigmaXZ_parser (::xml_schema::string_pskel&);
-
-	void
-		SigmaYY_parser (::xml_schema::string_pskel&);
-
-	void
-		SigmaYZ_parser (::xml_schema::string_pskel&);
-
-	void
-		SigmaZZ_parser (::xml_schema::string_pskel&);
-
-	void
-		PointCovariance_parser (::PointCovariance_pskel&);
-
-	void
-		parsers (::xml_schema::string_pskel& /* X */,
-		::xml_schema::string_pskel& /* Y */,
-		::xml_schema::string_pskel& /* Z */,
-		::xml_schema::string_pskel& /* SigmaXX */,
-		::xml_schema::string_pskel& /* SigmaXY */,
-		::xml_schema::string_pskel& /* SigmaXZ */,
-		::xml_schema::string_pskel& /* SigmaYY */,
-		::xml_schema::string_pskel& /* SigmaYZ */,
-		::xml_schema::string_pskel& /* SigmaZZ */,
-		::PointCovariance_pskel& /* PointCovariance */);
+	void parsers (
+			::xml_schema::string_pskel& /* X */,
+			::xml_schema::string_pskel& /* Y */,
+			::xml_schema::string_pskel& /* Z */,
+			::xml_schema::string_pskel& /* MeasurementDBID */,
+			::xml_schema::string_pskel& /* SigmaXX */,
+			::xml_schema::string_pskel& /* SigmaXY */,
+			::xml_schema::string_pskel& /* SigmaXZ */,
+			::xml_schema::string_pskel& /* SigmaYY */,
+			::xml_schema::string_pskel& /* SigmaYZ */,
+			::xml_schema::string_pskel& /* SigmaZZ */,
+			::PointCovariance_pskel& /* PointCovariance */);
 
 	// Constructor.
 	//
@@ -404,6 +367,7 @@ protected:
 	::xml_schema::string_pskel* X_parser_;
 	::xml_schema::string_pskel* Y_parser_;
 	::xml_schema::string_pskel* Z_parser_;
+	::xml_schema::string_pskel* MeasurementDBID_parser_;
 	::xml_schema::string_pskel* SigmaXX_parser_;
 	::xml_schema::string_pskel* SigmaXY_parser_;
 	::xml_schema::string_pskel* SigmaXZ_parser_;
@@ -425,40 +389,26 @@ public:
 	// virtual void
 	// pre ();
 
-	virtual void
-		Ignore (const ::std::string&);
-
-	virtual void
-		Target (const ::std::string&);
-
-	virtual void
-		Value (const ::std::string&);
-
-	virtual void
-		StdDev (const ::std::string&);
-
-	virtual void
-		post_Directions ();
+	virtual void Ignore (const ::std::string&);
+	virtual void Target (const ::std::string&);
+	virtual void Value (const ::std::string&);
+	virtual void StdDev (const ::std::string&);
+	virtual void MeasurementDBID (const ::std::string&);
+	virtual void post_Directions ();
 
 	// Parser construction API.
 	//
-	void
-		Ignore_parser (::xml_schema::string_pskel&);
-
-	void
-		Target_parser (::xml_schema::string_pskel&);
-
-	void
-		Value_parser (::xml_schema::string_pskel&);
-
-	void
-		StdDev_parser (::xml_schema::string_pskel&);
-
-	void
-		parsers (::xml_schema::string_pskel& /* Ignore */,
-		::xml_schema::string_pskel& /* Target */,
-		::xml_schema::string_pskel& /* Value */,
-		::xml_schema::string_pskel& /* StdDev */);
+	void Ignore_parser (::xml_schema::string_pskel&);
+	void Target_parser (::xml_schema::string_pskel&);
+	void Value_parser (::xml_schema::string_pskel&);
+	void StdDev_parser (::xml_schema::string_pskel&);
+	void MeasurementDBID_parser (::xml_schema::string_pskel&);
+	void parsers (
+			::xml_schema::string_pskel& /* Ignore */,
+			::xml_schema::string_pskel& /* Target */,
+			::xml_schema::string_pskel& /* Value */,
+			::xml_schema::string_pskel& /* StdDev */,
+			::xml_schema::string_pskel& /* MeasurementDBID */);
 
 	// Constructor.
 	//
@@ -485,6 +435,7 @@ protected:
 	::xml_schema::string_pskel* Target_parser_;
 	::xml_schema::string_pskel* Value_parser_;
 	::xml_schema::string_pskel* StdDev_parser_;
+	::xml_schema::string_pskel* MeasurementDBID_parser_;
 
 	dnaMsrPtr _dnaDirection;
 	dnaMsrPtr _parent_dnaDirectionSet;
@@ -499,71 +450,30 @@ public:
 	// virtual void
 	// pre ();
 
-	virtual void
-		Type (const ::std::string&);
-
-	virtual void
-		Ignore (const ::std::string&);
-
-	virtual void
-		First (const ::std::string&);
-
-	virtual void
-		Second (const ::std::string&);
-
-	virtual void
-		Third (const ::std::string&);
-
-	virtual void
-		Value (const ::std::string&);
-
-	virtual void
-		StdDev (const ::std::string&);
-
-	virtual void
-		InstHeight (const ::std::string&);
-
-	virtual void
-		TargHeight (const ::std::string&);
-
-	virtual void
-		Total (const ::std::string&);
-
-	virtual void
-		Directions ();
-
-	virtual void
-		Vscale (const ::std::string&);
-
-	virtual void
-		Epoch (const ::std::string&);
-
-	virtual void
-		ReferenceFrame (const ::std::string&);
-
-	virtual void
-		GPSBaseline ();
-
-	virtual void
-		Hscale (const ::std::string&);
-
-	virtual void
-		Lscale (const ::std::string&);
-
-	virtual void
-		Pscale (const ::std::string&);
-
-	virtual void
-		Clusterpoint ();
-
-	virtual void
-		Coords (const ::std::string&);
-
-	virtual void
-		Source (const ::std::string&);
-
-	virtual void
-		post_DnaMeasurement ();
+	virtual void Type (const ::std::string&);
+	virtual void Ignore (const ::std::string&);
+	virtual void First (const ::std::string&);
+	virtual void Second (const ::std::string&);
+	virtual void Third (const ::std::string&);
+	virtual void Value (const ::std::string&);
+	virtual void StdDev (const ::std::string&);
+	virtual void InstHeight (const ::std::string&);
+	virtual void TargHeight (const ::std::string&);
+	virtual void Total (const ::std::string&);
+	virtual void Directions ();
+	virtual void Vscale (const ::std::string&);
+	virtual void Epoch (const ::std::string&);
+	virtual void ReferenceFrame (const ::std::string&);
+	virtual void GPSBaseline ();
+	virtual void Hscale (const ::std::string&);
+	virtual void Lscale (const ::std::string&);
+	virtual void Pscale (const ::std::string&);
+	virtual void Clusterpoint ();
+	virtual void Coords (const ::std::string&);
+	virtual void Source (const ::std::string&);
+	virtual void MeasurementDBID (const ::std::string&);
+	virtual void ClusterDBID (const ::std::string&);
+	virtual void post_DnaMeasurement ();
 
 	// Initialisation
 	inline void SetDefaultReferenceFrame(string& referenceframe, bool overridereferenceframe) { 
@@ -610,94 +520,67 @@ public:
 		return Source_parser_->post_string();
 	}
 
+	inline std::string MeasurementDBID()
+	{
+		return MeasurementDBID_parser_->post_string();
+	}
+
+	inline std::string ClusterDBID()
+	{
+		return ClusterDBID_parser_->post_string();
+	}
+
 	// Parser construction API.
 	//
-	void
-		Type_parser (::xml_schema::string_pskel&);
+	void Type_parser (::xml_schema::string_pskel&);
+	void Ignore_parser (::xml_schema::string_pskel&);
+	void First_parser (::xml_schema::string_pskel&);
+	void Second_parser (::xml_schema::string_pskel&);
+	void Third_parser (::xml_schema::string_pskel&);
+	void Value_parser (::xml_schema::string_pskel&);
+	void StdDev_parser (::xml_schema::string_pskel&);
+	void InstHeight_parser (::xml_schema::string_pskel&);
+	void TargHeight_parser (::xml_schema::string_pskel&);
+	void Total_parser (::xml_schema::string_pskel&);
+	void Directions_parser (::Directions_pskel&);
+	void Vscale_parser (::xml_schema::string_pskel&);
+	void Epoch_parser (::xml_schema::string_pskel&);
+	void ReferenceFrame_parser (::xml_schema::string_pskel&);
+	void GPSBaseline_parser (::GPSBaseline_pskel&);
+	void Hscale_parser (::xml_schema::string_pskel&);
+	void Lscale_parser (::xml_schema::string_pskel&);
+	void Pscale_parser (::xml_schema::string_pskel&);
+	void Clusterpoint_parser (::Clusterpoint_pskel&);
+	void Coords_parser (::xml_schema::string_pskel&);
+	void Source_parser (::xml_schema::string_pskel&);
+	void MeasurementDBID_parser (::xml_schema::string_pskel&);
+	void ClusterDBID_parser (::xml_schema::string_pskel&);
 
-	void
-		Ignore_parser (::xml_schema::string_pskel&);
-
-	void
-		First_parser (::xml_schema::string_pskel&);
-
-	void
-		Second_parser (::xml_schema::string_pskel&);
-
-	void
-		Third_parser (::xml_schema::string_pskel&);
-
-	void
-		Value_parser (::xml_schema::string_pskel&);
-
-	void
-		StdDev_parser (::xml_schema::string_pskel&);
-
-	void
-		InstHeight_parser (::xml_schema::string_pskel&);
-
-	void
-		TargHeight_parser (::xml_schema::string_pskel&);
-
-	void
-		Total_parser (::xml_schema::string_pskel&);
-
-	void
-		Directions_parser (::Directions_pskel&);
-
-	void
-		Vscale_parser (::xml_schema::string_pskel&);
-
-	void
-		Epoch_parser (::xml_schema::string_pskel&);
-
-	void
-		ReferenceFrame_parser (::xml_schema::string_pskel&);
-
-	void
-		GPSBaseline_parser (::GPSBaseline_pskel&);
-
-	void
-		Hscale_parser (::xml_schema::string_pskel&);
-
-	void
-		Lscale_parser (::xml_schema::string_pskel&);
-
-	void
-		Pscale_parser (::xml_schema::string_pskel&);
-
-	void
-		Clusterpoint_parser (::Clusterpoint_pskel&);
-
-	void
-		Coords_parser (::xml_schema::string_pskel&);
-
-	void
-		Source_parser(::xml_schema::string_pskel&);
-
-	void
-		parsers (::xml_schema::string_pskel& /* Type */,
-		::xml_schema::string_pskel& /* Ignore */,
-		::xml_schema::string_pskel& /* First */,
-		::xml_schema::string_pskel& /* Second */,
-		::xml_schema::string_pskel& /* Third */,
-		::xml_schema::string_pskel& /* Value */,
-		::xml_schema::string_pskel& /* StdDev */,
-		::xml_schema::string_pskel& /* InstHeight */,
-		::xml_schema::string_pskel& /* TargHeight */,
-		::xml_schema::string_pskel& /* Total */,
-		::Directions_pskel& /* Directions */,
-		::xml_schema::string_pskel& /* Vscale */,
-		::xml_schema::string_pskel& /* Epoch */,
-		::xml_schema::string_pskel& /* ReferenceFrame */,
-		::GPSBaseline_pskel& /* GPSBaseline */,
-		::xml_schema::string_pskel& /* Hscale */,
-		::xml_schema::string_pskel& /* Lscale */,
-		::xml_schema::string_pskel& /* Pscale */,
-		::Clusterpoint_pskel& /* Clusterpoint */,
-		::xml_schema::string_pskel& /* Coords */,
-		::xml_schema::string_pskel& /* Source */,
-		bool preferSingleXasG = false);
+	void parsers (
+			::xml_schema::string_pskel& /* Type */,
+			::xml_schema::string_pskel& /* Ignore */,
+			::xml_schema::string_pskel& /* First */,
+			::xml_schema::string_pskel& /* Second */,
+			::xml_schema::string_pskel& /* Third */,
+			::xml_schema::string_pskel& /* Value */,
+			::xml_schema::string_pskel& /* StdDev */,
+			::xml_schema::string_pskel& /* InstHeight */,
+			::xml_schema::string_pskel& /* TargHeight */,
+			::xml_schema::string_pskel& /* Total */,
+			::Directions_pskel& /* Directions */,
+			::xml_schema::string_pskel& /* Vscale */,
+			::xml_schema::string_pskel& /* Epoch */,
+			::xml_schema::string_pskel& /* ReferenceFrame */,
+			::GPSBaseline_pskel& /* GPSBaseline */,
+			::xml_schema::string_pskel& /* Hscale */,
+			::xml_schema::string_pskel& /* Lscale */,
+			::xml_schema::string_pskel& /* Pscale */,
+			::Clusterpoint_pskel& /* Clusterpoint */,
+			::xml_schema::string_pskel& /* Coords */,
+			::xml_schema::string_pskel& /* Source */,
+			::xml_schema::string_pskel& /* MeasurementDBID */,
+			::xml_schema::string_pskel& /* ClusterDBID */,
+			bool preferSingleXasG = false);
 
 	// Constructor.
 	//
@@ -742,6 +625,8 @@ protected:
 	::Clusterpoint_pskel* Clusterpoint_parser_;
 	::xml_schema::string_pskel* Coords_parser_;
 	::xml_schema::string_pskel* Source_parser_;
+	::xml_schema::string_pskel* MeasurementDBID_parser_;
+	::xml_schema::string_pskel* ClusterDBID_parser_;
 
 	// pointer to Measurements vector
 	vdnaMsrPtr*	_vParentMsrs;
@@ -764,23 +649,12 @@ public:
 	// virtual void
 	// pre ();
 
-	virtual void
-		Name (const ::std::string&);
-
-	virtual void
-		Constraints (const ::std::string&);
-
-	virtual void
-		Type (const ::std::string&);
-
-	virtual void
-		StationCoord ();
-
-	virtual void
-		Description (const ::std::string&);
-
-	virtual void
-		post_DnaStation ();
+	virtual void Name (const ::std::string&);
+	virtual void Constraints (const ::std::string&);
+	virtual void Type (const ::std::string&);
+	virtual void StationCoord ();
+	virtual void Description (const ::std::string&);
+	virtual void post_DnaStation ();
 
 	// Initialisation
 	inline void InitparentStnVector(vdnaStnPtr* pStns)
@@ -825,23 +699,13 @@ public:
 
 	// Parser construction API.
 	//
-	void
-		Name_parser (::xml_schema::string_pskel&);
+	void Name_parser (::xml_schema::string_pskel&);
+	void Constraints_parser (::xml_schema::string_pskel&);
+	void Type_parser (::xml_schema::string_pskel&);
+	void StationCoord_parser (::StationCoord_pskel&);
+	void Description_parser (::xml_schema::string_pskel&);
 
-	void
-		Constraints_parser (::xml_schema::string_pskel&);
-
-	void
-		Type_parser (::xml_schema::string_pskel&);
-
-	void
-		StationCoord_parser (::StationCoord_pskel&);
-
-	void
-		Description_parser (::xml_schema::string_pskel&);
-
-	void
-		parsers (::xml_schema::string_pskel& /* Name */,
+	void parsers (::xml_schema::string_pskel& /* Name */,
 		::xml_schema::string_pskel& /* Constraints */,
 		::xml_schema::string_pskel& /* Type */,
 		::StationCoord_pskel& /* StationCoord */,
@@ -886,43 +750,22 @@ public:
 	// virtual void
 	// pre ();
 
-	virtual void
-		DnaStation ();
-
-	virtual void
-		DnaMeasurement ();
-
-	virtual void
-		type ();
-
-	virtual void
-		referenceframe ();
-
-	virtual void
-		epoch ();
-
-	virtual void
-		post_DnaXmlFormat ();
+	virtual void DnaStation ();
+	virtual void DnaMeasurement ();
+	virtual void type ();
+	virtual void referenceframe ();
+	virtual void epoch ();
+	virtual void post_DnaXmlFormat ();
 
 	// Parser construction API.
 	//
-	void
-		DnaStation_parser (::DnaStation_pskel&);
+	void DnaStation_parser (::DnaStation_pskel&);
+	void DnaMeasurement_parser (::DnaMeasurement_pskel&);
+	void type_parser (::type_pskel&);
+	void referenceframe_parser (::referenceframe_pskel&);
+	void epoch_parser (::epoch_pskel&);
 
-	void
-		DnaMeasurement_parser (::DnaMeasurement_pskel&);
-
-	void
-		type_parser (::type_pskel&);
-
-	void
-		referenceframe_parser (::referenceframe_pskel&);
-
-	void
-		epoch_parser (::epoch_pskel&);
-
-	void
-		parsers (::DnaStation_pskel& /* DnaStation */,
+	void parsers (::DnaStation_pskel& /* DnaStation */,
 		::DnaMeasurement_pskel& /* DnaMeasurement */,
 		::type_pskel& /* type */,
 		::referenceframe_pskel& /* referenceframe */,
@@ -986,82 +829,45 @@ public:
 	// virtual void
 	// pre ();
 
-	virtual void
-		X (const ::std::string&);
-
-	virtual void
-		Y (const ::std::string&);
-
-	virtual void
-		Z (const ::std::string&);
-
-	virtual void
-		SigmaXX (const ::std::string&);
-
-	virtual void
-		SigmaXY (const ::std::string&);
-
-	virtual void
-		SigmaXZ (const ::std::string&);
-
-	virtual void
-		SigmaYY (const ::std::string&);
-
-	virtual void
-		SigmaYZ (const ::std::string&);
-
-	virtual void
-		SigmaZZ (const ::std::string&);
-
-	virtual void
-		GPSCovariance ();
-
-	virtual void
-		post_GPSBaseline ();
+	virtual void X (const ::std::string&);
+	virtual void Y (const ::std::string&);
+	virtual void Z (const ::std::string&);
+	virtual void MeasurementDBID (const ::std::string&);
+	virtual void SigmaXX (const ::std::string&);
+	virtual void SigmaXY (const ::std::string&);
+	virtual void SigmaXZ (const ::std::string&);
+	virtual void SigmaYY (const ::std::string&);
+	virtual void SigmaYZ (const ::std::string&);
+	virtual void SigmaZZ (const ::std::string&);
+	virtual void GPSCovariance ();
+	virtual void post_GPSBaseline ();
 
 	// Parser construction API.
 	//
-	void
-		X_parser (::xml_schema::string_pskel&);
+	void X_parser (::xml_schema::string_pskel&);
+	void Y_parser (::xml_schema::string_pskel&);
+	void Z_parser (::xml_schema::string_pskel&);
+	void MeasurementDBID_parser (::xml_schema::string_pskel&);
+	void SigmaXX_parser (::xml_schema::string_pskel&);
+	void SigmaXY_parser (::xml_schema::string_pskel&);
+	void SigmaXZ_parser (::xml_schema::string_pskel&);
+	void SigmaYY_parser (::xml_schema::string_pskel&);
+	void SigmaYZ_parser (::xml_schema::string_pskel&);
+	void SigmaZZ_parser (::xml_schema::string_pskel&);
+	void GPSCovariance_parser (::GPSCovariance_pskel&);
 
-	void
-		Y_parser (::xml_schema::string_pskel&);
-
-	void
-		Z_parser (::xml_schema::string_pskel&);
-
-	void
-		SigmaXX_parser (::xml_schema::string_pskel&);
-
-	void
-		SigmaXY_parser (::xml_schema::string_pskel&);
-
-	void
-		SigmaXZ_parser (::xml_schema::string_pskel&);
-
-	void
-		SigmaYY_parser (::xml_schema::string_pskel&);
-
-	void
-		SigmaYZ_parser (::xml_schema::string_pskel&);
-
-	void
-		SigmaZZ_parser (::xml_schema::string_pskel&);
-
-	void
-		GPSCovariance_parser (::GPSCovariance_pskel&);
-
-	void
-		parsers (::xml_schema::string_pskel& /* X */,
-		::xml_schema::string_pskel& /* Y */,
-		::xml_schema::string_pskel& /* Z */,
-		::xml_schema::string_pskel& /* SigmaXX */,
-		::xml_schema::string_pskel& /* SigmaXY */,
-		::xml_schema::string_pskel& /* SigmaXZ */,
-		::xml_schema::string_pskel& /* SigmaYY */,
-		::xml_schema::string_pskel& /* SigmaYZ */,
-		::xml_schema::string_pskel& /* SigmaZZ */,
-		::GPSCovariance_pskel& /* GPSCovariance */);
+	void parsers (
+			::xml_schema::string_pskel& /* X */,
+			::xml_schema::string_pskel& /* Y */,
+			::xml_schema::string_pskel& /* Z */,
+			::xml_schema::string_pskel& /* MeasurementDBID */,
+			::xml_schema::string_pskel& /* SigmaXX */,
+			::xml_schema::string_pskel& /* SigmaXY */,
+			::xml_schema::string_pskel& /* SigmaXZ */,
+			::xml_schema::string_pskel& /* SigmaYY */,
+			::xml_schema::string_pskel& /* SigmaYZ */,
+			::xml_schema::string_pskel& /* SigmaZZ */,
+			::GPSCovariance_pskel& /* GPSCovariance */);
 
 	// Constructor.
 	//
@@ -1087,6 +893,7 @@ protected:
 	::xml_schema::string_pskel* X_parser_;
 	::xml_schema::string_pskel* Y_parser_;
 	::xml_schema::string_pskel* Z_parser_;
+	::xml_schema::string_pskel* MeasurementDBID_parser_;
 	::xml_schema::string_pskel* SigmaXX_parser_;
 	::xml_schema::string_pskel* SigmaXY_parser_;
 	::xml_schema::string_pskel* SigmaXZ_parser_;
@@ -1108,67 +915,30 @@ public:
 	// virtual void
 	// pre ();
 
-	virtual void
-		m11 (const ::std::string&);
-
-	virtual void
-		m12 (const ::std::string&);
-
-	virtual void
-		m13 (const ::std::string&);
-
-	virtual void
-		m21 (const ::std::string&);
-
-	virtual void
-		m22 (const ::std::string&);
-
-	virtual void
-		m23 (const ::std::string&);
-
-	virtual void
-		m31 (const ::std::string&);
-
-	virtual void
-		m32 (const ::std::string&);
-
-	virtual void
-		m33 (const ::std::string&);
-
-	virtual void
-		post_GPSCovariance ();
+	virtual void m11 (const ::std::string&);
+	virtual void m12 (const ::std::string&);
+	virtual void m13 (const ::std::string&);
+	virtual void m21 (const ::std::string&);
+	virtual void m22 (const ::std::string&);
+	virtual void m23 (const ::std::string&);
+	virtual void m31 (const ::std::string&);
+	virtual void m32 (const ::std::string&);
+	virtual void m33 (const ::std::string&);
+	virtual void post_GPSCovariance ();
 
 	// Parser construction API.
 	//
-	void
-		m11_parser (::xml_schema::string_pskel&);
+	void m11_parser (::xml_schema::string_pskel&);
+	void m12_parser (::xml_schema::string_pskel&);
+	void m13_parser (::xml_schema::string_pskel&);
+	void m21_parser (::xml_schema::string_pskel&);
+	void m22_parser (::xml_schema::string_pskel&);
+	void m23_parser (::xml_schema::string_pskel&);
+	void m31_parser (::xml_schema::string_pskel&);
+	void m32_parser (::xml_schema::string_pskel&);
+	void m33_parser (::xml_schema::string_pskel&);
 
-	void
-		m12_parser (::xml_schema::string_pskel&);
-
-	void
-		m13_parser (::xml_schema::string_pskel&);
-
-	void
-		m21_parser (::xml_schema::string_pskel&);
-
-	void
-		m22_parser (::xml_schema::string_pskel&);
-
-	void
-		m23_parser (::xml_schema::string_pskel&);
-
-	void
-		m31_parser (::xml_schema::string_pskel&);
-
-	void
-		m32_parser (::xml_schema::string_pskel&);
-
-	void
-		m33_parser (::xml_schema::string_pskel&);
-
-	void
-		parsers (::xml_schema::string_pskel& /* m11 */,
+	void parsers (::xml_schema::string_pskel& /* m11 */,
 		::xml_schema::string_pskel& /* m12 */,
 		::xml_schema::string_pskel& /* m13 */,
 		::xml_schema::string_pskel& /* m21 */,
@@ -1224,19 +994,13 @@ public:
 	// virtual void 
 	// pre ();
 
-	virtual void
-		system(const ::std::string&);
-
-	virtual void
-		post_Height();
+	virtual void system(const ::std::string&);
+	virtual void post_Height();
 
 	// Parser construction API.
 	//
-	void
-		system_parser(::xml_schema::string_pskel&);
-
-	void
-		parsers(::system_pskel& /* system */);
+	void system_parser(::xml_schema::string_pskel&);
+	void parsers(::system_pskel& /* system */);
 
 	// Constructor.
 	//
@@ -1265,67 +1029,30 @@ public:
 	// virtual void
 	// pre ();
 
-	virtual void
-		m11 (const ::std::string&);
-
-	virtual void
-		m12 (const ::std::string&);
-
-	virtual void
-		m13 (const ::std::string&);
-
-	virtual void
-		m21 (const ::std::string&);
-
-	virtual void
-		m22 (const ::std::string&);
-
-	virtual void
-		m23 (const ::std::string&);
-
-	virtual void
-		m31 (const ::std::string&);
-
-	virtual void
-		m32 (const ::std::string&);
-
-	virtual void
-		m33 (const ::std::string&);
-
-	virtual void
-		post_PointCovariance ();
+	virtual void m11 (const ::std::string&);
+	virtual void m12 (const ::std::string&);
+	virtual void m13 (const ::std::string&);
+	virtual void m21 (const ::std::string&);
+	virtual void m22 (const ::std::string&);
+	virtual void m23 (const ::std::string&);
+	virtual void m31 (const ::std::string&);
+	virtual void m32 (const ::std::string&);
+	virtual void m33 (const ::std::string&);
+	virtual void post_PointCovariance ();
 
 	// Parser construction API.
 	//
-	void
-		m11_parser (::xml_schema::string_pskel&);
+	void m11_parser (::xml_schema::string_pskel&);
+	void m12_parser (::xml_schema::string_pskel&);
+	void m13_parser (::xml_schema::string_pskel&);
+	void m21_parser (::xml_schema::string_pskel&);
+	void m22_parser (::xml_schema::string_pskel&);
+	void m23_parser (::xml_schema::string_pskel&);
+	void m31_parser (::xml_schema::string_pskel&);
+	void m32_parser (::xml_schema::string_pskel&);
+	void m33_parser (::xml_schema::string_pskel&);
 
-	void
-		m12_parser (::xml_schema::string_pskel&);
-
-	void
-		m13_parser (::xml_schema::string_pskel&);
-
-	void
-		m21_parser (::xml_schema::string_pskel&);
-
-	void
-		m22_parser (::xml_schema::string_pskel&);
-
-	void
-		m23_parser (::xml_schema::string_pskel&);
-
-	void
-		m31_parser (::xml_schema::string_pskel&);
-
-	void
-		m32_parser (::xml_schema::string_pskel&);
-
-	void
-		m33_parser (::xml_schema::string_pskel&);
-
-	void
-		parsers (::xml_schema::string_pskel& /* m11 */,
+	void parsers (::xml_schema::string_pskel& /* m11 */,
 		::xml_schema::string_pskel& /* m12 */,
 		::xml_schema::string_pskel& /* m13 */,
 		::xml_schema::string_pskel& /* m21 */,
@@ -1381,49 +1108,24 @@ public:
 	// virtual void
 	// pre ();
 
-	virtual void
-		Name (const ::std::string&);
-
-	virtual void
-		XAxis (const ::std::string&);
-
-	virtual void
-		YAxis (const ::std::string&);
-
-	virtual void
-		Height ();
-
-	virtual void
-		HemisphereZone (const ::std::string&);
-
-	virtual void
-		GeoidModel ();
-
-	virtual void
-		post_StationCoord ();
+	virtual void Name (const ::std::string&);
+	virtual void XAxis (const ::std::string&);
+	virtual void YAxis (const ::std::string&);
+	virtual void Height ();
+	virtual void HemisphereZone (const ::std::string&);
+	virtual void GeoidModel ();
+	virtual void post_StationCoord ();
 
 	// Parser construction API.
 	//
-	void
-		Name_parser (::xml_schema::string_pskel&);
+	void Name_parser (::xml_schema::string_pskel&);
+	void XAxis_parser (::xml_schema::string_pskel&);
+	void YAxis_parser (::xml_schema::string_pskel&);
+	void Height_parser (::Height_pskel&);
+	void HemisphereZone_parser (::xml_schema::string_pskel&);
+	void GeoidModel_parser(::GeoidModel_pskel&);
 
-	void
-		XAxis_parser (::xml_schema::string_pskel&);
-
-	void
-		YAxis_parser (::xml_schema::string_pskel&);
-
-	void
-		Height_parser (::Height_pskel&);
-
-	void
-		HemisphereZone_parser (::xml_schema::string_pskel&);
-
-	void
-		GeoidModel_parser(::GeoidModel_pskel&);
-
-	void
-		parsers(::xml_schema::string_pskel& /* Name */,
+	void parsers(::xml_schema::string_pskel& /* Name */,
 		::xml_schema::string_pskel& /* XAxis */,
 		::xml_schema::string_pskel& /* YAxis */,
 		::Height_pskel& /* Height */,
@@ -1468,31 +1170,17 @@ public:
 	// virtual void 
 	// pre ();
 
-	virtual void
-		NValue (const ::std::string&);
-
-	virtual void
-		DeflPM (const ::std::string&);
-
-	virtual void
-		DeflPV (const ::std::string&);
-
-	virtual void
-		post_GeoidModel ();
+	virtual void NValue (const ::std::string&);
+	virtual void DeflPM (const ::std::string&);
+	virtual void DeflPV (const ::std::string&);
+	virtual void post_GeoidModel ();
 
 	// Parser construction API.
 	//
-	void
-		NValue_parser (::xml_schema::string_pskel&);
-
-	void
-		DeflPM_parser (::xml_schema::string_pskel&);
-
-	void
-		DeflPV_parser (::xml_schema::string_pskel&);
-
-	void
-		parsers (::xml_schema::string_pskel& /* NValue */,
+	void NValue_parser (::xml_schema::string_pskel&);
+	void DeflPM_parser (::xml_schema::string_pskel&);
+	void DeflPV_parser (::xml_schema::string_pskel&);
+	void parsers (::xml_schema::string_pskel& /* NValue */,
 		::xml_schema::string_pskel& /* DeflPM */,
 		::xml_schema::string_pskel& /* DeflPV */);
 
@@ -1523,8 +1211,7 @@ public:
 	// virtual void
 	// pre ();
 
-	virtual void
-		post_type ();
+	virtual void post_type ();
 };
 
 class referenceframe_pskel: public virtual ::xml_schema::string_pskel
@@ -1535,8 +1222,7 @@ public:
 	// virtual void
 	// pre ();
 
-	virtual void
-		post_type (string& referenceframe, bool user_specified, bool overridereferenceframe);
+	virtual void post_type (string& referenceframe, bool user_specified, bool overridereferenceframe);
 };
 
 class epoch_pskel: public virtual ::xml_schema::string_pskel
@@ -1547,8 +1233,7 @@ public:
 	// virtual void
 	// pre ();
 
-	virtual void
-		post_type (string& epoch, bool user_specified, bool overridereferenceframe);
+	virtual void post_type (string& epoch, bool user_specified, bool overridereferenceframe);
 };
 
 class system_pskel: public virtual ::xml_schema::string_pskel
@@ -1559,8 +1244,7 @@ public:
 	// virtual void 
 	// pre ();
 
-	virtual void
-		post_system ();
+	virtual void post_system ();
 };
 
 #include <xsd/cxx/post.hxx>

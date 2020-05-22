@@ -6,11 +6,11 @@
 # XERCESC_FOUND       - Do not attempt to use Xerces if "no" or undefined.
 
 # SET THE ROOT DIRECTORY WHERE XERCES-C++ IS INSTALLED
-IF(CMAKE_SYSTEM_NAME MATCHES "Darwin")
+IF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
   SET(XERCESC_ROOT_DIR /usr/local/Cellar/xerces-c/3.2.2)
 ELSEIF (UNIX)
   SET (XERCESC_ROOT_DIR /opt/xerces-c/3.1.4)
-ELSE()
+ELSE ()
   SET (XERCESC_ROOT_DIR "C:/Data/xerces-c/3.1.4")
 ENDIF ()
 

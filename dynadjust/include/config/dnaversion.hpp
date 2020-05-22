@@ -171,7 +171,7 @@ const char* const __dynadjust_app_name__ = "dynadjust";
 #endif
 
 #define __CONTACT_EMAIL__   "geodesy@ga.gov.au"
-#define __COPYRIGHT_YEAR__  "2018"
+#define __COPYRIGHT_YEAR__  "2020"
 #define __COPYRIGHT_OWNER__ "Geoscience Australia"
 #define __COPYRIGHT_MSG__   "This software is released under the Apache License."
 
@@ -191,7 +191,7 @@ const char* const __dynadjust_app_name__ = "dynadjust";
 // 2.2.0.a1    02020001		Alpha release 
 // 2.2.0.b2    02020002		Beta release
 // 2.2.0.rc2   02020003		Release candidate 1 (unless bug notification is received, this is taken to be the final release)
-#define __BINARY_VERSION__ "1.0.1"
+#define __BINARY_VERSION__ "1.0.2"
 #define __SHORT_VERSION__ "10001"	// used to record DynAdjust version in binary file header
 
 // define executable name
