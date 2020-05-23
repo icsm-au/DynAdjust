@@ -11530,7 +11530,7 @@ void dna_adjust::PrintIgnoredAdjMeasurements(bool printHeader)
 		case 'L':	// Level difference
 			break;
 		}
-#endif _MSDEBUG
+#endif
 
 		UINT32 design_row(0);
 
@@ -12511,7 +12511,7 @@ void dna_adjust::PrintMeasurementDatabaseID(const it_vmsr_t& _it_msr)
 {
 	if (projectSettings_.o._database_ids)
 	{
-		size_t dbindex = distance(bmsBinaryRecords_.begin(), _it_msr);
+		size_t dbindex = std::distance(bmsBinaryRecords_.begin(), _it_msr);
 		_it_dbid = v_msr_db_map_.begin() + dbindex;
 
 		// Print measurement id
