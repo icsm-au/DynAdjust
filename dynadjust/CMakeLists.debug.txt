@@ -4,7 +4,7 @@ project (dynadjust)
 
 message (STATUS " " )
 message (STATUS "**********************************************" )
-message (STATUS "Configuring DynAdjust 1.0.1 build using cmake..." )
+message (STATUS "Configuring DynAdjust 1.0.2 build using cmake..." )
 message (STATUS " " )
 set (CMAKE_BUILD_TYPE "Debug")
 
