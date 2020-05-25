@@ -27,16 +27,16 @@ IF (CMAKE_SYSTEM_NAME MATCHES "Darwin")
   SET (XERCESC_INCLUDE_DIR ${XERCESC_ROOT_DIR}/include)
 
 ELSEIF (UNIX)
-  SET(XERCESC_ROOT_DIR /usr/include/xercesc)
+  SET(XERCESC_ROOT_DIR ${PKG_MGR_PATH_INCLUDE}/xercesc)
   # Various options...
   IF (EXISTS ${PKG_MGR_PATH_LIB}/x86_64-linux-gnu)
     # Modern Ubuntu
     SET (XERCESC_LIBRARY_DIR /usr/lib/x86_64-linux-gnu)
-    SET (XERCESC_INCLUDE_DIR /usr/include/xercesc)
+    SET (XERCESC_INCLUDE_DIR ${PKG_MGR_PATH_INCLUDE}/xercesc)
   ELSEIF (EXISTS ${PKG_MGR_PATH_LIB}64)
     # Fedora, RHEL, CentOS and early Ubuntu
-    SET (XERCESC_LIBRARY_DIR /usr/lib64)
-    SET (XERCESC_INCLUDE_DIR /usr/include)
+    SET (XERCESC_LIBRARY_DIR ${PKG_MGR_PATH_LIB}64)
+    SET (XERCESC_INCLUDE_DIR ${PKG_MGR_PATH_INCLUDE}/xercesc)
   ELSE ()
     # Manual installation
     SET (XERCESC_ROOT_DIR /opt/xerces-c/3.1.4)
@@ -66,7 +66,8 @@ FIND_LIBRARY (XERCESC_LIBRARY
     ${XERCESC_LIBRARY_DIR}
 )
 
-message (STATUS "Xerces root directory is: ${XERCESC_ROOT_DIR}")
+message (STATUS "xerces-c include directory is: ${XERCESC_INCLUDE_DIR}")
+message (STATUS "xerces-c lib directory is:     ${XERCESC_LIBRARY_DIR}")
 
 IF (EXISTS ${XERCESC_INCLUDE_DIR})
   IF (EXISTS ${XERCESC_LIBRARY_DIR})
