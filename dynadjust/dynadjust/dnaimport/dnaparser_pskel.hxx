@@ -51,7 +51,7 @@
 
 //#if (XSD_INT_VERSION != 3030000L)
 //#if (XSD_INT_VERSION != 4000000L)
-#if (XSD_INT_VERSION != 4009911L)
+#if (XSD_INT_VERSION > 4009911L)
 #error XSD runtime version mismatch
 #endif
 
