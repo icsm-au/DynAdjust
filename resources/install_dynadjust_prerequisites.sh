@@ -26,8 +26,8 @@ _system=$(uname -sroi)
 
 _repo_intel_yum="https://yum.repos.intel.com/mkl/setup/intel-mkl.repo"
 _repo_intel_apt="https://apt.repos.intel.com/mkl"
-_gpg_intel_yum="https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB"
-_gpg_intel_apt="https://yum.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB"
+_gpg_intel_yum="https://yum.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB"
+_gpg_intel_apt="https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB"
 _gpg_intel_keyfile="GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB"
 _toolset_apt="apt"
 _toolset_yum="yum"
@@ -153,12 +153,13 @@ else
     # Install MKL for rpm based distros (Fedora, CentOS, Red Hat, SUSE, OpenSUSE)
     if [[ "${_format}" == "rpm" ]]; then
         sudo ${_toolset} config-manager --add-repo ${_repo_intel}
-        sudo ${_format} --import ${_gpg_intel_yum}
+        sudo ${_format} --import ${_gpg_intel}
         sudo ${_toolset} install intel-mkl
     # Install MKL for deb based distros (Ubuntu, Debian)
     elif [[ "${_format}" == "deb" ]]; then
-        wget ${_gpg_intel_apt}
+        wget ${_gpg_intel}
         sudo ${_toolset}-key add ${_gpg_intel_keyfile}
+        sudo sh -c 'echo deb https://apt.repos.intel.com/mkl all main > /etc/apt/sources.list.d/intel-mkl.list'
         sudo ${_toolset}-get install intel-mkl
     else
         echo " "
