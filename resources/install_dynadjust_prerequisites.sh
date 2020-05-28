@@ -128,11 +128,11 @@ echo "Checking for the following packages (install if missing):"
 
 # Install basic packages from package manager
 if [[ "${_format}" == "rpm" ]]; then
-    echo " bzip2, p7zip, wget, cmake, make, g++, git and boost + boost-devel..."
+    echo " bzip2, wget, cmake, make, g++, git and boost + boost-devel..."
     echo " "
     sudo ${_toolset} install bzip2 p7zip wget cmake make g++ git boost boost-devel 
 elif [[ "${_format}" == "deb" ]]; then
-    echo " bzip2, p7zip, wget, cmake, make, gcc-c++, git and libboost-all-dev..."
+    echo " bzip2, wget, cmake, make, gcc-c++, git and libboost-all-dev..."
     echo " "
     sudo ${_toolset}-get install bzip2 p7zip wget cmake make g++ git libboost-all-dev
 else
