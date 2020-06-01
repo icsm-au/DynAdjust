@@ -10645,6 +10645,8 @@ void dna_adjust::UpdateIgnoredMeasurements_D(pit_vmsr_t _it_msr, const UINT32& b
 				// Derive the variance of the angle
 				(*_it_msr)->scale2 = previousVariance + (*_it_msr)->term2;
 			}
+			else
+				it_angle->preAdjMeas = (*_it_msr)->scale1;
 			
 			UpdateIgnoredMeasurements_A(&it_angle, block, estimatedStations, storeOriginalMeasurement);
 						
