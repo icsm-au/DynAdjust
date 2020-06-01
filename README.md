@@ -23,19 +23,23 @@ reference frames;
 * Production of high quality network plots;
 * Automated processing and analysis with minimal user interaction.
 
-## INSTALLATION
+# Installation
 
-Windows executables can be downloaded from the releases page on [github](https://github.com/icsm-au/dynadjust/releases/latest).
+Windows (64-bit) executables can be downloaded from the [releases page](https://github.com/icsm-au/dynadjust/releases/latest).
 
-The following build requirements are only needed if you would like to build DynAdjust on Windows, Linux or Apple perating systems.
-
-## BUILDING FROM SOURCE
-
-### General requirements and prerequisites
- - A C++14 compiler, such as gcc, Apple LLVM (clang) or Microsoft Visual Studio
+In addition, the following libraries need to be installed:
  - Apache Xerces-C++ XML Parser (http://xerces.apache.org/)
  - Codesynthesis XSD: XML Data Binding for C++ (https://www.codesynthesis.com)
  - Intel Math Kernel Library (https://software.intel.com)
+
+## Building from source
+The following build instructions are only needed if you would like to build DynAdjust on Windows, Linux or Apple perating systems.
+
+### General requirements and prerequisites
+ - A C++14 compiler, such as gcc, Microsoft Visual Studio or Apple LLVM (clang)
+ - Apache Xerces-C++ XML Parser (http://xerces.apache.org/)
+ - Codesynthesis XSD: XML Data Binding for C++ (https://www.codesynthesis.com)
+ - Intel Math Kernel Library (https://software.seek.intel.com/performance-libraries)
 
 ### Linux / Mac OS X build requirements
 Download the following files from the resources folder to a dedicated build folder on your computer, and run in order:
@@ -47,7 +51,7 @@ Download the following files from the resources folder to a dedicated build fold
 ### Windows build requirements
 Please refer to the Windows compilation [instructions](https://github.com/icsm-au/DynAdjust/blob/master/resources/dynadjust-compilation-in-windows.pdf) for the steps to compile DynAdjust on Windows using Microsoft's freely available Visual Studio 2017 Community Edition.
 
-## License Details
+# License Details
 DynAdjust has an Apache 2.0 Licence - http ://www.apache.org/licenses/LICENSE-2.0.   
 
 NOTE: DynAdjust makes use of Boost C++, Apache's Xerces-C++ XML Parser (Apache 2.0 Licence) and CodeSynthesis XSD code. Hence, the following licence agreements will also need to be taken into account with the Apache 2.0 Licence. 
