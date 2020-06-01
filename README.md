@@ -37,7 +37,8 @@ The following build instructions are only needed if you would like to build DynA
 
 ### General requirements and prerequisites
  - A C++14 compiler, such as gcc, Microsoft Visual Studio or Apple LLVM (clang)
- - Apache Xerces-C++ headers and libraries
+ - Boost C++ headers and libraries
+ - Apache Xerces C++ headers and libraries
  - Codesynthesis XSD headers and libraries
  - Intel Math Kernel Library (MKL) headers and libraries
 
@@ -46,7 +47,9 @@ Download the following files from the [resources](https://github.com/icsm-au/Dyn
   1. `install_dynadjust_prerequisites.sh`
   2. `make_dynadjust_gcc.sh`
 
-Executing `install_dynadjust_prerequisites.sh` will download all the prerequisites required to build DynAdjust, and will provide options for installing xerces-c and xsd prerequisites via Package Manager or downloading and building from source. Executing `make_dynadjust_gcc.sh` will build DynAdjust in the directory `./build-gcc/` and install to `/opt/dynadjust/gcc/x_x_x/`. Symbolic links to the binaries (installed to `/opt/dynadjust/`) will be created in the user's `~/bin` folder.
+Executing `install_dynadjust_prerequisites.sh` will download all the prerequisites required to build DynAdjust (boost, xerces-c, xsd, mkl).  Options are provided for installing xerces-c and xsd prerequisites via Package Manager or downloading and building from source. 
+
+Executing `make_dynadjust_gcc.sh` will clone the latest version of DynAdjust, build it in the directory `./build-gcc/` and install to `/opt/dynadjust/gcc/x_x_x/`. Symbolic links to the binaries (installed to `/opt/dynadjust/`) will be created in the user's `~/bin` folder.
   
 ### Windows build requirements
 Please refer to the Windows compilation [instructions](https://github.com/icsm-au/DynAdjust/blob/master/resources/dynadjust-compilation-in-windows.pdf) for the steps to compile DynAdjust on Windows using Microsoft's freely available Visual Studio 2017 Community Edition.
