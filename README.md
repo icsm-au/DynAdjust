@@ -27,13 +27,13 @@ reference frames;
 
 Windows (64-bit) executables can be downloaded from the [releases page](https://github.com/icsm-au/dynadjust/releases/latest).
 
-In addition, the following libraries need to be installed:
- - Apache Xerces-C++ XML Parser (http://xerces.apache.org/)
- - Codesynthesis XSD: XML Data Binding for C++ (https://www.codesynthesis.com)
+In addition, the following (64-bit) libraries need to be installed:
+ - Apache Xerces-C++ XML Parser (http://xerces.apache.org/xerces-c/download.cgi)
+ - Codesynthesis XSD: XML Data Binding for C++ (https://www.codesynthesis.com/products/xsd/download.xhtml)
  - Intel Math Kernel Library (https://software.seek.intel.com/performance-libraries)
 
 ## Building from source
-The following build instructions are only needed if you would like to build DynAdjust on Windows, Linux or Apple perating systems.
+The following build instructions are only needed if you would like to build DynAdjust on Windows, Linux or Apple operating systems.
 
 ### General requirements and prerequisites
  - A C++14 compiler, such as gcc, Microsoft Visual Studio or Apple LLVM (clang)
@@ -50,6 +50,14 @@ Executing `install_dynadjust_prerequisites.sh` will download all the prerequisit
   
 ### Windows build requirements
 Please refer to the Windows compilation [instructions](https://github.com/icsm-au/DynAdjust/blob/master/resources/dynadjust-compilation-in-windows.pdf) for the steps to compile DynAdjust on Windows using Microsoft's freely available Visual Studio 2017 Community Edition.
+
+# Feedback
+
+To suggest an enhancement to the functionality of DynAdjust, or to report a defect or unexpected behaviour, please submit your query via [our issue tracker](https://github.com/icsm-au/dynadjust/issues).
+
+# User's Guide
+
+A comprehensive User's Guide can be found in the [resources](https://github.com/icsm-au/DynAdjust/tree/master/resources) folder.  The User's Guide provides information about the history of DynAdjust, its architecture and algorithms, its usage, supported file format specifications and basic command-line examples.
 
 # License Details
 DynAdjust has an Apache 2.0 Licence - http ://www.apache.org/licenses/LICENSE-2.0.   
