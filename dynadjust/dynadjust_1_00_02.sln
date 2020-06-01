@@ -33,7 +33,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dynadjust", "dynadjust\dyna
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{34536DBC-4E60-470F-BF2B-17CE48035549}"
 	ProjectSection(SolutionItems) = preProject
-		changelog-3.3.1.txt = changelog-3.3.1.txt
 		LICENSE = LICENSE
 		TODO = TODO
 	EndProjectSection
