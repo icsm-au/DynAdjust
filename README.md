@@ -30,23 +30,23 @@ Windows (64-bit) executables can be downloaded from the [releases page](https://
 In addition, the following libraries need to be installed:
  - Apache Xerces-C++ XML Parser (http://xerces.apache.org/)
  - Codesynthesis XSD: XML Data Binding for C++ (https://www.codesynthesis.com)
- - Intel Math Kernel Library (https://software.intel.com)
+ - Intel Math Kernel Library (https://software.seek.intel.com/performance-libraries)
 
 ## Building from source
 The following build instructions are only needed if you would like to build DynAdjust on Windows, Linux or Apple perating systems.
 
 ### General requirements and prerequisites
  - A C++14 compiler, such as gcc, Microsoft Visual Studio or Apple LLVM (clang)
- - Apache Xerces-C++ XML Parser (http://xerces.apache.org/)
- - Codesynthesis XSD: XML Data Binding for C++ (https://www.codesynthesis.com)
- - Intel Math Kernel Library (https://software.seek.intel.com/performance-libraries)
+ - Apache Xerces-C++ headers and libraries
+ - Codesynthesis XSD headers and libraries
+ - Intel Math Kernel Library (MKL) headers and libraries
 
 ### Linux / Mac OS X build requirements
-Download the following files from the resources folder to a dedicated build folder on your computer, and run in order:
+Download the following files from the [resources](https://github.com/icsm-au/DynAdjust/tree/master/resources) folder to a dedicated build folder on your computer, and run in order:
   1. `install_dynadjust_prerequisites.sh`
   2. `make_dynadjust_gcc.sh`
 
-`install_dynadjust_prerequisites.sh` will download all the prerequisites required to build DynAdjust. `make_dynadjust_gcc.sh` will build in the directory `./build-gcc/` and install to `/opt/dynadjust/gcc/x_x_x/` and will create symbolic links to the user's `~/bin` folder.
+Executing `install_dynadjust_prerequisites.sh` will download all the prerequisites required to build DynAdjust, and will provide options for installing xerces-c and xsd prerequisites via Package Manager or downloading and building from source. Executing `make_dynadjust_gcc.sh` will build DynAdjust in the directory `./build-gcc/` and install to `/opt/dynadjust/gcc/x_x_x/`. Symbolic links to the binaries (installed to `/opt/dynadjust/`) will be created in the user's `~/bin` folder.
   
 ### Windows build requirements
 Please refer to the Windows compilation [instructions](https://github.com/icsm-au/DynAdjust/blob/master/resources/dynadjust-compilation-in-windows.pdf) for the steps to compile DynAdjust on Windows using Microsoft's freely available Visual Studio 2017 Community Edition.
