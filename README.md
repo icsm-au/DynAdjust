@@ -23,6 +23,29 @@ reference frames;
 * Production of high quality network plots;
 * Automated processing and analysis with minimal user interaction.
 
+## INSTALLATION
+
+Windows executables can be downloaded from the releases page on [github](https://github.com/icsm-au/dynadjust/releases/latest).
+
+The following build requirements are only needed if you would like to build DynAdjust on Windows, Linux or Apple perating systems.
+
+## BUILDING FROM SOURCE
+
+### General requirements and prerequisites
+ - A C++14 compiler, such as gcc, Apple LLVM (clang) or Microsoft Visual Studio
+ - Apache Xerces-C++ XML Parser (http://xerces.apache.org/)
+ - Codesynthesis XSD: XML Data Binding for C++ (https://www.codesynthesis.com)
+ - Intel Math Kernel Library (https://software.intel.com)
+
+### Linux / Mac OS X build requirements
+Download the following files from the resources folder to a dedicated build folder on your computer, and run in order:
+  1. `install_dynadjust_prerequisites.sh`
+  2. `make_dynadjust_gcc.sh`
+
+`install_dynadjust_prerequisites.sh` will download all the prerequisites required to build DynAdjust. `make_dynadjust_gcc.sh` will build in the directory `./build-gcc/` and install to `/opt/dynadjust/gcc/x_x_x/` and will create symbolic links to the user's `~/bin` folder.
+  
+### Windows build requirements
+Please refer to the Windows compilation [instructions](https://github.com/icsm-au/DynAdjust/blob/master/resources/dynadjust-compilation-in-windows.pdf) for the steps to compile DynAdjust on Windows using Microsoft's freely available Visual Studio 2017 Community Edition.
 
 ## License Details
 DynAdjust has an Apache 2.0 Licence - http ://www.apache.org/licenses/LICENSE-2.0.   
