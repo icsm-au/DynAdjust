@@ -1,8 +1,6 @@
 To build the master branch, you will need:
- * A modern C++11 compiler. Either GCC 4.8.2 (or newer), or VS2017 is required.
- * Boost libraries and headers (at least version 1.58), Intel's MKL and TBB libraries and headers (at least versions 11.1.4
-    and 4.2 respectively), xerces-c libraries and headers (at least version 3.1.4) and Codesynthesis xsd (at least version 4.0).
- * For Linux distributions, install_dna_prerequisites.sh can be used to install the latest versions of these products. In
-    addition, cmake (at least version 2.6) is also required.
- * For Windows, see dynadjust-compilation-in-windows.pdf for instructions on installing the required prerequisites and
-    compiling DynAdjust using VS2017
+ * A modern C++14 compiler. Either GCC 4.9.0 (or newer), Microsoft Visual Studio 2017, or GCC Compatible Apple LLVM (clang) is required.
+ * Boost libraries and headers (at least version 1.58), Intel's MKL and TBB libraries and headers (at least versions 11.1.4 and 4.2 respectively), xerces-c libraries and headers (at least version 3.1.4) and Codesynthesis xsd (at least version 4.0).
+ * For Linux distributions, install_dynadjust_prerequisites.sh can be used to install the latest versions of these products. 
+ * To build DynAdjust, run make_dynadjust_gcc.sh. This script clones the latest version from GitHub and builds using cmake (at least version 3.0 is required).
+ * For Windows, see dynadjust-compilation-in-windows.pdf for instructions on installing the required prerequisites and compiling DynAdjust using VS2017
