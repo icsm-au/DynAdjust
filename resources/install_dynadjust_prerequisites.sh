@@ -382,6 +382,6 @@ fi
 echo " "
 echo "Done."
 echo " "
-echo "Now, run ./make_dynadjust_gcc.sh to build dynadjust."
-#echo "If mkl, xerces-c or xsd is missing, compilation of DynAdjust will not succeed."
+echo "If all prerequisites have been installed successfully, run ./make_dynadjust_gcc.sh to build dynadjust."
+echo "Note that if boost, mkl, xerces-c or xsd is missing, compilation of DynAdjust will not succeed."
 echo " "
