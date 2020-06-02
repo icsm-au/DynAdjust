@@ -1,4 +1,13 @@
-# DynAdjust
+[![DynAdjust](resources/img/dynadjust-banner.png)](https://github.com/icsm-au/dynadjust/releases)
+
+- [Overview](#overview)
+- [Installation](#installation)
+  - [Building from source](#building-from-source)
+- [Feedback](#feedback)
+- [User's guide](#users-guide)
+- [License details](#license-details)
+
+# Overview
 DynAdjust is a rigorous, high performance least squares adjustment application. It has been designed
 to estimate 3D station coordinates and uncertainties for both small and extremely large geodetic networks,
 and can be used for the adjustment of a large array of Global Navigation Satellite System
@@ -62,7 +71,7 @@ To suggest an enhancement to the functionality of DynAdjust, or to report a defe
 
 A comprehensive User's Guide can be found in the [resources](https://github.com/icsm-au/DynAdjust/tree/master/resources) folder.  The User's Guide provides information about the history of DynAdjust, its architecture and algorithms, its usage, supported file format specifications and basic command-line examples.
 
-# License Details
+# License details
 DynAdjust has an Apache 2.0 Licence - http ://www.apache.org/licenses/LICENSE-2.0.   
 
 NOTE: DynAdjust makes use of Boost C++, Apache's Xerces-C++ XML Parser (Apache 2.0 Licence) and CodeSynthesis XSD code. Hence, the following licence agreements will also need to be taken into account with the Apache 2.0 Licence. 
