@@ -39,16 +39,17 @@ using namespace boost;
 
 using namespace dynadjust::exception;
 
-
+// msr_database_t is a struct intended to be contained within a vector
+// whose size is identical to the binary measurement vector. Having a
+// 1:1 relationship allows for direct referencing of database ID values
+// without having to store the index to the measurement in either binary 
+// measurement vector or the database ID vector.
 typedef struct msr_database_t {
-	UINT32 msr_index;
-	UINT32 bms_index;
 	UINT32 msr_id;
 	UINT32 cluster_id;
 
 	msr_database_t ()
-		: msr_index(0), bms_index(0)
-		, msr_id(0), cluster_id(0) {}
+		: msr_id(0), cluster_id(0) {}
 
 } msr_database_id_map;
 

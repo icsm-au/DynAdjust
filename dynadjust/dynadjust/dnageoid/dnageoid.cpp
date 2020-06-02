@@ -745,6 +745,8 @@ void dna_geoid_interpolation::WriteDNA1GeoidFile(const string& geofileName)
 		// Write header line
 		dnaproj_header(f_dnageo, "DNA geoid file");
 
+		f_dnageo << endl;
+
 		it_vstn_t _it_stn(bstBinaryRecords_.begin());
 		
 		for (; _it_stn!=bstBinaryRecords_.end(); ++_it_stn)

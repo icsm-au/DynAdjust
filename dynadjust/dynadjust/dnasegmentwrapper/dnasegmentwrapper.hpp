@@ -135,7 +135,7 @@ public:
 		}
 		catch (const runtime_error& e) {
 			running = false;
-			this_thread::sleep(milliseconds(250));
+			boost::this_thread::sleep(milliseconds(250));
 			cout_mutex.lock();
 			cout << endl << "- Error: " << e.what() << endl;
 			cout_mutex.unlock();
@@ -187,7 +187,7 @@ public:
 					currentBlock = block;
 				}
 			}
-			this_thread::sleep(milliseconds(75));
+			boost::this_thread::sleep(milliseconds(75));
 		}	
 	}
 

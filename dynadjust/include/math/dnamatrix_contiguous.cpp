@@ -1331,7 +1331,7 @@ matrix_2d matrix_2d::choleskyinverse_mkl(bool LOWER_IS_CLEARED /*=false*/)
 
 #if defined(_WIN32) || defined(__WIN32__)
 	int info, n = _rows;
-#else // defined(__linux) || defined(sun) || defined(__unix__)
+#else // defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
 	long long info, n = _rows;
 #endif	
 

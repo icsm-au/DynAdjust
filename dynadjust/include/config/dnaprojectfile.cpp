@@ -667,6 +667,18 @@ void CDnaProjectFile::LoadSettingImport(const settingMode mSetting, const string
 			return;			
 		settings_.i.input_files.push_back(formPath<string>(settings_.g.input_folder, val));
 	}
+	else if (iequals(var, REFERENCE_FRAME))
+	{
+		if (val.empty())
+			return;
+		settings_.i.reference_frame = val;
+	}
+	else if (iequals(var, OVERRIDE_INPUT_FRAME))
+	{
+		if (val.empty())
+			return;
+		settings_.i.override_input_rfame = yesno_uint<UINT16, string>(val);;
+	}
 	else if (iequals(var, IMPORT_GEO_FILE))
 	{
 		if (val.empty())
@@ -1637,9 +1649,16 @@ void CDnaProjectFile::PrintProjectFile()
 			PrintRecord(dnaproj_file, IMPORT_FILE, leafStr<string>(file.c_str()));
 	});
 
+	// geoid file
 	PrintRecord(dnaproj_file, IMPORT_GEO_FILE, 
-		(settings_.i.geo_file.empty() ? " " : leafStr<string>(settings_.i.geo_file)));								// geoid file
+		(settings_.i.geo_file.empty() ? " " : leafStr<string>(settings_.i.geo_file)));
 
+	// reference frame settings
+	PrintRecord(dnaproj_file, REFERENCE_FRAME, settings_.i.reference_frame);
+	PrintRecord(dnaproj_file, OVERRIDE_INPUT_FRAME, 
+		yesno_string(settings_.i.override_input_rfame));
+
+	// data screening
 	PrintRecord(dnaproj_file, BOUNDING_BOX, settings_.i.bounding_box);
 	PrintRecord(dnaproj_file, GET_MSRS_TRANSCENDING_BOX, 
 		yesno_string(settings_.i.include_transcending_msrs));
@@ -1679,12 +1698,14 @@ void CDnaProjectFile::PrintProjectFile()
 	PrintRecord(dnaproj_file, TEST_INTEGRITY,
 		yesno_string(settings_.i.test_integrity));						
 	
+	// GNSS variance matrix scaling
 	PrintRecord(dnaproj_file, VSCALE, settings_.i.vscale);				
 	PrintRecord(dnaproj_file, PSCALE, settings_.i.pscale);				
 	PrintRecord(dnaproj_file, LSCALE, settings_.i.lscale);				
 	PrintRecord(dnaproj_file, HSCALE, settings_.i.hscale);				
 	PrintRecord(dnaproj_file, SCALAR_FILE, leafStr<string>(settings_.i.scalar_file));
 
+	// export options
 	PrintRecord(dnaproj_file, EXPORT_XML_FILES, 
 		yesno_string(settings_.i.export_dynaml));						// Create DynaML output file
 	PrintRecord(dnaproj_file, EXPORT_SINGLE_XML_FILE, 

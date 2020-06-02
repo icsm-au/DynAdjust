@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>-n itrf2014_gda94 itrf2014.stn itrf2014.msr --export-dna -r itrf2014</LocalDebuggerCommandArguments>
-    <LocalDebuggerWorkingDirectory>$(DIST)2017_GDA2020\</LocalDebuggerWorkingDirectory>
+    <LocalDebuggerCommandArguments>-n ps2 vic2ex.simult.adj.stn pseudo-driver-file-2.msr --simulate --geo geoidef.geo --export-dna</LocalDebuggerCommandArguments>
+    <LocalDebuggerWorkingDirectory>$(DIST)_git_issues\print-ignored-msrs</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -16,8 +16,8 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <LocalDebuggerCommandArguments>-n discont --discont sinex_discontinuities_14_brief.snx --export-dis g.msr x.msr y.msr g.stn x.stn y.stn --export-dna --flag</LocalDebuggerCommandArguments>
-    <LocalDebuggerWorkingDirectory>$(DIST)2016_GDA2020\</LocalDebuggerWorkingDirectory>
+    <LocalDebuggerCommandArguments>-n jda .\jurisdiction-5.stn .\jurisdiction-5.msr --export-xml</LocalDebuggerCommandArguments>
+    <LocalDebuggerWorkingDirectory>$(DIST)_git_issues\measurement-id</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>

@@ -175,34 +175,34 @@ void dna_io_seg::load_seg_file(const string& seg_filename, UINT32& blockCount,
 		sprintf(format_spec_inner, "%%%d%s", INNER, "lu");
 		sprintf(format_spec_measr, "%%%d%s", MEASR, "lu");
 		
+		
+		UINT32 t;
+		// read block sizes
+		for (t=0; t<blockCount; ++t)
 		{
-			UINT32 t;
-			// read block sizes
-			for (t=0; t<blockCount; ++t)
+			seg_file.getline(line, PRINT_LINE_LENGTH);
+
+			if (strncmp(line, "--------------------", 20) == 0)
+				throw boost::enable_current_exception(runtime_error("  Segmentation file is corrupt."));
+		
+			if (sscanf(line, format_spec, &blkCount, &netID, &jslCount, &islCount, &msrCount, &stnCount) < 6)
+				throw boost::enable_current_exception(runtime_error("  Segmentation file is corrupt."));
+
+			if (stnCount != islCount + jslCount)
+				throw boost::enable_current_exception(runtime_error("  Segmentation file is corrupt."));
+
+			v_JSL.at(t) = vUINT32(jslCount);
+			v_ISL.at(t) = vUINT32(islCount);
+			v_CML.at(t) = vUINT32(msrCount);
+		
+			if (loadMetrics)
 			{
-				seg_file.getline(line, PRINT_LINE_LENGTH);
-
-				if (strncmp(line, "--------------------", 20) == 0)
-					throw boost::enable_current_exception(runtime_error("  Segmentation file is corrupt."));
-			
-				if (sscanf(line, format_spec, &blkCount, &netID, &jslCount, &islCount, &msrCount, &stnCount) < 6)
-					throw boost::enable_current_exception(runtime_error("  Segmentation file is corrupt."));
-
-				if (stnCount != islCount + jslCount)
-					throw boost::enable_current_exception(runtime_error("  Segmentation file is corrupt."));
-
-				v_JSL.at(t) = vUINT32(jslCount);
-				v_ISL.at(t) = vUINT32(islCount);
-				v_CML.at(t) = vUINT32(msrCount);
-			
-				if (loadMetrics)
-				{
-					v_ContiguousNetList->at(t) = netID;
-					v_measurementCount->at(t) = v_unknownsCount->at(t) = 0;
-					v_parameterStationCount->at(t) = stnCount;
-				}
+				v_ContiguousNetList->at(t) = netID;
+				v_measurementCount->at(t) = v_unknownsCount->at(t) = 0;
+				v_parameterStationCount->at(t) = stnCount;
 			}
 		}
+		
 
 		// skip header info
 		seg_file.ignore(PRINT_LINE_LENGTH, '\n');			// ------------------------

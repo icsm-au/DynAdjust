@@ -48,81 +48,78 @@ using namespace dynadjust::measurements;
 // Clusterpoint_pskel
 //
 
-void Clusterpoint_pskel::
-	X_parser (::xml_schema::string_pskel& p)
+void Clusterpoint_pskel::X_parser (::xml_schema::string_pskel& p)
 {
 	this->X_parser_ = &p;
 }
 
-void Clusterpoint_pskel::
-	Y_parser (::xml_schema::string_pskel& p)
+void Clusterpoint_pskel::Y_parser (::xml_schema::string_pskel& p)
 {
 	this->Y_parser_ = &p;
 }
 
-void Clusterpoint_pskel::
-	Z_parser (::xml_schema::string_pskel& p)
+void Clusterpoint_pskel::Z_parser (::xml_schema::string_pskel& p)
 {
 	this->Z_parser_ = &p;
 }
 
-void Clusterpoint_pskel::
-	SigmaXX_parser (::xml_schema::string_pskel& p)
+void Clusterpoint_pskel::MeasurementDBID_parser (::xml_schema::string_pskel& p)
+{
+	this->MeasurementDBID_parser_ = &p;
+}
+
+void Clusterpoint_pskel::SigmaXX_parser (::xml_schema::string_pskel& p)
 {
 	this->SigmaXX_parser_ = &p;
 }
 
-void Clusterpoint_pskel::
-	SigmaXY_parser (::xml_schema::string_pskel& p)
+void Clusterpoint_pskel::SigmaXY_parser (::xml_schema::string_pskel& p)
 {
 	this->SigmaXY_parser_ = &p;
 }
 
-void Clusterpoint_pskel::
-	SigmaXZ_parser (::xml_schema::string_pskel& p)
+void Clusterpoint_pskel::SigmaXZ_parser (::xml_schema::string_pskel& p)
 {
 	this->SigmaXZ_parser_ = &p;
 }
 
-void Clusterpoint_pskel::
-	SigmaYY_parser (::xml_schema::string_pskel& p)
+void Clusterpoint_pskel::SigmaYY_parser (::xml_schema::string_pskel& p)
 {
 	this->SigmaYY_parser_ = &p;
 }
 
-void Clusterpoint_pskel::
-	SigmaYZ_parser (::xml_schema::string_pskel& p)
+void Clusterpoint_pskel::SigmaYZ_parser (::xml_schema::string_pskel& p)
 {
 	this->SigmaYZ_parser_ = &p;
 }
 
-void Clusterpoint_pskel::
-	SigmaZZ_parser (::xml_schema::string_pskel& p)
+void Clusterpoint_pskel::SigmaZZ_parser (::xml_schema::string_pskel& p)
 {
 	this->SigmaZZ_parser_ = &p;
 }
 
-void Clusterpoint_pskel::
-	PointCovariance_parser (::PointCovariance_pskel& p)
+void Clusterpoint_pskel::PointCovariance_parser (::PointCovariance_pskel& p)
 {
 	this->PointCovariance_parser_ = &p;
 }
 
-void Clusterpoint_pskel::
-	parsers (::xml_schema::string_pskel& X,
-	::xml_schema::string_pskel& Y,
-	::xml_schema::string_pskel& Z,
-	::xml_schema::string_pskel& SigmaXX,
-	::xml_schema::string_pskel& SigmaXY,
-	::xml_schema::string_pskel& SigmaXZ,
-	::xml_schema::string_pskel& SigmaYY,
-	::xml_schema::string_pskel& SigmaYZ,
-	::xml_schema::string_pskel& SigmaZZ,
-	::PointCovariance_pskel& PointCovariance)
+void Clusterpoint_pskel::parsers (
+		::xml_schema::string_pskel& X,
+		::xml_schema::string_pskel& Y,
+		::xml_schema::string_pskel& Z,
+		::xml_schema::string_pskel& MeasurementDBID,
+		::xml_schema::string_pskel& SigmaXX,
+		::xml_schema::string_pskel& SigmaXY,
+		::xml_schema::string_pskel& SigmaXZ,
+		::xml_schema::string_pskel& SigmaYY,
+		::xml_schema::string_pskel& SigmaYZ,
+		::xml_schema::string_pskel& SigmaZZ,
+		::PointCovariance_pskel& PointCovariance)
 {
 	this->X_parser_ = &X;
 	this->Y_parser_ = &Y;
 	this->Z_parser_ = &Z;
+	this->MeasurementDBID_parser_ = &MeasurementDBID;
 	this->SigmaXX_parser_ = &SigmaXX;
 	this->SigmaXY_parser_ = &SigmaXY;
 	this->SigmaXZ_parser_ = &SigmaXZ;
@@ -132,11 +129,11 @@ void Clusterpoint_pskel::
 	this->PointCovariance_parser_ = &PointCovariance;
 }
 
-Clusterpoint_pskel::
-	Clusterpoint_pskel ()
+Clusterpoint_pskel::Clusterpoint_pskel ()
 	: X_parser_ (0),
 	Y_parser_ (0),
 	Z_parser_ (0),
+	MeasurementDBID_parser_ (0),
 	SigmaXX_parser_ (0),
 	SigmaXY_parser_ (0),
 	SigmaXZ_parser_ (0),
@@ -150,176 +147,170 @@ Clusterpoint_pskel::
 // Directions_pskel
 //
 
-void Directions_pskel::
-	Ignore_parser (::xml_schema::string_pskel& p)
+void Directions_pskel::Ignore_parser (::xml_schema::string_pskel& p)
 {
 	this->Ignore_parser_ = &p;
 }
 
-void Directions_pskel::
-	Target_parser (::xml_schema::string_pskel& p)
+void Directions_pskel::Target_parser (::xml_schema::string_pskel& p)
 {
 	this->Target_parser_ = &p;
 }
 
-void Directions_pskel::
-	Value_parser (::xml_schema::string_pskel& p)
+void Directions_pskel::Value_parser (::xml_schema::string_pskel& p)
 {
 	this->Value_parser_ = &p;
 }
 
-void Directions_pskel::
-	StdDev_parser (::xml_schema::string_pskel& p)
+void Directions_pskel::StdDev_parser (::xml_schema::string_pskel& p)
 {
 	this->StdDev_parser_ = &p;
 }
 
-void Directions_pskel::
-	parsers (::xml_schema::string_pskel& Ignore,
-	::xml_schema::string_pskel& Target,
-	::xml_schema::string_pskel& Value,
-	::xml_schema::string_pskel& StdDev)
+void Directions_pskel::MeasurementDBID_parser (::xml_schema::string_pskel& p)
+{
+	this->MeasurementDBID_parser_ = &p;
+}
+
+void Directions_pskel::parsers (
+		::xml_schema::string_pskel& Ignore,
+		::xml_schema::string_pskel& Target,
+		::xml_schema::string_pskel& Value,
+		::xml_schema::string_pskel& StdDev,
+		::xml_schema::string_pskel& MeasurementDBID)
 {
 	this->Ignore_parser_ = &Ignore;
 	this->Target_parser_ = &Target;
 	this->Value_parser_ = &Value;
 	this->StdDev_parser_ = &StdDev;
+	this->MeasurementDBID_parser_ = &MeasurementDBID;
 }
 
-Directions_pskel::
-	Directions_pskel ()
+Directions_pskel::Directions_pskel ()
 	: Ignore_parser_ (0),
 	Target_parser_ (0),
 	Value_parser_ (0),
-	StdDev_parser_ (0)
+	StdDev_parser_ (0),
+	MeasurementDBID_parser_ (0)
 {
 }
 
 // DnaMeasurement_pskel
 //
 
-void DnaMeasurement_pskel::
-	Type_parser (::xml_schema::string_pskel& p)
+void DnaMeasurement_pskel::Type_parser (::xml_schema::string_pskel& p)
 {
 	this->Type_parser_ = &p;
 }
 
-void DnaMeasurement_pskel::
-	Ignore_parser (::xml_schema::string_pskel& p)
+void DnaMeasurement_pskel::Ignore_parser (::xml_schema::string_pskel& p)
 {
 	this->Ignore_parser_ = &p;
 }
 
-void DnaMeasurement_pskel::
-	First_parser (::xml_schema::string_pskel& p)
+void DnaMeasurement_pskel::First_parser (::xml_schema::string_pskel& p)
 {
 	this->First_parser_ = &p;
 }
 
-void DnaMeasurement_pskel::
-	Second_parser (::xml_schema::string_pskel& p)
+void DnaMeasurement_pskel::Second_parser (::xml_schema::string_pskel& p)
 {
 	this->Second_parser_ = &p;
 }
 
-void DnaMeasurement_pskel::
-	Third_parser (::xml_schema::string_pskel& p)
+void DnaMeasurement_pskel::Third_parser (::xml_schema::string_pskel& p)
 {
 	this->Third_parser_ = &p;
 }
 
-void DnaMeasurement_pskel::
-	Value_parser (::xml_schema::string_pskel& p)
+void DnaMeasurement_pskel::Value_parser (::xml_schema::string_pskel& p)
 {
 	this->Value_parser_ = &p;
 }
 
-void DnaMeasurement_pskel::
-	StdDev_parser (::xml_schema::string_pskel& p)
+void DnaMeasurement_pskel::StdDev_parser (::xml_schema::string_pskel& p)
 {
 	this->StdDev_parser_ = &p;
 }
 
-void DnaMeasurement_pskel::
-	InstHeight_parser (::xml_schema::string_pskel& p)
+void DnaMeasurement_pskel::InstHeight_parser (::xml_schema::string_pskel& p)
 {
 	this->InstHeight_parser_ = &p;
 }
 
-void DnaMeasurement_pskel::
-	TargHeight_parser (::xml_schema::string_pskel& p)
+void DnaMeasurement_pskel::TargHeight_parser (::xml_schema::string_pskel& p)
 {
 	this->TargHeight_parser_ = &p;
 }
 
-void DnaMeasurement_pskel::
-	Total_parser (::xml_schema::string_pskel& p)
+void DnaMeasurement_pskel::Total_parser (::xml_schema::string_pskel& p)
 {
 	this->Total_parser_ = &p;
 }
 
-void DnaMeasurement_pskel::
-	Directions_parser (::Directions_pskel& p)
+void DnaMeasurement_pskel::Directions_parser (::Directions_pskel& p)
 {
 	this->Directions_parser_ = &p;
 }
 
-void DnaMeasurement_pskel::
-	Vscale_parser (::xml_schema::string_pskel& p)
+void DnaMeasurement_pskel::Vscale_parser (::xml_schema::string_pskel& p)
 {
 	this->Vscale_parser_ = &p;
 }
 
-void DnaMeasurement_pskel::
-	Epoch_parser (::xml_schema::string_pskel& p)
+void DnaMeasurement_pskel::Epoch_parser (::xml_schema::string_pskel& p)
 {
 	this->Epoch_parser_ = &p;
 }
 
-void DnaMeasurement_pskel::
-	GPSBaseline_parser (::GPSBaseline_pskel& p)
+void DnaMeasurement_pskel::GPSBaseline_parser (::GPSBaseline_pskel& p)
 {
 	this->GPSBaseline_parser_ = &p;
 }
 
-void DnaMeasurement_pskel::
-	Hscale_parser (::xml_schema::string_pskel& p)
+void DnaMeasurement_pskel::Hscale_parser (::xml_schema::string_pskel& p)
 {
 	this->Hscale_parser_ = &p;
 }
 
-void DnaMeasurement_pskel::
-	Lscale_parser (::xml_schema::string_pskel& p)
+void DnaMeasurement_pskel::Lscale_parser (::xml_schema::string_pskel& p)
 {
 	this->Lscale_parser_ = &p;
 }
 
-void DnaMeasurement_pskel::
-	Pscale_parser (::xml_schema::string_pskel& p)
+void DnaMeasurement_pskel::Pscale_parser (::xml_schema::string_pskel& p)
 {
 	this->Pscale_parser_ = &p;
 }
 
-void DnaMeasurement_pskel::
-	Clusterpoint_parser (::Clusterpoint_pskel& p)
+void DnaMeasurement_pskel::Clusterpoint_parser (::Clusterpoint_pskel& p)
 {
 	this->Clusterpoint_parser_ = &p;
 }
 
-void DnaMeasurement_pskel::
-	Coords_parser (::xml_schema::string_pskel& p)
+void DnaMeasurement_pskel::Coords_parser (::xml_schema::string_pskel& p)
 {
 	this->Coords_parser_ = &p;
 }
 
-void DnaMeasurement_pskel::
-	Source_parser(::xml_schema::string_pskel& p)
+void DnaMeasurement_pskel::Source_parser(::xml_schema::string_pskel& p)
 {
 	this->Source_parser_ = &p;
 }
 
-void DnaMeasurement_pskel::
-	parsers (::xml_schema::string_pskel& Type,
+void DnaMeasurement_pskel::MeasurementDBID_parser(::xml_schema::string_pskel& p)
+{
+	this->MeasurementDBID_parser_ = &p;
+}
+
+void DnaMeasurement_pskel::ClusterDBID_parser(::xml_schema::string_pskel& p)
+{
+	this->MeasurementDBID_parser_ = &p;
+}
+
+
+void DnaMeasurement_pskel::parsers (
+	::xml_schema::string_pskel& Type,
 	::xml_schema::string_pskel& Ignore,
 	::xml_schema::string_pskel& First,
 	::xml_schema::string_pskel& Second,
@@ -340,6 +331,8 @@ void DnaMeasurement_pskel::
 	::Clusterpoint_pskel& Clusterpoint,
 	::xml_schema::string_pskel& Coords,
 	::xml_schema::string_pskel& Source,
+	::xml_schema::string_pskel& MeasurementDBID,
+	::xml_schema::string_pskel& ClusterDBID,
 	bool preferSingleXasG)
 {
 	this->Type_parser_ = &Type;
@@ -363,11 +356,12 @@ void DnaMeasurement_pskel::
 	this->Clusterpoint_parser_ = &Clusterpoint;
 	this->Coords_parser_ = &Coords;
 	this->Source_parser_ = &Source;
+	this->MeasurementDBID_parser_ = &MeasurementDBID;
+	this->ClusterDBID_parser_ = &ClusterDBID;
 	this->_preferSingleXasG = preferSingleXasG;
 }
 
-DnaMeasurement_pskel::
-	DnaMeasurement_pskel ()
+DnaMeasurement_pskel::DnaMeasurement_pskel ()
 	: Type_parser_ (0),
 	Ignore_parser_ (0),
 	First_parser_ (0),
@@ -389,6 +383,8 @@ DnaMeasurement_pskel::
 	Clusterpoint_parser_ (0),
 	Coords_parser_ (0),
 	Source_parser_ (0),
+	MeasurementDBID_parser_ (0),
+	ClusterDBID_parser_ (0),
 	_preferSingleXasG(false)
 {
 }
@@ -396,38 +392,32 @@ DnaMeasurement_pskel::
 // DnaStation_pskel
 //
 
-void DnaStation_pskel::
-	Name_parser (::xml_schema::string_pskel& p)
+void DnaStation_pskel::Name_parser (::xml_schema::string_pskel& p)
 {
 	this->Name_parser_ = &p;
 }
 
-void DnaStation_pskel::
-	Constraints_parser (::xml_schema::string_pskel& p)
+void DnaStation_pskel::Constraints_parser (::xml_schema::string_pskel& p)
 {
 	this->Constraints_parser_ = &p;
 }
 
-void DnaStation_pskel::
-	Type_parser (::xml_schema::string_pskel& p)
+void DnaStation_pskel::Type_parser (::xml_schema::string_pskel& p)
 {
 	this->Type_parser_ = &p;
 }
 
-void DnaStation_pskel::
-	StationCoord_parser (::StationCoord_pskel& p)
+void DnaStation_pskel::StationCoord_parser (::StationCoord_pskel& p)
 {
 	this->StationCoord_parser_ = &p;
 }
 
-void DnaStation_pskel::
-	Description_parser (::xml_schema::string_pskel& p)
+void DnaStation_pskel::Description_parser (::xml_schema::string_pskel& p)
 {
 	this->Description_parser_ = &p;
 }
 
-void DnaStation_pskel::
-	parsers (::xml_schema::string_pskel& Name,
+void DnaStation_pskel::parsers (::xml_schema::string_pskel& Name,
 	::xml_schema::string_pskel& Constraints,
 	::xml_schema::string_pskel& Type,
 	::StationCoord_pskel& StationCoord,
@@ -440,8 +430,7 @@ void DnaStation_pskel::
 	this->Description_parser_ = &Description;
 }
 
-DnaStation_pskel::
-	DnaStation_pskel ()
+DnaStation_pskel::DnaStation_pskel ()
 	: Name_parser_ (0),
 	Constraints_parser_ (0),
 	Type_parser_ (0),
@@ -503,70 +492,66 @@ DnaXmlFormat_pskel::DnaXmlFormat_pskel ()
 // GPSBaseline_pskel
 //
 
-void GPSBaseline_pskel::
-	X_parser (::xml_schema::string_pskel& p)
+void GPSBaseline_pskel::X_parser (::xml_schema::string_pskel& p)
 {
 	this->X_parser_ = &p;
 }
 
-void GPSBaseline_pskel::
-	Y_parser (::xml_schema::string_pskel& p)
+void GPSBaseline_pskel::Y_parser (::xml_schema::string_pskel& p)
 {
 	this->Y_parser_ = &p;
 }
 
-void GPSBaseline_pskel::
-	Z_parser (::xml_schema::string_pskel& p)
+void GPSBaseline_pskel::Z_parser (::xml_schema::string_pskel& p)
 {
 	this->Z_parser_ = &p;
 }
 
-void GPSBaseline_pskel::
-	SigmaXX_parser (::xml_schema::string_pskel& p)
+void GPSBaseline_pskel::MeasurementDBID_parser (::xml_schema::string_pskel& p)
+{
+	this->MeasurementDBID_parser_ = &p;
+}
+
+void GPSBaseline_pskel::SigmaXX_parser (::xml_schema::string_pskel& p)
 {
 	this->SigmaXX_parser_ = &p;
 }
 
-void GPSBaseline_pskel::
-	SigmaXY_parser (::xml_schema::string_pskel& p)
+void GPSBaseline_pskel::SigmaXY_parser (::xml_schema::string_pskel& p)
 {
 	this->SigmaXY_parser_ = &p;
 }
 
-void GPSBaseline_pskel::
-	SigmaXZ_parser (::xml_schema::string_pskel& p)
+void GPSBaseline_pskel::SigmaXZ_parser (::xml_schema::string_pskel& p)
 {
 	this->SigmaXZ_parser_ = &p;
 }
 
-void GPSBaseline_pskel::
-	SigmaYY_parser (::xml_schema::string_pskel& p)
+void GPSBaseline_pskel::SigmaYY_parser (::xml_schema::string_pskel& p)
 {
 	this->SigmaYY_parser_ = &p;
 }
 
-void GPSBaseline_pskel::
-	SigmaYZ_parser (::xml_schema::string_pskel& p)
+void GPSBaseline_pskel::SigmaYZ_parser (::xml_schema::string_pskel& p)
 {
 	this->SigmaYZ_parser_ = &p;
 }
 
-void GPSBaseline_pskel::
-	SigmaZZ_parser (::xml_schema::string_pskel& p)
+void GPSBaseline_pskel::SigmaZZ_parser (::xml_schema::string_pskel& p)
 {
 	this->SigmaZZ_parser_ = &p;
 }
 
-void GPSBaseline_pskel::
-	GPSCovariance_parser (::GPSCovariance_pskel& p)
+void GPSBaseline_pskel::GPSCovariance_parser (::GPSCovariance_pskel& p)
 {
 	this->GPSCovariance_parser_ = &p;
 }
 
-void GPSBaseline_pskel::
-	parsers (::xml_schema::string_pskel& X,
+void GPSBaseline_pskel::parsers (
+	::xml_schema::string_pskel& X,
 	::xml_schema::string_pskel& Y,
 	::xml_schema::string_pskel& Z,
+	::xml_schema::string_pskel& MeasurementDBID,
 	::xml_schema::string_pskel& SigmaXX,
 	::xml_schema::string_pskel& SigmaXY,
 	::xml_schema::string_pskel& SigmaXZ,
@@ -578,6 +563,7 @@ void GPSBaseline_pskel::
 	this->X_parser_ = &X;
 	this->Y_parser_ = &Y;
 	this->Z_parser_ = &Z;
+	this->MeasurementDBID_parser_ = &MeasurementDBID;
 	this->SigmaXX_parser_ = &SigmaXX;
 	this->SigmaXY_parser_ = &SigmaXY;
 	this->SigmaXZ_parser_ = &SigmaXZ;
@@ -587,11 +573,11 @@ void GPSBaseline_pskel::
 	this->GPSCovariance_parser_ = &GPSCovariance;
 }
 
-GPSBaseline_pskel::
-	GPSBaseline_pskel ()
+GPSBaseline_pskel::GPSBaseline_pskel ()
 	: X_parser_ (0),
 	Y_parser_ (0),
 	Z_parser_ (0),
+	MeasurementDBID_parser_ (0),
 	SigmaXX_parser_ (0),
 	SigmaXY_parser_ (0),
 	SigmaXZ_parser_ (0),
@@ -605,62 +591,52 @@ GPSBaseline_pskel::
 // GPSCovariance_pskel
 //
 
-void GPSCovariance_pskel::
-	m11_parser (::xml_schema::string_pskel& p)
+void GPSCovariance_pskel::m11_parser (::xml_schema::string_pskel& p)
 {
 	this->m11_parser_ = &p;
 }
 
-void GPSCovariance_pskel::
-	m12_parser (::xml_schema::string_pskel& p)
+void GPSCovariance_pskel::m12_parser (::xml_schema::string_pskel& p)
 {
 	this->m12_parser_ = &p;
 }
 
-void GPSCovariance_pskel::
-	m13_parser (::xml_schema::string_pskel& p)
+void GPSCovariance_pskel::m13_parser (::xml_schema::string_pskel& p)
 {
 	this->m13_parser_ = &p;
 }
 
-void GPSCovariance_pskel::
-	m21_parser (::xml_schema::string_pskel& p)
+void GPSCovariance_pskel::m21_parser (::xml_schema::string_pskel& p)
 {
 	this->m21_parser_ = &p;
 }
 
-void GPSCovariance_pskel::
-	m22_parser (::xml_schema::string_pskel& p)
+void GPSCovariance_pskel::m22_parser (::xml_schema::string_pskel& p)
 {
 	this->m22_parser_ = &p;
 }
 
-void GPSCovariance_pskel::
-	m23_parser (::xml_schema::string_pskel& p)
+void GPSCovariance_pskel::m23_parser (::xml_schema::string_pskel& p)
 {
 	this->m23_parser_ = &p;
 }
 
-void GPSCovariance_pskel::
-	m31_parser (::xml_schema::string_pskel& p)
+void GPSCovariance_pskel::m31_parser (::xml_schema::string_pskel& p)
 {
 	this->m31_parser_ = &p;
 }
 
-void GPSCovariance_pskel::
-	m32_parser (::xml_schema::string_pskel& p)
+void GPSCovariance_pskel::m32_parser (::xml_schema::string_pskel& p)
 {
 	this->m32_parser_ = &p;
 }
 
-void GPSCovariance_pskel::
-	m33_parser (::xml_schema::string_pskel& p)
+void GPSCovariance_pskel::m33_parser (::xml_schema::string_pskel& p)
 {
 	this->m33_parser_ = &p;
 }
 
-void GPSCovariance_pskel::
-	parsers (::xml_schema::string_pskel& m11,
+void GPSCovariance_pskel::parsers (::xml_schema::string_pskel& m11,
 	::xml_schema::string_pskel& m12,
 	::xml_schema::string_pskel& m13,
 	::xml_schema::string_pskel& m21,
@@ -681,8 +657,7 @@ void GPSCovariance_pskel::
 	this->m33_parser_ = &m33;
 }
 
-GPSCovariance_pskel::
-	GPSCovariance_pskel ()
+GPSCovariance_pskel::GPSCovariance_pskel ()
 	: m11_parser_ (0),
 	m12_parser_ (0),
 	m13_parser_ (0),
@@ -708,8 +683,7 @@ void Height_pskel::parsers (::system_pskel& system)
 	this->system_parser_ = &system;
 }
 
-Height_pskel::
-	Height_pskel ()
+Height_pskel::Height_pskel ()
 	: system_parser_ (0)
 {
 }
@@ -717,62 +691,52 @@ Height_pskel::
 // PointCovariance_pskel
 //
 
-void PointCovariance_pskel::
-	m11_parser (::xml_schema::string_pskel& p)
+void PointCovariance_pskel::m11_parser (::xml_schema::string_pskel& p)
 {
 	this->m11_parser_ = &p;
 }
 
-void PointCovariance_pskel::
-	m12_parser (::xml_schema::string_pskel& p)
+void PointCovariance_pskel::m12_parser (::xml_schema::string_pskel& p)
 {
 	this->m12_parser_ = &p;
 }
 
-void PointCovariance_pskel::
-	m13_parser (::xml_schema::string_pskel& p)
+void PointCovariance_pskel::m13_parser (::xml_schema::string_pskel& p)
 {
 	this->m13_parser_ = &p;
 }
 
-void PointCovariance_pskel::
-	m21_parser (::xml_schema::string_pskel& p)
+void PointCovariance_pskel::m21_parser (::xml_schema::string_pskel& p)
 {
 	this->m21_parser_ = &p;
 }
 
-void PointCovariance_pskel::
-	m22_parser (::xml_schema::string_pskel& p)
+void PointCovariance_pskel::m22_parser (::xml_schema::string_pskel& p)
 {
 	this->m22_parser_ = &p;
 }
 
-void PointCovariance_pskel::
-	m23_parser (::xml_schema::string_pskel& p)
+void PointCovariance_pskel::m23_parser (::xml_schema::string_pskel& p)
 {
 	this->m23_parser_ = &p;
 }
 
-void PointCovariance_pskel::
-	m31_parser (::xml_schema::string_pskel& p)
+void PointCovariance_pskel::m31_parser (::xml_schema::string_pskel& p)
 {
 	this->m31_parser_ = &p;
 }
 
-void PointCovariance_pskel::
-	m32_parser (::xml_schema::string_pskel& p)
+void PointCovariance_pskel::m32_parser (::xml_schema::string_pskel& p)
 {
 	this->m32_parser_ = &p;
 }
 
-void PointCovariance_pskel::
-	m33_parser (::xml_schema::string_pskel& p)
+void PointCovariance_pskel::m33_parser (::xml_schema::string_pskel& p)
 {
 	this->m33_parser_ = &p;
 }
 
-void PointCovariance_pskel::
-	parsers (::xml_schema::string_pskel& m11,
+void PointCovariance_pskel::parsers (::xml_schema::string_pskel& m11,
 	::xml_schema::string_pskel& m12,
 	::xml_schema::string_pskel& m13,
 	::xml_schema::string_pskel& m21,
@@ -793,8 +757,7 @@ void PointCovariance_pskel::
 	this->m33_parser_ = &m33;
 }
 
-PointCovariance_pskel::
-	PointCovariance_pskel ()
+PointCovariance_pskel::PointCovariance_pskel ()
 	: m11_parser_ (0),
 	m12_parser_ (0),
 	m13_parser_ (0),
@@ -810,44 +773,37 @@ PointCovariance_pskel::
 // StationCoord_pskel
 //
 
-void StationCoord_pskel::
-	Name_parser (::xml_schema::string_pskel& p)
+void StationCoord_pskel::Name_parser (::xml_schema::string_pskel& p)
 {
 	this->Name_parser_ = &p;
 }
 
-void StationCoord_pskel::
-	XAxis_parser (::xml_schema::string_pskel& p)
+void StationCoord_pskel::XAxis_parser (::xml_schema::string_pskel& p)
 {
 	this->XAxis_parser_ = &p;
 }
 
-void StationCoord_pskel::
-	YAxis_parser (::xml_schema::string_pskel& p)
+void StationCoord_pskel::YAxis_parser (::xml_schema::string_pskel& p)
 {
 	this->YAxis_parser_ = &p;
 }
 
-void StationCoord_pskel::
-	Height_parser (::Height_pskel& p)
+void StationCoord_pskel::Height_parser (::Height_pskel& p)
 {
 	this->Height_parser_ = &p;
 }
 
-void StationCoord_pskel::
-	HemisphereZone_parser (::xml_schema::string_pskel& p)
+void StationCoord_pskel::HemisphereZone_parser (::xml_schema::string_pskel& p)
 {
 	this->HemisphereZone_parser_ = &p;
 }
 
-void StationCoord_pskel::
-	GeoidModel_parser (::GeoidModel_pskel& p)
+void StationCoord_pskel::GeoidModel_parser (::GeoidModel_pskel& p)
 {
 	this->GeoidModel_parser_ = &p;
 }
 
-void StationCoord_pskel::
-	parsers (::xml_schema::string_pskel& Name,
+void StationCoord_pskel::parsers (::xml_schema::string_pskel& Name,
 	::xml_schema::string_pskel& XAxis,
 	::xml_schema::string_pskel& YAxis,
 	::Height_pskel& Height,
@@ -862,8 +818,7 @@ void StationCoord_pskel::
 	this->GeoidModel_parser_ = &GeoidModel;
 }
 
-StationCoord_pskel::
-	StationCoord_pskel ()
+StationCoord_pskel::StationCoord_pskel ()
 	: Name_parser_ (0),
 	XAxis_parser_ (0),
 	YAxis_parser_ (0),
@@ -876,26 +831,22 @@ StationCoord_pskel::
 // GeoidModel_pskel
 //
 
-void GeoidModel_pskel::
-	NValue_parser (::xml_schema::string_pskel& p)
+void GeoidModel_pskel::NValue_parser (::xml_schema::string_pskel& p)
 {
 	this->NValue_parser_ = &p;
 }
 
-void GeoidModel_pskel::
-	DeflPM_parser (::xml_schema::string_pskel& p)
+void GeoidModel_pskel::DeflPM_parser (::xml_schema::string_pskel& p)
 {
 	this->DeflPM_parser_ = &p;
 }
 
-void GeoidModel_pskel::
-	DeflPV_parser (::xml_schema::string_pskel& p)
+void GeoidModel_pskel::DeflPV_parser (::xml_schema::string_pskel& p)
 {
 	this->DeflPV_parser_ = &p;
 }
 
-void GeoidModel_pskel::
-	parsers (::xml_schema::string_pskel& NValue,
+void GeoidModel_pskel::parsers (::xml_schema::string_pskel& NValue,
 	::xml_schema::string_pskel& DeflPM,
 	::xml_schema::string_pskel& DeflPV)
 {
@@ -904,8 +855,7 @@ void GeoidModel_pskel::
 	this->DeflPV_parser_ = &DeflPV;
 }
 
-GeoidModel_pskel::
-	GeoidModel_pskel ()
+GeoidModel_pskel::GeoidModel_pskel ()
 	: NValue_parser_ (0),
 	DeflPM_parser_ (0),
 	DeflPV_parser_ (0)
@@ -915,63 +865,55 @@ GeoidModel_pskel::
 // Clusterpoint_pskel
 //
 
-void Clusterpoint_pskel::
-	X (const ::std::string&)
+void Clusterpoint_pskel::X (const ::std::string&)
 {
 }
 
-void Clusterpoint_pskel::
-	Y (const ::std::string&)
+void Clusterpoint_pskel::Y (const ::std::string&)
 {
 }
 
-void Clusterpoint_pskel::
-	Z (const ::std::string&)
+void Clusterpoint_pskel::Z (const ::std::string&)
 {
 }
 
-void Clusterpoint_pskel::
-	SigmaXX (const ::std::string&)
+void Clusterpoint_pskel::MeasurementDBID (const ::std::string&)
 {
 }
 
-void Clusterpoint_pskel::
-	SigmaXY (const ::std::string&)
+void Clusterpoint_pskel::SigmaXX (const ::std::string&)
 {
 }
 
-void Clusterpoint_pskel::
-	SigmaXZ (const ::std::string&)
+void Clusterpoint_pskel::SigmaXY (const ::std::string&)
 {
 }
 
-void Clusterpoint_pskel::
-	SigmaYY (const ::std::string&)
+void Clusterpoint_pskel::SigmaXZ (const ::std::string&)
 {
 }
 
-void Clusterpoint_pskel::
-	SigmaYZ (const ::std::string&)
+void Clusterpoint_pskel::SigmaYY (const ::std::string&)
 {
 }
 
-void Clusterpoint_pskel::
-	SigmaZZ (const ::std::string&)
+void Clusterpoint_pskel::SigmaYZ (const ::std::string&)
 {
 }
 
-void Clusterpoint_pskel::
-	PointCovariance ()
+void Clusterpoint_pskel::SigmaZZ (const ::std::string&)
 {
 }
 
-void Clusterpoint_pskel::
-	post_Clusterpoint ()
+void Clusterpoint_pskel::PointCovariance ()
 {
 }
 
-bool Clusterpoint_pskel::
-	_start_element_impl (const ::xml_schema::ro_string& ns,
+void Clusterpoint_pskel::post_Clusterpoint ()
+{
+}
+
+bool Clusterpoint_pskel::_start_element_impl (const ::xml_schema::ro_string& ns,
 	const ::xml_schema::ro_string& n,
 	const ::xml_schema::ro_string* t)
 {
@@ -1010,7 +952,17 @@ bool Clusterpoint_pskel::
 		return true;
 	}
 
-	if (n == "SigmaXX" && ns.empty ())
+	if (n == "MeasurementID" && ns.empty())
+	{
+		this->::xml_schema::complex_content::context_.top().parser_ = this->MeasurementDBID_parser_;
+
+		if (this->MeasurementDBID_parser_)
+			this->MeasurementDBID_parser_->pre();
+
+		return true;
+	}
+
+	if (n == "SigmaXX" && ns.empty())
 	{
 		this->::xml_schema::complex_content::context_.top ().parser_ = this->SigmaXX_parser_;
 
@@ -1086,8 +1038,7 @@ bool Clusterpoint_pskel::
 	return false;
 }
 
-bool Clusterpoint_pskel::
-	_end_element_impl (const ::xml_schema::ro_string& ns,
+bool Clusterpoint_pskel::_end_element_impl (const ::xml_schema::ro_string& ns,
 	const ::xml_schema::ro_string& n)
 {
 	if (this->::xml_schema::complex_content::_end_element_impl (ns, n))
@@ -1117,7 +1068,15 @@ bool Clusterpoint_pskel::
 		return true;
 	}
 
-	if (n == "SigmaXX" && ns.empty ())
+	if (n == "MeasurementID" && ns.empty())
+	{
+		if (this->MeasurementDBID_parser_)
+			this->MeasurementDBID (this->MeasurementDBID_parser_->post_string());
+
+		return true;
+	}
+
+	if (n == "SigmaXX" && ns.empty())
 	{
 		if (this->SigmaXX_parser_)
 			this->SigmaXX (this->SigmaXX_parser_->post_string ());
@@ -1182,33 +1141,31 @@ bool Clusterpoint_pskel::
 // Directions_pskel
 //
 
-void Directions_pskel::
-	Ignore (const ::std::string&)
+void Directions_pskel::Ignore (const ::std::string&)
 {
 }
 
-void Directions_pskel::
-	Target (const ::std::string&)
+void Directions_pskel::Target (const ::std::string&)
 {
 }
 
-void Directions_pskel::
-	Value (const ::std::string&)
+void Directions_pskel::Value (const ::std::string&)
 {
 }
 
-void Directions_pskel::
-	StdDev (const ::std::string&)
+void Directions_pskel::StdDev (const ::std::string&)
 {
 }
 
-void Directions_pskel::
-	post_Directions ()
+void Directions_pskel::MeasurementDBID (const ::std::string&)
 {
 }
 
-bool Directions_pskel::
-	_start_element_impl (const ::xml_schema::ro_string& ns,
+void Directions_pskel::post_Directions ()
+{
+}
+
+bool Directions_pskel::_start_element_impl (const ::xml_schema::ro_string& ns,
 	const ::xml_schema::ro_string& n,
 	const ::xml_schema::ro_string* t)
 {
@@ -1257,11 +1214,20 @@ bool Directions_pskel::
 		return true;
 	}
 
+	if (n == "MeasurementID" && ns.empty())
+	{
+		this->::xml_schema::complex_content::context_.top().parser_ = this->MeasurementDBID_parser_;
+
+		if (this->MeasurementDBID_parser_)
+			this->MeasurementDBID_parser_->pre();
+
+		return true;
+	}
+
 	return false;
 }
 
-bool Directions_pskel::
-	_end_element_impl (const ::xml_schema::ro_string& ns,
+bool Directions_pskel::_end_element_impl (const ::xml_schema::ro_string& ns,
 	const ::xml_schema::ro_string& n)
 {
 	if (this->::xml_schema::complex_content::_end_element_impl (ns, n))
@@ -1299,126 +1265,117 @@ bool Directions_pskel::
 		return true;
 	}
 
+	if (n == "MeasurementID" && ns.empty())
+	{
+		if (this->MeasurementDBID_parser_)
+			this->MeasurementDBID (this->MeasurementDBID_parser_->post_string());
+
+		return true;
+	}
+
 	return false;
 }
 
 // DnaMeasurement_pskel
 //
 
-void DnaMeasurement_pskel::
-	Type (const ::std::string&)
+void DnaMeasurement_pskel::Type (const ::std::string&)
 {
 }
 
-void DnaMeasurement_pskel::
-	Ignore (const ::std::string&)
+void DnaMeasurement_pskel::Ignore (const ::std::string&)
 {
 }
 
-void DnaMeasurement_pskel::
-	First (const ::std::string&)
+void DnaMeasurement_pskel::First (const ::std::string&)
 {
 }
 
-void DnaMeasurement_pskel::
-	Second (const ::std::string&)
+void DnaMeasurement_pskel::Second (const ::std::string&)
 {
 }
 
-void DnaMeasurement_pskel::
-	Third (const ::std::string&)
+void DnaMeasurement_pskel::Third (const ::std::string&)
 {
 }
 
-void DnaMeasurement_pskel::
-	Value (const ::std::string&)
+void DnaMeasurement_pskel::Value (const ::std::string&)
 {
 }
 
-void DnaMeasurement_pskel::
-	StdDev (const ::std::string&)
+void DnaMeasurement_pskel::StdDev (const ::std::string&)
 {
 }
 
-void DnaMeasurement_pskel::
-	InstHeight (const ::std::string&)
+void DnaMeasurement_pskel::InstHeight (const ::std::string&)
 {
 }
 
-void DnaMeasurement_pskel::
-	TargHeight (const ::std::string&)
+void DnaMeasurement_pskel::TargHeight (const ::std::string&)
 {
 }
 
-void DnaMeasurement_pskel::
-	Total (const ::std::string&)
+void DnaMeasurement_pskel::Total (const ::std::string&)
 {
 }
 
-void DnaMeasurement_pskel::
-	Directions ()
+void DnaMeasurement_pskel::Directions ()
 {
 }
 
-void DnaMeasurement_pskel::
-	Vscale (const ::std::string&)
+void DnaMeasurement_pskel::Vscale (const ::std::string&)
 {
 }
 
-void DnaMeasurement_pskel::
-	Epoch (const ::std::string&)
+void DnaMeasurement_pskel::Epoch (const ::std::string&)
 {
 }
 
-void DnaMeasurement_pskel::
-	ReferenceFrame (const ::std::string&)
-{
-	::xml_schema::parsing parsing_error;
-	unsigned long l = parsing_error.diagnostics().at(0).line();
-}
-
-void DnaMeasurement_pskel::
-	GPSBaseline ()
+void DnaMeasurement_pskel::ReferenceFrame (const ::std::string&)
 {
 }
 
-void DnaMeasurement_pskel::
-	Hscale (const ::std::string&)
+void DnaMeasurement_pskel::GPSBaseline ()
 {
 }
 
-void DnaMeasurement_pskel::
-	Lscale (const ::std::string&)
+void DnaMeasurement_pskel::Hscale (const ::std::string&)
 {
 }
 
-void DnaMeasurement_pskel::
-	Pscale (const ::std::string&)
+void DnaMeasurement_pskel::Lscale (const ::std::string&)
 {
 }
 
-void DnaMeasurement_pskel::
-	Clusterpoint ()
+void DnaMeasurement_pskel::Pscale (const ::std::string&)
 {
 }
 
-void DnaMeasurement_pskel::
-	Coords (const ::std::string&)
+void DnaMeasurement_pskel::Clusterpoint ()
 {
 }
 
-void DnaMeasurement_pskel::
-	Source (const ::std::string&)
+void DnaMeasurement_pskel::Coords (const ::std::string&)
 {
 }
 
-void DnaMeasurement_pskel::
-	post_DnaMeasurement ()
+void DnaMeasurement_pskel::Source (const ::std::string&)
 {
 }
 
-bool DnaMeasurement_pskel::
-	_start_element_impl (const ::xml_schema::ro_string& ns,
+void DnaMeasurement_pskel::MeasurementDBID (const ::std::string&)
+{
+}
+
+void DnaMeasurement_pskel::ClusterDBID (const ::std::string&)
+{
+}
+
+void DnaMeasurement_pskel::post_DnaMeasurement ()
+{
+}
+
+bool DnaMeasurement_pskel::_start_element_impl (const ::xml_schema::ro_string& ns,
 	const ::xml_schema::ro_string& n,
 	const ::xml_schema::ro_string* t)
 {
@@ -1649,11 +1606,30 @@ bool DnaMeasurement_pskel::
 		return true;
 	}
 
+	if (n == "MeasurementID" && ns.empty())
+	{
+		this->::xml_schema::complex_content::context_.top().parser_ = this->MeasurementDBID_parser_;
+
+		if (this->MeasurementDBID_parser_)
+			this->MeasurementDBID_parser_->pre();
+
+		return true;
+	}
+
+	if (n == "ClusterID" && ns.empty())
+	{
+		this->::xml_schema::complex_content::context_.top().parser_ = this->ClusterDBID_parser_;
+
+		if (this->ClusterDBID_parser_)
+			this->ClusterDBID_parser_->pre();
+
+		return true;
+	}
+
 	return false;
 }
 
-bool DnaMeasurement_pskel::
-	_end_element_impl (const ::xml_schema::ro_string& ns,
+bool DnaMeasurement_pskel::_end_element_impl (const ::xml_schema::ro_string& ns,
 	const ::xml_schema::ro_string& n)
 {
 	if (this->::xml_schema::complex_content::_end_element_impl (ns, n))
@@ -1831,7 +1807,23 @@ bool DnaMeasurement_pskel::
 	if (n == "Source" && ns.empty())
 	{
 		if (this->Source_parser_)
-			this->Source(this->Source_parser_->post_string());
+			this->Source (this->Source_parser_->post_string());
+
+		return true;
+	}
+
+	if (n == "MeasurementID" && ns.empty())
+	{
+		if (this->MeasurementDBID_parser_)
+			this->MeasurementDBID (this->MeasurementDBID_parser_->post_string());
+
+		return true;
+	}
+
+	if (n == "ClusterID" && ns.empty())
+	{
+		if (this->ClusterDBID_parser_)
+			this->ClusterDBID (this->ClusterDBID_parser_->post_string());
 
 		return true;
 	}
@@ -1839,8 +1831,7 @@ bool DnaMeasurement_pskel::
 	return false;
 }
 
-bool DnaMeasurement_pskel::
-	_attribute_impl (const ::xml_schema::ro_string& ns,
+bool DnaMeasurement_pskel::_attribute_impl (const ::xml_schema::ro_string& ns,
 	const ::xml_schema::ro_string& n,
 	const ::xml_schema::ro_string& v)
 {
@@ -1867,38 +1858,31 @@ bool DnaMeasurement_pskel::
 // DnaStation_pskel
 //
 
-void DnaStation_pskel::
-	Name (const ::std::string&)
+void DnaStation_pskel::Name (const ::std::string&)
 {
 }
 
-void DnaStation_pskel::
-	Constraints (const ::std::string&)
+void DnaStation_pskel::Constraints (const ::std::string&)
 {
 }
 
-void DnaStation_pskel::
-	Type (const ::std::string&)
+void DnaStation_pskel::Type (const ::std::string&)
 {
 }
 
-void DnaStation_pskel::
-	StationCoord ()
+void DnaStation_pskel::StationCoord ()
 {
 }
 
-void DnaStation_pskel::
-	Description (const ::std::string&)
+void DnaStation_pskel::Description (const ::std::string&)
 {
 }
 
-void DnaStation_pskel::
-	post_DnaStation ()
+void DnaStation_pskel::post_DnaStation ()
 {
 }
 
-bool DnaStation_pskel::
-	_start_element_impl (const ::xml_schema::ro_string& ns,
+bool DnaStation_pskel::_start_element_impl (const ::xml_schema::ro_string& ns,
 	const ::xml_schema::ro_string& n,
 	const ::xml_schema::ro_string* t)
 {
@@ -1964,8 +1948,7 @@ bool DnaStation_pskel::
 	return false;
 }
 
-bool DnaStation_pskel::
-	_end_element_impl (const ::xml_schema::ro_string& ns,
+bool DnaStation_pskel::_end_element_impl (const ::xml_schema::ro_string& ns,
 	const ::xml_schema::ro_string& n)
 {
 	if (this->::xml_schema::complex_content::_end_element_impl (ns, n))
@@ -2195,63 +2178,55 @@ bool DnaXmlFormat_pskel::_attribute_impl (const ::xml_schema::ro_string& ns,
 // GPSBaseline_pskel
 //
 
-void GPSBaseline_pskel::
-	X (const ::std::string&)
+void GPSBaseline_pskel::X (const ::std::string&)
 {
 }
 
-void GPSBaseline_pskel::
-	Y (const ::std::string&)
+void GPSBaseline_pskel::Y (const ::std::string&)
 {
 }
 
-void GPSBaseline_pskel::
-	Z (const ::std::string&)
+void GPSBaseline_pskel::Z (const ::std::string&)
 {
 }
 
-void GPSBaseline_pskel::
-	SigmaXX (const ::std::string&)
+void GPSBaseline_pskel::MeasurementDBID(const ::std::string&)
 {
 }
 
-void GPSBaseline_pskel::
-	SigmaXY (const ::std::string&)
+void GPSBaseline_pskel::SigmaXX (const ::std::string&)
 {
 }
 
-void GPSBaseline_pskel::
-	SigmaXZ (const ::std::string&)
+void GPSBaseline_pskel::SigmaXY (const ::std::string&)
 {
 }
 
-void GPSBaseline_pskel::
-	SigmaYY (const ::std::string&)
+void GPSBaseline_pskel::SigmaXZ (const ::std::string&)
 {
 }
 
-void GPSBaseline_pskel::
-	SigmaYZ (const ::std::string&)
+void GPSBaseline_pskel::SigmaYY (const ::std::string&)
 {
 }
 
-void GPSBaseline_pskel::
-	SigmaZZ (const ::std::string&)
+void GPSBaseline_pskel::SigmaYZ (const ::std::string&)
 {
 }
 
-void GPSBaseline_pskel::
-	GPSCovariance ()
+void GPSBaseline_pskel::SigmaZZ (const ::std::string&)
 {
 }
 
-void GPSBaseline_pskel::
-	post_GPSBaseline ()
+void GPSBaseline_pskel::GPSCovariance ()
 {
 }
 
-bool GPSBaseline_pskel::
-	_start_element_impl (const ::xml_schema::ro_string& ns,
+void GPSBaseline_pskel::post_GPSBaseline ()
+{
+}
+
+bool GPSBaseline_pskel::_start_element_impl (const ::xml_schema::ro_string& ns,
 	const ::xml_schema::ro_string& n,
 	const ::xml_schema::ro_string* t)
 {
@@ -2290,7 +2265,17 @@ bool GPSBaseline_pskel::
 		return true;
 	}
 
-	if (n == "SigmaXX" && ns.empty ())
+	if (n == "MeasurementID" && ns.empty())
+	{
+		this->::xml_schema::complex_content::context_.top().parser_ = this->MeasurementDBID_parser_;
+
+		if (this->MeasurementDBID_parser_)
+			this->MeasurementDBID_parser_->pre();
+
+		return true;
+	}
+
+	if (n == "SigmaXX" && ns.empty())
 	{
 		this->::xml_schema::complex_content::context_.top ().parser_ = this->SigmaXX_parser_;
 
@@ -2366,8 +2351,7 @@ bool GPSBaseline_pskel::
 	return false;
 }
 
-bool GPSBaseline_pskel::
-	_end_element_impl (const ::xml_schema::ro_string& ns,
+bool GPSBaseline_pskel::_end_element_impl (const ::xml_schema::ro_string& ns,
 	const ::xml_schema::ro_string& n)
 {
 	if (this->::xml_schema::complex_content::_end_element_impl (ns, n))
@@ -2397,7 +2381,15 @@ bool GPSBaseline_pskel::
 		return true;
 	}
 
-	if (n == "SigmaXX" && ns.empty ())
+	if (n == "MeasurementID" && ns.empty())
+	{
+		if (this->MeasurementDBID_parser_)
+			this->MeasurementDBID (this->MeasurementDBID_parser_->post_string());
+
+		return true;
+	}
+
+	if (n == "SigmaXX" && ns.empty())
 	{
 		if (this->SigmaXX_parser_)
 			this->SigmaXX (this->SigmaXX_parser_->post_string ());
@@ -2462,58 +2454,47 @@ bool GPSBaseline_pskel::
 // GPSCovariance_pskel
 //
 
-void GPSCovariance_pskel::
-	m11 (const ::std::string&)
+void GPSCovariance_pskel::m11 (const ::std::string&)
 {
 }
 
-void GPSCovariance_pskel::
-	m12 (const ::std::string&)
+void GPSCovariance_pskel::m12 (const ::std::string&)
 {
 }
 
-void GPSCovariance_pskel::
-	m13 (const ::std::string&)
+void GPSCovariance_pskel::m13 (const ::std::string&)
 {
 }
 
-void GPSCovariance_pskel::
-	m21 (const ::std::string&)
+void GPSCovariance_pskel::m21 (const ::std::string&)
 {
 }
 
-void GPSCovariance_pskel::
-	m22 (const ::std::string&)
+void GPSCovariance_pskel::m22 (const ::std::string&)
 {
 }
 
-void GPSCovariance_pskel::
-	m23 (const ::std::string&)
+void GPSCovariance_pskel::m23 (const ::std::string&)
 {
 }
 
-void GPSCovariance_pskel::
-	m31 (const ::std::string&)
+void GPSCovariance_pskel::m31 (const ::std::string&)
 {
 }
 
-void GPSCovariance_pskel::
-	m32 (const ::std::string&)
+void GPSCovariance_pskel::m32 (const ::std::string&)
 {
 }
 
-void GPSCovariance_pskel::
-	m33 (const ::std::string&)
+void GPSCovariance_pskel::m33 (const ::std::string&)
 {
 }
 
-void GPSCovariance_pskel::
-	post_GPSCovariance ()
+void GPSCovariance_pskel::post_GPSCovariance ()
 {
 }
 
-bool GPSCovariance_pskel::
-	_start_element_impl (const ::xml_schema::ro_string& ns,
+bool GPSCovariance_pskel::_start_element_impl (const ::xml_schema::ro_string& ns,
 	const ::xml_schema::ro_string& n,
 	const ::xml_schema::ro_string* t)
 {
@@ -2615,8 +2596,7 @@ bool GPSCovariance_pskel::
 	return false;
 }
 
-bool GPSCovariance_pskel::
-	_end_element_impl (const ::xml_schema::ro_string& ns,
+bool GPSCovariance_pskel::_end_element_impl (const ::xml_schema::ro_string& ns,
 	const ::xml_schema::ro_string& n)
 {
 	if (this->::xml_schema::complex_content::_end_element_impl (ns, n))
@@ -2708,8 +2688,7 @@ void Height_pskel::post_Height ()
 {
 }
 
-bool Height_pskel::
-	_attribute_impl (const ::xml_schema::ro_string& ns,
+bool Height_pskel::_attribute_impl (const ::xml_schema::ro_string& ns,
 	const ::xml_schema::ro_string& n,
 	const ::xml_schema::ro_string& v)
 {
@@ -2736,58 +2715,47 @@ bool Height_pskel::
 // PointCovariance_pskel
 //
 
-void PointCovariance_pskel::
-	m11 (const ::std::string&)
+void PointCovariance_pskel::m11 (const ::std::string&)
 {
 }
 
-void PointCovariance_pskel::
-	m12 (const ::std::string&)
+void PointCovariance_pskel::m12 (const ::std::string&)
 {
 }
 
-void PointCovariance_pskel::
-	m13 (const ::std::string&)
+void PointCovariance_pskel::m13 (const ::std::string&)
 {
 }
 
-void PointCovariance_pskel::
-	m21 (const ::std::string&)
+void PointCovariance_pskel::m21 (const ::std::string&)
 {
 }
 
-void PointCovariance_pskel::
-	m22 (const ::std::string&)
+void PointCovariance_pskel::m22 (const ::std::string&)
 {
 }
 
-void PointCovariance_pskel::
-	m23 (const ::std::string&)
+void PointCovariance_pskel::m23 (const ::std::string&)
 {
 }
 
-void PointCovariance_pskel::
-	m31 (const ::std::string&)
+void PointCovariance_pskel::m31 (const ::std::string&)
 {
 }
 
-void PointCovariance_pskel::
-	m32 (const ::std::string&)
+void PointCovariance_pskel::m32 (const ::std::string&)
 {
 }
 
-void PointCovariance_pskel::
-	m33 (const ::std::string&)
+void PointCovariance_pskel::m33 (const ::std::string&)
 {
 }
 
-void PointCovariance_pskel::
-	post_PointCovariance ()
+void PointCovariance_pskel::post_PointCovariance ()
 {
 }
 
-bool PointCovariance_pskel::
-	_start_element_impl (const ::xml_schema::ro_string& ns,
+bool PointCovariance_pskel::_start_element_impl (const ::xml_schema::ro_string& ns,
 	const ::xml_schema::ro_string& n,
 	const ::xml_schema::ro_string* t)
 {
@@ -2889,8 +2857,7 @@ bool PointCovariance_pskel::
 	return false;
 }
 
-bool PointCovariance_pskel::
-	_end_element_impl (const ::xml_schema::ro_string& ns,
+bool PointCovariance_pskel::_end_element_impl (const ::xml_schema::ro_string& ns,
 	const ::xml_schema::ro_string& n)
 {
 	if (this->::xml_schema::complex_content::_end_element_impl (ns, n))
@@ -2974,43 +2941,35 @@ bool PointCovariance_pskel::
 // StationCoord_pskel
 //
 
-void StationCoord_pskel::
-	Name (const ::std::string&)
+void StationCoord_pskel::Name (const ::std::string&)
 {
 }
 
-void StationCoord_pskel::
-	XAxis (const ::std::string&)
+void StationCoord_pskel::XAxis (const ::std::string&)
 {
 }
 
-void StationCoord_pskel::
-	YAxis (const ::std::string&)
+void StationCoord_pskel::YAxis (const ::std::string&)
 {
 }
 
-void StationCoord_pskel::
-	Height ()
+void StationCoord_pskel::Height ()
 {
 }
 
-void StationCoord_pskel::
-	HemisphereZone (const ::std::string&)
+void StationCoord_pskel::HemisphereZone (const ::std::string&)
 {
 }
 
-void StationCoord_pskel::
-	GeoidModel ()
+void StationCoord_pskel::GeoidModel ()
 {
 }
 
-void StationCoord_pskel::
-	post_StationCoord ()
+void StationCoord_pskel::post_StationCoord ()
 {
 }
 
-bool StationCoord_pskel::
-	_start_element_impl (const ::xml_schema::ro_string& ns,
+bool StationCoord_pskel::_start_element_impl (const ::xml_schema::ro_string& ns,
 	const ::xml_schema::ro_string& n,
 	const ::xml_schema::ro_string* t)
 {
@@ -3076,8 +3035,7 @@ bool StationCoord_pskel::
 	return false;
 }
 
-bool StationCoord_pskel::
-	_end_element_impl (const ::xml_schema::ro_string& ns,
+bool StationCoord_pskel::_end_element_impl (const ::xml_schema::ro_string& ns,
 	const ::xml_schema::ro_string& n)
 {
 	if (this->::xml_schema::complex_content::_end_element_impl (ns, n))
@@ -3132,28 +3090,23 @@ bool StationCoord_pskel::
 // GeoidModel_pskel
 //
 
-void GeoidModel_pskel::
-	NValue (const ::std::string&)
+void GeoidModel_pskel::NValue (const ::std::string&)
 {
 }
 
-void GeoidModel_pskel::
-	DeflPM (const ::std::string&)
+void GeoidModel_pskel::DeflPM (const ::std::string&)
 {
 }
 
-void GeoidModel_pskel::
-	DeflPV (const ::std::string&)
+void GeoidModel_pskel::DeflPV (const ::std::string&)
 {
 }
 
-void GeoidModel_pskel::
-	post_GeoidModel ()
+void GeoidModel_pskel::post_GeoidModel ()
 {
 }
 
-bool GeoidModel_pskel::
-	_start_element_impl (const ::xml_schema::ro_string& ns,
+bool GeoidModel_pskel::_start_element_impl (const ::xml_schema::ro_string& ns,
 	const ::xml_schema::ro_string& n,
 	const ::xml_schema::ro_string* t)
 {
@@ -3195,8 +3148,7 @@ bool GeoidModel_pskel::
 	return false;
 }
 
-bool GeoidModel_pskel::
-	_end_element_impl (const ::xml_schema::ro_string& ns,
+bool GeoidModel_pskel::_end_element_impl (const ::xml_schema::ro_string& ns,
 	const ::xml_schema::ro_string& n)
 {
 	if (this->::xml_schema::complex_content::_end_element_impl (ns, n))

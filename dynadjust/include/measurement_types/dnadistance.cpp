@@ -174,11 +174,13 @@ void CDnaDistance::WriteDynaMLMsr(std::ofstream* dynaml_stream, bool bSubMeasure
 		break;
 	}
 		
+	if (m_databaseIdSet)
+		*dynaml_stream << "    <MeasurementID>" << m_msr_db_map.msr_id << "</MeasurementID>" << endl;
 	*dynaml_stream << "  </DnaMeasurement>" << endl;
 }
 	
 
-void CDnaDistance::WriteDNAMsr(std::ofstream* dynaml_stream, const dna_msr_fields& dmw, bool bSubMeasurement /*= false*/) const
+void CDnaDistance::WriteDNAMsr(std::ofstream* dynaml_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool bSubMeasurement /*= false*/) const
 {
 	*dynaml_stream << setw(dmw.msr_type) << m_strType;
 	if (m_bIgnore)
@@ -192,15 +194,26 @@ void CDnaDistance::WriteDNAMsr(std::ofstream* dynaml_stream, const dna_msr_field
 	*dynaml_stream << right << setw(dmw.msr_linear) << fixed << setprecision(4) << m_dValue;
 	*dynaml_stream << setw(dmw.msr_ang_d + dmw.msr_ang_m + dmw.msr_ang_s) << " ";
 	*dynaml_stream << setw(dmw.msr_stddev) << fixed << setprecision(3) << m_dStdDev;
-		
+	
+	// database id width
+	UINT32 width(dml.msr_id_msr - dml.msr_inst_ht);
+	
 	// Slope distance
 	switch (GetTypeC())
 	{
 	case 'S':
 		*dynaml_stream << setw(dmw.msr_inst_ht) << fixed << setprecision(3) << m_fInstHeight;
 		*dynaml_stream << setw(dmw.msr_targ_ht) << fixed << setprecision(3) << m_fTargHeight;
+		width = dml.msr_id_msr - dml.msr_targ_ht - dmw.msr_targ_ht;
 		break;
 	}
+	
+	if (m_databaseIdSet)
+	{
+		*dynaml_stream << setw(width) << " ";
+		*dynaml_stream << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
+	}
+
 	*dynaml_stream << endl;
 }
 	

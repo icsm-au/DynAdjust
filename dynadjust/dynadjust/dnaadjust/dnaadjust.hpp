@@ -86,6 +86,7 @@
 #include <include/parameters/dnadatum.hpp>
 #include <include/math/dnamatrix_contiguous.hpp>
 #include <include/memory/dnafile_mapping.hpp>
+#include <include/parameters/dnaprojection.hpp>
 
 using namespace std;
 using namespace boost;
@@ -281,7 +282,7 @@ public:
 	inline void SetmaxCorr(const double c) { 
 
 #ifdef MULTI_THREAD_ADJUST
-		lock_guard<mutex> lock(maxCorrMutex);		
+		boost::lock_guard<boost::mutex> lock(maxCorrMutex);
 #endif
 		maxCorr_ = c; 
 	};
@@ -574,6 +575,34 @@ private:
 											  matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
 											  matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
 	
+	void UpdateIgnoredMeasurements(pit_vmsr_t _it_msr, bool storeOriginalMeasurement);
+	void UpdateIgnoredMeasurements_A(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement);
+	void UpdateIgnoredMeasurements_B(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement);
+	void UpdateIgnoredMeasurements_BK(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement);
+	void UpdateIgnoredMeasurements_C(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement);
+	void UpdateIgnoredMeasurements_CEM(pit_vmsr_t _it_msr,const UINT32& block, matrix_2d* estimatedStations);
+	void UpdateIgnoredMeasurements_D(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement);
+	void UpdateIgnoredMeasurements_E(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement);
+	void UpdateIgnoredMeasurements_G(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement);
+	void UpdateIgnoredMeasurements_GX(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement, const UINT32& stn1, const UINT32& stn2);
+	void UpdateIgnoredMeasurements_H(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement);
+	void UpdateIgnoredMeasurements_HR(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations);
+	void UpdateIgnoredMeasurements_I(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement);
+	void UpdateIgnoredMeasurements_IP(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations);
+	void UpdateIgnoredMeasurements_J(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement);
+	void UpdateIgnoredMeasurements_JQ(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations);
+	void UpdateIgnoredMeasurements_K(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement);
+	void UpdateIgnoredMeasurements_L(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement);
+	void UpdateIgnoredMeasurements_M(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement);
+	void UpdateIgnoredMeasurements_P(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement);
+	void UpdateIgnoredMeasurements_Q(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement);
+	void UpdateIgnoredMeasurements_R(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement);
+	void UpdateIgnoredMeasurements_S(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement);
+	void UpdateIgnoredMeasurements_V(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement);
+	void UpdateIgnoredMeasurements_X(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement);
+	void UpdateIgnoredMeasurements_Y(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement);
+	void UpdateIgnoredMeasurements_Z(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement);
+
 	void LoadVarianceScaling(it_vmsr_t _it_msr, 
 		double& vScale, double& pScale, double& lScale, double& hScale,
 		bool& scaleMatrix, bool& scalePartial);
@@ -687,7 +716,7 @@ private:
 		matrix_2d* design, matrix_2d* aposterioriVariances, UINT32& design_row, UINT32& precadjmsr_row);
 	
 	void UpdateMsrRecords(const UINT32& block = 0);
-	void UpdateMsrRecord(const UINT32& block, it_vmsr_t& _it_msr, const UINT32& msr_row, const UINT32& precadjmsr_row, const double& measPrec, double* measAdj = 0);
+	void UpdateMsrRecord(const UINT32& block, it_vmsr_t& _it_msr, const UINT32& msr_row, const UINT32& precadjmsr_row, const double& measPrec);
 	void UpdateMsrRecords_D(const UINT32& block, it_vmsr_t& _it_msr, UINT32& msr_row, UINT32& precadjmsr_row);
 	void UpdateMsrRecords_GXY(const UINT32& block, it_vmsr_t& _it_msr, UINT32& msr_row, UINT32& precadjmsr_row);
 	void UpdateMsrRecordStats(it_vmsr_t& _it_msr, const double& measPrec);
@@ -710,29 +739,34 @@ private:
 	// Output files
 	void OpenOutputFileStreams();
 	void PrintOutputFileHeaderInfo();
-	void PrintCompMeasurements(const UINT32& block, const string msg = "", bool printHeader = false);
+	void PrintCompMeasurements(const UINT32& block, const string msg = "");
 	void PrintCompMeasurementsAngular(const char cardinal, const double& computed, const double& correction, const it_vmsr_t& _it_msr);
 	void PrintCompMeasurementsLinear(const char cardinal, const double& computed, const double& correction, const it_vmsr_t& _it_msr);
-	void PrintCompMeasurements_A(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row);
-	void PrintCompMeasurements_CELMS(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row);
-	void PrintCompMeasurements_D(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row);
-	void PrintCompMeasurements_HR(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row);
-	void PrintCompMeasurements_IJPQ(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row);
-	void PrintCompMeasurements_BKVZ(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row);
-	void PrintCompMeasurements_GXY(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row);
-	void PrintCompMeasurements_YLLH(it_vmsr_t& _it_msr, UINT32& design_row);
+	void PrintCompMeasurements_A(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode);
+	void PrintCompMeasurements_CELMS(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode);
+	void PrintCompMeasurements_D(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode);
+	void PrintCompMeasurements_HR(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode);
+	void PrintCompMeasurements_IJPQ(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode);
+	void PrintCompMeasurements_BKVZ(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode);
+	void PrintCompMeasurements_GXY(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode);
+	void PrintCompMeasurements_YLLH(it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode);
 
 	void PrintMeasurementsAngular(const char cardinal, const double& measurement, const double& correction, const it_vmsr_t& _it_msr, bool printAdjMsr = true);
 	void PrintMeasurementsLinear(const char cardinal, const double& measurement, const double& correction, const it_vmsr_t& _it_msr, bool printAdjMsr = true);
 	void PrintMeasurementCorrection(const char cardinal, const it_vmsr_t& _it_msr);
+	void PrintMeasurementDatabaseID(const it_vmsr_t& _it_msr);
 
 	void FormUniqueMsrList();
+	void PrintAdjMeasurementsHeader(bool printHeader, const string& table_heading,
+		printMeasurementsMode printMode, UINT32 block, bool printBlocks = false);
 	void PrintAdjMeasurements(v_uint32_u32u32_pair msr_block, bool printHeader);
 	void PrintAdjMeasurementsAngular(const char cardinal, const it_vmsr_t& _it_msr);
 	void PrintAdjMeasurementsLinear(const char cardinal, const it_vmsr_t& _it_msr);
 	void PrintAdjGNSSAlternateUnits(it_vmsr_t& _it_msr, const uint32_uint32_pair& b_pam);
-	void PrintAdjMeasurementStatistics(const char cardinal, const it_vmsr_t& _it_msr);
+	void PrintAdjMeasurementStatistics(const char cardinal, const it_vmsr_t& _it_msr);	
 	
+	void PrintIgnoredAdjMeasurements(bool printHeader);
+
 	void PrintAdjMeasurements_A(it_vmsr_t& _it_msr);
 	void PrintAdjMeasurements_CELMS(it_vmsr_t& _it_msr);
 	void PrintAdjMeasurements_D(it_vmsr_t& _it_msr);
@@ -944,9 +978,11 @@ private:
 #endif // MULTI_THREAD_ADJUST
 
 	// Database management
-	v_msr_database_id_map	v_msr_db_map;
-	it_vdbid_t _it_dbid;
-	void LoadDatabaseId(const string& dbid_filename);
+	v_msr_database_id_map	v_msr_db_map_;
+	it_vdbid_t				_it_dbid;
+	bool					databaseIDsLoaded_;
+
+	void LoadDatabaseId();
 };
 
 }	// namespace networkadjust

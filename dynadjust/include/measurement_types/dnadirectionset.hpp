@@ -91,17 +91,17 @@ public:
 
 	virtual void coutMeasurementData(ostream &os, const UINT16& uType = 0) const;
 	virtual UINT32 CalcBinaryRecordCount() const;
-	virtual UINT32 CalcDbidRecordCount() const;
+	//virtual UINT32 CalcDbidRecordCount() const;
 	virtual void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) const;
 	virtual UINT32 SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord);
 	virtual UINT32 SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr);
 	virtual void WriteDynaMLMsr(std::ofstream* dynaml_stream, bool bSubMeasurement = false) const;
-	virtual void WriteDNAMsr(std::ofstream* dynaml_stream, const dna_msr_fields& dmw, bool bSubMeasurement = false) const;
+	virtual void WriteDNAMsr(std::ofstream* dynaml_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool bSubMeasurement = false) const;
 	virtual void SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* ellipsoid);
 
 	virtual void SerialiseDatabaseMap(std::ofstream* os);
 
-	virtual void SetDatabaseMap_bmsIndex(const UINT32& bmsIndex);
+	//virtual void SetDatabaseMap_bmsIndex(const UINT32& bmsIndex);
 
 	string m_strTarget;
 

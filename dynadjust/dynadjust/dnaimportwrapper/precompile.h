@@ -12,6 +12,7 @@
 #include <include/config/dnatypes-gui.hpp>
 #include <include/config/dnaexports.hpp>
 #include <include/config/dnaoptions-interface.hpp>
+#include <include/config/dnaoptions-helper.hpp>
 #include <include/config/dnaconsts-interface.hpp>
 #include <include/config/dnaprojectfile.hpp>
 

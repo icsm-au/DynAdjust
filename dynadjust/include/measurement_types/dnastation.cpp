@@ -690,11 +690,11 @@ _COORD_TYPE_ CDnaStation::GetCoordTypeC(const string& sType)
 		return ENU_type_i;
 
 	// case sensitive
-	else if (equals(sType, LLh_type))
+	else if (boost::equals(sType, LLh_type))
 		return LLh_type_i;				// ellipsoid height
 	
 	// default
-	else if (equals(sType, LLH_type))
+	else if (boost::equals(sType, LLH_type))
 		return LLH_type_i;					// orthometric height (default)
 
 	// If this point is reached, sType is an unknown coordinate type, so throw!

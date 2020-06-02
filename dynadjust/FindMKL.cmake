@@ -10,22 +10,28 @@
 set(MKLROOT_PATH $ENV{MKLROOT})
 set(ICCROOT_PATH "$ENV{ICCROOT}")
 
-if (NOT MKLROOT_PATH)
-	# try to find at /opt/intel/mkl
-		
-	if (EXISTS "/opt/intel/mkl")
-		set(MKLROOT_PATH "/opt/intel/mkl")
-	endif (EXISTS "/opt/intel/mkl")
-endif (NOT MKLROOT_PATH)
+if (UNIX)
 
-if (NOT ICCROOT_PATH)
-	# try to find at /opt/intel/lib
-		
-	if (EXISTS "/opt/intel")
-		set(ICCROOT_PATH "/opt/intel")
-	endif (EXISTS "/opt/intel")
-endif (NOT ICCROOT_PATH)
+	if (NOT MKLROOT_PATH)
+		# try to find at /opt/intel/mkl
+		if (EXISTS "/opt/intel/mkl")
+			set(MKLROOT_PATH "/opt/intel/mkl")
+		endif (EXISTS "/opt/intel/mkl")
+	endif (NOT MKLROOT_PATH)
 
+	if (NOT ICCROOT_PATH)
+		# try to find at /opt/intel/lib
+		
+		if (EXISTS "/opt/intel")
+			set(ICCROOT_PATH "/opt/intel")
+		endif (EXISTS "/opt/intel")
+	endif (NOT ICCROOT_PATH)
+else ()
+  # Windows
+  
+  set(MKLROOT_PATH "C:/Program Files (x86)/IntelSWTools/compilers_and_libraries_2019.2.190/windows/mkl")
+
+endif ()
 
 # Stage 2: find include path and libraries
 if (ICCROOT_PATH)
@@ -35,6 +41,8 @@ if (ICCROOT_PATH)
 	    else (CMAKE_SIZEOF_VOID_P MATCHES 8)
 	        set(EXPECT_ICC_LIBPATH "${ICCROOT_PATH}/lib/ia32")
 	    endif (CMAKE_SIZEOF_VOID_P MATCHES 8)
+	elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+			set(EXPECT_ICC_LIBPATH "${ICCROOT_PATH}/lib/")
 	endif (CMAKE_SYSTEM_NAME MATCHES "Linux")
 endif (ICCROOT_PATH)
 
@@ -45,13 +53,14 @@ message(STATUS "EXPECT_ICC_LIBPATH ${EXPECT_ICC_LIBPATH}")
 	
 if (MKLROOT_PATH)
 	# root-path found
-	
 	if (CMAKE_SYSTEM_NAME MATCHES "Linux")
 	    if (CMAKE_SIZEOF_VOID_P MATCHES 8)
 	        set(EXPECT_MKL_LIBPATH "${MKLROOT_PATH}/lib/intel64")
 	    else (CMAKE_SIZEOF_VOID_P MATCHES 8)
 	        set(EXPECT_MKL_LIBPATH "${MKLROOT_PATH}/lib/ia32")
 	    endif (CMAKE_SIZEOF_VOID_P MATCHES 8)
+	elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin")
+			set(EXPECT_MKL_LIBPATH "${MKLROOT_PATH}/lib/")
 	endif (CMAKE_SYSTEM_NAME MATCHES "Linux")
 	
 	#message(STATUS "EXPECT_MKL_LIBPATH:")

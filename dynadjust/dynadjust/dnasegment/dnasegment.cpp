@@ -408,7 +408,7 @@ void dna_segment::VerifyStationsandBuildBlock(bool validationOnly)
 		{			
 			// Ok, find it and remove it
 			if ((_it_freeisl = find_if(vfreeStnList_.begin(), vfreeStnList_.end(),
-				bind1st(equal_to<UINT32>(), _it_stnmap->second))) != vfreeStnList_.end())
+				bind1st(std::equal_to<UINT32>(), _it_stnmap->second))) != vfreeStnList_.end())
 			{
 				if (!validationOnly)
 					MoveFreeStnToInnerList(_it_freeisl, _it_stnmap->second);
@@ -814,6 +814,7 @@ bool dna_segment::AddtoCurrentMsrList(const UINT32& amlIndex, const vUINT32& msr
 		_it_aml = vAssocFreeMsrList_.begin() + vAssocStnList_.at(*_it_stn).GetAMLStnIndex();
 		msrCount = vASLCount_.at(*_it_stn);
 		
+		// consume measurement and decrement measurement count
 		for (m=0; m<msrCount; ++m, ++_it_aml)
 		{
 			// is this measurement ignored or already used?
@@ -1283,7 +1284,7 @@ void dna_segment::SetAvailableMsrCount()
 		_it_asl!=vAssocStnList_.end();
 		++_it_asl)
 	{
-		stn_index = static_cast<UINT32>(distance(vAssocStnList_.begin(), _it_asl));
+		stn_index = static_cast<UINT32>(std::distance(vAssocStnList_.begin(), _it_asl));
 
 		_it_asl->SetAvailMsrCount(_it_asl->GetAssocMsrCount());
 

@@ -195,7 +195,7 @@ void GetMsrIndices(const vmsr_t& binaryMsrs, const T& bmsIndex, vector<T>& msrIn
 			}
 		}		
 
-		msrIndices.push_back(static_cast<T>(distance(binaryMsrs.begin(), _it_msr_start)));
+		msrIndices.push_back(static_cast<T>(std::distance(binaryMsrs.begin(), _it_msr_start)));
 	
 		if (++_it_msr_start == binaryMsrs.end())
 			break;
@@ -238,7 +238,7 @@ T GetFirstMsrIndex(const vmsr_t& binaryMsrs, const T& bmsIndex)
 	}
 
 	// return the index of the measurement's first record in the binary measurement file 
-	return static_cast<UINT32>(distance(binaryMsrs.begin(), _it_msr_start));
+	return static_cast<UINT32>(std::distance(binaryMsrs.begin(), _it_msr_start));
 }
 
 //template <typename T, typename Iter>

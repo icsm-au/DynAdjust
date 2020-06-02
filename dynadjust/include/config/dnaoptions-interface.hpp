@@ -127,6 +127,8 @@ const char* const OUTPUT_ADJ_MSR_SORTBY = "sort-adj-msr-field";
 
 const char* const OUTPUT_ADJ_MSR_DBID = "output-database-ids";
 
+const char* const OUTPUT_IGNORED_MSRS = "output-ignored-msrs";
+
 const char* const OUTPUT_ADJ_STN_BLOCKS = "output-stn-blocks";
 const char* const OUTPUT_ADJ_MSR_BLOCKS = "output-msr-blocks";
 const char* const OUTPUT_ADJ_STN_SORT_ORDER = "sort-stn-orig-order";

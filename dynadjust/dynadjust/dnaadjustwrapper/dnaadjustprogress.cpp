@@ -112,7 +112,7 @@ void dna_adjust_thread::handlePrepareAdjustError(const string& error_msg)
 void dna_adjust_thread::handleProcessAdjustError(const string& error_msg)
 {
 	running = false;
-	this_thread::sleep(milliseconds(50));			
+	boost::this_thread::sleep(milliseconds(50));
 	printErrorMsg(error_msg);
 }
 
@@ -208,7 +208,7 @@ void dna_adjust_progress_thread::prepareAdjustment()
 	case SimultaneousMode:
 		while (running && _dnaAdj->IsPreparing())
 		{
-			this_thread::sleep(milliseconds(40));
+			boost::this_thread::sleep(milliseconds(40));
 		}
 		
 		if (_dnaAdj->ExceptionRaised())
@@ -239,7 +239,7 @@ void dna_adjust_progress_thread::prepareAdjustment()
 				coutMessage(sst.str());
 				currentBlock = block;
 			}
-			this_thread::sleep(milliseconds(40));
+			boost::this_thread::sleep(milliseconds(40));
 		}
 
 		if (_dnaAdj->ExceptionRaised())
@@ -288,7 +288,7 @@ void dna_adjust_progress_thread::processAdjustment()
 					
 				coutMessage(ss.str());
 			}
-			this_thread::sleep(milliseconds(80));
+			boost::this_thread::sleep(milliseconds(80));
 		}
 		
 		break;
@@ -317,7 +317,7 @@ void dna_adjust_progress_thread::processAdjustment()
 				first_time = true;
 			}
 
-			this_thread::sleep(milliseconds(40));
+			boost::this_thread::sleep(milliseconds(40));
 					
 			// print new block to screen when adjusting only
 			if (block != currentBlock && _dnaAdj->IsAdjusting())

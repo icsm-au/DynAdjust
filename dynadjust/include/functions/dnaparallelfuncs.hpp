@@ -43,7 +43,7 @@ using namespace boost;
 template<typename Iterator, typename Func>
 void parallel_for_each(Iterator first, Iterator last, Func f)
 {
-	const UINT32 length(distance(first, last));
+	const UINT32 length(std::distance(first, last));
 	if (!length)
 		return;
 	const UINT32 min_per_thread=25;

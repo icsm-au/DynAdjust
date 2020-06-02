@@ -77,7 +77,7 @@ T removeNegativeZero(const T& t, const U& precision)
 template <typename T, typename U, typename iterator>
 T average(const iterator begin, const iterator end, U& sum)
 {
-	U n(static_cast<UINT32>(distance(begin, end)));
+	U n(static_cast<UINT32>(std::distance(begin, end)));
 	sum = accumulate(begin, end, 0);
 	return static_cast<T>(sum) / n;
 }
@@ -366,6 +366,7 @@ T atan_2(const T& x, const T& y)
 		else						// fourth quadrant
 			return theta + TWO_PI;
 	}
+  return 0.;
 }
 
 #endif /* DNATEMPLATECALCFUNCS_H_ */

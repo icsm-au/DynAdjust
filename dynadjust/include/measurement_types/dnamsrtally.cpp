@@ -689,6 +689,7 @@ _MEASUREMENT_STATIONS_ MsrTally::Stations(const char& measType)
 	default:
 		return UNKNOWN_TYPE;
 	}
+	return UNKNOWN_TYPE;
 }
 	
 

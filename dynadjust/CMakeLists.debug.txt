@@ -1,10 +1,10 @@
-cmake_minimum_required (VERSION 2.6)
+cmake_minimum_required (VERSION 3.0)
 
 project (dynadjust)
 
 message (STATUS " " )
 message (STATUS "**********************************************" )
-message (STATUS "Configuring DynAdjust 1.0.0 build using cmake..." )
+message (STATUS "Configuring DynAdjust 1.0.2 build using cmake..." )
 message (STATUS " " )
 set (CMAKE_BUILD_TYPE "Debug")
 
@@ -65,8 +65,8 @@ message (STATUS "configuring plot" )
 add_subdirectory (dynadjust/dnaplotwrapper)
 
 message (STATUS " " )
-message (STATUS "finished configuring DynAdjust 1.0.0." )
+message (STATUS "finished configuring DynAdjust 1.0.1." )
 message (STATUS "**********************************************" )
 message (STATUS " " )
-message (STATUS "Now run make to build DynAdjust 1.0.0 binaries" )
+message (STATUS "Now run make to build DynAdjust 1.0.1 binaries" )
 message (STATUS " " )

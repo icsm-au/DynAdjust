@@ -577,7 +577,7 @@ void dna_io_dna::write_msr_file(const vstn_t& vbinary_stn, pvmsr_t vbinary_msr, 
 		{
 			ResetMeasurementPtr<char>(&msrPtr, _it_msr->measType);
 			msrPtr->SetMeasurementRec(vbinary_stn, _it_msr);
-			msrPtr->WriteDNAMsr(&dna_msr_file, dmw_);
+			msrPtr->WriteDNAMsr(&dna_msr_file, dmw_, dml_);
 		}
 
 		dna_msr_file.close();
@@ -607,7 +607,7 @@ void dna_io_dna::write_msr_file(vdnaMsrPtr* vMeasurements, const string& msrfile
 
 		// print measurements
 		for (_it_msr=vMeasurements->begin(); _it_msr!=vMeasurements->end(); _it_msr++)
-			_it_msr->get()->WriteDNAMsr(&dna_msr_file, dmw_);
+			_it_msr->get()->WriteDNAMsr(&dna_msr_file, dmw_, dml_);
 		
 		dna_msr_file.close();
 		
