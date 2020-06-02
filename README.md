@@ -1,5 +1,4 @@
 [![DynAdjust](resources/img/dynadjust-banner.png)](https://github.com/icsm-au/dynadjust/releases)
-
 - [Overview](#overview)
 - [Installation](#installation)
   - [Building from source](#building-from-source)
