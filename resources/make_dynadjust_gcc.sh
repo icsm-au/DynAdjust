@@ -111,40 +111,40 @@ echo " "
 
 # copy CMakeLists
 
-if [ "$THIS_BUILD_TYPE" == "Debug" ]; 
-then
-	cp ../CMakeLists.debug.txt ../CMakeLists.txt
-	cp ../dynadjust/dnaadjust/CMakeLists.debug.txt ../dynadjust/dnaadjust/CMakeLists.txt
-	cp ../dynadjust/dnaadjustwrapper/CMakeLists.debug.txt ../dynadjust/dnaadjustwrapper/CMakeLists.txt
-	cp ../dynadjust/dnageoid/CMakeLists.debug.txt ../dynadjust/dnageoid/CMakeLists.txt
-	cp ../dynadjust/dnageoidwrapper/CMakeLists.debug.txt ../dynadjust/dnageoidwrapper/CMakeLists.txt
-	cp ../dynadjust/dnaimport/CMakeLists.debug.txt ../dynadjust/dnaimport/CMakeLists.txt
-	cp ../dynadjust/dnaimportwrapper/CMakeLists.debug.txt ../dynadjust/dnaimportwrapper/CMakeLists.txt
-	cp ../dynadjust/dnaplot/CMakeLists.debug.txt ../dynadjust/dnaplot/CMakeLists.txt
-	cp ../dynadjust/dnaplotwrapper/CMakeLists.debug.txt ../dynadjust/dnaplotwrapper/CMakeLists.txt
-	cp ../dynadjust/dnareftran/CMakeLists.debug.txt ../dynadjust/dnareftran/CMakeLists.txt
-	cp ../dynadjust/dnareftranwrapper/CMakeLists.debug.txt ../dynadjust/dnareftranwrapper/CMakeLists.txt
-	cp ../dynadjust/dnasegment/CMakeLists.debug.txt ../dynadjust/dnasegment/CMakeLists.txt
-	cp ../dynadjust/dnasegmentwrapper/CMakeLists.debug.txt ../dynadjust/dnasegmentwrapper/CMakeLists.txt
-	cp ../dynadjust/dynadjust/CMakeLists.debug.txt ../dynadjust/dynadjust/CMakeLists.txt
-
-elif [ "$THIS_BUILD_TYPE" == "Release" ];
-then
-	cp ../CMakeLists.release.txt ../CMakeLists.txt
-	cp ../dynadjust/dnaadjust/CMakeLists.release.txt ../dynadjust/dnaadjust/CMakeLists.txt
-	cp ../dynadjust/dnaadjustwrapper/CMakeLists.release.txt ../dynadjust/dnaadjustwrapper/CMakeLists.txt
-	cp ../dynadjust/dnageoid/CMakeLists.release.txt ../dynadjust/dnageoid/CMakeLists.txt
-	cp ../dynadjust/dnageoidwrapper/CMakeLists.release.txt ../dynadjust/dnageoidwrapper/CMakeLists.txt
-	cp ../dynadjust/dnaimport/CMakeLists.release.txt ../dynadjust/dnaimport/CMakeLists.txt
-	cp ../dynadjust/dnaimportwrapper/CMakeLists.release.txt ../dynadjust/dnaimportwrapper/CMakeLists.txt
-	cp ../dynadjust/dnaplot/CMakeLists.release.txt ../dynadjust/dnaplot/CMakeLists.txt
-	cp ../dynadjust/dnaplotwrapper/CMakeLists.release.txt ../dynadjust/dnaplotwrapper/CMakeLists.txt
-	cp ../dynadjust/dnareftran/CMakeLists.release.txt ../dynadjust/dnareftran/CMakeLists.txt
-	cp ../dynadjust/dnareftranwrapper/CMakeLists.release.txt ../dynadjust/dnareftranwrapper/CMakeLists.txt
-	cp ../dynadjust/dnasegment/CMakeLists.release.txt ../dynadjust/dnasegment/CMakeLists.txt
-	cp ../dynadjust/dnasegmentwrapper/CMakeLists.release.txt ../dynadjust/dnasegmentwrapper/CMakeLists.txt
-	cp ../dynadjust/dynadjust/CMakeLists.release.txt ../dynadjust/dynadjust/CMakeLists.txt
-fi
+#if [ "$THIS_BUILD_TYPE" == "Debug" ]; 
+#then
+#	cp ../CMakeLists.debug.txt ../CMakeLists.txt
+#	cp ../dynadjust/dnaadjust/CMakeLists.debug.txt ../dynadjust/dnaadjust/CMakeLists.txt
+#	cp ../dynadjust/dnaadjustwrapper/CMakeLists.debug.txt ../dynadjust/dnaadjustwrapper/CMakeLists.txt
+#	cp ../dynadjust/dnageoid/CMakeLists.debug.txt ../dynadjust/dnageoid/CMakeLists.txt
+#	cp ../dynadjust/dnageoidwrapper/CMakeLists.debug.txt ../dynadjust/dnageoidwrapper/CMakeLists.txt
+#	cp ../dynadjust/dnaimport/CMakeLists.debug.txt ../dynadjust/dnaimport/CMakeLists.txt
+#	cp ../dynadjust/dnaimportwrapper/CMakeLists.debug.txt ../dynadjust/dnaimportwrapper/CMakeLists.txt
+#	cp ../dynadjust/dnaplot/CMakeLists.debug.txt ../dynadjust/dnaplot/CMakeLists.txt
+#	cp ../dynadjust/dnaplotwrapper/CMakeLists.debug.txt ../dynadjust/dnaplotwrapper/CMakeLists.txt
+#	cp ../dynadjust/dnareftran/CMakeLists.debug.txt ../dynadjust/dnareftran/CMakeLists.txt
+#	cp ../dynadjust/dnareftranwrapper/CMakeLists.debug.txt ../dynadjust/dnareftranwrapper/CMakeLists.txt
+#	cp ../dynadjust/dnasegment/CMakeLists.debug.txt ../dynadjust/dnasegment/CMakeLists.txt
+#	cp ../dynadjust/dnasegmentwrapper/CMakeLists.debug.txt ../dynadjust/dnasegmentwrapper/CMakeLists.txt
+#	cp ../dynadjust/dynadjust/CMakeLists.debug.txt ../dynadjust/dynadjust/CMakeLists.txt
+#
+#elif [ "$THIS_BUILD_TYPE" == "Release" ];
+#then
+#	cp ../CMakeLists.release.txt ../CMakeLists.txt
+#	cp ../dynadjust/dnaadjust/CMakeLists.release.txt ../dynadjust/dnaadjust/CMakeLists.txt
+#	cp ../dynadjust/dnaadjustwrapper/CMakeLists.release.txt ../dynadjust/dnaadjustwrapper/CMakeLists.txt
+#	cp ../dynadjust/dnageoid/CMakeLists.release.txt ../dynadjust/dnageoid/CMakeLists.txt
+#	cp ../dynadjust/dnageoidwrapper/CMakeLists.release.txt ../dynadjust/dnageoidwrapper/CMakeLists.txt
+#	cp ../dynadjust/dnaimport/CMakeLists.release.txt ../dynadjust/dnaimport/CMakeLists.txt
+#	cp ../dynadjust/dnaimportwrapper/CMakeLists.release.txt ../dynadjust/dnaimportwrapper/CMakeLists.txt
+#	cp ../dynadjust/dnaplot/CMakeLists.release.txt ../dynadjust/dnaplot/CMakeLists.txt
+#	cp ../dynadjust/dnaplotwrapper/CMakeLists.release.txt ../dynadjust/dnaplotwrapper/CMakeLists.txt
+#	cp ../dynadjust/dnareftran/CMakeLists.release.txt ../dynadjust/dnareftran/CMakeLists.txt
+#	cp ../dynadjust/dnareftranwrapper/CMakeLists.release.txt ../dynadjust/dnareftranwrapper/CMakeLists.txt
+#	cp ../dynadjust/dnasegment/CMakeLists.release.txt ../dynadjust/dnasegment/CMakeLists.txt
+#	cp ../dynadjust/dnasegmentwrapper/CMakeLists.release.txt ../dynadjust/dnasegmentwrapper/CMakeLists.txt
+#	cp ../dynadjust/dynadjust/CMakeLists.release.txt ../dynadjust/dynadjust/CMakeLists.txt
+#fi
 
 cmake ../ || exit 1
 

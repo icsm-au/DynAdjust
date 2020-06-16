@@ -1,13 +1,13 @@
 # <dnareftranwrapper/...> build rules
 project (dnareftranwrapper)
 
-set (CMAKE_BUILD_TYPE "Release")
-
 # build dnareftran library first
-
 add_subdirectory (${CMAKE_SOURCE_DIR}/dynadjust/dnareftran ${CMAKE_BINARY_DIR}/dynadjust/dnareftran)
 
 add_definitions (-DBUILD_REFTRAN_EXE)
+
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb -Wall -O0")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
 
 include_directories (${PROJECT_SOURCE_DIR})
 

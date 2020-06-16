@@ -1,13 +1,13 @@
 # <dnaadjustwrapper/...> build rules
 project (dnaadjustwrapper)
 
-set (CMAKE_BUILD_TYPE "Release")
-
 # build dnaadjust library first
-
 add_subdirectory (${CMAKE_SOURCE_DIR}/dynadjust/dnaadjust ${CMAKE_BINARY_DIR}/dynadjust/dnaadjust)
 
-add_definitions (-DBUILD_ADJUST_EXE -DMULTI_THREAD_ADJUST)
+add_definitions (-DBUILD_ADJUST_EXE -DMULTI_THREAD_ADJUST -DMKL_ILP64 -openmp)
+
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb -Wall -O0")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
 
 include_directories (${PROJECT_SOURCE_DIR})
 

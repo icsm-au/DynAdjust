@@ -1,11 +1,12 @@
 # <dynadjust/...> build rules
 project (dynadjust)
 
-set (CMAKE_BUILD_TYPE "Release")
-
 add_definitions (-DBUILD_DYNADJUST_EXE)
 
-include_directories ("${CMAKE_SOURCE_DIR}/dynadjust/${PROJECT_NAME}" ${PROJECT_SOURCE_DIR})
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb -Wall -O0")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
+
+include_directories (${PROJECT_SOURCE_DIR})
 
 add_executable (${PROJECT_NAME} 
                 ${CMAKE_SOURCE_DIR}/include/config/dnaprojectfile.cpp
