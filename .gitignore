@@ -9,6 +9,7 @@ cmake_install.cmake
 
 # ignore compiled dynadjust wrappers & binaries
 dynadjust/build/
+dynadjust/build_gcc/
 dynadjust/bin/
 
 *.suo
