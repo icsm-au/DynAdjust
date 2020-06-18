@@ -1,0 +1,63 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Prepare build folder",
+            "type": "shell",
+            "command": "${workspaceRoot}/resources/prepare_build.sh",
+            "args": [
+                "Debug"
+            ]            
+        },
+        {
+            "label": "Cmake Debug",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceRoot}/dynadjust/build_gcc"
+            },
+            "command": "cmake",
+            "args": [
+                "-DCMAKE_BUILD_TYPE=Debug", 
+                ".."
+            ],
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "dependsOn": ["Prepare build folder"]
+        },
+        {
+            "label": "Cmake Release",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceRoot}/dynadjust/build_gcc"
+            },
+            "command": "cmake",
+            "args": [
+                "-DCMAKE_BUILD_TYPE=Release", 
+                ".."
+            ]
+            ,
+            "dependsOn": ["Prepare build folder"]
+        },
+        {
+            "label": "Make",
+            "type": "shell",
+            "options": {
+                "cwd": "${workspaceRoot}/dynadjust/build_gcc"
+            },
+            "command": "make",
+            "args": [
+                "-j", 
+                "8"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}

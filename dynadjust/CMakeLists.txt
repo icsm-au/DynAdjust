@@ -6,19 +6,21 @@ set (DYNADJUST_VERSION "1.0.2")
 
 message (STATUS " " )
 message (STATUS "**********************************************" )
-message (STATUS "Configuring DynAdjust ${DYNADJUST_VERSION} build using cmake..." )
+message (STATUS "Configuring DynAdjust ${DYNADJUST_VERSION} (${CMAKE_BUILD_TYPE}) build using cmake..." )
 message (STATUS " " )
-set (CMAKE_BUILD_TYPE "Release")
+#set (CMAKE_BUILD_TYPE "Release")
 
 if(UNIX)
    set(DNA_PROGRAM_PREFIX "dna")
 endif(UNIX)
 
 set (CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR};${CMAKE_MODULE_PATH}")
-set (CMAKE_CXX_STANDARD 11)
+set (CMAKE_CXX_STANDARD 14)
 add_definitions(-Wno-deprecated-declarations)
 
-set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -ggdb -debug all -O0")
+#set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -ggdb -O0")
+#set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
+
 if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl")
 else()
@@ -135,10 +137,10 @@ message (STATUS "configuring plot" )
 add_subdirectory (dynadjust/dnaplotwrapper)
 
 message (STATUS " " )
-message (STATUS "finished configuring DynAdjust ${DYNADJUST_VERSION}." )
+message (STATUS "finished configuring DynAdjust ${DYNADJUST_VERSION} (${CMAKE_BUILD_TYPE})." )
 message (STATUS "**********************************************" )
 message (STATUS " " )
-message (STATUS "Now run make to build DynAdjust ${DYNADJUST_VERSION} binaries" )
+message (STATUS "Now run make to build DynAdjust ${DYNADJUST_VERSION} (${CMAKE_BUILD_TYPE}) binaries" )
 message (STATUS " " )
 
 
