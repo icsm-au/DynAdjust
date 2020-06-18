@@ -1,0 +1,4 @@
+{
+    "cmake.sourceDirectory": "${workspaceFolder}/dynadjust",
+    "cmake.buildDirectory": "${workspaceFolder}/dynadjust/build_gcc"
+}
