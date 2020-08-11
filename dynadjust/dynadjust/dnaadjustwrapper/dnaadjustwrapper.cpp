@@ -1067,8 +1067,8 @@ int main(int argc, char* argv[])
 					last_write_time(p.a.seg_file) < last_write_time(p.a.bms_file))
 				{
 					// Has import been run after the segmentation file was created?
-					if (bst_meta_import && (last_write_time(p.a.seg_file) < last_write_time(p.a.bst_file)) || 
-						bms_meta_import && (last_write_time(p.a.seg_file) < last_write_time(p.a.bms_file)))
+					if ((bst_meta_import && (last_write_time(p.a.seg_file) < last_write_time(p.a.bst_file))) || 
+						(bms_meta_import && (last_write_time(p.a.seg_file) < last_write_time(p.a.bms_file))))
 					{
 						cout << endl << endl << 
 							"- Error: The raw stations and measurements have been imported after" << endl <<
@@ -1113,8 +1113,8 @@ int main(int argc, char* argv[])
 					//     then adjust will attempt to load memory map files using the same parameters from the first import
 					//     and segment.
 					//  Hence, force the user to run adjust with the --create-stage-files option.
-					if (bst_meta_import && (last_write_time(est_mmapfile_name) < last_write_time(p.a.bst_file)) ||
-						bms_meta_import && (last_write_time(est_mmapfile_name) < last_write_time(p.a.bms_file)))
+					if ((bst_meta_import && (last_write_time(est_mmapfile_name) < last_write_time(p.a.bst_file))) ||
+						(bms_meta_import && (last_write_time(est_mmapfile_name) < last_write_time(p.a.bms_file))))
 					{
 						cout << endl << endl << 
 							"- Error: The raw stations and measurements have been imported after" << endl <<

@@ -2533,7 +2533,7 @@ void dna_adjust::LoadDatabaseId()
 	// reading adj file when loading adjusted measurement info to
 	// the database.
 	projectSettings_.o._output_msr_blocks = 0;
-	projectSettings_.o._sort_adj_msr = orig_adj_msr_sort_ui;
+	
 	// Do not print computed measurements
 	//projectSettings_.o._cmp_msr_iteration = 0;
 	
