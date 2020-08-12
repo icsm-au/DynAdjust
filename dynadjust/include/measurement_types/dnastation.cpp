@@ -124,7 +124,7 @@ CDnaStation::CDnaStation(const string& referenceframe, const string& epoch)
 	, m_fgeoidSep(0.), m_dmeridianDef(0.), m_dverticalDef(0.)
 	, m_lfileOrder(0), m_lnameOrder(0)
 	, m_zone(0), m_unusedStation(INVALID_STATION)
-	, m_epoch(epoch), m_referenceFrame(referenceframe)
+	, m_referenceFrame(referenceframe), m_epoch(epoch)
 {
 	m_epsgCode = epsgStringFromName<string>(referenceframe);
 }

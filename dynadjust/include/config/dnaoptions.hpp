@@ -170,17 +170,19 @@ struct import_settings : private boost::equality_comparable<import_settings> {
 public:
 	import_settings()
 		: reference_frame(DEFAULT_DATUM), user_supplied_frame(0), override_input_rfame(0)
-		, verify_coordinates(0), test_integrity(0), export_dynaml(0), export_from_bfiles(0)
+		, test_integrity(0), verify_coordinates(0), export_dynaml(0), export_from_bfiles(0)
 		, export_single_xml_file(0), prefer_single_x_as_g(0), export_asl_file(0), export_aml_file(0), export_map_file(0)
 		, export_dna_files(0), export_discont_file(0), import_geo_file(0), simulate_measurements(0), split_clusters(0), include_transcending_msrs(0)
-		, map_file(""), asl_file(""), aml_file(""), bst_file(""), bms_file(""), dst_file(""), dms_file(""), imp_file(""), seg_file("")
-		, xml_outfile(""), xml_stnfile(""), xml_msrfile(""), dna_stnfile(""), dna_msrfile(""), simulate_msrfile(""), stn_renamingfile("")
-		, stn_discontinuityfile(""), apply_discontinuities(0)
-		, include_msrs(""), exclude_msrs(""), bounding_box(""), rename_stations(0), search_nearby_stn(0), search_stn_radius(STN_SEARCH_RADIUS)
-		, search_similar_msr(0), search_similar_msr_gx(0), ignore_similar_msr(0), remove_ignored_msr(0), stn_associated_msr_include(""), stn_associated_msr_exclude("")
+		, apply_scaling(0), map_file(""), asl_file(""), aml_file(""), bst_file(""), bms_file("")
+		, dst_file(""), dms_file(""), imp_file(""), geo_file(""), seg_file("")
+		, xml_outfile(""), xml_stnfile(""), xml_msrfile(""), dna_stnfile(""), dna_msrfile(""), stn_renamingfile("")
+		, stn_discontinuityfile(""), simulate_msrfile("")
+		, include_msrs(""), exclude_msrs(""), bounding_box(""), stn_associated_msr_include(""), stn_associated_msr_exclude("")
+		, rename_stations(0), apply_discontinuities(0), search_nearby_stn(0)
+		, search_similar_msr(0), search_similar_msr_gx(0), ignore_similar_msr(0), remove_ignored_msr(0)
 		, flag_unused_stn(0), import_block(0), import_block_number(0)
-		, cluster_id(0), msr_id(0)
-		, vscale(1.), pscale(1.), lscale(1.), hscale(1.), scalar_file(""), apply_scaling(0)
+		, cluster_id(0), msr_id(0), search_stn_radius(STN_SEARCH_RADIUS)
+		, vscale(1.), pscale(1.), lscale(1.), hscale(1.), scalar_file("")
 		, command_line_arguments("") 
 	{
 			input_files.clear();
@@ -189,23 +191,23 @@ public:
 	// The following equality function is used in the GUI to test whether any settings have been modified
 	bool operator==(const import_settings& i) const {
 		return reference_frame == i.reference_frame && user_supplied_frame == i.user_supplied_frame && override_input_rfame == i.override_input_rfame &&
-			verify_coordinates == i.verify_coordinates && test_integrity == i.test_integrity && export_dynaml == i.export_dynaml &&
+			test_integrity == i.test_integrity && verify_coordinates == i.verify_coordinates && export_dynaml == i.export_dynaml &&
 			export_from_bfiles == i.export_from_bfiles && export_single_xml_file == i.export_single_xml_file && prefer_single_x_as_g ==i.prefer_single_x_as_g &&
 			export_asl_file == i.export_asl_file && export_aml_file == i.export_aml_file && export_map_file == i.export_map_file &&
 			export_dna_files == i.export_dna_files && export_discont_file == i.export_discont_file && import_geo_file == i.import_geo_file &&
-			simulate_measurements == i.simulate_measurements && split_clusters == i.split_clusters && include_transcending_msrs == i.include_transcending_msrs &&
+			simulate_measurements == i.simulate_measurements && split_clusters == i.split_clusters && include_transcending_msrs == i.include_transcending_msrs && 
+			apply_scaling == i.apply_scaling && input_files == i.input_files &&
 			map_file == i.map_file && asl_file == i.asl_file && aml_file == i.aml_file && bst_file == i.bst_file && bms_file == i.bms_file &&
 			dst_file == i.dst_file && dms_file == i.dms_file && imp_file == i.imp_file && geo_file == i.geo_file && seg_file == i.seg_file && 
 			xml_outfile == i.xml_outfile && xml_stnfile == i.xml_stnfile && xml_msrfile == i.xml_msrfile && 
 			dna_stnfile == i.dna_stnfile && dna_msrfile == i.dna_msrfile && simulate_msrfile == i.simulate_msrfile &&
-			include_msrs == i.include_msrs && exclude_msrs == i.exclude_msrs && rename_stations == i.rename_stations &&
-			stn_associated_msr_include == i.stn_associated_msr_include && stn_associated_msr_exclude == i.stn_associated_msr_exclude &&
+			include_msrs == i.include_msrs && exclude_msrs == i.exclude_msrs &&
+			stn_associated_msr_include == i.stn_associated_msr_include && stn_associated_msr_exclude == i.stn_associated_msr_exclude && rename_stations == i.rename_stations &&
 			search_nearby_stn == i.search_nearby_stn && search_similar_msr == i.search_similar_msr && search_similar_msr_gx == i.search_similar_msr_gx &&
 			ignore_similar_msr == i.ignore_similar_msr && remove_ignored_msr == i.remove_ignored_msr &&
 			flag_unused_stn == i.flag_unused_stn && import_block == i.import_block && import_block_number == i.import_block_number &&
 			cluster_id == i.cluster_id && msr_id == i.msr_id &&
-			vscale == i.vscale && pscale == i.pscale && lscale == i.lscale && hscale == i.hscale && scalar_file == i.scalar_file && apply_scaling == i.apply_scaling &&
-			input_files == i.input_files;
+			vscale == i.vscale && pscale == i.pscale && lscale == i.lscale && hscale == i.hscale && scalar_file == i.scalar_file;
 	}
 
 	string		reference_frame;			// Default reference frame - used primarily for reductions on the ellipsoid.
@@ -227,7 +229,6 @@ public:
 	UINT16		split_clusters;				// Allow bounding box or station selection to split GNSS point and baseline clusters.
 	UINT16		include_transcending_msrs;	// Include measurements straddling bounding box.
 	UINT16		apply_scaling;				// Apply scaling?
-	vstring		input_files;				// Default input arguments if no switch is provided.
 	string		map_file;					// Station map output file
 	string		asl_file;					// Associated stations output file
 	string		aml_file;					// Associated measurements output file
@@ -259,25 +260,28 @@ public:
 	UINT16		ignore_similar_msr;			// Ignore duplicate measurements
 	UINT16		remove_ignored_msr;			// Remove ignored measurements
 	UINT16		flag_unused_stn;			// Mark unused stations in binary file.  Stations marked will be excluded from any further processing.
-	double		search_stn_radius;			// Radius of the circle within which to search for nearby stations
 	UINT16		import_block;				// Import stations and measurements from a segmented block
 	UINT32		import_block_number;		// Import from this block
 	UINT32		cluster_id;					// Index of the first available cluster id 
 	UINT32		msr_id;						// Index of the first available measurement id
+	double		search_stn_radius;			// Radius of the circle within which to search for nearby stations
 	double		vscale;						// global matrix scalar
 	double		pscale;						// phi scalar
 	double		lscale;						// lambda scalar
 	double		hscale;						// height scalar
 	string		scalar_file;				// scalar file (individual scalars defined for measurements between specific stations)
 	string		command_line_arguments;
+	vstring		input_files;				// Default input arguments if no switch is provided.
 };
 
 // datum settings
 struct reftran_settings : private boost::equality_comparable<reftran_settings> {
 public:
 	reftran_settings()
-		: reference_frame(DEFAULT_DATUM), epoch("")
-		, bst_file(""), bms_file("")
+		: bst_file(""), bms_file("")
+		, reference_frame(DEFAULT_DATUM), epoch("")
+		, tpb_file(""), tpp_file("")
+		, plate_model_option(0)
 		, command_line_arguments("") {}
 
 	bool operator==(const reftran_settings& r) const {
@@ -289,6 +293,9 @@ public:
 	string		bms_file;					// Binary measurement output file
 	string		reference_frame;			// Reference frame for all stations and measurements.  Requires datum.conf and ellipsoid.conf.
 	string		epoch;						// Epoch
+	string		tpb_file;					// Tectonic plate boundary file
+	string		tpp_file;					// Tectonic plate pole file
+	UINT16		plate_model_option;			// Informs reftran which plate model option to use
 	string		command_line_arguments;
 };
 
@@ -296,10 +303,9 @@ public:
 struct geoid_settings : private boost::equality_comparable<geoid_settings> {
 public:
 	geoid_settings()
-		: rdat_geoid_file(""), ntv2_geoid_file(""), input_file(""), bst_file(""), geo_file("")
-		, ellipsoid_to_ortho(0), coordinate_format(DMS), file_mode(0)
-		, export_dna_geo_file(0)
-		, interpolation_method(1), convert_heights(1)
+		: file_mode(0), interpolation_method(1), ellipsoid_to_ortho(0), coordinate_format(DMS)
+		, convert_heights(1), export_dna_geo_file(0)
+		, rdat_geoid_file(""), ntv2_geoid_file(""), input_file(""), bst_file(""), geo_file("")
 		, command_line_arguments("") {}
 
 	bool operator==(const geoid_settings& n) const {
@@ -431,39 +437,19 @@ public:
 struct output_settings : private boost::equality_comparable<output_settings> {
 public:
 	output_settings()
-		: _datum(DEFAULT_DATUM), _adj_file(""), _xyz_file("")
-		, _snx_file(""), _xml_file("")
-		, _cor_file(""), _apu_file(""), _m2s_file("")
-		, _adj_stn_iteration(0), _adj_msr_iteration(0), _cmp_msr_iteration(0)
-		, _adj_stat_iteration(0)
-		, _adj_msr_final(0)
-		, _adj_gnss_units (0)
-		, _adj_msr_tstat(0)
-		, _database_ids(0)
-		, _print_ignored_msrs(0)
-		, _output_stn_blocks(0)
-		, _output_msr_blocks(0)
-		, _sort_stn_file_order(0)
-		, _sort_adj_msr(0)
-		, _init_stn_corrections(0)
-		, _msr_to_stn(0)
-		, _output_pu_covariances(0)
-		, _apu_vcv_units(0)
-		, _stn_corr(0)
-		, _positional_uncertainty(0)
-		, _hz_corr_threshold(0.0)
-		, _vt_corr_threshold(0.0)
-		, _stn_coord_types("PLHhXYZ")
-		, _angular_type_stn(DMS)
-		, _precision_metres_stn(4)
-		, _precision_seconds_stn(5)
-		, _precision_metres_msr(4)
-		, _precision_seconds_msr(4)
-		, _angular_type_msr(DMS)
-		, _dms_format_msr(SEPARATED)
-		, _export_xml_stn_file(0)
-		, _export_dna_stn_file(0)
-		, _export_snx_file(false)
+		: _datum(DEFAULT_DATUM), _m2s_file(""), _adj_file(""), _xyz_file("")
+		, _snx_file(""), _xml_file(""), _cor_file(""), _apu_file("")
+		, _adj_stn_iteration(0), _adj_msr_iteration(0), _cmp_msr_iteration(0), _adj_stat_iteration(0)
+		, _adj_msr_final(0), _adj_msr_tstat(0), _database_ids(0), _print_ignored_msrs(0), _adj_gnss_units(0)
+		, _output_stn_blocks(0), _output_msr_blocks(0), _sort_stn_file_order(0), _sort_adj_msr(0)
+		, _init_stn_corrections(0), _msr_to_stn(0), _stn_corr(0), _positional_uncertainty(0)
+		, _apu_vcv_units(0), _output_pu_covariances(0)
+		, _export_xml_stn_file(0), _export_dna_stn_file(0), _export_snx_file(false)
+		, _hz_corr_threshold(0.0), _vt_corr_threshold(0.0)
+		, _stn_coord_types("PLHhXYZ"), _angular_type_stn(DMS)
+		, _precision_seconds_stn(5), _precision_metres_stn(4), _precision_seconds_msr(4), _precision_metres_msr(4)
+		, _angular_type_msr(DMS), _dms_format_msr(SEPARATED)
+		
 	{}
 
 	bool operator==(const output_settings& o) const {
@@ -539,18 +525,18 @@ struct plot_settings : private boost::equality_comparable<plot_settings> {
 public:
 	plot_settings()
 		: _projection(bestProjection), _gmt_cmd_file(""), _gnuplot_cmd_file(""), _pdf_cmd_file(""), _eps_file_name(""), _pdf_file_name("")
-		, _plot_phased_blocks(false), _use_pdflatex(false)
-		, _plot_station_labels(false), _plot_ignored_msrs(false)
+		, _plot_phased_blocks(false), _plot_station_labels(false), _plot_ignored_msrs(false)
 		, _plot_alt_name(false), _plot_station_constraints(false)
 		, _plot_correction_arrows(false), _plot_correction_labels(false), _compute_corrections(false)
 		, _plot_positional_uncertainty(false), _plot_error_ellipses(false)
 		, _user_defined_projection(false), _omit_title_block(false), _omit_measurements(false)
-		, _keep_gen_files(false)
+		, _use_pdflatex(false), _keep_gen_files(false)
 		, _label_font_size(5.0), _msr_line_width(0.15), _correction_scale(1.), _pu_ellipse_scale(1.)
-		, _pdf_viewer("Acrobat"), _acrobat_ddename("AcroViewR15")
-		, _bounding_box(""), _plot_station_centre(""), _plot_area_radius(5000.000)
-		, _plot_centre_latitude(-999.), _plot_centre_longitude(-999.), _plot_scale(0.)
+		, _plot_station_centre(""), _bounding_box("")
+		, _plot_area_radius(5000.000), _plot_centre_latitude(-999.), _plot_centre_longitude(-999.)
+		, _plot_scale(0.), _page_width(0.), _ground_width(0.)
 		, _plot_block_number(0), _coasline_resolution(low)
+		, _pdf_viewer("Acrobat"), _acrobat_ddename("AcroViewR15")
 		, command_line_arguments("")
 	{
 		_gmt_params.clear();
@@ -584,9 +570,6 @@ public:
 															//	4 Transverse Mercator
 															//	5 Albers conic equal-area
 															//	6 Lambert conformal
-	v_string_string_pair	_gmt_params;					// GMT parameters
-	vchar					_separate_msrs;					// A char vector of measurement types to be created individually	
-	v_string_string_pair	_msr_colours;					// A vector of measurement types and corresponding colours
 	string					_gmt_cmd_file;					// GMT command file to create the eps
 	string					_gnuplot_cmd_file;				// Gnuplot command file to create the eps
 	string					_pdf_cmd_file;					// PDF command file to create PDF
@@ -624,6 +607,9 @@ public:
 	string					_pdf_viewer;					// PDF viewer
 	string					_acrobat_ddename;				// If viewer is Acrobat, supply necessary dde arguments
 	string					command_line_arguments;
+	v_string_string_pair	_gmt_params;					// GMT parameters
+	vchar					_separate_msrs;					// A char vector of measurement types to be created individually	
+	v_string_string_pair	_msr_colours;					// A vector of measurement types and corresponding colours
 };
 
 // project settings

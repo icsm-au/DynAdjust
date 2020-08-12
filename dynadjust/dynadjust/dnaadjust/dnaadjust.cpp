@@ -52,25 +52,25 @@ boost::exception_ptr fwd_error, rev_error, cmb_error, prep_error;
 #endif
 
 dna_adjust::dna_adjust()
-	: adjustStatus_(ADJUST_SUCCESS)
-	, isPreparing_(false)
+	: isPreparing_(false)
 	, isAdjusting_(false)
 	, isCombining_(false)
-	, databaseIDsLoaded_(false)
 	, forward_(true)
 	, isFirstTimeAdjustment_(true)
-	, currentBlock_(0)
 	, blockCount_(1)
+	, currentBlock_(0)
+	, total_time_(0)
+	, adjustStatus_(ADJUST_SUCCESS)
 	, currentIteration_(0)
+	, datum_(DEFAULT_EPSG_U)
 	, bmsr_count_(0)
 	, bstn_count_(0)
 	, asl_count_(0)
 	, adjustProgress_(0.)
-	, datum_(DEFAULT_EPSG_U)
-	, measurementCount_(0)
 	, measurementParams_(0)
-	, unknownsCount_(0)
+	, measurementCount_(0)
 	, unknownParams_(0)
+	, unknownsCount_(0)
 	, chiSquared_(0.)
 	, sigmaZero_(0.)
 	, sigmaZeroSqRt_(0.)
@@ -82,7 +82,7 @@ dna_adjust::dna_adjust()
 	, maxCorr_(0.)
 	, criticalValue_(1.68)
 	, allStationsFixed_(false)
-	, total_time_(0)
+	, databaseIDsLoaded_(false)
 {
 	statusMessages_.clear();
 	bstBinaryRecords_.clear();
@@ -2570,7 +2570,7 @@ void dna_adjust::LoadDatabaseId()
 		dbid_file.close();
 		databaseIDsLoaded_ = true;
 	}
-	catch (const std::ifstream::failure f) {
+	catch (const std::ifstream::failure &f) {
 		SignalExceptionAdjustment(f.what(), 0);
 	}
 	catch (const XMLInteropException &e)  {
@@ -2949,7 +2949,7 @@ void dna_adjust::PrintEstimatedStationCoordinatestoDNAXML(const string& stnFile,
 
 		stn_file.close();
 	}
-	catch (const std::ifstream::failure f) {
+	catch (const std::ifstream::failure &f) {
 		SignalExceptionAdjustment(f.what(), 0);
 	}
 	catch (const XMLInteropException &e)  {
@@ -3965,10 +3965,10 @@ void dna_adjust::CarryStnEstimatesandVariancesCombine(
 	//  |             |                            |             |
 	//  | msr-comp    |                            | msr-comp    |
 	//  |_____________|                            |_____________|  /__ pseudomsrJSLBegin
-	//  |             |                            |             |  \
+	//  |             |                            |             |  
 	//  |  jrev-comp  |                            |  jfwd-comp  |
 	//  |_____________|  /__ pseudomsrJSLBegin     |_____________|
-	//  |             |  \
+	//  |             |  
 	//  |  jfwd-comp  |
 	//  |_____________|
 
@@ -4242,14 +4242,12 @@ void dna_adjust::AdjustPhasedReverseCombine()
 	forward_ = false;
 	isCombining_ = false;
 	UINT32 currentBlock(blockCount_ - 1);
-	UINT32 pseudomsrJSLCount(0), previousBlock;
+	UINT32 pseudomsrJSLCount(0);
 
 	for (UINT32 block=0; block<blockCount_; ++block, --currentBlock)
 	{
 		SetcurrentBlock(currentBlock);
 	
-		previousBlock = currentBlock + 1;
-
 		// If currentBlock is a single block, then there is no need to perform a 
 		// reverse adjustment (i.e. continue);
 		// Otherwise, if currentBlock is the last block, then this is the 
@@ -9745,9 +9743,6 @@ void dna_adjust::PrintPosUncertaintiesHeader(ostream& os)
 		right << setw(PREC) << "Semi-minor" << 
 		right << setw(PREC) << "Orientation";
 
-	matrix_2d variances_cart(3, 3), variances_local(3, 3);
-	matrix_2d *variances(&variances_cart);
-
 	switch (projectSettings_.o._apu_vcv_units)
 	{
 	case ENU_apu_ui:
@@ -9755,7 +9750,6 @@ void dna_adjust::PrintPosUncertaintiesHeader(ostream& os)
 			right << setw(MSR) << "Variance(e)" << 
 			right << setw(MSR) << "Variance(n)" << 
 			right << setw(MSR) << "Variance(up)" << endl;
-		variances = &variances_local;
 		break;
 	case XYZ_apu_ui:
 	default:
@@ -9766,9 +9760,9 @@ void dna_adjust::PrintPosUncertaintiesHeader(ostream& os)
 		break;
 	}
 
-	UINT32 i(0), j = STATION+PAD2+LAT_EAST+LON_NORTH+STAT+STAT+PREC+PREC+PREC+MSR+MSR+MSR;
+	UINT32 i, j = STATION+PAD2+LAT_EAST+LON_NORTH+STAT+STAT+PREC+PREC+PREC+MSR+MSR+MSR;
 
-	for (i; i<j; ++i)
+	for (i=0; i<j; ++i)
 		os << "-";
 	os << endl;
 }
@@ -10052,9 +10046,9 @@ void dna_adjust::PrintCorStations(ostream &cor_file, const UINT32& block)
 		right << setw(HEIGHT) << "north" << 
 		right << setw(HEIGHT) << "up" << endl;
 
-	UINT32 i(0), j = STATION+PAD2+MSR+MSR+MSR+MSR+HEIGHT+HEIGHT+HEIGHT;
+	UINT32 i, j = STATION+PAD2+MSR+MSR+MSR+MSR+HEIGHT+HEIGHT+HEIGHT;
 
-	for (i; i<j; ++i)
+	for (i=0; i<j; ++i)
 		cor_file << "-";
 	cor_file << endl;
 
@@ -10097,9 +10091,9 @@ void dna_adjust::PrintCorStationsUniqueList(ostream &cor_file)
 		right << setw(HEIGHT) << "north" << 
 		right << setw(HEIGHT) << "up" << endl;
 
-	UINT32 i(0), j = STATION+PAD2+MSR+MSR+MSR+MSR+HEIGHT+HEIGHT+HEIGHT;
+	UINT32 i, j = STATION+PAD2+MSR+MSR+MSR+MSR+HEIGHT+HEIGHT+HEIGHT;
 
-	for (i; i<j; ++i)
+	for (i=0; i<j; ++i)
 		cor_file << "-";
 	cor_file << endl;
 
@@ -10332,7 +10326,6 @@ void dna_adjust::PrintAdjMeasurementsHeader(bool printHeader, const string& tabl
 		}
 	}
 
-	UINT32 i(0);
 	string col1_heading, col2_heading;
 
 	// determine headings
@@ -10419,7 +10412,8 @@ void dna_adjust::PrintAdjMeasurementsHeader(bool printHeader, const string& tabl
 
 	adj_file << endl;
 
-	for (i; i<j; ++i)
+	UINT32 i;
+	for (i=0; i<j; ++i)
 		adj_file << "-";
 
 	adj_file << endl;
@@ -11181,7 +11175,7 @@ void dna_adjust::UpdateIgnoredMeasurements_X(pit_vmsr_t _it_msr, const UINT32& b
 {
 	it_vmsr_t _it_msr_first(*_it_msr);
 
-	UINT32 stn1, stn2, covr(0), covc(0);
+	UINT32 stn1, stn2;
 
 	UINT32 cluster_bsl, baseline_count((*_it_msr)->vectorCount1);
 	UINT32 covariance_count;
@@ -11209,7 +11203,7 @@ void dna_adjust::UpdateIgnoredMeasurements_Y(pit_vmsr_t _it_msr, const UINT32& b
 	it_vmsr_t _it_msr_first(*_it_msr);
 	it_vmsr_t tmp_msr;
 
-	UINT32 stn1, covr(0), covc(0);
+	UINT32 stn1;
 
 	UINT32 cluster_pnt, point_count((*_it_msr)->vectorCount1);
 	UINT32 covariance_count;

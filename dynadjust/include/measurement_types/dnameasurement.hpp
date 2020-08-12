@@ -129,12 +129,12 @@ typedef boost::shared_ptr< vector<CDnaCovariance> > vecCovariancePtr;
 // data struct for storing measurement information to binary measurement file
 typedef struct msr_t {
 	msr_t()
-		: measType('\0'), measStart(0), ignore(false), station1(0), station2(0)
-		, station3(0), vectorCount1(0), vectorCount2(0)
+		: measType('\0'), measStart(0), measurementStations(1), ignore(false), station1(0), station2(0)
+		, station3(0), vectorCount1(0), vectorCount2(0), clusterID(0), fileOrder(0)
 		, term1(0.), term2(0.), term3(0.), term4(0.), scale1(1.), scale2(1.), scale3(1.), scale4(1.)
 		, measAdj(0.), measCorr(0.), measAdjPrec(0.), residualPrec(0.)
 		, NStat(0.), TStat(0.), PelzerRel(0.)
-		, preAdjCorr(0.), preAdjMeas(0.), clusterID(0), fileOrder(0), measurementStations(1) 
+		, preAdjCorr(0.), preAdjMeas(0.) 
 	{
 			memset(coordType, '\0', sizeof(coordType));
 			// GDA94, lat, long, height

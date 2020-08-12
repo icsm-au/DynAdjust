@@ -152,8 +152,8 @@ void dna_io_adj::print_stn_info_col_header(ostream& os,
 
 	os << setw(PAD2) << " " << left << "Description" << endl;
 
-	UINT32 i(0);
-	for (i; i<j; ++i)
+	UINT32 i;
+	for (i=0; i<j; ++i)
 		os << "-";
 	os << endl;
 }
