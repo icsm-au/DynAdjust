@@ -4,12 +4,51 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+
         {
             "name": "(gdb) debug reftran",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/dynadjust/build_gcc/dynadjust/dnareftranwrapper/dnareftran",
             "args": ["50k", "-r itrf2014"],
+            "stopAtEntry": true,
+            "cwd": "/home/roger/dist",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "(gdb) debug adjust",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/dynadjust/build_gcc/dynadjust/dnaadjustwrapper/dnaadjust",
+            "args": ["dsg_ex", "--phased", "--output-adj-msr"],
+            "stopAtEntry": true,
+            "cwd": "/home/roger/dist",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "(gdb) debug segment",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/dynadjust/build_gcc/dynadjust/dnasegmentwrapper/dnasegment",
+            "args": ["dsg_ex", "--min 1", "--max 2", "--start 409704930"],
             "stopAtEntry": true,
             "cwd": "/home/roger/dist",
             "environment": [],
