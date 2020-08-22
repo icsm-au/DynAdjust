@@ -100,7 +100,7 @@ void file_opener(
 		stream.exceptions (/*ios_base::eofbit | */ios_base::badbit | ios_base::failbit);
 		stream.iword(0) = type;
 	}
-	catch (const ios_base::failure) {
+	catch (const ios_base::failure& f) {
 		stringstream ss;
 		if (fileMustExist && !boost::filesystem::exists(str.c_str()))
 			ss << "file_opener(): Can't find " << str << ". \n";

@@ -46,7 +46,7 @@ void dna_adjust::PrepareMappedRegions(const UINT32& block)
 	try {
 		PrepareMemoryMapRegions(block);
 	}
-	catch (interprocess_exception &e){
+	catch (interprocess_exception& e){
 		stringstream ss;
 		ss << "PrepareMappedRegions() terminated while creating memory map" << endl;
 		ss << "  regions from .mtx stage files. Details:\n  " << e.what() << endl << endl;

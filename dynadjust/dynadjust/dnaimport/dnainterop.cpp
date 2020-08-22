@@ -3938,10 +3938,10 @@ void dna_import::SerialiseDNA(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements,
 		dna_stn_file.close();
 
 	}
-	catch (const std::ifstream::failure f) {
+	catch (const std::ifstream::failure& f) {
 		SignalExceptionInterop(static_cast<string>(f.what()), 0, "o", &dna_stn_file);
 	}
-	catch (const XMLInteropException &e)  {
+	catch (const XMLInteropException& e)  {
 		SignalExceptionInterop(static_cast<string>(e.what()), 0, "o", &dna_stn_file);
 	}
 
@@ -3976,10 +3976,10 @@ void dna_import::SerialiseDNA(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements,
 		dna_msr_file.close();
 
 	}
-	catch (const std::ifstream::failure f) {
+	catch (const std::ifstream::failure& f) {
 		SignalExceptionInterop(static_cast<string>(f.what()), 0, "o", &dna_msr_file);
 	}
-	catch (const XMLInteropException &e)  {
+	catch (const XMLInteropException& e)  {
 		SignalExceptionInterop(static_cast<string>(e.what()), 0, "o", &dna_msr_file);
 	}
 
@@ -4063,11 +4063,11 @@ void dna_import::SerialiseDynaMLfromBinary(const string& outfilename,
 	try {
 		SerialiseXmlMsr(&bst_file, &bms_file, &dynaml_file);
 	}
-	catch (const std::ifstream::failure f) {
+	catch (const std::ifstream::failure& f) {
 		SignalExceptionInterop(static_cast<string>(f.what()), 0, 
 			"iio", &bst_file, &bms_file, &dynaml_file);
 	}
-	catch (const XMLInteropException &e)  {
+	catch (const XMLInteropException& e)  {
 		SignalExceptionInterop(static_cast<string>(e.what()), 0, 
 			"iio", &bst_file, &bms_file, &dynaml_file);
 	}
@@ -4128,11 +4128,11 @@ void dna_import::SerialiseDynaMLfromMemory(vdnaStnPtr* vStations, vdnaMsrPtr* vM
 				msr->WriteDynaMLMsr(&dynaml_file);
 		});
 	}
-	catch (const std::ifstream::failure f) {
+	catch (const std::ifstream::failure& f) {
 		SignalExceptionInterop(static_cast<string>(f.what()), 0, 
 			"o", &dynaml_file);
 	}
-	catch (const XMLInteropException &e)  {
+	catch (const XMLInteropException& e)  {
 		SignalExceptionInterop(static_cast<string>(e.what()), 0, 
 			"o", &dynaml_file);
 	}
@@ -4244,11 +4244,11 @@ void dna_import::SerialiseDynaMLSepfromBinary(const string& stnfilename, const s
 		dynaml_msr_file << "</DnaXmlFormat>" << endl;
 		dynaml_msr_file.close();
 	}
-	catch (const std::ifstream::failure f) {
+	catch (const std::ifstream::failure& f) {
 		SignalExceptionInterop(static_cast<string>(f.what()), 0, 
 			"iio", &bst_file, &bms_file, &dynaml_msr_file);
 	}
-	catch (const XMLInteropException &e)  {
+	catch (const XMLInteropException& e)  {
 		SignalExceptionInterop(static_cast<string>(e.what()), 0, 
 			"iio", &bst_file, &bms_file, &dynaml_msr_file);
 	}
@@ -4292,10 +4292,10 @@ void dna_import::SerialiseDynaMLSepfromMemory(vdnaStnPtr* vStations, vdnaMsrPtr*
 		dynaml_stn_file.close();
 
 	}
-	catch (const std::ifstream::failure f) {
+	catch (const std::ifstream::failure& f) {
 		SignalExceptionInterop(static_cast<string>(f.what()), 0, "o", &dynaml_stn_file);
 	}
-	catch (const XMLInteropException &e)  {
+	catch (const XMLInteropException& e)  {
 		SignalExceptionInterop(static_cast<string>(e.what()), 0, "o", &dynaml_stn_file);
 	}
 
@@ -4314,10 +4314,10 @@ void dna_import::SerialiseDynaMLSepfromMemory(vdnaStnPtr* vStations, vdnaMsrPtr*
 		dynaml_msr_file.close();
 
 	}
-	catch (const std::ifstream::failure f) {
+	catch (const std::ifstream::failure& f) {
 		SignalExceptionInterop(static_cast<string>(f.what()), 0, "o", &dynaml_msr_file);
 	}
-	catch (const XMLInteropException &e)  {
+	catch (const XMLInteropException& e)  {
 		SignalExceptionInterop(static_cast<string>(e.what()), 0, "o", &dynaml_msr_file);
 	}
 }
@@ -4346,10 +4346,10 @@ void dna_import::SerialiseGeoidData(vdnaStnPtr* vStations, const string& geofile
 		dynaml_geo_file.close();
 		
 	}
-	catch (const std::ifstream::failure f) {
+	catch (const std::ifstream::failure& f) {
 		SignalExceptionInterop(static_cast<string>(f.what()), 0, "o", &dynaml_geo_file);
 	}
-	catch (const XMLInteropException &e)  {
+	catch (const XMLInteropException& e)  {
 		SignalExceptionInterop(static_cast<string>(e.what()), 0, "o", &dynaml_geo_file);
 	}
 }
@@ -4498,10 +4498,10 @@ void dna_import::SerialiseDatabaseId(const string& dbid_filename, pvdnaMsrPtr vM
 
 		dbid_file.close();
 	}
-	catch (const std::ifstream::failure f) {
+	catch (const std::ifstream::failure& f) {
 		SignalExceptionInterop(static_cast<string>(f.what()), 0, NULL);
 	}
-	catch (const XMLInteropException &e)  {
+	catch (const XMLInteropException& e)  {
 		SignalExceptionInterop(static_cast<string>(e.what()), 0, NULL);
 	}
 }
@@ -5404,10 +5404,10 @@ void dna_import::SimulateMSR(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements,
 		dna_msr_file.close();
 
 	}
-	catch (const std::ifstream::failure f) {
+	catch (const std::ifstream::failure& f) {
 		SignalExceptionInterop(static_cast<string>(f.what()), 0, "o", &dna_msr_file);
 	}
-	catch (const XMLInteropException &e)  {
+	catch (const XMLInteropException& e)  {
 		SignalExceptionInterop(static_cast<string>(e.what()), 0, "o", &dna_msr_file);
 	}
 }

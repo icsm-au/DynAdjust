@@ -144,7 +144,7 @@ void CDnaProjectFile::LoadProjectFile()
 		try {
 			getline(dnaproj_file, line, '\n');
 		}
-		catch (std::ifstream::failure f)
+		catch (std::ifstream::failure& f)
 		{
 			if (dnaproj_file.eof())
 				break;

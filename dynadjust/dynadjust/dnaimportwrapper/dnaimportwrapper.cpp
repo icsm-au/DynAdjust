@@ -470,7 +470,7 @@ int SearchForSimilarMeasurements(dna_import* parserDynaML, project_settings* p, 
 		}
 
 	} 
-	catch (const XMLInteropException &e) {
+	catch (const XMLInteropException& e) {
 		cout << endl << "- Error: " << e.what() << endl;
 		*imp_file << endl << "- Error: " << e.what() << endl;
 		imp_file->close();
@@ -665,8 +665,8 @@ int ImportSegmentedBlock(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMs
 			bool bms_meta_import(iequals(bms_meta.modifiedBy, __import_app_name__) ||
 				iequals(bms_meta.modifiedBy, __import_dll_name__));
 
-			if (bst_meta_import && (last_write_time(p.i.seg_file) < last_write_time(p.i.bst_file)) || 
-				bms_meta_import && (last_write_time(p.i.seg_file) < last_write_time(p.i.bms_file)))
+			if (bst_meta_import && ((last_write_time(p.i.seg_file) < last_write_time(p.i.bst_file))) || 
+				bms_meta_import && ((last_write_time(p.i.seg_file) < last_write_time(p.i.bms_file))))
 			{
 
 				cout << endl << endl << 
@@ -1429,7 +1429,7 @@ int main(int argc, char* argv[])
 				cout << "Done." << endl;
 			imp_file << "Done." << endl;
 		} 
-		catch (const XMLInteropException &e) {
+		catch (const XMLInteropException& e) {
 			cout << endl << "- Error: " << e.what() << endl;
 			imp_file << endl << "- Error: " << e.what() << endl;
 			imp_file.close();
@@ -1458,7 +1458,7 @@ int main(int argc, char* argv[])
 			parserDynaML.ExtractStnsAndAssociatedMsrs(p.i.stn_associated_msr_include, p.i.stn_associated_msr_exclude, &vstationsTotal, &vmeasurementsTotal, 
 				&parsestnTally, &parsemsrTally, &vUnusedStns, p, splitXmsrs, splitYmsrs);
 		} 
-		catch (const XMLInteropException &e) {
+		catch (const XMLInteropException& e) {
 			cout << "- Error: " << e.what() << endl;
 			imp_file << endl << "- Error: " << e.what() << endl;
 			imp_file.close();
@@ -1489,7 +1489,7 @@ int main(int argc, char* argv[])
 			parserDynaML.ExcludeAllOutsideBoundingBox(&vstationsTotal, &vmeasurementsTotal, 
 				&parsestnTally, &parsemsrTally, &vUnusedStns, p, splitXmsrs, splitYmsrs);
 		} 
-		catch (const XMLInteropException &e) {
+		catch (const XMLInteropException& e) {
 			cout << "- Error: " << e.what() << endl;
 			imp_file << endl << "- Error: " << e.what() << endl;
 			imp_file.close();
@@ -1638,7 +1638,7 @@ int main(int argc, char* argv[])
 				cout << "Done." << endl;
 			imp_file << "Done." << endl;
 		} 
-		catch (const XMLInteropException &e) {
+		catch (const XMLInteropException& e) {
 			cout << endl << "- Error: " << e.what() << endl;
 			imp_file << endl << "- Error: " << e.what() << endl;
 			imp_file.close();
@@ -1662,7 +1662,7 @@ int main(int argc, char* argv[])
 				cout << "Done." << endl;
 			imp_file << "Done." << endl;
 		} 
-		catch (const XMLInteropException &e) {
+		catch (const XMLInteropException& e) {
 			cout << endl << "- Error: " << e.what() << endl;
 			imp_file << endl << "- Error: " << e.what() << endl;
 			imp_file.close();
@@ -1849,7 +1849,7 @@ int main(int argc, char* argv[])
 				cout << endl;
 			imp_file << endl;
 		} 
-		catch (const XMLInteropException &e) {
+		catch (const XMLInteropException& e) {
 			cout << endl << "- Error: " << e.what() << endl;
 			imp_file << endl << "- Error: " << e.what() << endl;
 			imp_file.close();
@@ -1913,7 +1913,7 @@ int main(int argc, char* argv[])
 				imp_file << "Done." << endl;				
 			}
 		} 
-		catch (const XMLInteropException &e) {
+		catch (const XMLInteropException& e) {
 			cout << endl << "- Error: " << e.what() << endl;
 			imp_file << endl << "- Error: " << e.what() << endl;
 			imp_file.close();
@@ -1937,7 +1937,8 @@ int main(int argc, char* argv[])
 			path geoPath(p.i.geo_file);
 			stringstream ss;
 			ss.str("");
-			ss << "- Warning: The geoid file " << geoPath.filename().string() << " does not exist... ignoring geoid data input." << endl;
+			ss << "- Error: The geoid file " << geoPath.filename().string() << " does not exist." << endl;
+			cout << endl << ss.str();
 			imp_file << endl << ss.str();
 			return EXIT_FAILURE;
 		}
@@ -2044,7 +2045,7 @@ int main(int argc, char* argv[])
 			if (!p.g.quiet)
 				cout.flush();
 		} 
-		catch (const XMLInteropException &e) {
+		catch (const XMLInteropException& e) {
 			cout << endl << "- Error: " << e.what() << endl;
 			imp_file << endl << "- Error: " << e.what() << endl;
 			imp_file.close();
@@ -2084,7 +2085,7 @@ int main(int argc, char* argv[])
 				cout << "Done." << endl;
 			imp_file << "Done." << endl;
 		}
-		catch (const XMLInteropException &e) {
+		catch (const XMLInteropException& e) {
 			cout.flush();
 			cout << endl << "- Error: " << e.what() << endl;
 			imp_file << endl << "- Error: " << e.what() << endl;
@@ -2113,7 +2114,7 @@ int main(int argc, char* argv[])
 			}
 			imp_file << "Done." << endl;
 		} 
-		catch (const XMLInteropException &e) {
+		catch (const XMLInteropException& e) {
 			cout << "- Error: " << e.what() << endl;
 			imp_file << endl << "- Error: " << e.what() << endl;
 			imp_file.close();
@@ -2136,7 +2137,7 @@ int main(int argc, char* argv[])
 			}
 			imp_file << "Done." << endl;
 		} 
-		catch (const XMLInteropException &e) {
+		catch (const XMLInteropException& e) {
 			cout << "- Error: " << e.what() << endl;
 			imp_file << endl << "- Error: " << e.what() << endl;
 			imp_file.close();
@@ -2169,7 +2170,7 @@ int main(int argc, char* argv[])
 				imp_file << "Done." << endl;
 			}
 		} 
-		catch (const XMLInteropException &e) {
+		catch (const XMLInteropException& e) {
 			cout << "- Error: " << e.what() << endl;
 			imp_file << endl << "- Error: " << e.what() << endl;
 			imp_file.close();
@@ -2202,7 +2203,7 @@ int main(int argc, char* argv[])
 				imp_file << "Done." << endl;
 			}
 		} 
-		catch (const XMLInteropException &e) {
+		catch (const XMLInteropException& e) {
 			cout << "- Error: " << e.what() << endl;
 			imp_file << endl << "- Error: " << e.what() << endl;
 			imp_file.close();
@@ -2232,7 +2233,7 @@ int main(int argc, char* argv[])
 				imp_file << "Done." << endl;				
 			}
 		} 
-		catch (const XMLInteropException &e) {
+		catch (const XMLInteropException& e) {
 			cout << "- Error: " << e.what() << endl;
 			imp_file << endl << "- Error: " << e.what() << endl;
 			imp_file.close();
@@ -2257,7 +2258,7 @@ int main(int argc, char* argv[])
 				imp_file << "Done." << endl;				
 			}
 		}
-		catch (const XMLInteropException &e) {
+		catch (const XMLInteropException& e) {
 			cout << "- Error: " << e.what() << endl;
 			imp_file << endl << "- Error: " << e.what() << endl;
 			imp_file.close();
@@ -2313,7 +2314,7 @@ int main(int argc, char* argv[])
 		// Print measurements to stations table
 		PrintMeasurementstoStations(&parsemsrTally, &parserDynaML, &p, &associatedSL);
 	}
-	catch (const XMLInteropException &e) {
+	catch (const XMLInteropException& e) {
 		cout.flush();
 		cout << endl << "- Error: " << e.what() << endl;
 		imp_file << endl << "- Error: " << e.what() << endl;
@@ -2331,7 +2332,7 @@ int main(int argc, char* argv[])
 			ExportStationsandMeasurements(&parserDynaML, p, &imp_file, &vinput_file_meta, 
 				&vstationsTotal, &vmeasurementsTotal, stnCount, msrCount);
 	}
-	catch (const XMLInteropException &e) {
+	catch (const XMLInteropException& e) {
 		cout.flush();
 		cout << endl << "- Error: " << e.what() << endl;
 		imp_file << endl << "- Error: " << e.what() << endl;

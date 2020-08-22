@@ -107,7 +107,7 @@ public:
 				_status_msg, _p);
 			*_ms = milliseconds(time.elapsed().wall/MILLI_TO_NANO);
 		} 
-		catch (const XMLInteropException &e) {
+		catch (const XMLInteropException& e) {
 			running = false;
 			boost::this_thread::sleep(milliseconds(50));
 			stringstream err_msg;
@@ -131,8 +131,8 @@ private:
 	vdnaMsrPtr*			_vMeasurements;
 	PUINT32				_msrCount;
 	PUINT32				_clusterID;
-	string*				_status_msg;
 	input_file_meta_t*	_input_file_meta;
+	string*				_status_msg;
 	milliseconds*		_ms;
 };
 	

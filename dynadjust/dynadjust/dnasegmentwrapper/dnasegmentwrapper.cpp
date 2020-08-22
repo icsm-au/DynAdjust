@@ -394,7 +394,7 @@ int main(int argc, char* argv[])
 
 		
 	} 
-	catch (const NetSegmentException &e) {
+	catch (const NetSegmentException& e) {
 		cout << endl << "- Error: " << e.what() << endl;
 		return EXIT_FAILURE;
 	} 

@@ -804,7 +804,7 @@ int main(int argc, char* argv[])
 		}
 
 	} 
-	catch (const NetPlotException &e) {
+	catch (const NetPlotException& e) {
 		cout << endl << "- Error: " << e.what() << endl;
 		return EXIT_FAILURE;
 	} 
