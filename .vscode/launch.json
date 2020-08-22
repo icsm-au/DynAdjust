@@ -6,6 +6,25 @@
     "configurations": [
 
         {
+            "name": "(gdb) debug import",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/dynadjust/build_gcc/dynadjust/dnaimportwrapper/dnaimport",
+            "args": ["-n driver", "dsg.stn", "dsg-pseudo-driver-file.msr", "--simulate", "--geo-file", "dsg.geo", "--export-dna"],
+            "stopAtEntry": true,
+            "cwd": "/home/roger/dist",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
             "name": "(gdb) debug reftran",
             "type": "cppdbg",
             "request": "launch",
@@ -29,8 +48,8 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/dynadjust/build_gcc/dynadjust/dnaadjustwrapper/dnaadjust",
-            "args": ["dsg_ex", "--phased", "--output-adj-msr"],
-            "stopAtEntry": true,
+            "args": ["dsg", "--phased", "--output-adj-msr", "--output-ignored"],
+            "stopAtEntry": false,
             "cwd": "/home/roger/dist",
             "environment": [],
             "externalConsole": false,
@@ -48,7 +67,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/dynadjust/build_gcc/dynadjust/dnasegmentwrapper/dnasegment",
-            "args": ["dsg_ex", "--min 1", "--max 2", "--start 409704930"],
+            "args": ["dsg", "--min 1", "--max 2"],
             "stopAtEntry": true,
             "cwd": "/home/roger/dist",
             "environment": [],
