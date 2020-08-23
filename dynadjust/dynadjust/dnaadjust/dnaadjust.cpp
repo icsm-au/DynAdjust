@@ -3096,7 +3096,8 @@ void dna_adjust::PrintAdjustedNetworkMeasurements()
 	case PhasedMode:
 	case SimultaneousMode:
 		if (projectSettings_.o._print_ignored_msrs)
-			// Calculate adjusted measurements
+			// Print comparison between ignored and computed 
+			// measurements from adjusted coordinates
 			PrintIgnoredAdjMeasurements(true);		
 		break;
 	}
@@ -11504,10 +11505,7 @@ void dna_adjust::UpdateIgnoredMeasurements_Z(pit_vmsr_t _it_msr, bool storeOrigi
 
 void dna_adjust::UpdateIgnoredMeasurements(pit_vmsr_t _it_msr, bool storeOriginalMeasurement)
 {
-	UINT32 block(0);
 	stringstream ss;
-
-	matrix_2d* estimatedStations(&v_estimatedStations_.at(block));
 
 	// Since the stations connected by an ignored measurement may appear
 	// in different blocks, it is essential to get the correct block 
@@ -11580,7 +11578,7 @@ void dna_adjust::UpdateIgnoredMeasurements(pit_vmsr_t _it_msr, bool storeOrigina
 	default:
 		ss << "UpdateIgnoredMeasurements(): Unknown measurement type - '" <<
 			(*_it_msr)->measType << "'." << endl;
-		SignalExceptionAdjustment(ss.str(), block);
+		SignalExceptionAdjustment(ss.str(), 0);
 	}
 }
 	
@@ -11624,7 +11622,14 @@ void dna_adjust::PrintIgnoredAdjMeasurements(bool printHeader)
 
 		// Include ignored measurements
 		if (_it_msr->ignore)
+		{
+			// Check each ignored measurement for the presence of
+			// stations that are invalid (and therefore unadjusted).
+			if (!IgnoredMeasurementContainsInvalidStation(&_it_msr))
+				continue;
+
 			ignored_msrs.push_back(i);
+		}
 	}
 
 	// Update Ignored measurement records
@@ -11734,6 +11739,76 @@ void dna_adjust::PrintIgnoredAdjMeasurements(bool printHeader)
 
 	adj_file << endl << endl;
 	
+}
+
+// This function checks whether this measurement contains an invalid
+// station.  A station is invalid if it is wholly connected to ignored 
+// measurements or is not connected to any other measurement and thereby
+// not adjusted.
+bool dna_adjust::IgnoredMeasurementContainsInvalidStation(pit_vmsr_t _it_msr)
+{
+	it_vstn_t_const stn_it;
+	it_vmsr_t _it_tmp;
+	UINT32 msr;
+
+	switch ((*_it_msr)->measType)
+	{
+		// Three station measurement
+		case 'A':	// Horizontal angle
+			if (vAssocStnList_.at((*_it_msr)->station3).IsInvalid())
+				return false;
+		// Two station measurements
+		case 'B':	// Geodetic azimuth
+		case 'C':	// Chord dist
+		case 'E':	// Ellipsoid arc
+		case 'G':	// GPS Baseline
+		case 'K':	// Astronomic azimuth
+		case 'L':	// Level difference
+		case 'M':	// MSL arc
+		case 'S':	// Slope distance
+		case 'V':	// Zenith angle
+		case 'Z':	// Vertical angle
+			if (vAssocStnList_.at((*_it_msr)->station2).IsInvalid())
+				return false;
+		// One station measurements
+		case 'H':	// Orthometric height
+		case 'I':	// Astronomic latitude
+		case 'J':	// Astronomic longitude
+		case 'P':	// Geodetic latitude
+		case 'Q':	// Geodetic longitude
+		case 'R':	// Ellipsoidal height
+			if (vAssocStnList_.at((*_it_msr)->station1).IsInvalid())
+				return false;
+			break;
+		
+		case 'X':	// GPS Baseline cluster
+		case 'Y':	// GPS Point cluster
+			_it_tmp = (*_it_msr);
+			
+			for (msr=0; msr<_it_tmp->vectorCount1; ++msr)
+			{
+				if (_it_tmp->measStart != xMeas)
+				{
+					_it_tmp++;
+					continue;
+				}
+
+				if (vAssocStnList_.at((*_it_msr)->station1).IsInvalid())
+					return false; 
+
+				if (_it_tmp->measType == 'X')
+				{
+					if (vAssocStnList_.at((*_it_msr)->station2).IsInvalid())
+						return false;
+				}
+
+				_it_tmp++;
+			}
+
+			break;
+
+	}
+	return true;
 }
 
 

@@ -575,6 +575,7 @@ private:
 											  matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
 											  matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
 	
+	bool IgnoredMeasurementContainsInvalidStation(pit_vmsr_t _it_msr);
 	void UpdateIgnoredMeasurements(pit_vmsr_t _it_msr, bool storeOriginalMeasurement);
 	void UpdateIgnoredMeasurements_A(pit_vmsr_t _it_msr, bool storeOriginalMeasurement);
 	void UpdateIgnoredMeasurements_B(pit_vmsr_t _it_msr, bool storeOriginalMeasurement);
