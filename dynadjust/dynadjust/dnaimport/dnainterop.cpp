@@ -191,7 +191,7 @@ void dna_import::InitialiseDatum(const string& reference_frame)
 {
 	try {
 		// Take the default reference frame, set either by the user or
-		// the datum_ constructor (GDA94).  Epoch is that of the default
+		// the datum_ constructor (GDA2020).  Epoch is that of the default
 		// reference frame (indicated by "")
 		datum_.SetDatumFromName(reference_frame, "");
 	}
@@ -222,11 +222,11 @@ void dna_import::InitialiseDatum(const string& reference_frame)
 	
 
 // DynaXML, dna v.1-2 and sinex file formats do not contain reference frame information, so
-// by default the reference frame for all stations is set to GDA.
+// by default the reference frame for all stations is set to GDA2020.
 // This function is called to modify the default frame to a user-specified frame
 void dna_import::SetDefaultReferenceFrame(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements)
 {
-	// Default is GDA94.
+	// Default is GDA2020.
 	switch (m_ift)
 	{
 	case sinex:			// SNX	

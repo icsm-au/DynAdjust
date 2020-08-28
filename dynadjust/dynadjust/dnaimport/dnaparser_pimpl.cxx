@@ -1221,8 +1221,8 @@ void referenceframe_pimpl::pre()
 // attribute named referenceframe, the default will be set to whatever is in
 // the XSD file.
 // For DynaML.xsd, the following is specified:
-//     <xs:attribute name="referenceframe" type="xs:string" use="optional" default="GDA94"/>
-// In this case, post_string() will return "GDA94"
+//     <xs:attribute name="referenceframe" type="xs:string" use="optional" default="GDA2020"/>
+// In this case, post_string() will return "GDA2020"
 void referenceframe_pimpl::post_type(string& referenceframe, bool userspecifiedreferenceframe, bool overridereferenceframe)
 {
 	// 1. Get the DnaXmlFormat referenceframe attribute value from the file

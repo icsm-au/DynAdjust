@@ -535,9 +535,9 @@ typedef struct stn_t {
 		memset(stationConst, '\0', sizeof(stationConst));
 		memset(stationType, '\0', sizeof(stationType));
 		memset(description, '\0', sizeof(description));
-		// GDA94, lat, long, height
+		// GDA2020, lat, long, height
 		memset(epsgCode, '\0', sizeof(epsgCode));
-		sprintf(epsgCode, "4939");
+		sprintf(epsgCode, "7843");
 		memset(epoch, '\0', sizeof(epoch));
 	}
 

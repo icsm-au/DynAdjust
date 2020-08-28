@@ -1698,9 +1698,9 @@ void dna_plot::PrintGMTBatfile(const string& epsname, plot_settings* plotCriteri
 			gmtbat_file_ << "echo G 0.25 >> legend" << endl;		// space
 			gmtbat_file_ << "echo N 5 >> legend" << endl;
 
-			gmtbat_file_ << "echo S 0.01 c 0.01 white 1p,white 1 Geodetic Survey >> legend" << endl;
-			gmtbat_file_ << "echo S 0.01 c 0.01 white 1p,white 0 Office of Surveyor-General, Victoria >> legend" << endl;
-			gmtbat_file_ << "echo S 0.01 c 0.01 white 1p,white 3 GDA94 >> legend" << endl;
+			gmtbat_file_ << "echo S 0.01 c 0.01 white 1p,white 1 Geodesy >> legend" << endl;
+			gmtbat_file_ << "echo S 0.01 c 0.01 white 1p,white 0 Surveyor-General Victoria >> legend" << endl;
+			gmtbat_file_ << "echo S 0.01 c 0.01 white 1p,white 3 GDA2020 >> legend" << endl;
 			gmtbat_file_ << "echo S 0.01 c 0.01 white 1p,white 0 " << projectionTypes[plotCriteria_._projection] << " projection >> legend" << endl;
 			gmtbat_file_ << "echo S 0.01 c 0.01 white 1p,white 1 Scale 1:" << static_cast<UINT32>(scale) << " \"(A3)\" >> legend" << endl;
 
@@ -2168,19 +2168,19 @@ void dna_plot::CalculateLimitsFromPoint()
 	
 	CDnaEllipsoid e(DEFAULT_EPSG_U);
 
-	VincentyInverse<double>(Radians<double>(plotCriteria_._plot_centre_latitude), Radians<double>(plotCriteria_._plot_centre_longitude),
+	VincentyDirect<double>(Radians<double>(plotCriteria_._plot_centre_latitude), Radians<double>(plotCriteria_._plot_centre_longitude),
 		Radians<double>(0.), plotCriteria_._plot_area_radius, &upperDeg_, &temp, &e);
 	upperDeg_ = Degrees(upperDeg_);
 	
-	VincentyInverse<double>(Radians<double>(plotCriteria_._plot_centre_latitude), Radians<double>(plotCriteria_._plot_centre_longitude),
+	VincentyDirect<double>(Radians<double>(plotCriteria_._plot_centre_latitude), Radians<double>(plotCriteria_._plot_centre_longitude),
 		Radians<double>(90.), plotCriteria_._plot_area_radius, &temp, &rightDeg_, &e);
 	rightDeg_ = Degrees(rightDeg_);
 	
-	VincentyInverse<double>(Radians<double>(plotCriteria_._plot_centre_latitude), Radians<double>(plotCriteria_._plot_centre_longitude), 
+	VincentyDirect<double>(Radians<double>(plotCriteria_._plot_centre_latitude), Radians<double>(plotCriteria_._plot_centre_longitude), 
 		Radians<double>(180.), plotCriteria_._plot_area_radius, &lowerDeg_, &temp, &e);
 	lowerDeg_ = Degrees(lowerDeg_);
 	
-	VincentyInverse<double>(Radians<double>(plotCriteria_._plot_centre_latitude), Radians<double>(plotCriteria_._plot_centre_longitude),
+	VincentyDirect<double>(Radians<double>(plotCriteria_._plot_centre_latitude), Radians<double>(plotCriteria_._plot_centre_longitude),
 		Radians<double>(270.), plotCriteria_._plot_area_radius, &temp, &leftDeg_, &e);
 	leftDeg_ = Degrees(leftDeg_);
 }

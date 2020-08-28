@@ -273,7 +273,7 @@ bool run_command(const string& exec_path_name, bool validateReturnCode)
 	
 	char  environment_vars[2048];
 	char *env[64];
-	sprintf(environment_vars, "%s %s %s\0", 
+	sprintf(environment_vars, "%s %s %s", 
 		"PATH=/usr/bin/:$PATH",
 		"LD_LIBRARY_PATH=/usr/lib64:/usr/lib:$LD_LIBRARY_PATH",
 		"MALLOC_CHECK_=0");

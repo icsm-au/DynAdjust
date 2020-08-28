@@ -291,6 +291,8 @@ void dna_io_seg::load_seg_file(const string& seg_filename, UINT32& blockCount,
 			}
 		}
 		
+		if (blkCount != blockCount)
+			throw boost::enable_current_exception(runtime_error("load_seg_file(): Segmentation file is corrupt."));
 
 		// skip header info
 		seg_file.ignore(PRINT_LINE_LENGTH, '\n');			// ------------------------

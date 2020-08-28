@@ -168,19 +168,17 @@ bool InterpolateGridPointFile(dna_geoid_interpolation* g, const char* inputfileP
 	const int& method, const int EllipsoidtoOrtho, const int& coordinate_format, 
 	bool exportDnaGeoidFile, const char* dnageofilePath, string& outputfilePath)
 {
-	char outfilePath[601], *ext;
-	strcpy(outfilePath, inputfilePath);
-	if ((ext = strrchr(outfilePath, '.')) == NULL)
-		sprintf(outfilePath, "%s_out", inputfilePath);
+	path inputFile(inputfilePath);
+	if (inputFile.has_extension())
+		outputfilePath = inputFile.parent_path().string() + inputFile.stem().string() + "_out" + inputFile.extension().string();
 	else
 	{
-		char extension[4];
-		strcpy(extension, ext+1);
-		outfilePath[ext-outfilePath] = '\0';
-		sprintf(outfilePath, "%s_out.%s", outfilePath, extension);
+		outputfilePath = inputfilePath; 
+		outputfilePath.append("_out");
 	}
 
-	outputfilePath = outfilePath;
+	char outfilePath[601];
+	strcpy(outfilePath, outputfilePath.c_str());
 
 	try {
 		g->FileTransformation(inputfilePath, outfilePath, 
