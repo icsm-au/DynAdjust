@@ -184,8 +184,8 @@ private:
 
 	vvUINT32				v_parameterStationList_;
 
-	std::ofstream				gmtbat_file_;
-	std::ofstream				gnuplotbat_file_;
+	std::ofstream			gmtbat_file_;
+	std::ofstream			gnuplotbat_file_;
 
 	MsrTally				parsemsrTally_;		// total network tally
 	vector<MsrTally>		v_msr_tally_;		// per block tally

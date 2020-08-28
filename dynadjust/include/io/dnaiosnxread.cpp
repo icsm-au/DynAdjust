@@ -176,6 +176,9 @@ stringstream dna_io_snx::parse_date_from_yy_doy(const UINT32& yy, const UINT32& 
 			ss_year << "20";
 		else //(average_year > 50)
 			ss_year << "19";
+		break;
+	default:
+		break;
 	}
 
 	if (yy < 10)

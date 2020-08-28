@@ -1185,6 +1185,8 @@ int main(int argc, char* argv[])
 		case ADJUST_EXCEPTION_RAISED:
 			running = false;
 			return EXIT_FAILURE;
+		default:
+			break;
 		}
 
 		if (p.a.report_mode)

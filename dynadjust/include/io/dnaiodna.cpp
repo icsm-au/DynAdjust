@@ -398,6 +398,8 @@ void dna_io_dna::read_dna_header(std::ifstream* ptr, string& version, INPUT_DATA
 		case geo_data:
 			geoidversion = epoch_version;
 			break;
+		default:
+			break;
 		}
 	}
 	catch (const runtime_error& e) {

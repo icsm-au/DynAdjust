@@ -199,7 +199,6 @@ void dna_adjust_progress_thread::prepareAdjustment()
 	ss.str("");
 	
 	UINT32 block, currentBlock(0);
-	UINT32 currentIteration(0);
 	stringstream sst;
 	bool first_time(true);
 	

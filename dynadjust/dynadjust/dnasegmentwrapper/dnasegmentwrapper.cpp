@@ -341,6 +341,8 @@ int main(int argc, char* argv[])
 			running = false;
 			cout << status_msg << endl << endl;
 			return EXIT_FAILURE;
+		default:
+			break;
 		}
 
 		//// print station appearance file

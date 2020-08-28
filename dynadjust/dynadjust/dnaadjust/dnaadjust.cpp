@@ -2893,6 +2893,8 @@ void dna_adjust::PrintEstimatedStationCoordinatestoDNAXML(const string& stnFile,
 			dna_comment(stn_file, headerComment);
 			dna_comment(stn_file, "Adj file:     " + projectSettings_.o._adj_file);
 			break;
+		default:
+			break;
 		}
 
 		dnaStnPtr stnPtr(new CDnaStation(datum_.GetName(), datum_.GetEpoch_s()));
@@ -2943,6 +2945,8 @@ void dna_adjust::PrintEstimatedStationCoordinatestoDNAXML(const string& stnFile,
 						datum_.GetEllipsoidRef(), &projection_, dna, &dsw);
 			});
 
+			break;
+		default:
 			break;
 		}
 
@@ -3510,6 +3514,8 @@ void dna_adjust::RebuildNormals(const UINT32 block, adjustOperation direction, b
 
 	case __reverse__:
 		AddConstraintStationstoNormalsReverse(block, false);
+		break;
+	default:
 		break;
 	}
 }
@@ -10384,6 +10390,8 @@ void dna_adjust::PrintAdjMeasurementsHeader(bool printHeader, const string& tabl
 		adj_file <<
 			setw(REL) << right << "Pelzer Rel";
 		break;
+	default:
+		break;
 	}
 	
 	// Adjusted, computed and ignored measurements
@@ -10398,6 +10406,8 @@ void dna_adjust::PrintAdjMeasurementsHeader(bool printHeader, const string& tabl
 		j += OUTLIER;
 		adj_file <<
 			setw(OUTLIER) << right << "Outlier?";
+		break;
+	default:
 		break;
 	}
 
@@ -11524,7 +11534,7 @@ void dna_adjust::UpdateIgnoredMeasurements(pit_vmsr_t _it_msr, bool storeOrigina
 	case 'C':	// Chord dist
 		UpdateIgnoredMeasurements_C(_it_msr, storeOriginalMeasurement);
 		break;
-	case 'D':	// Direction set	
+	case 'D':	// Direction set
 		UpdateIgnoredMeasurements_D(_it_msr, storeOriginalMeasurement);
 		break;
 	case 'E':	// Ellipsoid arc
@@ -11593,12 +11603,11 @@ void dna_adjust::PrintIgnoredAdjMeasurements(bool printHeader)
 
 	vUINT32 ignored_msrs;
 	it_vUINT32 _it_ign;
-	it_vmsr_t _it_msr;
-	UINT32 i(0);
+	it_vmsr_t _it_msr, _it_tmp;
 
-	for (_it_msr = bmsBinaryRecords_.begin(), i = 0;
+	for (_it_msr = bmsBinaryRecords_.begin();
 		_it_msr != bmsBinaryRecords_.end();
-		++_it_msr, ++i)
+		++_it_msr)
 	{
 		switch (_it_msr->measType)
 		{
@@ -11623,22 +11632,28 @@ void dna_adjust::PrintIgnoredAdjMeasurements(bool printHeader)
 		// Include ignored measurements
 		if (_it_msr->ignore)
 		{
+			_it_tmp = _it_msr;
 			// Check each ignored measurement for the presence of
 			// stations that are invalid (and therefore unadjusted).
 			if (!IgnoredMeasurementContainsInvalidStation(&_it_msr))
 				continue;
 
-			ignored_msrs.push_back(i);
+			ignored_msrs.push_back(_it_tmp - bmsBinaryRecords_.begin());
 		}
 	}
 
 	// Update Ignored measurement records
 	UINT32 clusterID(MAX_UINT32_VALUE);
 
-	// initialise measurement (on the first adjustment only!)
-	string modifiedBy(bst_meta_.modifiedBy), thisApp(__BINARY_NAME__);
+	// Initialise ignored measurements on the first adjustment only.
+	// Test for zero values (of the first ignored measurement) to determine 
+	// if Ignored measurements have been updated. These values are initialised
+	// at 0. by msr_t() in dnameasurement.hpp.  If this test fails, ignored 
+	// measurements will not be calculated correctly (since the Update...() 
+	// methods will refer to adjusted values)
+	_it_msr = bmsBinaryRecords_.begin() + ignored_msrs.at(0);
 	bool storeOriginalMeasurement(false);
-	if (!iequals(modifiedBy, thisApp))
+	if (_it_msr->measAdj == 0. && _it_msr->measCorr == 0. && _it_msr->preAdjCorr == 0. && _it_msr->preAdjMeas == 0.)
 		storeOriginalMeasurement = true;
 
 	// Reduce measurements and compute stats
@@ -11747,66 +11762,75 @@ void dna_adjust::PrintIgnoredAdjMeasurements(bool printHeader)
 // not adjusted.
 bool dna_adjust::IgnoredMeasurementContainsInvalidStation(pit_vmsr_t _it_msr)
 {
-	it_vstn_t_const stn_it;
-	it_vmsr_t _it_tmp;
-	UINT32 msr;
+	UINT32 cluster_msr, covariance_count, cluster_count((*_it_msr)->vectorCount1);
 
 	switch ((*_it_msr)->measType)
 	{
-		// Three station measurement
-		case 'A':	// Horizontal angle
-			if (vAssocStnList_.at((*_it_msr)->station3).IsInvalid())
-				return false;
-		// Two station measurements
-		case 'B':	// Geodetic azimuth
-		case 'C':	// Chord dist
-		case 'E':	// Ellipsoid arc
-		case 'G':	// GPS Baseline
-		case 'K':	// Astronomic azimuth
-		case 'L':	// Level difference
-		case 'M':	// MSL arc
-		case 'S':	// Slope distance
-		case 'V':	// Zenith angle
-		case 'Z':	// Vertical angle
+	// Three station measurement
+	case 'A':	// Horizontal angle
+		if (vAssocStnList_.at((*_it_msr)->station3).IsInvalid())
+			return false;
+	// Two station measurements
+	case 'B':	// Geodetic azimuth
+	case 'C':	// Chord dist
+	case 'E':	// Ellipsoid arc
+	case 'G':	// GPS Baseline
+	case 'K':	// Astronomic azimuth
+	case 'L':	// Level difference
+	case 'M':	// MSL arc
+	case 'S':	// Slope distance
+	case 'V':	// Zenith angle
+	case 'Z':	// Vertical angle
+		if (vAssocStnList_.at((*_it_msr)->station2).IsInvalid())
+			return false;
+	// One station measurements
+	case 'H':	// Orthometric height
+	case 'I':	// Astronomic latitude
+	case 'J':	// Astronomic longitude
+	case 'P':	// Geodetic latitude
+	case 'Q':	// Geodetic longitude
+	case 'R':	// Ellipsoidal height
+		if (vAssocStnList_.at((*_it_msr)->station1).IsInvalid())
+			return false;
+		break;
+	// GNSS measurements
+	case 'X':	// GPS Baseline cluster
+	case 'Y':	// GPS Point cluster
+		for (cluster_msr=0; cluster_msr<cluster_count; ++cluster_msr)
+		{
+			covariance_count = (*_it_msr)->vectorCount2;
+
+			if (vAssocStnList_.at((*_it_msr)->station1).IsInvalid())
+				return false; 
+
+			if ((*_it_msr)->measType == 'X')
+				if (vAssocStnList_.at((*_it_msr)->station2).IsInvalid())
+					return false;
+			
+			(*_it_msr) += 2;					// skip y and z
+			(*_it_msr) += covariance_count * 3;	// skip covariances
+
+			if (covariance_count > 0)
+				(*_it_msr)++;
+		}
+		break;
+	case 'D':	// Direction set
+		for (cluster_msr=0; cluster_msr<cluster_count; ++cluster_msr)
+		{
+			// Check first station
+			if (cluster_msr == 0)
+				if (vAssocStnList_.at((*_it_msr)->station1).IsInvalid())
+					return false;
+			// Check all target directions
 			if (vAssocStnList_.at((*_it_msr)->station2).IsInvalid())
 				return false;
-		// One station measurements
-		case 'H':	// Orthometric height
-		case 'I':	// Astronomic latitude
-		case 'J':	// Astronomic longitude
-		case 'P':	// Geodetic latitude
-		case 'Q':	// Geodetic longitude
-		case 'R':	// Ellipsoidal height
-			if (vAssocStnList_.at((*_it_msr)->station1).IsInvalid())
-				return false;
-			break;
-		
-		case 'X':	// GPS Baseline cluster
-		case 'Y':	// GPS Point cluster
-			_it_tmp = (*_it_msr);
 			
-			for (msr=0; msr<_it_tmp->vectorCount1; ++msr)
-			{
-				if (_it_tmp->measStart != xMeas)
-				{
-					_it_tmp++;
-					continue;
-				}
-
-				if (vAssocStnList_.at((*_it_msr)->station1).IsInvalid())
-					return false; 
-
-				if (_it_tmp->measType == 'X')
-				{
-					if (vAssocStnList_.at((*_it_msr)->station2).IsInvalid())
-						return false;
-				}
-
-				_it_tmp++;
-			}
-
-			break;
-
+			if (cluster_msr+1 == cluster_count)
+				break;
+				
+			(*_it_msr)++;
+		}
+		break;
 	}
 	return true;
 }
@@ -12904,6 +12928,8 @@ void dna_adjust::ReduceYLLHMeasurementsforPrinting(it_vmsr_t& _it_msr, vmsr_t& y
 			_it_y_msr++;
 			z = _it_y_msr->term1;
 			break;
+		default:
+			break;
 		}
 		
 		// Convert to geographic
@@ -13715,7 +13741,7 @@ void dna_adjust::LoadNetworkFiles()
 			{
 				// first direction holds number of target directions plus RO.  Since directions 
 				// are reduced to angles, subtract one.
-				// Target direction s are assigned zero vectorCount1
+				// Target directions are assigned zero vectorCount1
 				if (_it_msr->vectorCount1 > 0)
 				{
 					v_measurementCount_.at(0) += _it_msr->vectorCount1 - 1;

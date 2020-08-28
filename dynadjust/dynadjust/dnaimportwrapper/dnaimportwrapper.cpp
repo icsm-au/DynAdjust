@@ -404,7 +404,7 @@ int SearchForSimilarMeasurements(dna_import* parserDynaML, project_settings* p, 
 				// Create duplicate measurements file
 				file_opener(dms_file, p->i.dms_file);
 			}
-			catch (const ios_base::failure) {
+			catch (const ios_base::failure& f) {
 				stringstream ss;
 				ss << "- Error: Could not open " << p->i.dms_file << ". \n  Check that the file exists and that the file is not already opened.";
 				if (!p->g.quiet)
@@ -665,8 +665,8 @@ int ImportSegmentedBlock(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMs
 			bool bms_meta_import(iequals(bms_meta.modifiedBy, __import_app_name__) ||
 				iequals(bms_meta.modifiedBy, __import_dll_name__));
 
-			if (bst_meta_import && ((last_write_time(p.i.seg_file) < last_write_time(p.i.bst_file))) || 
-				bms_meta_import && ((last_write_time(p.i.seg_file) < last_write_time(p.i.bms_file))))
+			if ((bst_meta_import && (last_write_time(p.i.seg_file) < last_write_time(p.i.bst_file))) || 
+				(bms_meta_import && (last_write_time(p.i.seg_file) < last_write_time(p.i.bms_file))))
 			{
 
 				cout << endl << endl << 
@@ -1155,7 +1155,7 @@ int main(int argc, char* argv[])
 		return EXIT_FAILURE;
 
 	UINT32 errorCount(0);
-	bool result, stn_map_created = false, measurements_mapped = false;
+	bool stn_map_created = false, measurements_mapped = false;
 
 	string input_file;
 	vstring input_files;
@@ -1679,7 +1679,7 @@ int main(int argc, char* argv[])
 		if (exists(p.i.dms_file))
 			remove(p.i.dms_file);
 	}
-	catch (const ios_base::failure) { 
+	catch (const ios_base::failure& f) { 
 		// do nothing on failure
 	}
 
@@ -2097,8 +2097,6 @@ int main(int argc, char* argv[])
 	// Create association lists
 	if (measurements_mapped) 
 	{
-		result = true;
-		
 		try {
 			if (!p.g.quiet)
 			{

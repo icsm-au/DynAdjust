@@ -168,7 +168,6 @@ public:
 	void operator()()
 	{
 		UINT32 block, currentBlock(0);
-		float percentComplete(0);
 		ostringstream ss;
 		
 		while (running)

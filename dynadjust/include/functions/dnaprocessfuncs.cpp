@@ -41,7 +41,6 @@ void  parse(char *line, char **argv)
 bool execute(char **argv, char **env)
 {
 	pid_t const cpid = fork();
-	int status(0);
 	
 	if (cpid < 0)
 		return false;
