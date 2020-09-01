@@ -524,11 +524,13 @@ int main(int argc, char* argv[])
 			ifsDynaML_->seekg(0, ios::beg);
 		}
 		catch (const ios_base::failure& f) {	
-			cout << "- Error: An error was encountered when opening " << input_file << "." << endl << "  Check that the file exists and that the file is not already opened.";
+			cout << "- Error: An error was encountered when opening " << input_file << "." << endl;
+			cout << "  Check that the file exists and that the file is not already opened." << endl << f.what();
 			return EXIT_FAILURE;
 		}
 		catch (...) {	
-			cout << "- Error: An error was encountered when opening " << input_file << "." << endl << "  Check that the file exists and that the file is not already opened.";
+			cout << "- Error: An error was encountered when opening " << input_file << "." << endl;
+			cout << "  Check that the file exists and that the file is not already opened." << endl << f.what();
 			return EXIT_FAILURE;
 		}
 
