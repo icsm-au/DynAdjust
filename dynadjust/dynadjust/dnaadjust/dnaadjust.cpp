@@ -11642,6 +11642,12 @@ void dna_adjust::PrintIgnoredAdjMeasurements(bool printHeader)
 		}
 	}
 
+	if (ignored_msrs.empty())
+	{
+		adj_file << endl << endl;
+		return;
+	}
+
 	// Update Ignored measurement records
 	UINT32 clusterID(MAX_UINT32_VALUE);
 
