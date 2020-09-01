@@ -106,7 +106,7 @@ void file_opener(
 			ss << "file_opener(): Can't find " << str << ". \n";
 		else
 			ss << "file_opener(): An error was encountered when opening " << 
-				str << ". \n  Check that the file is not already opened.";
+				str << ". \n  Check that the file is not already opened." << endl << f.what();
 		throw boost::enable_current_exception(runtime_error(ss.str()));
 	}
 
