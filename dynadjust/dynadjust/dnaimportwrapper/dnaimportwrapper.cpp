@@ -406,7 +406,8 @@ int SearchForSimilarMeasurements(dna_import* parserDynaML, project_settings* p, 
 			}
 			catch (const ios_base::failure& f) {
 				stringstream ss;
-				ss << "- Error: Could not open " << p->i.dms_file << ". \n  Check that the file exists and that the file is not already opened.";
+				ss << "- Error: Could not open " << p->i.dms_file << "." << endl;
+				ss << "  Check that the file exists and that the file is not already opened." << endl << f.what();
 				if (!p->g.quiet)
 					cout << ss.str();
 				*imp_file << ss.str();
@@ -1680,7 +1681,8 @@ int main(int argc, char* argv[])
 			remove(p.i.dms_file);
 	}
 	catch (const ios_base::failure& f) { 
-		// do nothing on failure
+		// do nothing on failure.
+		imp_file << endl << "- Warning: " << f.what() << endl;
 	}
 
 	// Prepare file names if importing from a segmentation block
