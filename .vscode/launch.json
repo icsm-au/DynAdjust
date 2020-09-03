@@ -2,53 +2,17 @@
     // Use IntelliSense to learn about possible attributes.
     // Hover to view descriptions of existing attributes.
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    //
+    // adjust args: "args": ["dsg", "--output-adj-msr", "--phased", "--output-ignored"],
     "version": "0.2.0",
     "configurations": [
 
         {
-            "name": "(gdb) debug import",
+            "name": "debug import",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/dynadjust/build_gcc/dynadjust/dnaimportwrapper/dnaimport",
-            "args": ["-n driver", "dsg.stn", "dsg-pseudo-driver-file.msr", "--simulate", "--geo-file", "dsg.geo", "--export-dna"],
-            "stopAtEntry": true,
-            "cwd": "/home/roger/dist",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "gdb",
-            "setupCommands": [
-                {
-                    "description": "Enable pretty-printing for gdb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                }
-            ]
-        },
-        {
-            "name": "(gdb) debug reftran",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/dynadjust/build_gcc/dynadjust/dnareftranwrapper/dnareftran",
-            "args": ["50k", "-r itrf2014"],
-            "stopAtEntry": true,
-            "cwd": "/home/roger/dist",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "gdb",
-            "setupCommands": [
-                {
-                    "description": "Enable pretty-printing for gdb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                }
-            ]
-        },
-        {
-            "name": "(gdb) debug adjust",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/dynadjust/build_gcc/dynadjust/dnaadjustwrapper/dnaadjust",
-            "args": ["dsg", "--phased", "--output-adj-msr", "--output-ignored"],
+            "args": ["-n dsg", "dsg.stn", "dsg.msr"],
             "stopAtEntry": false,
             "cwd": "/home/roger/dist",
             "environment": [],
@@ -63,12 +27,88 @@
             ]
         },
         {
-            "name": "(gdb) debug segment",
+            "name": "debug geoid",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/dynadjust/build_gcc/dynadjust/dnageoidwrapper/dnageoid",
+            "args": ["dsg", "-g", "AUSGeoid2020_20180201.gsb", "--convert"],
+            "stopAtEntry": false,
+            "cwd": "/home/roger/dist",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "debug plot",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/dynadjust/build_gcc/dynadjust/dnaplotwrapper/dnaplot",
+            "args": ["dsg", "--phased"],
+            "stopAtEntry": false,
+            "cwd": "/home/roger/dist",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "debug reftran",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/dynadjust/build_gcc/dynadjust/dnareftranwrapper/dnareftran",
+            "args": ["dsg", "-r itrf2014"],
+            "stopAtEntry": true,
+            "cwd": "/home/roger/dist",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "debug adjust",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/dynadjust/build_gcc/dynadjust/dnaadjustwrapper/dnaadjust",
+            "args": ["dsg", "--output-adj-msr", "--phased", "--output-ignored"],
+            "stopAtEntry": false,
+            "cwd": "/home/roger/dist",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "debug segment",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/dynadjust/build_gcc/dynadjust/dnasegmentwrapper/dnasegment",
-            "args": ["dsg", "--min 1", "--max 2"],
-            "stopAtEntry": true,
+            "args": ["dsg", "--min", "200", "--max", "200"],
+            "stopAtEntry": false,
             "cwd": "/home/roger/dist",
             "environment": [],
             "externalConsole": false,
