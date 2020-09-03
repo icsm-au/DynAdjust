@@ -28,10 +28,10 @@ BIN_FOLDER_FULLPATH="`eval echo ${BIN_FOLDER//>}`"
 # opt installation folder
 OPT_DYNADJUST_PATH=/opt/dynadjust
 OPT_DYNADJUST_GCC_PATH=/opt/dynadjust/gcc
-DYNADJUST_INSTALL_PATH=/opt/dynadjust/gcc/1_0_2
+DYNADJUST_INSTALL_PATH=/opt/dynadjust/gcc/1_0_3
 
 echo " "
-echo "Build and installation of dynadjust 1.0.2"
+echo "Build and installation of dynadjust 1.0.3"
 echo "==========================================================================="
 echo "Repository settings:"
 echo " Git repo:      ${_clone_url}"
