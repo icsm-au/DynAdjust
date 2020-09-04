@@ -530,7 +530,7 @@ int main(int argc, char* argv[])
 		}
 		catch (...) {	
 			cout << "- Error: An error was encountered when opening " << input_file << "." << endl;
-			cout << "  Check that the file exists and that the file is not already opened." << endl << f.what();
+			cout << "  Check that the file exists and that the file is not already opened.";
 			return EXIT_FAILURE;
 		}
 
