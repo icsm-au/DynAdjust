@@ -141,12 +141,14 @@ void dna_io_seg::load_seg_file(const string& seg_filename, UINT32& blockCount,
 	ss_err.str("");
 	ss_err << "load_seg_file(): An error was encountered when reading from " << seg_filename << "." << endl;
 
-	UINT32 b, blk, c, blkCount(0), i, j, m, 
-		netID(0), jslCount(0), islCount(0), msrCount(0), stnCount(0);	
+	UINT32 b, blk, c, i, j, m, 
+		blkCount(0), netID(0), jslCount(0), islCount(0), msrCount(0), stnCount(0);	
 	
-	char line[PRINT_LINE_LENGTH], format_spec[41], format_spec_netid[6], 
+	char line[PRINT_LINE_LENGTH], format_spec_netid[6], 
 		format_spec_junct[6], format_spec_inner[6], format_spec_measr[6];
-		
+
+	string sBuf, tmp;
+
 	try {
 		
 		load_seg_file_header(seg_filename, seg_file, blockCount, 
@@ -169,7 +171,6 @@ void dna_io_seg::load_seg_file(const string& seg_filename, UINT32& blockCount,
 		seg_file.ignore(PRINT_LINE_LENGTH, '\n');		// ------------------------
 		seg_file.ignore(PRINT_LINE_LENGTH, '\n');		//   Block   Junction stns  Inner stns  Measurements  Total stns  
 
-		sprintf(format_spec, "%%%d%s%%%d%s%%%d%s%%%d%s%%%d%s%%%d%s", BLOCK, "lu", NETID, "lu", JUNCT, "lu", INNER, "lu", MEASR, "lu", MEASR, "lu");
 		sprintf(format_spec_netid, "%%%d%s", NETID, "lu");
 		sprintf(format_spec_junct, "%%%d%s", JUNCT, "lu");
 		sprintf(format_spec_inner, "%%%d%s", INNER, "lu");
@@ -177,16 +178,103 @@ void dna_io_seg::load_seg_file(const string& seg_filename, UINT32& blockCount,
 		
 		
 		UINT32 t;
+		UINT16 column;
 		// read block sizes
 		for (t=0; t<blockCount; ++t)
 		{
-			seg_file.getline(line, PRINT_LINE_LENGTH);
+			column = 0;
+			getline(seg_file, sBuf);
 
-			if (strncmp(line, "--------------------", 20) == 0)
+			if (sBuf.compare(0, 20, "--------------------") == 0)
 				throw boost::enable_current_exception(runtime_error("  Segmentation file is corrupt."));
-		
-			if (sscanf(line, format_spec, &blkCount, &netID, &jslCount, &islCount, &msrCount, &stnCount) < 6)
-				throw boost::enable_current_exception(runtime_error("  Segmentation file is corrupt."));
+
+			// Block number
+			try {
+				tmp = trimstr(sBuf.substr(column, BLOCK));
+				if (tmp.empty())
+					throw boost::enable_current_exception(runtime_error("  Unable to retrieve Block number."));
+				blkCount = LongFromString<UINT32>(tmp);
+			}
+			catch (...) {
+				ss_err.str("");
+				ss_err << "  Segmentation file is corrupt: Could not extract Block number from the record:  " << endl << "    " << sBuf << endl;
+				throw boost::enable_current_exception(runtime_error(ss_err.str().c_str()));
+			}
+
+			column += BLOCK;
+
+			// Network ID
+			try {
+				tmp = trimstr(sBuf.substr(column, NETID));
+				if (tmp.empty())
+					throw boost::enable_current_exception(runtime_error("  Unable to retrieve Network ID."));
+				netID = LongFromString<UINT32>(tmp);
+			}
+			catch (...) {
+				ss_err.str("");
+				ss_err << "  Segmentation file is corrupt: Could not extract Network ID from the record:  " << endl << "    " << sBuf << endl;
+				throw boost::enable_current_exception(runtime_error(ss_err.str().c_str()));
+			}
+
+			column += NETID;
+
+			// Junction station count
+			try {
+				tmp = trimstr(sBuf.substr(column, JUNCT));
+				if (tmp.empty())
+					throw boost::enable_current_exception(runtime_error("  Unable to retrieve Junction station count."));
+				jslCount = LongFromString<UINT32>(tmp);
+			}
+			catch (...) {
+				ss_err.str("");
+				ss_err << "  Segmentation file is corrupt: Could not extract Junction station count from the record:  " << endl << "    " << sBuf << endl;
+				throw boost::enable_current_exception(runtime_error(ss_err.str().c_str()));
+			}
+
+			column += JUNCT;
+
+			// Inner station count
+			try {
+				tmp = trimstr(sBuf.substr(column, INNER));
+				if (tmp.empty())
+					throw boost::enable_current_exception(runtime_error("  Unable to retrieve Inner station count."));
+				islCount = LongFromString<UINT32>(tmp);
+			}
+			catch (...) {
+				ss_err.str("");
+				ss_err << "  Segmentation file is corrupt: Could not extract Inner station count from the record:  " << endl << "    " << sBuf << endl;
+				throw boost::enable_current_exception(runtime_error(ss_err.str().c_str()));
+			}
+
+			column += INNER;
+
+			// Measurement count
+			try {
+				tmp = trimstr(sBuf.substr(column, MEASR));
+				if (tmp.empty())
+					throw boost::enable_current_exception(runtime_error("  Unable to retrieve Measurement count."));
+				msrCount = LongFromString<UINT32>(tmp);
+			}
+			catch (...) {
+				ss_err.str("");
+				ss_err << "  Segmentation file is corrupt: Could not extract Measurement count from the record:  " << endl << "    " << sBuf << endl;
+				throw boost::enable_current_exception(runtime_error(ss_err.str().c_str()));
+			}
+
+			column += MEASR;
+
+			// Total station count
+			try {
+				tmp = trimstr(sBuf.substr(column));
+				if (tmp.empty())
+					throw boost::enable_current_exception(runtime_error("  Unable to retrieve Total station count."));
+				stnCount = LongFromString<UINT32>(tmp);
+			}
+			catch (...) {
+				ss_err.str("");
+				ss_err << "  Segmentation file is corrupt: Could not extract Total station count from the record:  " << endl << "    " << sBuf << endl;
+				throw boost::enable_current_exception(runtime_error(ss_err.str().c_str()));
+			}
 
 			if (stnCount != islCount + jslCount)
 				throw boost::enable_current_exception(runtime_error("  Segmentation file is corrupt."));
@@ -203,6 +291,8 @@ void dna_io_seg::load_seg_file(const string& seg_filename, UINT32& blockCount,
 			}
 		}
 		
+		if (blkCount != blockCount)
+			throw boost::enable_current_exception(runtime_error("load_seg_file(): Segmentation file is corrupt."));
 
 		// skip header info
 		seg_file.ignore(PRINT_LINE_LENGTH, '\n');			// ------------------------

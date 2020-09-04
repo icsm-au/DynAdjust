@@ -191,7 +191,7 @@ void dna_import::InitialiseDatum(const string& reference_frame)
 {
 	try {
 		// Take the default reference frame, set either by the user or
-		// the datum_ constructor (GDA94).  Epoch is that of the default
+		// the datum_ constructor (GDA2020).  Epoch is that of the default
 		// reference frame (indicated by "")
 		datum_.SetDatumFromName(reference_frame, "");
 	}
@@ -222,11 +222,11 @@ void dna_import::InitialiseDatum(const string& reference_frame)
 	
 
 // DynaXML, dna v.1-2 and sinex file formats do not contain reference frame information, so
-// by default the reference frame for all stations is set to GDA.
+// by default the reference frame for all stations is set to GDA2020.
 // This function is called to modify the default frame to a user-specified frame
 void dna_import::SetDefaultReferenceFrame(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements)
 {
-	// Default is GDA94.
+	// Default is GDA2020.
 	switch (m_ift)
 	{
 	case sinex:			// SNX	
@@ -346,7 +346,7 @@ _PARSE_STATUS_ dna_import::ParseInputFile(const string& fileName, vdnaStnPtr* vS
 		// release file pointer mutex
 		import_file_mutex.unlock();
 	}
-	catch (const ios_base::failure f) {	
+	catch (const ios_base::failure& f) {	
 		ss.str("");
 		ss << "ParseInputFile(): An error was encountered when opening " << fileName << "." << endl << "  " << f.what() << endl << "  Check that the file exists and that the file is not already opened.";
 		SignalExceptionParse(ss.str(), 0);
@@ -373,7 +373,7 @@ _PARSE_STATUS_ dna_import::ParseInputFile(const string& fileName, vdnaStnPtr* vS
 		// release file pointer mutex
 		import_file_mutex.unlock();
 	}
-	catch (const ios_base::failure f) {	
+	catch (const ios_base::failure& f) {	
 		ss.str("");
 		ss << "ParseInputFile(): An error was encountered when reading " << fileName << "." << endl << "  " << f.what() << endl;
 		SignalExceptionParse(ss.str(), 0);
@@ -1362,6 +1362,8 @@ void dna_import::ParseDNASTN(vdnaStnPtr* vStations, PUINT32 stnCount, string* su
 			case LLh_type_i:
 				ss << "latitude";
 				break;
+			default:
+				break;
 			}
 			ss << " value from the record:  " << endl << "    " << sBuf << endl;
 			m_columnNo = dsl_.stn_e_phi_x+1;
@@ -1386,6 +1388,8 @@ void dna_import::ParseDNASTN(vdnaStnPtr* vStations, PUINT32 stnCount, string* su
 			case LLH_type_i:
 			case LLh_type_i:
 				ss << "longitude";
+				break;
+			default:
 				break;
 			}
 			ss << " value from the record:  " << endl << "    " << sBuf << endl;
@@ -1413,6 +1417,8 @@ void dna_import::ParseDNASTN(vdnaStnPtr* vStations, PUINT32 stnCount, string* su
 			case UTM_type_i:
 				ss << "height";
 				break;
+			default:
+				break;
 			}
 			ss << " value from the record:  " << endl << "    " << sBuf << endl;
 			m_columnNo = dsl_.stn_ht_z+1;
@@ -1432,7 +1438,7 @@ void dna_import::ParseDNASTN(vdnaStnPtr* vStations, PUINT32 stnCount, string* su
 					stringstream ss;
 					ss << "ParseDNASTN(): Could not extract station hemisphere and zone from the record:  " << endl << "    " << sBuf << endl;
 					m_columnNo = dsl_.stn_hemi_zo+1;
-					throw XMLInteropException(ss.str(), m_lineNo);	
+					throw XMLInteropException(ss.str(), m_lineNo);
 				}
 			}
 		}
@@ -1503,6 +1509,10 @@ void dna_import::ParseDNAMSR(vdnaStnPtr* vStations, pvdnaMsrPtr vMeasurements, P
 		
 		// blank or whitespace?
 		if (trimstr(sBuf).empty())			
+			continue;
+		
+		// one character (most likely '*') line
+		if (trimstr(sBuf).length() < 2)
 			continue;
 
 		// no station value?
@@ -3938,10 +3948,10 @@ void dna_import::SerialiseDNA(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements,
 		dna_stn_file.close();
 
 	}
-	catch (const std::ifstream::failure f) {
+	catch (const std::ifstream::failure& f) {
 		SignalExceptionInterop(static_cast<string>(f.what()), 0, "o", &dna_stn_file);
 	}
-	catch (const XMLInteropException &e)  {
+	catch (const XMLInteropException& e)  {
 		SignalExceptionInterop(static_cast<string>(e.what()), 0, "o", &dna_stn_file);
 	}
 
@@ -3976,10 +3986,10 @@ void dna_import::SerialiseDNA(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements,
 		dna_msr_file.close();
 
 	}
-	catch (const std::ifstream::failure f) {
+	catch (const std::ifstream::failure& f) {
 		SignalExceptionInterop(static_cast<string>(f.what()), 0, "o", &dna_msr_file);
 	}
-	catch (const XMLInteropException &e)  {
+	catch (const XMLInteropException& e)  {
 		SignalExceptionInterop(static_cast<string>(e.what()), 0, "o", &dna_msr_file);
 	}
 
@@ -4063,11 +4073,11 @@ void dna_import::SerialiseDynaMLfromBinary(const string& outfilename,
 	try {
 		SerialiseXmlMsr(&bst_file, &bms_file, &dynaml_file);
 	}
-	catch (const std::ifstream::failure f) {
+	catch (const std::ifstream::failure& f) {
 		SignalExceptionInterop(static_cast<string>(f.what()), 0, 
 			"iio", &bst_file, &bms_file, &dynaml_file);
 	}
-	catch (const XMLInteropException &e)  {
+	catch (const XMLInteropException& e)  {
 		SignalExceptionInterop(static_cast<string>(e.what()), 0, 
 			"iio", &bst_file, &bms_file, &dynaml_file);
 	}
@@ -4128,11 +4138,11 @@ void dna_import::SerialiseDynaMLfromMemory(vdnaStnPtr* vStations, vdnaMsrPtr* vM
 				msr->WriteDynaMLMsr(&dynaml_file);
 		});
 	}
-	catch (const std::ifstream::failure f) {
+	catch (const std::ifstream::failure& f) {
 		SignalExceptionInterop(static_cast<string>(f.what()), 0, 
 			"o", &dynaml_file);
 	}
-	catch (const XMLInteropException &e)  {
+	catch (const XMLInteropException& e)  {
 		SignalExceptionInterop(static_cast<string>(e.what()), 0, 
 			"o", &dynaml_file);
 	}
@@ -4244,11 +4254,11 @@ void dna_import::SerialiseDynaMLSepfromBinary(const string& stnfilename, const s
 		dynaml_msr_file << "</DnaXmlFormat>" << endl;
 		dynaml_msr_file.close();
 	}
-	catch (const std::ifstream::failure f) {
+	catch (const std::ifstream::failure& f) {
 		SignalExceptionInterop(static_cast<string>(f.what()), 0, 
 			"iio", &bst_file, &bms_file, &dynaml_msr_file);
 	}
-	catch (const XMLInteropException &e)  {
+	catch (const XMLInteropException& e)  {
 		SignalExceptionInterop(static_cast<string>(e.what()), 0, 
 			"iio", &bst_file, &bms_file, &dynaml_msr_file);
 	}
@@ -4292,10 +4302,10 @@ void dna_import::SerialiseDynaMLSepfromMemory(vdnaStnPtr* vStations, vdnaMsrPtr*
 		dynaml_stn_file.close();
 
 	}
-	catch (const std::ifstream::failure f) {
+	catch (const std::ifstream::failure& f) {
 		SignalExceptionInterop(static_cast<string>(f.what()), 0, "o", &dynaml_stn_file);
 	}
-	catch (const XMLInteropException &e)  {
+	catch (const XMLInteropException& e)  {
 		SignalExceptionInterop(static_cast<string>(e.what()), 0, "o", &dynaml_stn_file);
 	}
 
@@ -4314,10 +4324,10 @@ void dna_import::SerialiseDynaMLSepfromMemory(vdnaStnPtr* vStations, vdnaMsrPtr*
 		dynaml_msr_file.close();
 
 	}
-	catch (const std::ifstream::failure f) {
+	catch (const std::ifstream::failure& f) {
 		SignalExceptionInterop(static_cast<string>(f.what()), 0, "o", &dynaml_msr_file);
 	}
-	catch (const XMLInteropException &e)  {
+	catch (const XMLInteropException& e)  {
 		SignalExceptionInterop(static_cast<string>(e.what()), 0, "o", &dynaml_msr_file);
 	}
 }
@@ -4346,10 +4356,10 @@ void dna_import::SerialiseGeoidData(vdnaStnPtr* vStations, const string& geofile
 		dynaml_geo_file.close();
 		
 	}
-	catch (const std::ifstream::failure f) {
+	catch (const std::ifstream::failure& f) {
 		SignalExceptionInterop(static_cast<string>(f.what()), 0, "o", &dynaml_geo_file);
 	}
-	catch (const XMLInteropException &e)  {
+	catch (const XMLInteropException& e)  {
 		SignalExceptionInterop(static_cast<string>(e.what()), 0, "o", &dynaml_geo_file);
 	}
 }
@@ -4498,10 +4508,10 @@ void dna_import::SerialiseDatabaseId(const string& dbid_filename, pvdnaMsrPtr vM
 
 		dbid_file.close();
 	}
-	catch (const std::ifstream::failure f) {
+	catch (const std::ifstream::failure& f) {
 		SignalExceptionInterop(static_cast<string>(f.what()), 0, NULL);
 	}
-	catch (const XMLInteropException &e)  {
+	catch (const XMLInteropException& e)  {
 		SignalExceptionInterop(static_cast<string>(e.what()), 0, NULL);
 	}
 }
@@ -4692,7 +4702,7 @@ UINT32 dna_import::FindSimilarMeasurements(vdnaMsrPtr* vMeasurements, vdnaMsrPtr
 	// sort measurements list by Type then by First station
 	sort(vMeasurements->begin(), vMeasurements->end(), CompareMsr<CDnaMeasurement>());
 
-	bool similar;
+	//bool similar;
 	int similar_msrs_found(0);
 	vSimilarMeasurements->clear();
 	
@@ -4705,7 +4715,7 @@ UINT32 dna_import::FindSimilarMeasurements(vdnaMsrPtr* vMeasurements, vdnaMsrPtr
 		if (_it_msr->get()->GetTypeC() != _it_msrprev->get()->GetTypeC())
 			continue;		
 
-		similar = false;
+		//similar = false;
 
 		switch (_it_msr->get()->GetTypeC())
 		{
@@ -5404,10 +5414,10 @@ void dna_import::SimulateMSR(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements,
 		dna_msr_file.close();
 
 	}
-	catch (const std::ifstream::failure f) {
+	catch (const std::ifstream::failure& f) {
 		SignalExceptionInterop(static_cast<string>(f.what()), 0, "o", &dna_msr_file);
 	}
-	catch (const XMLInteropException &e)  {
+	catch (const XMLInteropException& e)  {
 		SignalExceptionInterop(static_cast<string>(e.what()), 0, "o", &dna_msr_file);
 	}
 }
@@ -5434,13 +5444,13 @@ void dna_import::MapMeasurementStations(vdnaMsrPtr* vMeasurements, pvASLPtr vAss
 	vAssocStnList->clear();
 	vAssocStnList->resize(vStnsMap_sortName_.size());
 
-	size_t index = 0;
+	//size_t index = 0;
 	*lMapCount = 0;
 	_it_vdnamsrptr _it_msr(vMeasurements->begin());
 	// set map values
 	for (_it_msr=vMeasurements->begin(); _it_msr != vMeasurements->end(); _it_msr++)
 	{
-		index = _it_msr - vMeasurements->begin();
+		//index = _it_msr - vMeasurements->begin();
 
 		// The following is provided so as to cater for the opportunity to 
 		// reintroduce an ignored measurement at a later stage, such as via a GUI.
@@ -5782,7 +5792,7 @@ void dna_import::MapMeasurementStationsBsl(vector<CDnaGpsBaseline>* vGpsBaseline
 	vector< CDnaGpsBaseline >::iterator _it_msr(vGpsBaselines->begin());
 	
 	string station_name;
-	UINT32 station_index, msrs_per_cluster_row;
+	UINT32 station_index; //, msrs_per_cluster_row;
 
 #ifdef _MSDEBUG
 	CAStationList* stnList;
@@ -5796,7 +5806,7 @@ void dna_import::MapMeasurementStationsBsl(vector<CDnaGpsBaseline>* vGpsBaseline
 		_it_msr != vGpsBaselines->end(); 
 		_it_msr++)
 	{
-		msrs_per_cluster_row = 3 + static_cast<UINT32>(_it_msr->GetCovariances_ptr()->size() * 3);
+		//msrs_per_cluster_row = 3 + static_cast<UINT32>(_it_msr->GetCovariances_ptr()->size() * 3);
 		
 		// <First> station
 		station_name = _it_msr->GetFirst();
@@ -5908,7 +5918,7 @@ void dna_import::MapMeasurementStationsPnt(vector<CDnaGpsPoint>* vGpsPoints, pvA
 	vector< CDnaGpsPoint >::iterator _it_msr;
 
 	string station_name;
-	UINT32 station_index, msrs_per_cluster_row;
+	UINT32 station_index; //, msrs_per_cluster_row;
 
 #ifdef _MSDEBUG
 	CAStationList* stnList;
@@ -5916,7 +5926,7 @@ void dna_import::MapMeasurementStationsPnt(vector<CDnaGpsPoint>* vGpsPoints, pvA
 
 	for (_it_msr=vGpsPoints->begin(); _it_msr != vGpsPoints->end(); _it_msr++)
 	{
-		msrs_per_cluster_row = 3 + static_cast<UINT32>(_it_msr->GetCovariances_ptr()->size() * 3);
+		//msrs_per_cluster_row = 3 + static_cast<UINT32>(_it_msr->GetCovariances_ptr()->size() * 3);
 
 		// <First> station
 		station_name = _it_msr->GetFirst();

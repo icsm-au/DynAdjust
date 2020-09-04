@@ -238,13 +238,13 @@ private:
 	bool				m_isWriting;
 
 	// grid file to be held in memory
-	std::ifstream			m_pGfileptr;
+	std::ifstream		m_pGfileptr;
 	n_file_par*			m_pGridfile;				// Holds the parameters used for NTv2 grid file
 
-	int					m_Grid_Success;				// Integer success value ( 0 = success; non zero = failure)
 	double				m_dPercentComplete;			// percentage of bytes read from file
 	int					m_iBytesRead;				// bytes read from file
-
+	int					m_Grid_Success;				// Integer success value ( 0 = success; non zero = failure)
+	
 	binary_file_meta_t	bst_meta_;
 	
 	vstn_t				bstBinaryRecords_;

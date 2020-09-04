@@ -26,12 +26,12 @@
 namespace dynadjust { namespace geoidinterpolation {
 
 dna_geoid_interpolation::dna_geoid_interpolation()
-	: m_pGridfile(0)
+	: m_isReading(false)
+	, m_isWriting(false)
+	, m_pGridfile(0)
 	, m_dPercentComplete(0.0)
 	, m_iBytesRead(0)
 	, m_Grid_Success(ERR_TRANS_SUCCESS)
-	, m_isReading(false)
-	, m_isWriting(false)
 {
 	
 }
@@ -1007,8 +1007,6 @@ void dna_geoid_interpolation::CreateNTv2File(const char* datFile, const n_file_p
 	if (!GridfileTmp.ptrIndex)
 		GridfileTmp.ptrIndex = new n_gridfileindex[1];
 
-	int filetype = DetermineFileType(grid->filetype);
-
 	std::ifstream f_in;
 	try {
 		// open dat file.  Throws runtime_error on failure.
@@ -1040,7 +1038,6 @@ void dna_geoid_interpolation::CreateNTv2File(const char* datFile, const n_file_p
 	streamoff lFileLen = f_in.tellg();
 	f_in.seekg(0, ios::beg);		// reset file pointer to beginning
 	
-	char *fgetsresult = NULL;
 	char szLine[MAX_RECORD_LENGTH];
 
 	int lat_deg, lat_min, lon_deg, lon_min;
@@ -2885,9 +2882,9 @@ void dna_geoid_interpolation::ComputeLatLong(double* dlat_initial, const char& c
 // AusGeoid files typically run column-wise first (left to right on longitude), then 
 // row-wise (top to bottom on latitude). However, this assumption will not be used for the benefit of doubt!!!
 // Every record following needs to be tested to see whether:
-//   1. the increment is significant (i.e. 160º00'00" - 160º02'00"), AND 
+//   1. the increment is significant (i.e. 160ï¿½00'00" - 160ï¿½02'00"), AND 
 //   2. that the current grid node record is not on the opposite edge of the grid to the last node.
-//      That is, last_long = 160º00'00", and current_long = 108º00'00".
+//      That is, last_long = 160ï¿½00'00", and current_long = 108ï¿½00'00".
 // TOLERANCE is set to 1.0 seconds. The default interval is 2 minutes (or 120 seconds).
 void dna_geoid_interpolation::ReComputeGridSeparation(const double& dlat_current, const double& dlon_current, const double& dlat_previous, const double& dlon_previous)
 {

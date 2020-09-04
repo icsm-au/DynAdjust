@@ -100,13 +100,14 @@ void file_opener(
 		stream.exceptions (/*ios_base::eofbit | */ios_base::badbit | ios_base::failbit);
 		stream.iword(0) = type;
 	}
-	catch (const ios_base::failure) {
+	catch (const ios_base::failure& f) {
 		stringstream ss;
 		if (fileMustExist && !boost::filesystem::exists(str.c_str()))
-			ss << "file_opener(): Can't find " << str << ". \n";
+			ss << "file_opener(): Can't find " << str << ".";
 		else
 			ss << "file_opener(): An error was encountered when opening " << 
 				str << ". \n  Check that the file is not already opened.";
+		ss << endl << f.what();
 		throw boost::enable_current_exception(runtime_error(ss.str()));
 	}
 

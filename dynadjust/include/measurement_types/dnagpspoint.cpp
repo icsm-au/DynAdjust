@@ -46,11 +46,12 @@ CDnaGpsPoint::CDnaGpsPoint(void)
 	, m_dLscale(1.)
 	, m_dHscale(1.)
 	, m_dVscale(1.)
+	, m_strCoordType("XYZ")
+	, m_ctType(XYZ_type_i)
 	, m_referenceFrame(DEFAULT_DATUM)
 	, m_epoch(DEFAULT_EPOCH)
-	, m_strCoordType("XYZ")
 	, m_lclusterID(0)
-	, m_ctType(XYZ_type_i)
+	
 {
 	SetEpsg(epsgStringFromName<string>(m_referenceFrame));
 
@@ -845,11 +846,11 @@ CDnaGpsPointCluster::CDnaGpsPointCluster(void)
 	, m_dLscale(1.)
 	, m_dHscale(1.)
 	, m_dVscale(1.)
+	, m_strCoordType("XYZ")
+	, m_ctType(XYZ_type_i)
 	, m_referenceFrame(DEFAULT_DATUM)
 	, m_epoch(DEFAULT_EPOCH)
-	, m_strCoordType("XYZ")
 	, m_lclusterID(0)
-	, m_ctType(XYZ_type_i)
 {
 	SetEpsg(epsgStringFromName<string>(m_referenceFrame));
 
@@ -903,11 +904,11 @@ CDnaGpsPointCluster::CDnaGpsPointCluster(const UINT32 lclusterID, const string& 
 	, m_dLscale(1.)
 	, m_dHscale(1.)
 	, m_dVscale(1.)
+	, m_strCoordType("XYZ")
+	, m_ctType(XYZ_type_i)
 	, m_referenceFrame(referenceframe)
 	, m_epoch(epoch)
-	, m_strCoordType("XYZ")
 	, m_lclusterID(lclusterID)
-	, m_ctType(XYZ_type_i)
 {
 	SetEpsg(epsgStringFromName<string>(referenceframe));
 

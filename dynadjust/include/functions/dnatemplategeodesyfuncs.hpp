@@ -527,7 +527,7 @@ T GreatCircleDistance(const T& dLatitudeAT, const T& dLongitudeAT, const T& dLat
 }
 
 // Rigorous Geodesic via Robbins' formula
-// Robbins, A. R. (1962). “Long lines on the spheroid.” Surv. Rev., XVI(125), 301–309.
+// Robbins, A. R. (1962). ï¿½Long lines on the spheroid.ï¿½ Surv. Rev., XVI(125), 301ï¿½309.
 template <class T>
 T RobbinsReverse(const T& dLatitudeAT, const T& dLongitudeAT, const T& dLatitudeTO, const T& dLongitudeTO, T* pAzimuth, const CDnaEllipsoid* ellipsoid)
 {
@@ -579,53 +579,51 @@ T RobbinsReverse(const T& dLatitudeAT, const T& dLongitudeAT, const T& dLatitude
 
 
 template <class T>
-void VincentyInverse(const T& dLatitudeAT, const T& dLongitudeAT, const T& dAzimuth, const T& dDistance, 
+void VincentyDirect(const T& dLatitudeAT, const T& dLongitudeAT, const T& dAzimuth, const T& dDistance, 
 					T *dLatitudeTO, T *dLongitudeTO, const CDnaEllipsoid* ellipsoid)
 {
 	// calculate fundamentals
 	T f = ellipsoid->GetFlattening();
 	T b = ellipsoid->GetSemiMinor();
-	T TanU1 = (1.0 - f) * tan(dLatitudeAT);		// from lat pos in radians
-	T TanSigma1 = TanU1 / cos(dAzimuth);
-	T SinAlpha = cos(atan(TanU1)) * sin(dAzimuth);
-	T u2 = pow(cos(asin(SinAlpha)), 2.0) * (pow(ellipsoid->GetSemiMajor(), 2.0) - pow(b, 2.0)) / pow(b, 2.0);
+
+	// parametric latitude of P'
+	T tanUI = (1.0 - f) * tan(dLatitudeAT);		
+	// angular distance
+	T tanSigma1 = tanUI / cos(dAzimuth);		
+	// parametric latitude of the geodesic vertex, or
+	// azimuth of the geodesic at the equator
+	T sinAlpha = cos(atan(tanUI)) * sin(dAzimuth);
+	T Alpha = asin(sinAlpha);
+	T cosAlpha = cos(Alpha);
+	// geodesic constant
+	T u2 = pow(cosAlpha, 2.0) * (pow(ellipsoid->GetSemiMajor(), 2.0) - pow(b, 2.0)) / pow(b, 2.0);
+	
+	// Vincenty's constants A' and B'
 	T A = 1.0 + (u2/16384.0) * (4096.0 + (u2 * (-768.0 + (u2 * (320.0 - (175.0 * u2))))));
 	T B = (u2/1024.0) * (256.0 + (u2 * (-128.0 + (u2 * (74.0 - (47.0 * u2))))));
+	
 	T Sigma = dDistance / (b * A);
-	T TwoSigmam, deltaSigma, SigmaDiff(99.);
-	T p, q, r, s, t, u, v, w, x;
-	//Sigma = 0.0078558425;
+	T twoSigmam, deltaSigma, SigmaDiff(99.);
 	
 	// iterate until no signigicant change in sigma
 	for (UINT16 i(0); i<10; i++)
 	{
 		if (fabs(SigmaDiff) < PRECISION_1E16)
 			break;
-		p = 2.0 * atan(TanSigma1);					// 2 sigma 1
-		q = B * sin(Sigma);							// B sin sigma
-		r = (2.0 * atan(TanSigma1)) + Sigma;			// 2 sigma m
-		s = cos(r);									// cos 2 sigma m
-		t = cos(Sigma) * (-1.0 + (2.0 * s * s));		// cos sigma etc
-		u = -3.0 + (4.0 * sin(Sigma) * sin(Sigma));	// bracket 1
-		v = -3.0 + (4.0 * s * s);						// bracket 2
-		w = q * (s + B/4. * (t - B/6. * s * u * v));	// delta sigma
-		x = dDistance / (b * A) + w;					// sigma
 
-		TwoSigmam = (2.0 * atan(TanSigma1)) + Sigma;
-		deltaSigma = B * sin(Sigma) * (cos(TwoSigmam) + (B / 4.0 * ((cos(Sigma) * (-1.0 + (2.0 * pow(cos(TwoSigmam), 2.0)))) - (B / 6.0 * cos(TwoSigmam) * (-3.0 + (4.0 * pow(sin(Sigma), 2.0))) * ((-3.0 + (4.0 * pow(cos(TwoSigmam), 2.0))))))));
+		twoSigmam = (2.0 * atan(tanSigma1)) + Sigma;
+		deltaSigma = B * sin(Sigma) * (cos(twoSigmam) + (B / 4.0 * ((cos(Sigma) * (-1.0 + (2.0 * pow(cos(twoSigmam), 2.0)))) - (B / 6.0 * cos(twoSigmam) * (-3.0 + (4.0 * pow(sin(Sigma), 2.0))) * ((-3.0 + (4.0 * pow(cos(twoSigmam), 2.0))))))));
 		SigmaDiff = Sigma;
 		Sigma = (dDistance / (b * A)) + deltaSigma;
 		SigmaDiff -= Sigma;
 	}
 	
 	// latitude of new position
-	T topterm = sin(atan(TanU1)) * cos(Sigma) + cos(atan(TanU1)) * sin(Sigma) * cos(dAzimuth);
-	T botterm = ((1.0 - f) * pow((pow(SinAlpha, 2.0) + pow(((sin(atan(TanU1)) * sin(Sigma)) - (cos(atan(TanU1)) * cos(Sigma) * cos(dAzimuth))), 2.0)), 0.5));
-	*dLatitudeTO = atan2(((sin(atan(TanU1)) * cos(Sigma)) + (cos(atan(TanU1)) * sin(Sigma) * cos(dAzimuth))), ((1.0 - f) * pow((pow(SinAlpha, 2.0) + pow(((sin(atan(TanU1)) * sin(Sigma)) - (cos(atan(TanU1)) * cos(Sigma) * cos(dAzimuth))), 2.0)), 0.5)));
+	*dLatitudeTO = atan2(((sin(atan(tanUI)) * cos(Sigma)) + (cos(atan(tanUI)) * sin(Sigma) * cos(dAzimuth))), ((1.0 - f) * pow((pow(sinAlpha, 2.0) + pow(((sin(atan(tanUI)) * sin(Sigma)) - (cos(atan(tanUI)) * cos(Sigma) * cos(dAzimuth))), 2.0)), 0.5)));
 	
-	T Lambda = atan2((sin(Sigma) * sin(dAzimuth)), ((cos(atan(TanU1)) * cos(Sigma)) - (sin(atan(TanU1))*sin(Sigma)*cos(dAzimuth))));
-	T C = (f / 16.0) * pow(cos(asin(SinAlpha)), 2.0) * (4.0 + (f * (4.0 - (3.0 * pow(cos(asin(SinAlpha)), 2.0)))));
-	T Omega = Lambda - ((1.0 - C) * f * SinAlpha * (Sigma + (C * sin(Sigma) * (cos(TwoSigmam) + (C * cos(Sigma) * (-1 + (2 * pow(cos(TwoSigmam), 2.0))))))));
+	T Lambda = atan2((sin(Sigma) * sin(dAzimuth)), ((cos(atan(tanUI)) * cos(Sigma)) - (sin(atan(tanUI))*sin(Sigma)*cos(dAzimuth))));
+	T C = (f / 16.0) * pow(cosAlpha, 2.0) * (4.0 + (f * (4.0 - (3.0 * pow(cosAlpha, 2.0)))));
+	T Omega = Lambda - ((1.0 - C) * f * sinAlpha * (Sigma + (C * sin(Sigma) * (cos(twoSigmam) + (C * cos(Sigma) * (-1 + (2 * pow(cos(twoSigmam), 2.0))))))));
 	
 	// longitude of new position
 	*dLongitudeTO = dLongitudeAT + Omega;

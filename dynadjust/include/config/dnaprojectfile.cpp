@@ -144,7 +144,7 @@ void CDnaProjectFile::LoadProjectFile()
 		try {
 			getline(dnaproj_file, line, '\n');
 		}
-		catch (std::ifstream::failure f)
+		catch (std::ifstream::failure& f)
 		{
 			if (dnaproj_file.eof())
 				break;
@@ -281,6 +281,8 @@ void CDnaProjectFile::LoadProjectFile()
 				break;
 			case displaySetting:
 				break;
+			default:
+  				break;
 			}
 		}
 		catch (const runtime_error& e) {
@@ -641,6 +643,8 @@ void CDnaProjectFile::LoadSettingGeneral(const settingMode mSetting, const strin
 		case generalSetting:
 			settings_.g.network_name = val;
 			break;
+		default:
+  			break;
 		}			
 	}
 	else if (iequals(var, INPUT_FOLDER))
@@ -711,6 +715,8 @@ void CDnaProjectFile::LoadSettingImport(const settingMode mSetting, const string
 				// user specified bst file - look in input folder
 				settings_.i.bst_file = formPath<string>(settings_.g.input_folder, val);
 			break;
+		default:
+  			break;
 		}
 	}
 	else if (iequals(var, BIN_MSR_FILE))
@@ -736,6 +742,8 @@ void CDnaProjectFile::LoadSettingImport(const settingMode mSetting, const string
 			else
 				settings_.i.bms_file = formPath<string>(settings_.g.input_folder, val);
 			break;
+		default:
+  			break;
 		}
 	}
 	else if (iequals(var, MAP_FILE))
@@ -758,6 +766,8 @@ void CDnaProjectFile::LoadSettingImport(const settingMode mSetting, const string
 		case importSetting:
 			settings_.i.map_file = formPath<string>(settings_.g.output_folder, val);
 			break;
+		default:
+  			break;
 		}			
 	}
 	else if (iequals(var, ASL_FILE))
@@ -780,6 +790,8 @@ void CDnaProjectFile::LoadSettingImport(const settingMode mSetting, const string
 		case importSetting:
 			settings_.i.asl_file = formPath<string>(settings_.g.output_folder, val);
 			break;
+		default:
+  			break;
 		}
 	}
 	else if (iequals(var, AML_FILE))
@@ -802,6 +814,8 @@ void CDnaProjectFile::LoadSettingImport(const settingMode mSetting, const string
 		case importSetting:
 			settings_.i.aml_file = formPath<string>(settings_.g.output_folder, val);
 			break;
+		default:
+  			break;
 		}
 	}
 	else if (iequals(var, DST_FILE))

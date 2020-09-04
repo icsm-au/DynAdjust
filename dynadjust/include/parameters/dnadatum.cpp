@@ -28,11 +28,11 @@ using namespace dynadjust::epsg;
 namespace dynadjust {
 namespace datum_parameters {
 
-// default to GDA94
+// default to GDA2020
 CDnaDatum::CDnaDatum(void)
-	// "GDA94 (3D)" - geographic
+	// "GDA2020 (3D)" - geographic
 	: epsgCode_(DEFAULT_EPSG_U)
-	, epoch_(date(1994, 1, 1))
+	, epoch_(date(2020, 1, 1))
 	, datumType_(STATIC_DATUM)
 	, datumName_(DEFAULT_DATUM)
 {
@@ -129,7 +129,7 @@ string CDnaDatum::GetEpoch_s() const
 string CDnaDatum::GetEpsgCode_s() const 
 {
 	char epsgCode[8];
-	sprintf(epsgCode, "%d\0", epsgCode_);
+	sprintf(epsgCode, "%d", epsgCode_);
 	return string(epsgCode); 
 }
 

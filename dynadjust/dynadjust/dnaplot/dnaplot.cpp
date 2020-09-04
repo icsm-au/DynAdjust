@@ -26,11 +26,11 @@ namespace dynadjust {
 namespace networkplot {
 
 dna_plot::dna_plot()
-	: output_folder_("")
+	: datum_(DEFAULT_EPSG_U)
+	, output_folder_("")
 	, network_name_("")
-	, blockCount_(1)
 	, stationCount_(0)
-	, datum_(DEFAULT_EPSG_U)
+	, blockCount_(1)
 {
 	v_msr_file_.clear();
 	v_isl_const_file_.clear();
@@ -498,8 +498,7 @@ void dna_plot::PrintGnuplotBatFileMsrs(const UINT32& fontSize)
 	}
 	gnuplotbat_file_ << endl;
 	
-	UINT32 block(0);
-
+	//UINT32 block(0);
 	//if (v_msr_tally_.at(block).MeasurementCount(_combined_msr_list.at(c)) == 0)
 	//	continue;
 
@@ -1092,11 +1091,11 @@ void dna_plot::PrintGMTBatfile(const string& epsname, plot_settings* plotCriteri
 			if (plotCriteria_._label_font_size < 0.)
 				plotCriteria_._label_font_size = 6;
 
-				gmtbat_file_ << "pscoast -R" << 
-			fixed << setprecision(7) << leftDeg_ << "/" <<
-			fixed << setprecision(7) << lowerDeg_ << "/" <<
-			fixed << setprecision(7) << rightDeg_ << "/" <<
-			fixed << setprecision(7) << upperDeg_;
+			gmtbat_file_ << "pscoast -R" << 
+				fixed << setprecision(7) << leftDeg_ << "/" <<
+				fixed << setprecision(7) << lowerDeg_ << "/" <<
+				fixed << setprecision(7) << rightDeg_ << "/" <<
+				fixed << setprecision(7) << upperDeg_;
 
 			// example: -Jb136.5/-36/-18/-36/1:45000000
 			//gmtbat_file_ << "r -Jb" << fixed << setprecision(7) << centre_width_ << "/" <<
@@ -1699,9 +1698,9 @@ void dna_plot::PrintGMTBatfile(const string& epsname, plot_settings* plotCriteri
 			gmtbat_file_ << "echo G 0.25 >> legend" << endl;		// space
 			gmtbat_file_ << "echo N 5 >> legend" << endl;
 
-			gmtbat_file_ << "echo S 0.01 c 0.01 white 1p,white 1 Geodetic Survey >> legend" << endl;
-			gmtbat_file_ << "echo S 0.01 c 0.01 white 1p,white 0 Office of Surveyor-General, Victoria >> legend" << endl;
-			gmtbat_file_ << "echo S 0.01 c 0.01 white 1p,white 3 GDA94 >> legend" << endl;
+			gmtbat_file_ << "echo S 0.01 c 0.01 white 1p,white 1 Geodesy >> legend" << endl;
+			gmtbat_file_ << "echo S 0.01 c 0.01 white 1p,white 0 Surveyor-General Victoria >> legend" << endl;
+			gmtbat_file_ << "echo S 0.01 c 0.01 white 1p,white 3 GDA2020 >> legend" << endl;
 			gmtbat_file_ << "echo S 0.01 c 0.01 white 1p,white 0 " << projectionTypes[plotCriteria_._projection] << " projection >> legend" << endl;
 			gmtbat_file_ << "echo S 0.01 c 0.01 white 1p,white 1 Scale 1:" << static_cast<UINT32>(scale) << " \"(A3)\" >> legend" << endl;
 
@@ -2169,19 +2168,19 @@ void dna_plot::CalculateLimitsFromPoint()
 	
 	CDnaEllipsoid e(DEFAULT_EPSG_U);
 
-	VincentyInverse<double>(Radians<double>(plotCriteria_._plot_centre_latitude), Radians<double>(plotCriteria_._plot_centre_longitude),
+	VincentyDirect<double>(Radians<double>(plotCriteria_._plot_centre_latitude), Radians<double>(plotCriteria_._plot_centre_longitude),
 		Radians<double>(0.), plotCriteria_._plot_area_radius, &upperDeg_, &temp, &e);
 	upperDeg_ = Degrees(upperDeg_);
 	
-	VincentyInverse<double>(Radians<double>(plotCriteria_._plot_centre_latitude), Radians<double>(plotCriteria_._plot_centre_longitude),
+	VincentyDirect<double>(Radians<double>(plotCriteria_._plot_centre_latitude), Radians<double>(plotCriteria_._plot_centre_longitude),
 		Radians<double>(90.), plotCriteria_._plot_area_radius, &temp, &rightDeg_, &e);
 	rightDeg_ = Degrees(rightDeg_);
 	
-	VincentyInverse<double>(Radians<double>(plotCriteria_._plot_centre_latitude), Radians<double>(plotCriteria_._plot_centre_longitude), 
+	VincentyDirect<double>(Radians<double>(plotCriteria_._plot_centre_latitude), Radians<double>(plotCriteria_._plot_centre_longitude), 
 		Radians<double>(180.), plotCriteria_._plot_area_radius, &lowerDeg_, &temp, &e);
 	lowerDeg_ = Degrees(lowerDeg_);
 	
-	VincentyInverse<double>(Radians<double>(plotCriteria_._plot_centre_latitude), Radians<double>(plotCriteria_._plot_centre_longitude),
+	VincentyDirect<double>(Radians<double>(plotCriteria_._plot_centre_latitude), Radians<double>(plotCriteria_._plot_centre_longitude),
 		Radians<double>(270.), plotCriteria_._plot_area_radius, &temp, &leftDeg_, &e);
 	leftDeg_ = Degrees(leftDeg_);
 }
@@ -2317,7 +2316,6 @@ void dna_plot::PrintStationsDataFile()
 		SignalExceptionPlot(e.what(), 0, NULL);
 	}
 
-	UINT32 precision = 10;
 	stringstream ss;
 
 	for (it_vstn_t_const _it_stn(bstBinaryRecords_.begin());
@@ -2419,8 +2417,6 @@ void dna_plot::PrintStationLabels()
 		SignalExceptionPlot(e.what(), 0, NULL);
 	}
 
-	UINT32 precision = 10;
-	
 	// initialise a station list and sort on longitude
 	vUINT32 stnList(bstBinaryRecords_.size());
 	it_vUINT32 _it_stn(stnList.begin());
@@ -3480,7 +3476,7 @@ void dna_plot::LoadPosUncertaintyFile()
 	}
 
 	bool fullCovarianceMatrix(false);
-	UINT32 precision(10), block(0), stn(0), stn_cov, blockstnCount, apuFileBlockCount(blockCount_);
+	UINT32 block(0), stn(0), stn_cov, blockstnCount;
 	string strLine;
 	stationPosUncertainty_t posUnc;
 
@@ -3520,10 +3516,7 @@ void dna_plot::LoadPosUncertaintyFile()
 		if ((dataBlocks = yesno_uint<bool, string>(strLine.substr(PRINT_VAR_PAD))))
 			v_stn_pu_.resize(bstBinaryRecords_.size());
 		else
-		{
 			v_stn_pu_.reserve(bstBinaryRecords_.size());
-			apuFileBlockCount = 1;
-		}
 
 		apu_file.getline(line, PRINT_LINE_LENGTH);		// Variance matrix units
 		strLine = trimstr(string(line));
@@ -3853,7 +3846,7 @@ void dna_plot::LoadCorrectionsFile()
 		SignalExceptionPlot(e.what(), 0, NULL);
 	}
 
-	UINT32 precision(10), correction_count(0);
+	UINT32 correction_count(0);
 	UINT32 block(0), stn(0), blockstnCount, corFileBlockCount(blockCount_);
 	string strLine;
 	stationCorrections_t stnCor;

@@ -523,12 +523,14 @@ int main(int argc, char* argv[])
 			sifsFileSize_ = (size_t)ifsDynaML_->tellg();
 			ifsDynaML_->seekg(0, ios::beg);
 		}
-		catch (const ios_base::failure f) {	
-			cout << "- Error: An error was encountered when opening " << input_file << "." << endl << "  Check that the file exists and that the file is not already opened.";
+		catch (const ios_base::failure& f) {	
+			cout << "- Error: An error was encountered when opening " << input_file << "." << endl;
+			cout << "  Check that the file exists and that the file is not already opened." << endl << f.what();
 			return EXIT_FAILURE;
 		}
 		catch (...) {	
-			cout << "- Error: An error was encountered when opening " << input_file << "." << endl << "  Check that the file exists and that the file is not already opened.";
+			cout << "- Error: An error was encountered when opening " << input_file << "." << endl;
+			cout << "  Check that the file exists and that the file is not already opened." << endl << f.what();
 			return EXIT_FAILURE;
 		}
 
@@ -546,7 +548,7 @@ int main(int argc, char* argv[])
 			file_opener(ofsDynaML_, output_file, ios::out, ascii);
 
 		}
-		catch (const ios_base::failure f) {	
+		catch (const ios_base::failure& f) {	
 			cout << "- Error: An error was encountered when opening " << output_file << "." << endl;
 			return EXIT_FAILURE;
 		}
@@ -567,7 +569,7 @@ int main(int argc, char* argv[])
 		catch (const runtime_error& e) {
 			cout << endl << "- Error: " << e.what() << endl;
 			return EXIT_FAILURE;
-		}catch (const XMLInteropException &e) {
+		}catch (const XMLInteropException& e) {
 			cout << endl << "- Error: " << e.what() << endl;
 			return EXIT_FAILURE;
 		}

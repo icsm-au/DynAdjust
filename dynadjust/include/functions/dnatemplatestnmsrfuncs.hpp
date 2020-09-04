@@ -87,11 +87,9 @@ void GetMsrStations(const vmsr_t& binaryMsrs, const T& bmsIndex, vector<T>& msrS
 	// bmsIndex points to the first element in a cluster.  Perhaps keep
 	// this here to safe guard against cases where bmsIndex is not the
 	// first???
-	UINT32 i(0);//, m(_it_msr_start->measStart);
 	switch (binaryMsrs.at(bmsIndex).measType)
 	{
 	case 'D':
-		i=1;
 	case 'X':
 	case 'Y':
 		// move to the beginning of the cluster

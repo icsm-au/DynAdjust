@@ -124,7 +124,7 @@ CDnaStation::CDnaStation(const string& referenceframe, const string& epoch)
 	, m_fgeoidSep(0.), m_dmeridianDef(0.), m_dverticalDef(0.)
 	, m_lfileOrder(0), m_lnameOrder(0)
 	, m_zone(0), m_unusedStation(INVALID_STATION)
-	, m_epoch(epoch), m_referenceFrame(referenceframe)
+	, m_referenceFrame(referenceframe), m_epoch(epoch)
 {
 	m_epsgCode = epsgStringFromName<string>(referenceframe);
 }
@@ -623,6 +623,8 @@ void CDnaStation::ReduceStations_LLH(const CDnaEllipsoid* m_eEllipsoid, const CD
 		m_ctType = LLH_type_i;
 		m_strType = LLH_type;
 		break;
+	default:
+		break;
 	}
 }
 
@@ -650,6 +652,9 @@ void CDnaStation::ReduceStations_XYZ(const CDnaEllipsoid* m_eEllipsoid, const CD
 		// Convert from geographic (radians) to cartesian
 		// Assumes height is ellipsoidal
 		GeoToCart<double>(m_dcurrentLatitude, m_dcurrentLongitude, m_dcurrentHeight, &m_dXAxis, &m_dYAxis, &m_dZAxis, m_eEllipsoid);
+		break;
+	default:
+		break;
 	}
 
 	// Force the current type to be geographic.  The user-supplied type is retained in m_ctTypeSupplied
@@ -855,6 +860,9 @@ void CDnaStation::WriteBinaryStn(std::ofstream* binary_stream, const UINT16 bUnu
 	case LLH_type_i:
 	case UTM_type_i:
 		stationRecord.suppliedHeightRefFrame = ORTHOMETRIC_type_i;
+		break;
+	default:
+		break;
 	}
 
 	stationRecord.initialLatitude = m_dXAxis;
@@ -948,6 +956,8 @@ void CDnaStation::WriteDNAXMLStn(std::ofstream* dna_ofstream,
 	case LLH_type_i:
 		coordinateType = LLH_type;
 		break;
+	default:
+		break;
 	}
 
 	// Convert height to orthometric?
@@ -973,6 +983,9 @@ void CDnaStation::WriteDNAXMLStn(std::ofstream* dna_ofstream,
 		// reduce to orthometric.  
 		// If geoid hasn't been loaded, m_fgeoidSep will be 0.0
 		ht_zone_z_mod -= m_fgeoidSep;
+		break;
+	default:
+		break;
 	}
 
 	// Convert coordinates to cartesian or utm?
@@ -999,6 +1012,8 @@ void CDnaStation::WriteDNAXMLStn(std::ofstream* dna_ofstream,
 		lat_east_x_mod = RadtoDms(lat_east_x);
 		lon_north_y_mod = RadtoDmsL(lon_north_y);
 		break;
+	default:
+		break;
 	}
 
 	switch (t)
@@ -1018,6 +1033,8 @@ void CDnaStation::WriteDNAXMLStn(std::ofstream* dna_ofstream,
 			lat_east_x_mod, lon_north_y_mod, ht_zone_z_mod,
 			hemisphereZone);
 		break;
+	default:
+		break;
 	}
 }
 
@@ -1032,6 +1049,8 @@ void CDnaStation::WriteDNAStn(std::ofstream* dna_ofstream, const string& coordin
 	case LLh_type_i:
 	case LLH_type_i:
 		LEX_precision = LNY_precision = 10;
+		break;
+	default:
 		break;
 	}
 
@@ -1063,6 +1082,8 @@ void CDnaStation::WriteDynaMLStn(std::ofstream* xml_ofstream, const string& coor
 	case LLh_type_i:
 	case LLH_type_i:
 		LEX_precision = LNY_precision = 10;
+		break;
+	default:
 		break;
 	}
 	

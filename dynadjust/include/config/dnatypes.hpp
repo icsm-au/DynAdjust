@@ -114,6 +114,11 @@ typedef pair<string_string_pair, doubledouble_pair> stringstring_doubledouble_pa
 typedef vector<stringstring_doubledouble_pair> v_stringstring_doubledouble_pair, *pv_stringstring_doubledouble_pair;
 typedef v_stringstring_doubledouble_pair::iterator _it_string_doubledouble_pair;
 
+typedef vector<doubledouble_pair> v_doubledouble_pair, *pv_doubledouble_pair;
+typedef pair<string, v_doubledouble_pair> string_v_doubledouble_pair;
+typedef vector<string_v_doubledouble_pair> v_string_v_doubledouble_pair, *pv_string_v_doubledouble_pair;
+typedef v_string_v_doubledouble_pair::iterator it_v_string_v_doubledouble_pair;
+
 typedef pair<uint32_uint32_pair, double> u32u32_double_pair;
 
 typedef pair<string, bool> stringbool_pair;
@@ -530,9 +535,9 @@ typedef struct stn_t {
 		memset(stationConst, '\0', sizeof(stationConst));
 		memset(stationType, '\0', sizeof(stationType));
 		memset(description, '\0', sizeof(description));
-		// GDA94, lat, long, height
+		// GDA2020, lat, long, height
 		memset(epsgCode, '\0', sizeof(epsgCode));
-		sprintf(epsgCode, "4939");
+		sprintf(epsgCode, "7843");
 		memset(epoch, '\0', sizeof(epoch));
 	}
 

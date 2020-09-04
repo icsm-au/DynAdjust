@@ -98,7 +98,7 @@ public:
 			// prepare the segmentation
 			_dnaSeg->PrepareSegmentation(_p);
 		} 
-		catch (const NetSegmentException &e) {
+		catch (const NetSegmentException& e) {
 			cout_mutex.lock();
 			cout << endl << "- Error: " << e.what() << endl;
 			cout_mutex.unlock();
@@ -126,7 +126,7 @@ public:
 			*_segmentStatus = SEGMENT_EXCEPTION_RAISED;
 			*_segmentStatus = _dnaSeg->SegmentNetwork(_p, _status_msg);
 		} 
-		catch (const NetSegmentException &e) {
+		catch (const NetSegmentException& e) {
 			running = false;
 			cout_mutex.lock();
 			cout << endl << "- Error: " << e.what() << endl;
@@ -168,7 +168,6 @@ public:
 	void operator()()
 	{
 		UINT32 block, currentBlock(0);
-		float percentComplete(0);
 		ostringstream ss;
 		
 		while (running)

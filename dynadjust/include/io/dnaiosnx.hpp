@@ -224,7 +224,6 @@ struct CompareDiscontinuityOnSite
 template<typename T, typename S>
 T binary_search_discontinuity_site(T begin, T end, S value)
 {
-	using deref_type = const decltype(begin);
 	T i = lower_bound(begin, end, value, CompareDiscontinuityOnSite<discontinuity_tuple, string>());
 	if (i != end && i->site_name == value)
 		return i;

@@ -341,6 +341,8 @@ int main(int argc, char* argv[])
 			running = false;
 			cout << status_msg << endl << endl;
 			return EXIT_FAILURE;
+		default:
+			break;
 		}
 
 		//// print station appearance file
@@ -394,7 +396,7 @@ int main(int argc, char* argv[])
 
 		
 	} 
-	catch (const NetSegmentException &e) {
+	catch (const NetSegmentException& e) {
 		cout << endl << "- Error: " << e.what() << endl;
 		return EXIT_FAILURE;
 	} 

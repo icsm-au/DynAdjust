@@ -2153,7 +2153,7 @@ bool DnaXmlFormat_pskel::_attribute_impl (const ::xml_schema::ro_string& ns,
 	// Note that if the DnaXmlFormat element in the XML file does not contain an
 	// attribute named referenceframe, the default will be set to whatever is in the XSD file.
 	// For DynaML.xsd, the following is specified:
-	//     <xs:attribute name="referenceframe" type="xs:string" use="optional" default="GDA94"/>
+	//     <xs:attribute name="referenceframe" type="xs:string" use="optional" default="GDA2020"/>
 	// In this case, the following will be true
 	if (n == "referenceframe" && ns.empty ())
 	{

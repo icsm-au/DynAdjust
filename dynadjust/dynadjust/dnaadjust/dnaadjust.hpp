@@ -575,33 +575,34 @@ private:
 											  matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
 											  matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
 	
+	bool IgnoredMeasurementContainsInvalidStation(pit_vmsr_t _it_msr);
 	void UpdateIgnoredMeasurements(pit_vmsr_t _it_msr, bool storeOriginalMeasurement);
-	void UpdateIgnoredMeasurements_A(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement);
-	void UpdateIgnoredMeasurements_B(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement);
-	void UpdateIgnoredMeasurements_BK(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement);
-	void UpdateIgnoredMeasurements_C(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement);
-	void UpdateIgnoredMeasurements_CEM(pit_vmsr_t _it_msr,const UINT32& block, matrix_2d* estimatedStations);
-	void UpdateIgnoredMeasurements_D(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement);
-	void UpdateIgnoredMeasurements_E(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement);
-	void UpdateIgnoredMeasurements_G(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement);
-	void UpdateIgnoredMeasurements_GX(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement, const UINT32& stn1, const UINT32& stn2);
-	void UpdateIgnoredMeasurements_H(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement);
-	void UpdateIgnoredMeasurements_HR(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations);
-	void UpdateIgnoredMeasurements_I(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement);
-	void UpdateIgnoredMeasurements_IP(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations);
-	void UpdateIgnoredMeasurements_J(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement);
-	void UpdateIgnoredMeasurements_JQ(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations);
-	void UpdateIgnoredMeasurements_K(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement);
-	void UpdateIgnoredMeasurements_L(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement);
-	void UpdateIgnoredMeasurements_M(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement);
-	void UpdateIgnoredMeasurements_P(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement);
-	void UpdateIgnoredMeasurements_Q(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement);
-	void UpdateIgnoredMeasurements_R(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement);
-	void UpdateIgnoredMeasurements_S(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement);
-	void UpdateIgnoredMeasurements_V(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement);
-	void UpdateIgnoredMeasurements_X(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement);
-	void UpdateIgnoredMeasurements_Y(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement);
-	void UpdateIgnoredMeasurements_Z(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement);
+	void UpdateIgnoredMeasurements_A(pit_vmsr_t _it_msr, bool storeOriginalMeasurement);
+	void UpdateIgnoredMeasurements_B(pit_vmsr_t _it_msr, bool storeOriginalMeasurement);
+	void UpdateIgnoredMeasurements_BK(pit_vmsr_t _it_msr);
+	void UpdateIgnoredMeasurements_C(pit_vmsr_t _it_msr, bool storeOriginalMeasurement);
+	void UpdateIgnoredMeasurements_CEM(pit_vmsr_t _it_msr);
+	void UpdateIgnoredMeasurements_D(pit_vmsr_t _it_msr, bool storeOriginalMeasurement);
+	void UpdateIgnoredMeasurements_E(pit_vmsr_t _it_msr, bool storeOriginalMeasurement);
+	void UpdateIgnoredMeasurements_G(pit_vmsr_t _it_msr, bool storeOriginalMeasurement);
+	void UpdateIgnoredMeasurements_GX(pit_vmsr_t _it_msr, bool storeOriginalMeasurement);
+	void UpdateIgnoredMeasurements_H(pit_vmsr_t _it_msr, bool storeOriginalMeasurement);
+	void UpdateIgnoredMeasurements_HR(pit_vmsr_t _it_msr);
+	void UpdateIgnoredMeasurements_I(pit_vmsr_t _it_msr, bool storeOriginalMeasurement);
+	void UpdateIgnoredMeasurements_IP(pit_vmsr_t _it_msr);
+	void UpdateIgnoredMeasurements_J(pit_vmsr_t _it_msr, bool storeOriginalMeasurement);
+	void UpdateIgnoredMeasurements_JQ(pit_vmsr_t _it_msr);
+	void UpdateIgnoredMeasurements_K(pit_vmsr_t _it_msr, bool storeOriginalMeasurement);
+	void UpdateIgnoredMeasurements_L(pit_vmsr_t _it_msr, bool storeOriginalMeasurement);
+	void UpdateIgnoredMeasurements_M(pit_vmsr_t _it_msr, bool storeOriginalMeasurement);
+	void UpdateIgnoredMeasurements_P(pit_vmsr_t _it_msr, bool storeOriginalMeasurement);
+	void UpdateIgnoredMeasurements_Q(pit_vmsr_t _it_msr, bool storeOriginalMeasurement);
+	void UpdateIgnoredMeasurements_R(pit_vmsr_t _it_msr, bool storeOriginalMeasurement);
+	void UpdateIgnoredMeasurements_S(pit_vmsr_t _it_msr, bool storeOriginalMeasurement);
+	void UpdateIgnoredMeasurements_V(pit_vmsr_t _it_msr, bool storeOriginalMeasurement);
+	void UpdateIgnoredMeasurements_X(pit_vmsr_t _it_msr, bool storeOriginalMeasurement);
+	void UpdateIgnoredMeasurements_Y(pit_vmsr_t _it_msr, bool storeOriginalMeasurement);
+	void UpdateIgnoredMeasurements_Z(pit_vmsr_t _it_msr, bool storeOriginalMeasurement);
 
 	void LoadVarianceScaling(it_vmsr_t _it_msr, 
 		double& vScale, double& pScale, double& lScale, double& hScale,
@@ -876,7 +877,7 @@ private:
 	// ----------------------------------------------
 	
 	v_uint32_uint32_map		v_blockStationsMap_;
-	v_u32u32_uint32_pair	v_blockStationsMapUnique_;
+	v_u32u32_uint32_pair	v_blockStationsMapUnique_;		// [ [station, block index] , [block] ]
 	void					BuildUniqueBlockStationMap();
 	void					BuildSimultaneousStnAppearance();
 

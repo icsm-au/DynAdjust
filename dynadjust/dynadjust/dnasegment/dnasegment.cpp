@@ -230,15 +230,15 @@ _SEGMENT_STATUS_ dna_segment::SegmentNetwork(project_settings* p, string* succes
 	v_ContiguousNetList_.push_back(currentNetwork_ = 0);
 
 	if (bstBinaryRecords_.empty())
-		SignalExceptionSerialise("BuildFirstBlock(): the binary stations file has not been loaded into memory yet.", 0, NULL);
+		SignalExceptionSerialise("SegmentNetwork(): the binary stations file has not been loaded into memory yet.", 0, NULL);
 	if (bmsBinaryRecords_.empty())
-		SignalExceptionSerialise("BuildFirstBlock(): the binary measurements file has not been loaded into memory yet.", 0, NULL);
+		SignalExceptionSerialise("SegmentNetwork(): the binary measurements file has not been loaded into memory yet.", 0, NULL);
 	if (vAssocStnList_.empty())
-		SignalExceptionSerialise("BuildFirstBlock(): the Associated Station List (ASL) has not been loaded into memory yet.", 0, NULL);
+		SignalExceptionSerialise("SegmentNetwork(): the Associated Station List (ASL) has not been loaded into memory yet.", 0, NULL);
 	if (vAssocFreeMsrList_.empty())
-		SignalExceptionSerialise("BuildFirstBlock(): the Associated Measurements List (AML) has not been loaded into memory yet.", 0, NULL);
+		SignalExceptionSerialise("SegmentNetwork(): the Associated Measurements List (AML) has not been loaded into memory yet.", 0, NULL);
 	if (stnsMap_.empty())
-		SignalExceptionSerialise("BuildFirstBlock(): the station map has not been loaded into memory yet.", 0, NULL);
+		SignalExceptionSerialise("SegmentNetwork(): the station map has not been loaded into memory yet.", 0, NULL);
 
 	// The inner stations for the first block are created from segmentCriteria._initialStns
 	// Junction stations are retrieved from measurements connected to the inner stations
@@ -389,7 +389,7 @@ void dna_segment::VerifyStationsandBuildBlock(bool validationOnly)
 		{
 			// If this point is reached, _it_stnmap->second is not a known network station
 			stringstream ss;
-			ss << "BuildFirstBlock(): " << *_it_name << " is not in the list of network stations.";
+			ss << "VerifyStationsandBuildBlock(): " << *_it_name << " is not in the list of network stations.";
 			SignalExceptionSerialise(ss.str(), 0, NULL);
 		}
 
@@ -421,7 +421,7 @@ void dna_segment::VerifyStationsandBuildBlock(bool validationOnly)
 				// If this point is reached, _it_stnmap->second is a known network station but is 
 				// invalid or has no measurements connected to it.
 				stringstream ss;
-				ss << "BuildFirstBlock(): " << bstBinaryRecords_.at(_it_stnmap->second).stationName << " does not have any measurements connected to it.";
+				ss << "VerifyStationsandBuildBlock(): " << bstBinaryRecords_.at(_it_stnmap->second).stationName << " does not have any measurements connected to it.";
 				SignalExceptionSerialise(ss.str(), 0, NULL);
 			}
 		}

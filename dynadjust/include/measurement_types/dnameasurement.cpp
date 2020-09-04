@@ -29,10 +29,10 @@ namespace dynadjust {
 namespace measurements {
 
 CDnaCovariance::CDnaCovariance(void)
-	: m_strType("")
-	, m_bIgnore(false)
+	: m_bIgnore(false)
 	, m_lstn1Index(0)
 	, m_lstn2Index(0)
+	, m_strType("")
 	, m_dM11(0.)
 	, m_dM12(0.)
 	, m_dM13(0.)

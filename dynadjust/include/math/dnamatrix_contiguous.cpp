@@ -264,8 +264,8 @@ void out_of_memory_handler()
 matrix_2d::matrix_2d()
 	: _mem_cols(0)
 	, _mem_rows(0)
-	, _rows(0)
 	, _cols(0)
+	, _rows(0)
 	, _buffer(0)
 	, _maxvalCol(0)
 	, _maxvalRow(0)
@@ -284,8 +284,8 @@ matrix_2d::matrix_2d()
 matrix_2d::matrix_2d(const UINT32& rows, const UINT32& columns)
 	: _mem_cols(columns)
 	, _mem_rows(rows)
-	, _rows(rows)
 	, _cols(columns)
+	, _rows(rows)
 	, _buffer(0)
 	, _maxvalCol(0)
 	, _maxvalRow(0)
@@ -300,8 +300,8 @@ matrix_2d::matrix_2d(const UINT32& rows, const UINT32& columns,
 	const double data[], const UINT32& data_size, const UINT32& matrix_type)
 	: _mem_cols(columns)
 	, _mem_rows(rows)
-	, _rows(rows)
 	, _cols(columns)
+	, _rows(rows)
 	, _buffer(0)
 	, _maxvalCol(0)
 	, _maxvalRow(0)
@@ -1923,13 +1923,15 @@ matrix_2d matrix_2d::multiply_mkl(const char* lhs_trans, const matrix_2d& rhs, c
 	long long rhs_mem_rows(memRows());
 #endif
 
-	if (lhs_trans == "T")
+	//if (lhs_trans == "T")
+	if (strcmp(lhs_trans, "T") == 0)
 	{
 		lhs_rows = columns();		// transpose
 		lhs_cols = rows();			// transpose
 	}
 
-	if (rhs_trans == "T")
+	//if (rhs_trans == "T")
+	if (strcmp(rhs_trans, "T") == 0)
 	{
 		rhs_rows = rhs.columns();		// transpose
 		rhs_cols = rhs.rows();			// transpose

@@ -398,6 +398,8 @@ void dna_io_dna::read_dna_header(std::ifstream* ptr, string& version, INPUT_DATA
 		case geo_data:
 			geoidversion = epoch_version;
 			break;
+		default:
+			break;
 		}
 	}
 	catch (const runtime_error& e) {
@@ -474,7 +476,7 @@ void dna_io_dna::write_stn_file(pvstn_t vbinary_stn, const string& stnfilename,
 		dna_stn_file.close();
 		
 	}
-	catch (const std::ifstream::failure f) {
+	catch (const std::ifstream::failure& f) {
 		throw boost::enable_current_exception(runtime_error(f.what()));
 	}
 }
@@ -524,7 +526,7 @@ void dna_io_dna::write_stn_file(vdnaStnPtr* vStations, const string& stnfilename
 		dna_stn_file.close();
 		
 	}
-	catch (const std::ifstream::failure f) {
+	catch (const std::ifstream::failure& f) {
 		throw boost::enable_current_exception(runtime_error(f.what()));
 	}	
 }
@@ -583,7 +585,7 @@ void dna_io_dna::write_msr_file(const vstn_t& vbinary_stn, pvmsr_t vbinary_msr, 
 		dna_msr_file.close();
 
 	}
-	catch (const std::ifstream::failure f) {
+	catch (const std::ifstream::failure& f) {
 		throw boost::enable_current_exception(runtime_error(f.what()));
 	}
 }
@@ -612,7 +614,7 @@ void dna_io_dna::write_msr_file(vdnaMsrPtr* vMeasurements, const string& msrfile
 		dna_msr_file.close();
 		
 	}
-	catch (const std::ifstream::failure f) {
+	catch (const std::ifstream::failure& f) {
 		throw boost::enable_current_exception(runtime_error(f.what()));
 	}
 	

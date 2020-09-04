@@ -52,25 +52,25 @@ boost::exception_ptr fwd_error, rev_error, cmb_error, prep_error;
 #endif
 
 dna_adjust::dna_adjust()
-	: adjustStatus_(ADJUST_SUCCESS)
-	, isPreparing_(false)
+	: isPreparing_(false)
 	, isAdjusting_(false)
 	, isCombining_(false)
-	, databaseIDsLoaded_(false)
 	, forward_(true)
 	, isFirstTimeAdjustment_(true)
-	, currentBlock_(0)
 	, blockCount_(1)
+	, currentBlock_(0)
+	, total_time_(0)
+	, adjustStatus_(ADJUST_SUCCESS)
 	, currentIteration_(0)
+	, datum_(DEFAULT_EPSG_U)
 	, bmsr_count_(0)
 	, bstn_count_(0)
 	, asl_count_(0)
 	, adjustProgress_(0.)
-	, datum_(DEFAULT_EPSG_U)
-	, measurementCount_(0)
 	, measurementParams_(0)
-	, unknownsCount_(0)
+	, measurementCount_(0)
 	, unknownParams_(0)
+	, unknownsCount_(0)
 	, chiSquared_(0.)
 	, sigmaZero_(0.)
 	, sigmaZeroSqRt_(0.)
@@ -82,7 +82,7 @@ dna_adjust::dna_adjust()
 	, maxCorr_(0.)
 	, criticalValue_(1.68)
 	, allStationsFixed_(false)
-	, total_time_(0)
+	, databaseIDsLoaded_(false)
 {
 	statusMessages_.clear();
 	bstBinaryRecords_.clear();
@@ -438,7 +438,7 @@ void dna_adjust::PrepareAdjustment(const project_settings& projectSettings)
 		try {
 			SetMapRegions();
 		}
-		catch (interprocess_exception &e){
+		catch (interprocess_exception& e){
 			stringstream ss;
 			ss << "PrepareMappedRegions() terminated while creating memory map" << endl;
 			ss << "  regions from .mtx stage files. Details:\n  " << e.what() << endl << endl;
@@ -2533,7 +2533,7 @@ void dna_adjust::LoadDatabaseId()
 	// reading adj file when loading adjusted measurement info to
 	// the database.
 	projectSettings_.o._output_msr_blocks = 0;
-	projectSettings_.o._sort_adj_msr = orig_adj_msr_sort_ui;
+	
 	// Do not print computed measurements
 	//projectSettings_.o._cmp_msr_iteration = 0;
 	
@@ -2570,10 +2570,10 @@ void dna_adjust::LoadDatabaseId()
 		dbid_file.close();
 		databaseIDsLoaded_ = true;
 	}
-	catch (const std::ifstream::failure f) {
+	catch (const std::ifstream::failure& f) {
 		SignalExceptionAdjustment(f.what(), 0);
 	}
-	catch (const XMLInteropException &e)  {
+	catch (const XMLInteropException& e)  {
 		SignalExceptionAdjustment(e.what(), 0);
 	}
 }
@@ -2893,6 +2893,8 @@ void dna_adjust::PrintEstimatedStationCoordinatestoDNAXML(const string& stnFile,
 			dna_comment(stn_file, headerComment);
 			dna_comment(stn_file, "Adj file:     " + projectSettings_.o._adj_file);
 			break;
+		default:
+			break;
 		}
 
 		dnaStnPtr stnPtr(new CDnaStation(datum_.GetName(), datum_.GetEpoch_s()));
@@ -2944,15 +2946,17 @@ void dna_adjust::PrintEstimatedStationCoordinatestoDNAXML(const string& stnFile,
 			});
 
 			break;
+		default:
+			break;
 		}
 
 
 		stn_file.close();
 	}
-	catch (const std::ifstream::failure f) {
+	catch (const std::ifstream::failure& f) {
 		SignalExceptionAdjustment(f.what(), 0);
 	}
-	catch (const XMLInteropException &e)  {
+	catch (const XMLInteropException& e)  {
 		SignalExceptionAdjustment(e.what(), 0);
 	}
 }
@@ -3093,10 +3097,11 @@ void dna_adjust::PrintAdjustedNetworkMeasurements()
 
 	switch (projectSettings_.a.adjust_mode)
 	{
-
+	case PhasedMode:
 	case SimultaneousMode:
 		if (projectSettings_.o._print_ignored_msrs)
-			// Calculate adjusted measurements
+			// Print comparison between ignored and computed 
+			// measurements from adjusted coordinates
 			PrintIgnoredAdjMeasurements(true);		
 		break;
 	}
@@ -3509,6 +3514,8 @@ void dna_adjust::RebuildNormals(const UINT32 block, adjustOperation direction, b
 
 	case __reverse__:
 		AddConstraintStationstoNormalsReverse(block, false);
+		break;
+	default:
 		break;
 	}
 }
@@ -3965,10 +3972,10 @@ void dna_adjust::CarryStnEstimatesandVariancesCombine(
 	//  |             |                            |             |
 	//  | msr-comp    |                            | msr-comp    |
 	//  |_____________|                            |_____________|  /__ pseudomsrJSLBegin
-	//  |             |                            |             |  \
+	//  |             |                            |             |  
 	//  |  jrev-comp  |                            |  jfwd-comp  |
 	//  |_____________|  /__ pseudomsrJSLBegin     |_____________|
-	//  |             |  \
+	//  |             |  
 	//  |  jfwd-comp  |
 	//  |_____________|
 
@@ -4242,14 +4249,12 @@ void dna_adjust::AdjustPhasedReverseCombine()
 	forward_ = false;
 	isCombining_ = false;
 	UINT32 currentBlock(blockCount_ - 1);
-	UINT32 pseudomsrJSLCount(0), previousBlock;
+	UINT32 pseudomsrJSLCount(0);
 
 	for (UINT32 block=0; block<blockCount_; ++block, --currentBlock)
 	{
 		SetcurrentBlock(currentBlock);
 	
-		previousBlock = currentBlock + 1;
-
 		// If currentBlock is a single block, then there is no need to perform a 
 		// reverse adjustment (i.e. continue);
 		// Otherwise, if currentBlock is the last block, then this is the 
@@ -7642,7 +7647,7 @@ void dna_adjust::DeSerialiseAdjustedVarianceMatrices()
 		SetMapRegions(2, sf_rigorous_vars, sf_prec_adj_msrs);
 		
 	}
-	catch (interprocess_exception &e){
+	catch (interprocess_exception& e){
 		stringstream ss;
 		ss << "DeSerialiseAdjustedVarianceMatrices() terminated while creating memory map" << endl;
 		ss << "  regions from mtx file. Details:\n  " << e.what() << endl;
@@ -9745,9 +9750,6 @@ void dna_adjust::PrintPosUncertaintiesHeader(ostream& os)
 		right << setw(PREC) << "Semi-minor" << 
 		right << setw(PREC) << "Orientation";
 
-	matrix_2d variances_cart(3, 3), variances_local(3, 3);
-	matrix_2d *variances(&variances_cart);
-
 	switch (projectSettings_.o._apu_vcv_units)
 	{
 	case ENU_apu_ui:
@@ -9755,7 +9757,6 @@ void dna_adjust::PrintPosUncertaintiesHeader(ostream& os)
 			right << setw(MSR) << "Variance(e)" << 
 			right << setw(MSR) << "Variance(n)" << 
 			right << setw(MSR) << "Variance(up)" << endl;
-		variances = &variances_local;
 		break;
 	case XYZ_apu_ui:
 	default:
@@ -9766,9 +9767,9 @@ void dna_adjust::PrintPosUncertaintiesHeader(ostream& os)
 		break;
 	}
 
-	UINT32 i(0), j = STATION+PAD2+LAT_EAST+LON_NORTH+STAT+STAT+PREC+PREC+PREC+MSR+MSR+MSR;
+	UINT32 i, j = STATION+PAD2+LAT_EAST+LON_NORTH+STAT+STAT+PREC+PREC+PREC+MSR+MSR+MSR;
 
-	for (i; i<j; ++i)
+	for (i=0; i<j; ++i)
 		os << "-";
 	os << endl;
 }
@@ -10052,9 +10053,9 @@ void dna_adjust::PrintCorStations(ostream &cor_file, const UINT32& block)
 		right << setw(HEIGHT) << "north" << 
 		right << setw(HEIGHT) << "up" << endl;
 
-	UINT32 i(0), j = STATION+PAD2+MSR+MSR+MSR+MSR+HEIGHT+HEIGHT+HEIGHT;
+	UINT32 i, j = STATION+PAD2+MSR+MSR+MSR+MSR+HEIGHT+HEIGHT+HEIGHT;
 
-	for (i; i<j; ++i)
+	for (i=0; i<j; ++i)
 		cor_file << "-";
 	cor_file << endl;
 
@@ -10097,9 +10098,9 @@ void dna_adjust::PrintCorStationsUniqueList(ostream &cor_file)
 		right << setw(HEIGHT) << "north" << 
 		right << setw(HEIGHT) << "up" << endl;
 
-	UINT32 i(0), j = STATION+PAD2+MSR+MSR+MSR+MSR+HEIGHT+HEIGHT+HEIGHT;
+	UINT32 i, j = STATION+PAD2+MSR+MSR+MSR+MSR+HEIGHT+HEIGHT+HEIGHT;
 
-	for (i; i<j; ++i)
+	for (i=0; i<j; ++i)
 		cor_file << "-";
 	cor_file << endl;
 
@@ -10332,7 +10333,6 @@ void dna_adjust::PrintAdjMeasurementsHeader(bool printHeader, const string& tabl
 		}
 	}
 
-	UINT32 i(0);
 	string col1_heading, col2_heading;
 
 	// determine headings
@@ -10390,6 +10390,8 @@ void dna_adjust::PrintAdjMeasurementsHeader(bool printHeader, const string& tabl
 		adj_file <<
 			setw(REL) << right << "Pelzer Rel";
 		break;
+	default:
+		break;
 	}
 	
 	// Adjusted, computed and ignored measurements
@@ -10405,6 +10407,8 @@ void dna_adjust::PrintAdjMeasurementsHeader(bool printHeader, const string& tabl
 		adj_file <<
 			setw(OUTLIER) << right << "Outlier?";
 		break;
+	default:
+		break;
 	}
 
 	// Adjusted, computed and ignored measurements
@@ -10419,21 +10423,40 @@ void dna_adjust::PrintAdjMeasurementsHeader(bool printHeader, const string& tabl
 
 	adj_file << endl;
 
-	for (i; i<j; ++i)
+	UINT32 i;
+	for (i=0; i<j; ++i)
 		adj_file << "-";
 
 	adj_file << endl;
 }
 
-void dna_adjust::UpdateIgnoredMeasurements_A(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement)
+void dna_adjust::UpdateIgnoredMeasurements_A(pit_vmsr_t _it_msr, bool storeOriginalMeasurement)
 {
 	// initialise measurement (on the first adjustment only!)
 	if (storeOriginalMeasurement)
 		(*_it_msr)->preAdjMeas = (*_it_msr)->term1;
 
-	UINT32 stn1(GetBlkMatrixElemStn1(block, _it_msr));
-	UINT32 stn2(GetBlkMatrixElemStn2(block, _it_msr));
-	UINT32 stn3(GetBlkMatrixElemStn3(block, _it_msr));
+	// Use v_blockStationsMapUnique_ to get the correct block for each 
+	// station in the measurement
+	_it_u32u32_uint32_pair _it_bsmu;
+
+	// Get estimated station coordinates matrix and index of the 
+	// station within the matrix for station 1
+	_it_bsmu = v_blockStationsMapUnique_.begin() + (*_it_msr)->station1;
+	matrix_2d* estimatedStations_stn1(&v_estimatedStations_.at(_it_bsmu->second));
+	UINT32 stn1(GetBlkMatrixElemStn1(_it_bsmu->second, _it_msr));
+	
+	// Get estimated station coordinates matrix and index of the 
+	// station within the matrix for station 2
+	_it_bsmu = v_blockStationsMapUnique_.begin() + (*_it_msr)->station2;
+	matrix_2d* estimatedStations_stn2(&v_estimatedStations_.at(_it_bsmu->second));
+	UINT32 stn2(GetBlkMatrixElemStn2(_it_bsmu->second, _it_msr));
+	
+	// Get estimated station coordinates matrix and index of the 
+	// station within the matrix for station 3
+	_it_bsmu = v_blockStationsMapUnique_.begin() + (*_it_msr)->station3;
+	matrix_2d* estimatedStations_stn3(&v_estimatedStations_.at(_it_bsmu->second));
+	UINT32 stn3(GetBlkMatrixElemStn3(_it_bsmu->second, _it_msr));
 
 	it_vstn_t_const stn1_it(bstBinaryRecords_.begin() + (*_it_msr)->station1);
 
@@ -10441,15 +10464,15 @@ void dna_adjust::UpdateIgnoredMeasurements_A(pit_vmsr_t _it_msr, const UINT32& b
 
 	// compute angle 1 -> 2 -> 3 from estimated coordinates
 	(*_it_msr)->measAdj = (HorizontalAngle(
-		estimatedStations->get(stn1, 0),		// X1
-		estimatedStations->get(stn1 + 1, 0),		// Y1
-		estimatedStations->get(stn1 + 2, 0),		// Z1
-		estimatedStations->get(stn2, 0), 		// X2
-		estimatedStations->get(stn2 + 1, 0),		// Y2
-		estimatedStations->get(stn2 + 2, 0),		// Z2
-		estimatedStations->get(stn3, 0), 		// X3
-		estimatedStations->get(stn3 + 1, 0),		// Y3
-		estimatedStations->get(stn3 + 2, 0),		// Z3
+		estimatedStations_stn1->get(stn1, 0),		// X1
+		estimatedStations_stn1->get(stn1 + 1, 0),		// Y1
+		estimatedStations_stn1->get(stn1 + 2, 0),		// Z1
+		estimatedStations_stn2->get(stn2, 0), 		// X2
+		estimatedStations_stn2->get(stn2 + 1, 0),		// Y2
+		estimatedStations_stn2->get(stn2 + 2, 0),		// Z2
+		estimatedStations_stn3->get(stn3, 0), 		// X3
+		estimatedStations_stn3->get(stn3 + 1, 0),		// Y3
+		estimatedStations_stn3->get(stn3 + 2, 0),		// Z3
 		stn1_it->currentLatitude,
 		stn1_it->currentLongitude,
 		&direction12, &direction13,
@@ -10470,12 +10493,12 @@ void dna_adjust::UpdateIgnoredMeasurements_A(pit_vmsr_t _it_msr, const UINT32& b
 		////////////////////////////////////////////////////////////////////////////
 		// Compute zenith distance 1 -> 2
 		double zenith12(ZenithDistance<double>(
-			estimatedStations->get(stn1, 0),			// X1
-			estimatedStations->get(stn1 + 1, 0),			// Y1
-			estimatedStations->get(stn1 + 2, 0),			// Z1
-			estimatedStations->get(stn2, 0), 			// X2
-			estimatedStations->get(stn2 + 1, 0),			// Y2
-			estimatedStations->get(stn2 + 2, 0),			// Z2
+			estimatedStations_stn1->get(stn1, 0),			// X1
+			estimatedStations_stn1->get(stn1 + 1, 0),			// Y1
+			estimatedStations_stn1->get(stn1 + 2, 0),			// Z1
+			estimatedStations_stn2->get(stn2, 0), 			// X2
+			estimatedStations_stn2->get(stn2 + 1, 0),			// Y2
+			estimatedStations_stn2->get(stn2 + 2, 0),			// Z2
 			stn1_it->currentLatitude,
 			stn1_it->currentLongitude,
 			stn2_it->currentLatitude,
@@ -10486,12 +10509,12 @@ void dna_adjust::UpdateIgnoredMeasurements_A(pit_vmsr_t _it_msr, const UINT32& b
 		////////////////////////////////////////////////////////////////////////////
 		// Compute zenith distance 1 -> 3
 		double zenith13(ZenithDistance<double>(
-			estimatedStations->get(stn1, 0),			// X1
-			estimatedStations->get(stn1 + 1, 0),			// Y1
-			estimatedStations->get(stn1 + 2, 0),			// Z1
-			estimatedStations->get(stn3, 0), 			// X2
-			estimatedStations->get(stn3 + 1, 0),			// Y2
-			estimatedStations->get(stn3 + 2, 0),			// Z2
+			estimatedStations_stn1->get(stn1, 0),			// X1
+			estimatedStations_stn1->get(stn1 + 1, 0),			// Y1
+			estimatedStations_stn1->get(stn1 + 2, 0),			// Z1
+			estimatedStations_stn3->get(stn3, 0), 			// X2
+			estimatedStations_stn3->get(stn3 + 1, 0),			// Y2
+			estimatedStations_stn3->get(stn3 + 2, 0),			// Z2
 			stn1_it->currentLatitude,
 			stn1_it->currentLongitude,
 			stn3_it->currentLatitude,
@@ -10517,23 +10540,36 @@ void dna_adjust::UpdateIgnoredMeasurements_A(pit_vmsr_t _it_msr, const UINT32& b
 	(*_it_msr)->measCorr = (*_it_msr)->measAdj - (*_it_msr)->preAdjMeas;
 }
 
-void dna_adjust::UpdateIgnoredMeasurements_B(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement)
+void dna_adjust::UpdateIgnoredMeasurements_B(pit_vmsr_t _it_msr, bool storeOriginalMeasurement)
 {
 	// initialise measurement (on the first adjustment only!)
 	if (storeOriginalMeasurement)
 		(*_it_msr)->preAdjMeas = (*_it_msr)->term1;
 
 	// Compute the geodetic azimuth
-	UpdateIgnoredMeasurements_BK(_it_msr, block, estimatedStations, storeOriginalMeasurement);
+	UpdateIgnoredMeasurements_BK(_it_msr);
 
 	// compute adjustment correction
 	(*_it_msr)->measCorr = (*_it_msr)->measAdj - (*_it_msr)->preAdjMeas;
 }
 
-void dna_adjust::UpdateIgnoredMeasurements_BK(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement)
+void dna_adjust::UpdateIgnoredMeasurements_BK(pit_vmsr_t _it_msr)
 {	
-	UINT32 stn1(GetBlkMatrixElemStn1(block, _it_msr));
-	UINT32 stn2(GetBlkMatrixElemStn2(block, _it_msr));
+	// Use v_blockStationsMapUnique_ to get the correct block for each 
+	// station in the measurement
+	_it_u32u32_uint32_pair _it_bsmu;
+
+	// Get estimated station coordinates matrix and index of the 
+	// station within the matrix for station 1
+	_it_bsmu = v_blockStationsMapUnique_.begin() + (*_it_msr)->station1;
+	matrix_2d* estimatedStations_stn1(&v_estimatedStations_.at(_it_bsmu->second));
+	UINT32 stn1(GetBlkMatrixElemStn1(_it_bsmu->second, _it_msr));
+	
+	// Get estimated station coordinates matrix and index of the 
+	// station within the matrix for station 2
+	_it_bsmu = v_blockStationsMapUnique_.begin() + (*_it_msr)->station2;
+	matrix_2d* estimatedStations_stn2(&v_estimatedStations_.at(_it_bsmu->second));
+	UINT32 stn2(GetBlkMatrixElemStn2(_it_bsmu->second, _it_msr));
 
 	it_vstn_t_const stn1_it(bstBinaryRecords_.begin() + (*_it_msr)->station1);
 	it_vstn_t_const stn2_it(bstBinaryRecords_.begin() + (*_it_msr)->station2);
@@ -10542,19 +10578,19 @@ void dna_adjust::UpdateIgnoredMeasurements_BK(pit_vmsr_t _it_msr, const UINT32& 
 
 	// compute bearing from estimated coordinates
 	(*_it_msr)->measAdj = (Direction(
-		estimatedStations->get(stn1, 0),		// X1
-		estimatedStations->get(stn1 + 1, 0),	// Y1
-		estimatedStations->get(stn1 + 2, 0),	// Z1
-		estimatedStations->get(stn2, 0), 		// X2
-		estimatedStations->get(stn2 + 1, 0),	// Y2
-		estimatedStations->get(stn2 + 2, 0),	// Z2
+		estimatedStations_stn1->get(stn1, 0),		// X1
+		estimatedStations_stn1->get(stn1 + 1, 0),	// Y1
+		estimatedStations_stn1->get(stn1 + 2, 0),	// Z1
+		estimatedStations_stn2->get(stn2, 0), 		// X2
+		estimatedStations_stn2->get(stn2 + 1, 0),	// Y2
+		estimatedStations_stn2->get(stn2 + 2, 0),	// Z2
 		stn1_it->currentLatitude,
 		stn1_it->currentLongitude,
 		&local_12e, &local_12n));
 }
 	
 
-void dna_adjust::UpdateIgnoredMeasurements_C(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement)
+void dna_adjust::UpdateIgnoredMeasurements_C(pit_vmsr_t _it_msr, bool storeOriginalMeasurement)
 {
 	// initialise measurement (on the first adjustment only!)
 	if (storeOriginalMeasurement)
@@ -10565,18 +10601,31 @@ void dna_adjust::UpdateIgnoredMeasurements_C(pit_vmsr_t _it_msr, const UINT32& b
 	(*_it_msr)->preAdjCorr = 0.;
 
 	// Compute the chord distance
-	UpdateIgnoredMeasurements_CEM(_it_msr, block, estimatedStations);
+	UpdateIgnoredMeasurements_CEM(_it_msr);
 
 	// compute adjustment correction
 	(*_it_msr)->measCorr = (*_it_msr)->measAdj - (*_it_msr)->preAdjMeas;
 }
 	
 
-void dna_adjust::UpdateIgnoredMeasurements_CEM(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations)
+void dna_adjust::UpdateIgnoredMeasurements_CEM(pit_vmsr_t _it_msr)
 {	
 
-	UINT32 stn1(GetBlkMatrixElemStn1(block, _it_msr));
-	UINT32 stn2(GetBlkMatrixElemStn2(block, _it_msr));
+	// Use v_blockStationsMapUnique_ to get the correct block for each 
+	// station in the measurement
+	_it_u32u32_uint32_pair _it_bsmu;
+
+	// Get estimated station coordinates matrix and index of the 
+	// station within the matrix for station 1
+	_it_bsmu = v_blockStationsMapUnique_.begin() + (*_it_msr)->station1;
+	matrix_2d* estimatedStations_stn1(&v_estimatedStations_.at(_it_bsmu->second));
+	UINT32 stn1(GetBlkMatrixElemStn1(_it_bsmu->second, _it_msr));
+	
+	// Get estimated station coordinates matrix and index of the 
+	// station within the matrix for station 2
+	_it_bsmu = v_blockStationsMapUnique_.begin() + (*_it_msr)->station2;
+	matrix_2d* estimatedStations_stn2(&v_estimatedStations_.at(_it_bsmu->second));
+	UINT32 stn2(GetBlkMatrixElemStn2(_it_bsmu->second, _it_msr));
 
 	it_vstn_t_const stn1_it(bstBinaryRecords_.begin() + (*_it_msr)->station1);
 	it_vstn_t_const stn2_it(bstBinaryRecords_.begin() + (*_it_msr)->station2);
@@ -10585,12 +10634,12 @@ void dna_adjust::UpdateIgnoredMeasurements_CEM(pit_vmsr_t _it_msr, const UINT32&
 
 	// calculate chord distance
 	(*_it_msr)->measAdj = (EllipsoidChordDistance<double>(
-		estimatedStations->get(stn1, 0),
-		estimatedStations->get(stn1 + 1, 0),
-		estimatedStations->get(stn1 + 2, 0),
-		estimatedStations->get(stn2, 0),
-		estimatedStations->get(stn2 + 1, 0),
-		estimatedStations->get(stn2 + 2, 0),
+		estimatedStations_stn1->get(stn1, 0),
+		estimatedStations_stn1->get(stn1 + 1, 0),
+		estimatedStations_stn1->get(stn1 + 2, 0),
+		estimatedStations_stn2->get(stn2, 0),
+		estimatedStations_stn2->get(stn2 + 1, 0),
+		estimatedStations_stn2->get(stn2 + 2, 0),
 		stn1_it->currentLatitude,
 		stn2_it->currentLatitude,
 		stn1_it->currentHeight,
@@ -10600,7 +10649,7 @@ void dna_adjust::UpdateIgnoredMeasurements_CEM(pit_vmsr_t _it_msr, const UINT32&
 }
 
 
-void dna_adjust::UpdateIgnoredMeasurements_D(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement)
+void dna_adjust::UpdateIgnoredMeasurements_D(pit_vmsr_t _it_msr, bool storeOriginalMeasurement)
 {
 	it_vmsr_t _it_msr_first(*_it_msr);
 	UINT32 a, angle_count((*_it_msr)->vectorCount1 - 1);		// number of directions excluding the RO
@@ -10648,7 +10697,7 @@ void dna_adjust::UpdateIgnoredMeasurements_D(pit_vmsr_t _it_msr, const UINT32& b
 			else
 				it_angle->preAdjMeas = (*_it_msr)->scale1;
 			
-			UpdateIgnoredMeasurements_A(&it_angle, block, estimatedStations, storeOriginalMeasurement);
+			UpdateIgnoredMeasurements_A(&it_angle, storeOriginalMeasurement);
 						
 			// apply correction for deflections in the vertical
 			(*_it_msr)->scale1 = it_angle->preAdjMeas;
@@ -10680,23 +10729,36 @@ void dna_adjust::UpdateIgnoredMeasurements_D(pit_vmsr_t _it_msr, const UINT32& b
 		stringstream ss;
 		ss << "UpdateIgnoredMeasurements_D(): An error was encountered whilst" << endl <<
 			"  calculating ignored measurement details" << endl;
-		SignalExceptionAdjustment(ss.str(), block);
+		SignalExceptionAdjustment(ss.str(), 0);
 	}
 	
 }
 	
 
-void dna_adjust::UpdateIgnoredMeasurements_E(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement)
+void dna_adjust::UpdateIgnoredMeasurements_E(pit_vmsr_t _it_msr, bool storeOriginalMeasurement)
 {	
 	// initialise measurement (on the first adjustment only!)
 	if (storeOriginalMeasurement)
 		(*_it_msr)->preAdjMeas = (*_it_msr)->term1;
 
 	// Compute the chord distance
-	UpdateIgnoredMeasurements_CEM(_it_msr, block, estimatedStations);
+	UpdateIgnoredMeasurements_CEM(_it_msr);
 
-	UINT32 stn1(GetBlkMatrixElemStn1(block, _it_msr));
-	UINT32 stn2(GetBlkMatrixElemStn2(block, _it_msr));
+	// Use v_blockStationsMapUnique_ to get the correct block for each 
+	// station in the measurement
+	_it_u32u32_uint32_pair _it_bsmu;
+
+	// Get estimated station coordinates matrix and index of the 
+	// station within the matrix for station 1
+	_it_bsmu = v_blockStationsMapUnique_.begin() + (*_it_msr)->station1;
+	matrix_2d* estimatedStations_stn1(&v_estimatedStations_.at(_it_bsmu->second));
+	UINT32 stn1(GetBlkMatrixElemStn1(_it_bsmu->second, _it_msr));
+	
+	// Get estimated station coordinates matrix and index of the 
+	// station within the matrix for station 2
+	_it_bsmu = v_blockStationsMapUnique_.begin() + (*_it_msr)->station2;
+	matrix_2d* estimatedStations_stn2(&v_estimatedStations_.at(_it_bsmu->second));
+	UINT32 stn2(GetBlkMatrixElemStn2(_it_bsmu->second, _it_msr));
 
 	it_vstn_t_const stn1_it(bstBinaryRecords_.begin() + (*_it_msr)->station1);
 	it_vstn_t_const stn2_it(bstBinaryRecords_.begin() + (*_it_msr)->station2);
@@ -10704,12 +10766,12 @@ void dna_adjust::UpdateIgnoredMeasurements_E(pit_vmsr_t _it_msr, const UINT32& b
 	// Compute Ellipsoid arc from Ellipsoid chord
 	double ellipsoid_arc = EllipsoidChordtoEllipsoidArc<double>(
 		(*_it_msr)->measAdj,		// use Ellipsoid chord computed by UpdateIgnoredMeasurements_CEM
-		estimatedStations->get(stn1, 0),
-		estimatedStations->get(stn1 + 1, 0),
-		estimatedStations->get(stn1 + 2, 0),
-		estimatedStations->get(stn2, 0),
-		estimatedStations->get(stn2 + 1, 0),
-		estimatedStations->get(stn2 + 2, 0),
+		estimatedStations_stn1->get(stn1, 0),
+		estimatedStations_stn1->get(stn1 + 1, 0),
+		estimatedStations_stn1->get(stn1 + 2, 0),
+		estimatedStations_stn2->get(stn2, 0),
+		estimatedStations_stn2->get(stn2 + 1, 0),
+		estimatedStations_stn2->get(stn2 + 2, 0),
 		stn1_it->currentLatitude,
 		stn1_it->currentLongitude,
 		stn2_it->currentLatitude,
@@ -10724,24 +10786,35 @@ void dna_adjust::UpdateIgnoredMeasurements_E(pit_vmsr_t _it_msr, const UINT32& b
 }
 	
 
-void dna_adjust::UpdateIgnoredMeasurements_G(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement)
+void dna_adjust::UpdateIgnoredMeasurements_G(pit_vmsr_t _it_msr, bool storeOriginalMeasurement)
 {
-	it_vmsr_t _it_msr_first(*_it_msr);
-	UINT32 stn1(GetBlkMatrixElemStn1(block, _it_msr));
-	UINT32 stn2(GetBlkMatrixElemStn2(block, _it_msr));
-
-	UpdateIgnoredMeasurements_GX(_it_msr, block, estimatedStations, storeOriginalMeasurement, stn1, stn2);
+	UpdateIgnoredMeasurements_GX(_it_msr, storeOriginalMeasurement);
 }
 
-void dna_adjust::UpdateIgnoredMeasurements_GX(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations,
-												bool storeOriginalMeasurement, const UINT32& stn1, const UINT32& stn2)
+void dna_adjust::UpdateIgnoredMeasurements_GX(pit_vmsr_t _it_msr, bool storeOriginalMeasurement)
 {
+	// Use v_blockStationsMapUnique_ to get the correct block for each 
+	// station in the measurement
+	_it_u32u32_uint32_pair _it_bsmu;
+
+	// Get estimated station coordinates matrix and index of the 
+	// station within the matrix for station 1
+	_it_bsmu = v_blockStationsMapUnique_.begin() + (*_it_msr)->station1;
+	matrix_2d* estimatedStations_stn1(&v_estimatedStations_.at(_it_bsmu->second));
+	UINT32 stn1(GetBlkMatrixElemStn1(_it_bsmu->second, _it_msr));
+
+	// Get estimated station coordinates matrix and index of the 
+	// station within the matrix for station 2
+	_it_bsmu = v_blockStationsMapUnique_.begin() + (*_it_msr)->station2;
+	matrix_2d* estimatedStations_stn2(&v_estimatedStations_.at(_it_bsmu->second));
+	UINT32 stn2(GetBlkMatrixElemStn2(_it_bsmu->second, _it_msr));
+
 	// initialise measurement (on the first adjustment only!)
 	if (storeOriginalMeasurement)
 		// X element
 		(*_it_msr)->preAdjMeas = (*_it_msr)->term1;
 	// update adjusted measurement
-	(*_it_msr)->measAdj = (estimatedStations->get(stn2, 0) - estimatedStations->get(stn1, 0));
+	(*_it_msr)->measAdj = (estimatedStations_stn2->get(stn2, 0) - estimatedStations_stn1->get(stn1, 0));
 	// compute adjustment correction
 	(*_it_msr)->measCorr = (*_it_msr)->measAdj - (*_it_msr)->preAdjMeas;
 
@@ -10750,7 +10823,7 @@ void dna_adjust::UpdateIgnoredMeasurements_GX(pit_vmsr_t _it_msr, const UINT32& 
 	if (storeOriginalMeasurement)
 		(*_it_msr)->preAdjMeas = (*_it_msr)->term1;
 	// update adjusted measurement
-	(*_it_msr)->measAdj = (estimatedStations->get(stn2+1, 0) - estimatedStations->get(stn1+1, 0));
+	(*_it_msr)->measAdj = (estimatedStations_stn2->get(stn2+1, 0) - estimatedStations_stn1->get(stn1+1, 0));
 	// compute adjustment correction
 	(*_it_msr)->measCorr = (*_it_msr)->measAdj - (*_it_msr)->preAdjMeas;
 
@@ -10759,20 +10832,20 @@ void dna_adjust::UpdateIgnoredMeasurements_GX(pit_vmsr_t _it_msr, const UINT32& 
 	if (storeOriginalMeasurement)
 		(*_it_msr)->preAdjMeas = (*_it_msr)->term1;
 	// update adjusted measurement
-	(*_it_msr)->measAdj = (estimatedStations->get(stn2+2, 0) - estimatedStations->get(stn1+2, 0));
+	(*_it_msr)->measAdj = (estimatedStations_stn2->get(stn2+2, 0) - estimatedStations_stn1->get(stn1+2, 0));
 	// compute adjustment correction
 	(*_it_msr)->measCorr = (*_it_msr)->measAdj - (*_it_msr)->preAdjMeas;
 }
 	
 
-void dna_adjust::UpdateIgnoredMeasurements_H(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement)
+void dna_adjust::UpdateIgnoredMeasurements_H(pit_vmsr_t _it_msr, bool storeOriginalMeasurement)
 {
 	// initialise measurement (on the first adjustment only!)
 	if (storeOriginalMeasurement)
 		(*_it_msr)->preAdjMeas = (*_it_msr)->term1;
 
 	// Compute the ellipsoid height
-	UpdateIgnoredMeasurements_HR(_it_msr, block, estimatedStations);
+	UpdateIgnoredMeasurements_HR(_it_msr);
 
 	it_vstn_t_const stn1_it(bstBinaryRecords_.begin() + (*_it_msr)->station1);
 
@@ -10791,9 +10864,17 @@ void dna_adjust::UpdateIgnoredMeasurements_H(pit_vmsr_t _it_msr, const UINT32& b
 }
 	
 
-void dna_adjust::UpdateIgnoredMeasurements_HR(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations)
+void dna_adjust::UpdateIgnoredMeasurements_HR(pit_vmsr_t _it_msr)
 {
-	UINT32 stn1(GetBlkMatrixElemStn1(block, _it_msr));
+	// Use v_blockStationsMapUnique_ to get the correct block for each 
+	// station in the measurement
+	_it_u32u32_uint32_pair _it_bsmu;
+
+	// Get estimated station coordinates matrix and index of the 
+	// station within the matrix for station 1
+	_it_bsmu = v_blockStationsMapUnique_.begin() + (*_it_msr)->station1;
+	matrix_2d* estimatedStations(&v_estimatedStations_.at(_it_bsmu->second));
+	UINT32 stn1(GetBlkMatrixElemStn1(_it_bsmu->second, _it_msr));
 
 	it_vstn_t_const stn1_it(bstBinaryRecords_.begin() + (*_it_msr)->station1);
 
@@ -10812,14 +10893,14 @@ void dna_adjust::UpdateIgnoredMeasurements_HR(pit_vmsr_t _it_msr, const UINT32& 
 }
 
 
-void dna_adjust::UpdateIgnoredMeasurements_I(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement)
+void dna_adjust::UpdateIgnoredMeasurements_I(pit_vmsr_t _it_msr, bool storeOriginalMeasurement)
 {
 	// initialise measurement (on the first adjustment only!)
 	if (storeOriginalMeasurement)
 		(*_it_msr)->preAdjMeas = (*_it_msr)->term1;
 
 	// calculate geodetic latitude
-	UpdateIgnoredMeasurements_IP(_it_msr, block, estimatedStations);
+	UpdateIgnoredMeasurements_IP(_it_msr);
 
 	it_vstn_t_const stn1_it(bstBinaryRecords_.begin() + (*_it_msr)->station1);
 
@@ -10837,9 +10918,17 @@ void dna_adjust::UpdateIgnoredMeasurements_I(pit_vmsr_t _it_msr, const UINT32& b
 }
 	
 
-void dna_adjust::UpdateIgnoredMeasurements_IP(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations)
+void dna_adjust::UpdateIgnoredMeasurements_IP(pit_vmsr_t _it_msr)
 {
-	UINT32 stn1(GetBlkMatrixElemStn1(block, _it_msr));
+	// Use v_blockStationsMapUnique_ to get the correct block for each 
+	// station in the measurement
+	_it_u32u32_uint32_pair _it_bsmu;
+
+	// Get estimated station coordinates matrix and index of the 
+	// station within the matrix for station 1
+	_it_bsmu = v_blockStationsMapUnique_.begin() + (*_it_msr)->station1;
+	matrix_2d* estimatedStations(&v_estimatedStations_.at(_it_bsmu->second));
+	UINT32 stn1(GetBlkMatrixElemStn1(_it_bsmu->second, _it_msr));
 
 	// compute the geodetic latitude
 	(*_it_msr)->measAdj = (CartToLat<double>(
@@ -10850,14 +10939,14 @@ void dna_adjust::UpdateIgnoredMeasurements_IP(pit_vmsr_t _it_msr, const UINT32& 
 }
 
 
-void dna_adjust::UpdateIgnoredMeasurements_J(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement)
+void dna_adjust::UpdateIgnoredMeasurements_J(pit_vmsr_t _it_msr, bool storeOriginalMeasurement)
 {
 	// initialise measurement (on the first adjustment only!)
 	if (storeOriginalMeasurement)
 		(*_it_msr)->preAdjMeas = (*_it_msr)->term1;
 
 	// calculate geodetic longitude
-	UpdateIgnoredMeasurements_JQ(_it_msr, block, estimatedStations);
+	UpdateIgnoredMeasurements_JQ(_it_msr);
 
 	it_vstn_t_const stn1_it(bstBinaryRecords_.begin() + (*_it_msr)->station1);
 
@@ -10877,10 +10966,18 @@ void dna_adjust::UpdateIgnoredMeasurements_J(pit_vmsr_t _it_msr, const UINT32& b
 }
 	
 
-void dna_adjust::UpdateIgnoredMeasurements_JQ(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations)
+void dna_adjust::UpdateIgnoredMeasurements_JQ(pit_vmsr_t _it_msr)
 {
-	UINT32 stn1(GetBlkMatrixElemStn1(block, _it_msr));
+	// Use v_blockStationsMapUnique_ to get the correct block for each 
+	// station in the measurement
+	_it_u32u32_uint32_pair _it_bsmu;
 
+	// Get estimated station coordinates matrix and index of the 
+	// station within the matrix for station 1
+	_it_bsmu = v_blockStationsMapUnique_.begin() + (*_it_msr)->station1;
+	matrix_2d* estimatedStations(&v_estimatedStations_.at(_it_bsmu->second));
+	UINT32 stn1(GetBlkMatrixElemStn1(_it_bsmu->second, _it_msr));
+	
 	double latitude, longitude, ellipsoidHeight;
 
 	// compute the geodetic longitude
@@ -10896,18 +10993,31 @@ void dna_adjust::UpdateIgnoredMeasurements_JQ(pit_vmsr_t _it_msr, const UINT32& 
 	(*_it_msr)->measAdj = longitude;
 }
 
-void dna_adjust::UpdateIgnoredMeasurements_K(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement)
+void dna_adjust::UpdateIgnoredMeasurements_K(pit_vmsr_t _it_msr, bool storeOriginalMeasurement)
 {
 	// initialise measurement (on the first adjustment only!)
 	if (storeOriginalMeasurement)
 		(*_it_msr)->preAdjMeas = (*_it_msr)->term1;
 
 	// Compute the geodetic azimuth
-	UpdateIgnoredMeasurements_BK(_it_msr, block, estimatedStations, storeOriginalMeasurement);
+	UpdateIgnoredMeasurements_BK(_it_msr);
 
-	UINT32 stn1(GetBlkMatrixElemStn1(block, _it_msr));
-	UINT32 stn2(GetBlkMatrixElemStn2(block, _it_msr));
+	// Use v_blockStationsMapUnique_ to get the correct block for each 
+	// station in the measurement
+	_it_u32u32_uint32_pair _it_bsmu;
 
+	// Get estimated station coordinates matrix and index of the 
+	// station within the matrix for station 1
+	_it_bsmu = v_blockStationsMapUnique_.begin() + (*_it_msr)->station1;
+	matrix_2d* estimatedStations_stn1(&v_estimatedStations_.at(_it_bsmu->second));
+	UINT32 stn1(GetBlkMatrixElemStn1(_it_bsmu->second, _it_msr));
+	
+	// Get estimated station coordinates matrix and index of the 
+	// station within the matrix for station 2
+	_it_bsmu = v_blockStationsMapUnique_.begin() + (*_it_msr)->station2;
+	matrix_2d* estimatedStations_stn2(&v_estimatedStations_.at(_it_bsmu->second));
+	UINT32 stn2(GetBlkMatrixElemStn2(_it_bsmu->second, _it_msr));
+	
 	it_vstn_t_const stn1_it(bstBinaryRecords_.begin() + (*_it_msr)->station1);
 	it_vstn_t_const stn2_it(bstBinaryRecords_.begin() + (*_it_msr)->station2);
 
@@ -10924,12 +11034,12 @@ void dna_adjust::UpdateIgnoredMeasurements_K(pit_vmsr_t _it_msr, const UINT32& b
 		////////////////////////////////////////////////////////////////////////////
 		// Compute zenith distance
 		double zenith(ZenithDistance<double>(
-			estimatedStations->get(stn1, 0),					// X1
-			estimatedStations->get(stn1 + 1, 0),				// Y1
-			estimatedStations->get(stn1 + 2, 0),				// Z1
-			estimatedStations->get(stn2, 0), 					// X2
-			estimatedStations->get(stn2 + 1, 0),				// Y2
-			estimatedStations->get(stn2 + 2, 0),				// Z2
+			estimatedStations_stn1->get(stn1, 0),					// X1
+			estimatedStations_stn1->get(stn1 + 1, 0),				// Y1
+			estimatedStations_stn1->get(stn1 + 2, 0),				// Z1
+			estimatedStations_stn2->get(stn2, 0), 					// X2
+			estimatedStations_stn2->get(stn2 + 1, 0),				// Y2
+			estimatedStations_stn2->get(stn2 + 2, 0),				// Z2
 			stn1_it->currentLatitude,
 			stn1_it->currentLongitude,
 			stn2_it->currentLatitude,
@@ -10954,14 +11064,27 @@ void dna_adjust::UpdateIgnoredMeasurements_K(pit_vmsr_t _it_msr, const UINT32& b
 	(*_it_msr)->measCorr = (*_it_msr)->measAdj - (*_it_msr)->preAdjMeas;
 }
 
-void dna_adjust::UpdateIgnoredMeasurements_L(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement)
+void dna_adjust::UpdateIgnoredMeasurements_L(pit_vmsr_t _it_msr, bool storeOriginalMeasurement)
 {
 	// initialise measurement (on the first adjustment only!)
 	if (storeOriginalMeasurement)
 		(*_it_msr)->preAdjMeas = (*_it_msr)->term1;
 
-	UINT32 stn1(GetBlkMatrixElemStn1(block, _it_msr));
-	UINT32 stn2(GetBlkMatrixElemStn2(block, _it_msr));
+	// Use v_blockStationsMapUnique_ to get the correct block for each 
+	// station in the measurement
+	_it_u32u32_uint32_pair _it_bsmu;
+
+	// Get estimated station coordinates matrix and index of the 
+	// station within the matrix for station 1
+	_it_bsmu = v_blockStationsMapUnique_.begin() + (*_it_msr)->station1;
+	matrix_2d* estimatedStations_stn1(&v_estimatedStations_.at(_it_bsmu->second));
+	UINT32 stn1(GetBlkMatrixElemStn1(_it_bsmu->second, _it_msr));
+	
+	// Get estimated station coordinates matrix and index of the 
+	// station within the matrix for station 2
+	_it_bsmu = v_blockStationsMapUnique_.begin() + (*_it_msr)->station2;
+	matrix_2d* estimatedStations_stn2(&v_estimatedStations_.at(_it_bsmu->second));
+	UINT32 stn2(GetBlkMatrixElemStn2(_it_bsmu->second, _it_msr));
 
 	it_vstn_t_const stn1_it(bstBinaryRecords_.begin() + (*_it_msr)->station1);
 	it_vstn_t_const stn2_it(bstBinaryRecords_.begin() + (*_it_msr)->station2);
@@ -10972,12 +11095,12 @@ void dna_adjust::UpdateIgnoredMeasurements_L(pit_vmsr_t _it_msr, const UINT32& b
 
 	// calculated diff height
 	(*_it_msr)->measAdj = (EllipsoidHeightDifference<double>(
-		estimatedStations->get(stn1, 0),
-		estimatedStations->get(stn1 + 1, 0),
-		estimatedStations->get(stn1 + 2, 0),
-		estimatedStations->get(stn2, 0),
-		estimatedStations->get(stn2 + 1, 0),
-		estimatedStations->get(stn2 + 2, 0),
+		estimatedStations_stn1->get(stn1, 0),
+		estimatedStations_stn1->get(stn1 + 1, 0),
+		estimatedStations_stn1->get(stn1 + 2, 0),
+		estimatedStations_stn2->get(stn2, 0),
+		estimatedStations_stn2->get(stn2 + 1, 0),
+		estimatedStations_stn2->get(stn2 + 2, 0),
 		stn1_it->currentLatitude,
 		stn2_it->currentLatitude,
 		&h1, &h2, &nu1, &nu2, &Zn1, &Zn2,
@@ -10998,14 +11121,14 @@ void dna_adjust::UpdateIgnoredMeasurements_L(pit_vmsr_t _it_msr, const UINT32& b
 }
 	
 
-void dna_adjust::UpdateIgnoredMeasurements_M(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement)
+void dna_adjust::UpdateIgnoredMeasurements_M(pit_vmsr_t _it_msr, bool storeOriginalMeasurement)
 {
 	// initialise measurement (on the first adjustment only!)
 	if (storeOriginalMeasurement)
 		(*_it_msr)->preAdjMeas = (*_it_msr)->term1;
 	
 	// Compute the chord distance
-	UpdateIgnoredMeasurements_CEM(_it_msr, block, estimatedStations);
+	UpdateIgnoredMeasurements_CEM(_it_msr);
 		
 	it_vstn_t_const stn1_it(bstBinaryRecords_.begin() + (*_it_msr)->station1);
 	it_vstn_t_const stn2_it(bstBinaryRecords_.begin() + (*_it_msr)->station2);
@@ -11026,13 +11149,13 @@ void dna_adjust::UpdateIgnoredMeasurements_M(pit_vmsr_t _it_msr, const UINT32& b
 }
 	
 
-void dna_adjust::UpdateIgnoredMeasurements_P(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement)
+void dna_adjust::UpdateIgnoredMeasurements_P(pit_vmsr_t _it_msr, bool storeOriginalMeasurement)
 {
 	// initialise measurement (on the first adjustment only!)
 	if (storeOriginalMeasurement)
 		(*_it_msr)->preAdjMeas = (*_it_msr)->term1;
 
-	UpdateIgnoredMeasurements_IP(_it_msr, block, estimatedStations);
+	UpdateIgnoredMeasurements_IP(_it_msr);
 
 	// As a P measurement is the result of a direct conversion of cartesian coordinates,
 	// there will be no pre adjustment correction
@@ -11042,13 +11165,13 @@ void dna_adjust::UpdateIgnoredMeasurements_P(pit_vmsr_t _it_msr, const UINT32& b
 }
 	
 
-void dna_adjust::UpdateIgnoredMeasurements_Q(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement)
+void dna_adjust::UpdateIgnoredMeasurements_Q(pit_vmsr_t _it_msr, bool storeOriginalMeasurement)
 {
 	// initialise measurement (on the first adjustment only!)
 	if (storeOriginalMeasurement)
 		(*_it_msr)->preAdjMeas = (*_it_msr)->term1;
 
-	UpdateIgnoredMeasurements_JQ(_it_msr, block, estimatedStations);
+	UpdateIgnoredMeasurements_JQ(_it_msr);
 
 	// As a Q measurement is the result of a direct conversion of cartesian coordinates,
 	// there will be no pre adjustment correction
@@ -11058,13 +11181,13 @@ void dna_adjust::UpdateIgnoredMeasurements_Q(pit_vmsr_t _it_msr, const UINT32& b
 }
 	
 
-void dna_adjust::UpdateIgnoredMeasurements_R(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement)
+void dna_adjust::UpdateIgnoredMeasurements_R(pit_vmsr_t _it_msr, bool storeOriginalMeasurement)
 {
 	// initialise measurement (on the first adjustment only!)
 	if (storeOriginalMeasurement)
 		(*_it_msr)->preAdjMeas = (*_it_msr)->term1;
 
-	UpdateIgnoredMeasurements_HR(_it_msr, block, estimatedStations);
+	UpdateIgnoredMeasurements_HR(_it_msr);
 
 	// As a R measurement is the result of a direct conversion of cartesian coordinates,
 	// there will be no pre adjustment correction
@@ -11074,15 +11197,28 @@ void dna_adjust::UpdateIgnoredMeasurements_R(pit_vmsr_t _it_msr, const UINT32& b
 }
 	
 
-void dna_adjust::UpdateIgnoredMeasurements_S(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement)
+void dna_adjust::UpdateIgnoredMeasurements_S(pit_vmsr_t _it_msr, bool storeOriginalMeasurement)
 {
 	// initialise measurement (on the first adjustment only!)
 	if (storeOriginalMeasurement)
 		(*_it_msr)->preAdjMeas = (*_it_msr)->term1;
 
-	UINT32 stn1(GetBlkMatrixElemStn1(block, _it_msr));
-	UINT32 stn2(GetBlkMatrixElemStn2(block, _it_msr));
+	// Use v_blockStationsMapUnique_ to get the correct block for each 
+	// station in the measurement
+	_it_u32u32_uint32_pair _it_bsmu;
 
+	// Get estimated station coordinates matrix and index of the 
+	// station within the matrix for station 1
+	_it_bsmu = v_blockStationsMapUnique_.begin() + (*_it_msr)->station1;
+	matrix_2d* estimatedStations_stn1(&v_estimatedStations_.at(_it_bsmu->second));
+	UINT32 stn1(GetBlkMatrixElemStn1(_it_bsmu->second, _it_msr));
+	
+	// Get estimated station coordinates matrix and index of the 
+	// station within the matrix for station 2
+	_it_bsmu = v_blockStationsMapUnique_.begin() + (*_it_msr)->station2;
+	matrix_2d* estimatedStations_stn2(&v_estimatedStations_.at(_it_bsmu->second));
+	UINT32 stn2(GetBlkMatrixElemStn2(_it_bsmu->second, _it_msr));
+	
 	it_vstn_t_const stn1_it(bstBinaryRecords_.begin() + (*_it_msr)->station1);
 
 	// compute dX, dY, dZ for instrument height (ih) and target height (th)
@@ -11098,9 +11234,9 @@ void dna_adjust::UpdateIgnoredMeasurements_S(pit_vmsr_t _it_msr, const UINT32& b
 
 	// compute distance between instrument and target, taking into consideration
 	// instrument height, target height, and vector between stations
-	double dX(estimatedStations->get(stn2, 0) - estimatedStations->get(stn1, 0) + dXth - dXih);
-	double dY(estimatedStations->get(stn2 + 1, 0) - estimatedStations->get(stn1 + 1, 0) + dYth - dYih);
-	double dZ(estimatedStations->get(stn2 + 2, 0) - estimatedStations->get(stn1 + 2, 0) + dZth - dZih);
+	double dX(estimatedStations_stn2->get(stn2, 0)     - estimatedStations_stn1->get(stn1, 0) + dXth - dXih);
+	double dY(estimatedStations_stn2->get(stn2 + 1, 0) - estimatedStations_stn1->get(stn1 + 1, 0) + dYth - dYih);
+	double dZ(estimatedStations_stn2->get(stn2 + 2, 0) - estimatedStations_stn1->get(stn1 + 2, 0) + dZth - dZih);
 
 	// calculated distance
 	(*_it_msr)->measAdj = (magnitude(dX, dY, dZ));
@@ -11112,14 +11248,27 @@ void dna_adjust::UpdateIgnoredMeasurements_S(pit_vmsr_t _it_msr, const UINT32& b
 }
 	
 
-void dna_adjust::UpdateIgnoredMeasurements_V(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement)
+void dna_adjust::UpdateIgnoredMeasurements_V(pit_vmsr_t _it_msr, bool storeOriginalMeasurement)
 {
 	// initialise measurement (on the first adjustment only!)
 	if (storeOriginalMeasurement)
 		(*_it_msr)->preAdjMeas = (*_it_msr)->term1;
 
-	UINT32 stn1(GetBlkMatrixElemStn1(block, _it_msr));
-	UINT32 stn2(GetBlkMatrixElemStn2(block, _it_msr));
+	// Use v_blockStationsMapUnique_ to get the correct block for each 
+	// station in the measurement
+	_it_u32u32_uint32_pair _it_bsmu;
+
+	// Get estimated station coordinates matrix and index of the 
+	// station within the matrix for station 1
+	_it_bsmu = v_blockStationsMapUnique_.begin() + (*_it_msr)->station1;
+	matrix_2d* estimatedStations_stn1(&v_estimatedStations_.at(_it_bsmu->second));
+	UINT32 stn1(GetBlkMatrixElemStn1(_it_bsmu->second, _it_msr));
+
+	// Get estimated station coordinates matrix and index of the 
+	// station within the matrix for station 2
+	_it_bsmu = v_blockStationsMapUnique_.begin() + (*_it_msr)->station2;
+	matrix_2d* estimatedStations_stn2(&v_estimatedStations_.at(_it_bsmu->second));
+	UINT32 stn2(GetBlkMatrixElemStn2(_it_bsmu->second, _it_msr));
 
 	it_vstn_t_const stn1_it(bstBinaryRecords_.begin() + (*_it_msr)->station1);
 	it_vstn_t_const stn2_it(bstBinaryRecords_.begin() + (*_it_msr)->station2);
@@ -11128,12 +11277,12 @@ void dna_adjust::UpdateIgnoredMeasurements_V(pit_vmsr_t _it_msr, const UINT32& b
 
 	// compute zenith angle from estimated coordinates
 	(*_it_msr)->measAdj = (ZenithDistance(
-		estimatedStations->get(stn1, 0),					// X1
-		estimatedStations->get(stn1 + 1, 0),					// Y1
-		estimatedStations->get(stn1 + 2, 0),					// Z1
-		estimatedStations->get(stn2, 0), 					// X2
-		estimatedStations->get(stn2 + 1, 0),					// Y2
-		estimatedStations->get(stn2 + 2, 0),					// Z2
+		estimatedStations_stn1->get(stn1, 0),					// X1
+		estimatedStations_stn1->get(stn1 + 1, 0),					// Y1
+		estimatedStations_stn1->get(stn1 + 2, 0),					// Z1
+		estimatedStations_stn2->get(stn2, 0), 					// X2
+		estimatedStations_stn2->get(stn2 + 1, 0),					// Y2
+		estimatedStations_stn2->get(stn2 + 2, 0),					// Z2
 		stn1_it->currentLatitude,
 		stn1_it->currentLongitude,
 		stn2_it->currentLatitude,
@@ -11151,12 +11300,12 @@ void dna_adjust::UpdateIgnoredMeasurements_V(pit_vmsr_t _it_msr, const UINT32& b
 		// Correct for deflections in the vertical
 		// 1. compute bearing from estimated coordinates
 		double azimuth(Direction(
-			estimatedStations->get(stn1, 0),		// X1
-			estimatedStations->get(stn1 + 1, 0),		// Y1
-			estimatedStations->get(stn1 + 2, 0),		// Z1
-			estimatedStations->get(stn2, 0), 		// X2
-			estimatedStations->get(stn2 + 1, 0),		// Y2
-			estimatedStations->get(stn2 + 2, 0),		// Z2
+			estimatedStations_stn1->get(stn1, 0),		// X1
+			estimatedStations_stn1->get(stn1 + 1, 0),		// Y1
+			estimatedStations_stn1->get(stn1 + 2, 0),		// Z1
+			estimatedStations_stn2->get(stn2, 0), 		// X2
+			estimatedStations_stn2->get(stn2 + 1, 0),		// Y2
+			estimatedStations_stn2->get(stn2 + 2, 0),		// Z2
 			stn1_it->currentLatitude,
 			stn1_it->currentLongitude));
 
@@ -11177,21 +11326,14 @@ void dna_adjust::UpdateIgnoredMeasurements_V(pit_vmsr_t _it_msr, const UINT32& b
 }
 	
 
-void dna_adjust::UpdateIgnoredMeasurements_X(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement)
+void dna_adjust::UpdateIgnoredMeasurements_X(pit_vmsr_t _it_msr, bool storeOriginalMeasurement)
 {
-	it_vmsr_t _it_msr_first(*_it_msr);
-
-	UINT32 stn1, stn2, covr(0), covc(0);
-
 	UINT32 cluster_bsl, baseline_count((*_it_msr)->vectorCount1);
 	UINT32 covariance_count;
 
 	for (cluster_bsl = 0; cluster_bsl < baseline_count; ++cluster_bsl)	// number of baselines/points
 	{
-		stn1 = GetBlkMatrixElemStn1(block, _it_msr);
-		stn2 = GetBlkMatrixElemStn2(block, _it_msr);
-
-		UpdateIgnoredMeasurements_GX(_it_msr, block, estimatedStations, storeOriginalMeasurement, stn1, stn2);
+		UpdateIgnoredMeasurements_GX(_it_msr, storeOriginalMeasurement);
 
 		covariance_count = (*_it_msr)->vectorCount2;
 
@@ -11204,13 +11346,20 @@ void dna_adjust::UpdateIgnoredMeasurements_X(pit_vmsr_t _it_msr, const UINT32& b
 }
 	
 
-void dna_adjust::UpdateIgnoredMeasurements_Y(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement)
+void dna_adjust::UpdateIgnoredMeasurements_Y(pit_vmsr_t _it_msr, bool storeOriginalMeasurement)
 {
-	it_vmsr_t _it_msr_first(*_it_msr);
-	it_vmsr_t tmp_msr;
+	// Use v_blockStationsMapUnique_ to get the correct block for each 
+	// station in the measurement
+	_it_u32u32_uint32_pair _it_bsmu;
 
-	UINT32 stn1, covr(0), covc(0);
+	// Get estimated station coordinates matrix and index of the 
+	// station within the matrix for station 1.  Since Y clusters are
+	// correlated measurements which are never split, all stations will
+	// be in the same block as station 1.
+	_it_bsmu = v_blockStationsMapUnique_.begin() + (*_it_msr)->station1;
+	matrix_2d* estimatedStations(&v_estimatedStations_.at(_it_bsmu->second));
 
+	UINT32 stn1;
 	UINT32 cluster_pnt, point_count((*_it_msr)->vectorCount1);
 	UINT32 covariance_count;
 	it_vstn_t stn1_it;
@@ -11224,9 +11373,7 @@ void dna_adjust::UpdateIgnoredMeasurements_Y(pit_vmsr_t _it_msr, const UINT32& b
 
 		stn1_it = bstBinaryRecords_.begin() + (*_it_msr)->station1;
 
-		tmp_msr = *_it_msr;
-
-		stn1 = GetBlkMatrixElemStn1(block, _it_msr);
+		stn1 = GetBlkMatrixElemStn1(_it_bsmu->second, _it_msr);
 
 		// Get latest cartesian coordinates
 		x = estimatedStations->get(stn1, 0);
@@ -11288,14 +11435,27 @@ void dna_adjust::UpdateIgnoredMeasurements_Y(pit_vmsr_t _it_msr, const UINT32& b
 }
 	
 
-void dna_adjust::UpdateIgnoredMeasurements_Z(pit_vmsr_t _it_msr, const UINT32& block, matrix_2d* estimatedStations, bool storeOriginalMeasurement)
+void dna_adjust::UpdateIgnoredMeasurements_Z(pit_vmsr_t _it_msr, bool storeOriginalMeasurement)
 {
 	// initialise measurement (on the first adjustment only!)
 	if (storeOriginalMeasurement)
 		(*_it_msr)->preAdjMeas = (*_it_msr)->term1;
 
-	UINT32 stn1(GetBlkMatrixElemStn1(block, _it_msr));
-	UINT32 stn2(GetBlkMatrixElemStn2(block, _it_msr));
+	// Use v_blockStationsMapUnique_ to get the correct block for each 
+	// station in the measurement
+	_it_u32u32_uint32_pair _it_bsmu;
+
+	// Get estimated station coordinates matrix and index of the 
+	// station within the matrix for station 1
+	_it_bsmu = v_blockStationsMapUnique_.begin() + (*_it_msr)->station1;
+	matrix_2d* estimatedStations_stn1(&v_estimatedStations_.at(_it_bsmu->second));
+	UINT32 stn1(GetBlkMatrixElemStn1(_it_bsmu->second, _it_msr));
+	
+	// Get estimated station coordinates matrix and index of the 
+	// station within the matrix for station 2
+	_it_bsmu = v_blockStationsMapUnique_.begin() + (*_it_msr)->station2;
+	matrix_2d* estimatedStations_stn2(&v_estimatedStations_.at(_it_bsmu->second));
+	UINT32 stn2(GetBlkMatrixElemStn2(_it_bsmu->second, _it_msr));
 
 	it_vstn_t_const stn1_it(bstBinaryRecords_.begin() + (*_it_msr)->station1);
 	it_vstn_t_const stn2_it(bstBinaryRecords_.begin() + (*_it_msr)->station2);
@@ -11304,12 +11464,12 @@ void dna_adjust::UpdateIgnoredMeasurements_Z(pit_vmsr_t _it_msr, const UINT32& b
 
 	// compute vertical angle from estimated coordinates
 	(*_it_msr)->measAdj = (VerticalAngle(
-		estimatedStations->get(stn1, 0),					// X1
-		estimatedStations->get(stn1 + 1, 0),					// Y1
-		estimatedStations->get(stn1 + 2, 0),					// Z1
-		estimatedStations->get(stn2, 0), 					// X2
-		estimatedStations->get(stn2 + 1, 0),					// Y2
-		estimatedStations->get(stn2 + 2, 0),					// Z2
+		estimatedStations_stn1->get(stn1, 0),					// X1
+		estimatedStations_stn1->get(stn1 + 1, 0),					// Y1
+		estimatedStations_stn1->get(stn1 + 2, 0),					// Z1
+		estimatedStations_stn2->get(stn2, 0), 					// X2
+		estimatedStations_stn2->get(stn2 + 1, 0),					// Y2
+		estimatedStations_stn2->get(stn2 + 2, 0),					// Z2
 		stn1_it->currentLatitude,
 		stn1_it->currentLongitude,
 		stn2_it->currentLatitude,
@@ -11327,12 +11487,12 @@ void dna_adjust::UpdateIgnoredMeasurements_Z(pit_vmsr_t _it_msr, const UINT32& b
 		// Correct for deflection of the vertical
 		// 1. compute bearing from estimated coordinates
 		double azimuth(Direction(
-			estimatedStations->get(stn1, 0),		// X1
-			estimatedStations->get(stn1 + 1, 0),		// Y1
-			estimatedStations->get(stn1 + 2, 0),		// Z1
-			estimatedStations->get(stn2, 0), 		// X2
-			estimatedStations->get(stn2 + 1, 0),		// Y2
-			estimatedStations->get(stn2 + 2, 0),		// Z2
+			estimatedStations_stn1->get(stn1, 0),		// X1
+			estimatedStations_stn1->get(stn1 + 1, 0),		// Y1
+			estimatedStations_stn1->get(stn1 + 2, 0),		// Z1
+			estimatedStations_stn2->get(stn2, 0), 		// X2
+			estimatedStations_stn2->get(stn2 + 1, 0),		// Y2
+			estimatedStations_stn2->get(stn2 + 2, 0),		// Z2
 			stn1_it->currentLatitude,
 			stn1_it->currentLongitude));
 
@@ -11355,77 +11515,80 @@ void dna_adjust::UpdateIgnoredMeasurements_Z(pit_vmsr_t _it_msr, const UINT32& b
 
 void dna_adjust::UpdateIgnoredMeasurements(pit_vmsr_t _it_msr, bool storeOriginalMeasurement)
 {
-	UINT32 block(0);
 	stringstream ss;
 
-	matrix_2d* estimatedStations(&v_estimatedStations_.at(block));
+	// Since the stations connected by an ignored measurement may appear
+	// in different blocks, it is essential to get the correct block 
+	// number for each station.  For this, use v_blockStationsMapUnique_ which
+	// is sorted on station id.
+	sort(v_blockStationsMapUnique_.begin(), v_blockStationsMapUnique_.end());
 
 	switch ((*_it_msr)->measType)
 	{
 	case 'A':	// Horizontal angle
-		UpdateIgnoredMeasurements_A(_it_msr, block, estimatedStations, storeOriginalMeasurement);
+		UpdateIgnoredMeasurements_A(_it_msr, storeOriginalMeasurement);
 		break;
 	case 'B':	// Geodetic azimuth
-		UpdateIgnoredMeasurements_B(_it_msr, block, estimatedStations, storeOriginalMeasurement);
+		UpdateIgnoredMeasurements_B(_it_msr, storeOriginalMeasurement);
 		break;
 	case 'C':	// Chord dist
-		UpdateIgnoredMeasurements_C(_it_msr, block, estimatedStations, storeOriginalMeasurement);
+		UpdateIgnoredMeasurements_C(_it_msr, storeOriginalMeasurement);
 		break;
-	case 'D':	// Direction set	
-		UpdateIgnoredMeasurements_D(_it_msr, block, estimatedStations, storeOriginalMeasurement);
+	case 'D':	// Direction set
+		UpdateIgnoredMeasurements_D(_it_msr, storeOriginalMeasurement);
 		break;
 	case 'E':	// Ellipsoid arc
-		UpdateIgnoredMeasurements_E(_it_msr, block, estimatedStations, storeOriginalMeasurement);
+		UpdateIgnoredMeasurements_E(_it_msr, storeOriginalMeasurement);
 		break;
 	case 'G':	// GPS Baseline
-		UpdateIgnoredMeasurements_G(_it_msr, block, estimatedStations, storeOriginalMeasurement);
+		UpdateIgnoredMeasurements_G(_it_msr, storeOriginalMeasurement);
 		break;
 	case 'H':	// Orthometric height
-		UpdateIgnoredMeasurements_H(_it_msr, block, estimatedStations, storeOriginalMeasurement);
+		UpdateIgnoredMeasurements_H(_it_msr, storeOriginalMeasurement);
 		break;
 	case 'I':	// Astronomic latitude
-		UpdateIgnoredMeasurements_I(_it_msr, block, estimatedStations, storeOriginalMeasurement);
+		UpdateIgnoredMeasurements_I(_it_msr, storeOriginalMeasurement);
 		break;
 	case 'J':	// Astronomic longitude
-		UpdateIgnoredMeasurements_J(_it_msr, block, estimatedStations, storeOriginalMeasurement);
+		UpdateIgnoredMeasurements_J(_it_msr, storeOriginalMeasurement);
 		break;
 	case 'K':	// Astronomic azimuth
-		UpdateIgnoredMeasurements_K(_it_msr, block, estimatedStations, storeOriginalMeasurement);
+		UpdateIgnoredMeasurements_K(_it_msr, storeOriginalMeasurement);
 		break;
 	case 'L':	// Level difference
-		UpdateIgnoredMeasurements_L(_it_msr, block, estimatedStations, storeOriginalMeasurement);
+		UpdateIgnoredMeasurements_L(_it_msr, storeOriginalMeasurement);
 		break;
 	case 'M':	// MSL arc
-		UpdateIgnoredMeasurements_M(_it_msr, block, estimatedStations, storeOriginalMeasurement);
+		UpdateIgnoredMeasurements_M(_it_msr, storeOriginalMeasurement);
 		break;
 	case 'P':	// Geodetic latitude
-		UpdateIgnoredMeasurements_P(_it_msr, block, estimatedStations, storeOriginalMeasurement);
+		UpdateIgnoredMeasurements_P(_it_msr, storeOriginalMeasurement);
 		break;
 	case 'Q':	// Geodetic longitude
-		UpdateIgnoredMeasurements_Q(_it_msr, block, estimatedStations, storeOriginalMeasurement);
+		UpdateIgnoredMeasurements_Q(_it_msr, storeOriginalMeasurement);
 		break;
 	case 'R':	// Ellipsoidal height
-		UpdateIgnoredMeasurements_R(_it_msr, block, estimatedStations, storeOriginalMeasurement);
+		UpdateIgnoredMeasurements_R(_it_msr, storeOriginalMeasurement);
 		break;
 	case 'S':	// Slope distance
-		UpdateIgnoredMeasurements_S(_it_msr, block, estimatedStations, storeOriginalMeasurement);
+		UpdateIgnoredMeasurements_S(_it_msr, storeOriginalMeasurement);
 		break;
 	case 'V':	// Zenith angle
-		UpdateIgnoredMeasurements_V(_it_msr, block, estimatedStations, storeOriginalMeasurement);
+		UpdateIgnoredMeasurements_V(_it_msr, storeOriginalMeasurement);
 		break;
 	case 'X':	// GPS Baseline cluster
-		UpdateIgnoredMeasurements_X(_it_msr, block, estimatedStations, storeOriginalMeasurement);
+		UpdateIgnoredMeasurements_X(_it_msr, storeOriginalMeasurement);
 		break;
 	case 'Y':	// GPS Point cluster
-		UpdateIgnoredMeasurements_Y(_it_msr, block, estimatedStations, storeOriginalMeasurement);
+		UpdateIgnoredMeasurements_Y(_it_msr, storeOriginalMeasurement);
 		break;
 	case 'Z':	// Vertical angle
-		UpdateIgnoredMeasurements_Z(_it_msr, block, estimatedStations, storeOriginalMeasurement);
+		UpdateIgnoredMeasurements_Z(_it_msr, storeOriginalMeasurement);
 		break;
 	default:
 		ss << "UpdateIgnoredMeasurements(): Unknown measurement type - '" <<
 			(*_it_msr)->measType << "'." << endl;
-		SignalExceptionAdjustment(ss.str(), block);
+		SignalExceptionAdjustment(ss.str(), 0);
 	}
 }
 	
@@ -11440,12 +11603,11 @@ void dna_adjust::PrintIgnoredAdjMeasurements(bool printHeader)
 
 	vUINT32 ignored_msrs;
 	it_vUINT32 _it_ign;
-	it_vmsr_t _it_msr;
-	UINT32 i(0);
+	it_vmsr_t _it_msr, _it_tmp;
 
-	for (_it_msr = bmsBinaryRecords_.begin(), i = 0;
+	for (_it_msr = bmsBinaryRecords_.begin();
 		_it_msr != bmsBinaryRecords_.end();
-		++_it_msr, ++i)
+		++_it_msr)
 	{
 		switch (_it_msr->measType)
 		{
@@ -11469,16 +11631,35 @@ void dna_adjust::PrintIgnoredAdjMeasurements(bool printHeader)
 
 		// Include ignored measurements
 		if (_it_msr->ignore)
-			ignored_msrs.push_back(i);
+		{
+			_it_tmp = _it_msr;
+			// Check each ignored measurement for the presence of
+			// stations that are invalid (and therefore unadjusted).
+			if (!IgnoredMeasurementContainsInvalidStation(&_it_msr))
+				continue;
+
+			ignored_msrs.push_back(_it_tmp - bmsBinaryRecords_.begin());
+		}
+	}
+
+	if (ignored_msrs.empty())
+	{
+		adj_file << endl << endl;
+		return;
 	}
 
 	// Update Ignored measurement records
 	UINT32 clusterID(MAX_UINT32_VALUE);
 
-	// initialise measurement (on the first adjustment only!)
-	string modifiedBy(bst_meta_.modifiedBy), thisApp(__BINARY_NAME__);
+	// Initialise ignored measurements on the first adjustment only.
+	// Test for zero values (of the first ignored measurement) to determine 
+	// if Ignored measurements have been updated. These values are initialised
+	// at 0. by msr_t() in dnameasurement.hpp.  If this test fails, ignored 
+	// measurements will not be calculated correctly (since the Update...() 
+	// methods will refer to adjusted values)
+	_it_msr = bmsBinaryRecords_.begin() + ignored_msrs.at(0);
 	bool storeOriginalMeasurement(false);
-	if (!iequals(modifiedBy, thisApp))
+	if (_it_msr->measAdj == 0. && _it_msr->measCorr == 0. && _it_msr->preAdjCorr == 0. && _it_msr->preAdjMeas == 0.)
 		storeOriginalMeasurement = true;
 
 	// Reduce measurements and compute stats
@@ -11579,6 +11760,85 @@ void dna_adjust::PrintIgnoredAdjMeasurements(bool printHeader)
 
 	adj_file << endl << endl;
 	
+}
+
+// This function checks whether this measurement contains an invalid
+// station.  A station is invalid if it is wholly connected to ignored 
+// measurements or is not connected to any other measurement and thereby
+// not adjusted.
+bool dna_adjust::IgnoredMeasurementContainsInvalidStation(pit_vmsr_t _it_msr)
+{
+	UINT32 cluster_msr, covariance_count, cluster_count((*_it_msr)->vectorCount1);
+
+	switch ((*_it_msr)->measType)
+	{
+	// Three station measurement
+	case 'A':	// Horizontal angle
+		if (vAssocStnList_.at((*_it_msr)->station3).IsInvalid())
+			return false;
+	// Two station measurements
+	case 'B':	// Geodetic azimuth
+	case 'C':	// Chord dist
+	case 'E':	// Ellipsoid arc
+	case 'G':	// GPS Baseline
+	case 'K':	// Astronomic azimuth
+	case 'L':	// Level difference
+	case 'M':	// MSL arc
+	case 'S':	// Slope distance
+	case 'V':	// Zenith angle
+	case 'Z':	// Vertical angle
+		if (vAssocStnList_.at((*_it_msr)->station2).IsInvalid())
+			return false;
+	// One station measurements
+	case 'H':	// Orthometric height
+	case 'I':	// Astronomic latitude
+	case 'J':	// Astronomic longitude
+	case 'P':	// Geodetic latitude
+	case 'Q':	// Geodetic longitude
+	case 'R':	// Ellipsoidal height
+		if (vAssocStnList_.at((*_it_msr)->station1).IsInvalid())
+			return false;
+		break;
+	// GNSS measurements
+	case 'X':	// GPS Baseline cluster
+	case 'Y':	// GPS Point cluster
+		for (cluster_msr=0; cluster_msr<cluster_count; ++cluster_msr)
+		{
+			covariance_count = (*_it_msr)->vectorCount2;
+
+			if (vAssocStnList_.at((*_it_msr)->station1).IsInvalid())
+				return false; 
+
+			if ((*_it_msr)->measType == 'X')
+				if (vAssocStnList_.at((*_it_msr)->station2).IsInvalid())
+					return false;
+			
+			(*_it_msr) += 2;					// skip y and z
+			(*_it_msr) += covariance_count * 3;	// skip covariances
+
+			if (covariance_count > 0)
+				(*_it_msr)++;
+		}
+		break;
+	case 'D':	// Direction set
+		for (cluster_msr=0; cluster_msr<cluster_count; ++cluster_msr)
+		{
+			// Check first station
+			if (cluster_msr == 0)
+				if (vAssocStnList_.at((*_it_msr)->station1).IsInvalid())
+					return false;
+			// Check all target directions
+			if (vAssocStnList_.at((*_it_msr)->station2).IsInvalid())
+				return false;
+			
+			if (cluster_msr+1 == cluster_count)
+				break;
+				
+			(*_it_msr)++;
+		}
+		break;
+	}
+	return true;
 }
 
 
@@ -12674,6 +12934,8 @@ void dna_adjust::ReduceYLLHMeasurementsforPrinting(it_vmsr_t& _it_msr, vmsr_t& y
 			_it_y_msr++;
 			z = _it_y_msr->term1;
 			break;
+		default:
+			break;
 		}
 		
 		// Convert to geographic
@@ -13485,7 +13747,7 @@ void dna_adjust::LoadNetworkFiles()
 			{
 				// first direction holds number of target directions plus RO.  Since directions 
 				// are reduced to angles, subtract one.
-				// Target direction s are assigned zero vectorCount1
+				// Target directions are assigned zero vectorCount1
 				if (_it_msr->vectorCount1 > 0)
 				{
 					v_measurementCount_.at(0) += _it_msr->vectorCount1 - 1;

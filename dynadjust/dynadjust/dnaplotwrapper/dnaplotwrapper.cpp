@@ -282,8 +282,6 @@ int main(int argc, char* argv[])
 	if (vm.count(GRAPH_SEGMENTATION_STNS) || vm.count(GRAPH_SEGMENTATION_MSRS))
 		p.p._plot_phased_blocks = true;
 
-	UINT32 errorCount(0);
-	
 	string file;
 	string status_msg;
 
@@ -409,8 +407,8 @@ int main(int argc, char* argv[])
 				bool bms_meta_import(iequals(bms_meta.modifiedBy, __import_app_name__) ||
 					iequals(bms_meta.modifiedBy, __import_dll_name__));
 
-				if (bst_meta_import && (last_write_time(p.s.seg_file) < last_write_time(p.i.bst_file)) || 
-					bms_meta_import && (last_write_time(p.s.seg_file) < last_write_time(p.i.bms_file)))
+				if ((bst_meta_import && (last_write_time(p.s.seg_file) < last_write_time(p.i.bst_file))) || 
+					(bms_meta_import && (last_write_time(p.s.seg_file) < last_write_time(p.i.bms_file))))
 				{
 					cout << endl << endl << 
 						"- Error: The binary station and measurement files have been modified since" << endl <<
@@ -804,7 +802,7 @@ int main(int argc, char* argv[])
 		}
 
 	} 
-	catch (const NetPlotException &e) {
+	catch (const NetPlotException& e) {
 		cout << endl << "- Error: " << e.what() << endl;
 		return EXIT_FAILURE;
 	} 
