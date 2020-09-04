@@ -549,7 +549,7 @@ int main(int argc, char* argv[])
 
 		}
 		catch (const ios_base::failure& f) {	
-			cout << "- Error: An error was encountered when opening " << output_file << "." << endl;
+			cout << "- Error: An error was encountered when opening " << output_file << "." << endl << f.what();
 			return EXIT_FAILURE;
 		}
 		catch (...) {	
