@@ -530,7 +530,7 @@ int main(int argc, char* argv[])
 		}
 		catch (...) {	
 			cout << "- Error: An error was encountered when opening " << input_file << "." << endl;
-			cout << "  Check that the file exists and that the file is not already opened." << endl << f.what();
+			cout << "  Check that the file exists and that the file is not already opened.";
 			return EXIT_FAILURE;
 		}
 
@@ -549,7 +549,7 @@ int main(int argc, char* argv[])
 
 		}
 		catch (const ios_base::failure& f) {	
-			cout << "- Error: An error was encountered when opening " << output_file << "." << endl;
+			cout << "- Error: An error was encountered when opening " << output_file << "." << endl << f.what();
 			return EXIT_FAILURE;
 		}
 		catch (...) {	
