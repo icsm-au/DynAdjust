@@ -75,12 +75,12 @@ A comprehensive User's Guide can be found in the [resources](https://github.com/
 
 DynAdjust provides a capability to generate publication-quality images of raw station and measurement data and adjustment results, including shift vectors and estimated uncertainty, in a variety of projection types. This capability is made available by the program **plot**, the command line reference for which is documented in Appendix A.7 of the [User's guide](#users-guide). 
 
-DynAdjust uses the Generic Mapping Tools (GMT), available from the [GMT website](https://www.generic-mapping-tools.org/download/). User should note however, that DynAdjust supports [GMT 4.x.x](https://github.com/GenericMappingTools/gmt/wiki/GMT-4.5.18) and earlier versions only. Hence, versions 5.x.x and 6.x.x. of GMT cannot be used. See [issue #30](https://github.com/icsm-au/DynAdjust/issues/30) for details of planned development to provide support for the latest version of GMT.
-
 <p align="center">
   <img title="DynAdjust plot examples" src="https://raw.githubusercontent.com/icsm-au/DynAdjust/master/resources/img/dynadjust-plot-images.png"/>
 </p>
   
+DynAdjust uses the Generic Mapping Tools (GMT), available from the [GMT website](https://www.generic-mapping-tools.org/download/). Users should note however, that DynAdjust supports [GMT 4.x.x](https://github.com/GenericMappingTools/gmt/wiki/GMT-4.5.18) and earlier versions only. Hence, GMT versions 5.x.x and 6.x.x. cannot be used. See [issue #30](https://github.com/icsm-au/DynAdjust/issues/30) for details of planned development to provide support for the latest version of GMT.
+
 # License details
 DynAdjust has an Apache 2.0 Licence - http ://www.apache.org/licenses/LICENSE-2.0.   
 
