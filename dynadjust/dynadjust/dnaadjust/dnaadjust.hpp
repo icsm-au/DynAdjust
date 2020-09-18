@@ -88,6 +88,8 @@
 #include <include/memory/dnafile_mapping.hpp>
 #include <include/parameters/dnaprojection.hpp>
 
+#include <atomic>
+
 using namespace std;
 using namespace boost;
 using namespace boost::posix_time;
@@ -249,6 +251,9 @@ public:
 	
 	void GenerateStatistics();
 	void PrepareAdjustment(const project_settings& adjustmentSettings);
+
+	inline void AbortAdjustment() { isAborted_.store(true); }
+	inline bool IsAborted() const { return isAborted_.load(); };
 	
 	inline _ADJUST_STATUS_ GetStatus() const { return adjustStatus_; }
 	inline bool IsPreparing() { return isPreparing_; }
@@ -961,6 +966,9 @@ private:
 
 	// queue to handle notification of messages for each iteration
 	concurrent_queue<UINT32> iterationQueue_;
+
+	// flag to tell if users have aborted running dynajust
+	std::atomic<bool>				isAborted_;
 
 #ifdef MULTI_THREAD_ADJUST
 	// ----------------------------------------------
