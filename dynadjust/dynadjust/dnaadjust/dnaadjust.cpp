@@ -83,7 +83,7 @@ dna_adjust::dna_adjust()
 	, criticalValue_(1.68)
 	, allStationsFixed_(false)
 	, databaseIDsLoaded_(false)
-	, isAborted_(false)
+	, isCancelled_(false)
 {
 	statusMessages_.clear();
 	bstBinaryRecords_.clear();
@@ -539,7 +539,7 @@ void dna_adjust::UpdateAdjustment(bool iterate)
 		// Prepare initial matrices for least squares adjustment
 		for (block=0; block<blockCount_; ++block)
 		{
-			if (IsAborted())
+			if (IsCancelled())
 				break;
 
 			switch (projectSettings_.a.adjust_mode)
@@ -3216,7 +3216,7 @@ void dna_adjust::AdjustSimultaneous()
 
 	for (UINT32 i=0; i<projectSettings_.a.max_iterations; ++i)
 	{
-		if (IsAborted())
+		if (IsCancelled())
 			break;
 
 		blockLargeCorr_ = 0;
@@ -3256,7 +3256,7 @@ void dna_adjust::AdjustSimultaneous()
 		iterationQueue_.push_and_notify(currentIteration_);	// currentIteration begins at 1, so not zero-indexed
 		
 		// continue iterating?
-		iterate = !IsAborted() && fabs(maxCorr_) > projectSettings_.a.iteration_threshold;
+		iterate = !IsCancelled() && fabs(maxCorr_) > projectSettings_.a.iteration_threshold;
 		if (!iterate)
 			break;
 
@@ -3296,9 +3296,9 @@ void dna_adjust::ValidateandFinaliseAdjustment(cpu_timer& tot_time)
 	if (adjustStatus_ > ADJUST_TEST_FAILED)
 		return;
 
-	if (IsAborted())
+	if (IsCancelled())
 	{
-		adjustStatus_ = ADJUST_ABORTED;
+		adjustStatus_ = ADJUST_CANCELLED;
 		return;
 	}
 
@@ -3392,7 +3392,7 @@ void dna_adjust::AdjustPhased()
 	// do until convergence criteria is met
 	for (i=0; i<projectSettings_.a.max_iterations; ++i)
 	{
-		if (IsAborted())
+		if (IsCancelled())
 			break;
 
 		blockLargeCorr_ = 0;
@@ -3411,11 +3411,11 @@ void dna_adjust::AdjustPhased()
 		it_time.start();
 
 		AdjustPhasedForward();
-		if (IsAborted())
+		if (IsCancelled())
 			break;
 
 		AdjustPhasedReverseCombine();
-		if (IsAborted())
+		if (IsCancelled())
 			break;
 
 		// calculate and print total time
@@ -3428,7 +3428,7 @@ void dna_adjust::AdjustPhased()
 		iterationQueue_.push_and_notify(currentIteration_);	// currentIteration begins at 1, so not zero-indexed
 
 		// Continue iterating?
-		iterate = !IsAborted() && fabs(maxCorr_) > projectSettings_.a.iteration_threshold;
+		iterate = !IsCancelled() && fabs(maxCorr_) > projectSettings_.a.iteration_threshold;
 		if (!iterate)
 			break;
 
@@ -3437,7 +3437,7 @@ void dna_adjust::AdjustPhased()
 		// in the network so that forward and reverse adjustments can commence
 		// at the same time.
 		UpdateAdjustment(iterate);	
-		if (IsAborted())
+		if (IsCancelled())
 			break;
 
 		// Does the user want to print statistics on each iteration?
@@ -3555,7 +3555,7 @@ void dna_adjust::AdjustPhasedForward()
 	{
 		DeserialiseBlockFromMappedFile(currentBlock);
 		RebuildNormals(currentBlock, __forward__, true, true);
-		if (IsAborted())
+		if (IsCancelled())
 			return;
 	}
 
@@ -3564,7 +3564,7 @@ void dna_adjust::AdjustPhasedForward()
 
 	for (currentBlock=0; currentBlock<blockCount_; ++currentBlock)
 	{		
-		if (IsAborted())
+		if (IsCancelled())
 			break;
 
 		SetcurrentBlock(currentBlock);
@@ -4281,7 +4281,7 @@ void dna_adjust::AdjustPhasedReverseCombine()
 
 	for (UINT32 block=0; block<blockCount_; ++block, --currentBlock)
 	{
-		if (IsAborted())
+		if (IsCancelled())
 			break;
 
 		SetcurrentBlock(currentBlock);
@@ -4412,7 +4412,7 @@ void dna_adjust::AdjustPhasedReverse()
 
 	for (UINT32 block=0; block<blockCount_; ++block, --currentBlock)
 	{
-		if (IsAborted())
+		if (IsCancelled())
 			break;
 
 		SetcurrentBlock(currentBlock);

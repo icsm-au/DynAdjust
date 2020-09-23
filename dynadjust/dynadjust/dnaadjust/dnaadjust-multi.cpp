@@ -114,7 +114,7 @@ void dna_adjust::AdjustPhasedMultiThread()
 	// do until convergence criteria is met
 	for (i=0; i<projectSettings_.a.max_iterations; ++i)
 	{
-		if (IsAborted())
+		if (IsCancelled())
 			break;
 
 		SetcurrentBlock(0);
@@ -193,7 +193,7 @@ void dna_adjust::AdjustPhasedMultiThread()
 			// exception thrown in one of the combination adjustments
 			boost::rethrow_exception(cmb_error);
 
-		if (IsAborted())
+		if (IsCancelled())
 			break;
 
 		ss.str("");
@@ -235,9 +235,9 @@ void dna_adjust::AdjustPhasedMultiThread()
 
 	// This is similar to the check in ValidateandFinaliseAdjustment API for
 	// phased single-thread mode. 
-	if (IsAborted())
+	if (IsCancelled())
 	{
-		adjustStatus_ = ADJUST_ABORTED;
+		adjustStatus_ = ADJUST_CANCELLED;
 		return;
 	}
 
@@ -393,7 +393,7 @@ void adjust_forward_thread::operator()()
 
 		for (currentBlock=0; currentBlock<main_adj_->blockCount_; ++currentBlock)
 		{
-			if (main_adj_->IsAborted())
+			if (main_adj_->IsCancelled())
 				return;
 
 			//ss.str("");
@@ -503,7 +503,7 @@ void adjust_reverse_thread::operator()()
 
 		for (block=0; block<main_adj_->blockCount_; ++block, --currentBlock)
 		{
-			if (main_adj_->IsAborted())
+			if (main_adj_->IsCancelled())
 				return;
 
 			// Check if an exception was thrown in the reverse or combine threads
@@ -617,7 +617,7 @@ void adjust_process_combine_thread::operator()()
 	try {
 		while (true)		
 		{
-			if (main_adj_->IsAborted())
+			if (main_adj_->IsCancelled())
 				return;
 
 			if (combineAdjustmentQueue.is_queue_exhausted())
