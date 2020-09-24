@@ -114,6 +114,9 @@ void dna_adjust::AdjustPhasedMultiThread()
 	// do until convergence criteria is met
 	for (i=0; i<projectSettings_.a.max_iterations; ++i)
 	{
+		if (IsCancelled())
+			break;
+
 		SetcurrentBlock(0);
 		blockLargeCorr_ = 0;
 		largestCorr_ = 0.0;
@@ -190,6 +193,9 @@ void dna_adjust::AdjustPhasedMultiThread()
 			// exception thrown in one of the combination adjustments
 			boost::rethrow_exception(cmb_error);
 
+		if (IsCancelled())
+			break;
+
 		ss.str("");
 		if (iteration_time > seconds(1))
 			ss << seconds(static_cast<long>(iteration_time.total_seconds()));
@@ -226,6 +232,14 @@ void dna_adjust::AdjustPhasedMultiThread()
 
 	if (adjustStatus_ > ADJUST_TEST_FAILED)
 		return;
+
+	// This is similar to the check in ValidateandFinaliseAdjustment API for
+	// phased single-thread mode. 
+	if (IsCancelled())
+	{
+		adjustStatus_ = ADJUST_CANCELLED;
+		return;
+	}
 
 	if (currentIteration_ == projectSettings_.a.max_iterations)
 		adjustStatus_ = ADJUST_MAX_ITERATIONS_EXCEEDED;
@@ -379,6 +393,9 @@ void adjust_forward_thread::operator()()
 
 		for (currentBlock=0; currentBlock<main_adj_->blockCount_; ++currentBlock)
 		{
+			if (main_adj_->IsCancelled())
+				return;
+
 			//ss.str("");
 			//ss << "1> Adjusted block " << currentBlock + 1 << " (forward, in isolation)... " << endl;
 			//main_adj_->ThreadSafeWritetoAdjFile(ss.str());
@@ -486,6 +503,9 @@ void adjust_reverse_thread::operator()()
 
 		for (block=0; block<main_adj_->blockCount_; ++block, --currentBlock)
 		{
+			if (main_adj_->IsCancelled())
+				return;
+
 			// Check if an exception was thrown in the reverse or combine threads
 			if (fwd_error || cmb_error)
 				return;
@@ -597,6 +617,9 @@ void adjust_process_combine_thread::operator()()
 	try {
 		while (true)		
 		{
+			if (main_adj_->IsCancelled())
+				return;
+
 			if (combineAdjustmentQueue.is_queue_exhausted())
 				break;
 			

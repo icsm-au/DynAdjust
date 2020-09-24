@@ -83,6 +83,7 @@ dna_adjust::dna_adjust()
 	, criticalValue_(1.68)
 	, allStationsFixed_(false)
 	, databaseIDsLoaded_(false)
+	, isCancelled_(false)
 {
 	statusMessages_.clear();
 	bstBinaryRecords_.clear();
@@ -538,6 +539,9 @@ void dna_adjust::UpdateAdjustment(bool iterate)
 		// Prepare initial matrices for least squares adjustment
 		for (block=0; block<blockCount_; ++block)
 		{
+			if (IsCancelled())
+				break;
+
 			switch (projectSettings_.a.adjust_mode)
 			{
 			case PhasedMode:
@@ -3212,6 +3216,9 @@ void dna_adjust::AdjustSimultaneous()
 
 	for (UINT32 i=0; i<projectSettings_.a.max_iterations; ++i)
 	{
+		if (IsCancelled())
+			break;
+
 		blockLargeCorr_ = 0;
 		largestCorr_ = 0.0;
 
@@ -3249,7 +3256,7 @@ void dna_adjust::AdjustSimultaneous()
 		iterationQueue_.push_and_notify(currentIteration_);	// currentIteration begins at 1, so not zero-indexed
 		
 		// continue iterating?
-		iterate = fabs(maxCorr_) > projectSettings_.a.iteration_threshold;
+		iterate = !IsCancelled() && fabs(maxCorr_) > projectSettings_.a.iteration_threshold;
 		if (!iterate)
 			break;
 
@@ -3288,6 +3295,12 @@ void dna_adjust::ValidateandFinaliseAdjustment(cpu_timer& tot_time)
 
 	if (adjustStatus_ > ADJUST_TEST_FAILED)
 		return;
+
+	if (IsCancelled())
+	{
+		adjustStatus_ = ADJUST_CANCELLED;
+		return;
+	}
 
 	if (currentIteration_ == projectSettings_.a.max_iterations)
 		adjustStatus_ = ADJUST_MAX_ITERATIONS_EXCEEDED;
@@ -3379,6 +3392,9 @@ void dna_adjust::AdjustPhased()
 	// do until convergence criteria is met
 	for (i=0; i<projectSettings_.a.max_iterations; ++i)
 	{
+		if (IsCancelled())
+			break;
+
 		blockLargeCorr_ = 0;
 		largestCorr_ = 0.0;
 		maxCorr_ = 0.0;
@@ -3395,7 +3411,12 @@ void dna_adjust::AdjustPhased()
 		it_time.start();
 
 		AdjustPhasedForward();
+		if (IsCancelled())
+			break;
+
 		AdjustPhasedReverseCombine();
+		if (IsCancelled())
+			break;
 
 		// calculate and print total time
 		PrintAdjustmentTime(it_time, iteration_time);
@@ -3407,7 +3428,7 @@ void dna_adjust::AdjustPhased()
 		iterationQueue_.push_and_notify(currentIteration_);	// currentIteration begins at 1, so not zero-indexed
 
 		// Continue iterating?
-		iterate = fabs(maxCorr_) > projectSettings_.a.iteration_threshold;
+		iterate = !IsCancelled() && fabs(maxCorr_) > projectSettings_.a.iteration_threshold;
 		if (!iterate)
 			break;
 
@@ -3416,6 +3437,8 @@ void dna_adjust::AdjustPhased()
 		// in the network so that forward and reverse adjustments can commence
 		// at the same time.
 		UpdateAdjustment(iterate);	
+		if (IsCancelled())
+			break;
 
 		// Does the user want to print statistics on each iteration?
 		if (projectSettings_.o._adj_stat_iteration)
@@ -3532,6 +3555,8 @@ void dna_adjust::AdjustPhasedForward()
 	{
 		DeserialiseBlockFromMappedFile(currentBlock);
 		RebuildNormals(currentBlock, __forward__, true, true);
+		if (IsCancelled())
+			return;
 	}
 
 	_it_uint32_u32u32_pair begin, end;
@@ -3539,6 +3564,9 @@ void dna_adjust::AdjustPhasedForward()
 
 	for (currentBlock=0; currentBlock<blockCount_; ++currentBlock)
 	{		
+		if (IsCancelled())
+			break;
+
 		SetcurrentBlock(currentBlock);
 
 		// Does the user want to print computed measurements?
@@ -4253,6 +4281,9 @@ void dna_adjust::AdjustPhasedReverseCombine()
 
 	for (UINT32 block=0; block<blockCount_; ++block, --currentBlock)
 	{
+		if (IsCancelled())
+			break;
+
 		SetcurrentBlock(currentBlock);
 	
 		// If currentBlock is a single block, then there is no need to perform a 
@@ -4381,6 +4412,9 @@ void dna_adjust::AdjustPhasedReverse()
 
 	for (UINT32 block=0; block<blockCount_; ++block, --currentBlock)
 	{
+		if (IsCancelled())
+			break;
+
 		SetcurrentBlock(currentBlock);
 
 		// If currentBlock is a single block, then there is no need to perform a 
