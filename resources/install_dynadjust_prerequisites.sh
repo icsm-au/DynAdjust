@@ -269,7 +269,7 @@ if [[ "${_format}" == "rpm" ]]; then
 elif [[ "${_format}" == "deb" ]]; then
     echo " bzip2, wget, cmake, make, gcc-c++, git and libboost-all-dev..."
     echo " "
-    sudo ${_toolset}-get install bzip2 wget cmake make gcc-c++ git libboost-all-dev
+    sudo ${_toolset}-get install bzip2 wget cmake make gcc git libboost-all-dev
 else
     echo " "
     echo "I don't know how to handle ${OSTYPE} or ${_distro} and am going to quit."
