@@ -199,7 +199,7 @@ cmake -DCMAKE_BUILD_TYPE="${THIS_BUILD_TYPE}" .. || exit 1
 
 # exit
 
-make -j 8 || exit 1
+make -j $(nproc) || exit 1
 
 # exit
 
