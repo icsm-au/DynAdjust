@@ -1,0 +1,13 @@
+language: shell
+
+dist: xenial
+
+before_install:
+  - sudo apt-get update
+  - sudo bash resources/install_dynadjust_prerequisites.sh -m 1
+
+#install:
+#  - cd dynadjust && sudo bash make_dynadjust_gcc.sh
+
+#script:
+#  - cd ../sampleData && bash run-gnss-network.sh
