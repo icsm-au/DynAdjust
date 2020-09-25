@@ -5,7 +5,7 @@ dist: xenial
 before_install:
   - sudo apt-get update
   - sudo apt-get -y install bzip2 wget cmake make gcc libboost-all-dev
-#  - sudo bash resources/install_dynadjust_prerequisites.sh -m 1
+  - sudo bash resources/install_dynadjust_prerequisites.sh -m 1
 
 #install:
 #  - cd dynadjust && sudo bash make_dynadjust_gcc.sh
