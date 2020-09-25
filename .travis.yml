@@ -10,8 +10,7 @@ before_install:
 install:
    - cd ..
    - cp ./DynAdjust/resources/make_dynadjust_gcc.sh ./
-   - pwd
-#  - cd dynadjust && sudo bash make_dynadjust_gcc.sh
+   - sudo bash make_dynadjust_gcc.sh -c 1
 
 #script:
 #  - cd ../sampleData && bash run-gnss-network.sh
