@@ -3,6 +3,7 @@
 [![GitHub Releases](https://img.shields.io/github/v/release/icsm-au/DynAdjust.svg)](https://github.com/icsm-au/DynAdjust/releases)
 [![GitHub Downloads](https://img.shields.io/github/downloads/icsm-au/DynAdjust/total)](https://github.com/icsm-au/DynAdjust/releases)
 [![GitHub Issues](https://img.shields.io/github/issues/icsm-au/DynAdjust.svg)](https://github.com/icsm-au/DynAdjust/issues)
+[![Coverage Status](https://coveralls.io/repos/github/rogerfraser/DynAdjust/badge.svg?branch=master)](https://coveralls.io/github/rogerfraser/DynAdjust?branch=master)
 [![DynAdjust](resources/img/dynadjust-banner.png)](https://raw.githubusercontent.com/icsm-au/DynAdjust/master/resources/img/dynadjust-banner.png)
 - [Overview](#overview)
 - [Installation](#installation)
