@@ -64,21 +64,21 @@ function help {
 while [ "$1" != "" ];
 do
    case $1 in
-   -d  | --distro )  shift
-                          _distribution=$1
-                		  ;;
-   -m  | --mode )  shift
-   						  _mode=$1
-			              ;;
-   -h   | --help )        help
-                          exit
-                          ;;
+   -d  | --distro ) shift
+                    _distribution=$1
+                	;;
+   -m  | --mode )   shift
+   					_mode=$1
+			        ;;
+   -h   | --help )  help
+                    exit
+                    ;;
    *)                     
-                          echo "$script: illegal option $1"
-                          usage
-						  example
-						  exit 1 # error
-                          ;;
+                    echo "$script: illegal option $1"
+                    usage
+					example
+					exit 1 # error
+                    ;;
     esac
     shift
 done
@@ -135,7 +135,7 @@ function args_check {
             3) echo "mode:    skip";;
             *)
                 # error
-                echo -e "\nUnknown value: --distro $_distribution"
+                echo -e "\nUnknown value: --mode $_mode"
                 help
                 exit 1 # error
             ;;

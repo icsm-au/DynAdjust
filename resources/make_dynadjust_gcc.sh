@@ -10,6 +10,76 @@
 #
 ################################################################################
 
+# set defaults
+_script="make_dynadjust_gcc.sh"
+_clone=0 # default option is to clone afresh, and ask for user input
+
+#################################################################################
+# Common functions
+#
+# display example message
+function example {
+    echo -e "example: $_script -c 0"
+}
+
+# display usage message
+function usage {
+    echo -e "usage: $_script [options]\n"
+}
+
+# display help message (calls usage and example)
+function help {
+    echo ""
+    usage
+    echo -e "options:"
+    echo -e "  -c [ --clone ] arg     Option for cloning GitHub repository:"
+    echo -e "                           0: clone from github; ask for user input"
+    echo -e "                           1: do not clone; build automatically"
+    echo -e "  -h [ --help ]          Prints this help message\n"
+    example
+    echo ""
+}
+
+# get argument parameters
+while [ "$1" != "" ];
+do
+   case $1 in
+   -c  | --clone )  shift
+   					_clone=$1
+			        ;;
+   -h   | --help )  help
+                    exit
+                    ;;
+   *)                     
+                    echo "$script: illegal option $1"
+                    usage
+					example
+					exit 1 # error
+                    ;;
+    esac
+    shift
+done
+
+# Checks valid values
+function args_check {
+	if [ $_clone -lt 0 ] || [ $_clone -gt 1 ]; then
+        # error
+        echo -e "\nUnknown value: --clone $_clone"
+	    help
+	    exit 1 # error
+	fi
+
+    if [ $_clone -eq 0 ]; then
+        echo -e "\n==========================================================================="
+        echo -e "Building automatically without cloning..."
+    fi
+}
+#################################################################################
+
+# check arguments
+args_check
+
+
 # get current directory
 _cwd="$PWD"
 # set dynadjust clone dir
@@ -30,9 +100,9 @@ OPT_DYNADJUST_PATH=/opt/dynadjust
 OPT_DYNADJUST_GCC_PATH=/opt/dynadjust/gcc
 DYNADJUST_INSTALL_PATH=/opt/dynadjust/gcc/1_0_3
 
-echo " "
+echo -e "\n==========================================================================="
 echo "Build and installation of dynadjust 1.0.3"
-echo "==========================================================================="
+echo " "
 echo "Repository settings:"
 echo " Git repo:      ${_clone_url}"
 echo "Build settings:"
@@ -42,9 +112,16 @@ echo " Build dir:     ${_build_dir}"
 echo "Installation settings:"
 echo " Install dir:   ${DYNADJUST_INSTALL_PATH}"
 echo " User bin dir:  ${BIN_FOLDER_FULLPATH}"
-echo "==========================================================================="
-echo " "
-read -r -p "Is this ok [Y/n]: " response
+
+#
+# determine whether to clone and user needs prompting
+case ${_clone} in
+    0) # clone and perform interactive build
+        echo " "
+		read -r -p "Is this ok [Y/n]: " response;;
+    *) # do not cone; build without asking
+        response="y";;
+esac
 
 if [[ "$response" =~ ^([nN][oO]|[nN])$ ]]
 then    
@@ -62,9 +139,13 @@ if [ ! -d "${BIN_FOLDER_FULLPATH}" ]; then
 fi
 
 # 2. download:
-echo " "
-echo "Cloning DynAdjust..."
-git clone ${_clone_url}
+case ${_clone} in
+    0) # clone and perform interactive build
+        echo " "
+		echo "Cloning DynAdjust..."
+		git clone ${_clone_url}
+		;;    
+esac
 
 if [ -d ${_build_dir} ]; then
     echo "Cleaning out directory ${_build_dir}"
@@ -122,8 +203,16 @@ make -j 8 || exit 1
 
 # exit
 
-echo " "
-read -r -p "Install DynAdjust to ${OPT_DYNADJUST_PATH} [Y/n]: " optresponse
+#
+# determine if user needs prompting
+case ${_mode} in
+    0) # interactive
+        echo " "
+		read -r -p "Install DynAdjust to ${OPT_DYNADJUST_PATH} [Y/n]: " optresponse;;
+    *) # proceed without asking
+        optresponse="y";;
+esac
+
 if [[ "$optresponse" =~ ^([nN][oO]|[nN])$ ]]
 then    
     echo "Skipping DynAdjust installation."
