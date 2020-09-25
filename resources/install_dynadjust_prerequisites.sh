@@ -7,8 +7,9 @@
 #################################################################################
 
 
-# Capture system variables and set defaults
 
+#################################################################################
+# Capture system variables and set defaults
 if [ -e "/etc/os-release" ]; then
     # NAME="CentOS Linux"
     # NAME="Red Hat Enterprise Linux Server"
@@ -23,6 +24,132 @@ else
 fi
 
 _system=$(uname -sroi)
+_script="install_dynadjust_prerequisites.sh"
+_mode=0
+_distribution=
+#################################################################################
+
+
+#################################################################################
+# Common functions
+#
+# display example message
+function example {
+    echo -e "example: $_script -d Ubuntu -m 1"
+}
+
+# display usage message
+function usage {
+    echo -e "usage: $_script [options]\n"
+}
+
+# display help message (calls usage and example)
+function help {
+    echo ""
+    usage
+    echo -e "options:"
+    echo -e "  -d [ --distro ] arg    The linux distribution, e.g. \"Ubuntu\", \"Fedora\", etc. "
+    echo -e "                         If not provided, try to get from /etc/os-release."
+    echo -e "  -m [ --mode ] arg      Mode of installing prerequisites:"
+    echo -e "                           0: interactive (default)"
+    echo -e "                           1: package manager"
+    echo -e "                           2: build from source"
+    echo -e "                           3: skip"
+    echo -e "  -h [ --help ]          Prints this help message\n"
+    example
+    echo ""
+}
+
+# get argument parameters
+while [ "$1" != "" ];
+do
+   case $1 in
+   -d  | --distro ) shift
+                    _distribution=$1
+                	;;
+   -m  | --mode )   shift
+   					_mode=$1
+			        ;;
+   -h   | --help )  help
+                    exit
+                    ;;
+   *)                     
+                    echo "$script: illegal option $1"
+                    usage
+					example
+					exit 1 # error
+                    ;;
+    esac
+    shift
+done
+
+# Checks valid values
+function args_check {
+	if [ $_mode -lt 0 ] || [ $_mode -gt 3 ]; then
+        # error
+        echo -e "\nUnknown value: --mode $_mode"
+	    help
+	    exit 1 # error
+	fi
+
+    firstletter=${_distribution^}
+    firstletter=${firstletter:0:1}
+
+    # Check if distribution argument is not empty. If empty, _distro is set by default
+    if [ ! -z $_distribution ]; then
+        # Set distro based on first character
+        if [ $firstletter = "C" ]; then
+            _distro="CentOS Linux"
+        elif [ $firstletter = "R" ]; then
+            _distro="Red Hat Enterprise Linux Server"
+        elif [ $firstletter = "F" ]; then
+            _distro="Fedora"
+        elif [ $firstletter = "O" ]; then
+            _distro="openSUSE"
+        elif [ $firstletter = "U" ]; then
+            _distro="Ubuntu"
+        elif [ $firstletter = "D" ]; then
+            _distro="Debian"
+        else
+            # error
+            echo -e "\nUnknown value: --distro $_distribution"
+            help
+            exit 1 # error
+        fi
+    fi
+
+    if [ $_mode -gt 0 ]; then
+        echo -e "\n==========================================================================="
+        echo -e "Installing prerequisites automatically without user input..."
+    fi
+
+    # print outcome
+    if [ $1 -eq 1 ]; then
+
+        echo -e "\nos:      $OSTYPE";
+        echo "distro:  ${_distro}";
+        case ${_mode} in
+            0) echo "mode:    interactive";;
+            1) echo "mode:    package manager";;
+            2) echo "mode:    build from source";;
+            3) echo "mode:    skip";;
+            *)
+                # error
+                echo -e "\nUnknown value: --mode $_mode"
+                help
+                exit 1 # error
+            ;;
+        esac
+        echo -e "system:  ${_system}\n";
+
+    fi
+
+}
+#################################################################################
+
+# check arguments (1 prints results, 0 doesn't)
+#args_check 1
+args_check 0
 
 _repo_intel_yum="https://yum.repos.intel.com/mkl/setup/intel-mkl.repo"
 _repo_intel_apt="https://apt.repos.intel.com/mkl"
@@ -93,22 +220,29 @@ fi
 # Fedora	.rpm	dnf
 # SuSE      .rpm    zypper
 
-echo " "
+echo -e "\n==========================================================================="
 echo "Installation of dynadjust prerequisites"
-echo "==========================================================================="
+echo " "
 echo "Environment:"
 echo " distro:          ${_distro}"
 echo " system:          ${_system}"
 echo " format:          ${_format}"
 echo " package manager: ${_toolset}"
 echo "Installing:"
-echo " boost            https://boost.org (via ${_toolset_yum} repos)"
+echo " boost            https://boost.org (via ${_toolset} repos)"
 echo " intel mkl        ${_repo_intel}"
 echo " xerces-c         http://archive.apache.org"
 echo " xsd              https://www.codesynthesis.com"
-echo "==========================================================================="
-echo " "
-read -r -p "Is this ok [Y/n]: " response
+
+#
+# determine if user needs prompting
+case ${_mode} in
+    0) # interactive
+        echo " "
+        read -r -p "Is this ok [Y/n]: " response;;
+    *) # proceed without asking
+        response="y";;
+esac
 
 if [[ "$response" =~ ^([nN][oO]|[nN])$ ]]
 then    
@@ -124,6 +258,7 @@ echo "Prerequisites Log" > "${_cwd}/prequisites.log" 2>&1
 
 #
 # get standard yum repos for building c++ projects
+echo -e "\n==========================================================================="
 echo "Checking for the following packages (install if missing):"
 
 # Install basic packages from package manager
@@ -134,7 +269,7 @@ if [[ "${_format}" == "rpm" ]]; then
 elif [[ "${_format}" == "deb" ]]; then
     echo " bzip2, wget, cmake, make, gcc-c++, git and libboost-all-dev..."
     echo " "
-    sudo ${_toolset}-get install bzip2 wget cmake make gcc-c++ git libboost-all-dev
+    sudo ${_toolset}-get install bzip2 wget cmake make gcc git libboost-all-dev
 else
     echo " "
     echo "I don't know how to handle ${OSTYPE} or ${_distro} and am going to quit."
@@ -142,13 +277,25 @@ else
     exit
 fi
 
+echo -e "\n==========================================================================="
+echo "Installation of Intel Math kernel Library (MKL):"
+
+#
+# determine if/how to install intel mkl
+case ${_mode} in
+    0) # interactive
+        echo " "
+        read -r -p "Download and install Intel MKL [Y/n]: " mklresponse;;
+    3) # skip
+        echo " "
+        mklresponse="n";;
+esac
+
 #
 # install intel mkl
-echo " "
-read -r -p "Download and install Intel MKL [Y/n]: " mklresponse
 if [[ "$mklresponse" =~ ^([nN][oO]|[nN])$ ]]
 then    
-    echo "Skipping Intel MKL installation."
+    echo -e "Skipping Intel MKL installation.\n"
 else
     # Install MKL for rpm based distros (Fedora, CentOS, Red Hat, SUSE, OpenSUSE)
     if [[ "${_format}" == "rpm" ]]; then
@@ -176,28 +323,45 @@ fi
 DOWNLOADS_FOLDER="~/downloads"
 DOWNLOADS_FOLDER_FULLPATH="`eval echo ${DOWNLOADS_FOLDER//>}`"
 
+
 #
 # INSTALL XERCES-C (3.1.4)
-# NOTE - consider dnf install xerces-c-devel
+echo -e "\n==========================================================================="
+echo -e "Installation of Apache Xerces-C++ XML Parser (xerces-c)\n"
 #
-echo " "
-echo "Installation of Apache Xerces-C++ XML Parser (xerces-c)"
-PS3='Select which method to use to install xerces-c: '
-select opt in "Package manager (${_toolset})" "Build xerces-c from source and install to /opt" "Skip installation"
-do
-    case $opt in
-        "Package manager (${_toolset})")
-            break
-            ;;
-        "Build xerces-c from source and install to /opt")
-            break
-            ;;
-        "Skip installation")
-            break
-            ;;
-        *) echo "invalid option $REPLY";;
-    esac
-done
+# determine how to install xerces-c
+case ${_mode} in
+    0) # interactive
+        COLUMNS=1
+        PS3='Select which method to use to install xerces-c: '
+        select opt in "Package manager (${_toolset})" "Build xerces-c from source and install to /opt" "Skip installation"
+        do
+            case $opt in
+                "Package manager (${_toolset})")
+                    break
+                    ;;
+                "Build xerces-c from source and install to /opt")
+                    break
+                    ;;
+                "Skip installation")
+                    break
+                    ;;
+                *) 
+                    echo "invalid option $REPLY"
+                    ;;
+            esac
+        done
+        ;;
+    1) # package manager
+        REPLY=1
+        ;;
+    2) # bould from source
+        REPLY=2
+        ;;
+    3) # skip
+        REPLY=3
+        ;;
+esac
 
 # Package manager
 if [ ${REPLY} == 1 ]; then
@@ -277,30 +441,42 @@ else
     echo "Skipping xerces-c installation."
 fi
 
-
 #
 # INSTALL XSD
-# NOTE - consider dnf install xsd
+echo -e "\n==========================================================================="
+echo -e "Installation of Codesynthesis XSD: XML Data Binding for C++ (xsd)\n"
 #
-
-echo " "
-echo "Installation of Codesynthesis XSD: XML Data Binding for C++ (xsd)"
-PS3='Select which method to use to install xsd: '
-select opt in "Package manager (${_toolset})" "Download and install xsd to /opt" "Skip installation"
-do
-    case $opt in
-        "Package manager (${_toolset})")
-            break
-            ;;
-        "Download and install xsd to /opt")
-            break
-            ;;
-        "Skip installation")
-            break
-            ;;
-        *) echo "invalid option $REPLY";;
-    esac
-done
+# determine how to install xsd
+case ${_mode} in
+    0) # interactive
+        COLUMNS=1
+        PS3='Select which method to use to install xsd: '
+        select opt in "Package manager (${_toolset})" "Download and install xsd to /opt" "Skip installation"
+        do
+            case $opt in
+                "Package manager (${_toolset})")
+                    break
+                    ;;
+                "Download and install xsd to /opt")
+                    break
+                    ;;
+                "Skip installation")
+                    break
+                    ;;
+                *) echo "invalid option $REPLY";;
+            esac
+        done
+        ;;
+    1) # package manager
+        REPLY=1
+        ;;
+    2) # bould from source
+        REPLY=2
+        ;;
+    3) # skip
+        REPLY=3
+        ;;
+esac
 
 # Package manager
 if [ ${REPLY} == 1 ]; then
