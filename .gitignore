@@ -23,3 +23,6 @@ dynadjust/bin/
 *.user
 /.idea/
 .vscode/launch.json
+
+# readme and other files not requiring external contribution
+README.md
