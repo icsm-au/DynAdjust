@@ -13,8 +13,8 @@ install:
    - cp ./DynAdjust/resources/make_dynadjust_gcc.sh ./
    - sudo bash make_dynadjust_gcc.sh -c 1
 
-script:
-  - cd ./DynAdjust/sampleData && bash run-gnss-network.sh
+#script:
+#  - cd ./DynAdjust/sampleData && bash run-gnss-network.sh
   
-#after_success:
-#  - coveralls --exclude lib --exclude tests --gcov-options '\-lp'
+after_success:
+  - coveralls --gcov-options '\-lp'
