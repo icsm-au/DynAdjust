@@ -6,3 +6,6 @@ dnaadjust gnss --output-adj-msr
 # Check adjustment output identical to expected output
 # (skipping first 53 lines, because these contain changing values)
 diff <(tail -n +53 gnss.simult.adj) <(tail -n +53 gnss.simult.adj.expected)
+
+# Clean up
+rm *.bms *.bst *.map *.imp *.adj *.xyz *.dbid *.dnaproj *.mtx *.aml *.asl
