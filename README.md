@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/icsm-au/DynAdjust.svg?branch=master)](https://travis-ci.org/icsm-au/DynAdjust)
+[![Coverage Status](https://coveralls.io/repos/github/rogerfraser/DynAdjust/badge.svg?branch=master)](https://coveralls.io/github/rogerfraser/DynAdjust?branch=master)
 [![Lines of code](https://img.shields.io/tokei/lines/github/icsm-au/DynAdjust)](https://github.com/icsm-au/DynAdjust/tree/master/dynadjust)
 [![GitHub license](https://img.shields.io/badge/license-Apache-blue.svg)](https://raw.githubusercontent.com/icsm-au/DynAdjust/master/LICENSE)
 [![GitHub Releases](https://img.shields.io/github/v/release/icsm-au/DynAdjust.svg)](https://github.com/icsm-au/DynAdjust/releases)
