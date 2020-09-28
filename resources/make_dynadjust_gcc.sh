@@ -13,13 +13,14 @@
 # set defaults
 _script="make_dynadjust_gcc.sh"
 _clone=0 # default option is to clone afresh, and ask for user input
+_test=0 # default option is to run cmake tests
 
 #################################################################################
 # Common functions
 #
 # display example message
 function example {
-    echo -e "example: $_script -c 0"
+    echo -e "example: $_script -c 0 -t 1"
 }
 
 # display usage message
@@ -35,6 +36,9 @@ function help {
     echo -e "  -c [ --clone ] arg     Option for cloning GitHub repository:"
     echo -e "                           0: clone from github; ask for user input"
     echo -e "                           1: do not clone; build automatically"
+    echo -e "  -t [ --test ] arg      Option for running cmake tests:"
+    echo -e "                           0: skip tests"
+    echo -e "                           1: run cmake tests"
     echo -e "  -h [ --help ]          Prints this help message\n"
     example
     echo ""
@@ -46,6 +50,9 @@ do
    case $1 in
    -c  | --clone )  shift
    					_clone=$1
+			        ;;
+   -t  | --test )   shift
+   					_test=$1
 			        ;;
    -h   | --help )  help
                     exit
@@ -69,7 +76,14 @@ function args_check {
 	    exit 1 # error
 	fi
 
-    if [ $_clone -eq 0 ]; then
+    if [ $_test -lt 0 ] || [ $_test -gt 1 ]; then
+        # error
+        echo -e "\nUnknown value: --test $_test"
+	    help
+	    exit 1 # error
+	fi
+
+	if [ $_clone -eq 1 ]; then
         echo -e "\n==========================================================================="
         echo -e "Building automatically without cloning..."
     fi
@@ -194,14 +208,25 @@ gcc_version=$(gcc -v 2>&1 | tail -1 | awk '{print $1 " " $2 " " $3}')
 echo $gcc_version
 echo " "
 
-echo "cmake -DCMAKE_BUILD_TYPE=${THIS_BUILD_TYPE} .."
-cmake -DCMAKE_BUILD_TYPE="${THIS_BUILD_TYPE}" .. || exit 1
+#
+# determine whether to prepare cmake files with testing or not
+case ${_test} in
+    0) # skip tests
+        echo "cmake -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=${THIS_BUILD_TYPE} .."
+		cmake -DBUILD_TESTING="OFF" -DCMAKE_BUILD_TYPE="${THIS_BUILD_TYPE}" .. || exit 1;;
+    *) # run cmake tests
+        echo "cmake -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=${THIS_BUILD_TYPE} .."
+		cmake -DBUILD_TESTING="ON" -DCMAKE_BUILD_TYPE="${THIS_BUILD_TYPE}" .. || exit 1;;
+esac
 
 # exit
 
 make -j $(nproc) || exit 1
 
-# exit
+case ${_test} in
+    1) # run cmake tests
+        make test;;
+esac
 
 #
 # determine if user needs prompting

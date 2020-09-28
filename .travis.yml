@@ -11,7 +11,7 @@ before_install:
 install:
    - cd ..
    - cp ./DynAdjust/resources/make_dynadjust_gcc.sh ./
-   - sudo bash make_dynadjust_gcc.sh -c 1
+   - sudo bash make_dynadjust_gcc.sh -c 1 -t 1
    - cd ./DynAdjust
 
 #script:
@@ -20,3 +20,4 @@ install:
 after_success:
 #  - coveralls --root . -E ".*CMakeFiles.*" 
    - coveralls --gcov-options '\-lp'
+   - bash <(curl -s https://codecov.io/bash)

@@ -4,6 +4,8 @@ project (dynadjust)
 
 set (DYNADJUST_VERSION "1.0.3")
 
+enable_testing()
+
 message (STATUS " " )
 message (STATUS "**********************************************" )
 message (STATUS "Configuring DynAdjust ${DYNADJUST_VERSION} (${CMAKE_BUILD_TYPE}) build using cmake..." )
@@ -145,5 +147,15 @@ message (STATUS " " )
 message (STATUS "Now run make to build DynAdjust ${DYNADJUST_VERSION} (${CMAKE_BUILD_TYPE}) binaries" )
 message (STATUS " " )
 
-
+if (BUILD_TESTING)
+    message (STATUS "Executing tests: ")
+    message (STATUS "  - run-gnss-network.sh")
+    message (STATUS "  - run-urban-network.sh")
+    message (STATUS "  " )
+    find_program (BASH_PROGRAM bash)
+    if (BASH_PROGRAM)
+        add_test (run-gnss-network ${BASH_PROGRAM} "../../sampleData/run-gnss-network.sh")
+        add_test (run-urban-network ${BASH_PROGRAM} "../../sampleData/run-urban-network.sh")
+    endif (BASH_PROGRAM)
+endif ()
 
