@@ -20,4 +20,8 @@ install:
 after_success:
 #  - coveralls --root . -E ".*CMakeFiles.*" 
    - coveralls --gcov-options '\-lp'
+<<<<<<< HEAD
    - bash <(curl -s https://codecov.io/bash)
+=======
+   - bash <(curl -s https://codecov.io/bash)
+>>>>>>> 7e4b0ace5f373c764795c11f7f775cde770cc8dc
