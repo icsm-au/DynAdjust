@@ -225,7 +225,7 @@ make -j $(nproc) || exit 1
 
 case ${_test} in
     1) # run cmake tests
-        make test;;
+        make test gcov lcov;;
 esac
 
 #
