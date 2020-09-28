@@ -3,7 +3,7 @@ language: shell
 dist: xenial
 
 before_install:
-  - pip install --user cpp-coveralls
+  - pip install --user cpp-coveralls codecov
   - sudo apt-get update
   - sudo apt-get -y install lcov bzip2 wget cmake make gcc libboost-system-dev libboost-filesystem-dev libboost-timer-dev libboost-thread-dev libboost-program-options-dev
   - sudo bash resources/install_dynadjust_prerequisites.sh -m 1
