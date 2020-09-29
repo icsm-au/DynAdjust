@@ -19,5 +19,5 @@ install:
   
 after_success:
 #  - coveralls --root . -E ".*CMakeFiles.*" 
-   - coveralls --gcov-options '\-lp'
+   - coveralls --root . --verbose --exclude-pattern ".*feature_tests.*" --exclude-pattern ".*CompilerId.*" --gcov-options '\-lp'
    - bash <(curl -s https://codecov.io/bash)
