@@ -1,6 +1,8 @@
 # <dnaadjustwrapper/...> build rules
 project (dnaadjustwrapper)
 
+enable_testing()
+
 # build dnaadjust library first
 add_subdirectory (${CMAKE_SOURCE_DIR}/dynadjust/dnaadjust ${CMAKE_BINARY_DIR}/dynadjust/dnaadjust)
 
@@ -8,6 +10,9 @@ add_definitions (-DBUILD_ADJUST_EXE -DMULTI_THREAD_ADJUST -DMKL_ILP64 -openmp)
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb -Wall -O0")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage") # enabling coverage
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -coverage -lgcov")
 
 include_directories (${PROJECT_SOURCE_DIR})
 
