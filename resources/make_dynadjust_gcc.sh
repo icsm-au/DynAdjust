@@ -40,7 +40,7 @@ function help {
     echo -e "  -a [ --auto ]          Run automatically with no user interaction."
     echo -e "  -d [ --debug ]         Compile debug version."
     echo -e "  -c [ --do-not-clone ]  By default, the latest version will be cloned from GitHub."
-	echo -e "                         Set this option if a clone does not need to be made."
+    echo -e "                         Set this option if a clone does not need to be made."
     echo -e "  -t [ --test ]          Run cmake tests."
     echo -e "  -n [ --no-install ]    Do not install binaries."
     echo -e "  -h [ --help ]          Prints this help message.\n"
