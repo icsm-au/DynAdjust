@@ -12,15 +12,19 @@
 
 # set defaults
 _script="make_dynadjust_gcc.sh"
-_clone=0 # default option is to clone afresh, and ask for user input
-_test=0 # default option is to run cmake tests
+_auto=0 # default option is to ask for user input
+_debug=0 # default option is to build release variant
+_clone=0 # default option is to clone afresh
+_test=0 # default option is to skip cmake tests
+_install=0 # default option is to install binaries
 
 #################################################################################
 # Common functions
 #
 # display example message
 function example {
-    echo -e "example: $_script -c 0 -t 1"
+    echo -e "examples:"
+	echo -e "  $_script --auto --do-not-clone --test --no-install"
 }
 
 # display usage message
@@ -33,65 +37,78 @@ function help {
     echo ""
     usage
     echo -e "options:"
-    echo -e "  -c [ --clone ] arg     Option for cloning GitHub repository:"
-    echo -e "                           0: clone from github; ask for user input"
-    echo -e "                           1: do not clone; build automatically"
-    echo -e "  -t [ --test ] arg      Option for running cmake tests:"
-    echo -e "                           0: skip tests"
-    echo -e "                           1: run cmake tests"
-    echo -e "  -h [ --help ]          Prints this help message\n"
+    echo -e "  -a [ --auto ]          Run automatically with no user interaction."
+    echo -e "  -d [ --debug ]         Compile debug version."
+    echo -e "  -c [ --do-not-clone ]  By default, the latest version will be cloned from GitHub."
+	echo -e "                         Set this option if a clone does not need to be made."
+    echo -e "  -t [ --test ]          Run cmake tests."
+    echo -e "  -n [ --no-install ]    Do not install binaries."
+    echo -e "  -h [ --help ]          Prints this help message.\n"
     example
     echo ""
 }
+#################################################################################
 
 # get argument parameters
 while [ "$1" != "" ];
 do
    case $1 in
-   -c  | --clone )  shift
-   					_clone=$1
+   -a  | --auto ) 	shift
+   				  	_auto=1 # run automatically (or silently)
+			    	;;
+   -d  | --debug )  shift
+   					_debug=1 # compile debug variant
+			        ;;
+   -c  | --do-not-clone )  shift
+   					_clone=1 # do not clone from GitHub
 			        ;;
    -t  | --test )   shift
-   					_test=$1
+   					_test=1 # run tests
+			        ;;
+   -n  | --no-install ) shift
+   					_install=1 # do not install binaries
 			        ;;
    -h   | --help )  help
                     exit
                     ;;
    *)                     
-                    echo "$script: illegal option $1"
-                    usage
-					example
+                    echo -e "\n$_script: illegal option $1"
+                    help
 					exit 1 # error
                     ;;
     esac
-    shift
 done
 
-# Checks valid values
-function args_check {
-	if [ $_clone -lt 0 ] || [ $_clone -gt 1 ]; then
-        # error
-        echo -e "\nUnknown value: --clone $_clone"
-	    help
-	    exit 1 # error
-	fi
+echo -e "\n==========================================================================="
+echo -e "DynAdjust build configuration options..."
 
-    if [ $_test -lt 0 ] || [ $_test -gt 1 ]; then
-        # error
-        echo -e "\nUnknown value: --test $_test"
-	    help
-	    exit 1 # error
-	fi
+if [ $_debug -eq 1 ]; then
+	echo -e " - debug variant."
+else
+	echo -e " - release variant."
+fi
 
-	if [ $_clone -eq 1 ]; then
-        echo -e "\n==========================================================================="
-        echo -e "Building automatically without cloning..."
-    fi
-}
-#################################################################################
+if [ $_auto -eq 1 ]; then
+	echo -e " - build automatically (no user input)."
+else
+	echo -e " - run interactively (ask for user input)."
+fi
 
-# check arguments
-args_check
+if [ $_clone -eq 1 ]; then
+	echo -e " - do not clone a fresh copy from GitHub."
+else
+	echo -e " - clone a fresh copy from GitHub."
+fi
+
+if [ $_test -eq 1 ]; then
+	echo -e " - run tests."
+fi
+
+if [ $_install -eq 1 ]; then
+	echo -e " - do not install."
+else
+	echo -e " - install binaries to /opt/dynadjust/gcc/x_x_x."
+fi
 
 
 # get current directory
@@ -100,6 +117,8 @@ _cwd="$PWD"
 _clone_dir="${_cwd}/DynAdjust"
 # set dynadjust root dir
 _root_dir="${_clone_dir}/dynadjust"
+# set dynadjust root dir
+_test_dir="${_clone_dir}/sampleData"
 # set build dir
 _build_dir="${_root_dir}/build_gcc"
 # set clone url
@@ -114,26 +133,40 @@ OPT_DYNADJUST_PATH=/opt/dynadjust
 OPT_DYNADJUST_GCC_PATH=/opt/dynadjust/gcc
 DYNADJUST_INSTALL_PATH=/opt/dynadjust/gcc/1_0_3
 
+# version info
+_version="1.0.3"
+
 echo -e "\n==========================================================================="
-echo "Build and installation of dynadjust 1.0.3"
-echo " "
-echo "Repository settings:"
-echo " Git repo:      ${_clone_url}"
+echo -e "Build and installation of dynadjust ${_version}...\n"
+if [ $_clone -eq 0 ]; then
+	echo "Repository settings:"
+	echo "  Git repo:      ${_clone_url}"
+fi
 echo "Build settings:"
-echo " Current dir:   ${_cwd}"
-echo " Clone dir:     ${_clone_dir}"
-echo " Build dir:     ${_build_dir}"
-echo "Installation settings:"
-echo " Install dir:   ${DYNADJUST_INSTALL_PATH}"
-echo " User bin dir:  ${BIN_FOLDER_FULLPATH}"
+echo "  Current dir:   ${_cwd}"
+if [ $_clone -eq 0 ]; then
+	echo "  Clone dir:     ${_clone_dir}"
+fi
+echo "  Build dir:     ${_build_dir}"
+
+if [ $_install -eq 0 ]; then
+	echo "Installation settings:"
+	echo "  Install dir:   ${DYNADJUST_INSTALL_PATH}"
+	echo "  User bin dir:  ${BIN_FOLDER_FULLPATH}"
+fi
+
+if [ $_test -eq 1 ]; then
+	echo "Test settings:"
+	echo "  Test dir:      ${_test_dir}"
+fi
 
 #
-# determine whether to clone and user needs prompting
-case ${_clone} in
-    0) # clone and perform interactive build
+# determine whether user needs prompting
+case ${_auto} in
+    0) # perform interactive build
         echo " "
 		read -r -p "Is this ok [Y/n]: " response;;
-    *) # do not cone; build without asking
+    *) # build without asking
         response="y";;
 esac
 
@@ -146,20 +179,20 @@ fi
 
 # INSTALL DYNADJUST
 # 1. create install dirs:
-if [ ! -d "${BIN_FOLDER_FULLPATH}" ]; then
-	echo " "
-    echo "Making ${BIN_FOLDER_FULLPATH}"
-    mkdir ${BIN_FOLDER_FULLPATH}
+if [ $_install -eq 0 ]; then
+	if [ ! -d "${BIN_FOLDER_FULLPATH}" ]; then
+		echo " "
+		echo "Making ${BIN_FOLDER_FULLPATH}"
+		mkdir ${BIN_FOLDER_FULLPATH}
+	fi
 fi
 
-# 2. download:
-case ${_clone} in
-    0) # clone and perform interactive build
-        echo " "
-		echo "Cloning DynAdjust..."
-		git clone ${_clone_url}
-		;;    
-esac
+# 2. clone from GitHub:
+if [ $_clone -eq 0 ]; then
+	echo " "
+	echo "Cloning DynAdjust..."
+	git clone ${_clone_url} || echo -e "Okay, let's assume we already have a previously cloned version.\n"
+fi
 
 if [ -d ${_build_dir} ]; then
     echo "Cleaning out directory ${_build_dir}"
@@ -174,7 +207,7 @@ fi
 cd ${_build_dir}
 
 # 3. copy files:
-echo "Copying Find...cmake files to build directory..."
+echo "Copying Find*.cmake files to build directory..."
 cp ../FindXercesC.cmake ./
 cp ../FindMKL.cmake ./
 cp ../FindXSD.cmake ./
@@ -185,19 +218,12 @@ THIS_BUILD_TYPE=$REL_BUILD_TYPE
 
 # 4. build:
 # test argument for build type
-if [ "$#" -lt 1 ]; 
-then
-    echo " "
-	echo "No build type specified.  Building $THIS_BUILD_TYPE variant by default..."
-
-elif [ "$1" == "debug" -o "$1" == "Debug" ]; 
-then
-    THIS_BUILD_TYPE="Debug"
-
-elif [ "$1" == "release" -o "$1" == "Release" ];
-then
-    THIS_BUILD_TYPE="Release"
-fi
+case ${_debug} in
+    0) # release
+		THIS_BUILD_TYPE=$REL_BUILD_TYPE;;
+    1) # debug
+        THIS_BUILD_TYPE=$DBG_BUILD_TYPE;;
+esac
 
 echo " "
 echo "Building DynaNet ($THIS_BUILD_TYPE)..."
@@ -219,28 +245,35 @@ case ${_test} in
 		cmake -DBUILD_TESTING="ON" -DCMAKE_BUILD_TYPE="${THIS_BUILD_TYPE}" .. || exit 1;;
 esac
 
-# exit
-
 make -j $(nproc) || exit 1
+
+echo " "
 
 case ${_test} in
     1) # run cmake tests
-        make test;;
+		echo -e "==========================================================================="
+		echo -e "Testing dynadjust ${_version}...\n"
+        make CTEST_OUTPUT_ON_FAILURE=1 test;;
 esac
 
 #
 # determine if user needs prompting
-case ${_mode} in
-    0) # interactive
+case ${_auto} in
+    0) # install binaries
         echo " "
 		read -r -p "Install DynAdjust to ${OPT_DYNADJUST_PATH} [Y/n]: " optresponse;;
     *) # proceed without asking
-        optresponse="y";;
+        optresponse="y"
+		# set install option
+		if [ $_install -eq 1 ]; then
+			optresponse="n"
+		fi
+		;;
 esac
 
 if [[ "$optresponse" =~ ^([nN][oO]|[nN])$ ]]
 then    
-    echo "Skipping DynAdjust installation."
+    echo " "
 else
 
     _lib_ext="so"
@@ -339,8 +372,10 @@ fi
 
 echo "Done."
 echo " "
-echo "Don't forget to add the bin directory to path in ~/.bash_profile"
-echo "For example:"
-echo "    EXPORT PATH=$PATH:$HOME/bin"
-echo " "
 
+if [ $_install -eq 0 ]; then
+	echo "Don't forget to add the bin directory to path in ~/.bash_profile"
+	echo "For example:"
+	echo "    EXPORT PATH=$PATH:$HOME/bin"
+	echo " "
+fi

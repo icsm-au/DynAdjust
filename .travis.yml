@@ -11,7 +11,7 @@ before_install:
 install:
    - cd ..
    - cp ./DynAdjust/resources/make_dynadjust_gcc.sh ./
-   - sudo bash make_dynadjust_gcc.sh -c 1 -t 1
+   - sudo bash make_dynadjust_gcc.sh --no-install --auto --do-not-clone --test
    - cd ./DynAdjust
 
 #script:

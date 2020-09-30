@@ -4,7 +4,9 @@ project (dynadjust)
 
 set (DYNADJUST_VERSION "1.0.3")
 
-enable_testing()
+if (BUILD_TESTING)
+    enable_testing()
+endif (BUILD_TESTING)
 
 message (STATUS " " )
 message (STATUS "**********************************************" )
@@ -20,11 +22,10 @@ set (CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR};${CMAKE_MODULE_PATH}")
 set (CMAKE_CXX_STANDARD 14)
 add_definitions(-Wno-deprecated-declarations)
 
-#set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -ggdb -O0")
-#set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage") # enabling coverage
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -coverage -lgcov")
+if (BUILD_TESTING)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage") # enabling coverage
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -coverage -lgcov")
+endif (BUILD_TESTING)
 
 if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl")
@@ -120,12 +121,6 @@ endif ()
     message (FATAL_ERROR "Build terminating.")
 endif ()
 
-message (STATUS "configuring dynadjust" )
-add_subdirectory (dynadjust/dynadjust)
-
-message (STATUS "configuring adjust" )
-add_subdirectory (dynadjust/dnaadjustwrapper)
-
 message (STATUS "configuring import" )
 add_subdirectory (dynadjust/dnaimportwrapper)
 
@@ -138,25 +133,35 @@ add_subdirectory (dynadjust/dnasegmentwrapper)
 message (STATUS "configuring geoid" )
 add_subdirectory (dynadjust/dnageoidwrapper)
 
+message (STATUS "configuring adjust" )
+add_subdirectory (dynadjust/dnaadjustwrapper)
+
 message (STATUS "configuring plot" )
 add_subdirectory (dynadjust/dnaplotwrapper)
+
+message (STATUS "configuring dynadjust" )
+add_subdirectory (dynadjust/dynadjust)
+
+if (BUILD_TESTING)
+    message (STATUS "  " )
+    message (STATUS "configuring tests" )
+        add_test (NAME import-gnss-network COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.msr)
+        add_test (NAME geoid-gnss-network COMMAND $<TARGET_FILE:dnageoidwrapper> gnss -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb --convert-stn-hts)
+        add_test (NAME adjust-gnss-network COMMAND $<TARGET_FILE:dnaadjustwrapper> gnss --output-adj-msr)
+        add_test (NAME import-urban-network COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr)
+        add_test (NAME geoid-urban-network COMMAND $<TARGET_FILE:dnageoidwrapper> urban -g ${CMAKE_SOURCE_DIR}/../sampleData/urban-network-geoid.gsb --convert-stn-hts)
+        add_test (NAME segment-urban-network COMMAND $<TARGET_FILE:dnasegmentwrapper> urban --min 50 --max 150)
+        add_test (NAME adjust-urban-network COMMAND $<TARGET_FILE:dnaadjustwrapper> urban --output-adj-msr --phased)
+    find_program (BASH_PROGRAM bash)
+    if (BASH_PROGRAM)
+        add_test (NAME check-gnss-network COMMAND ${BASH_PROGRAM} -c "diff <(tail -n +53 gnss.simult.adj) <(tail -n +53 ${CMAKE_SOURCE_DIR}/../sampleData/gnss.simult.adj.expected)")
+        add_test (NAME check-urban-network COMMAND ${BASH_PROGRAM} -c "diff <(tail -n +62 urban.phased.adj) <(tail -n +62 ${CMAKE_SOURCE_DIR}/../sampleData/urban.phased.adj.expected)")
+    endif (BASH_PROGRAM)
+endif ()
 
 message (STATUS " " )
 message (STATUS "finished configuring DynAdjust ${DYNADJUST_VERSION} (${CMAKE_BUILD_TYPE})." )
 message (STATUS "**********************************************" )
 message (STATUS " " )
-message (STATUS "Now run make to build DynAdjust ${DYNADJUST_VERSION} (${CMAKE_BUILD_TYPE}) binaries" )
-message (STATUS " " )
-
-if (BUILD_TESTING)
-    message (STATUS "Executing tests: ")
-    message (STATUS "  - run-gnss-network.sh")
-    message (STATUS "  - run-urban-network.sh")
-    message (STATUS "  " )
-    find_program (BASH_PROGRAM bash)
-    if (BASH_PROGRAM)
-        add_test (run-gnss-network ${BASH_PROGRAM} "../../sampleData/run-gnss-network.sh")
-        add_test (run-urban-network ${BASH_PROGRAM} "../../sampleData/run-urban-network.sh")
-    endif (BASH_PROGRAM)
-endif ()
-
+#message (STATUS "Now run make to build DynAdjust ${DYNADJUST_VERSION} (${CMAKE_BUILD_TYPE}) binaries" )
+#message (STATUS " " )
