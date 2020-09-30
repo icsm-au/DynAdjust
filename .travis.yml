@@ -20,5 +20,5 @@ install:
 after_success:
 #  - coveralls --root . -E ".*CMakeFiles.*" 
 #   - coveralls --root . --verbose --exclude-pattern ".*feature_tests.*" --exclude-pattern ".*CompilerId.*" --gcov-options '\-lp'
-   - coveralls
+   - coveralls -- root ./dynadjust/build_gcc --gcov-options '\-lp'
    - bash <(curl -s https://codecov.io/bash)
