@@ -1,4 +1,7 @@
-language: shell
+language: cpp
+
+compiler:
+  - gcc
 
 dist: xenial
 
