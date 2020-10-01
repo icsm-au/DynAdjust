@@ -12,7 +12,6 @@ message (STATUS " " )
 message (STATUS "**********************************************" )
 message (STATUS "Configuring DynAdjust ${DYNADJUST_VERSION} (${CMAKE_BUILD_TYPE}) build using cmake..." )
 message (STATUS " " )
-#set (CMAKE_BUILD_TYPE "Release")
 
 if(UNIX)
    set(DNA_PROGRAM_PREFIX "dna")

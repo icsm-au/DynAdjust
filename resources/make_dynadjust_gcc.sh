@@ -240,7 +240,7 @@ case ${_test} in
     0) # skip tests
         echo "cmake -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=${THIS_BUILD_TYPE} .."
 		cmake -DBUILD_TESTING="OFF" -DCMAKE_BUILD_TYPE="${THIS_BUILD_TYPE}" .. || exit 1;;
-    *) # run cmake tests
+    *) # run cmake tests with code coverage
         echo "cmake -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=${THIS_BUILD_TYPE} .."
 		cmake -DBUILD_TESTING="ON" -DCMAKE_BUILD_TYPE="${THIS_BUILD_TYPE}" .. || exit 1;;
 esac
