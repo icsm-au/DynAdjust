@@ -8,7 +8,7 @@ before_install:
   - sudo apt-get -y install lcov bzip2 wget cmake make gcc libboost-system-dev libboost-filesystem-dev libboost-timer-dev libboost-thread-dev libboost-program-options-dev
   - sudo bash resources/install_dynadjust_prerequisites.sh -m 1
 
-install:
+script:
    - cd ..
    - cp ./DynAdjust/resources/make_dynadjust_gcc.sh ./
    - sudo bash make_dynadjust_gcc.sh --no-install --auto --do-not-clone --test
