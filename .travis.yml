@@ -12,13 +12,10 @@ install:
    - cd ..
    - cp ./DynAdjust/resources/make_dynadjust_gcc.sh ./
    - sudo bash make_dynadjust_gcc.sh --no-install --auto --do-not-clone --test
-   - cd ./DynAdjust
-
-#script:
-#  - cd ./sampleData && bash run-gnss-network.sh
   
 after_success:
+   - cd ./DynAdjust/dynadjust
 #  - coveralls --root . -E ".*CMakeFiles.*" 
 #   - coveralls --root . --verbose --exclude-pattern ".*feature_tests.*" --exclude-pattern ".*CompilerId.*" --gcov-options '\-lp'
-   - coveralls --root ./ --gcov-options '\-lp' --exclude-pattern ".*build_gcc.*"
+   - coveralls --gcov-options '\-lp' --exclude-pattern ".*build_gcc.*"
    - bash <(curl -s https://codecov.io/bash)
