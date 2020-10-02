@@ -155,27 +155,30 @@ if (BUILD_TESTING)
     add_test (NAME segment-urban-network COMMAND $<TARGET_FILE:dnasegmentwrapper> urban --min 50 --max 150)
     add_test (NAME adjust-urban-network COMMAND $<TARGET_FILE:dnaadjustwrapper> urban --output-adj-msr --phased)
     # 3. urban network (transform to GDA2020, phased-concurrent)
-    add_test (NAME import-urban-network-thread COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr)
-    add_test (NAME reftran-urban-network-thread COMMAND $<TARGET_FILE:dnareftranwrapper> urban -r gda2020)
-    add_test (NAME geoid-urban-network-thread COMMAND $<TARGET_FILE:dnageoidwrapper> urban -g ${CMAKE_SOURCE_DIR}/../sampleData/urban-network-geoid.gsb --convert-stn-hts)
-    add_test (NAME segment-urban-network-thread COMMAND $<TARGET_FILE:dnasegmentwrapper> urban --min 50 --max 85)
-    add_test (NAME adjust-urban-network-thread COMMAND $<TARGET_FILE:dnaadjustwrapper> urban --multi --output-adj-msr)
+    add_test (NAME import-urban-network-thread COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban_mt ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr)
+    add_test (NAME reftran-urban-network-thread COMMAND $<TARGET_FILE:dnareftranwrapper> urban_mt -r gda2020)
+    add_test (NAME geoid-urban-network-thread COMMAND $<TARGET_FILE:dnageoidwrapper> urban_mt -g ${CMAKE_SOURCE_DIR}/../sampleData/urban-network-geoid.gsb --convert-stn-hts)
+    add_test (NAME segment-urban-network-thread COMMAND $<TARGET_FILE:dnasegmentwrapper> urban_mt --min 50 --max 85)
+    add_test (NAME adjust-urban-network-thread COMMAND $<TARGET_FILE:dnaadjustwrapper> urban_mt --multi --output-adj-msr)
     
     # bash command to check results
     add_test (NAME test-gnss-network COMMAND bash -c "diff <(tail -n +53 gnss.simult.adj) <(tail -n +53 ${CMAKE_SOURCE_DIR}/../sampleData/gnss.simult.adj.expected)")
     add_test (NAME test-urban-phased-network COMMAND bash -c "diff <(tail -n +62 urban.phased.adj) <(tail -n +62 ${CMAKE_SOURCE_DIR}/../sampleData/urban.phased.adj.expected)")
-    add_test (NAME test-urban-thread-network COMMAND bash -c "diff <(tail -n +64 urban.phased-mt.adj) <(tail -n +64 ${CMAKE_SOURCE_DIR}/../sampleData/urban.phased-mt.adj.expected)")
+    add_test (NAME test-urban-thread-network COMMAND bash -c "diff <(tail -n +64 urban_mt.phased-mt.adj) <(tail -n +64 ${CMAKE_SOURCE_DIR}/../sampleData/urban_mt.phased-mt.adj.expected)")
 
-    # prevent parallel execution (since the execution of tests must be sequential)
+    # set execution dependencies (the execution of tests must be sequential)
     set_tests_properties(
-        import-gnss-network geoid-gnss-network adjust-gnss-network test-gnss-network
+        import-gnss-network geoid-gnss-network adjust-gnss-network
         PROPERTIES RUN_SERIAL TRUE)
     set_tests_properties(
-        import-urban-network geoid-urban-network segment-urban-network adjust-urban-network test-urban-phased-network
+        import-urban-network geoid-urban-network segment-urban-network adjust-urban-network
         PROPERTIES RUN_SERIAL TRUE)
     set_tests_properties(
-        import-urban-network-thread reftran-urban-network-thread geoid-urban-network-thread segment-urban-network-thread adjust-urban-network-thread test-urban-thread-network
+        import-urban-network-thread reftran-urban-network-thread geoid-urban-network-thread segment-urban-network-thread adjust-urban-network-thread
         PROPERTIES RUN_SERIAL TRUE)
+    set_tests_properties(test-gnss-network PROPERTIES DEPENDS adjust-gnss-network)
+    set_tests_properties(test-urban-phased-network PROPERTIES DEPENDS adjust-urban-network)
+    set_tests_properties(test-urban-thread-network PROPERTIES DEPENDS adjust-urban-network-thread)
 endif ()
 
 message (STATUS " " )
