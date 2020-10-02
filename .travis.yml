@@ -17,8 +17,8 @@ script:
    - sudo bash make_dynadjust_gcc.sh --no-install --auto --do-not-clone --test
   
 after_success:
-   - cd ./DynAdjust/
+   - cd ./DynAdjust/dynadjust
 #  - coveralls --root . -E ".*CMakeFiles.*" 
 #  - coveralls --root . --verbose --exclude-pattern ".*feature_tests.*" --exclude-pattern ".*CompilerId.*" --gcov-options '\-lp'
-   - coveralls --verbose --gcov-options '\-lp' --exclude-pattern ".*feature_tests.*" --exclude-pattern ".*CompilerId.*"
+   - coveralls --verbose --exclude-pattern ".*feature_tests.*" --exclude-pattern ".*CompilerId.*"
    - bash <(curl -s https://codecov.io/bash)
