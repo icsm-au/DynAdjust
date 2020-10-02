@@ -178,7 +178,9 @@ if (BUILD_TESTING)
         import-urban-network-thread reftran-urban-network-thread geoid-urban-network-thread segment-urban-network-thread adjust-urban-network-thread
         PROPERTIES RUN_SERIAL TRUE)
     set_tests_properties(test-gnss-network PROPERTIES DEPENDS adjust-gnss-network)
+    set_tests_properties(adjust-urban-network PROPERTIES DEPENDS segment-urban-network)
     set_tests_properties(test-urban-phased-network PROPERTIES DEPENDS adjust-urban-network)
+    set_tests_properties(adjust-urban-network-thread PROPERTIES DEPENDS segment-urban-network-thread)
     set_tests_properties(test-urban-thread-network PROPERTIES DEPENDS adjust-urban-network-thread)
 endif ()
 
