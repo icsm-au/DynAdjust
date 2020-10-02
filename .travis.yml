@@ -22,7 +22,7 @@ after_success:
 #  - coveralls --root . --verbose --exclude-pattern ".*feature_tests.*" --exclude-pattern ".*CompilerId.*" --gcov-options '\-lp'
    - coveralls 
      --root ../../
-     --build-directory ./
+     --build-root ./
      --gcov-options '\--long-file-names --preserve-paths' 
      --verbose 
      --exclude-pattern ".*CMakeFiles.*" 
