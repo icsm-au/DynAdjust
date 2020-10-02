@@ -22,8 +22,9 @@ set (CMAKE_CXX_STANDARD 14)
 add_definitions(-Wno-deprecated-declarations)
 
 if (BUILD_TESTING)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage") # enabling coverage
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -coverage -lgcov")
+    # enable coverage
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
 endif (BUILD_TESTING)
 
 if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
