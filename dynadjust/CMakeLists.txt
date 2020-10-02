@@ -144,24 +144,38 @@ add_subdirectory (dynadjust/dynadjust)
 if (BUILD_TESTING)
     message (STATUS "  " )
     message (STATUS "configuring tests" )
-        add_test (NAME import-gnss-network COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.msr)
-        add_test (NAME geoid-gnss-network COMMAND $<TARGET_FILE:dnageoidwrapper> gnss -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb --convert-stn-hts)
-        add_test (NAME adjust-gnss-network COMMAND $<TARGET_FILE:dnaadjustwrapper> gnss --output-adj-msr)
-        add_test (NAME import-urban-network COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr)
-        add_test (NAME geoid-urban-network COMMAND $<TARGET_FILE:dnageoidwrapper> urban -g ${CMAKE_SOURCE_DIR}/../sampleData/urban-network-geoid.gsb --convert-stn-hts)
-        add_test (NAME segment-urban-network COMMAND $<TARGET_FILE:dnasegmentwrapper> urban --min 50 --max 150)
-        add_test (NAME adjust-urban-network COMMAND $<TARGET_FILE:dnaadjustwrapper> urban --output-adj-msr --phased)
-        add_test (NAME import-urban-network-multi COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr)
-        add_test (NAME reftran-urban-network-multi COMMAND $<TARGET_FILE:dnareftranwrapper> urban -r gda2020)
-        add_test (NAME geoid-urban-network-multi COMMAND $<TARGET_FILE:dnageoidwrapper> urban -g ${CMAKE_SOURCE_DIR}/../sampleData/urban-network-geoid.gsb --convert-stn-hts)
-        add_test (NAME segment-urban-network-multi COMMAND $<TARGET_FILE:dnasegmentwrapper> urban --min 50 --max 85)
-        add_test (NAME adjust-urban-network-multi COMMAND $<TARGET_FILE:dnaadjustwrapper> urban --multi --output-adj-msr)
-    find_program (BASH_PROGRAM bash)
-    if (BASH_PROGRAM)
-        add_test (NAME test-gnss-network COMMAND ${BASH_PROGRAM} -c "diff <(tail -n +53 gnss.simult.adj) <(tail -n +53 ${CMAKE_SOURCE_DIR}/../sampleData/gnss.simult.adj.expected)")
-        add_test (NAME test-urban-simul-network COMMAND ${BASH_PROGRAM} -c "diff <(tail -n +62 urban.phased.adj) <(tail -n +62 ${CMAKE_SOURCE_DIR}/../sampleData/urban.phased.adj.expected)")
-        add_test (NAME test-urban-multi-network COMMAND ${BASH_PROGRAM} -c "diff <(tail -n +64 urban.phased-mt.adj) <(tail -n +64 ${CMAKE_SOURCE_DIR}/../sampleData/urban.phased-mt.adj.expected)")
-    endif (BASH_PROGRAM)
+    # test execution of dynadjust binaries
+    # 1. gnss network (simultaneous)
+    add_test (NAME import-gnss-network COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.msr)
+    add_test (NAME geoid-gnss-network COMMAND $<TARGET_FILE:dnageoidwrapper> gnss -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb --convert-stn-hts)
+    add_test (NAME adjust-gnss-network COMMAND $<TARGET_FILE:dnaadjustwrapper> gnss --output-adj-msr)
+    # 2. urban network (phased-sequential)
+    add_test (NAME import-urban-network COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr)
+    add_test (NAME geoid-urban-network COMMAND $<TARGET_FILE:dnageoidwrapper> urban -g ${CMAKE_SOURCE_DIR}/../sampleData/urban-network-geoid.gsb --convert-stn-hts)
+    add_test (NAME segment-urban-network COMMAND $<TARGET_FILE:dnasegmentwrapper> urban --min 50 --max 150)
+    add_test (NAME adjust-urban-network COMMAND $<TARGET_FILE:dnaadjustwrapper> urban --output-adj-msr --phased)
+    # 3. urban network (transform to GDA2020, phased-concurrent)
+    add_test (NAME import-urban-network-thread COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr)
+    add_test (NAME reftran-urban-network-thread COMMAND $<TARGET_FILE:dnareftranwrapper> urban -r gda2020)
+    add_test (NAME geoid-urban-network-thread COMMAND $<TARGET_FILE:dnageoidwrapper> urban -g ${CMAKE_SOURCE_DIR}/../sampleData/urban-network-geoid.gsb --convert-stn-hts)
+    add_test (NAME segment-urban-network-thread COMMAND $<TARGET_FILE:dnasegmentwrapper> urban --min 50 --max 85)
+    add_test (NAME adjust-urban-network-thread COMMAND $<TARGET_FILE:dnaadjustwrapper> urban --multi --output-adj-msr)
+    
+    # bash command to check results
+    add_test (NAME test-gnss-network COMMAND bash -c "diff <(tail -n +53 gnss.simult.adj) <(tail -n +53 ${CMAKE_SOURCE_DIR}/../sampleData/gnss.simult.adj.expected)")
+    add_test (NAME test-urban-phased-network COMMAND bash -c "diff <(tail -n +62 urban.phased.adj) <(tail -n +62 ${CMAKE_SOURCE_DIR}/../sampleData/urban.phased.adj.expected)")
+    add_test (NAME test-urban-thread-network COMMAND bash -c "diff <(tail -n +64 urban.phased-mt.adj) <(tail -n +64 ${CMAKE_SOURCE_DIR}/../sampleData/urban.phased-mt.adj.expected)")
+
+    # prevent parallel execution (since the execution of tests must be sequential)
+    set_tests_properties(
+        import-gnss-network geoid-gnss-network adjust-gnss-network test-gnss-network
+        PROPERTIES RUN_SERIAL TRUE)
+    set_tests_properties(
+        import-urban-network geoid-urban-network segment-urban-network adjust-urban-network test-urban-phased-network
+        PROPERTIES RUN_SERIAL TRUE)
+    set_tests_properties(
+        import-urban-network-thread reftran-urban-network-thread geoid-urban-network-thread segment-urban-network-thread adjust-urban-network-thread test-urban-thread-network
+        PROPERTIES RUN_SERIAL TRUE)
 endif ()
 
 message (STATUS " " )
