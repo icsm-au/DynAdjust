@@ -871,8 +871,8 @@ void dna_reftran::TransformStationRecords(const string& newFrame, const string& 
 			TransformStation(stn_it, datumFrom, transformationParameters);
 
 			// d. Update meta
-			sprintf(stn_it->epsgCode, "%s\0", datumTo_.GetEpsgCode_s().c_str());
-			sprintf(stn_it->epoch, "%s\0", datumTo_.GetEpoch_s().c_str());
+			sprintf(stn_it->epsgCode, "%s", datumTo_.GetEpsgCode_s().c_str());
+			sprintf(stn_it->epoch, "%s", datumTo_.GetEpoch_s().c_str());
 			transformationPerformed_ = true;
 			m_stnsTransformed++;
 		}
@@ -1178,18 +1178,18 @@ void dna_reftran::TransformMeasurement_Y(it_vmsr_t& msr_it, const CDnaDatum& dat
 		
 		// Assign 'transformed' elements
 		msr_it->term1 = coordinates_mod.get(0, 0);
-		sprintf(msr_it->epsgCode, "%s\0", datumTo_.GetEpsgCode_s().c_str());
-		sprintf(msr_it->epoch, "%s\0", datumTo_.GetEpoch_s().c_str());
+		sprintf(msr_it->epsgCode, "%s", datumTo_.GetEpsgCode_s().c_str());
+		sprintf(msr_it->epoch, "%s", datumTo_.GetEpoch_s().c_str());
 		msr_it++;
 		// Y
 		msr_it->term1 = coordinates_mod.get(1, 0);
-		sprintf(msr_it->epsgCode, "%s\0", datumTo_.GetEpsgCode_s().c_str());
-		sprintf(msr_it->epoch, "%s\0", datumTo_.GetEpoch_s().c_str());
+		sprintf(msr_it->epsgCode, "%s", datumTo_.GetEpsgCode_s().c_str());
+		sprintf(msr_it->epoch, "%s", datumTo_.GetEpoch_s().c_str());
 		msr_it++;
 		// Z
 		msr_it->term1 = coordinates_mod.get(2, 0);
-		sprintf(msr_it->epsgCode, "%s\0", datumTo_.GetEpsgCode_s().c_str());
-		sprintf(msr_it->epoch, "%s\0", datumTo_.GetEpoch_s().c_str());
+		sprintf(msr_it->epsgCode, "%s", datumTo_.GetEpsgCode_s().c_str());
+		sprintf(msr_it->epoch, "%s", datumTo_.GetEpoch_s().c_str());
 
 		// skip covariances until next point		
 		if (covariance_count > 0)
