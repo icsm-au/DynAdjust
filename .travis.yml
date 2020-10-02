@@ -5,6 +5,13 @@ compiler:
 
 dist: bionic
 
+cache:
+  apt: true
+
+branches:
+  only:
+    - master
+
 before_install:
   - pip install --user cpp-coveralls codecov
   - sudo apt-get update
@@ -24,7 +31,8 @@ after_success:
      --root ../../
      --build-root ./
      --gcov-options '\--long-file-names --preserve-paths' 
-     --verbose 
+     --verbose
+     --gcov /usr/bin/gcov
      --exclude-pattern ".*CMakeFiles.*" 
      --exclude-pattern ".*CompilerId.*"
    - bash <(curl -s https://codecov.io/bash)
