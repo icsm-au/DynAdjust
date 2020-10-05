@@ -28,9 +28,9 @@ after_success:
 #  - coveralls --root . -E ".*CMakeFiles.*" 
 #  - coveralls --root . --verbose --exclude-pattern ".*feature_tests.*" --exclude-pattern ".*CompilerId.*" --gcov-options '\-lp'
    - coveralls 
-     --gcov-options '\-lp' 
      --verbose
      --gcov /usr/bin/gcov
      --exclude-pattern ".*CMakeFiles.*" 
      --exclude-pattern ".*CompilerId.*"
+     --exclude-pattern ".*/resources/.*"
    - bash <(curl -s https://codecov.io/bash)

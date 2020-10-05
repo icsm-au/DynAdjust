@@ -82,7 +82,7 @@ done
 echo -e "\n==========================================================================="
 echo -e "DynAdjust build configuration options..."
 
-if [ $_debug -eq 1 ]; then
+if [[ $_debug -eq 1 || $_test -eq 1 ]]; then
 	echo -e " - debug variant."
 else
 	echo -e " - release variant."
