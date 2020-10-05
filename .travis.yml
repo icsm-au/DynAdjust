@@ -24,12 +24,13 @@ script:
    - bash make_dynadjust_gcc.sh --no-install --auto --do-not-clone --test
   
 after_success:
-   - cd ./DynAdjust/dynadjust/build_gcc
+   - cd ./DynAdjust/dynadjust/
 #  - coveralls --root . -E ".*CMakeFiles.*" 
 #  - coveralls --root . --verbose --exclude-pattern ".*feature_tests.*" --exclude-pattern ".*CompilerId.*" --gcov-options '\-lp'
    - coveralls 
-     --verbose
      --gcov /usr/bin/gcov
+     --exclude-pattern ".*feature_tests.*" 
+     --exclude-pattern ".*CompilerId.*" 
      --exclude-pattern ".*/resources/.*"
      --gcov-options '\-lp'
-   - bash <(curl -s https://codecov.io/bash)
+#  - bash <(curl -s https://codecov.io/bash)
