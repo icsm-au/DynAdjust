@@ -8,6 +8,12 @@ if (BUILD_TESTING)
     enable_testing()
 endif (BUILD_TESTING)
 
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Release)
+endif()
+
+#set(CMAKE_VERBOSE_MAKEFILE ON)
+
 message (STATUS " " )
 message (STATUS "**********************************************" )
 message (STATUS "Configuring DynAdjust ${DYNADJUST_VERSION} (${CMAKE_BUILD_TYPE}) build using cmake..." )
@@ -21,19 +27,18 @@ set (CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR};${CMAKE_MODULE_PATH}")
 set (CMAKE_CXX_STANDARD 14)
 add_definitions(-Wno-deprecated-declarations)
 
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb -Wall -O0")
+# default CXX flags
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+
+# Debug CXX flags (GCC 4.8 introduced -Og for superior debugging experience. For older versions, use -O0)
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb -Og")
 
 # If testing, then include coverage and turn off optimisations for release builds
 if (BUILD_TESTING)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ftest-coverage")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O0")
-else ()
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
 endif (BUILD_TESTING)
 
 if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
@@ -169,12 +174,12 @@ if (BUILD_TESTING)
     add_test (NAME reftran-urban-network-thread COMMAND $<TARGET_FILE:dnareftranwrapper> urban_mt -r gda2020)
     add_test (NAME geoid-urban-network-thread COMMAND $<TARGET_FILE:dnageoidwrapper> urban_mt -g ${CMAKE_SOURCE_DIR}/../sampleData/urban-network-geoid.gsb --convert-stn-hts)
     add_test (NAME segment-urban-network-thread COMMAND $<TARGET_FILE:dnasegmentwrapper> urban_mt --min 50 --max 85)
-    add_test (NAME adjust-urban-network-thread COMMAND $<TARGET_FILE:dnaadjustwrapper> urban_mt --multi --output-adj-msr)
+    add_test (NAME adjust-urban-network-thread COMMAND $<TARGET_FILE:dnaadjustwrapper> urban_mt --output-adj-msr --multi)
     
     # bash command to check results
     add_test (NAME test-gnss-network COMMAND bash -c "diff <(tail -n +53 gnss.simult.adj) <(tail -n +53 ${CMAKE_SOURCE_DIR}/../sampleData/gnss.simult.adj.expected)")
-    add_test (NAME test-urban-phased-network COMMAND bash -c "diff <(tail -n +62 urban.phased.adj) <(tail -n +62 ${CMAKE_SOURCE_DIR}/../sampleData/urban.phased.adj.expected)")
-    add_test (NAME test-urban-thread-network COMMAND bash -c "diff <(tail -n +64 urban_mt.phased-mt.adj) <(tail -n +64 ${CMAKE_SOURCE_DIR}/../sampleData/urban_mt.phased-mt.adj.expected)")
+    #add_test (NAME test-urban-phased-network COMMAND bash -c "diff <(tail -n +62 urban.phased.adj) <(tail -n +62 ${CMAKE_SOURCE_DIR}/../sampleData/urban.phased.adj.expected)")
+    #add_test (NAME test-urban-thread-network COMMAND bash -c "diff <(tail -n +64 urban_mt.phased-mt.adj) <(tail -n +64 ${CMAKE_SOURCE_DIR}/../sampleData/urban_mt.phased-mt.adj.expected)")
 
     # set execution dependencies (the execution of tests must be sequential)
     set_tests_properties(
@@ -187,10 +192,6 @@ if (BUILD_TESTING)
         import-urban-network-thread reftran-urban-network-thread geoid-urban-network-thread segment-urban-network-thread adjust-urban-network-thread
         PROPERTIES RUN_SERIAL TRUE)
     set_tests_properties(test-gnss-network PROPERTIES DEPENDS adjust-gnss-network)
-    set_tests_properties(adjust-urban-network PROPERTIES DEPENDS segment-urban-network)
-    set_tests_properties(test-urban-phased-network PROPERTIES DEPENDS adjust-urban-network)
-    set_tests_properties(adjust-urban-network-thread PROPERTIES DEPENDS segment-urban-network-thread)
-    set_tests_properties(test-urban-thread-network PROPERTIES DEPENDS adjust-urban-network-thread)
 endif ()
 
 message (STATUS " " )

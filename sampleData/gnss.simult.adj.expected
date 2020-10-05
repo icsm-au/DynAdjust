@@ -1,18 +1,18 @@
 --------------------------------------------------------------------------------
 DYNADJUST ADJUSTMENT OUTPUT FILE
 
-Version:                           1.0.0, Release
-Build:                             Mar 29 2019, 00:26:42 (GNU GCC 7.3.0)
-File created:                      Friday, 12 April 2019, 06:07:40
-File name:                         /sampleData/./gnss.simult.xyz
+Version:                           1.0.3, Debug
+Build:                             Oct  5 2020, 22:45:04 (GNU GCC 10.2.1 20200723 (Red Hat 10.2.1-1))
+File created:                      Monday, 05 October 2020, 22:47:54
+File name:                         ./gnss.simult.adj
 
-Command line arguments:            ../dynadjust/dynadjust/dnaadjustwrapper/dnaadjust gnss --output-adj-msr 
+Command line arguments:            dnaadjust gnss --output-adj-msr 
 
-Stations file:                     /sampleData/./gnss.bst
-Measurements file:                 /sampleData/./gnss.bms
-Reference frame:                   GDA94
+Stations file:                     ./gnss.bst
+Measurements file:                 ./gnss.bms
+Reference frame:                   GDA2020
 Epoch:                             01.01.2020
-Geoid model:                       /sampleData/./gnss-network-geoid.gsb
+Geoid model:                       ./gnss-network-geoid.gsb
 Constrained Station S.D. (m):      1e-06
 Free Station S.D. (m):             10
 Iteration threshold:               0.0005
@@ -33,7 +33,7 @@ Stations printed in blocks:        No
 --------------------------------------------------------------------------------
 ITERATION                          1
 
-Elapsed time                       00:00:00.007000
+Elapsed time                       00:00:00
 Maximum station correction         Station 349800490
                                    0.001, 0.001, 11.772 (e, n, up)
 
@@ -48,7 +48,7 @@ Maximum station correction         Station 349800490
 
 --------------------------------------------------------------------------------
 SOLUTION                           Converged
-Total time                         00:00:00.007000
+Total time                         00:00:00
 
 Number of unknown parameters       129
 Number of measurements             417  (9 potential outliers)

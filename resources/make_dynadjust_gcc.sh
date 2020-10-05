@@ -217,13 +217,11 @@ DBG_BUILD_TYPE="Debug"
 THIS_BUILD_TYPE=$REL_BUILD_TYPE
 
 # 4. build:
-# test argument for build type
-case ${_debug} in
-    0) # release
-		THIS_BUILD_TYPE=$REL_BUILD_TYPE;;
-    1) # debug
-        THIS_BUILD_TYPE=$DBG_BUILD_TYPE;;
-esac
+# Force build type to Debug for --debug or --test options
+if [[ $_debug -eq 1 || $_test -eq 1 ]]; then
+	# debug
+	THIS_BUILD_TYPE=$DBG_BUILD_TYPE
+fi
 
 echo " "
 echo "Building DynaNet ($THIS_BUILD_TYPE)..."
@@ -238,10 +236,10 @@ echo " "
 # determine whether to prepare cmake files with testing or not
 case ${_test} in
     0) # skip tests
-        echo "cmake -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=${THIS_BUILD_TYPE} .."
+        echo -e "cmake -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=${THIS_BUILD_TYPE} ..\n"
 		cmake -DBUILD_TESTING="OFF" -DCMAKE_BUILD_TYPE="${THIS_BUILD_TYPE}" .. || exit 1;;
     *) # run cmake tests with code coverage
-        echo "cmake -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=${THIS_BUILD_TYPE} .."
+        echo -e "cmake -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=${THIS_BUILD_TYPE} ..\n"
 		cmake -DBUILD_TESTING="ON" -DCMAKE_BUILD_TYPE="${THIS_BUILD_TYPE}" .. || exit 1;;
 esac
 

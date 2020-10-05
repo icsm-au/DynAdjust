@@ -1,18 +1,18 @@
 --------------------------------------------------------------------------------
 DYNADJUST ADJUSTMENT OUTPUT FILE
 
-Version:                           1.0.3, Release
-Build:                             Sep 28 2020, 22:53:45 (GNU GCC 10.2.1 20200723 (Red Hat 10.2.1-1))
-File created:                      Monday, 28 September 2020, 23:24:14
-File name:                         /home/roger/dev/rogerfraser/DynAdjust/sampleData/./urban.phased.adj
+Version:                           1.0.3, Debug
+Build:                             Oct  5 2020, 22:45:04 (GNU GCC 10.2.1 20200723 (Red Hat 10.2.1-1))
+File created:                      Monday, 05 October 2020, 22:47:54
+File name:                         ./urban.phased.adj
 
 Command line arguments:            dnaadjust urban --output-adj-msr --phased 
 
-Stations file:                     /home/roger/dev/rogerfraser/DynAdjust/sampleData/./urban.bst
-Measurements file:                 /home/roger/dev/rogerfraser/DynAdjust/sampleData/./urban.bms
+Stations file:                     ./urban.bst
+Measurements file:                 ./urban.bms
 Reference frame:                   GDA2020
 Epoch:                             01.01.1994
-Geoid model:                       /home/roger/dev/rogerfraser/DynAdjust/sampleData/urban-network-geoid.gsb
+Geoid model:                       ./urban-network-geoid.gsb
 Segmentation file:                 ./urban.seg
 Constrained Station S.D. (m):      1e-06
 Free Station S.D. (m):             10
@@ -34,7 +34,7 @@ Stations printed in blocks:        No
 --------------------------------------------------------------------------------
 ITERATION                          1
 
-Elapsed time                       00:00:00.005000
+Elapsed time                       00:00:00.007000
 Maximum station correction         Block 2, station 2018
                                    -0.585, -0.466, -0.017 (e, n, up)
 
@@ -42,7 +42,7 @@ Maximum station correction         Block 2, station 2018
 --------------------------------------------------------------------------------
 ITERATION                          2
 
-Elapsed time                       00:00:00.003000
+Elapsed time                       00:00:00.002000
 Maximum station correction         Block 2, station 4002
                                    -0.002, 0.000, 0.000 (e, n, up)
 
@@ -57,7 +57,7 @@ Maximum station correction         Block 2, station 2020
 
 --------------------------------------------------------------------------------
 SOLUTION                           Converged
-Total time                         00:00:00.014000
+Total time                         00:00:00.016000
 
 Number of unknown parameters       440
 Number of measurements             1182  (72 potential outliers)
