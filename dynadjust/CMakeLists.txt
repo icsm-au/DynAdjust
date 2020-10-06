@@ -28,7 +28,11 @@ set (CMAKE_CXX_STANDARD 14)
 add_definitions(-Wno-deprecated-declarations)
 
 # default CXX flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+if (BUILD_TESTING)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w")    # turn off warnings for unit testing and code coverage
+else ()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+endif (BUILD_TESTING)
 
 # Debug CXX flags (GCC 4.8 introduced -Og for superior debugging experience. For older versions, use -O0)
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb -Og")
