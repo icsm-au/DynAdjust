@@ -32,5 +32,5 @@ after_success:
      --exclude-pattern ".*feature_tests.*" 
      --exclude-pattern ".*CompilerId.*" 
      --exclude-pattern ".*/resources/.*"
-     --gcov-options '\-lp'
+     --gcov-options '\-lp' >/dev/null 2>&1
    - bash <(curl -s https://codecov.io/bash) >/dev/null 2>&1
