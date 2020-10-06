@@ -1,16 +1,36 @@
-language: shell
+language: cpp
 
-dist: xenial
+compiler:
+  - gcc
+
+dist: bionic
+
+cache:
+  apt: true
+
+branches:
+  only:
+    - master
 
 before_install:
+  - pip install --user cpp-coveralls codecov
   - sudo apt-get update
-  - sudo apt-get -y install bzip2 wget cmake make gcc libboost-all-dev
-  - sudo bash resources/install_dynadjust_prerequisites.sh -m 1
+  - sudo apt-get -y install lcov bzip2 wget cmake make gcc libboost-system-dev libboost-filesystem-dev libboost-timer-dev libboost-thread-dev libboost-program-options-dev
+  - bash resources/install_dynadjust_prerequisites.sh -m 1
 
-install:
+script:
    - cd ..
    - cp ./DynAdjust/resources/make_dynadjust_gcc.sh ./
-   - sudo bash make_dynadjust_gcc.sh -c 1
-
-#script:
-#  - cd ../sampleData && bash run-gnss-network.sh
+   - bash make_dynadjust_gcc.sh --no-install --auto --do-not-clone --test
+  
+after_success:
+   - cd ./DynAdjust/dynadjust/
+#  - coveralls --root . -E ".*CMakeFiles.*" 
+#  - coveralls --root . --verbose --exclude-pattern ".*feature_tests.*" --exclude-pattern ".*CompilerId.*" --gcov-options '\-lp'
+   - coveralls 
+     --gcov /usr/bin/gcov
+     --exclude-pattern ".*feature_tests.*" 
+     --exclude-pattern ".*CompilerId.*" 
+     --exclude-pattern ".*/resources/.*"
+     --gcov-options '\-lp' >/dev/null 2>&1
+   - bash <(curl -s https://codecov.io/bash) >/dev/null 2>&1
