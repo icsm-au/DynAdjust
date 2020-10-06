@@ -33,4 +33,4 @@ after_success:
      --exclude-pattern ".*CompilerId.*" 
      --exclude-pattern ".*/resources/.*"
      --gcov-options '\-lp'
-#  - bash <(curl -s https://codecov.io/bash)
+   - bash <(curl -s https://codecov.io/bash)
