@@ -24,12 +24,12 @@ _install=0 # default option is to install binaries
 # display example message
 function example {
     echo -e "examples:"
-	echo -e "  $_script --auto --do-not-clone --test --no-install"
+	echo -e "  ${_script} --auto --do-not-clone --test --no-install"
 }
 
 # display usage message
 function usage {
-    echo -e "usage: $_script [options]\n"
+    echo -e "usage: ${_script} [options]\n"
 }
 
 # display help message (calls usage and example)
@@ -50,7 +50,7 @@ function help {
 #################################################################################
 
 # get argument parameters
-while [ "$1" != "" ];
+while [[ "$1" != "" ]];
 do
    case $1 in
    -a  | --auto ) 	shift
@@ -72,7 +72,7 @@ do
                     exit
                     ;;
    *)                     
-                    echo -e "\n$_script: illegal option $1"
+                    echo -e "\n${_script}: illegal option $1"
                     help
 					exit 1 # error
                     ;;
@@ -88,23 +88,23 @@ else
 	echo -e " - release variant."
 fi
 
-if [ $_auto -eq 1 ]; then
+if [[ $_auto -eq 1 ]]; then
 	echo -e " - build automatically (no user input)."
 else
 	echo -e " - run interactively (ask for user input)."
 fi
 
-if [ $_clone -eq 1 ]; then
+if [[ $_clone -eq 1 ]]; then
 	echo -e " - do not clone a fresh copy from GitHub."
 else
 	echo -e " - clone a fresh copy from GitHub."
 fi
 
-if [ $_test -eq 1 ]; then
+if [[ $_test -eq 1 ]]; then
 	echo -e " - run tests."
 fi
 
-if [ $_install -eq 1 ]; then
+if [[ $_install -eq 1 ]]; then
 	echo -e " - do not install."
 else
 	echo -e " - install binaries to /opt/dynadjust/gcc/x_x_x."
@@ -126,7 +126,7 @@ _clone_url="https://github.com/icsm-au/DynAdjust.git"
 
 # usr bin directory
 BIN_FOLDER="~/bin"
-BIN_FOLDER_FULLPATH="`eval echo ${BIN_FOLDER//>}`"
+eval BIN_FOLDER_FULLPATH="$BIN_FOLDER"
 
 # opt installation folder
 OPT_DYNADJUST_PATH=/opt/dynadjust
@@ -137,25 +137,25 @@ DYNADJUST_INSTALL_PATH=/opt/dynadjust/gcc/1_0_3
 _version="1.0.3"
 
 echo -e "\n==========================================================================="
-echo -e "Build and installation of dynadjust ${_version}...\n"
-if [ $_clone -eq 0 ]; then
+echo -e "Build and installation of DynAdjust ${_version}...\n"
+if [[ $_clone -eq 0 ]]; then
 	echo "Repository settings:"
 	echo "  Git repo:      ${_clone_url}"
 fi
 echo "Build settings:"
 echo "  Current dir:   ${_cwd}"
-if [ $_clone -eq 0 ]; then
+if [[ $_clone -eq 0 ]]; then
 	echo "  Clone dir:     ${_clone_dir}"
 fi
 echo "  Build dir:     ${_build_dir}"
 
-if [ $_install -eq 0 ]; then
+if [[ $_install -eq 0 ]]; then
 	echo "Installation settings:"
 	echo "  Install dir:   ${DYNADJUST_INSTALL_PATH}"
 	echo "  User bin dir:  ${BIN_FOLDER_FULLPATH}"
 fi
 
-if [ $_test -eq 1 ]; then
+if [[ $_test -eq 1 ]]; then
 	echo "Test settings:"
 	echo "  Test dir:      ${_test_dir}"
 fi
@@ -179,32 +179,32 @@ fi
 
 # INSTALL DYNADJUST
 # 1. create install dirs:
-if [ $_install -eq 0 ]; then
-	if [ ! -d "${BIN_FOLDER_FULLPATH}" ]; then
+if [[ $_install -eq 0 ]]; then
+	if [[ ! -d "${BIN_FOLDER_FULLPATH}" ]]; then
 		echo " "
 		echo "Making ${BIN_FOLDER_FULLPATH}"
-		mkdir ${BIN_FOLDER_FULLPATH}
+		mkdir "${BIN_FOLDER_FULLPATH}"
 	fi
 fi
 
 # 2. clone from GitHub:
-if [ $_clone -eq 0 ]; then
+if [[ $_clone -eq 0 ]]; then
 	echo " "
 	echo "Cloning DynAdjust..."
 	git clone ${_clone_url} || echo -e "Okay, let's assume we already have a previously cloned version.\n"
 fi
 
-if [ -d ${_build_dir} ]; then
+if [[ -d "${_build_dir}" ]]; then
     echo "Cleaning out directory ${_build_dir}"
-    cd ${_build_dir}
+    cd "${_build_dir}"
     rm -rf CMakeCache.txt CMakeFiles cmake_install.cmake dynadjust Makefile
-    cd ${_cwd}
+    cd "${_cwd}"
 else
     echo "Creating new directory ${_build_dir}"
     mkdir ${_build_dir}
 fi
 
-cd ${_build_dir}
+cd "${_build_dir}"
 
 # 3. copy files:
 echo "Copying Find*.cmake files to build directory..."
@@ -243,6 +243,9 @@ case ${_test} in
 		cmake -DBUILD_TESTING="ON" -DCMAKE_BUILD_TYPE="${THIS_BUILD_TYPE}" .. || exit 1;;
 esac
 
+echo -e "\n==========================================================================="
+echo -e "Building DynAdjust ${_version}...\n"
+
 make -j $(nproc) || exit 1
 
 echo " "
@@ -250,7 +253,7 @@ echo " "
 case ${_test} in
     1) # run cmake tests
 		echo -e "==========================================================================="
-		echo -e "Testing dynadjust ${_version}...\n"
+		echo -e "Testing DynAdjust ${_version}...\n"
         make CTEST_OUTPUT_ON_FAILURE=1 test;;
 esac
 
@@ -263,7 +266,7 @@ case ${_auto} in
     *) # proceed without asking
         optresponse="y"
 		# set install option
-		if [ $_install -eq 1 ]; then
+		if [[ $_install -eq 1 ]]; then
 			optresponse="n"
 		fi
 		;;
@@ -282,96 +285,96 @@ else
 		_lib_ext="dylib"
 	fi
 
-	if [ ! -d $OPT_DYNADJUST_PATH ]; then
+	if [[ ! -d $OPT_DYNADJUST_PATH ]]; then
 		sudo mkdir $OPT_DYNADJUST_PATH
 	fi
 
-	if [ ! -d $OPT_DYNADJUST_GCC_PATH ]; then
+	if [[ ! -d $OPT_DYNADJUST_GCC_PATH ]]; then
 		sudo mkdir $OPT_DYNADJUST_GCC_PATH
 	fi
 
-	if [ ! -d $DYNADJUST_INSTALL_PATH ]; then
+	if [[ ! -d $DYNADJUST_INSTALL_PATH ]]; then
 		sudo mkdir $DYNADJUST_INSTALL_PATH
 	fi
 
 	echo "Copying libraries and binaries to $DYNADJUST_INSTALL_PATH ..."
 
-	if [ -e "./dynadjust/dynadjust/dynadjust" ]; then
-		sudo cp ./dynadjust/dynadjust/dynadjust $DYNADJUST_INSTALL_PATH/
-		ln -sf $DYNADJUST_INSTALL_PATH/dynadjust ${BIN_FOLDER_FULLPATH}/dynadjust
+	if [[ -e "./dynadjust/dynadjust/dynadjust" ]]; then
+		sudo cp ./dynadjust/dynadjust/dynadjust "$DYNADJUST_INSTALL_PATH/"
+		ln -sf "$DYNADJUST_INSTALL_PATH/dynadjust" "$BIN_FOLDER_FULLPATH/dynadjust"
 		echo " - dynadjust"
 	fi
 
-	if [ -e "./dynadjust/dnaadjustwrapper/dnaadjust" ]; then
-		sudo cp ./dynadjust/dnaadjust/libdnaadjust.$_lib_ext $DYNADJUST_INSTALL_PATH/
-		sudo cp ./dynadjust/dnaadjustwrapper/dnaadjust $DYNADJUST_INSTALL_PATH/
-		ln -sf $DYNADJUST_INSTALL_PATH/dnaadjust ${BIN_FOLDER_FULLPATH}/dnaadjust
-		ln -sf $DYNADJUST_INSTALL_PATH/libdnaadjust.$_lib_ext  ${BIN_FOLDER_FULLPATH}/libdnaadjust.$_lib_ext 
-		echo " - dnaadjust, libdnaadjust.${_lib_ext}"
+	if [[ -e "./dynadjust/dnaadjustwrapper/dnaadjust" ]]; then
+		sudo cp ./dynadjust/dnaadjust/libdnaadjust.$_lib_ext "$DYNADJUST_INSTALL_PATH/"
+		sudo cp ./dynadjust/dnaadjustwrapper/dnaadjust "$DYNADJUST_INSTALL_PATH/"
+		ln -sf "$DYNADJUST_INSTALL_PATH/dnaadjust" "$BIN_FOLDER_FULLPATH/dnaadjust"
+		ln -sf "$DYNADJUST_INSTALL_PATH/libdnaadjust.$_lib_ext"  "$BIN_FOLDER_FULLPATH/libdnaadjust.$_lib_ext"
+		echo " - dnaadjust, libdnaadjust.$_lib_ext"
 	fi
 
-	if [ -e "./dynadjust/dnaimportwrapper/dnaimport" ]; then
-		sudo cp ./dynadjust/dnaimport/libdnaimport.$_lib_ext $DYNADJUST_INSTALL_PATH/
-		sudo cp ./dynadjust/dnaimportwrapper/dnaimport $DYNADJUST_INSTALL_PATH/
-		ln -sf $DYNADJUST_INSTALL_PATH/dnaimport ${BIN_FOLDER_FULLPATH}/dnaimport
-		ln -sf $DYNADJUST_INSTALL_PATH/libdnaimport.$_lib_ext  ${BIN_FOLDER_FULLPATH}/libdnaimport.$_lib_ext
-		echo " - dnaimport, libdnaimport.${_lib_ext}"
+	if [[ -e "./dynadjust/dnaimportwrapper/dnaimport" ]]; then
+		sudo cp ./dynadjust/dnaimport/libdnaimport.$_lib_ext "$DYNADJUST_INSTALL_PATH/"
+		sudo cp ./dynadjust/dnaimportwrapper/dnaimport "$DYNADJUST_INSTALL_PATH/"
+		ln -sf "$DYNADJUST_INSTALL_PATH/dnaimport" "$BIN_FOLDER_FULLPATH/dnaimport"
+		ln -sf "$DYNADJUST_INSTALL_PATH/libdnaimport.$_lib_ext"  "$BIN_FOLDER_FULLPATH/libdnaimport.$_lib_ext"
+		echo " - dnaimport, libdnaimport.$_lib_ext"
 	fi
 
-	if [ -e "./dynadjust/dnareftranwrapper/dnareftran" ]; then
-		sudo cp ./dynadjust/dnareftran/libdnareftran.$_lib_ext $DYNADJUST_INSTALL_PATH/
-		sudo cp ./dynadjust/dnareftranwrapper/dnareftran $DYNADJUST_INSTALL_PATH/
-		ln -sf $DYNADJUST_INSTALL_PATH/dnareftran ${BIN_FOLDER_FULLPATH}/dnareftran
-		ln -sf $DYNADJUST_INSTALL_PATH/libdnareftran.$_lib_ext  ${BIN_FOLDER_FULLPATH}/libdnareftran.$_lib_ext
-		echo " - dnareftran, libdnareftran.${_lib_ext}"
+	if [[ -e "./dynadjust/dnareftranwrapper/dnareftran" ]]; then
+		sudo cp ./dynadjust/dnareftran/libdnareftran.$_lib_ext "$DYNADJUST_INSTALL_PATH/"
+		sudo cp ./dynadjust/dnareftranwrapper/dnareftran "$DYNADJUST_INSTALL_PATH/"
+		ln -sf "$DYNADJUST_INSTALL_PATH/dnareftran" "$BIN_FOLDER_FULLPATH/dnareftran"
+		ln -sf "$DYNADJUST_INSTALL_PATH/libdnareftran.$_lib_ext" "$BIN_FOLDER_FULLPATH/libdnareftran.$_lib_ext"
+		echo " - dnareftran, libdnareftran.$_lib_ext"
 	fi
 
-	if [ -e "./dynadjust/dnageoidwrapper/dnageoid" ]; then
-		sudo cp ./dynadjust/dnageoid/libdnageoid.$_lib_ext $DYNADJUST_INSTALL_PATH/
-		sudo cp ./dynadjust/dnageoidwrapper/dnageoid $DYNADJUST_INSTALL_PATH/
-		ln -sf $DYNADJUST_INSTALL_PATH/dnageoid ${BIN_FOLDER_FULLPATH}/dnageoid
-		ln -sf $DYNADJUST_INSTALL_PATH/libdnageoid.$_lib_ext  ${BIN_FOLDER_FULLPATH}/libdnageoid.$_lib_ext
-		echo " - dnageoid, libdnageoid.${_lib_ext}"
+	if [[ -e "./dynadjust/dnageoidwrapper/dnageoid" ]]; then
+		sudo cp ./dynadjust/dnageoid/libdnageoid.$_lib_ext "$DYNADJUST_INSTALL_PATH/"
+		sudo cp ./dynadjust/dnageoidwrapper/dnageoid "$DYNADJUST_INSTALL_PATH/"
+		ln -sf "$DYNADJUST_INSTALL_PATH/dnageoid" "$BIN_FOLDER_FULLPATH/dnageoid"
+		ln -sf "$DYNADJUST_INSTALL_PATH/libdnageoid.$_lib_ext"  "$BIN_FOLDER_FULLPATH/libdnageoid.$_lib_ext"
+		echo " - dnageoid, libdnageoid.$_lib_ext"
 	fi
 
-	if [ -e "./dynadjust/dnasegmentwrapper/dnasegment" ]; then
-		sudo cp ./dynadjust/dnasegment/libdnasegment.$_lib_ext $DYNADJUST_INSTALL_PATH/
-		sudo cp ./dynadjust/dnasegmentwrapper/dnasegment $DYNADJUST_INSTALL_PATH/
-		ln -sf $DYNADJUST_INSTALL_PATH/dnasegment ${BIN_FOLDER_FULLPATH}/dnasegment
-		ln -sf $DYNADJUST_INSTALL_PATH/libdnasegment.$_lib_ext  ${BIN_FOLDER_FULLPATH}/libdnasegment.$_lib_ext 
-		echo " - dnasegment, libdnasegment.${_lib_ext}"
+	if [[ -e "./dynadjust/dnasegmentwrapper/dnasegment" ]]; then
+		sudo cp ./dynadjust/dnasegment/libdnasegment.$_lib_ext "$DYNADJUST_INSTALL_PATH/"
+		sudo cp ./dynadjust/dnasegmentwrapper/dnasegment "$DYNADJUST_INSTALL_PATH/"
+		ln -sf "$DYNADJUST_INSTALL_PATH/dnasegment" "$BIN_FOLDER_FULLPATH/dnasegment"
+		ln -sf "$DYNADJUST_INSTALL_PATH/libdnasegment.$_lib_ext"  "$BIN_FOLDER_FULLPATH/libdnasegment.$_lib_ext"
+		echo " - dnasegment, libdnasegment.$_lib_ext"
 	fi
 
-	if [ -e "./dynadjust/dnaplotwrapper/dnaplot" ]; then
-		sudo cp ./dynadjust/dnaplot/libdnaplot.$_lib_ext $DYNADJUST_INSTALL_PATH/
-		sudo cp ./dynadjust/dnaplotwrapper/dnaplot $DYNADJUST_INSTALL_PATH/
-		ln -sf $DYNADJUST_INSTALL_PATH/dnaplot ${BIN_FOLDER_FULLPATH}/dnaplot
-		ln -sf $DYNADJUST_INSTALL_PATH/libdnaplot.$_lib_ext  ${BIN_FOLDER_FULLPATH}/libdnaplot.$_lib_ext 
-		echo " - dnaplot, libdnaplot.${_lib_ext}"
+	if [[ -e "./dynadjust/dnaplotwrapper/dnaplot" ]]; then
+		sudo cp ./dynadjust/dnaplot/libdnaplot.$_lib_ext "$DYNADJUST_INSTALL_PATH/"
+		sudo cp ./dynadjust/dnaplotwrapper/dnaplot "$DYNADJUST_INSTALL_PATH/"
+		ln -sf "$DYNADJUST_INSTALL_PATH/dnaplot" "$BIN_FOLDER_FULLPATH/dnaplot"
+		ln -sf "$DYNADJUST_INSTALL_PATH/libdnaplot.$_lib_ext" "$BIN_FOLDER_FULLPATH/libdnaplot.$_lib_ext"
+		echo " - dnaplot, libdnaplot.$_lib_ext"
 	fi
 
 	echo "Creating symbolic links to libraries and binaries in $DYNADJUST_INSTALL_PATH ..."
-	sudo ln -sf $DYNADJUST_INSTALL_PATH/libdnaimport.$_lib_ext /opt/dynadjust/libdnaimport.$_lib_ext
-	sudo ln -sf $DYNADJUST_INSTALL_PATH/libdnareftran.$_lib_ext /opt/dynadjust/libdnareftran.$_lib_ext
-	sudo ln -sf $DYNADJUST_INSTALL_PATH/libdnageoid.$_lib_ext /opt/dynadjust/libdnageoid.$_lib_ext
-	sudo ln -sf $DYNADJUST_INSTALL_PATH/libdnasegment.$_lib_ext /opt/dynadjust/libdnasegment.$_lib_ext 
-	sudo ln -sf $DYNADJUST_INSTALL_PATH/libdnaadjust.$_lib_ext /opt/dynadjust/libdnaadjust.$_lib_ext 
-	sudo ln -sf $DYNADJUST_INSTALL_PATH/libdnaplot.$_lib_ext /opt/dynadjust/libdnaplot.$_lib_ext 
+	sudo ln -sf "$DYNADJUST_INSTALL_PATH/libdnaimport.$_lib_ext" /opt/dynadjust/libdnaimport.$_lib_ext
+	sudo ln -sf "$DYNADJUST_INSTALL_PATH/libdnareftran.$_lib_ext" /opt/dynadjust/libdnareftran.$_lib_ext
+	sudo ln -sf "$DYNADJUST_INSTALL_PATH/libdnageoid.$_lib_ext" /opt/dynadjust/libdnageoid.$_lib_ext
+	sudo ln -sf "$DYNADJUST_INSTALL_PATH/libdnasegment.$_lib_ext" /opt/dynadjust/libdnasegment.$_lib_ext 
+	sudo ln -sf "$DYNADJUST_INSTALL_PATH/libdnaadjust.$_lib_ext" /opt/dynadjust/libdnaadjust.$_lib_ext 
+	sudo ln -sf "$DYNADJUST_INSTALL_PATH/libdnaplot.$_lib_ext" /opt/dynadjust/libdnaplot.$_lib_ext 
 
-	sudo ln -sf $DYNADJUST_INSTALL_PATH/dnaimport /opt/dynadjust/dnaimport
-	sudo ln -sf $DYNADJUST_INSTALL_PATH/dnareftran /opt/dynadjust/dnareftran
-	sudo ln -sf $DYNADJUST_INSTALL_PATH/dnageoid /opt/dynadjust/dnageoid
-	sudo ln -sf $DYNADJUST_INSTALL_PATH/dnasegment /opt/dynadjust/dnasegment
-	sudo ln -sf $DYNADJUST_INSTALL_PATH/dnaadjust /opt/dynadjust/dnaadjust
-	sudo ln -sf $DYNADJUST_INSTALL_PATH/dnaplot /opt/dynadjust/dnaplot
-	sudo ln -sf $DYNADJUST_INSTALL_PATH/dynadjust /opt/dynadjust/dynadjust
+	sudo ln -sf "$DYNADJUST_INSTALL_PATH/dnaimport" /opt/dynadjust/dnaimport
+	sudo ln -sf "$DYNADJUST_INSTALL_PATH/dnareftran" /opt/dynadjust/dnareftran
+	sudo ln -sf "$DYNADJUST_INSTALL_PATH/dnageoid" /opt/dynadjust/dnageoid
+	sudo ln -sf "$DYNADJUST_INSTALL_PATH/dnasegment" /opt/dynadjust/dnasegment
+	sudo ln -sf "$DYNADJUST_INSTALL_PATH/dnaadjust" /opt/dynadjust/dnaadjust
+	sudo ln -sf "$DYNADJUST_INSTALL_PATH/dnaplot" /opt/dynadjust/dnaplot
+	sudo ln -sf "$DYNADJUST_INSTALL_PATH/dynadjust" /opt/dynadjust/dynadjust
 
 fi
 
 echo "Done."
 echo " "
 
-if [ $_install -eq 0 ]; then
+if [[ $_install -eq 0 ]]; then
 	echo "Don't forget to add the bin directory to path in ~/.bash_profile"
 	echo "For example:"
 	echo "    EXPORT PATH=$PATH:$HOME/bin"
