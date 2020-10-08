@@ -1,3 +1,5 @@
+#! /bin/bash
+
 # Script to automate processing of a GNSS network using simultaneous mode
 dnaimport -n gnss gnss-network.stn gnss-network.msr
 dnageoid gnss -g gnss-network-geoid.gsb --convert-stn-hts
@@ -9,6 +11,6 @@ diff <(tail -n +53 gnss.simult.adj) <(tail -n +53 gnss.simult.adj.expected) > /d
 rv=$?
 
 # Clean up
-rm *.bms *.bst *.map *.imp *.adj *.xyz *.dbid *.dnaproj *.mtx *.aml *.asl
+rm ./*.bms ./*.bst ./*.map ./*.imp ./*.adj ./*.xyz ./*.dbid ./*.dnaproj ./*.mtx ./*.aml ./*.asl
 
 exit $rv
