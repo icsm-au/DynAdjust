@@ -1,3 +1,5 @@
+#! /bin/bash
+
 # Script to automate processing of urban survey control network using phased adjustment
 dnaimport -n urban urban-network.stn urban-network.msr
 dnageoid urban -g urban-network-geoid.gsb --convert-stn-hts
@@ -10,6 +12,6 @@ diff <(tail -n +62 urban.phased.adj) <(tail -n +62 urban.phased.adj.expected) > 
 rv=$?
 
 # Clean up
-rm *.bms *.bst *.seg *.map *.imp *.adj *.xyz *.dbid *.dnaproj *.mtx *.aml *.asl
+rm ./*.bms ./*.bst ./*.seg ./*.map ./*.imp ./*.adj ./*.xyz ./*.dbid ./*.dnaproj ./*.mtx ./*.aml ./*.asl
 
 exit $rv
