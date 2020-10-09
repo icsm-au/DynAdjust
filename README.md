@@ -77,7 +77,7 @@ Download the following files from the [resources](https://github.com/icsm-au/Dyn
 1. `install_dynadjust_prerequisites.sh`
 2. `make_dynadjust_gcc.sh`
 
-Executing `install_dynadjust_prerequisites.sh` will download all the prerequisites required to build DynAdjust (boost, xerces-c, xsd, mkl).  Options are provided for installing xerces-c and xsd prerequisites via Package Manager or downloading and building from source. 
+Executing `install_dynadjust_prerequisites.sh` will download all the prerequisites required to build DynAdjust (boost, xerces-c, xsd, mkl).  Options are provided for installing xerces-c and xsd prerequisites via Package Manager or downloading and building from source.
 
 Executing `make_dynadjust_gcc.sh` will clone the latest version of DynAdjust, build it in the directory `./build-gcc/` and install to `/opt/dynadjust/gcc/x_x_x/`. Symbolic links to the binaries (installed to `/opt/dynadjust/`) will be created in the user's `~/bin` folder.
 
@@ -95,7 +95,7 @@ A comprehensive User's Guide can be found in the [resources](https://github.com/
 
 ## Creating images
 
-DynAdjust provides a capability to generate publication-quality images of raw station and measurement data and adjustment results, including shift vectors and estimated uncertainty, in a variety of projection types. This capability is made available by the program **plot**, the command line reference for which is documented in Appendix A.7 of the [User's guide](#users-guide). 
+DynAdjust provides a capability to generate publication-quality images of raw station and measurement data and adjustment results, including shift vectors and estimated uncertainty, in a variety of projection types. This capability is made available by the program **plot**, the command line reference for which is documented in Appendix A.7 of the [User's guide](#users-guide).
 
 <p align="center">
   <img title="DynAdjust plot examples" src="https://raw.githubusercontent.com/icsm-au/DynAdjust/master/resources/img/dynadjust-plot-images.png"/>
@@ -105,14 +105,14 @@ DynAdjust uses the Generic Mapping Tools (GMT), available from the [GMT website]
 
 ## License details
 
-DynAdjust has an Apache 2.0 Licence - http ://www.apache.org/licenses/LICENSE-2.0.   
+DynAdjust has an Apache 2.0 Licence - http ://www.apache.org/licenses/LICENSE-2.0.
 
-NOTE: DynAdjust makes use of Boost C++, Apache's Xerces-C++ XML Parser (Apache 2.0 Licence) and CodeSynthesis XSD code. Hence, the following licence agreements will also need to be taken into account with the Apache 2.0 Licence. 
+NOTE: DynAdjust makes use of Boost C++, Apache's Xerces-C++ XML Parser (Apache 2.0 Licence) and CodeSynthesis XSD code. Hence, the following licence agreements will also need to be taken into account with the Apache 2.0 Licence.
 
 - <https://www.boost.org/users/license.html>
 - <https://www.codesynthesis.com/products/xsd/license.xhtml>
 
-The free licence of CodeSynthesis XSD is GPL2, which requires any software that uses it to also be open source.  However, the CodeSynthesis site above states that you can use XSD generated code in proprietary applications provided that the lines of code do not exceed 10,000 lines.  The files generated for DynaML from XSD (dnaparser_pimpl.hxx/cxx and dnaparser_pskel.hxx/cxx), all of which have been heavily modified after they were originally generated, contain less than 10,000 lines. 
+The free licence of CodeSynthesis XSD is GPL2, which requires any software that uses it to also be open source.  However, the CodeSynthesis site above states that you can use XSD generated code in proprietary applications provided that the lines of code do not exceed 10,000 lines.  The files generated for DynaML from XSD (dnaparser_pimpl.hxx/cxx and dnaparser_pskel.hxx/cxx), all of which have been heavily modified after they were originally generated, contain less than 10,000 lines.
 
 DynAdjust also makes use of Intel's performance libraries - Math Kernel Library (MKL) and Threaded Building Blocks (TBB). Given the size of the associated libraries, it is not possible to upload the binaries to this site. Please visit the following website to download the latest versions:
 
