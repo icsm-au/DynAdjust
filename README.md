@@ -10,13 +10,13 @@
 [![DynAdjust](resources/img/dynadjust-banner.png)](https://raw.githubusercontent.com/icsm-au/DynAdjust/master/resources/img/dynadjust-banner.png)
 
 # Contents
-  - [Overview](#overview)
-  - [Installation](#installation)
-    - [Building from source](#building-from-source)
-  - [Feedback](#feedback)
-  - [User's guide](#users-guide)
-  - [Creating images](#creating-images)
-  - [License details](#license-details)
+- [Overview](#overview)
+- [Installation](#installation)
+  - [Building from source](#building-from-source)
+- [Feedback](#feedback)
+- [User's guide](#users-guide)
+- [Creating images](#creating-images)
+- [License details](#license-details)
 
 # Overview
 DynAdjust is a rigorous, high performance least squares adjustment application. It has been designed
@@ -30,35 +30,35 @@ the adjustment of small survey control networks, engineering surveys, deformatio
 surveys, national and state geodetic networks and digital cadastral database upgrade initiatives.
 
 DynAdjust provides the following capabilities:
-  - Import of data in geographic, cartesian and/or projection (UTM) coordinates contained in DNA, DynaML and SINEX data formats;
-  - Input of a diverse range of measurement types;
-  - Transformation of station coordinates and measurements between several static and dynamic reference frames;
-  - Rigorous application of geoid–ellipsoid separations and deflections of the vertical;
-  - Simultaneous (traditional) and phased adjustment modes;
-  - Automatic segmentation and adjustment of extremely large networks in an efficient manner;
-  - Rigorous estimation of positional uncertainty for all points in a network;
-  - Detailed statistical analysis of adjusted measurements and station corrections;
-  - Production of high quality network plots;
-  - Automated processing and analysis with minimal user interaction.
+- Import of data in geographic, cartesian and/or projection (UTM) coordinates contained in DNA, DynaML and SINEX data formats;
+- Input of a diverse range of measurement types;
+- Transformation of station coordinates and measurements between several static and dynamic reference frames;
+- Rigorous application of geoid–ellipsoid separations and deflections of the vertical;
+- Simultaneous (traditional) and phased adjustment modes;
+- Automatic segmentation and adjustment of extremely large networks in an efficient manner;
+- Rigorous estimation of positional uncertainty for all points in a network;
+- Detailed statistical analysis of adjusted measurements and station corrections;
+- Production of high quality network plots;
+- Automated processing and analysis with minimal user interaction.
 
 # Installation
 
 Windows (64-bit) executables can be downloaded from the [releases page](https://github.com/icsm-au/dynadjust/releases/latest).
 
 In addition, the following (64-bit) libraries need to be installed:
-  - Apache Xerces-C++ XML Parser: http://xerces.apache.org/xerces-c/download.cgi
-  - Codesynthesis XSD XML Data Binding for C++: https://www.codesynthesis.com/products/xsd/download.xhtml
-  - Intel Math Kernel Library: https://software.seek.intel.com/performance-libraries
+- Apache Xerces-C++ XML Parser: http://xerces.apache.org/xerces-c/download.cgi
+- Codesynthesis XSD XML Data Binding for C++: https://www.codesynthesis.com/products/xsd/download.xhtml
+- Intel Math Kernel Library: https://software.seek.intel.com/performance-libraries
 
 ## Building from source
 The following build instructions are only needed if you would like to build DynAdjust on Windows, Linux or Apple operating systems.
 
 ### General requirements and prerequisites
-  - A C++14 compiler, such as gcc, Microsoft Visual Studio or Apple LLVM (clang)
-  - Boost C++ headers and libraries
-  - Apache Xerces C++ headers and libraries
-  - Codesynthesis XSD headers and libraries
-  - Intel Math Kernel Library (MKL) headers and libraries
+- A C++14 compiler, such as gcc, Microsoft Visual Studio or Apple LLVM (clang)
+- Boost C++ headers and libraries
+- Apache Xerces C++ headers and libraries
+- Codesynthesis XSD headers and libraries
+- Intel Math Kernel Library (MKL) headers and libraries
 
 ### Linux / Mac OS X build requirements
 Download the following files from the [resources](https://github.com/icsm-au/DynAdjust/tree/master/resources) folder to a dedicated build folder on your computer, and run in order:
@@ -95,13 +95,13 @@ DynAdjust has an Apache 2.0 Licence - http ://www.apache.org/licenses/LICENSE-2.
 
 NOTE: DynAdjust makes use of Boost C++, Apache's Xerces-C++ XML Parser (Apache 2.0 Licence) and CodeSynthesis XSD code. Hence, the following licence agreements will also need to be taken into account with the Apache 2.0 Licence. 
 
-  - https://www.boost.org/users/license.html 
-  - https://www.codesynthesis.com/products/xsd/license.xhtml
+- <https://www.boost.org/users/license.html>
+- <https://www.codesynthesis.com/products/xsd/license.xhtml>
 
 The free licence of CodeSynthesis XSD is GPL2, which requires any software that uses it to also be open source.  However, the CodeSynthesis site above states that you can use XSD generated code in proprietary applications provided that the lines of code do not exceed 10,000 lines.  The files generated for DynaML from XSD (dnaparser_pimpl.hxx/cxx and dnaparser_pskel.hxx/cxx), all of which have been heavily modified after they were originally generated, contain less than 10,000 lines. 
 
 DynAdjust also makes use of Intel's performance libraries - Math Kernel Library (MKL) and Threaded Building Blocks (TBB). Given the size of the associated libraries, it is not possible to upload the binaries to this site. Please visit the following website to download the latest versions:
 
-  - https://software.seek.intel.com/performance-libraries
+- <https://software.seek.intel.com/performance-libraries>
 
 As stated on this website, Intel's performance libraries are *free to use for personal and commercial applications.*
