@@ -24,12 +24,12 @@ _install=0 # default option is to install binaries
 # display example message
 function example {
     echo -e "examples:"
-	echo -e "  ${_script} --auto --do-not-clone --test --no-install"
+	echo -e "  $_script --auto --do-not-clone --test --no-install"
 }
 
 # display usage message
 function usage {
-    echo -e "usage: ${_script} [options]\n"
+    echo -e "usage: $_script [options]\n"
 }
 
 # display help message (calls usage and example)
@@ -72,7 +72,7 @@ do
                     exit
                     ;;
    *)                     
-                    echo -e "\n${_script}: illegal option $1"
+                    echo -e "\n$_script: illegal option $1"
                     help
 					exit 1 # error
                     ;;
@@ -114,13 +114,13 @@ fi
 # get current directory
 _cwd="$PWD"
 # set dynadjust clone dir
-_clone_dir="${_cwd}/DynAdjust"
+_clone_dir="$_cwd/DynAdjust"
 # set dynadjust root dir
-_root_dir="${_clone_dir}/dynadjust"
+_root_dir="$_clone_dir/dynadjust"
 # set dynadjust root dir
-_test_dir="${_clone_dir}/sampleData"
+_test_dir="$_clone_dir/sampleData"
 # set build dir
-_build_dir="${_root_dir}/build_gcc"
+_build_dir="$_root_dir/build_gcc"
 # set clone url
 _clone_url="https://github.com/icsm-au/DynAdjust.git"
 
@@ -137,27 +137,27 @@ DYNADJUST_INSTALL_PATH=/opt/dynadjust/gcc/1_0_3
 _version="1.0.3"
 
 echo -e "\n==========================================================================="
-echo -e "Build and installation of DynAdjust ${_version}...\n"
+echo -e "Build and installation of DynAdjust $_version...\n"
 if [[ $_clone -eq 0 ]]; then
 	echo "Repository settings:"
-	echo "  Git repo:      ${_clone_url}"
+	echo "  Git repo:      $_clone_url"
 fi
 echo "Build settings:"
-echo "  Current dir:   ${_cwd}"
+echo "  Current dir:   $_cwd"
 if [[ $_clone -eq 0 ]]; then
-	echo "  Clone dir:     ${_clone_dir}"
+	echo "  Clone dir:     $_clone_dir"
 fi
-echo "  Build dir:     ${_build_dir}"
+echo "  Build dir:     $_build_dir"
 
 if [[ $_install -eq 0 ]]; then
 	echo "Installation settings:"
-	echo "  Install dir:   ${DYNADJUST_INSTALL_PATH}"
-	echo "  User bin dir:  ${BIN_FOLDER_FULLPATH}"
+	echo "  Install dir:   $DYNADJUST_INSTALL_PATH"
+	echo "  User bin dir:  $BIN_FOLDER_FULLPATH"
 fi
 
 if [[ $_test -eq 1 ]]; then
 	echo "Test settings:"
-	echo "  Test dir:      ${_test_dir}"
+	echo "  Test dir:      $_test_dir"
 fi
 
 #
@@ -180,10 +180,10 @@ fi
 # INSTALL DYNADJUST
 # 1. create install dirs:
 if [[ $_install -eq 0 ]]; then
-	if [[ ! -d "${BIN_FOLDER_FULLPATH}" ]]; then
+	if [[ ! -d "$BIN_FOLDER_FULLPATH" ]]; then
 		echo " "
-		echo "Making ${BIN_FOLDER_FULLPATH}"
-		mkdir "${BIN_FOLDER_FULLPATH}"
+		echo "Making $BIN_FOLDER_FULLPATH"
+		mkdir "$BIN_FOLDER_FULLPATH"
 	fi
 fi
 
@@ -191,20 +191,20 @@ fi
 if [[ $_clone -eq 0 ]]; then
 	echo " "
 	echo "Cloning DynAdjust..."
-	git clone ${_clone_url} || echo -e "Okay, let's assume we already have a previously cloned version.\n"
+	git clone "$_clone_url" || echo -e "Okay, let's assume we already have a previously cloned version.\n"
 fi
 
-if [[ -d "${_build_dir}" ]]; then
-    echo "Cleaning out directory ${_build_dir}"
-    cd "${_build_dir}"
+if [[ -d "$_build_dir" ]]; then
+    echo "Cleaning out directory $_build_dir"
+    cd "$_build_dir"
     rm -rf CMakeCache.txt CMakeFiles cmake_install.cmake dynadjust Makefile
-    cd "${_cwd}"
+    cd "$_cwd"
 else
-    echo "Creating new directory ${_build_dir}"
-    mkdir ${_build_dir}
+    echo "Creating new directory $_build_dir"
+    mkdir "$_build_dir"
 fi
 
-cd "${_build_dir}"
+cd "$_build_dir"
 
 # 3. copy files:
 echo "Copying Find*.cmake files to build directory..."
@@ -236,15 +236,15 @@ echo " "
 # determine whether to prepare cmake files with testing or not
 case ${_test} in
     0) # skip tests
-        echo -e "cmake -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=${THIS_BUILD_TYPE} ..\n"
-		cmake -DBUILD_TESTING="OFF" -DCMAKE_BUILD_TYPE="${THIS_BUILD_TYPE}" .. || exit 1;;
+        echo -e "cmake -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=$THIS_BUILD_TYPE ..\n"
+		cmake -DBUILD_TESTING="OFF" -DCMAKE_BUILD_TYPE="$THIS_BUILD_TYPE" .. || exit 1;;
     *) # run cmake tests with code coverage
-        echo -e "cmake -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=${THIS_BUILD_TYPE} ..\n"
-		cmake -DBUILD_TESTING="ON" -DCMAKE_BUILD_TYPE="${THIS_BUILD_TYPE}" .. || exit 1;;
+        echo -e "cmake -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=$THIS_BUILD_TYPE ..\n"
+		cmake -DBUILD_TESTING="ON" -DCMAKE_BUILD_TYPE="$THIS_BUILD_TYPE" .. || exit 1;;
 esac
 
 echo -e "\n==========================================================================="
-echo -e "Building DynAdjust ${_version}...\n"
+echo -e "Building DynAdjust $_version...\n"
 
 make -j $(nproc) || exit 1
 
@@ -253,7 +253,7 @@ echo " "
 case ${_test} in
     1) # run cmake tests
 		echo -e "==========================================================================="
-		echo -e "Testing DynAdjust ${_version}...\n"
+		echo -e "Testing DynAdjust $_version...\n"
         make CTEST_OUTPUT_ON_FAILURE=1 test;;
 esac
 
@@ -262,7 +262,7 @@ esac
 case ${_auto} in
     0) # install binaries
         echo " "
-		read -r -p "Install DynAdjust to ${OPT_DYNADJUST_PATH} [Y/n]: " optresponse;;
+		read -r -p "Install DynAdjust to $OPT_DYNADJUST_PATH [Y/n]: " optresponse;;
     *) # proceed without asking
         optresponse="y"
 		# set install option

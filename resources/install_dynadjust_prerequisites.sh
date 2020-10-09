@@ -511,8 +511,8 @@ elif [[ $REPLY == 2 ]]; then
         sudo mkdir /opt/xsd
     fi
 
-    if [[ ! -d $DOWNLOADS_FOLDER_FULLPATH ]]; then
-        mkdir $DOWNLOADS_FOLDER_FULLPATH
+    if [[ ! -d "$DOWNLOADS_FOLDER_FULLPATH" ]]; then
+        mkdir "$DOWNLOADS_FOLDER_FULLPATH"
     fi
 
     # 2. download:
