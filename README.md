@@ -10,15 +10,21 @@
 [![DynAdjust](resources/img/dynadjust-banner.png)](https://raw.githubusercontent.com/icsm-au/DynAdjust/master/resources/img/dynadjust-banner.png)
 
 # Contents
+
+- [Contents](#contents)
 - [Overview](#overview)
 - [Installation](#installation)
   - [Building from source](#building-from-source)
+    - [General requirements and prerequisites](#general-requirements-and-prerequisites)
+    - [Linux / Mac OS X build requirements](#linux--mac-os-x-build-requirements)
+    - [Windows build requirements](#windows-build-requirements)
 - [Feedback](#feedback)
 - [User's guide](#users-guide)
 - [Creating images](#creating-images)
 - [License details](#license-details)
 
 # Overview
+
 DynAdjust is a rigorous, high performance least squares adjustment application. It has been designed
 to estimate 3D station coordinates and uncertainties for both small and extremely large geodetic networks,
 and can be used for the adjustment of a large array of Global Navigation Satellite System
@@ -30,6 +36,7 @@ the adjustment of small survey control networks, engineering surveys, deformatio
 surveys, national and state geodetic networks and digital cadastral database upgrade initiatives.
 
 DynAdjust provides the following capabilities:
+
 - Import of data in geographic, cartesian and/or projection (UTM) coordinates contained in DNA, DynaML and SINEX data formats;
 - Input of a diverse range of measurement types;
 - Transformation of station coordinates and measurements between several static and dynamic reference frames;
@@ -46,14 +53,17 @@ DynAdjust provides the following capabilities:
 Windows (64-bit) executables can be downloaded from the [releases page](https://github.com/icsm-au/dynadjust/releases/latest).
 
 In addition, the following (64-bit) libraries need to be installed:
+
 - Apache Xerces-C++ XML Parser: http://xerces.apache.org/xerces-c/download.cgi
 - Codesynthesis XSD XML Data Binding for C++: https://www.codesynthesis.com/products/xsd/download.xhtml
 - Intel Math Kernel Library: https://software.seek.intel.com/performance-libraries
 
 ## Building from source
+
 The following build instructions are only needed if you would like to build DynAdjust on Windows, Linux or Apple operating systems.
 
 ### General requirements and prerequisites
+
 - A C++14 compiler, such as gcc, Microsoft Visual Studio or Apple LLVM (clang)
 - Boost C++ headers and libraries
 - Apache Xerces C++ headers and libraries
@@ -61,7 +71,9 @@ The following build instructions are only needed if you would like to build DynA
 - Intel Math Kernel Library (MKL) headers and libraries
 
 ### Linux / Mac OS X build requirements
+
 Download the following files from the [resources](https://github.com/icsm-au/DynAdjust/tree/master/resources) folder to a dedicated build folder on your computer, and run in order:
+
   1. `install_dynadjust_prerequisites.sh`
   2. `make_dynadjust_gcc.sh`
 
@@ -70,13 +82,14 @@ Executing `install_dynadjust_prerequisites.sh` will download all the prerequisit
 Executing `make_dynadjust_gcc.sh` will clone the latest version of DynAdjust, build it in the directory `./build-gcc/` and install to `/opt/dynadjust/gcc/x_x_x/`. Symbolic links to the binaries (installed to `/opt/dynadjust/`) will be created in the user's `~/bin` folder.
   
 ### Windows build requirements
+
 Please refer to the Windows compilation [instructions](https://github.com/icsm-au/DynAdjust/blob/master/resources/dynadjust-compilation-in-windows.pdf) for the steps to compile DynAdjust on Windows using Microsoft's freely available Visual Studio 2017 Community Edition.
 
 # Feedback
 
 To suggest an enhancement to the functionality of DynAdjust, or to report a defect or unexpected behaviour, please submit your query via [our issue tracker](https://github.com/icsm-au/dynadjust/issues).
 
-# User's Guide
+# User's guide
 
 A comprehensive User's Guide can be found in the [resources](https://github.com/icsm-au/DynAdjust/tree/master/resources) folder.  The User's Guide provides information about the history of DynAdjust, its architecture and algorithms, its usage, supported file format specifications and basic command-line examples.
 
@@ -91,6 +104,7 @@ DynAdjust provides a capability to generate publication-quality images of raw st
 DynAdjust uses the Generic Mapping Tools (GMT), available from the [GMT website](https://www.generic-mapping-tools.org/download/). Users should note however, that DynAdjust supports [GMT 4.x.x](https://github.com/GenericMappingTools/gmt/wiki/GMT-4.5.18) and earlier versions only. Hence, GMT versions 5.x.x and 6.x.x. cannot be used. See [issue #30](https://github.com/icsm-au/DynAdjust/issues/30) for details of planned development to provide support for the latest version of GMT.
 
 # License details
+
 DynAdjust has an Apache 2.0 Licence - http ://www.apache.org/licenses/LICENSE-2.0.   
 
 NOTE: DynAdjust makes use of Boost C++, Apache's Xerces-C++ XML Parser (Apache 2.0 Licence) and CodeSynthesis XSD code. Hence, the following licence agreements will also need to be taken into account with the Apache 2.0 Licence. 
