@@ -14,6 +14,7 @@
 - [Contents](#contents)
 - [Overview](#overview)
 - [Installation](#installation)
+  - [Installing from pre-built binaries](#installing-from-pre-built-binaries)
   - [Building from source](#building-from-source)
     - [General requirements and prerequisites](#general-requirements-and-prerequisites)
     - [Linux / Mac OS X build requirements](#linux--mac-os-x-build-requirements)
@@ -50,13 +51,20 @@ DynAdjust provides the following capabilities:
 
 ## Installation
 
-Windows (64-bit) executables can be downloaded from the [releases page](https://github.com/icsm-au/dynadjust/releases/latest).
+### Installing from pre-built binaries
 
-In addition, the following (64-bit) libraries need to be installed:
+To install DynAdjust on Linux and Mac, see the following section ([Building from source](#building-from-source)).
 
-- Apache Xerces-C++ XML Parser: <http://xerces.apache.org/xerces-c/download.cgi>
-- Codesynthesis XSD XML Data Binding for C++: <https://www.codesynthesis.com/products/xsd/download.xhtml>
-- Intel Math Kernel Library: <https://software.seek.intel.com/performance-libraries>
+To install DynAdjust on Windows:
+
+1. Download the latest pre-built Windows (64-bit) binaries from the [releases page](https://github.com/icsm-au/dynadjust/releases/latest) to a dedicated folder (not the Desktop) on your system.  Add the location of this folder to your system's path environment variables so that DynAdjust can be executed from any location on your system.
+
+2. Install the following (64-bit) libraries and dependencies:
+
+  - Apache Xerces-C++ XML Parser: <http://xerces.apache.org/xerces-c/download.cgi>
+  - Codesynthesis XSD XML Data Binding for C++: <https://www.codesynthesis.com/products/xsd/download.xhtml>
+  - Intel Math Kernel Library: <https://software.seek.intel.com/performance-libraries>
+  - Microsoft Visual C++ Redistributable for Visual Studio 2017: <https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads>, or <https://visualstudio.microsoft.com/downloads/> > _Other Tools and Frameworks_ > _Microsoft Visual C++ Redistributable for Visual Studio 2019_
 
 ### Building from source
 
