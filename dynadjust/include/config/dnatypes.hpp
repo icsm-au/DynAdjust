@@ -452,7 +452,7 @@ typedef struct {
 } statSummary_t;
 	
 typedef struct stationCorrections {
-	stationCorrections(const string stn="")
+	stationCorrections(const string& stn="")
 		: _station(stn), _azimuth(0.), _vAngle(0.), _sDistance(0.)
 		, _hDistance(0.), _east(0.), _north(0.), _up(0.) {}
 

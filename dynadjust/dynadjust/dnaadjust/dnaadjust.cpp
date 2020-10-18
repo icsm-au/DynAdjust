@@ -10254,7 +10254,7 @@ void dna_adjust::UpdateGeographicCoords()
 	}
 }
 
-void dna_adjust::PrintCompMeasurements(const UINT32& block, const string type)
+void dna_adjust::PrintCompMeasurements(const UINT32& block, const string& type)
 {
 	// Print header
 	string table_heading("Computed Measurements");

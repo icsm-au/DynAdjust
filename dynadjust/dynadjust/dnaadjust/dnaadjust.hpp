@@ -745,7 +745,7 @@ private:
 	// Output files
 	void OpenOutputFileStreams();
 	void PrintOutputFileHeaderInfo();
-	void PrintCompMeasurements(const UINT32& block, const string msg = "");
+	void PrintCompMeasurements(const UINT32& block, const string& msg = "");
 	void PrintCompMeasurementsAngular(const char cardinal, const double& computed, const double& correction, const it_vmsr_t& _it_msr);
 	void PrintCompMeasurementsLinear(const char cardinal, const double& computed, const double& correction, const it_vmsr_t& _it_msr);
 	void PrintCompMeasurements_A(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode);

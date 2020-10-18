@@ -327,7 +327,6 @@ void dna_adjust::SolveMT(bool COMPUTE_INVERSE, const UINT32& block)
 	{
 		dbg_file_mutex.lock();
 
-		it_vUINT32 _it_stn;
 		UINT32 i;
 		switch (projectSettings_.a.adjust_mode)
 		{
@@ -335,9 +334,9 @@ void dna_adjust::SolveMT(bool COMPUTE_INVERSE, const UINT32& block)
 			for (i=0; i<v_parameterStationList_.at(block).size(); ++i)
 			{
 				debug_file << bstBinaryRecords_.at(v_parameterStationList_.at(block).at(i)).stationName;
-				if ((_it_stn = find(v_ISL_.at(block).begin(), v_ISL_.at(block).end(), v_parameterStationList_.at(block).at(i))) != v_ISL_.at(block).end())
+				if (find(v_ISL_.at(block).begin(), v_ISL_.at(block).end(), v_parameterStationList_.at(block).at(i)) != v_ISL_.at(block).end())
 					debug_file << "i ";
-				else if ((_it_stn = find(v_JSL_.at(block).begin(), v_JSL_.at(block).end(), v_parameterStationList_.at(block).at(i))) != v_JSL_.at(block).end())
+				else if (find(v_JSL_.at(block).begin(), v_JSL_.at(block).end(), v_parameterStationList_.at(block).at(i)) != v_JSL_.at(block).end())
 						debug_file << "j ";
 				else 
 					debug_file << " ";				

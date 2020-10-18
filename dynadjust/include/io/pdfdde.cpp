@@ -275,21 +275,23 @@ bool __cdecl ExecuteCommand(LPCTSTR command, ...)
     
     va_start( args, command );
     len = _vscprintf(command, args) // _vscprintf doesn't count
-	+ 1;			// terminating '\0'
+      + 1;			// terminating '\0'
     buffer = (char *)malloc( len * sizeof(char) );
     vsprintf( buffer, command, args );
     
+    va_end(args);
+
     ret = DdeClientTransaction((LPBYTE)buffer, strlen(buffer) + 1,
 			       DDEconversation, 0, 0, XTYP_EXECUTE,
 			       TRANSACTION_TIMEOUT, 0);
     if (ret == 0)
-		{
-		UINT DDEErr = DdeGetLastError(DDEsession);
-		error("Cannot execute command \"%s\" (error %ld)", command, DDEErr);
-		return(false);
-		} // if
+    {
+        UINT DDEErr = DdeGetLastError(DDEsession);
+        error("Cannot execute command \"%s\" (error %ld)", command, DDEErr);
+        return(false);
+    } // if
     
-	return(true);
+    return(true);
 }
 
 void StartHotLink(LPCTSTR item_name)
