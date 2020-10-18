@@ -173,7 +173,7 @@ UINT32 MsrTally::TotalCount() {
 	return totalCount=A+B+C+D+E+G+H+I+J+K+L+M+P+Q+R+S+V+X+Y+Z;
 }
 
-void MsrTally::coutSummary(ostream &os, const string title) 
+void MsrTally::coutSummary(ostream &os, const string& title) 
 {
 	// Print title
 	os << title << " " << TotalCount() << " measurements:" << endl;
@@ -238,7 +238,7 @@ void MsrTally::coutSummary(ostream &os, const string title)
 }
 	
 
-void MsrTally::coutSummaryMsrToStn(ostream &os, const string station)
+void MsrTally::coutSummaryMsrToStn(ostream &os, const string& station)
 {
 	// Print station
 	os << setw(STATION) << left << station;
@@ -330,7 +330,7 @@ void MsrTally::coutSummaryMsrToStn(ostream &os, const string station)
 
 }
 
-void MsrTally::coutSummaryMsrToStn_Compressed(ostream &os, const string station)
+void MsrTally::coutSummaryMsrToStn_Compressed(ostream &os, const string& station)
 {
 	// Print station
 	os << setw(STATION) << left << station;

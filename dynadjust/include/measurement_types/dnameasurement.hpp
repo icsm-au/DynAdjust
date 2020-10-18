@@ -189,11 +189,9 @@ typedef vmsr_t::const_iterator it_vmsr_t_const;
 
 typedef struct scl_t {
 	scl_t()
-		: v_scale(1.), p_scale(1.), l_scale(1.), h_scale(1.) 
-	{
-		station1 = "";
-		station2 = "";
-	}
+		: station1(""), station2("")
+		, v_scale(1.), p_scale(1.), l_scale(1.), h_scale(1.) 
+	{}
 
 	string	station1;		
 	string	station2;		
@@ -500,14 +498,14 @@ public:
 	MsrTally operator+(const MsrTally& rhs) const;
 	MsrTally operator-(const MsrTally& rhs) const;
 	UINT32 TotalCount();
-	void coutSummary(ostream &os, const string title);
+	void coutSummary(ostream &os, const string& title);
 	UINT32 MeasurementCount(const char& msrType);
 	void CreateTally(const vdnaMsrPtr& vMeasurements);
 	void CreateTally(const vmsr_t& vMeasurements, const vUINT32& CML);
 	void IncrementMsrType(const char& msrType, const UINT32& count=1);
 
-	void coutSummaryMsrToStn(ostream &os, const string station);
-	void coutSummaryMsrToStn_Compressed(ostream &os, const string station);
+	void coutSummaryMsrToStn(ostream &os, const string& station);
+	void coutSummaryMsrToStn_Compressed(ostream &os, const string& station);
 
 	bool GPSOnly();	
 	inline bool ContainsNonGPS() { return containsNonGPS; }
