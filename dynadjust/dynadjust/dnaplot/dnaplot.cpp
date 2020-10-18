@@ -4035,6 +4035,8 @@ void dna_plot::SignalExceptionPlot(const string& msg, const int& line_no, const 
 		streamType++;
 	}
 
+	va_end(argptr);
+
 	throw NetPlotException(msg, line_no);
 }
 
