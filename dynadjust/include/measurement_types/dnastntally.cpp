@@ -139,7 +139,7 @@ void StnTally::removestation(const string& constraint) {
 }
 	
 
-void StnTally::coutSummary(ostream &os, const string title) 
+void StnTally::coutSummary(ostream &os, const string& title) 
 {
 	// Print title
 	os << title << " " << TotalCount() << " stations:" << endl;
