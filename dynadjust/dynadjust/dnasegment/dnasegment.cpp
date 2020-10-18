@@ -281,7 +281,7 @@ _SEGMENT_STATUS_ dna_segment::SegmentNetwork(project_settings* p, string* succes
 		ss << endl << "- Warning: The following stations were not used:" << endl;
 		ss << "  ";
 		it_vUINT32_const _it_freestn(vfreeStnList_.begin());
-		for (; _it_freestn!=vfreeStnList_.end(); _it_freestn++)
+		for (; _it_freestn!=vfreeStnList_.end(); ++_it_freestn)
 			ss << bstBinaryRecords_.at(*_it_freestn).stationName << " ";
 		ss << endl;
 		ss << "- Possible reasons why these stations were not used include:" << endl;
@@ -380,7 +380,7 @@ void dna_segment::VerifyStationsandBuildBlock(bool validationOnly)
 	v_string_uint32_pair::iterator _it_stnmap(stnsMap_.begin());
 
 	// For each station name specified as the initial stations
-	for (_it_name=vinitialStns_.begin(); _it_name!=vinitialStns_.end(); _it_name++)
+	for (_it_name=vinitialStns_.begin(); _it_name!=vinitialStns_.end(); ++_it_name)
 	{
 		// Retrieve the ASL index
 		it_stnmap_range = equal_range(stnsMap_.begin(), stnsMap_.end(), *_it_name, StationNameIDCompareName());
@@ -638,12 +638,12 @@ void dna_segment::FinaliseBlock()
 		
 			trace_file << "   - Inners (" << currentISLSize << "):" << endl << "     ";
 			it_vUINT32_const _it_freeisl(vfreeStnList_.end());
-			for (_it_freeisl=vCurrInnerStnList_.begin(); _it_freeisl!=vCurrInnerStnList_.end(); _it_freeisl++)
+			for (_it_freeisl=vCurrInnerStnList_.begin(); _it_freeisl!=vCurrInnerStnList_.end(); ++_it_freeisl)
 				trace_file << "'" << bstBinaryRecords_.at(*_it_freeisl).stationName << "' ";
 			trace_file << endl;
 
 			trace_file << "   - Junctions (" << currentJSLSize << "):" << endl << "     ";
-			for (_it_freeisl=vCurrJunctStnList_.begin(); _it_freeisl!=vCurrJunctStnList_.end(); _it_freeisl++)
+			for (_it_freeisl=vCurrJunctStnList_.begin(); _it_freeisl!=vCurrJunctStnList_.end(); ++_it_freeisl)
 				trace_file << "'" << bstBinaryRecords_.at(*_it_freeisl).stationName << "' ";
 		
 			trace_file << endl << " + ------------------------------------------" << endl;
@@ -1058,6 +1058,8 @@ void dna_segment::SignalExceptionSerialise(const string& msg, const int& i, cons
 		streamType++;
 	}
 
+	va_end(argptr);
+
 	throw NetSegmentException(msg, i);
 }
 
@@ -1416,9 +1418,9 @@ void dna_segment::coutSummary() const
 	char TOTAL = 12;
 	char MEASR = 14;
 
-	for (_it_cml = vCML_.begin(); _it_cml!=vCML_.end(); _it_cml++)
+	for (_it_cml = vCML_.begin(); _it_cml!=vCML_.end(); ++_it_cml)
 		msrs += static_cast<UINT32>(_it_cml->size());
-	for (_it_isl = vISL_.begin(); _it_isl!=vISL_.end(); _it_isl++)
+	for (_it_isl = vISL_.begin(); _it_isl!=vISL_.end(); ++_it_isl)
 		stns += static_cast<UINT32>(_it_isl->size());
 
 	cout << "+ Segmentation summary:" << endl << endl;
@@ -1430,7 +1432,7 @@ void dna_segment::coutSummary() const
 	UINT32 b = 1;
 	_it_jsl = vJSL_.begin();
 	_it_cml = vCML_.begin();
-	for (_it_isl=vISL_.begin(); _it_isl!=vISL_.end(); _it_isl++)
+	for (_it_isl=vISL_.begin(); _it_isl!=vISL_.end(); ++_it_isl)
 	{
 		// block
 		cout << "  " << setw(BLOCK-2) << left << b;
@@ -1458,8 +1460,8 @@ void dna_segment::coutSummary() const
 		
 		cout << endl;
 
-		_it_jsl++;
-		_it_cml++;
+		++_it_jsl;
+		++_it_cml;
 		b++;
 	}
 

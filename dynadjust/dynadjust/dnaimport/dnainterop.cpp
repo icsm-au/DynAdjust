@@ -3865,6 +3865,8 @@ void dna_import::SignalExceptionInterop(string msg, int i, const char *streamTyp
 		streamType++;
 	}
 	
+	va_end(argptr);
+	
 	throw XMLInteropException(msg, i);
 }
 	

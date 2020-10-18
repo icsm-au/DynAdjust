@@ -248,7 +248,7 @@ UINT32 CDnaGpsPoint::CalcBinaryRecordCount() const
 {
 	UINT32 RecordCount = 3;
 	vector<CDnaCovariance>::const_iterator _it_cov = m_vPointCovariances.begin();
-	for (; _it_cov!=m_vPointCovariances.end(); _it_cov++)
+	for (; _it_cov!=m_vPointCovariances.end(); ++_it_cov)
 		RecordCount += _it_cov->CalcBinaryRecordCount();
 	return RecordCount;
 }
@@ -287,7 +287,7 @@ void CDnaGpsPoint::WriteDynaMLMsr(std::ofstream* dynaml_stream, bool bSubMeasure
 	
 	// write GPSPoint covariances
 	vector<CDnaCovariance>::const_iterator _it_cov = m_vPointCovariances.begin();
-	for (; _it_cov!=m_vPointCovariances.end(); _it_cov++)
+	for (; _it_cov!=m_vPointCovariances.end(); ++_it_cov)
 		_it_cov->WriteDynaMLMsr(dynaml_stream);
 	
 	*dynaml_stream << "    </Clusterpoint>" << endl;
@@ -414,7 +414,7 @@ void CDnaGpsPoint::WriteDNAMsr(std::ofstream* dynaml_stream, const dna_msr_field
 
 	// write GPSPoint covariances (not supported by DNA format)
 	vector<CDnaCovariance>::const_iterator _it_cov = m_vPointCovariances.begin();
-	for (_it_cov=m_vPointCovariances.begin(); _it_cov!=m_vPointCovariances.end(); _it_cov++)
+	for (_it_cov=m_vPointCovariances.begin(); _it_cov!=m_vPointCovariances.end(); ++_it_cov)
 		_it_cov->WriteDNAMsr(dynaml_stream, dmw, dml,
 			m_msr_db_map, m_databaseIdSet);
 }
@@ -453,7 +453,7 @@ void CDnaGpsPoint::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* ellip
 	}
 
 	vector<CDnaCovariance>::iterator _it_cov = m_vPointCovariances.begin();
-	for (_it_cov=m_vPointCovariances.begin(); _it_cov!=m_vPointCovariances.end(); _it_cov++)
+	for (_it_cov=m_vPointCovariances.begin(); _it_cov!=m_vPointCovariances.end(); ++_it_cov)
 		_it_cov->SimulateMsr(vStations, ellipsoid);
 }
 	
@@ -526,7 +526,7 @@ UINT32 CDnaGpsPoint::SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* i
 
 	// now covariances
 	vector<CDnaCovariance>::iterator _it_cov = m_vPointCovariances.begin();
-	for (; _it_cov!=m_vPointCovariances.end(); _it_cov++)
+	for (; _it_cov!=m_vPointCovariances.end(); ++_it_cov)
 		measrecordCount += _it_cov->SetMeasurementRec(ifs_stns, ifs_msrs, measRecord);
 
 	return measrecordCount;
@@ -579,7 +579,7 @@ UINT32 CDnaGpsPoint::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_ms
 
 	// now covariances
 	vector<CDnaCovariance>::iterator _it_cov = m_vPointCovariances.begin();
-	for (; _it_cov!=m_vPointCovariances.end(); _it_cov++)
+	for (; _it_cov!=m_vPointCovariances.end(); ++_it_cov)
 		_it_cov->SetMeasurementRec(binaryStn, it_msr);
 
 	return it_msr->vectorCount1;
@@ -656,7 +656,7 @@ void CDnaGpsPoint::WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex
 
 	// now write covariance elements
 	vector<CDnaCovariance>::const_iterator _it_cov;
-	for (_it_cov=m_vPointCovariances.begin(); _it_cov!=m_vPointCovariances.end(); _it_cov++)
+	for (_it_cov=m_vPointCovariances.begin(); _it_cov!=m_vPointCovariances.end(); ++_it_cov)
 		_it_cov->WriteBinaryMsr(binary_stream, msrIndex, m_epsgCode, m_epoch);
 }
 
@@ -1111,7 +1111,7 @@ void CDnaGpsPointCluster::WriteDynaMLMsr(std::ofstream* dynaml_stream, bool bSub
 	
 	// write GpsPoints
 	vector<CDnaGpsPoint>::const_iterator _it_pnt;
-	for (_it_pnt=m_vGpsPoints.begin(); _it_pnt!=m_vGpsPoints.end(); _it_pnt++)
+	for (_it_pnt=m_vGpsPoints.begin(); _it_pnt!=m_vGpsPoints.end(); ++_it_pnt)
 		_it_pnt->WriteDynaMLMsr(dynaml_stream, true);
 	
 	*dynaml_stream << "  </DnaMeasurement>" << endl;
@@ -1121,14 +1121,14 @@ void CDnaGpsPointCluster::WriteDNAMsr(std::ofstream* dynaml_stream, const dna_ms
 {
 	// write GpsPoints
 	vector<CDnaGpsPoint>::const_iterator _it_pnt;
-	for (_it_pnt=m_vGpsPoints.begin(); _it_pnt!=m_vGpsPoints.end(); _it_pnt++)
+	for (_it_pnt=m_vGpsPoints.begin(); _it_pnt!=m_vGpsPoints.end(); ++_it_pnt)
 		_it_pnt->WriteDNAMsr(dynaml_stream, dmw, dml, true);
 }
 
 void CDnaGpsPointCluster::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* ellipsoid)
 {
 	vector<CDnaGpsPoint>::iterator _it_pnt = m_vGpsPoints.begin();
-	for (_it_pnt=m_vGpsPoints.begin(); _it_pnt!=m_vGpsPoints.end(); _it_pnt++)
+	for (_it_pnt=m_vGpsPoints.begin(); _it_pnt!=m_vGpsPoints.end(); ++_it_pnt)
 		_it_pnt->SimulateMsr(vStations, ellipsoid);
 }
 	
@@ -1219,7 +1219,7 @@ UINT32 CDnaGpsPointCluster::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t
 void CDnaGpsPointCluster::WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) const
 {
 	vector< CDnaGpsPoint >::const_iterator _it_pnt;
-	for (_it_pnt=m_vGpsPoints.begin(); _it_pnt!=m_vGpsPoints.end(); _it_pnt++)
+	for (_it_pnt=m_vGpsPoints.begin(); _it_pnt!=m_vGpsPoints.end(); ++_it_pnt)
 		_it_pnt->WriteBinaryMsr(binary_stream, msrIndex);
 
 	//for_each(m_vGpsPoints.begin(), m_vGpsPoints.end(),

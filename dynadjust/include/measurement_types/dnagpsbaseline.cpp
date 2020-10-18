@@ -234,7 +234,7 @@ UINT32 CDnaGpsBaseline::CalcBinaryRecordCount() const
 {
 	UINT32 RecordCount = 3;
 	vector<CDnaCovariance>::const_iterator _it_cov = m_vGpsCovariances.begin();
-	for (; _it_cov!=m_vGpsCovariances.end(); _it_cov++)
+	for (; _it_cov!=m_vGpsCovariances.end(); ++_it_cov)
 		RecordCount += _it_cov->CalcBinaryRecordCount();
 	return RecordCount;
 }
@@ -319,7 +319,7 @@ void CDnaGpsBaseline::WriteDynaMLMsr(std::ofstream* dynaml_stream, bool bSubMeas
 
 	// write GPSPoint covariances
 	vector<CDnaCovariance>::const_iterator _it_cov = m_vGpsCovariances.begin();
-	for (; _it_cov!=m_vGpsCovariances.end(); _it_cov++)
+	for (; _it_cov!=m_vGpsCovariances.end(); ++_it_cov)
 		_it_cov->WriteDynaMLMsr(dynaml_stream);
 
 	*dynaml_stream << "    </GPSBaseline>" << endl;
@@ -439,7 +439,7 @@ void CDnaGpsBaseline::WriteDNAMsr(std::ofstream* dynaml_stream, const dna_msr_fi
 
 	// write GPSBaseline covariances (not supported by DNA format)
 	vector<CDnaCovariance>::const_iterator _it_cov = m_vGpsCovariances.begin();
-	for (_it_cov=m_vGpsCovariances.begin(); _it_cov!=m_vGpsCovariances.end(); _it_cov++)
+	for (_it_cov=m_vGpsCovariances.begin(); _it_cov!=m_vGpsCovariances.end(); ++_it_cov)
 		_it_cov->WriteDNAMsr(dynaml_stream, dmw, dml, 
 			m_msr_db_map, m_databaseIdSet);
 }
@@ -459,7 +459,7 @@ void CDnaGpsBaseline::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* el
 	m_dSigmaZZ = 6.803E-05;
 
 	vector<CDnaCovariance>::iterator _it_cov = m_vGpsCovariances.begin();
-	for (_it_cov=m_vGpsCovariances.begin(); _it_cov!=m_vGpsCovariances.end(); _it_cov++)
+	for (_it_cov=m_vGpsCovariances.begin(); _it_cov!=m_vGpsCovariances.end(); ++_it_cov)
 		_it_cov->SimulateMsr(vStations, ellipsoid);
 }
 	
@@ -537,7 +537,7 @@ UINT32 CDnaGpsBaseline::SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream
 
 	// now covariances
 	vector<CDnaCovariance>::iterator _it_cov = m_vGpsCovariances.begin();
-	for (; _it_cov!=m_vGpsCovariances.end(); _it_cov++)
+	for (; _it_cov!=m_vGpsCovariances.end(); ++_it_cov)
 		measrecordCount += _it_cov->SetMeasurementRec(ifs_stns, ifs_msrs, measRecord);
 
 	return measrecordCount;
@@ -592,7 +592,7 @@ UINT32 CDnaGpsBaseline::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it
 
 	// now covariances
 	vector<CDnaCovariance>::iterator _it_cov = m_vGpsCovariances.begin();
-	for (; _it_cov!=m_vGpsCovariances.end(); _it_cov++)
+	for (; _it_cov!=m_vGpsCovariances.end(); ++_it_cov)
 		_it_cov->SetMeasurementRec(binaryStn, it_msr);
 
 	return it_msr->vectorCount1;
@@ -667,7 +667,7 @@ void CDnaGpsBaseline::WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIn
 
 	// now write covariance elements
 	vector<CDnaCovariance>::const_iterator _it_cov;
-	for (_it_cov=m_vGpsCovariances.begin(); _it_cov!=m_vGpsCovariances.end(); _it_cov++)
+	for (_it_cov=m_vGpsCovariances.begin(); _it_cov!=m_vGpsCovariances.end(); ++_it_cov)
 		_it_cov->WriteBinaryMsr(binary_stream, msrIndex, m_epsgCode, m_epoch);
 }
 
@@ -1073,7 +1073,7 @@ void CDnaGpsBaselineCluster::WriteDynaMLMsr(std::ofstream* dynaml_stream, bool b
 
 	// write GpsBaselines
 	vector<CDnaGpsBaseline>::const_iterator _it_bsl;
-	for (_it_bsl=m_vGpsBaselines.begin(); _it_bsl!=m_vGpsBaselines.end(); _it_bsl++)
+	for (_it_bsl=m_vGpsBaselines.begin(); _it_bsl!=m_vGpsBaselines.end(); ++_it_bsl)
 		_it_bsl->WriteDynaMLMsr(dynaml_stream, true);
 
 	*dynaml_stream << "  </DnaMeasurement>" << endl;
@@ -1085,7 +1085,7 @@ void CDnaGpsBaselineCluster::WriteDNAMsr(std::ofstream* dynaml_stream, const dna
 {
 	// write GpsBaselines
 	vector<CDnaGpsBaseline>::const_iterator _it_bsl;
-	for (_it_bsl=m_vGpsBaselines.begin(); _it_bsl!=m_vGpsBaselines.end(); _it_bsl++)
+	for (_it_bsl=m_vGpsBaselines.begin(); _it_bsl!=m_vGpsBaselines.end(); ++_it_bsl)
 		_it_bsl->WriteDNAMsr(dynaml_stream, dmw, dml, true);
 }
 	
@@ -1093,7 +1093,7 @@ void CDnaGpsBaselineCluster::WriteDNAMsr(std::ofstream* dynaml_stream, const dna
 void CDnaGpsBaselineCluster::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* ellipsoid)
 {
 	vector<CDnaGpsBaseline>::iterator _it_bsl;
-	for (_it_bsl=m_vGpsBaselines.begin(); _it_bsl!=m_vGpsBaselines.end(); _it_bsl++)
+	for (_it_bsl=m_vGpsBaselines.begin(); _it_bsl!=m_vGpsBaselines.end(); ++_it_bsl)
 		_it_bsl->SimulateMsr(vStations, ellipsoid);
 }
 	
@@ -1179,7 +1179,7 @@ UINT32 CDnaGpsBaselineCluster::SetMeasurementRec(const vstn_t& binaryStn, it_vms
 void CDnaGpsBaselineCluster::WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) const
 {
 	vector<CDnaGpsBaseline>::const_iterator _it_bsl;
-	for (_it_bsl=m_vGpsBaselines.begin(); _it_bsl!=m_vGpsBaselines.end(); _it_bsl++)
+	for (_it_bsl=m_vGpsBaselines.begin(); _it_bsl!=m_vGpsBaselines.end(); ++_it_bsl)
 		_it_bsl->WriteBinaryMsr(binary_stream, msrIndex);
 }
 

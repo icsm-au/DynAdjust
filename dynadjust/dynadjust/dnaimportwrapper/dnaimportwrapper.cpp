@@ -2062,14 +2062,17 @@ int main(int argc, char* argv[])
 	// Does the user want to simulate measurements?
 	if (p.i.simulate_measurements && stnCount > 0 && msrCount > 0) 
 	{
-		if (stnCount == 0)
-		{
-			if (!p.g.quiet)
-				cout << "- Error: there are no stations from which to simulate measurements." << endl;
-			imp_file << "- Error: there are no stations from which to simulate measurements." << endl;
-			imp_file.close();
-			return EXIT_FAILURE;
-		}	
+		// No need for the following code if the outer 'if' statement checks 
+		// for non-zero stnCount value
+		//
+		// if (stnCount == 0)
+		// {
+		// 	if (!p.g.quiet)
+		// 		cout << "- Error: there are no stations from which to simulate measurements." << endl;
+		// 	imp_file << "- Error: there are no stations from which to simulate measurements." << endl;
+		// 	imp_file.close();
+		// 	return EXIT_FAILURE;
+		// }	
 	
 		try {
 			// Simulate measurements
