@@ -123,7 +123,7 @@ void dna_io_map::write_map_file(const string& map_filename, pv_string_uint32_pai
 		map_file.write(reinterpret_cast<char *>(&mapval), sizeof(UINT32));
 		char stationName[STN_NAME_WIDTH];
 		memset(stationName, '\0', sizeof(stationName));
-		for (; _it_stnmap!=stnsMap->end(); _it_stnmap++)
+		for (; _it_stnmap!=stnsMap->end(); ++_it_stnmap)
 		{
 			strcpy(stationName, _it_stnmap->first.c_str());
 			mapval = _it_stnmap->second;
@@ -174,7 +174,7 @@ void dna_io_map::write_map_file_txt(const string& map_filename, pv_string_uint32
 		map_file << left << setw(STATION) << ss_map.str();
 		map_file << setw(HEADER_20) << right << "Stn. index" << endl;
 		v_string_uint32_pair::const_iterator _it_stnmap(stnsMap->begin());
-		for (_it_stnmap=stnsMap->begin(); _it_stnmap!=stnsMap->end(); _it_stnmap++)
+		for (_it_stnmap=stnsMap->begin(); _it_stnmap!=stnsMap->end(); ++_it_stnmap)
 		{
 			map_file << setw(STATION) << left << 
 				_it_stnmap->first.c_str() <<

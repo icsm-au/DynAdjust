@@ -126,7 +126,7 @@ void dna_io_asl::write_asl_file(const string& asl_filename, pvASLPtr vbinary_asl
 		
 		// write the data
 		asl_file.write(reinterpret_cast<char *>(&aslCount), sizeof(UINT32));
-		for (_it_asl=vbinary_asl->begin(); _it_asl!=vbinary_asl->end(); _it_asl++)
+		for (_it_asl=vbinary_asl->begin(); _it_asl!=vbinary_asl->end(); ++_it_asl)
 			if (_it_asl->get())
 				asl_file << _it_asl->get();			// see dnastation.hpp (region CAStationList stream handlers)
 	}
