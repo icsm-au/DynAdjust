@@ -178,8 +178,17 @@ if (BUILD_TESTING)
     add_test (NAME import-urban-network-thread COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban_mt ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr)
     add_test (NAME reftran-urban-network-thread COMMAND $<TARGET_FILE:dnareftranwrapper> urban_mt -r gda2020)
     add_test (NAME geoid-urban-network-thread COMMAND $<TARGET_FILE:dnageoidwrapper> urban_mt -g ${CMAKE_SOURCE_DIR}/../sampleData/urban-network-geoid.gsb --convert-stn-hts)
-    add_test (NAME segment-urban-network-thread COMMAND $<TARGET_FILE:dnasegmentwrapper> urban_mt --min 50 --max 85)
+    add_test (NAME segment-urban-network-thread COMMAND $<TARGET_FILE:dnasegmentwrapper> urban_mt --min 50 --max 85 --verb 3)
     add_test (NAME adjust-urban-network-thread COMMAND $<TARGET_FILE:dnaadjustwrapper> urban_mt --output-adj-msr --multi)
+    # 4. urban data manipulation
+    file (COPY ${CMAKE_SOURCE_DIR}/../sampleData/DynaML.xsd DESTINATION ./)
+    add_test (NAME imp-urb0-dna-data COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban_dna ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr --export-xml --export-asl --export-aml --export-map --output-msr-to-stn)
+    add_test (NAME imp-urb1-xml-data COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban_xml ./urban_dnastn.xml ./urban_dnamsr.xml --export-dna --export-asl --export-aml --export-map --output-msr-to-stn)   
+    add_test (NAME imp-urb2-xml-data COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban_xml ./urban_dnastn.xml ./urban_dnamsr.xml --include-msr-types gxyemsabdpqr --exclude-msr-types vz)
+    add_test (NAME imp-urb3-xml-data COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban_xml ./urban_dnastn.xml ./urban_dnamsr.xml --search-nearby-stn --nearby-stn-buffer 0.4)
+    add_test (NAME imp-urb4-xml-data COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban_xml ./urban_dnastn.xml ./urban_dnamsr.xml --search-similar-msr --ignore-similar-msr --flag-unused-stations)
+    add_test (NAME imp-urb5-xml-data COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban_xml ./urban_dnastn.xml ./urban_dnamsr.xml --v-scale 2.5 --p-scale 5.0 --l-scale 5.0 --h-scale 10.0)
+    add_test (NAME imp-gnss0-xml-data COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss_xml ./gnssstn.xml ./gnssmsr.xml --bounding-box -36.3000,145.4500,-36.4500,146.4500 --get-msrs-transcending-box --split-gnss-cluster-msrs --prefer-single-x-as-g)
     
     # bash command to check results
     add_test (NAME test-gnss-network COMMAND bash -c "diff <(tail -n +53 gnss.simult.adj) <(tail -n +53 ${CMAKE_SOURCE_DIR}/../sampleData/gnss.simult.adj.expected)")
