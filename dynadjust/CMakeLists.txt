@@ -206,7 +206,10 @@ if (BUILD_TESTING)
     add_test (NAME adj-psu00-xml-data COMMAND $<TARGET_FILE:dnaadjustwrapper> pseudo --output-adj-msr --free-stn-sd 5.0 --fixed-stn-sd 0.000005 --max-iterations 15 --output-tstat-adj-msr --sort-adj-msr-field 7 --sort-stn-orig-order --stn-coord-types XYZPLHhENz --angular-stn-type 1 --angular-msr-type 1 --precision-stn-linear 3 --precision-msr-linear 3 --precision-stn-angular 4 --precision-msr-angular 4 --output-pos-uncertainty --output-all-covariances --output-corrections-file)
     add_test (NAME imp-gnss0-xml-data COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss_xml ./gnssstn.xml ./gnssmsr.xml --bounding-box -36.3000,145.4500,-36.4500,146.4500 --get-msrs-transcending-box --split-gnss-cluster-msrs --prefer-single-x-as-g)
     add_test (NAME imp-gnss1-xml-data COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss_xml ./gnssstn.xml ./gnssmsr.xml --include-stns-assoc-msrs "BEEC,BNLA,EURA,HOTH,MNSF,MYRT,320500750,385900240" --get-msrs-transcending-box --split-gnss-cluster-msrs --prefer-single-x-as-g -r itrf2014 --override-input-ref-frame)
-    
+    add_test (NAME geo-interpolate-01 COMMAND $<TARGET_FILE:dnageoidwrapper> -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb --interactive --latitude -36.3348253617 --longitude 145.5741006771)
+    add_test (NAME geo-interpolate-02 COMMAND $<TARGET_FILE:dnageoidwrapper> -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb --interactive --latitude -36.2704890597 --longitude 146.4809871537 --interpolation-method 0)
+    add_test (NAME geo-interpolate-03 COMMAND $<TARGET_FILE:dnageoidwrapper> -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb --summary)
+
     # bash command to check results
     add_test (NAME test-gnss-network COMMAND bash -c "diff <(tail -n +53 gnss.simult.adj) <(tail -n +53 ${CMAKE_SOURCE_DIR}/../sampleData/gnss.simult.adj.expected)")
     #add_test (NAME test-urban-phased-network COMMAND bash -c "diff <(tail -n +62 urban.phased.adj) <(tail -n +62 ${CMAKE_SOURCE_DIR}/../sampleData/urban.phased.adj.expected)")
