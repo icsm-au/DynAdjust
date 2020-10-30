@@ -78,6 +78,28 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 		}
 	}
 
+	if (vm.count(TECTONIC_PLATE_BDY_FILE))
+	{
+		if (!exists(p.r.tpb_file))
+		{
+			cout << endl << "- Error: ";
+			cout << endl << "tectonic plate boundary file " << endl << "               ";
+			cout << p.r.tpb_file << " does not exist." << endl << endl;
+			return EXIT_FAILURE;
+		}
+	}
+
+	if (vm.count(TECTONIC_PLATE_POLE_FILE))
+	{
+		if (!exists(p.r.tpp_file))
+		{
+			cout << endl << "- Error: ";
+			cout << endl << "Euler pole parameters file " << endl << "               ";
+			cout << p.r.tpp_file << " does not exist." << endl << endl;
+			return EXIT_FAILURE;
+		}
+	}
+	
 	p.g.project_file = formPath<string>(p.g.output_folder, p.g.network_name, "dnaproj");
 
 	// binary station file location (input)
@@ -203,6 +225,19 @@ int main(int argc, char* argv[])
 				"Target reference frame for all stations and datum-dependent measurements.")
 			(EPOCH_E, value<string>(&p.r.epoch),
 				"Projected date for the transformed stations and measurements. arg is a dot delimited string \"dd.mm.yyyy\", or \"today\" if today's date is required. If no date is supplied, the reference epoch of the supplied reference frame will be used.")
+			(TECTONIC_PLATE_MODEL_OPTION, value<UINT16>(&p.r.plate_model_option),
+				string("Plate motion model option.\n"
+					"  0: Assume all stations are on the Australian plate (default)\n"
+					"  1: Interpolate plate motion model parameters from a defined\n"
+					"     set of global tectonic plates. For this option, a global\n"
+					"     tectonic plate boundary file and corresponding Euler\n"
+					"     plate motion parameters file must be provided.").c_str())
+			(TECTONIC_PLATE_BDY_FILE_B, value<string>(&p.r.tpb_file),
+				string("Global tectonic plate boundaries.").c_str())
+			(TECTONIC_PLATE_POLE_FILE_M, value<string>(&p.r.tpp_file), 
+				string("Euler pole parameters corresponding to the global tectonic plate boundaries supplied with option --" +
+					StringFromT(TECTONIC_PLATE_BDY_FILE) +
+					".").c_str())
 			;
 
 		export_options.add_options()
@@ -219,9 +254,9 @@ int main(int argc, char* argv[])
 		generic_options.add_options()
 			(VERBOSE, value<UINT16>(&p.g.verbose),
 				string("Give detailed information about what ").append(__BINARY_NAME__).append(" is doing.\n  0: No information (default)\n  1: Helpful information\n  2: Extended information\n  3: Debug level information").c_str())
-				(QUIET,
-					string("Suppresses all explanation of what ").append(__BINARY_NAME__).append(" is doing unless an error occurs").c_str())
-					(VERSION_V, "Display the current program version")
+			(QUIET,
+				string("Suppresses all explanation of what ").append(__BINARY_NAME__).append(" is doing unless an error occurs").c_str())
+			(VERSION_V, "Display the current program version")
 			(HELP_H, "Show this help message")
 			(HELP_MODULE, value<string>(),
 				"Provide help for a specific help category.")
@@ -293,6 +328,21 @@ int main(int argc, char* argv[])
 		return EXIT_SUCCESS;
 	}
 
+	if (vm.count(TECTONIC_PLATE_MODEL_OPTION))
+	{
+		if (!vm.count(TECTONIC_PLATE_BDY_FILE))
+		{
+			cout << endl << "- Error: A plate boundary file must be supplied in order to interpolate plate motion model parameters. See command line help for further information." << endl;
+			return EXIT_FAILURE;
+		}
+
+		if (!vm.count(TECTONIC_PLATE_POLE_FILE))
+		{
+			cout << endl << "- Error: A Euler pole parameters file must be supplied in order to interpolate plate motion model parameters. See command line help for further information." << endl;
+			return EXIT_FAILURE;
+		}
+	}
+
 	if (ParseCommandLineOptions(argc, argv, vm, p) != EXIT_SUCCESS)
 		return EXIT_FAILURE;
 
@@ -325,17 +375,24 @@ int main(int argc, char* argv[])
 					formattedDateStringFromNumericString<date>(p.r.epoch) << endl;
 			}
 		}
-		catch (const runtime_error &e) {
+		catch (const runtime_error& e) {
 			cout << endl << "- Error: " << e.what() << endl;
 			return EXIT_FAILURE;
 		}
-		catch (const RefTranException &e) {
+		catch (const RefTranException& e) {
 			cout << endl << "- Error: " << e.what() << endl;
 			return EXIT_FAILURE;
 		}
 		catch (...) {
 			cout << endl << "- Error: Unknown error." << endl;
 			return EXIT_FAILURE;
+		}
+
+		if (p.r.plate_model_option > 0)
+		{
+			cout << setw(PRINT_VAR_PAD) << left << "  Plate boundaries file: " << p.r.tpb_file << endl;
+			cout << setw(PRINT_VAR_PAD) << left << "  Plate pole parameter file: " << p.r.tpp_file << endl;
+
 		}
 
 		// Export options
@@ -363,6 +420,28 @@ int main(int argc, char* argv[])
 
 	dna_reftran refTran;
 
+	if (vm.count(TECTONIC_PLATE_MODEL_OPTION))
+	{
+		refTran.Identify_Plate();
+
+		// Load plate boundary and euler pole information
+		if (!p.g.quiet)
+			cout << "+ Loading global tectonic plate boundaries and plate motion information... ";
+	
+		try
+		{
+			refTran.LoadTectonicPlateParameters(p.r.tpb_file, p.r.tpp_file);
+		}
+		catch (const runtime_error& e) {
+			cout << endl << "- Error: " << e.what() << endl;
+			return EXIT_FAILURE;
+		}
+
+		if (!p.g.quiet)
+			cout << "done." << endl;
+	}
+
+
 	if (!p.g.quiet)
 		cout << "+ Transforming stations and measurements... ";
 
@@ -372,11 +451,11 @@ int main(int argc, char* argv[])
 		refTran.TransformBinaryFiles(p.r.bst_file, p.r.bms_file,
 			p.r.reference_frame, p.r.epoch);
 	}
-	catch (const runtime_error &e) {
+	catch (const runtime_error& e) {
 		cout << endl << "- Error: " << e.what() << endl;
 		return EXIT_FAILURE;
 	}
-	catch (const RefTranException &e) {
+	catch (const RefTranException& e) {
 		cout << endl << "- Error: " << e.what() << endl;
 		return EXIT_FAILURE;
 	}
@@ -492,7 +571,7 @@ int main(int argc, char* argv[])
 			}
 			
 		}
-		catch (const XMLInteropException &e) {
+		catch (const XMLInteropException& e) {
 			cout.flush();
 			cout << endl << "- Error: " << e.what() << endl;
 			return EXIT_FAILURE;
@@ -517,7 +596,7 @@ int main(int argc, char* argv[])
 			if (!p.g.quiet)
 				cout << "Done." << endl;
 		}
-		catch (const XMLInteropException &e) {
+		catch (const XMLInteropException& e) {
 			cout.flush();
 			cout << endl << "- Error: " << e.what() << endl;
 			return EXIT_FAILURE;

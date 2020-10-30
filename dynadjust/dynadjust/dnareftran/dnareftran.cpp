@@ -64,6 +64,10 @@ void dna_reftran::TransformBinaryFiles(const string& bstFile, const string& bmsF
 	// 1. Load binary files
 	// load the binary station file into memory
 	LoadBinaryStationFile(bstFile);
+
+	if (projectSettings_.r.plate_model_option == 1)
+		IdentifyStationPlate();
+
 	// load the binary measurement file into memory
 	LoadBinaryMeasurementFile(bmsFile);
 
@@ -138,6 +142,151 @@ void dna_reftran::TransformBinaryMeasurementFile(const string& bmsFile, const st
 	WriteBinaryMeasurementFile(bmsFile);
 
 }
+	
+// Obtain the two-character ID for the tectonic plate on which each station lies, and assign
+// to the binary station record.  Uses boost 'point in polygon' search.
+// Then, when plate motion model parameters are required for a site, the appropriate parameters
+// can be selected using he two-character ID.
+void dna_reftran::IdentifyStationPlate()
+{
+	it_vstn_t stn_it;
+
+	dnaGeometryPolygon platePolygon;
+	v_doubledouble_pair::reverse_iterator _it_boundary_points; 
+
+	it_v_string_v_doubledouble_pair _it_plates;
+	dnaGeometryPoint<double> point;
+
+	size_t stnCount(bstBinaryRecords_.size());
+	vStnPlateMap_.clear();
+	vStnPlateMap_.reserve(stnCount);
+	string_uint32_pair stnPlate;
+	UINT32 p(0);
+
+	cout << endl;
+
+	for (_it_plates=global_plates_.begin(); _it_plates!=global_plates_.end(); ++_it_plates)
+	{
+		boost::geometry::clear(platePolygon);
+
+		// TODO: consider changing global_plates_ from a vector of (double pairs) to dnaGeometryPoints
+		// tectonic plates loaded in anticlockwise order.
+		for (_it_boundary_points=_it_plates->second.rbegin();
+			_it_boundary_points!=_it_plates->second.rend();
+			++_it_boundary_points)
+		{
+			point.set_east_long(_it_boundary_points->first);
+			point.set_north_lat(_it_boundary_points->second);
+			boost::geometry::append(platePolygon, point);
+		}
+
+		//if (iequals(_it_plates->first, "AU"))
+		//	cout << endl << _it_plates->first << endl << 
+		//		boost::geometry::wkt(platePolygon) << endl;
+
+		for (stn_it=bstBinaryRecords_.begin(); stn_it!=bstBinaryRecords_.end(); ++stn_it)
+		{
+			if (stn_it->plate[0] >= 'A' && stn_it->plate[0] <= 'Z')
+				continue;
+				
+			point.set_east_long(radians_to_degrees_(stn_it->currentLongitude));
+			point.set_north_lat(radians_to_degrees_(stn_it->currentLatitude));
+
+			if (boost::geometry::within(point, platePolygon))
+			{
+				sprintf(stn_it->plate, "%s", _it_plates->first.c_str());
+				stnPlate.first = _it_plates->first;
+				stnPlate.second = p++;
+				vStnPlateMap_.push_back(stnPlate);
+				cout << "Station " << stn_it->stationName << " is on plate " << _it_plates->first << endl;
+			}	
+		}
+
+	}
+
+	sort(vStnPlateMap_.begin(), vStnPlateMap_.end());
+}
+
+	
+void dna_reftran::LoadTectonicPlateParameters(const string& pltfileName, const string& pmmfileName)
+{
+	dna_io_tpb tpb;
+	stringstream ss;
+	ss << "LoadTectonicPlateParameters(): An error was encountered when loading tectonic plate information." << endl;
+	
+	projectSettings_.r.plate_model_option = 1;
+
+	try {
+	
+		// Load tectonic plate parameters.  Throws runtime_error on failure.
+		tpb.load_tpp_file(pmmfileName, plate_motion_eulers_);
+		sort(plate_motion_eulers_.begin(), plate_motion_eulers_.end());
+
+		// Load tectonic plate polygons.  Throws runtime_error on failure.
+		tpb.load_tpb_file(pltfileName, global_plates_);
+		sort(global_plates_.begin(), global_plates_.end());		
+	}
+	catch (const runtime_error& e) {
+		ss << e.what();
+		throw boost::enable_current_exception(runtime_error(ss.str()));
+	}
+
+	string message;
+	if (!tpb.validate_plate_files(global_plates_, plate_motion_eulers_, message))
+	{
+		ss << "         " << message << endl;
+		throw boost::enable_current_exception(runtime_error(ss.str()));
+	}
+
+	try {
+		CalculateRotations();
+	}
+	catch (const runtime_error& e) {
+		ss << e.what();
+		throw boost::enable_current_exception(runtime_error(ss.str()));
+	}
+
+	// transformation_parameter_set transformParameters;
+	// string plate("AU");
+	// typedef pair <string, transformation_parameter_set> plate_parameters;
+	// vector <plate_parameters> v_plate_parameters;
+
+	// plate = AU_PLATE_MOTION_MODEL<double, string>::plate_id;
+
+	// it_v_string_v_doubledouble_pair it_plate_params;
+	// for (it_plate_params = global_plates_.begin(); it_plate_params != global_plates_.end(); ++it_plate_params)
+	// {
+	// 	plate = it_plate_params->first;
+	// 	determinePlateMotionModelParameters<double, UINT32>(transformParameters, plate);
+	// 	v_plate_parameters.push_back(plate_parameters(plate, transformParameters));
+	// }
+}
+	
+void dna_reftran::CalculateRotations()
+{
+	plate_motion_cartesians_.clear();
+
+	plate_motion_cartesian pmm;
+	double r_lat, r_lon, r_rot;
+	
+	for (it_plate_motion_euler i = plate_motion_eulers_.begin();
+		i != plate_motion_eulers_.end(); ++i)
+	{
+		pmm.plate_name = i->plate_name;
+		pmm.pole_param_author = i->pole_param_author;
+		
+		r_lat = Radians<double>(i->pole_latitude);			// D2 = pole latitude
+		r_lon = Radians<double>(i->pole_longitude);			// E2 = pole longitude
+		r_rot = Radians<double>(i->pole_rotation_rate);		// F2 = rotation rate
+
+		pmm.x_rotation = r_rot * cos(r_lon) * cos(r_lat);		// =RADIANS(F2)*COS(RADIANS(E2))*COS(RADIANS(D2))
+		pmm.y_rotation = r_rot * cos(r_lon) * sin(r_lat);		// =RADIANS(F2)*COS(RADIANS(E2))*SIN(RADIANS(D2))
+		pmm.z_rotation = r_rot * sin(r_lon);					// =RADIANS(F2)*SIN(RADIANS(E2))
+
+		plate_motion_cartesians_.push_back(pmm);
+	}
+
+}
 
 void dna_reftran::LoadBinaryStationFile(const string& bstfileName)
 {
@@ -206,18 +355,42 @@ void dna_reftran::WriteBinaryMeasurementFile(const string& bmsfileName)
 }
 	
 
-void dna_reftran::ObtainPlateMotionParameters(double* reduced_parameters, 
+UINT32 dna_reftran::DetermineTectonicPlate(const string& plate)
+{
+	it_pair_string_vUINT32 it_stnPlate = equal_range(vStnPlateMap_.begin(), vStnPlateMap_.end(), 
+		plate, StationNameIDCompareName());
+
+	if (it_stnPlate.first == it_stnPlate.second)
+	{
+		stringstream error_msg;
+		error_msg << "An attempt to find plate motion model parameters failed for " << 
+			plate << ".";
+		throw RefTranException(error_msg.str());
+	}
+
+	return it_stnPlate.first->second;
+}
+	
+
+// Use plate motion model to project coordinates between epochs
+// This method selects plate motion parameters based on the 
+// tectonic plate within which the point lies.
+void dna_reftran::ObtainPlateMotionParameters(it_vstn_t& stn_it, double* reduced_parameters,
 	const CDnaDatum& datumFrom, const CDnaDatum& datumTo, transformation_parameter_set& transformParameters)
 {
 	transformationType transformation_type = __plate_motion_model__;
 
-	// Use plate motion model to project coordinates between epochs
-	// NOTE: This only retrieves the Australian Plate Motion Model.
-	// TODO: Need a way of interpolating from a global (ITRF) plate motion
-	//       model to determine which plate to use. Otherwise, the wrong
-	//       results will be produced if the Aus plate is used to transform
-	//       points on other plates.
-	determinePlateMotionModelParameters<UINT32>(transformParameters);
+	if (projectSettings_.r.plate_model_option == 0)
+		getAustralianPlateMotionModelParameters<double, UINT32>(transformParameters);
+	else
+	{
+		UINT32 plateIndex = DetermineTectonicPlate(stn_it->plate);
+		setDefinedPlateMotionModelParameters<double, UINT32>(transformParameters,
+			plate_motion_cartesians_.at(plateIndex).x_rotation,
+			plate_motion_cartesians_.at(plateIndex).y_rotation,
+			plate_motion_cartesians_.at(plateIndex).z_rotation);
+	}
+
 	double timeElapsed = DetermineElapsedTime(datumFrom, datumTo, 
 		transformParameters, transformation_type);
 	ReduceParameters<double>(transformParameters.parameters_, 
@@ -229,7 +402,7 @@ void dna_reftran::ObtainPlateMotionParameters(double* reduced_parameters,
 //  - at least one of the input/output frames is static
 // NOTE: Joining uses itrf2014 as the "stepping" frame
 // If an exception is thrown, there's not much more we can do
-void dna_reftran::JoinTransformationParameters(double* reduced_parameters, 
+void dna_reftran::JoinTransformationParameters(it_vstn_t& stn_it, double* reduced_parameters, 
 	const CDnaDatum& datumFrom, const CDnaDatum& datumTo, transformation_parameter_set& transformParameters,
 	transformationType transType)
 {
@@ -249,6 +422,8 @@ void dna_reftran::JoinTransformationParameters(double* reduced_parameters,
 		break;
 	case __dynamic_to_static__:
 		datumStep.SetEpoch(datumFrom.GetEpoch());
+		break;
+	default:
 		break;
 	}
 
@@ -297,7 +472,7 @@ void dna_reftran::JoinTransformationParameters(double* reduced_parameters,
 		switch (rft.exception_type())
 		{
 		case REFTRAN_TRANS_ON_PLATE_REQUIRED:
-			ObtainPlateMotionParameters(reduced_parameters, datumFrom, datumTo, transformParameters);
+			ObtainPlateMotionParameters(stn_it, reduced_parameters, datumFrom, datumTo, transformParameters);
 			break;
 		default:
 			stringstream error_msg;
@@ -345,7 +520,7 @@ void dna_reftran::JoinTransformationParameters(double* reduced_parameters,
 		switch (rft.exception_type())
 		{
 		case REFTRAN_TRANS_ON_PLATE_REQUIRED:
-			ObtainPlateMotionParameters(reduced_parameters_step, datumFrom, datumTo, transformParameters);
+			ObtainPlateMotionParameters(stn_it, reduced_parameters_step, datumFrom, datumTo, transformParameters);
 			break;
 		default:
 			stringstream error_msg;
@@ -382,16 +557,14 @@ void dna_reftran::JoinTransformationParameters(double* reduced_parameters,
 }
 	
 
-void dna_reftran::TransformEpochs_PlateMotionModel(const matrix_2d& coordinates, matrix_2d& coordinates_mod,
+void dna_reftran::TransformEpochs_PlateMotionModel(it_vstn_t& stn_it, const matrix_2d& coordinates, matrix_2d& coordinates_mod,
 	const CDnaDatum& datumFrom, const CDnaDatum& datumTo, transformation_parameter_set& transformParameters)
 {
-	// At this point, a REFTRAN_TRANS_ON_PLATE_REQUIRED exception has been 
-	// thrown, caught and re-directed to here.
-	// Try propagating the parameters using the Aus Plate Motion Model.
+	// Propagate parameters using the appropriate Plate Motion Model.
 	// If this attempt raises an exception, it will be caught by the 
 	// calling method
 	double reduced_parameters[7];
-	ObtainPlateMotionParameters(reduced_parameters, datumFrom, datumTo, transformParameters);
+	ObtainPlateMotionParameters(stn_it, reduced_parameters, datumFrom, datumTo, transformParameters);
 
 #ifdef _MSDEBUG
 	TRACE("Final reduced parameters:\n");
@@ -412,9 +585,56 @@ void dna_reftran::TransformEpochs_PlateMotionModel(const matrix_2d& coordinates,
 	coordinates_mod.trace("coords_mod", "%.4f ");
 #endif
 }
+
+void dna_reftran::Identify_Plate()
+{
+	dnaGeometryPoint<double> point;
+	dnaGeometryPolygon platePolygon;
+
+	// Define a (crude) polygon for Victoria
+	// Clockwise
+	boost::geometry::read_wkt("POLYGON((140 -34, 147 -36, 149 -37.30, 146 -39, 140 -38 ))", platePolygon);
+
+	bool within(false);
+	
+	// Eltham (inside)
+	point.set_east_long(145.150890);
+	point.set_north_lat(-37.735957);
+	within = boost::geometry::within(point, platePolygon);
+
+	cout << "  - Coordinates " << fixed << setprecision(9) << point.get_east_long() << ", " << point.get_north_lat() << " are" << (within ? " " : " not ") << "within the polygon." << endl;
+
+	//  Just east of the north western boundary of the polygon (outside)
+	point.set_east_long(140.00000125);
+	point.set_north_lat(-34.);
+	within = boost::geometry::within(point, platePolygon);
+
+	cout << "  - Coordinates " << point.get_east_long() << ", " << point.get_north_lat() << " are" << (within ? " " : " not ") << "within the polygon." << endl;
+
+	//  Further east of the north western boundary of the polygon (outside)
+	point.set_east_long(140.0045);
+	point.set_north_lat(-34.);
+	within = boost::geometry::within(point, platePolygon);
+
+	cout << "  - Coordinates " << point.get_east_long() << ", " << point.get_north_lat() << " are" << (within ? " " : " not ") << "within the polygon." << endl;
+
+	//  West of the western boundary of the polygon (outside)
+	point.set_east_long(139.995478);
+	point.set_north_lat(-35.);
+	within = boost::geometry::within(point, platePolygon);
+
+	cout << "  - Coordinates " << point.get_east_long() << ", " << point.get_north_lat() << " are" << (within ? " " : " not ") << "within the polygon." << endl;
+
+	//  West of the most eastern corner of the polygon (inside)
+	point.set_east_long(148.995478);
+	point.set_north_lat(-37.30);
+	within = boost::geometry::within(point, platePolygon);
+
+	cout << "  - Coordinates " << point.get_east_long() << ", " << point.get_north_lat() << " are" << (within ? " " : " not ") << "within the polygon." << endl;
+}
 	
 
-void dna_reftran::TransformFrames_PlateMotionModel(const matrix_2d& coordinates, matrix_2d& coordinates_mod,
+void dna_reftran::TransformFrames_PlateMotionModel(it_vstn_t& stn_it, const matrix_2d& coordinates, matrix_2d& coordinates_mod,
 	const CDnaDatum& datumFrom, const CDnaDatum& datumTo, transformation_parameter_set& transformParameters)
 {
 	// For this scenario, three steps are involved.  The sequence is very similar to
@@ -434,7 +654,7 @@ void dna_reftran::TransformFrames_PlateMotionModel(const matrix_2d& coordinates,
 	//	1. Transform datumFrom to ITRF2014 (using the epoch of the input dynamic frame)
 	if (datumFrom.GetEpsgCode_i() != datumStep1.GetEpsgCode_i())
 	{
-		TransformFrames_WithoutPlateMotionModel(coordinates, coordinates_mod, datumFrom, datumStep1,
+		TransformFrames_WithoutPlateMotionModel(stn_it, coordinates, coordinates_mod, datumFrom, datumStep1,
 			transformParameters, __dynamic_to_dynamic__);
 		coordinates_tmp = coordinates_mod;
 	}
@@ -442,13 +662,13 @@ void dna_reftran::TransformFrames_PlateMotionModel(const matrix_2d& coordinates,
 	//	2. Apply PMM (transform from input epoch to output epoch on ITRF2014)
 	// Create the step datum and set the epoch to the epoch of the output data
 		
-	TransformEpochs_PlateMotionModel(coordinates_tmp, coordinates_mod, datumStep1, datumStep2, transformParameters);
+	TransformEpochs_PlateMotionModel(stn_it, coordinates_tmp, coordinates_mod, datumStep1, datumStep2, transformParameters);
 
 	//  3. Transform ITRF2014 to datumTo (using the epoch of the output dynamic frame)
 	if (datumStep2.GetEpsgCode_i() != datumTo.GetEpsgCode_i())
 	{
 		coordinates_tmp = coordinates_mod;
-		TransformFrames_WithoutPlateMotionModel(coordinates_tmp, coordinates_mod, datumStep2, datumTo,
+		TransformFrames_WithoutPlateMotionModel(stn_it, coordinates_tmp, coordinates_mod, datumStep2, datumTo,
 			transformParameters, __dynamic_to_dynamic__);
 	}
 }
@@ -460,7 +680,7 @@ void dna_reftran::TransformFrames_PlateMotionModel(const matrix_2d& coordinates,
 // Secondary scenario - no parameters exist, in which case a REFTRAN_DIRECT_PARAMS_UNAVAILABLE exception is
 // thrown and caught, and TransformFrames_Join handles the transformation using ITRF2014 as a step.
 
-void dna_reftran::TransformFrames_WithoutPlateMotionModel(const matrix_2d& coordinates, matrix_2d& coordinates_mod,
+void dna_reftran::TransformFrames_WithoutPlateMotionModel(it_vstn_t& stn_it, const matrix_2d& coordinates, matrix_2d& coordinates_mod,
 	const CDnaDatum& datumFrom, const CDnaDatum& datumTo, transformation_parameter_set& transformParameters,
 	transformationType transType)
 {
@@ -524,7 +744,7 @@ void dna_reftran::TransformFrames_WithoutPlateMotionModel(const matrix_2d& coord
 		switch (rft.exception_type())
 		{
 		case REFTRAN_DIRECT_PARAMS_UNAVAILABLE:
-			TransformFrames_Join(coordinates, coordinates_mod, datumFrom, datumTo, transformParameters, transType);
+			TransformFrames_Join(stn_it, coordinates, coordinates_mod, datumFrom, datumTo, transformParameters, transType);
 			break;
 		default:
 			throw RefTranException(rft.what());
@@ -533,14 +753,12 @@ void dna_reftran::TransformFrames_WithoutPlateMotionModel(const matrix_2d& coord
 }
 
 
-void dna_reftran::TransformDynamic(const matrix_2d& coordinates, matrix_2d& coordinates_mod,
+void dna_reftran::TransformDynamic(it_vstn_t& stn_it, const matrix_2d& coordinates, matrix_2d& coordinates_mod,
 	const CDnaDatum& datumFrom, const CDnaDatum& datumTo, transformation_parameter_set& transformParameters,
 	transformationType transType)
 {
 	epochSimilarity epoch_similarity;
 	frameSimilarity frame_similarity;
-
-	bool applyPMMParameters(false);
 
 	//   If REFTRAN_TRANS_ON_PLATE_REQUIRED is thrown, the exception is caught 
 	//   and the plate motion model is applied.  The only problem is, the 
@@ -564,7 +782,7 @@ void dna_reftran::TransformDynamic(const matrix_2d& coordinates, matrix_2d& coor
 	if (frame_similarity == __frame_frame_diff__ &&
 		epoch_similarity == __epoch_epoch_same__)
 	{
-		TransformFrames_WithoutPlateMotionModel(coordinates, coordinates_mod, datumFrom, datumTo,
+		TransformFrames_WithoutPlateMotionModel(stn_it, coordinates, coordinates_mod, datumFrom, datumTo,
 			transformParameters, transType);
 	}
 	else
@@ -573,13 +791,13 @@ void dna_reftran::TransformDynamic(const matrix_2d& coordinates, matrix_2d& coor
 		// if the input and output reference frames are different AND
 		// the input and output epochs are different
 
-		TransformFrames_PlateMotionModel(coordinates, coordinates_mod, datumFrom, datumTo,
+		TransformFrames_PlateMotionModel(stn_it, coordinates, coordinates_mod, datumFrom, datumTo,
 			transformParameters);
 	}
 }
 	
 
-void dna_reftran::Transform(const matrix_2d& coordinates, matrix_2d& coordinates_mod,
+void dna_reftran::Transform(it_vstn_t& stn_it, const matrix_2d& coordinates, matrix_2d& coordinates_mod,
 	const CDnaDatum& datumFrom, transformation_parameter_set& transformParameters)
 {
 	transformationType transformation_type;	
@@ -614,7 +832,7 @@ void dna_reftran::Transform(const matrix_2d& coordinates, matrix_2d& coordinates
 	case __dynamic_to_static__:
 
 		// At least one frame is static
-		TransformFrames_WithoutPlateMotionModel(coordinates, coordinates_mod, datumFrom, datumTo_,
+		TransformFrames_WithoutPlateMotionModel(stn_it, coordinates, coordinates_mod, datumFrom, datumTo_,
 			transformParameters, transformation_type);
 		break;
 
@@ -633,8 +851,10 @@ void dna_reftran::Transform(const matrix_2d& coordinates, matrix_2d& coordinates
 	//     1. apply PMM between epochs
 	case __dynamic_to_dynamic__:
 		// Both frames are dynamic
-		TransformDynamic(coordinates, coordinates_mod, datumFrom, datumTo_,
+		TransformDynamic(stn_it, coordinates, coordinates_mod, datumFrom, datumTo_,
 			transformParameters, transformation_type);
+		break;
+	default:
 		break;
 	}
 }
@@ -644,12 +864,12 @@ void dna_reftran::Transform(const matrix_2d& coordinates, matrix_2d& coordinates
 // Try joining two sets associated with ITRF2014
 // If this attempt raises an exception, it will be caught by the 
 // calling method
-void dna_reftran::TransformFrames_Join(const matrix_2d& coordinates, matrix_2d& coordinates_mod,
+void dna_reftran::TransformFrames_Join(it_vstn_t& stn_it, const matrix_2d& coordinates, matrix_2d& coordinates_mod,
 	const CDnaDatum& datumFrom, const CDnaDatum& datumTo, transformation_parameter_set& transformParameters,
 	transformationType transType)
 {
 	double reduced_parameters[7];
-	JoinTransformationParameters(reduced_parameters, datumFrom, datumTo, transformParameters, transType);
+	JoinTransformationParameters(stn_it, reduced_parameters, datumFrom, datumTo, transformParameters, transType);
 
 	// Transform!
 	Transform_7parameter<double>(coordinates, coordinates_mod, reduced_parameters);
@@ -901,7 +1121,7 @@ void dna_reftran::TransformStation(it_vstn_t& stn_it, const CDnaDatum& datumFrom
 		datumFrom.GetEllipsoidRef());
 
 	// 2. Transform!
-	Transform(coordinates, coordinates_mod, datumFrom, transformParameters);
+	Transform(stn_it, coordinates, coordinates_mod, datumFrom, transformParameters);
 
 	// 3. Convert back to geographic
 	CartToGeo<double>(coordinates_mod.get(0, 0), 
@@ -1076,10 +1296,10 @@ void dna_reftran::TransformMeasurement_GX(it_vmsr_t& msr_it, const CDnaDatum& da
 		coordinates2.elementadd(2, 0, msr_it->term1);
 		
 		// 3. Transform station 1
-		Transform(coordinates1, coordinates1_mod, datumFrom, transformParameters);
+		Transform(stn1_it, coordinates1, coordinates1_mod, datumFrom, transformParameters);
 				
 		// 5. Transform station 2
-		Transform(coordinates2, coordinates2_mod, datumFrom, transformParameters);
+		Transform(stn2_it, coordinates2, coordinates2_mod, datumFrom, transformParameters);
 		
 		// update transformation count
 		m_msrsTransformed += 3;
@@ -1121,6 +1341,7 @@ void dna_reftran::TransformMeasurement_Y(it_vmsr_t& msr_it, const CDnaDatum& dat
 {
 	UINT32 cluster_pnt, pnt_count(msr_it->vectorCount1);
 	UINT32 covariance_count;
+	it_vstn_t stn_it;
 
 	matrix_2d coordinates(3, 1), coordinates_mod(3, 1);
 	
@@ -1157,8 +1378,10 @@ void dna_reftran::TransformMeasurement_Y(it_vmsr_t& msr_it, const CDnaDatum& dat
 				datumFrom.GetEllipsoidRef());
 		}
 		
+		stn_it = bstBinaryRecords_.begin() + msr_it->station1;
+
 		// Transform
-		Transform(coordinates, coordinates_mod, datumFrom, transformParameters);
+		Transform(stn_it, coordinates, coordinates_mod, datumFrom, transformParameters);
 
 		// update transformation count
 		m_msrsTransformed += 3;

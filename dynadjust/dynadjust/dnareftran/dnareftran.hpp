@@ -43,6 +43,7 @@ using namespace boost;
 using namespace boost::posix_time;
 using namespace boost::filesystem;
 
+#include <include/io/dnaiotpb.hpp>
 #include <include/io/dnaiobst.hpp>
 #include <include/io/dnaiobms.hpp>
 #include <include/io/dnaiodna.hpp>
@@ -64,15 +65,19 @@ using namespace boost::filesystem;
 #include <include/parameters/dnaprojection.hpp>
 #include <include/parameters/dnadatum.hpp>
 #include <include/parameters/dnatransformationparameters.hpp>
-#include <include/measurement_types/dnameasurement.hpp>
+#include <include/parameters/dnaplatemotionmodels.hpp>
 #include <include/math/dnamatrix_contiguous.hpp>
+#include <include/measurement_types/dnameasurement.hpp>
+#include <include/measurement_types/dnageometries.hpp>
 
 using namespace dynadjust::measurements;
 using namespace dynadjust::exception;
 using namespace dynadjust::iostreams;
 using namespace dynadjust::epsg;
 using namespace dynadjust::datum_parameters;
+using namespace dynadjust::pmm_parameters;
 using namespace dynadjust::math;
+using namespace dynadjust::geometries;
 
 namespace dynadjust {
 namespace referenceframe {
@@ -116,6 +121,10 @@ public:
 
 	bool PrintTransformedStationCoordinatestoSNX(const project_settings& p);
 
+	void Identify_Plate();
+
+	void LoadTectonicPlateParameters(const string& pltfileName, const string& pmmfileName);
+
 private:
 
 	void LoadBinaryStationFile(const string& bstfileName);
@@ -133,31 +142,33 @@ private:
 	void ObtainHelmertParameters(const CDnaDatum& datumFrom, const CDnaDatum& datumTo, 
 		transformation_parameter_set& transParams, double& timeElapsed, transformationType transType);
 	
-	void ObtainPlateMotionParameters(double* reduced_parameters, const CDnaDatum& datumFrom, const CDnaDatum& datumTo,
+	UINT32 DetermineTectonicPlate(const string& plate);
+
+	void ObtainPlateMotionParameters(it_vstn_t& stn_it, double* reduced_parameters, const CDnaDatum& datumFrom, const CDnaDatum& datumTo,
 		transformation_parameter_set& transformParameters);
 
-	void JoinTransformationParameters(double* reduced_parameters, const CDnaDatum& datumFrom, const CDnaDatum& datumTo,
+	void JoinTransformationParameters(it_vstn_t& stn_it, double* reduced_parameters, const CDnaDatum& datumFrom, const CDnaDatum& datumTo,
 		transformation_parameter_set& transformParameters, transformationType transType);
 
-	void Transform(const matrix_2d& coordinates, matrix_2d& coordinates_mod, 
+	void Transform(it_vstn_t& stn_it, const matrix_2d& coordinates, matrix_2d& coordinates_mod, 
 		const CDnaDatum& datumFrom, transformation_parameter_set& transformParameters);
 
-	void TransformDynamic(const matrix_2d& coordinates, matrix_2d& coordinates_mod,
+	void TransformDynamic(it_vstn_t& stn_it, const matrix_2d& coordinates, matrix_2d& coordinates_mod,
 		const CDnaDatum& datumFrom, const CDnaDatum& datumTo, transformation_parameter_set& transformParameters,
 		transformationType transType);
 
-	void TransformFrames_Join(const matrix_2d& coordinates, matrix_2d& coordinates_mod,
+	void TransformFrames_Join(it_vstn_t& stn_it, const matrix_2d& coordinates, matrix_2d& coordinates_mod,
 		const CDnaDatum& datumFrom, const CDnaDatum& datumTo, transformation_parameter_set& transformParameters,
 		transformationType transType);
-	
-	void TransformFrames_PlateMotionModel(const matrix_2d& coordinates, matrix_2d& coordinates_mod,
+
+	void TransformFrames_PlateMotionModel(it_vstn_t& stn_it, const matrix_2d& coordinates, matrix_2d& coordinates_mod,
 		const CDnaDatum& datumFrom, const CDnaDatum& datumTo, transformation_parameter_set& transformParameters);
 
-	void TransformFrames_WithoutPlateMotionModel(const matrix_2d& coordinates, matrix_2d& coordinates_mod,
+	void TransformFrames_WithoutPlateMotionModel(it_vstn_t& stn_it, const matrix_2d& coordinates, matrix_2d& coordinates_mod,
 		const CDnaDatum& datumFrom, const CDnaDatum& datumTo, transformation_parameter_set& transformParameters,
 		transformationType transType);
 
-	void TransformEpochs_PlateMotionModel(const matrix_2d& coordinates, matrix_2d& coordinates_mod,
+	void TransformEpochs_PlateMotionModel(it_vstn_t& stn_it, const matrix_2d& coordinates, matrix_2d& coordinates_mod,
 		const CDnaDatum& datumFrom, const CDnaDatum& datumTo, transformation_parameter_set& transformParameters);
 
 	void TransformStation(it_vstn_t& stn_it, const CDnaDatum& datumFrom,
@@ -170,24 +181,34 @@ private:
 	void TransformMeasurement_Y(it_vmsr_t& msr_it, const CDnaDatum& datumFrom, 
 		transformation_parameter_set& transformParameters);
 
-	double				m_dPercentComplete;			// percentage of bytes read from file
-	int					m_iBytesRead;				// bytes read from file
-	UINT32				m_stnsTransformed;
-	UINT32				m_stnsNotTransformed;
-	UINT32				m_msrsTransformed;
-	UINT32				m_msrsNotTransformed;
-
-	binary_file_meta_t	bst_meta_;
-	binary_file_meta_t	bms_meta_;
-
-	vstn_t				bstBinaryRecords_;
-	vmsr_t				bmsBinaryRecords_;
+	void IdentifyStationPlate();
 	
-	project_settings	projectSettings_;
-	CDnaDatum			datumTo_;
-	CDnaDatum			datumFrom_;
+	void CalculateRotations();
 
-	bool				transformationPerformed_;
+	double							m_dPercentComplete;			// percentage of bytes read from file
+	int								m_iBytesRead;				// bytes read from file
+	UINT32							m_stnsTransformed;
+	UINT32							m_stnsNotTransformed;
+	UINT32							m_msrsTransformed;
+	UINT32							m_msrsNotTransformed;
+
+	binary_file_meta_t				bst_meta_;
+	binary_file_meta_t				bms_meta_;
+
+	vstn_t							bstBinaryRecords_;
+	vmsr_t							bmsBinaryRecords_;
+	
+	project_settings				projectSettings_;
+	CDnaDatum						datumTo_;
+	CDnaDatum						datumFrom_;
+
+	bool							transformationPerformed_;
+
+	v_string_v_doubledouble_pair	global_plates_;				// Tectonic plate boundaries
+	v_plate_motion_eulers			plate_motion_eulers_;		// Euler parameters corresponding to each plate
+	v_plate_motion_cartesians		plate_motion_cartesians_;	// Helmert parameters computed from Euler parameters
+
+	v_string_uint32_pair 			vStnPlateMap_;				// Plate Map index sorted on plate ID
 };
 
 }	// namespace referenceframe
