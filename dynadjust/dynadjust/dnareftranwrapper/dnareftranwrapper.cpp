@@ -422,7 +422,7 @@ int main(int argc, char* argv[])
 
 	if (vm.count(TECTONIC_PLATE_MODEL_OPTION))
 	{
-		refTran.Identify_Plate();
+		//refTran.Identify_Plate();
 
 		// Load plate boundary and euler pole information
 		if (!p.g.quiet)

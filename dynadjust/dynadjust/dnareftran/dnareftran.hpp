@@ -208,7 +208,7 @@ private:
 	v_plate_motion_eulers			plate_motion_eulers_;		// Euler parameters corresponding to each plate
 	v_plate_motion_cartesians		plate_motion_cartesians_;	// Helmert parameters computed from Euler parameters
 
-	v_string_uint32_pair 			vStnPlateMap_;				// Plate Map index sorted on plate ID
+	v_string_uint32_pair 			vplateMap_;					// Plate Map index sorted on plate ID
 };
 
 }	// namespace referenceframe

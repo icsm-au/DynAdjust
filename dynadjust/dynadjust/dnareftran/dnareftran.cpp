@@ -157,13 +157,14 @@ void dna_reftran::IdentifyStationPlate()
 	it_v_string_v_doubledouble_pair _it_plates;
 	dnaGeometryPoint<double> point;
 
-	size_t stnCount(bstBinaryRecords_.size());
-	vStnPlateMap_.clear();
-	vStnPlateMap_.reserve(stnCount);
+	//cout << endl;
+
+	size_t plateCount(global_plates_.size());
 	string_uint32_pair stnPlate;
 	UINT32 p(0);
 
-	cout << endl;
+	vplateMap_.clear();
+	vplateMap_.reserve(plateCount);	
 
 	for (_it_plates=global_plates_.begin(); _it_plates!=global_plates_.end(); ++_it_plates)
 	{
@@ -180,6 +181,10 @@ void dna_reftran::IdentifyStationPlate()
 			boost::geometry::append(platePolygon, point);
 		}
 
+		stnPlate.first = _it_plates->first;
+		stnPlate.second = p++;
+		vplateMap_.push_back(stnPlate);		
+
 		//if (iequals(_it_plates->first, "AU"))
 		//	cout << endl << _it_plates->first << endl << 
 		//		boost::geometry::wkt(platePolygon) << endl;
@@ -195,16 +200,12 @@ void dna_reftran::IdentifyStationPlate()
 			if (boost::geometry::within(point, platePolygon))
 			{
 				sprintf(stn_it->plate, "%s", _it_plates->first.c_str());
-				stnPlate.first = _it_plates->first;
-				stnPlate.second = p++;
-				vStnPlateMap_.push_back(stnPlate);
-				cout << "Station " << stn_it->stationName << " is on plate " << _it_plates->first << endl;
+				//cout << "Station " << stn_it->stationName << " is on plate " << _it_plates->first << endl;
 			}	
 		}
-
 	}
 
-	sort(vStnPlateMap_.begin(), vStnPlateMap_.end());
+	sort(vplateMap_.begin(), vplateMap_.end());
 }
 
 	
@@ -245,21 +246,6 @@ void dna_reftran::LoadTectonicPlateParameters(const string& pltfileName, const s
 		ss << e.what();
 		throw boost::enable_current_exception(runtime_error(ss.str()));
 	}
-
-	// transformation_parameter_set transformParameters;
-	// string plate("AU");
-	// typedef pair <string, transformation_parameter_set> plate_parameters;
-	// vector <plate_parameters> v_plate_parameters;
-
-	// plate = AU_PLATE_MOTION_MODEL<double, string>::plate_id;
-
-	// it_v_string_v_doubledouble_pair it_plate_params;
-	// for (it_plate_params = global_plates_.begin(); it_plate_params != global_plates_.end(); ++it_plate_params)
-	// {
-	// 	plate = it_plate_params->first;
-	// 	determinePlateMotionModelParameters<double, UINT32>(transformParameters, plate);
-	// 	v_plate_parameters.push_back(plate_parameters(plate, transformParameters));
-	// }
 }
 	
 void dna_reftran::CalculateRotations()
@@ -357,10 +343,10 @@ void dna_reftran::WriteBinaryMeasurementFile(const string& bmsfileName)
 
 UINT32 dna_reftran::DetermineTectonicPlate(const string& plate)
 {
-	it_pair_string_vUINT32 it_stnPlate = equal_range(vStnPlateMap_.begin(), vStnPlateMap_.end(), 
+	it_pair_string_vUINT32 it_plate = equal_range(vplateMap_.begin(), vplateMap_.end(), 
 		plate, StationNameIDCompareName());
 
-	if (it_stnPlate.first == it_stnPlate.second)
+	if (it_plate.first == it_plate.second)
 	{
 		stringstream error_msg;
 		error_msg << "An attempt to find plate motion model parameters failed for " << 
@@ -368,7 +354,7 @@ UINT32 dna_reftran::DetermineTectonicPlate(const string& plate)
 		throw RefTranException(error_msg.str());
 	}
 
-	return it_stnPlate.first->second;
+	return it_plate.first->second;
 }
 	
 
