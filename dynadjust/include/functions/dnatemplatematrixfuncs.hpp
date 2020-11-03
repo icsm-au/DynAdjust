@@ -775,10 +775,6 @@ void Transform_7parameter(const matrix_2d& mcoordinates, matrix_2d& mcoordinates
 	matrix_2d mrotations(3, 3);
 	FormHelmertRotationMatrix<T>(parameters[4], parameters[5], parameters[6], mrotations, RIGOROUS);
 	
-#ifdef _MSDEBUG
-	mrotations.trace("Transform_7Parameter - Rotation Matrix", "%.16G ");
-#endif 
-
 	// Put translations and scale into reducedParameters
 	matrix_2d mtrans_scale(4, 1, parameters, 4);
 
@@ -786,9 +782,6 @@ void Transform_7parameter(const matrix_2d& mcoordinates, matrix_2d& mcoordinates
 	TransformCartesian<T>(mcoordinates, mcoordinates_mod, 
 		mtrans_scale, mrotations);
 
-#ifdef _MSDEBUG
-	mcoordinates_mod.trace("Transform_7Parameter - Output", "%.16G ");
-#endif 
 }
 	
 

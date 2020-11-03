@@ -238,13 +238,13 @@ void dna_reftran::CalculateRotations()
 		pmm.plate_name = i->plate_name;
 		pmm.pole_param_author = i->pole_param_author;
 		
-		r_lat = Radians<double>(i->pole_latitude);			// D2 = pole latitude
-		r_lon = Radians<double>(i->pole_longitude);			// E2 = pole longitude
-		r_rot = Radians<double>(i->pole_longitude);			// F2 = rotation rate
-
-		pmm.x_rotation = r_rot * cos(r_lon) * cos(r_lat);		// =RADIANS(F2)*COS(RADIANS(E2))*COS(RADIANS(D2))
-		pmm.y_rotation = r_rot * cos(r_lon) * sin(r_lat);		// =RADIANS(F2)*COS(RADIANS(E2))*SIN(RADIANS(D2))
-		pmm.z_rotation = r_rot * sin(r_lon);					// =RADIANS(F2)*SIN(RADIANS(E2))
+		r_rot = Radians<double>(i->pole_rotation_rate);		// rotation rate
+		r_lat = Radians<double>(i->pole_latitude);			// pole latitude
+		r_lon = Radians<double>(i->pole_longitude);			// pole longitude
+		
+		pmm.x_rotation = r_rot * cos(r_lat) * cos(r_lon) * RAD_TO_SEC / 1000.;		// cos(r_lat) * cos(r_lon)
+		pmm.y_rotation = r_rot * cos(r_lat) * sin(r_lon) * RAD_TO_SEC / 1000.;		// cos(r_lat) * sin(r_lon)
+		pmm.z_rotation = r_rot * sin(r_lat) * RAD_TO_SEC / 1000.;		            // sin(r_lat) * r_rot
 
 		plate_motion_cartesians_.push_back(pmm);
 
@@ -532,13 +532,14 @@ void dna_reftran::JoinTransformationParameters(it_vstn_t& stn_it, double* reduce
 	
 
 void dna_reftran::TransformEpochs_PlateMotionModel(it_vstn_t& stn_it, const matrix_2d& coordinates, matrix_2d& coordinates_mod,
-	const CDnaDatum& datumFrom, const CDnaDatum& datumTo, transformation_parameter_set& transformParameters)
+	const CDnaDatum& datumFrom, const CDnaDatum& datumTo)
 {
 	// Propagate parameters using the appropriate Plate Motion Model.
 	// If this attempt raises an exception, it will be caught by the 
 	// calling method
 	double reduced_parameters[7];
 	double timeElapsed;
+	transformation_parameter_set transformParameters;
 	ObtainPlateMotionParameters(stn_it, reduced_parameters, datumFrom, datumTo, transformParameters, timeElapsed);
 
 #ifdef _MSDEBUG
@@ -582,8 +583,12 @@ void dna_reftran::TransformEpochs_PlateMotionModel(it_vstn_t& stn_it, const matr
 	}
 
 #ifdef _MSDEBUG
-	coordinates.trace("coords", "%.4f ");
-	coordinates_mod.trace("coords_mod", "%.4f ");
+	stringstream ss;
+	ss << "coords, " << datumFrom.GetName() << " @ " << referenceEpoch<double>(datumFrom.GetEpoch());
+	coordinates.trace(ss.str().c_str(), "%.4f ");
+	ss.str("");
+	ss << "coords_mod, " << datumTo.GetName() << " @ " << transformParameters.reference_epoch_;
+	coordinates_mod.trace(ss.str().c_str(), "%.4f ");
 #endif
 }
 
@@ -655,19 +660,36 @@ void dna_reftran::TransformFrames_PlateMotionModel(it_vstn_t& stn_it, const matr
 	//	1. Transform datumFrom to ITRF2014 (using the epoch of the input dynamic frame)
 	if (datumFrom.GetEpsgCode_i() != datumStep1.GetEpsgCode_i())
 	{
+#ifdef _MSDEBUG
+		TRACE("Step 1: Helmert transformation to ITRF2014 @ reference epoch\n");
+#endif
+
 		TransformFrames_WithoutPlateMotionModel(stn_it, coordinates, coordinates_mod, datumFrom, datumStep1,
 			transformParameters, __dynamic_to_dynamic__);
 		coordinates_tmp = coordinates_mod;
 	}
 
+#ifdef _MSDEBUG
+	TRACE("Step 2: Plate motion model transformation on ITRF from epoch of input frame to epoch of output frame\n");
+	stringstream ss;
+	ss << "Transforming from " << datumStep1.GetName() << " @ " << datumStep1.GetEpoch() << endl;
+	ss << "               to " << datumStep2.GetName() << " @ " << datumStep2.GetEpoch();
+	TRACE("%s\n", ss.str().c_str());
+#endif
+
+
 	//	2. Apply PMM (transform from input epoch to output epoch on ITRF2014)
 	// Create the step datum and set the epoch to the epoch of the output data
 		
-	TransformEpochs_PlateMotionModel(stn_it, coordinates_tmp, coordinates_mod, datumStep1, datumStep2, transformParameters);
+	TransformEpochs_PlateMotionModel(stn_it, coordinates_tmp, coordinates_mod, datumStep1, datumStep2);
 
 	//  3. Transform ITRF2014 to datumTo (using the epoch of the output dynamic frame)
 	if (datumStep2.GetEpsgCode_i() != datumTo.GetEpsgCode_i())
 	{
+#ifdef _MSDEBUG
+		TRACE("Step 3: Helmert transformation from ITRF to output frame @ epoch\n");
+#endif
+
 		coordinates_tmp = coordinates_mod;
 		TransformFrames_WithoutPlateMotionModel(stn_it, coordinates_tmp, coordinates_mod, datumStep2, datumTo,
 			transformParameters, __dynamic_to_dynamic__);
@@ -697,21 +719,26 @@ void dna_reftran::TransformFrames_WithoutPlateMotionModel(it_vstn_t& stn_it, con
 			timeElapsed, transType);
 
 #ifdef _MSDEBUG
-		TRACE("Raw parameters:\n");
-		TRACE("%11.8f\n", transformParameters.parameters_[0]);
-		TRACE("%11.8f\n", transformParameters.parameters_[1]);
-		TRACE("%11.8f\n", transformParameters.parameters_[2]);
-		TRACE("%11.8f\n", transformParameters.parameters_[3]);
-		TRACE("%11.8f\n", transformParameters.parameters_[4]);
-		TRACE("%11.8f\n", transformParameters.parameters_[5]);
-		TRACE("%11.8f\n", transformParameters.parameters_[6]);
-		TRACE("%11.8f\n", transformParameters.parameters_[7]);
-		TRACE("%11.8f\n", transformParameters.parameters_[8]);
-		TRACE("%11.8f\n", transformParameters.parameters_[9]);
-		TRACE("%11.8f\n", transformParameters.parameters_[10]);
-		TRACE("%11.8f\n", transformParameters.parameters_[11]);
-		TRACE("%11.8f\n", transformParameters.parameters_[12]);
-		TRACE("%11.8f\n\n", transformParameters.parameters_[13]);
+		stringstream ss;
+		ss << "Transforming from " << datumFrom.GetName() << " @ " << fixed << setprecision(4) << referenceEpoch<double>(datumFrom.GetEpoch()) << endl;
+		ss << "               to " << datumTo.GetName() << " @ " << fixed << setprecision(4) << transformParameters.reference_epoch_;
+		TRACE("%s\n", ss.str().c_str());
+
+		//TRACE("Raw parameters:\n");
+		//TRACE("%11.8f\n", transformParameters.parameters_[0]);
+		//TRACE("%11.8f\n", transformParameters.parameters_[1]);
+		//TRACE("%11.8f\n", transformParameters.parameters_[2]);
+		//TRACE("%11.8f\n", transformParameters.parameters_[3]);
+		//TRACE("%11.8f\n", transformParameters.parameters_[4]);
+		//TRACE("%11.8f\n", transformParameters.parameters_[5]);
+		//TRACE("%11.8f\n", transformParameters.parameters_[6]);
+		//TRACE("%11.8f\n", transformParameters.parameters_[7]);
+		//TRACE("%11.8f\n", transformParameters.parameters_[8]);
+		//TRACE("%11.8f\n", transformParameters.parameters_[9]);
+		//TRACE("%11.8f\n", transformParameters.parameters_[10]);
+		//TRACE("%11.8f\n", transformParameters.parameters_[11]);
+		//TRACE("%11.8f\n", transformParameters.parameters_[12]);
+		//TRACE("%11.8f\n\n", transformParameters.parameters_[13]);
 #endif
 
 		// Reduce the parameters to the appropriate unit and format
@@ -721,14 +748,14 @@ void dna_reftran::TransformFrames_WithoutPlateMotionModel(it_vstn_t& stn_it, con
 			ReduceParameters<double>(transformParameters.parameters_, reduced_parameters, timeElapsed, false);
 
 #ifdef _MSDEBUG
-		TRACE("Final reduced parameters:\n");
-		TRACE("%11.8f\n", reduced_parameters[0]);
-		TRACE("%11.8f\n", reduced_parameters[1]);
-		TRACE("%11.8f\n", reduced_parameters[2]);
-		TRACE("%11.8g\n", reduced_parameters[3]);
-		TRACE("%11.8g\n", reduced_parameters[4]);
-		TRACE("%11.8g\n", reduced_parameters[5]);
-		TRACE("%11.8g\n\n", reduced_parameters[6]);
+		//TRACE("Final reduced parameters:\n");
+		//TRACE("%11.8f\n", reduced_parameters[0]);
+		//TRACE("%11.8f\n", reduced_parameters[1]);
+		//TRACE("%11.8f\n", reduced_parameters[2]);
+		//TRACE("%11.8g\n", reduced_parameters[3]);
+		//TRACE("%11.8g\n", reduced_parameters[4]);
+		//TRACE("%11.8g\n", reduced_parameters[5]);
+		//TRACE("%11.8g\n\n", reduced_parameters[6]);
 #endif
 
 		// Transform!
@@ -762,8 +789,12 @@ void dna_reftran::TransformFrames_WithoutPlateMotionModel(it_vstn_t& stn_it, con
 	
 
 #ifdef _MSDEBUG
-		coordinates.trace("coords", "%.4f ");
-		coordinates_mod.trace("coords_mod", "%.4f ");
+		ss.str("");
+		ss << "coords, " << datumFrom.GetName() << " @ " << referenceEpoch<double>(datumFrom.GetEpoch());
+		coordinates.trace(ss.str().c_str(), "%.4f ");
+		ss.str("");
+		ss << "coords_mod, " << datumTo.GetName() << " @ " << transformParameters.reference_epoch_;
+		coordinates_mod.trace(ss.str().c_str(), "%.4f ");
 #endif
 
 	}
@@ -806,6 +837,12 @@ void dna_reftran::TransformDynamic(it_vstn_t& stn_it, const matrix_2d& coordinat
 	else
 		frame_similarity = __frame_frame_diff__;
 
+#ifdef _MSDEBUG
+	stringstream ss;
+	ss << "Transforming from " << datumFrom.GetName() << " @ " << datumFrom.GetEpoch() << endl;
+	ss << "               to " << datumTo.GetName() << " @ " << datumTo.GetEpoch();
+	TRACE("%s\n", ss.str().c_str());
+#endif
 
 	if (frame_similarity == __frame_frame_diff__ &&
 		epoch_similarity == __epoch_epoch_same__)
@@ -963,7 +1000,7 @@ double dna_reftran::DetermineElapsedTime(const CDnaDatum& datumFrom, const CDnaD
 		//
 
 #ifdef _MSDEBUG
-		ss << "From frame: " << datumFrom.GetName() << " -> to: " << datumTo.GetName();
+		ss << "From frame: " << datumFrom.GetName() << "  -> to frame: " << datumTo.GetName();
 		TRACE("%s\n", ss.str().c_str());
 #endif
 		ss.str("");
@@ -1035,7 +1072,7 @@ double dna_reftran::DetermineElapsedTime(const CDnaDatum& datumFrom, const CDnaD
 		dTime = elapsedTime<double>(dt, dt0);
 
 #ifdef _MSDEBUG
-		ss << "Epoch from: " << dt << " -> epoch to: " << dt0 <<
+		ss << "From epoch: " << fixed << setprecision(4) << referenceEpoch<double>(dt) << " -> to epoch: " << fixed << setprecision(4) << dt0 <<
 			" = " << setprecision(4) << fixed << dTime;
 		TRACE("%s\n", ss.str().c_str());
 #endif
@@ -1133,6 +1170,10 @@ void dna_reftran::TransformStationRecords(const string& newFrame, const string& 
 	
 	transformationPerformed_ = false;
 	m_stnsTransformed = m_stnsNotTransformed = 0;
+
+#ifdef _MSDEBUG
+	TRACE("\nTransforming stations...\n\n");
+#endif
 
 	try {
 		// 1. Get the datum (and epoch) of the desired system
@@ -1234,6 +1275,10 @@ void dna_reftran::TransformMeasurementRecords(const string& newFrame, const stri
 	
 	transformationPerformed_ = false;
 	m_msrsTransformed = m_msrsNotTransformed = 0;
+
+#ifdef _MSDEBUG
+	TRACE("\nTransforming measurements...\n\n");
+#endif
 
 	try {
 		// 1. Get the datum (and epoch) of the desired system

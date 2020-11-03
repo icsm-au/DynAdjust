@@ -58,6 +58,10 @@ const S _au_plate_model_<T, S>::plate_id = "AU";
 
 template <class T, class S>
 const T _au_plate_model_<T, S>::plate_rotations[3] = {
+	// Euler parameters:
+	//  - pole latitude:  32.2447
+	// 	- pole longitude: 38.2022
+	//  - rotation rate:   0.6285
 	1.50379,		// x rotation rate
 	1.18346,		// y rotation rate
 	1.20716			// z rotation rate

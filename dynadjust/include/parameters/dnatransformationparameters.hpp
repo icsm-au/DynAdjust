@@ -1612,6 +1612,10 @@ const T _itrf2014_to_gda2020_<T, U>::transformationParameters[14] =
 	    0.0,	// y translation rate (millimetres p/yr)
 	    0.0,	// z translation rate (millimetres p/yr)
 	    0.0,	// scale rate (ppb p/yr)
+	// Euler parameters:
+	//  - pole latitude:  32.2447
+	// 	- pole longitude: 38.2022
+	//  - rotation rate:   0.6285
 	1.50379,	// x rotation rate (milli-arc-seconds p/yr)
 	1.18346,	// y rotation rate (milli-arc-seconds p/yr)
 	1.20716		// z rotation rate (milli-arc-seconds p/yr)

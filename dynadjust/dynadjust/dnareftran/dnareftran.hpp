@@ -174,7 +174,7 @@ private:
 		transformationType transType);
 
 	void TransformEpochs_PlateMotionModel(it_vstn_t& stn_it, const matrix_2d& coordinates, matrix_2d& coordinates_mod,
-		const CDnaDatum& datumFrom, const CDnaDatum& datumTo, transformation_parameter_set& transformParameters);
+		const CDnaDatum& datumFrom, const CDnaDatum& datumTo);
 
 	void TransformStation(it_vstn_t& stn_it, const CDnaDatum& datumFrom,
 		transformation_parameter_set& transformParameters);
