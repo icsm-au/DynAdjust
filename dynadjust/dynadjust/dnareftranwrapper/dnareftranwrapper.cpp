@@ -24,6 +24,63 @@
 
 using namespace dynadjust;
 
+void PrintOutputFileHeaderInfo(std::ofstream* f_out, const string& out_file, project_settings* p, const string& header)
+{
+	// Print formatted header
+	print_file_header(*f_out, header);
+
+	*f_out << setw(PRINT_VAR_PAD) << left << "File name:" << system_complete(out_file).string() << endl << endl;
+	
+	*f_out << setw(PRINT_VAR_PAD) << left << "Command line arguments: ";
+	*f_out << p->r.command_line_arguments << endl << endl;
+
+	*f_out << setw(PRINT_VAR_PAD) << left << "Network name:" <<  p->g.network_name << endl;
+	*f_out << setw(PRINT_VAR_PAD) << left << "Input folder: " << system_complete(p->g.input_folder).string() << endl;
+	*f_out << setw(PRINT_VAR_PAD) << left << "Output folder: " << system_complete(p->g.output_folder).string() << endl;
+	*f_out << setw(PRINT_VAR_PAD) << left << "Stations file:" << system_complete(p->r.bst_file).string() << endl;
+	*f_out << setw(PRINT_VAR_PAD) << left << "Measurements file:" << system_complete(p->r.bms_file).string() << endl;
+	*f_out << setw(PRINT_VAR_PAD) << left << "Target reference frame:" << p->r.reference_frame << endl;
+
+	if (!p->r.epoch.empty())
+	{
+		// Has the user supplied the year only?
+		if (p->r.epoch.rfind(".") == string::npos)
+			p->r.epoch.insert(0, "01.01.");
+
+		*f_out << setw(PRINT_VAR_PAD) << left << "Target Epoch: " << 
+			formattedDateStringFromNumericString<date>(p->r.epoch) << endl;
+	}
+	
+	if (p->r.plate_model_option > 0)
+	{
+		*f_out << setw(PRINT_VAR_PAD) << left << "Plate boundaries file: " << p->r.tpb_file << endl;
+		*f_out << setw(PRINT_VAR_PAD) << left << "Plate pole parameter file: " << p->r.tpp_file << endl;
+	}
+	
+	if (p->i.export_dynaml)
+	{
+		if (p->i.export_single_xml_file)
+			*f_out << setw(PRINT_VAR_PAD) << left << "DynaML output file: " << p->i.xml_outfile << endl;
+		else
+		{
+			*f_out << setw(PRINT_VAR_PAD) << left << "DynaML station file: " << p->i.xml_stnfile << endl;
+			*f_out << setw(PRINT_VAR_PAD) << left << "DynaML measurement file: " << p->i.xml_msrfile << endl;
+		}				
+	}
+	if (p->i.export_dna_files)
+	{
+		*f_out << setw(PRINT_VAR_PAD) << left << "DNA station file: " << p->i.dna_stnfile << endl;
+		*f_out << setw(PRINT_VAR_PAD) << left << "DNA measurement file: " << p->i.dna_msrfile << endl;
+	}
+
+	if (p->o._export_snx_file)
+		*f_out << setw(PRINT_VAR_PAD) << left << "SINEX file: " << p->o._snx_file << endl;
+
+
+	*f_out << OUTPUTLINE << endl << endl;
+}
+
+
 int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& vm, project_settings& p)
 {
 	// capture command line arguments
@@ -101,6 +158,7 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 	}
 	
 	p.g.project_file = formPath<string>(p.g.output_folder, p.g.network_name, "dnaproj");
+	p.r.rft_file = formPath<string>(p.g.output_folder, p.g.network_name, "rft");
 
 	// binary station file location (input)
 	if (vm.count(BIN_STN_FILE))
@@ -346,6 +404,18 @@ int main(int argc, char* argv[])
 	if (ParseCommandLineOptions(argc, argv, vm, p) != EXIT_SUCCESS)
 		return EXIT_FAILURE;
 
+	std::ofstream rft_file;
+	try {
+		// Create import log file.  Throws runtime_error on failure.
+		file_opener(rft_file, p.r.rft_file);
+	}
+	catch (const runtime_error& e) {
+		stringstream ss;
+		ss << "- Error: Could not open " << p.r.rft_file << ". \n  Check that the file exists and that the file is not already opened." << endl;
+		cout << ss.str() << e.what() << endl;
+		return EXIT_FAILURE;
+	}
+
 	if (vm.count(QUIET))
 		p.g.quiet = 1;
 	
@@ -377,14 +447,17 @@ int main(int argc, char* argv[])
 		}
 		catch (const runtime_error& e) {
 			cout << endl << "- Error: " << e.what() << endl;
+			rft_file.close();
 			return EXIT_FAILURE;
 		}
 		catch (const RefTranException& e) {
 			cout << endl << "- Error: " << e.what() << endl;
+			rft_file.close();
 			return EXIT_FAILURE;
 		}
 		catch (...) {
 			cout << endl << "- Error: Unknown error." << endl;
+			rft_file.close();
 			return EXIT_FAILURE;
 		}
 
@@ -392,7 +465,6 @@ int main(int argc, char* argv[])
 		{
 			cout << setw(PRINT_VAR_PAD) << left << "  Plate boundaries file: " << p.r.tpb_file << endl;
 			cout << setw(PRINT_VAR_PAD) << left << "  Plate pole parameter file: " << p.r.tpp_file << endl;
-
 		}
 
 		// Export options
@@ -418,15 +490,19 @@ int main(int argc, char* argv[])
 		cout << endl;
 	}
 
-	dna_reftran refTran;
+	PrintOutputFileHeaderInfo(&rft_file, p.r.rft_file, &p, "DYNADJUST REFTRAN LOG FILE");
+
+	dna_reftran refTran(p, &rft_file);
+	stringstream ss_msg;
 
 	if (vm.count(TECTONIC_PLATE_MODEL_OPTION))
 	{
-		//refTran.Identify_Plate();
+		ss_msg << "+ Loading global tectonic plate boundaries and plate motion information... ";
 
 		// Load plate boundary and euler pole information
 		if (!p.g.quiet)
-			cout << "+ Loading global tectonic plate boundaries and plate motion information... ";
+			cout << ss_msg.str();		
+		rft_file << ss_msg.str();
 	
 		try
 		{
@@ -434,16 +510,27 @@ int main(int argc, char* argv[])
 		}
 		catch (const runtime_error& e) {
 			cout << endl << "- Error: " << e.what() << endl;
+			rft_file << endl << "- Error: " << e.what() << endl;
+			rft_file.close();
 			return EXIT_FAILURE;
 		}
 
 		if (!p.g.quiet)
 			cout << "done." << endl;
+
+		if (p.g.verbose == 0)
+			rft_file << "done." << endl;
+		else
+			rft_file << endl << "+ Done." << endl << endl;
 	}
 
-
+	ss_msg.str("");
+	ss_msg << "+ Transforming stations and measurements... ";
 	if (!p.g.quiet)
-		cout << "+ Transforming stations and measurements... ";
+		cout << ss_msg.str();		
+	rft_file << ss_msg.str();
+
+	ss_msg.str("");
 
 	try
 	{
@@ -453,87 +540,120 @@ int main(int argc, char* argv[])
 	}
 	catch (const runtime_error& e) {
 		cout << endl << "- Error: " << e.what() << endl;
+		rft_file << endl << "- Error: " << e.what() << endl;
+		rft_file.close();
 		return EXIT_FAILURE;
 	}
 	catch (const RefTranException& e) {
 		cout << endl << "- Error: " << e.what() << endl;
+		rft_file << endl << "- Error: " << e.what() << endl;
+		rft_file.close();
 		return EXIT_FAILURE;
 	}
 	catch (...) {
 		cout << endl << "- Error: Unknown error." << endl;
+		rft_file << endl << "- Error: Unknown error." << endl;
+		rft_file.close();
 		return EXIT_FAILURE;
 	}
 	
+	if (!p.g.quiet)
+		cout << "done." << endl;
+
+	if (p.g.verbose == 0)
+		rft_file << "done." << endl;
+	else
+		rft_file << endl << "+ Done." << endl << endl;
+	
+	ss_msg.str("");
+
+	// Station summary
+	if (refTran.StationsTransformed())
+	{
+		ss_msg << "+ Transformed " << refTran.StationsTransformed();
+	
+		if (refTran.StationsTransformed() == 1)
+			ss_msg << " station." << endl;
+		else
+			ss_msg << " stations." << endl;
+	}
+	else
+		ss_msg << "+ No stations were transformed." << endl;
+	
+	if (!p.g.quiet)
+		cout << ss_msg.str();
+	rft_file << ss_msg.str();
+
+	ss_msg.str("");
+
+	if (refTran.StationsNotTransformed() > 0)
+	{
+		if (refTran.StationsTransformed())
+			ss_msg << "+ Note: ";
+		else
+			ss_msg << "  ";
+
+		ss_msg << refTran.StationsNotTransformed();
+		if (refTran.StationsNotTransformed() == 1)
+			ss_msg << " station was";
+		else
+			ss_msg << " stations were";
+
+		ss_msg << " already referenced to " << p.r.reference_frame;
+		if (!p.r.epoch.empty())
+			ss_msg << ", epoch " << p.r.epoch;
+		ss_msg << endl;
+	}
 
 	if (!p.g.quiet)
+		cout << ss_msg.str();
+	rft_file << ss_msg.str();
+
+	ss_msg.str("");
+
+	// Measurement summary
+	if (refTran.MeasurementsTransformed())
 	{
-		cout << "done." << endl;
-		
-		// Station summary
-		if (refTran.StationsTransformed())
-		{
-			cout << "+ Transformed " << refTran.StationsTransformed();
-		
-			if (refTran.StationsTransformed() == 1)
-				cout << " station." << endl;
-			else
-				cout << " stations." << endl;
-		}
+		ss_msg << "+ Transformed " << refTran.MeasurementsTransformed();
+	
+		if (refTran.MeasurementsTransformed() == 1)
+			ss_msg << " measurement." << endl;
 		else
-			cout << "+ No stations were transformed." << endl;
-
-		if (refTran.StationsNotTransformed() > 0)
-		{
-			if (refTran.StationsTransformed())
-				cout << "+ Note: ";
-			else
-				cout << "  ";
-
-			cout << refTran.StationsNotTransformed();
-			if (refTran.StationsNotTransformed() == 1)
-				cout << " station was";
-			else
-				cout << " stations were";
-
-			cout << " already referenced to " << p.r.reference_frame;
-			if (!p.r.epoch.empty())
-				cout << ", epoch " << p.r.epoch;
-			cout << endl;
-		}
-
-		// Measurement summary
-		if (refTran.MeasurementsTransformed())
-		{
-			cout << "+ Transformed " << refTran.MeasurementsTransformed();
-		
-			if (refTran.MeasurementsTransformed() == 1)
-				cout << " measurement." << endl;
-			else
-				cout << " measurements." << endl;
-		}
-		else
-			cout << "+ No measurements were transformed." << endl;
-
-		if (refTran.MeasurementsNotTransformed() > 0)
-		{
-			if (refTran.MeasurementsTransformed())
-				cout << "+ Note: ";
-			else
-				cout << "  ";
-
-			cout << refTran.MeasurementsNotTransformed();
-			if (refTran.MeasurementsNotTransformed() == 1)
-				cout << " measurement was";
-			else
-				cout << " measurements were";
-
-			cout << " already referenced to " << p.r.reference_frame;
-			if (!p.r.epoch.empty())
-				cout << ", epoch " << p.r.epoch;
-			cout << endl;
-		}
-		cout << endl;
+			ss_msg << " measurements." << endl;
 	}
+	else
+		ss_msg << "+ No measurements were transformed." << endl;
+
+	if (!p.g.quiet)
+		cout << ss_msg.str();
+	rft_file << ss_msg.str();
+
+	ss_msg.str("");
+
+	if (refTran.MeasurementsNotTransformed() > 0)
+	{
+		if (refTran.MeasurementsTransformed())
+			ss_msg << "+ Note: ";
+		else
+			ss_msg << "  ";
+
+		ss_msg << refTran.MeasurementsNotTransformed();
+		if (refTran.MeasurementsNotTransformed() == 1)
+			ss_msg << " measurement was";
+		else
+			ss_msg << " measurements were";
+
+		ss_msg << " already referenced to " << p.r.reference_frame;
+		if (!p.r.epoch.empty())
+			ss_msg << ", epoch " << p.r.epoch;
+		ss_msg << endl;
+	}
+	
+	if (!p.g.quiet)
+		cout << ss_msg.str() << endl;
+	rft_file << ss_msg.str() << endl;
+
+	ss_msg.str("");
 
 	if (p.i.export_dynaml) 
 	{
@@ -546,10 +666,11 @@ int main(int argc, char* argv[])
 				{
 					cout << "+ Exporting stations and measurements to " << leafStr<string>(p.i.xml_outfile) << "... ";
 					cout.flush();
+					rft_file << "+ Exporting stations and measurements to " << leafStr<string>(p.i.xml_outfile) << "... ";
 				}
 				refTran.SerialiseDynaML(
 					p.i.xml_outfile, 
-					p, (p.i.flag_unused_stn ? true : false));	
+					(p.i.flag_unused_stn ? true : false));	
 			}
 			else
 			{
@@ -558,22 +679,27 @@ int main(int argc, char* argv[])
 				{
 					cout << "+ Exporting stations and measurements to " << leafStr<string>(p.i.xml_stnfile) << " and " << leafStr<string>(p.i.xml_msrfile) << "... ";
 					cout.flush();
+					rft_file << "+ Exporting stations and measurements to " << leafStr<string>(p.i.xml_stnfile) << " and " << leafStr<string>(p.i.xml_msrfile) << "... ";
 				}
 				refTran.SerialiseDynaML(
 					p.i.xml_stnfile, p.i.xml_msrfile, 
-					p, (p.i.flag_unused_stn ? true : false));	
+					(p.i.flag_unused_stn ? true : false));	
 			}
 
 			if (!p.g.quiet)
 			{
-				cout << "Done." << endl;
+				cout << "done." << endl;
 				cout.flush();
 			}
+
+			rft_file << "done." << endl;
 			
 		}
 		catch (const XMLInteropException& e) {
 			cout.flush();
 			cout << endl << "- Error: " << e.what() << endl;
+			rft_file << endl << "- Error: " << e.what() << endl;
+			rft_file.close();
 			return EXIT_FAILURE;
 		}
 	}
@@ -588,17 +714,22 @@ int main(int argc, char* argv[])
 					leafStr<string>(p.i.dna_stnfile) << " and " << leafStr<string>(p.i.dna_msrfile) << "... ";
 				cout.flush();
 			}
-
+			rft_file << "+ Exporting stations and measurements to " << 
+				leafStr<string>(p.i.dna_stnfile) << " and " << leafStr<string>(p.i.dna_msrfile) << "... ";
+				
 			refTran.SerialiseDNA(
 				p.i.dna_stnfile, p.i.dna_msrfile, 
-				p, (p.i.flag_unused_stn ? true : false));
+				(p.i.flag_unused_stn ? true : false));
 			
 			if (!p.g.quiet)
 				cout << "Done." << endl;
+			rft_file << "Done." << endl;
 		}
 		catch (const XMLInteropException& e) {
 			cout.flush();
 			cout << endl << "- Error: " << e.what() << endl;
+			rft_file << endl << "- Error: " << e.what() << endl;
+			rft_file.close();
 			return EXIT_FAILURE;
 		}
 	}
@@ -609,21 +740,30 @@ int main(int argc, char* argv[])
 		// Export to SINEX
 		if (!p.g.quiet)
 			cout << "+ Exporting stations and measurements to " << 
-			leafStr<string>(p.o._snx_file) << "... ";
+				leafStr<string>(p.o._snx_file) << "... ";
 		cout.flush();
+		rft_file << "+ Exporting stations and measurements to " << 
+			leafStr<string>(p.o._snx_file) << "... ";
 
-		bool success(refTran.PrintTransformedStationCoordinatestoSNX(p));
+		bool success(refTran.PrintTransformedStationCoordinatestoSNX());
 
 		// SomeFunc()
 		if (!p.g.quiet)
 			cout << " done." << endl;
+		rft_file << " done." << endl;
+
+		ss_msg.str("");
 
 		if (!success)
 		{
-			cout << "- Warning: The SINEX export process produced some warnings." << endl;
-			cout << "  See " << p.g.network_name << "*.snx.err for details." << endl; 
+			ss_msg << "- Warning: The SINEX export process produced some warnings." << endl;
+			ss_msg << "  See " << p.g.network_name << "*.snx.err for details." << endl; 
 		}
+		cout << ss_msg.str();
+		rft_file << ss_msg.str();
 	}
+
+	cout << endl;
 
 	// Look for a project file.  If it exists, open and load it.
 	// Update the import settings.
@@ -635,5 +775,6 @@ int main(int argc, char* argv[])
 	projectFile.UpdateSettingsReftran(p);
 	projectFile.PrintProjectFile();
 
+	rft_file.close();
 	return REFTRAN_SUCCESS;
 }

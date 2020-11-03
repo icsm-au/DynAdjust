@@ -63,6 +63,38 @@ typedef enum
 	__plate_motion_model__ = 8
 } transformationType;
 
+template <class S=string, class U>
+S TransformationType(const U& u)
+{
+	switch (u)
+	{
+		case __static_to_static__:
+			return "SS";
+		case __static_to_dynamic__:
+			return "SD";
+		case __static_to_step__:
+			// static (S) to intermediate (I)
+			return "SI";
+		case __dynamic_to_step__:
+			// dynamic (D) to intermediate (I)
+			return "DI";
+		case __dynamic_to_static__:
+			return "DS";
+		case __dynamic_to_dynamic__:
+			return "DD";
+		case __step_to_dynamic__:
+			// intermediate (I) to dynamic (D)
+			return "ID";
+		case __step_to_static__:
+			// intermediate (I) to static (S)
+			return "IS";
+		case __plate_motion_model__:
+			return "PM";
+		default:
+			return " ";
+	}
+}
+
 typedef enum
 {
 	__frame_frame_same__ = 0,

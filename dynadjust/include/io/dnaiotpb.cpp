@@ -194,6 +194,10 @@ void dna_io_tpb::load_tpp_file(const string& tpp_filename, v_plate_motion_eulers
 			if (trimstr(record).empty())
 				continue;
 
+			// Ignore lines with comments
+			if (record.compare(0, 1, "*") == 0)
+				continue;
+
 			// Extract plate name
 			pmm.plate_name = record.substr(0, 2);
 

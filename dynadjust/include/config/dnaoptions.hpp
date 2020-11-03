@@ -278,17 +278,18 @@ public:
 struct reftran_settings : private boost::equality_comparable<reftran_settings> {
 public:
 	reftran_settings()
-		: bst_file(""), bms_file("")
+		: rft_file(""), bst_file(""), bms_file("")
 		, reference_frame(DEFAULT_DATUM), epoch("")
 		, tpb_file(""), tpp_file("")
 		, plate_model_option(0)
 		, command_line_arguments("") {}
 
 	bool operator==(const reftran_settings& r) const {
-		return bst_file == r.bst_file && bms_file == r.bms_file &&
+		return rft_file == r.rft_file && bst_file == r.bst_file && bms_file == r.bms_file &&
 			reference_frame == r.reference_frame && epoch == r.epoch;
 	}
 
+	string		rft_file;					// reftran log file
 	string		bst_file;					// Binary station output file
 	string		bms_file;					// Binary measurement output file
 	string		reference_frame;			// Reference frame for all stations and measurements.  Requires datum.conf and ellipsoid.conf.
