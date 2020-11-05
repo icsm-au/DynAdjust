@@ -378,7 +378,7 @@ void dna_reftran::ObtainPlateMotionParameters(it_vstn_t& stn_it, double* reduced
 // If an exception is thrown, there's not much more we can do
 void dna_reftran::JoinTransformationParameters(it_vstn_t& stn_it, double* reduced_parameters, 
 	const CDnaDatum& datumFrom, const CDnaDatum& datumTo, transformation_parameter_set& transformParameters,
-	transformationType transType)
+	transformationType transType, double& timeElapsed)
 {
 	
 	transformation_parameter_set transP_a, transP_b;
@@ -401,8 +401,8 @@ void dna_reftran::JoinTransformationParameters(it_vstn_t& stn_it, double* reduce
 		break;
 	}
 
-	double reduced_parameters_step[7], timeElapsed_b(0.0);
-	double timeElapsed = 0.;
+	double reduced_parameters_step[7];
+	double timeElapsed_a(0.0), timeElapsed_b(0.0);
 
 	transformationType transformation_type;
 
@@ -421,13 +421,13 @@ void dna_reftran::JoinTransformationParameters(it_vstn_t& stn_it, double* reduce
 		//		- epoch of datumFrom, and 
 		//		- reference epoch of the transformation parameters
 		ObtainHelmertParameters(datumFrom, datumStep, transP_a,
-			timeElapsed, transformation_type);
+			timeElapsed_a, transformation_type);
 
 		// 2. Reduce the first-step parameters to the appropriate unit and format
 		if (datumFrom.isDynamic() || datumStep.isDynamic())
-			ReduceParameters<double>(transP_a.parameters_, reduced_parameters, timeElapsed);
+			ReduceParameters<double>(transP_a.parameters_, reduced_parameters, timeElapsed_a);
 		else
-			ReduceParameters<double>(transP_a.parameters_, reduced_parameters, timeElapsed, false);
+			ReduceParameters<double>(transP_a.parameters_, reduced_parameters, timeElapsed_a, false);
 
 #ifdef _MSDEBUG
 		TRACE("Reduced parameters (1):\n");
@@ -446,7 +446,7 @@ void dna_reftran::JoinTransformationParameters(it_vstn_t& stn_it, double* reduce
 		switch (rft.exception_type())
 		{
 		case REFTRAN_TRANS_ON_PLATE_REQUIRED:
-			ObtainPlateMotionParameters(stn_it, reduced_parameters, datumFrom, datumTo, transformParameters, timeElapsed);
+			ObtainPlateMotionParameters(stn_it, reduced_parameters, datumFrom, datumTo, transformParameters, timeElapsed_a);
 			break;
 		default:
 			stringstream error_msg;
@@ -494,7 +494,7 @@ void dna_reftran::JoinTransformationParameters(it_vstn_t& stn_it, double* reduce
 		switch (rft.exception_type())
 		{
 		case REFTRAN_TRANS_ON_PLATE_REQUIRED:
-			ObtainPlateMotionParameters(stn_it, reduced_parameters_step, datumFrom, datumTo, transformParameters, timeElapsed);
+			ObtainPlateMotionParameters(stn_it, reduced_parameters_step, datumFrom, datumTo, transformParameters, timeElapsed_b);
 			break;
 		default:
 			stringstream error_msg;
@@ -504,6 +504,8 @@ void dna_reftran::JoinTransformationParameters(it_vstn_t& stn_it, double* reduce
 			throw RefTranException(error_msg.str());
 		}
 	}
+
+	timeElapsed = timeElapsed_a + timeElapsed_b;
 
 	// 6. Sum the reduced parameters
 	reduced_parameters[0] += reduced_parameters_step[0];
@@ -559,7 +561,7 @@ void dna_reftran::TransformEpochs_PlateMotionModel(it_vstn_t& stn_it, const matr
 	if (projectSettings_.g.verbose > 1 && data_type_ == stn_data)
 	{
 		*rft_file << setw(PAD3) << left << "PM" << 
-			setw(STATION) << left << " " << 
+			setw(STATION) << left << stn_it->stationName << 
 			setw(REL) << right << datumTo.GetName() <<
 			setw(REL) << right << datumTo.GetEpoch_s() <<
 			setw(PAD3) << " " <<
@@ -764,7 +766,7 @@ void dna_reftran::TransformFrames_WithoutPlateMotionModel(it_vstn_t& stn_it, con
 		if (projectSettings_.g.verbose > 1 && data_type_ == stn_data)
 		{
 			*rft_file << setw(PAD3) << left << TransformationType<string, transformationType>(transType) << 
-				setw(STATION) << left << " " << 
+				setw(STATION) << left << stn_it->stationName << 
 				setw(REL) << right << datumTo.GetName() <<
 				setw(REL) << right << datumTo.GetEpoch_s() <<
 				setw(PAD3) << " " <<
@@ -933,11 +935,37 @@ void dna_reftran::TransformFrames_Join(it_vstn_t& stn_it, const matrix_2d& coord
 	const CDnaDatum& datumFrom, const CDnaDatum& datumTo, transformation_parameter_set& transformParameters,
 	transformationType transType)
 {
-	double reduced_parameters[7];
-	JoinTransformationParameters(stn_it, reduced_parameters, datumFrom, datumTo, transformParameters, transType);
+	double reduced_parameters[7], timeElapsed;
+	JoinTransformationParameters(stn_it, reduced_parameters, datumFrom, datumTo, transformParameters, transType, timeElapsed);
 
 	// Transform!
 	Transform_7parameter<double>(coordinates, coordinates_mod, reduced_parameters);
+
+	if (projectSettings_.g.verbose > 1 && data_type_ == stn_data)
+	{
+		*rft_file << setw(PAD3) << left << "JN" << 
+			setw(STATION) << left << stn_it->stationName << 
+			setw(REL) << right << datumTo.GetName() <<
+			setw(REL) << right << datumTo.GetEpoch_s() <<
+			setw(PAD3) << " " <<
+			setw(PAD) << left << stn_it->plate << 
+			setw(MEASR) << right << fixed << setprecision(4) << coordinates_mod.get(0, 0) <<
+			setw(MEASR) << right << fixed << setprecision(4) << coordinates_mod.get(1, 0) <<
+			setw(MEASR) << right << fixed << setprecision(4) << coordinates_mod.get(2, 0);
+
+		if (projectSettings_.g.verbose > 2)
+		{
+			*rft_file << setw(PACORR) << right << fixed << setprecision(4) << reduced_parameters[0] <<
+				setw(PACORR) << right << fixed << setprecision(4) << reduced_parameters[1] <<
+				setw(PACORR) << right << fixed << setprecision(4) << reduced_parameters[2] <<
+				setw(PACORR) << right << scientific << setprecision(4) << reduced_parameters[3] <<
+				setw(PACORR) << right << scientific << setprecision(4) << reduced_parameters[4] <<
+				setw(PACORR) << right << scientific << setprecision(4) << reduced_parameters[5] <<
+				setw(PACORR) << right << scientific << setprecision(4) << reduced_parameters[6] <<
+				setw(PACORR) << right << fixed << setprecision(4) << timeElapsed;
+		}
+		*rft_file << endl;
+	}
 
 #ifdef _MSDEBUG
 	coordinates.trace("coords", "%.4f ");
@@ -1131,7 +1159,7 @@ void dna_reftran::TransformStationRecords(const string& newFrame, const string& 
 		j = (PAD3 * 2) + PAD + STATION + (REL * 2) + (MEASR * 3);
 		*rft_file << endl << endl << "Station coordinate transformations" << endl <<
 			"-------------------------------------------" << endl << endl;
-		*rft_file << setw(PAD3) << left << "D" << 
+		*rft_file << setw(PAD3) << left << "ID" << 
 			setw(STATION) << left << "Station" << 
 			setw(REL) << right << "Frame" <<
 			setw(REL) << right << "Epoch" <<
@@ -1230,7 +1258,7 @@ void dna_reftran::TransformStation(it_vstn_t& stn_it, const CDnaDatum& datumFrom
 		datumFrom.GetEllipsoidRef());
 
 	if (projectSettings_.g.verbose > 1)
-		*rft_file << setw(PAD3) << left << "F" << 
+		*rft_file << setw(PAD3) << left << "FR" << 
 			setw(STATION) << left << stn_it->stationName << 
 			setw(REL) << right << datumFrom.GetName() <<
 			setw(REL) << right << datumFrom.GetEpoch_s() <<
@@ -1244,7 +1272,7 @@ void dna_reftran::TransformStation(it_vstn_t& stn_it, const CDnaDatum& datumFrom
 	Transform(stn_it, coordinates, coordinates_mod, datumFrom, transformParameters);
 
 	if (projectSettings_.g.verbose > 1)
-		*rft_file << setw(PAD3) << left << "T" << 
+		*rft_file << setw(PAD3) << left << "TO" << 
 			setw(STATION) << left << stn_it->stationName << 
 			setw(REL) << right << datumTo_.GetName() <<
 			setw(REL) << right << datumTo_.GetEpoch_s() <<

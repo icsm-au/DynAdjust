@@ -153,7 +153,7 @@ private:
 		transformation_parameter_set& transformParameters, double& timeElapsed);
 
 	void JoinTransformationParameters(it_vstn_t& stn_it, double* reduced_parameters, const CDnaDatum& datumFrom, const CDnaDatum& datumTo,
-		transformation_parameter_set& transformParameters, transformationType transType);
+		transformation_parameter_set& transformParameters, transformationType transType, double& timeElapsed);
 
 	void Transform(it_vstn_t& stn_it, const matrix_2d& coordinates, matrix_2d& coordinates_mod, 
 		const CDnaDatum& datumFrom, transformation_parameter_set& transformParameters);
