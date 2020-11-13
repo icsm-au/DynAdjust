@@ -63,6 +63,38 @@ typedef enum
 	__plate_motion_model__ = 8
 } transformationType;
 
+template <class S=string, class U>
+S TransformationType(const U& u)
+{
+	switch (u)
+	{
+		case __static_to_static__:
+			return "SS";
+		case __static_to_dynamic__:
+			return "SD";
+		case __static_to_step__:
+			// static (S) to intermediate (I)
+			return "SI";
+		case __dynamic_to_step__:
+			// dynamic (D) to intermediate (I)
+			return "DI";
+		case __dynamic_to_static__:
+			return "DS";
+		case __dynamic_to_dynamic__:
+			return "DD";
+		case __step_to_dynamic__:
+			// intermediate (I) to dynamic (D)
+			return "ID";
+		case __step_to_static__:
+			// intermediate (I) to static (S)
+			return "IS";
+		case __plate_motion_model__:
+			return "PM";
+		default:
+			return " ";
+	}
+}
+
 typedef enum
 {
 	__frame_frame_same__ = 0,
@@ -1580,6 +1612,10 @@ const T _itrf2014_to_gda2020_<T, U>::transformationParameters[14] =
 	    0.0,	// y translation rate (millimetres p/yr)
 	    0.0,	// z translation rate (millimetres p/yr)
 	    0.0,	// scale rate (ppb p/yr)
+	// Euler parameters:
+	//  - pole latitude:  32.2447
+	// 	- pole longitude: 38.2022
+	//  - rotation rate:   0.6285
 	1.50379,	// x rotation rate (milli-arc-seconds p/yr)
 	1.18346,	// y rotation rate (milli-arc-seconds p/yr)
 	1.20716		// z rotation rate (milli-arc-seconds p/yr)

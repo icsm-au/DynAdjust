@@ -84,6 +84,9 @@
     <ClInclude Include="..\..\include\measurement_types\dnameasurement.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\io\dnaiotpb.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dnareftran.cpp">
@@ -153,6 +156,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\include\measurement_types\dnameasurement.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\include\io\dnaiotpb.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

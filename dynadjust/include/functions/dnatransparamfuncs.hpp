@@ -1515,20 +1515,39 @@ void determineITRF2014Parameters(transformation_parameter_set& tParam)
 		throw boost::enable_current_exception(runtime_error("determineITRF2014Parameters(): "));
 	}
 }
-// This function is intended to get the plate motion model parameters appropriate for
-// a particular point on the earth. However, at this stage, only the Australian
-// plate motion model parameters are obtained.  This means that reftran cannot be used
-// to transform points between epochs on a single frame outside the limits of the 
-// Australian plate.  In order to retrieve the 'right' plate motion model parameters
-// according to location on the earth's surface, additional functionality needs to be
-// added to enable 'point in polygon' searches from a database of global plates.
-template <typename U>
-void determinePlateMotionModelParameters(transformation_parameter_set& tParam)
+
+// This function returns the Australian plate motion model parameters, which are selected when the user
+// chooses to use the Australian PMM as default for all transformations.  
+template <typename T, typename U>
+void getAustralianPlateMotionModelParameters(transformation_parameter_set& tParam)
 {
 	tParam.paramDirection_ = __paramForward__;
-	memcpy(&tParam.parameters_, AUS_PLATE_MOTION_MODEL<double, UINT32>::transformationParameters, sizeof(double) * 14);
-	tParam.reference_epoch_ = AUS_PLATE_MOTION_MODEL<double, UINT32>::reference_epoch;
-	tParam.reference_frame_ = AUS_PLATE_MOTION_MODEL<double, UINT32>::reference_frame;
+	memcpy(&tParam.parameters_, AUS_PLATE_MOTION_MODEL<T, U>::transformationParameters, sizeof(T) * 14);
+	tParam.reference_epoch_ = AUS_PLATE_MOTION_MODEL<T, U>::reference_epoch;
+	tParam.reference_frame_ = AUS_PLATE_MOTION_MODEL<T, U>::reference_frame;
+}
+
+// This function returns plate motion model parameters according to pre-defined rotations defined
+// from Euler rotations.  
+template <typename T, typename U>
+void setDefinedPlateMotionModelParameters(transformation_parameter_set& tParam, const T& x, const T& y, const T& z)
+{
+	tParam.paramDirection_ = __paramForward__;
+
+	tParam.parameters_[0] = 0.0;	// x translation (millimetres)
+	tParam.parameters_[1] = 0.0;	// y translation (millimetres)
+	tParam.parameters_[2] = 0.0;	// z translation (millimetres)
+	tParam.parameters_[3] = 0.0;	// scale (ppb)
+	tParam.parameters_[4] = 0.0;	// x rotation (milli-arc-seconds)
+	tParam.parameters_[5] = 0.0;	// y rotation (milli-arc-seconds)
+	tParam.parameters_[6] = 0.0;	// z rotation (milli-arc-seconds)
+	tParam.parameters_[7] = 0.0;	// x translation rate (millimetres p/yr)
+	tParam.parameters_[8] = 0.0;	// y translation rate (millimetres p/yr)
+	tParam.parameters_[9] = 0.0;	// z translation rate (millimetres p/yr)
+	tParam.parameters_[10] = 0.0;	// scale rate (ppb p/yr)
+	tParam.parameters_[11] = x;		// x rotation rate (milli-arc-seconds p/yr)
+	tParam.parameters_[12] = y;		// y rotation rate (milli-arc-seconds p/yr)
+	tParam.parameters_[13] = z;		// z rotation rate (milli-arc-seconds p/yr)
 }
 
 template <typename U>
