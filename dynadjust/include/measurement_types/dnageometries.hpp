@@ -31,9 +31,8 @@
 
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
-#include <boost/geometry/multi/geometries/multi_polygon.hpp>
 #include <boost/geometry/geometries/register/point.hpp>
-#include <boost/geometry/io/wkt/wkt.hpp>
+#include <boost/geometry/multi/geometries/multi_polygon.hpp>
 
 using namespace std;
 using namespace boost::geometry;
@@ -75,7 +74,9 @@ private:
 	T m_north_lat;
 };
 
-typedef boost::geometry::model::polygon< dnaGeometryPoint <double> > dnaGeometryPolygon;
+typedef boost::geometry::model::polygon<dnaGeometryPoint <double>> dnaGeometryPolygon;
+typedef boost::geometry::strategy::centroid::bashein_detmer<dnaGeometryPoint<double>, dnaGeometryPoint<double>> dnaBasheinStrategy;
+typedef boost::geometry::strategy::centroid::average<dnaGeometryPoint<double>, dnaGeometryPoint<double>> dnaAverageStrategy;
 
 }	// namespace geometries
 }	// namespace dynadjust

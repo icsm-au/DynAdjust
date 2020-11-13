@@ -378,7 +378,7 @@ void dna_reftran::ObtainPlateMotionParameters(it_vstn_t& stn_it, double* reduced
 // If an exception is thrown, there's not much more we can do
 void dna_reftran::JoinTransformationParameters(it_vstn_t& stn_it, double* reduced_parameters, 
 	const CDnaDatum& datumFrom, const CDnaDatum& datumTo, transformation_parameter_set& transformParameters,
-	transformationType transType, double& timeElapsed)
+	transformationType transType, const matrix_2d& coordinates)
 {
 	
 	transformation_parameter_set transP_a, transP_b;
@@ -403,6 +403,7 @@ void dna_reftran::JoinTransformationParameters(it_vstn_t& stn_it, double* reduce
 
 	double reduced_parameters_step[7];
 	double timeElapsed_a(0.0), timeElapsed_b(0.0);
+	string epoch_step;
 
 	transformationType transformation_type;
 
@@ -415,6 +416,8 @@ void dna_reftran::JoinTransformationParameters(it_vstn_t& stn_it, double* reduce
 			transformation_type = __static_to_step__;
 		else // (datumFrom.isDynamic())
 			transformation_type = __dynamic_to_step__;
+		
+		epoch_step = datumStep.GetEpoch_s();
 
 		// 1. Obtain parameters for the first step (to ITRF2014)
 		// The time elapsed will be a function of:
@@ -447,6 +450,7 @@ void dna_reftran::JoinTransformationParameters(it_vstn_t& stn_it, double* reduce
 		{
 		case REFTRAN_TRANS_ON_PLATE_REQUIRED:
 			ObtainPlateMotionParameters(stn_it, reduced_parameters, datumFrom, datumTo, transformParameters, timeElapsed_a);
+			epoch_step = datumTo.GetEpoch_s();
 			break;
 		default:
 			stringstream error_msg;
@@ -455,6 +459,35 @@ void dna_reftran::JoinTransformationParameters(it_vstn_t& stn_it, double* reduce
 				"    " << rft.what();
 			throw RefTranException(error_msg.str());
 		}
+	}
+
+	if (projectSettings_.g.verbose > 1 && data_type_ == stn_data)
+	{
+		matrix_2d coordinates_step(3, 1);
+		Transform_7parameter<double>(coordinates, coordinates_step, reduced_parameters);
+
+		*rft_file << setw(PAD3) << left << "JN" << 
+			setw(STATION) << left << stn_it->stationName << 
+			setw(REL) << right << ITRF2014_s <<
+			setw(REL) << right << epoch_step <<
+			setw(PAD3) << " " <<
+			setw(PAD) << left << stn_it->plate << 
+			setw(MEASR) << right << fixed << setprecision(4) << coordinates_step.get(0, 0) <<
+			setw(MEASR) << right << fixed << setprecision(4) << coordinates_step.get(1, 0) <<
+			setw(MEASR) << right << fixed << setprecision(4) << coordinates_step.get(2, 0);
+
+		if (projectSettings_.g.verbose > 2)
+		{
+			*rft_file << setw(PACORR) << right << fixed << setprecision(4) << reduced_parameters[0] <<
+				setw(PACORR) << right << fixed << setprecision(4) << reduced_parameters[1] <<
+				setw(PACORR) << right << fixed << setprecision(4) << reduced_parameters[2] <<
+				setw(PACORR) << right << scientific << setprecision(4) << reduced_parameters[3] <<
+				setw(PACORR) << right << scientific << setprecision(4) << reduced_parameters[4] <<
+				setw(PACORR) << right << scientific << setprecision(4) << reduced_parameters[5] <<
+				setw(PACORR) << right << scientific << setprecision(4) << reduced_parameters[6] <<
+				setw(PACORR) << right << fixed << setprecision(4) << timeElapsed_a;
+		}
+		*rft_file << endl;
 	}
 
 	// Step -> datumTo
@@ -504,8 +537,6 @@ void dna_reftran::JoinTransformationParameters(it_vstn_t& stn_it, double* reduce
 			throw RefTranException(error_msg.str());
 		}
 	}
-
-	timeElapsed = timeElapsed_a + timeElapsed_b;
 
 	// 6. Sum the reduced parameters
 	reduced_parameters[0] += reduced_parameters_step[0];
@@ -935,37 +966,11 @@ void dna_reftran::TransformFrames_Join(it_vstn_t& stn_it, const matrix_2d& coord
 	const CDnaDatum& datumFrom, const CDnaDatum& datumTo, transformation_parameter_set& transformParameters,
 	transformationType transType)
 {
-	double reduced_parameters[7], timeElapsed;
-	JoinTransformationParameters(stn_it, reduced_parameters, datumFrom, datumTo, transformParameters, transType, timeElapsed);
+	double reduced_parameters[7];
+	JoinTransformationParameters(stn_it, reduced_parameters, datumFrom, datumTo, transformParameters, transType, coordinates);
 
 	// Transform!
 	Transform_7parameter<double>(coordinates, coordinates_mod, reduced_parameters);
-
-	if (projectSettings_.g.verbose > 1 && data_type_ == stn_data)
-	{
-		*rft_file << setw(PAD3) << left << "JN" << 
-			setw(STATION) << left << stn_it->stationName << 
-			setw(REL) << right << datumTo.GetName() <<
-			setw(REL) << right << datumTo.GetEpoch_s() <<
-			setw(PAD3) << " " <<
-			setw(PAD) << left << stn_it->plate << 
-			setw(MEASR) << right << fixed << setprecision(4) << coordinates_mod.get(0, 0) <<
-			setw(MEASR) << right << fixed << setprecision(4) << coordinates_mod.get(1, 0) <<
-			setw(MEASR) << right << fixed << setprecision(4) << coordinates_mod.get(2, 0);
-
-		if (projectSettings_.g.verbose > 2)
-		{
-			*rft_file << setw(PACORR) << right << fixed << setprecision(4) << reduced_parameters[0] <<
-				setw(PACORR) << right << fixed << setprecision(4) << reduced_parameters[1] <<
-				setw(PACORR) << right << fixed << setprecision(4) << reduced_parameters[2] <<
-				setw(PACORR) << right << scientific << setprecision(4) << reduced_parameters[3] <<
-				setw(PACORR) << right << scientific << setprecision(4) << reduced_parameters[4] <<
-				setw(PACORR) << right << scientific << setprecision(4) << reduced_parameters[5] <<
-				setw(PACORR) << right << scientific << setprecision(4) << reduced_parameters[6] <<
-				setw(PACORR) << right << fixed << setprecision(4) << timeElapsed;
-		}
-		*rft_file << endl;
-	}
 
 #ifdef _MSDEBUG
 	coordinates.trace("coords", "%.4f ");

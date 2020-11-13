@@ -221,6 +221,11 @@ if (BUILD_TESTING)
     add_test (NAME ref-gnss04-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r itrf1991 -e 05.05.2005)
     add_test (NAME ref-gnss05-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r gda94)
 
+    add_test (NAME ref-itrf-pmm-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n itrf05_itrf1997_a -r itrf2005 ${CMAKE_SOURCE_DIR}/../sampleData/TEST_ITRF05.SNX)
+    add_test (NAME ref-itrf-pmm-02 COMMAND $<TARGET_FILE:dnareftranwrapper> itrf05_itrf1997_a -r itrf1997 -e 25.10.2017 --export-dna --verb 2 --plate-model-option 1 -b ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_plates.dig -m ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_poles.dat)
+    add_test (NAME ref-itrf-pmm-03 COMMAND $<TARGET_FILE:dnaimportwrapper> -n itrf05_itrf1997_b -r itrf2005 ${CMAKE_SOURCE_DIR}/../sampleData/TEST_ITRF05.SNX)
+    add_test (NAME ref-itrf-pmm-04 COMMAND $<TARGET_FILE:dnareftranwrapper> itrf05_itrf1997_b -r itrf1997 -e 01.01.2020 --export-dna --verb 3 --plate-model-option 1 -b ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_plates.dig -m ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_poles.dat)
+    
     # set execution dependencies (the execution of tests must be sequential)
     set_tests_properties(
         import-gnss-network geoid-gnss-network adjust-gnss-network
