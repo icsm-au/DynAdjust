@@ -1248,7 +1248,7 @@ template<typename M>
 class CompareNonMeasType
 {
 public:
-	CompareNonMeasType(const string& s) :  _s(s) {}
+	CompareNonMeasType(const string& s) :  _s(s), _bFd(false) {}
 	inline void SetComparand(const string& s) { _s = s; }
 
 	bool operator()(boost::shared_ptr<M> m) {

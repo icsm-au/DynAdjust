@@ -229,7 +229,7 @@ echo " "
 
 gcc_version=$(gcc -v 2>&1 | tail -1 | awk '{print $1 " " $2 " " $3}')
 
-echo $gcc_version
+echo "$gcc_version"
 echo " "
 
 #

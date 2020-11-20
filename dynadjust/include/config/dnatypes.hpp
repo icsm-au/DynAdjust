@@ -591,9 +591,9 @@ typedef struct input_file_meta {
 
 typedef struct binary_file_meta {
 	binary_file_meta () 
-		: reduced(false), inputFileMeta(NULL) {}
+		: binCount(0), reduced(false), inputFileMeta(NULL) {}
 	binary_file_meta (const string& app_name) 
-		: reduced(false), inputFileMeta(NULL) {
+		: binCount(0), reduced(false), inputFileMeta(NULL) {
 			sprintf(modifiedBy, "%s", app_name.c_str());
 	}
 	~binary_file_meta() {

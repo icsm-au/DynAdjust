@@ -499,7 +499,7 @@ template <typename T = dnaStnPtr, typename S = stringstring_doubledouble_pair, t
 class NearbyStation_LowAcc {
 public:
 	NearbyStation_LowAcc (const U& tolerance, vector<S>* stns) 
-		: _tolerance(tolerance), _stns(stns) {}
+		: _tolerance(tolerance), _stns(stns), _dist(0.) {}
 
 	bool operator()(const T& left, const T& right) {
 		if ((_dist = GreatCircleDistance(
@@ -527,7 +527,7 @@ template <typename T = dnaStnPtr, typename U = double, typename S = stringstring
 class NearbyStation_HighAcc {
 public:
 	NearbyStation_HighAcc(const U& tolerance, vector<S>* stns, const E& ellipsoid) 
-		: _tolerance(tolerance), _stns(stns), _ellipsoid(ellipsoid) {}
+		: _tolerance(tolerance), _stns(stns), _dAzimuth(0.), _dist(0.), _ellipsoid(ellipsoid) {}
 
 	bool operator()(const T& left, const T& right) {
 		if ((_dist = RobbinsReverse(

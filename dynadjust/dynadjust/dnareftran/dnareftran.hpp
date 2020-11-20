@@ -102,7 +102,7 @@ public:
 	void TransformBinaryFiles(const string& bstFile, const string& bmsFile, const string& newFrame, const string& newEpoch="");
 	
 	// Returns the file progress
-	inline int ReturnFileProgress() const { return (int)m_dPercentComplete; }
+	//inline int ReturnFileProgress() const { return (int)m_dPercentComplete; }
 
 	// Returns the byte offset
 	inline int GetByteOffset() const { return m_iBytesRead; }
@@ -190,7 +190,7 @@ private:
 	
 	void CalculateRotations();
 
-	double							m_dPercentComplete;			// percentage of bytes read from file
+	//double							m_dPercentComplete;			// percentage of bytes read from file
 	int								m_iBytesRead;				// bytes read from file
 	UINT32							m_stnsTransformed;
 	UINT32							m_stnsNotTransformed;
