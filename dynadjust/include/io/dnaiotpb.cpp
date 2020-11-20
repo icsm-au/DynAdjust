@@ -102,7 +102,7 @@ void dna_io_tpb::load_tpb_file(const string& tpb_filename, v_string_v_doubledoub
 			// get the next set of plate coordinates
 			getline(tpb_file, node_coordinates);
 
-			while (!iequals(node_coordinates.substr(0, 3), "***"))
+			while (!iequals(node_coordinates.substr(0, 7), "*** end"))
 			{
 				// Extract coordinates from comma delimited string
 				SplitDelimitedString<string>(
