@@ -289,7 +289,7 @@ int main(int argc, char* argv[])
 					"  1: Interpolate plate motion model parameters from a defined\n"
 					"     set of global tectonic plates. For this option, a global\n"
 					"     tectonic plate boundary file and corresponding Euler\n"
-					"     plate motion parameters file must be provided.").c_str())
+					"     pole parameters file must be provided.").c_str())
 			(TECTONIC_PLATE_BDY_FILE_B, value<string>(&p.r.tpb_file),
 				string("Global tectonic plate boundaries.").c_str())
 			(TECTONIC_PLATE_POLE_FILE_M, value<string>(&p.r.tpp_file), 

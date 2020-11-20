@@ -965,6 +965,7 @@ void dna_adjust::UnloadBlock(const UINT32& block, const UINT16 file_count, ...)
 			break;
 		}
 	}
+	va_end(vlist);
 }
 	
 

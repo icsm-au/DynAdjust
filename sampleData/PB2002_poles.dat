@@ -1,6 +1,6 @@
 * PB2002_poles.dat:
-* ID, NLat, ELon, Deg/Ma CCW
-* (A2,F9.3,F10.3,F9.4)
+* ID, Latitude, Longitude, Deg/Ma Anti-clockwise
+* Note: All poles are expressed relative to the Pacific‐plate (PA) reference frame.
 AF   59.160   -73.174   0.9270  DeMets et al. [1994]
 AM   57.645   -83.736   0.9309  Heki et al. [1999]
 AN   64.315   -83.984   0.8695  DeMets et al. [1994]
