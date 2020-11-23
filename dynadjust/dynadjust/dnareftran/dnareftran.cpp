@@ -252,7 +252,7 @@ void dna_reftran::CalculateRotations()
 			*rft_file << setw(PAD) << left << i->plate_name << 
 				setw(HEADER_18) << right << fixed << setprecision(4) << i->pole_latitude <<
 				setw(HEADER_18) << right << fixed << setprecision(4) << i->pole_longitude <<
-				setw(HEADER_18) << right << fixed << setprecision(4) << i->pole_longitude <<
+				setw(HEADER_18) << right << fixed << setprecision(4) << i->pole_rotation_rate <<
 				setw(HEADER_18) << right << fixed << setprecision(6) << pmm.x_rotation <<
 				setw(HEADER_18) << right << fixed << setprecision(6) << pmm.y_rotation <<
 				setw(HEADER_18) << right << fixed << setprecision(6) << pmm.z_rotation <<
