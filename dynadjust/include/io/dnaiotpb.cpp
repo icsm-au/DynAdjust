@@ -97,6 +97,11 @@ void dna_io_tpb::load_tpb_file(const string& tpb_filename, v_string_v_doubledoub
 			if (trimstr(plate_name).empty())
 				continue;
 			
+			// Ignore lines with comments
+			if ((plate_name.compare(0, 1, "*") == 0) &&
+				!iequals(plate_name.substr(0, 7), "*** end"))
+				continue;
+
 			str_toupper<int>(plate_name);
 
 			// get the next set of plate coordinates
