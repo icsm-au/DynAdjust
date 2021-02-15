@@ -281,13 +281,16 @@ void CDnaDirection::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* elli
 	
 	double zenithDistance, direction;
 
-	// compute direction for geodetic azimuths, directions, astronomic azimuths, or if 
-	// deflections have been supplied
+	// compute direction for:
+	//	- geodetic azimuths, directions or astronomic azimuths, or
+	//  - zenith distances or vertical angles if deflections have been supplied
 	if (GetTypeC() == 'B' ||
 		GetTypeC() == 'D' ||
 		GetTypeC() == 'K' ||
-		fabs(stn1_it->get()->GetverticalDef()) > E4_SEC_DEFLECTION || 
-		fabs(stn1_it->get()->GetmeridianDef()) > E4_SEC_DEFLECTION)
+		((GetTypeC() == 'V' ||
+		GetTypeC() == 'Z') &&
+		(fabs(stn1_it->get()->GetverticalDef()) > E4_SEC_DEFLECTION || 
+		fabs(stn1_it->get()->GetmeridianDef()) > E4_SEC_DEFLECTION)))
 	{
 		direction = Direction(
 			stn1_it->get()->GetXAxis(), 

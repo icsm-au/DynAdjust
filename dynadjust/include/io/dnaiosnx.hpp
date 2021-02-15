@@ -250,8 +250,13 @@ typedef enum _DATE_FORMAT_TYPE_
 class dna_io_snx : public dna_io_base
 {
 public:
-	dna_io_snx(void) {};
-	dna_io_snx(const dna_io_snx&) {};
+	dna_io_snx(void) 
+	: blockCount_(0), block_(0), measurementParams_(0), unknownParams_(0)
+	, sigmaZero_(0.), uniqueStationCount_(0)
+	, containsVelocities_(false), containsDiscontinuities_(false), applyDiscontinuities_(false)
+	, siteIDsRead_(false), solutionEpochsRead_(false) {
+	}
+	//dna_io_snx(const dna_io_snx&) {};
 	virtual ~dna_io_snx(void) {};
 
 	dna_io_snx& operator=(const dna_io_snx& rhs);

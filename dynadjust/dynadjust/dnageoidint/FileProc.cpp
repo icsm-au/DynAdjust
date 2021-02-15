@@ -37,18 +37,12 @@ int CALLBACK BrowseCallbackProc(HWND hwnd,UINT uMsg, LPARAM lp, LPARAM pData)
 }
 
 CFileProc::CFileProc()
+	: m_intNumFiles(1), m_lTotalBytes(0)
+	, m_strFileExt(""), m_fIndex(NULL)
+	, m_strDestinationFile(""), m_sError("No error"), m_dwError(0)
+	, m_bAskIfReadOnly(true), m_bOverwriteMode(false), m_bAborted(false)
+	, m_iRecursionLimit(-1)
 {
-	m_fIndex = NULL;
-	m_intNumFiles = 1;
-	m_lTotalBytes = 0;
-
-	m_sError = "No error";
-	m_dwError = 0;
-	m_bAskIfReadOnly = true;
-	m_bOverwriteMode = false;
-	m_bAborted = false;
-	m_iRecursionLimit = -1;
-	m_strDestinationFile = "";
 }
 
 CFileProc::~CFileProc()

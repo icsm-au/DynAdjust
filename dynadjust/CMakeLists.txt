@@ -221,6 +221,15 @@ if (BUILD_TESTING)
     add_test (NAME ref-gnss04-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r itrf1991 -e 05.05.2005)
     add_test (NAME ref-gnss05-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r gda94)
 
+    add_test (NAME ref-itrf-pmm-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n itrf05_itrf1997_a -r itrf2005 ${CMAKE_SOURCE_DIR}/../sampleData/TEST_ITRF05.SNX)
+    add_test (NAME ref-itrf-pmm-02 COMMAND $<TARGET_FILE:dnareftranwrapper> itrf05_itrf1997_a -r itrf1997 -e 25.10.2017 --export-dna --verb 2 --plate-model-option 1 -b ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_plates.dig -m ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_poles.dat)
+    add_test (NAME ref-itrf-pmm-03 COMMAND $<TARGET_FILE:dnaimportwrapper> -n itrf05_itrf1997_b -r itrf2005 ${CMAKE_SOURCE_DIR}/../sampleData/TEST_ITRF05.SNX)
+    add_test (NAME ref-itrf-pmm-04 COMMAND $<TARGET_FILE:dnareftranwrapper> itrf05_itrf1997_b -r itrf1997 -e 01.01.2020 --export-dna --verb 3 --plate-model-option 1 -b ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_plates.dig -m ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_poles.dat)
+
+    add_test (NAME ref-itrf-pmm-05 COMMAND $<TARGET_FILE:dnaimportwrapper> -n apr -r itrf2008 ${CMAKE_SOURCE_DIR}/../sampleData/apr.ITRF2008.04.06.2020.stn ${CMAKE_SOURCE_DIR}/../sampleData/apr.ITRF2008.04.06.2020.msr)
+    add_test (NAME ref-itrf-pmm-06 COMMAND $<TARGET_FILE:dnareftranwrapper> apr -r itrf2008 -e 01.01.2021 --export-dna --verb 2 --plate-model-option 1 -b ${CMAKE_SOURCE_DIR}/../sampleData/MORVEL56_plates.dig -m ${CMAKE_SOURCE_DIR}/../sampleData/NNR-MORVEL56_poles.dat)
+    add_test (NAME ref-itrf-pmm-07 COMMAND bash -c "diff <(tail -n +6 apr.ITRF2008.01.01.2021.stn) <(tail -n +4 ${CMAKE_SOURCE_DIR}/../sampleData/apr.ITRF2008.01.01.2021.stn.expected)")
+    
     # set execution dependencies (the execution of tests must be sequential)
     set_tests_properties(
         import-gnss-network geoid-gnss-network adjust-gnss-network
@@ -232,6 +241,8 @@ if (BUILD_TESTING)
         import-urban-network-thread reftran-urban-network-thread geoid-urban-network-thread segment-urban-network-thread adjust-urban-network-thread
         PROPERTIES RUN_SERIAL TRUE)
     set_tests_properties(test-gnss-network PROPERTIES DEPENDS adjust-gnss-network)
+    set_tests_properties(ref-itrf-pmm-06 PROPERTIES DEPENDS ref-itrf-pmm-05)
+    set_tests_properties(ref-itrf-pmm-07 PROPERTIES DEPENDS ref-itrf-pmm-06)
 endif ()
 
 message (" ")

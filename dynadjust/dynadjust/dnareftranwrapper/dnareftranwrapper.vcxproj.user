@@ -11,8 +11,8 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>gda94_ITRF92 -r itrf92 -e 06.02.1990</LocalDebuggerCommandArguments>
-    <LocalDebuggerWorkingDirectory>$(dist)\2016_gda2020\</LocalDebuggerWorkingDirectory>
+    <LocalDebuggerCommandArguments>VIG19107 -r itrf2008 -e 05.05.2050 --plate-model-option 1 -b ./tectonic-plates/pb2002_plates.dig -m ./tectonic-plates/pb2002_poles.dat </LocalDebuggerCommandArguments>
+    <LocalDebuggerWorkingDirectory>$(dist)\</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

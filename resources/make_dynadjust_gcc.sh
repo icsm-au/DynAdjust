@@ -131,10 +131,10 @@ eval BIN_FOLDER_FULLPATH="$BIN_FOLDER"
 # opt installation folder
 OPT_DYNADJUST_PATH=/opt/dynadjust
 OPT_DYNADJUST_GCC_PATH=/opt/dynadjust/gcc
-DYNADJUST_INSTALL_PATH=/opt/dynadjust/gcc/1_0_3
+DYNADJUST_INSTALL_PATH=/opt/dynadjust/gcc/1_1_0
 
 # version info
-_version="1.0.3"
+_version="1.1.0"
 
 echo -e "\n==========================================================================="
 echo -e "Build and installation of DynAdjust $_version...\n"
@@ -229,7 +229,7 @@ echo " "
 
 gcc_version=$(gcc -v 2>&1 | tail -1 | awk '{print $1 " " $2 " " $3}')
 
-echo $gcc_version
+echo "$gcc_version"
 echo " "
 
 #

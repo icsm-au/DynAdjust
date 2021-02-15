@@ -522,6 +522,7 @@ const UINT16 STN_CONST_WIDTH(4);
 const UINT16 STN_TYPE_WIDTH(4);
 const UINT16 STN_EPSG_WIDTH(7);
 const UINT16 STN_EPOCH_WIDTH(12);
+const UINT16 STN_PLATE_WIDTH(3);
 
 // data struct for storing station information to binary station file
 typedef struct stn_t {
@@ -539,6 +540,7 @@ typedef struct stn_t {
 		memset(epsgCode, '\0', sizeof(epsgCode));
 		sprintf(epsgCode, "7843");
 		memset(epoch, '\0', sizeof(epoch));
+		memset(plate, '\0', sizeof(plate));
 	}
 
 	char	stationName[STN_NAME_WIDTH];	// 30 characters
@@ -567,6 +569,7 @@ typedef struct stn_t {
 	char	epoch[STN_EPOCH_WIDTH];			// date, i.e. "DD.MM.YYYY" (10 chars)
 											// if datum is dynamic, Epoch is YYYY MM DD
 											// if datum is static, Epoch is ignored
+	char	plate[STN_PLATE_WIDTH];			// Tectonic plate identifier. Typically two characters.
 } station_t;
 
 
@@ -581,16 +584,16 @@ const UINT32 FILE_NAME_WIDTH(256);
 typedef struct input_file_meta {
 	char	filename[FILE_NAME_WIDTH+1];	// Input file path
 	char	epsgCode[STN_EPSG_WIDTH+1];		// Input file epsg ID, i.e. NNNNN (where NNNNN is in the range 0-32767). "Mixed" if stations are on different reference frames
-	char	epoch[STN_EPOCH_WIDTH+1];	// Input file epoch
+	char	epoch[STN_EPOCH_WIDTH+1];		// Input file epoch
 	UINT16	filetype;						// Input file type (geodesyml, dynaml, dna, csv, sinex)
 	UINT16	datatype;						// Input data type (station, measurement, both)
 } input_file_meta_t;
 
 typedef struct binary_file_meta {
 	binary_file_meta () 
-		: reduced(false), inputFileMeta(NULL) {}
+		: binCount(0), reduced(false), inputFileMeta(NULL) {}
 	binary_file_meta (const string& app_name) 
-		: reduced(false), inputFileMeta(NULL) {
+		: binCount(0), reduced(false), inputFileMeta(NULL) {
 			sprintf(modifiedBy, "%s", app_name.c_str());
 	}
 	~binary_file_meta() {
