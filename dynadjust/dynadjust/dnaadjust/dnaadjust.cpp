@@ -57,6 +57,7 @@ dna_adjust::dna_adjust()
 	, isCombining_(false)
 	, forward_(true)
 	, isFirstTimeAdjustment_(true)
+	, isAdjustmentQuestionable_(false)
 	, blockCount_(1)
 	, currentBlock_(0)
 	, total_time_(0)
@@ -2385,6 +2386,7 @@ void dna_adjust::FormConstraintStationVarianceMatrix(
 _ADJUST_STATUS_ dna_adjust::AdjustNetwork()
 {
 	isAdjusting_ = true;
+	isAdjustmentQuestionable_ = false;
 	iterationCorrections_.clear_messages();
 
 	if (projectSettings_.o._database_ids)
@@ -7756,6 +7758,14 @@ void dna_adjust::GenerateStatistics()
 		PrintStatistics();
 		break;
 	}
+
+	isAdjustmentQuestionable_ = (
+		// non zero means something is amiss
+		adjustStatus_ ||
+		// a much larger than expected outcome
+		sigmaZero_ > 10.0 * chiSquaredUpperLimit_ ||
+		// didn't converge
+		fabs(maxCorr_) > projectSettings_.a.iteration_threshold);
 }
 	
 
@@ -9382,10 +9392,18 @@ void dna_adjust::PrintCorStation(ostream& os,
 	os << setw(MSR) << right << FormatDmsString(RadtoDms(azimuth), 4, true, false) << 
 		setw(MSR) << right << FormatDmsString(RadtoDms(vertical_angle), 4, true, false) << 
 		setw(MSR) << setprecision(PRECISION_MTR_STN) << fixed << right << slope_distance << 
-		setw(MSR) << setprecision(PRECISION_MTR_STN) << fixed << right << horiz_distance << 
-		setw(HEIGHT) << setprecision(PRECISION_MTR_STN) << fixed << right << local_12e << 
-		setw(HEIGHT) << setprecision(PRECISION_MTR_STN) << fixed << right << local_12n << 
-		setw(HEIGHT) << setprecision(PRECISION_MTR_STN) << fixed << right << local_12up << endl;
+		setw(MSR) << setprecision(PRECISION_MTR_STN) << fixed << right << horiz_distance;
+
+	if (isAdjustmentQuestionable_)
+		os << 
+			StringFromTW(local_12e, HEIGHT, PRECISION_MTR_STN) << 
+			StringFromTW(local_12n, HEIGHT, PRECISION_MTR_STN) << 
+			StringFromTW(local_12up, HEIGHT, PRECISION_MTR_STN) << endl;
+	else
+		os << 
+			setw(HEIGHT) << setprecision(PRECISION_MTR_STN) << fixed << right << local_12e << 
+			setw(HEIGHT) << setprecision(PRECISION_MTR_STN) << fixed << right << local_12n << 
+			setw(HEIGHT) << setprecision(PRECISION_MTR_STN) << fixed << right << local_12up << endl;
 }
 	
 
@@ -9498,13 +9516,19 @@ void dna_adjust::PrintAdjStation(ostream& os,
 			break;
 		case 'H':
 			// Orthometric height
-			os << setprecision(PRECISION_MTR_STN) << fixed << right << setw(HEIGHT) << 
-				estHeight - stn_it->geoidSep;
+			if (isAdjustmentQuestionable_)
+				os << right << StringFromTW((estHeight - stn_it->geoidSep), HEIGHT, PRECISION_MTR_STN);
+			else
+				os << setprecision(PRECISION_MTR_STN) << fixed << right << setw(HEIGHT) << 
+					estHeight - stn_it->geoidSep;
 			break;
 		case 'h':
 			// Ellipsoidal height
-			os << setprecision(PRECISION_MTR_STN) << fixed << right << setw(HEIGHT) << 
-				estHeight;
+			if (isAdjustmentQuestionable_)
+				os << right << StringFromTW(estHeight, HEIGHT, PRECISION_MTR_STN);
+			else
+				os << setprecision(PRECISION_MTR_STN) << fixed << right << setw(HEIGHT) << 
+					estHeight;
 			break;
 		case 'X':
 			// Cartesian X
@@ -9531,10 +9555,17 @@ void dna_adjust::PrintAdjStation(ostream& os,
 	var_cart.copyelements(0, 0, stationVariances, mat_idx, mat_idx, 3, 3);
 	PropagateVariances_LocalCart(var_cart, var_local, 
 		estLatitude, estLongitude, false);
-	os << 
-		setprecision(PRECISION_MTR_STN) << fixed << right << setw(STDDEV) << sqrt(var_local.get(0, 0)) << 
-		setprecision(PRECISION_MTR_STN) << fixed << right << setw(STDDEV) << sqrt(var_local.get(1, 1)) << 
-		setprecision(PRECISION_MTR_STN) << fixed << right << setw(STDDEV) << sqrt(var_local.get(2, 2));
+	
+	if (isAdjustmentQuestionable_)
+		os <<
+			StringFromTW(sqrt(var_local.get(0, 0)), STDDEV, PRECISION_MTR_STN) <<
+			StringFromTW(sqrt(var_local.get(1, 1)), STDDEV, PRECISION_MTR_STN) <<
+			StringFromTW(sqrt(var_local.get(2, 2)), STDDEV, PRECISION_MTR_STN);
+	else
+		os <<
+			StringFromT(sqrt(var_local.get(0, 0)), PRECISION_MTR_STN) <<
+			StringFromT(sqrt(var_local.get(1, 1)), PRECISION_MTR_STN) <<
+			StringFromT(sqrt(var_local.get(2, 2)), PRECISION_MTR_STN);
 
 	if (projectSettings_.o._stn_corr)
 	{
@@ -9952,8 +9983,14 @@ void dna_adjust::PrintPosUncertainty(ostream& os, /*ostream* csv,*/ const UINT32
 			DegreesL(bstBinaryRecords_.at(stn).currentLongitude);
 
 	// positional uncertainty 
-	os << setprecision(PRECISION_MTR_STN) << setw(STAT) << hzPosU <<
-		setprecision(PRECISION_MTR_STN) << fixed << right << setw(STAT) << vtPosU;
+	if (isAdjustmentQuestionable_)
+		os << 
+			StringFromTW(hzPosU, STAT, PRECISION_MTR_STN) <<
+			StringFromTW(vtPosU, STAT, PRECISION_MTR_STN);
+	else
+		os << setprecision(PRECISION_MTR_STN) << setw(STAT) << hzPosU <<
+			setprecision(PRECISION_MTR_STN) << fixed << right << setw(STAT) << vtPosU;
+	
 	// error ellipse semi-major, semi-minor, orientation
 	os << setprecision(PRECISION_MTR_STN) << setw(PREC) << semimajor <<
 		setprecision(PRECISION_MTR_STN) << setw(PREC) << semiminor <<
@@ -9961,20 +9998,39 @@ void dna_adjust::PrintPosUncertainty(ostream& os, /*ostream* csv,*/ const UINT32
 
 	os.flags(ios::scientific | ios::right);
 
+	UINT16 PRECISION_UNCERTAINTY(9);
+
 	// xx, xy, xz
-	os << 
-		setprecision(9) << setw(MSR) << variances->get(0, 0) <<				// e
-		setprecision(9) << setw(MSR) << variances->get(0, 1) <<				// n
-		setprecision(9) << setw(MSR) << variances->get(0, 2) <<	endl;		// up
+	if (isAdjustmentQuestionable_)
+		os << 
+			StringFromTW(variances->get(0, 0), MSR, PRECISION_UNCERTAINTY) <<						// e
+			StringFromTW(variances->get(0, 1), MSR, PRECISION_UNCERTAINTY) <<						// n
+			StringFromTW(variances->get(0, 2), MSR, PRECISION_UNCERTAINTY) <<	endl;				// up
+	else
+		os << 
+			setprecision(PRECISION_UNCERTAINTY) << setw(MSR) << variances->get(0, 0) <<				// e
+			setprecision(PRECISION_UNCERTAINTY) << setw(MSR) << variances->get(0, 1) <<				// n
+			setprecision(PRECISION_UNCERTAINTY) << setw(MSR) << variances->get(0, 2) <<	endl;		// up
+	
 	// Next line: yy, yz
-	os << 
-		setw(STATION+PAD2+LAT_EAST+LON_NORTH+STAT+STAT+PREC+PREC+PREC+MSR) << " " <<				// padding
-		setprecision(9) << setw(MSR) << variances->get(1, 1) <<				// n
-		setprecision(9) << setw(MSR) << variances->get(1, 2) << endl;		// up
-	// zz
-	os << 
-		setw(STATION+PAD2+LAT_EAST+LON_NORTH+STAT+STAT+PREC+PREC+PREC+MSR+MSR) << " " <<			// padding
-		setprecision(9) << setw(MSR) << variances->get(2, 2) << endl;		// up
+	os << setw(STATION+PAD2+LAT_EAST+LON_NORTH+STAT+STAT+PREC+PREC+PREC+MSR) << " ";		// padding
+	if (isAdjustmentQuestionable_)
+		os << 
+			StringFromTW(variances->get(1, 1), MSR, PRECISION_UNCERTAINTY) <<						// n
+			StringFromTW(variances->get(1, 2), MSR, PRECISION_UNCERTAINTY) << endl;					// up
+	else
+		os << 
+			setprecision(PRECISION_UNCERTAINTY) << setw(MSR) << variances->get(1, 1) <<				// n
+			setprecision(PRECISION_UNCERTAINTY) << setw(MSR) << variances->get(1, 2) << endl;		// up
+	
+	// Next line: zz
+	os << setw(STATION+PAD2+LAT_EAST+LON_NORTH+STAT+STAT+PREC+PREC+PREC+MSR+MSR) << " ";	// padding
+	if (isAdjustmentQuestionable_)
+		os <<
+			StringFromTW(variances->get(2, 2), MSR, PRECISION_UNCERTAINTY) << endl;		// up
+	else
+		os <<
+			setprecision(PRECISION_UNCERTAINTY) << setw(MSR) << variances->get(2, 2) << endl;		// up
 	
 	if (!projectSettings_.o._output_pu_covariances)
 		return;
@@ -10003,21 +10059,21 @@ void dna_adjust::PrintPosUncertainty(ostream& os, /*ostream* csv,*/ const UINT32
 		os.flags(ios::scientific | ios::right);
 		os << 
 			setw(PAD2+LAT_EAST+LON_NORTH+STAT+STAT+PREC+PREC+PREC) << " " <<								// padding
-			setprecision(9) << setw(MSR) << variances->get(0, 0) <<			// 11
-			setprecision(9) << setw(MSR) << variances->get(0, 1) <<			// 12
-			setprecision(9) << setw(MSR) << variances->get(0, 2) <<	endl;	// 13
+			setprecision(PRECISION_UNCERTAINTY) << setw(MSR) << variances->get(0, 0) <<			// 11
+			setprecision(PRECISION_UNCERTAINTY) << setw(MSR) << variances->get(0, 1) <<			// 12
+			setprecision(PRECISION_UNCERTAINTY) << setw(MSR) << variances->get(0, 2) <<	endl;	// 13
 			
 		os <<
 			setw(STATION+PAD2+LAT_EAST+LON_NORTH+STAT+STAT+PREC+PREC+PREC) << " " <<						// padding
-			setprecision(9) << setw(MSR) << variances->get(1, 0) <<			// 21
-			setprecision(9) << setw(MSR) << variances->get(1, 1) <<			// 22
-			setprecision(9) << setw(MSR) << variances->get(1, 2) <<	endl;	// 23
+			setprecision(PRECISION_UNCERTAINTY) << setw(MSR) << variances->get(1, 0) <<			// 21
+			setprecision(PRECISION_UNCERTAINTY) << setw(MSR) << variances->get(1, 1) <<			// 22
+			setprecision(PRECISION_UNCERTAINTY) << setw(MSR) << variances->get(1, 2) <<	endl;	// 23
 		
 		os <<
 			setw(STATION+PAD2+LAT_EAST+LON_NORTH+STAT+STAT+PREC+PREC+PREC) << " " <<						// padding
-			setprecision(9) << setw(MSR) << variances->get(2, 0) <<			// 31
-			setprecision(9) << setw(MSR) << variances->get(2, 1) <<			// 32
-			setprecision(9) << setw(MSR) << variances->get(2, 2) <<	endl;	// 33
+			setprecision(PRECISION_UNCERTAINTY) << setw(MSR) << variances->get(2, 0) <<			// 31
+			setprecision(PRECISION_UNCERTAINTY) << setw(MSR) << variances->get(2, 1) <<			// 32
+			setprecision(PRECISION_UNCERTAINTY) << setw(MSR) << variances->get(2, 2) <<	endl;	// 33
 	}
 }
 
@@ -12531,7 +12587,7 @@ void dna_adjust::PrintMeasurementsAngular(const char cardinal, const double& mea
 
 	adj_file << setw(PAD3) << left << ignoreFlag << setw(PAD2) << left << cardinal;
 
-	double precision;
+	double precision(0.0);
 	
 	// get the correct precision term
 	switch (_it_msr->measType)
@@ -12570,13 +12626,13 @@ void dna_adjust::PrintMeasurementsAngular(const char cardinal, const double& mea
 			adj_file << 
 				setw(MSR) << right << FormatDmsString(RadtoDms(preAdjMeas), 4+PRECISION_SEC_MSR, 					// Measured (less correction  
 					true, true) <<																					// for deflections if applied)
-				setw(MSR) << right << FormatDmsString(RadtoDms(adjMeas), 4+PRECISION_SEC_MSR,					// Adjusted
+				setw(MSR) << right << FormatDmsString(RadtoDms(adjMeas), 4+PRECISION_SEC_MSR,						// Adjusted
 					true, true);
 			break;
 		case HP_NOTATION:
 			// ddd.mmssssss
 			adj_file << setw(MSR) << right << StringFromT(RadtoDms(preAdjMeas), 4+PRECISION_SEC_MSR) <<				// Measured (less correction for deflections)
-				setw(MSR) << right << StringFromT(RadtoDms(adjMeas), 4+PRECISION_SEC_MSR);						// Adjusted
+				setw(MSR) << right << StringFromT(RadtoDms(adjMeas), 4+PRECISION_SEC_MSR);							// Adjusted
 			break;
 		case SEPARATED:
 		default:
@@ -12584,36 +12640,58 @@ void dna_adjust::PrintMeasurementsAngular(const char cardinal, const double& mea
 			adj_file << 
 				setw(MSR) << right << FormatDmsString(RadtoDms(preAdjMeas), 4+PRECISION_SEC_MSR,					// Measured (less correction  
 					true, false) <<																					// for deflections if applied)
-				setw(MSR) << right << FormatDmsString(RadtoDms(adjMeas), 4+PRECISION_SEC_MSR,					// Computed
+				setw(MSR) << right << FormatDmsString(RadtoDms(adjMeas), 4+PRECISION_SEC_MSR,						// Computed
 					true, false);
 			break;
 		}
 
-		adj_file << 
-			setw(CORR) << right << StringFromT(removeNegativeZero(Seconds(correction), PRECISION_SEC_MSR), PRECISION_SEC_MSR) <<	// correction
-			setw(PREC) << right << StringFromT(Seconds(sqrt(precision)), PRECISION_SEC_MSR);						// Precision (Meas)
+		if (isAdjustmentQuestionable_)
+			adj_file << 
+				right << StringFromTW(removeNegativeZero(Seconds(correction), PRECISION_SEC_MSR), CORR, PRECISION_SEC_MSR) <<	// correction
+				right << StringFromTW(Seconds(sqrt(precision)), PREC, PRECISION_SEC_MSR);							// Precision (Meas)
+		else
+			adj_file << 
+				setw(CORR) << right << StringFromT(removeNegativeZero(Seconds(correction), PRECISION_SEC_MSR), PRECISION_SEC_MSR) <<	// correction
+				setw(PREC) << right << StringFromT(Seconds(sqrt(precision)), PRECISION_SEC_MSR);					// Precision (Meas)
 
 		if (printAdjMsr)
 		{
-			adj_file << 
-				setw(PREC) << right << StringFromT(Seconds(sqrt(_it_msr->measAdjPrec)), PRECISION_SEC_MSR) <<		// Precision (Adjusted)
-				setw(PREC) << right << StringFromT(Seconds(sqrt(_it_msr->residualPrec)), PRECISION_SEC_MSR);		// Precision (Residual)
+			if (isAdjustmentQuestionable_)
+				adj_file << 
+					right << StringFromTW(Seconds(sqrt(_it_msr->measAdjPrec)), PREC, PRECISION_SEC_MSR) <<			// Precision (Adjusted)
+					right << StringFromTW(Seconds(sqrt(_it_msr->residualPrec)), PREC, PRECISION_SEC_MSR);			// Precision (Residual)
+			else
+				adj_file << 
+					setw(PREC) << right << StringFromT(Seconds(sqrt(_it_msr->measAdjPrec)), PRECISION_SEC_MSR) <<	// Precision (Adjusted)
+					setw(PREC) << right << StringFromT(Seconds(sqrt(_it_msr->residualPrec)), PRECISION_SEC_MSR);	// Precision (Residual)
 		}
 	}
 	else	// DDEG
 	{
 		// ddd.dddddddd
 		//TODO - is longitude being printed?  If so, use DegreesL
-		adj_file << setw(MSR) << right << StringFromT(Degrees(preAdjMeas), 4+PRECISION_SEC_MSR) <<				// Measured (less correction for deflections)
-			setw(MSR) << right << StringFromT(Degrees(adjMeas), 4+PRECISION_SEC_MSR) <<						// Adjusted
-			setw(CORR) << right << StringFromT(removeNegativeZero(Degrees(correction), PRECISION_SEC_MSR), PRECISION_SEC_MSR) <<	// Correction
-			setw(PREC) << right << StringFromT(Degrees(sqrt(precision)), PRECISION_SEC_MSR);					// Precision (Meas)
+		adj_file << setw(MSR) << right << StringFromT(Degrees(preAdjMeas), 4+PRECISION_SEC_MSR) <<					// Measured (less correction for deflections)
+			setw(MSR) << right << StringFromT(Degrees(adjMeas), 4+PRECISION_SEC_MSR); 								// Adjusted
+		
+		if (isAdjustmentQuestionable_)
+			adj_file <<
+				right << StringFromTW(removeNegativeZero(Degrees(correction), PRECISION_SEC_MSR), CORR, PRECISION_SEC_MSR) <<	// Correction
+				right << StringFromTW(Degrees(sqrt(precision)), PREC, PRECISION_SEC_MSR);							// Precision (Meas)
+		else
+			adj_file <<
+				setw(CORR) << right << StringFromT(removeNegativeZero(Degrees(correction), PRECISION_SEC_MSR), PRECISION_SEC_MSR) <<	// Correction
+				setw(PREC) << right << StringFromT(Degrees(sqrt(precision)), PRECISION_SEC_MSR);					// Precision (Meas)
 		
 		if (printAdjMsr)
 		{
-			adj_file <<
-				setw(PREC) << right << StringFromT(Degrees(sqrt(_it_msr->measAdjPrec)), PRECISION_SEC_MSR) <<	// Precision (Adjusted)
-				setw(PREC) << right << StringFromT(Degrees(sqrt(_it_msr->residualPrec)), PRECISION_SEC_MSR);	// Precision (Residual)
+			if (isAdjustmentQuestionable_)
+				adj_file <<
+					right << StringFromTW(Degrees(sqrt(_it_msr->measAdjPrec)), PREC, PRECISION_SEC_MSR) <<			// Precision (Adjusted)
+					right << StringFromTW(Degrees(sqrt(_it_msr->residualPrec)), PREC, PRECISION_SEC_MSR);			// Precision (Residual)
+			else
+				adj_file <<
+					setw(PREC) << right << StringFromT(Degrees(sqrt(_it_msr->measAdjPrec)), PRECISION_SEC_MSR) <<	// Precision (Adjusted)
+					setw(PREC) << right << StringFromT(Degrees(sqrt(_it_msr->residualPrec)), PRECISION_SEC_MSR);	// Precision (Residual)
 		}
 	}
 }
@@ -12700,9 +12778,15 @@ void dna_adjust::PrintMeasurementsLinear(
 	
 	adj_file << setw(PAD3) << left << ignoreFlag << setw(PAD2) << left << cardinal <<				// If GPS, then 'X', 'Y' or 'Z', else ' '
 		setw(MSR) << setprecision(PRECISION_MTR_MSR) << fixed << right << _it_msr->preAdjMeas <<	// Measured (less correction for geoid)
-		setw(MSR) << setprecision(PRECISION_MTR_MSR) << fixed << right << measurement <<			// Adjusted
-		setw(CORR) << setprecision(PRECISION_MTR_MSR) << fixed << right << 
-		removeNegativeZero(correction, PRECISION_MTR_MSR);											// Correction
+		setw(MSR) << setprecision(PRECISION_MTR_MSR) << fixed << right << measurement;				// Adjusted
+	
+	if (isAdjustmentQuestionable_)
+		adj_file <<			
+			right << StringFromTW(removeNegativeZero(correction, PRECISION_MTR_MSR), CORR, PRECISION_MTR_MSR);	// Correction
+	else
+		adj_file <<			
+			setw(CORR) << setprecision(PRECISION_MTR_MSR) << fixed << right << 
+			removeNegativeZero(correction, PRECISION_MTR_MSR);										// Correction
 
 	// print the correct precision term
 	switch (_it_msr->measType)
@@ -12729,23 +12813,31 @@ void dna_adjust::PrintMeasurementsLinear(
 			switch (projectSettings_.o._adj_gnss_units)
 			{
 			case AED_adj_gnss_ui:
-				adj_file << setw(PREC) << setprecision(PRECISION_MTR_MSR) << fixed << right << sqrt(_it_msr->term4);		// Precision (Meas)
+				adj_file << setw(PREC) << setprecision(PRECISION_MTR_MSR) << fixed << right << sqrt(_it_msr->term4);	// Precision (Meas)
 				break;
 			case ADU_adj_gnss_ui:
-				adj_file << setw(PREC) << setprecision(PRECISION_MTR_MSR) << fixed << right << sqrt(_it_msr->term3);		// Precision (Meas)
+				adj_file << setw(PREC) << setprecision(PRECISION_MTR_MSR) << fixed << right << sqrt(_it_msr->term3);	// Precision (Meas)
 				break;
 			}
 			break;
 		}
 		break;
 	default:
-		adj_file << setw(PREC) << setprecision(PRECISION_MTR_MSR) << fixed << right << sqrt(_it_msr->term2);			// Precision (Meas)
+		if (isAdjustmentQuestionable_)
+			adj_file << StringFromTW(sqrt(_it_msr->term2), PREC, PRECISION_MTR_MSR);				// Precision (Meas)
+		else
+			adj_file << setw(PREC) << setprecision(PRECISION_MTR_MSR) << fixed << right << sqrt(_it_msr->term2);			// Precision (Meas)
 	}
 
 	if (printAdjMsr)
 	{
-		adj_file << setw(PREC) << setprecision(PRECISION_MTR_MSR) << fixed << right << sqrt(_it_msr->measAdjPrec) <<	// Precision (Adjusted)
-			setw(PREC) << setprecision(PRECISION_MTR_MSR) << fixed << right << sqrt(_it_msr->residualPrec); 			// Precision (Residual)
+		if (isAdjustmentQuestionable_)
+			adj_file << 
+				right << StringFromTW(sqrt(_it_msr->measAdjPrec), PREC, PRECISION_MTR_MSR) <<		// Precision (Adjusted)
+				right << StringFromTW(sqrt(_it_msr->residualPrec), PREC, PRECISION_MTR_MSR); 		// Precision (Residual)
+		else
+			adj_file << setw(PREC) << setprecision(PRECISION_MTR_MSR) << fixed << right << sqrt(_it_msr->measAdjPrec) <<	// Precision (Adjusted)
+				setw(PREC) << setprecision(PRECISION_MTR_MSR) << fixed << right << sqrt(_it_msr->residualPrec); 			// Precision (Residual)
 	}
 }
 
@@ -12954,13 +13046,6 @@ void dna_adjust::ReduceYLLHMeasurementsforPrinting(it_vmsr_t& _it_msr, vmsr_t& y
 		// transform computed values to geographic
 		switch (print_mode)
 		{
-		case adjustedMsrs:
-			x = _it_y_msr->measAdj;
-			_it_y_msr++;
-			y = _it_y_msr->measAdj;
-			_it_y_msr++;
-			z = _it_y_msr->measAdj;
-			break;
 		case computedMsrs:
 			x = _it_y_msr->term1;
 			_it_y_msr++;
@@ -12968,7 +13053,13 @@ void dna_adjust::ReduceYLLHMeasurementsforPrinting(it_vmsr_t& _it_msr, vmsr_t& y
 			_it_y_msr++;
 			z = _it_y_msr->term1;
 			break;
+		case adjustedMsrs:
 		default:
+			x = _it_y_msr->measAdj;
+			_it_y_msr++;
+			y = _it_y_msr->measAdj;
+			_it_y_msr++;
+			z = _it_y_msr->measAdj;
 			break;
 		}
 		
