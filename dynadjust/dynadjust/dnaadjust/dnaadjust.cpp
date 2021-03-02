@@ -8085,7 +8085,22 @@ void dna_adjust::ComputeAdjMsrBlockOnIteration(const UINT32& block)
 	UpdateMsrRecords(block);
 
 	if (projectSettings_.a.stage)
-		ComputeChiSquarePhased(block);		// This initialises chiSquared_ on each call	
+		ComputeChiSquarePhased(block);		// This initialises chiSquared_ on each call
+
+	if (projectSettings_.o._adj_msr_iteration || 
+			projectSettings_.o._adj_stn_iteration || 
+			projectSettings_.o._cmp_msr_iteration)
+	{
+		measurementParams_ = 0;
+		ComputeChiSquarePhased(block);		// This initialises chiSquared_ on each call
+		measurementParams_ = v_measurementParams_.at(block);
+		unknownParams_ = v_unknownParams_.at(block);
+		ComputeGlobalNetStat();
+		ComputeBlockTestStat(block);
+		isAdjustmentQuestionable_ = (
+			// a much larger than expected outcome
+			v_sigmaZero_.at(block) > 3.0 * v_chiSquaredUpperLimit_.at(block));
+	}
 }
 	
 
@@ -12920,14 +12935,24 @@ void dna_adjust::PrintMeasurementDatabaseID(const it_vmsr_t& _it_msr)
 
 void dna_adjust::PrintAdjMeasurementStatistics(const char cardinal, const it_vmsr_t& _it_msr)
 {
-	adj_file << setw(STAT) << setprecision(2) << fixed << right << 
-		removeNegativeZero(_it_msr->NStat, 2);												// N Stat
+	UINT16 PRECISION_STAT(2);
+
+	if (isAdjustmentQuestionable_)
+		adj_file << StringFromTW(removeNegativeZero(_it_msr->NStat, 2), STAT, PRECISION_STAT);		// N Stat
+	else
+		adj_file << setw(STAT) << setprecision(2) << fixed << right << 
+			removeNegativeZero(_it_msr->NStat, 2);													// N Stat	
 
 	if (projectSettings_.o._adj_msr_tstat)
-		adj_file << setw(STAT) << setprecision(2) << fixed << right << 
-			removeNegativeZero(_it_msr->TStat, 2);												// T Stat
-	
-	adj_file << setw(REL) << setprecision(2) << fixed << right << _it_msr->PelzerRel;		// Pelzer's reliability
+	{
+		if (isAdjustmentQuestionable_)
+			adj_file << StringFromTW(removeNegativeZero(_it_msr->TStat, 2), STAT, PRECISION_STAT);	// T Stat
+		else
+			adj_file << setw(STAT) << setprecision(2) << fixed << right << 
+				removeNegativeZero(_it_msr->TStat, 2);												// T Stat
+	}
+
+	adj_file << setw(REL) << setprecision(2) << fixed << right << _it_msr->PelzerRel;				// Pelzer's reliability
 
 	// Print measurement correction
 	PrintMeasurementCorrection(cardinal, _it_msr);
