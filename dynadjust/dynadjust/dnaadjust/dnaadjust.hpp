@@ -360,6 +360,7 @@ public:
 	bool					isCombining_;
 	bool					forward_;
 	bool					isFirstTimeAdjustment_;
+	bool					isIterationComplete_;
 	bool					isAdjustmentQuestionable_;
 	
 	UINT32					blockCount_;

@@ -194,7 +194,7 @@ string StringFromTW(const T& t, const U& width, const U& precision=0)
 
 	// Assume number at precision prints within width
 	ss << setw(width) << fixed << right << setprecision(precision) << t;
-	int trim = trimstr(ss.str()).length() - width;
+	int trim = (int)trimstr(ss.str()).length() - width;
 
 	// Formatted string length is less than or equal to the fixed width
 	if (trim <= 0)

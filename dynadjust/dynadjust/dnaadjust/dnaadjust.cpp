@@ -57,6 +57,7 @@ dna_adjust::dna_adjust()
 	, isCombining_(false)
 	, forward_(true)
 	, isFirstTimeAdjustment_(true)
+	, isIterationComplete_(false)
 	, isAdjustmentQuestionable_(false)
 	, blockCount_(1)
 	, currentBlock_(0)
@@ -2386,6 +2387,7 @@ void dna_adjust::FormConstraintStationVarianceMatrix(
 _ADJUST_STATUS_ dna_adjust::AdjustNetwork()
 {
 	isAdjusting_ = true;
+	isIterationComplete_ = false;
 	isAdjustmentQuestionable_ = false;
 	iterationCorrections_.clear_messages();
 
@@ -3221,6 +3223,8 @@ void dna_adjust::AdjustSimultaneous()
 		if (IsCancelled())
 			break;
 
+		isIterationComplete_ = false;
+
 		blockLargeCorr_ = 0;
 		largestCorr_ = 0.0;
 
@@ -3256,6 +3260,7 @@ void dna_adjust::AdjustSimultaneous()
 		// update data for messages
 		iterationCorrections_.add_message(corr_msg);
 		iterationQueue_.push_and_notify(currentIteration_);	// currentIteration begins at 1, so not zero-indexed
+		isIterationComplete_ = true;
 		
 		// continue iterating?
 		iterate = !IsCancelled() && fabs(maxCorr_) > projectSettings_.a.iteration_threshold;
@@ -3397,6 +3402,8 @@ void dna_adjust::AdjustPhased()
 		if (IsCancelled())
 			break;
 
+		isIterationComplete_ = false;
+
 		blockLargeCorr_ = 0;
 		largestCorr_ = 0.0;
 		maxCorr_ = 0.0;
@@ -3428,6 +3435,7 @@ void dna_adjust::AdjustPhased()
 		
 		iterationCorrections_.add_message(corr_msg);
 		iterationQueue_.push_and_notify(currentIteration_);	// currentIteration begins at 1, so not zero-indexed
+		isIterationComplete_ = true;
 
 		// Continue iterating?
 		iterate = !IsCancelled() && fabs(maxCorr_) > projectSettings_.a.iteration_threshold;
@@ -3605,16 +3613,18 @@ void dna_adjust::AdjustPhasedForward()
 			projectSettings_.o._cmp_msr_iteration)
 			adj_file << " done." << endl;
 
+		// Add corrections to estimates and update degrees of freedom.
+		UpdateEstimatesForward(currentBlock);
+
+		// Compute and print adjusted measurements for this 
+		// block during an iteration
 		if (projectSettings_.o._adj_msr_iteration)
 		{
 			end = begin + v_CML_.at(currentBlock).size();
 			ComputeandPrintAdjMsrBlockOnIteration(currentBlock, v_uint32_u32u32_pair(begin, end), true);
-			begin = end+1;
+			begin = end;
 		}
 		
-		// Add corrections to estimates and update degrees of freedom.
-		UpdateEstimatesForward(currentBlock);
-
 		// Debug and diagnose (if required)
 		debug_BlockInformation(currentBlock, (forward_ ? " (Forward)" : " (Reverse)"));
 		
@@ -7830,8 +7840,9 @@ void dna_adjust::ComputeTestStat(const double& dof, double& chiUpper, double& ch
 		if (projectSettings_.g.verbose > 0)
 			debug_file << endl << "ComputeTestStat():\n     " << e.what() << endl;
 
-		if (dof == 0)
-			adj_file << endl << "Cannot perform chi-square test with zero degrees of freedom." << endl << endl; 
+		if (projectSettings_.g.verbose > 0)
+			if (dof == 0)
+				adj_file << endl << "Cannot perform chi-square test with zero degrees of freedom." << endl << endl; 
 	
 		passFail = test_stat_fail;
 	}
@@ -8065,12 +8076,14 @@ void dna_adjust::ComputeandPrintAdjMsrOnIteration()
 	_it_uint32_u32u32_pair begin, end;
 	begin = v_msr_block_.begin();
 
+	// Compute and print adjusted measurements for all 
+	// blocks at the end of an iteration
 	for (UINT32 block(0); block<blockCount_; ++block)
 	{
 		// send subvector of measurements from this block
 		end = begin + v_CML_.at(block).size();
 		ComputeandPrintAdjMsrBlockOnIteration(block, v_uint32_u32u32_pair(begin, end), printHeader);
-		begin = end+1;
+		begin = end;
 		printHeader = false;
 	}
 }
@@ -8087,19 +8100,35 @@ void dna_adjust::ComputeAdjMsrBlockOnIteration(const UINT32& block)
 	if (projectSettings_.a.stage)
 		ComputeChiSquarePhased(block);		// This initialises chiSquared_ on each call
 
-	if (projectSettings_.o._adj_msr_iteration || 
-			projectSettings_.o._adj_stn_iteration || 
+	if (projectSettings_.o._adj_msr_iteration ||
+			projectSettings_.o._adj_stn_iteration ||
 			projectSettings_.o._cmp_msr_iteration)
 	{
-		measurementParams_ = 0;
 		ComputeChiSquarePhased(block);		// This initialises chiSquared_ on each call
-		measurementParams_ = v_measurementParams_.at(block);
-		unknownParams_ = v_unknownParams_.at(block);
-		ComputeGlobalNetStat();
-		ComputeBlockTestStat(block);
-		isAdjustmentQuestionable_ = (
-			// a much larger than expected outcome
-			v_sigmaZero_.at(block) > 3.0 * v_chiSquaredUpperLimit_.at(block));
+
+		switch (projectSettings_.a.adjust_mode)
+		{
+		case PhasedMode:
+		case Phased_Block_1Mode:
+			
+			ComputeBlockTestStat(block);
+
+			isAdjustmentQuestionable_ = (
+				v_passFail_.at(block) != test_stat_pass ||
+				// a much larger than expected outcome
+				v_sigmaZero_.at(block) > 3.0 * v_chiSquaredUpperLimit_.at(block));
+			break;
+		default:
+			ComputeGlobalNetStat();
+			ComputeGlobalTestStat();
+
+			isAdjustmentQuestionable_ = (
+				// a much larger than expected outcome
+				sigmaZero_ > 3.0 * chiSquaredUpperLimit_);
+			break;
+		}		
+		
+		
 	}
 }
 	
@@ -11951,6 +11980,27 @@ void dna_adjust::PrintAdjMeasurements(v_uint32_u32u32_pair msr_block, bool print
 {
 	// Print heading
 	string table_heading("Adjusted Measurements");
+
+	if (projectSettings_.o._adj_msr_iteration)
+	{
+		stringstream ss;
+		if (projectSettings_.a.adjust_mode == PhasedMode && forward_)
+		{
+			UINT32 block = msr_block.at(0).second.first;
+			ss << " (Block " << msr_block.at(0).second.first + 1 << ", ";
+			if (v_blockMeta_.at(block)._blockLast || v_blockMeta_.at(block)._blockIsolated)
+				ss << "rigorous)";
+			else
+				ss << "in isolation)";
+			table_heading.append(ss.str());
+		}
+		else if (projectSettings_.a.adjust_mode == PhasedMode && isIterationComplete_)
+		{
+			ss << " (Iteration " << currentIteration_ << ")";
+			table_heading.append(ss.str());
+		}
+	}
+
 	PrintAdjMeasurementsHeader(printHeader, table_heading,
 		adjustedMsrs, msr_block.at(0).second.first + 1, true);
 		
@@ -11992,7 +12042,7 @@ void dna_adjust::PrintAdjMeasurements(v_uint32_u32u32_pair msr_block, bool print
 	}
 	catch (...) {
 		stringstream ss;
-		ss << "Failed to sort measurements according to the";
+		ss << "Failed to sort measurements according to the ";
 
 		switch (projectSettings_.o._sort_adj_msr)
 		{
@@ -12132,6 +12182,14 @@ void dna_adjust::PrintCompMeasurementsAngular(const char cardinal, const double&
 
 void dna_adjust::PrintCompMeasurementsLinear(const char cardinal, const double& computed, const double& correction, const it_vmsr_t& _it_msr)
 {
+	// If a user wants to print apriori computed measurements, via 
+	//   --output-iter-cmp-msr
+	// it is likely an attempt is being made to diagnose a problematic 
+	// adjustment.  For this cause, test if a linear measurement correction
+	// is in the order of 1 Km
+	if (!isAdjustmentQuestionable_)
+		isAdjustmentQuestionable_ = (fabs(correction) > 999.9999);
+
 	// Print computed linear measurements
 	PrintMeasurementsLinear(cardinal, computed, correction, _it_msr, false);
 
@@ -12505,7 +12563,6 @@ void dna_adjust::PrintCompMeasurements_HR(const UINT32& block, it_vmsr_t& _it_ms
 		computed = _it_msr->measAdj;
 		break;
 	}
-
 
 	string ignoreFlag(" ");
 	if (_it_msr->ignore)
