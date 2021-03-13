@@ -187,6 +187,57 @@ T trimstrright(const T& Src) {
 	return trimstrright_(Src, static_cast<T>(" \r\n"));
 }
 
+template <class T, class U>
+string StringFromTW(const T& t, const U& width, const U& precision=0)
+{
+	stringstream ss;
+
+	// Assume number at precision prints within width
+	ss << setw(width) << fixed << right << setprecision(precision) << t;
+	int trim = (int)trimstr(ss.str()).length() - width;
+
+	// Formatted string length is less than or equal to the fixed width
+	if (trim <= 0)
+		return ss.str();
+
+	ss.str("");
+
+	// Formatted string length exceeds fixed width by trim.
+	// Use scientific notation if the overflow is 
+	// greater than the precision
+	if (trim > 0)
+	{
+		// scientific notation requires 6 or 5
+		// characters (e.g. -1e+00 or 1e+00), not
+		// including the fractional part
+		if (width < (t < 0. ? 6 : 5))
+		{
+			// insufficient space for scientific notation!!!
+			ss << setw(width) << string(width, '#');
+			return ss.str();
+		}
+		
+		int prec1 = width - (t < 0. ? 6 : 5);
+		// if precision is required, an extra space is needed for
+		// the decimal point, so reduce by one.
+		if (prec1 > 0)
+			prec1--;
+		
+		int prec = min<int>(precision, prec1);
+		
+		ss << setw(width) << scientific << right << setprecision(prec) << t;
+	}
+	else
+	{
+		int prec = precision - trim;
+		if (prec < 0)
+			prec = 0;
+		ss << setw(width) << fixed << right << setprecision(prec) << t;
+	}
+
+	return ss.str();
+}
+
 template <class T>
 string StringFromT(const T& t, const int& precision=-1)
 {

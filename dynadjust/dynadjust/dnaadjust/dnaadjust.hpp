@@ -360,6 +360,8 @@ public:
 	bool					isCombining_;
 	bool					forward_;
 	bool					isFirstTimeAdjustment_;
+	bool					isIterationComplete_;
+	bool					isAdjustmentQuestionable_;
 	
 	UINT32					blockCount_;
 	UINT32					currentBlock_;
@@ -967,9 +969,6 @@ private:
 	// queue to handle notification of messages for each iteration
 	concurrent_queue<UINT32> iterationQueue_;
 
-	// flag to tell if users have cancelled running dynajust
-	std::atomic<bool>				isCancelled_;
-
 #ifdef MULTI_THREAD_ADJUST
 	// ----------------------------------------------
 	// Adjustment matrices for multi-threaded phased adjustment
@@ -992,6 +991,10 @@ private:
 	bool					databaseIDsLoaded_;
 
 	void LoadDatabaseId();
+
+	// flag to tell if users have cancelled running dynajust
+	std::atomic<bool>				isCancelled_;
+
 };
 
 }	// namespace networkadjust
