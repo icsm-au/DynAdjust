@@ -3309,7 +3309,8 @@ void dna_adjust::ValidateandFinaliseAdjustment(cpu_timer& tot_time)
 		return;
 	}
 
-	if (currentIteration_ == projectSettings_.a.max_iterations)
+	if (currentIteration_ == projectSettings_.a.max_iterations &&
+		fabs(maxCorr_) > projectSettings_.a.iteration_threshold)
 		adjustStatus_ = ADJUST_MAX_ITERATIONS_EXCEEDED;
 
 	// Print status
@@ -3341,7 +3342,8 @@ void dna_adjust::PrintAdjustmentStatus()
 		break;
 	default:
 		if (adjustStatus_ == ADJUST_SUCCESS && 
-			currentIteration_ < projectSettings_.a.max_iterations)
+			currentIteration_ <= projectSettings_.a.max_iterations &&
+			fabs(maxCorr_) <= projectSettings_.a.iteration_threshold)
 			adj_file << "Converged" << endl;
 		else
 			adj_file << "Failed to converge" << endl;
