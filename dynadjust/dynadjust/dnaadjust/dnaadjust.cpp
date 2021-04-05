@@ -2857,7 +2857,7 @@ bool dna_adjust::PrintEstimatedStationCoordinatestoSNX(string& sinex_filename)
 }
 		
 // This should be put into a class separate to dnaadjust
-void dna_adjust::PrintEstimatedStationCoordinatestoDNAXML(const string& stnFile, INPUT_FILE_TYPE t)
+void dna_adjust::PrintEstimatedStationCoordinatestoDNAXML(const string& stnFile, INPUT_FILE_TYPE t, bool flagUnused)
 {
 	// Stations
 	std::ofstream stn_file;
@@ -2926,32 +2926,51 @@ void dna_adjust::PrintEstimatedStationCoordinatestoDNAXML(const string& stnFile,
 		CompareStnFileOrder<station_t, UINT32> stnorderCompareFunc(&bstBinaryRecords_);
 		sort(vStationList.begin(), vStationList.end(), stnorderCompareFunc);
 
-		// print header
+		// print station coordinates
 		switch (t)
 		{
 		case dynaml:
 
-			// Print stations in DynaML format
-			for_each(vStationList.begin(), vStationList.end(),
-				[&stn_file, &stnPtr, this](const UINT32& stn) {
-					stnPtr->SetStationRec(bstBinaryRecords_.at(stn));
-					stnPtr->WriteDNAXMLStnCurrentEstimates(&stn_file, 
-						datum_.GetEllipsoidRef(), &projection_, dynaml);
-			});
+			if (flagUnused)
+				// Print stations in DynaML format
+				for_each(vStationList.begin(), vStationList.end(),
+					[&stn_file, &stnPtr, this](const UINT32& stn) {
+						stnPtr->SetStationRec(bstBinaryRecords_.at(stn));
+						if (stnPtr->IsNotUnused())
+							stnPtr->WriteDNAXMLStnCurrentEstimates(&stn_file,
+								datum_.GetEllipsoidRef(), &projection_, dynaml);
+				});
+			else
+				// Print stations in DynaML format
+				for_each(vStationList.begin(), vStationList.end(),
+					[&stn_file, &stnPtr, this](const UINT32& stn) {
+						stnPtr->SetStationRec(bstBinaryRecords_.at(stn));
+						stnPtr->WriteDNAXMLStnCurrentEstimates(&stn_file,
+							datum_.GetEllipsoidRef(), &projection_, dynaml);
+				});
 
 			stn_file << "</DnaXmlFormat>" << endl;
 
 			break;
 		case dna:
 
-			// Print stations in DNA format
-			for_each(vStationList.begin(), vStationList.end(),
-				[&stn_file, &stnPtr, &dsw, this](const UINT32& stn) {
-					stnPtr->SetStationRec(bstBinaryRecords_.at(stn));
-					//if (stnPtr->IsNotUnused())
-					stnPtr->WriteDNAXMLStnCurrentEstimates(&stn_file, 
-						datum_.GetEllipsoidRef(), &projection_, dna, &dsw);
-			});
+			if (flagUnused)
+				// Print stations in DNA format
+				for_each(vStationList.begin(), vStationList.end(),
+					[&stn_file, &stnPtr, &dsw, this](const UINT32& stn) {
+						stnPtr->SetStationRec(bstBinaryRecords_.at(stn));
+						if (stnPtr->IsNotUnused())
+							stnPtr->WriteDNAXMLStnCurrentEstimates(&stn_file, 
+								datum_.GetEllipsoidRef(), &projection_, dna, &dsw);
+				});
+			else
+				// Print stations in DNA format
+				for_each(vStationList.begin(), vStationList.end(),
+					[&stn_file, &stnPtr, &dsw, this](const UINT32& stn) {
+						stnPtr->SetStationRec(bstBinaryRecords_.at(stn));
+						stnPtr->WriteDNAXMLStnCurrentEstimates(&stn_file,
+							datum_.GetEllipsoidRef(), &projection_, dna, &dsw);
+				});
 
 			break;
 		default:
