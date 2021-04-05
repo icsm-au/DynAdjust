@@ -1333,6 +1333,12 @@ void CDnaProjectFile::LoadSettingOutput(const settingMode mSetting, const string
 			return;
 		settings_.o._msr_to_stn = yesno_uint<UINT16, string>(val);
 	}
+	else if (iequals(var, OUTPUT_MSR_TO_STN_SORTBY))
+	{
+		if (val.empty())
+			return;
+		settings_.o._sort_msr_to_stn = lexical_cast<UINT16, string>(val);
+	}
 	else if (iequals(var, OUTPUT_ADJ_STN_ITER))
 	{
 		if (val.empty())
@@ -1837,6 +1843,7 @@ void CDnaProjectFile::PrintProjectFile()
 
 	PrintRecord(dnaproj_file, OUTPUT_MSR_TO_STN, 
 		yesno_string(settings_.o._msr_to_stn));
+	PrintRecord(dnaproj_file, OUTPUT_MSR_TO_STN_SORTBY, settings_.o._sort_msr_to_stn);
 	PrintRecord(dnaproj_file, OUTPUT_ADJ_STN_ITER, 
 		yesno_string(settings_.o._adj_stn_iteration));
 	PrintRecord(dnaproj_file, OUTPUT_ADJ_STAT_ITER, 
