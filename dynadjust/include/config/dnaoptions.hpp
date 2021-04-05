@@ -442,7 +442,7 @@ public:
 		, _snx_file(""), _xml_file(""), _cor_file(""), _apu_file("")
 		, _adj_stn_iteration(0), _adj_msr_iteration(0), _cmp_msr_iteration(0), _adj_stat_iteration(0)
 		, _adj_msr_final(0), _adj_msr_tstat(0), _database_ids(0), _print_ignored_msrs(0), _adj_gnss_units(0)
-		, _output_stn_blocks(0), _output_msr_blocks(0), _sort_stn_file_order(0), _sort_adj_msr(0)
+		, _output_stn_blocks(0), _output_msr_blocks(0), _sort_stn_file_order(0), _sort_adj_msr(0), _sort_msr_to_stn(0)
 		, _init_stn_corrections(0), _msr_to_stn(0), _stn_corr(0), _positional_uncertainty(0)
 		, _apu_vcv_units(0), _output_pu_covariances(0)
 		, _export_xml_stn_file(0), _export_dna_stn_file(0), _export_snx_file(false)
@@ -464,6 +464,7 @@ public:
 			_adj_msr_final == o._adj_msr_final && _adj_msr_tstat == o._adj_msr_tstat &&
 			_database_ids == o._database_ids && _print_ignored_msrs == o._print_ignored_msrs &&
 			_sort_adj_msr == o._sort_adj_msr &&
+			_sort_msr_to_stn == o._sort_msr_to_stn &&
 			_adj_gnss_units == o._adj_gnss_units &&
 			_init_stn_corrections == o._init_stn_corrections && _msr_to_stn == o._msr_to_stn &&
 			_output_pu_covariances == o._output_pu_covariances &&
@@ -500,6 +501,7 @@ public:
 	UINT16			_output_msr_blocks;		// For phased adjustments, output adjusted measurement information for each segmented block.
 	UINT16			_sort_stn_file_order;	// Outputs stations in original station file sort order
 	UINT16			_sort_adj_msr;			// Field by which adjusted measurements are sorted
+	UINT16			_sort_msr_to_stn;		// Field by which measurement to station connectivity summary is sorted
 	UINT16			_init_stn_corrections;	// Output corrections (azimuth, distance, e, n, up) to initial station coordinates
 	UINT16			_msr_to_stn;			// Output summary of measurements connected to each station
 	UINT16			_stn_corr;				// Output station corrections to station file.

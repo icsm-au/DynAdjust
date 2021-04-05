@@ -3190,11 +3190,24 @@ void dna_adjust::PrintMeasurementsToStation()
 	// initialise vector with 0,1,2,...,n-2,n-1,n
 	initialiseIncrementingIntegerVector<UINT32>(vStationList, static_cast<UINT32>(bstBinaryRecords_.size()));
 	
-	// if required, sort stations according to original station file order
-	if (projectSettings_.o._sort_stn_file_order)
+	// Print measurement to station summary, sort stations as required
+	switch (projectSettings_.o._sort_msr_to_stn)
 	{
+	case meas_stn_sort_ui:
+	{
+		// sort summary according to measurement to station count
+		CompareMeasCount<CAStationList, UINT32> msrcountCompareFunc(&vAssocStnList_);
+		sort(vStationList.begin(), vStationList.end(), msrcountCompareFunc);
+	}
+	break;
+	case orig_stn_sort_ui:
+	default:
+	{
+		// sort summary according to original station file order
 		CompareStnFileOrder<station_t, UINT32> stnorderCompareFunc(&bstBinaryRecords_);
 		sort(vStationList.begin(), vStationList.end(), stnorderCompareFunc);
+	}
+	break;
 	}
 
 	// Print measurements to each station and the total count for each station

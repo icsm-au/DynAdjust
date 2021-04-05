@@ -4552,12 +4552,24 @@ void dna_import::PrintMeasurementsToStations(string& m2s_file, MsrTally* parsems
 	// initialise vector with 0,1,2,...,n-2,n-1,n
 	initialiseIncrementingIntegerVector<UINT32>(vStationList, static_cast<UINT32>(bstBinaryRecords.size()));
 
-	// Print measurement to station summary, sort stations if required
-	// if required, sort stations according to original station file order
-	if (projectSettings_.o._sort_stn_file_order)
+	// Print measurement to station summary, sort stations as required
+	switch (projectSettings_.o._sort_msr_to_stn)
 	{
+	case meas_stn_sort_ui:
+	{
+		// sort summary according to measurement to station count
+		CompareMeasCount2<ASLPtr, UINT32> msrcountCompareFunc(vAssocStnList);
+		sort(vStationList.begin(), vStationList.end(), msrcountCompareFunc);
+	}
+	break;
+	case orig_stn_sort_ui:
+	default:
+	{
+		// sort summary according to original station file order
 		CompareStnFileOrder<station_t, UINT32> stnorderCompareFunc(&bstBinaryRecords);
 		sort(vStationList.begin(), vStationList.end(), stnorderCompareFunc);
+	}
+	break;
 	}
 
 	std::ofstream m2s_stream;

@@ -1026,6 +1026,10 @@ int main(int argc, char* argv[])
 		output_options.add_options()
 			(OUTPUT_MSR_TO_STN,
 				"Output summary of measurements connected to each station.")
+			(OUTPUT_MSR_TO_STN_SORTBY, value<UINT16>(&p.o._sort_msr_to_stn),
+				string("Sort order for measurement to stations summary.\n  " +
+					StringFromT(orig_stn_sort_ui) + ": Original station order (default)\n  " +
+					StringFromT(meas_stn_sort_ui) + ": Measurement count").c_str())
 			;
 
 		export_options.add_options()
