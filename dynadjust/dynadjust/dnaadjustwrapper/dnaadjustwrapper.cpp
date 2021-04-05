@@ -333,7 +333,8 @@ void ExportDynaML(dna_adjust* netAdjust, project_settings* p)
 			cout << "+ Serializing estimated coordinates to " << leafStr<string>(p->o._xml_file) << "... ";
 				
 		// Export Stations file
-		netAdjust->PrintEstimatedStationCoordinatestoDNAXML(p->o._xml_file, dynaml);			
+		netAdjust->PrintEstimatedStationCoordinatestoDNAXML(p->o._xml_file, dynaml, 
+			(p->i.flag_unused_stn ? true : false));
 
 		if (!p->g.quiet)
 			cout << "Done." << endl;
@@ -351,7 +352,8 @@ void ExportDNA(dna_adjust* netAdjust, project_settings* p)
 			cout << "+ Serializing estimated coordinates to " << leafStr<string>(stnfilename) << "... ";
 					
 		// Export Station file
-		netAdjust->PrintEstimatedStationCoordinatestoDNAXML(stnfilename, dna);
+		netAdjust->PrintEstimatedStationCoordinatestoDNAXML(stnfilename, dna, 
+			(p->i.flag_unused_stn ? true : false));
 
 		if (!p->g.quiet)
 			cout << "Done." << endl;
@@ -424,16 +426,25 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 
 	p.g.project_file = formPath<string>(p.g.output_folder, p.g.network_name, "dnaproj");
 
-	// update geoid file name from dnaproj file (blank if geoid was not run)
 	if (exists(p.g.project_file))
 	{
+		// update import settings from dnaproj file
+		try {
+			CDnaProjectFile projectFile(p.g.project_file, importSetting);
+			p.i = projectFile.GetSettings().i;
+		}
+		catch (...) {
+			// do nothing
+		}
+
+		// update geoid file name from dnaproj file (blank if geoid was not run)
 		try {
 			CDnaProjectFile projectFile(p.g.project_file, geoidSetting);
 			p.n = projectFile.GetSettings().n;
 		}
 		catch (...) {
 			// do nothing
-		}			
+		}		
 	}
 
 	// binary station file location (output)

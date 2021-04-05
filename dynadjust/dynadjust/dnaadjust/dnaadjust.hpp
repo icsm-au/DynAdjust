@@ -268,7 +268,7 @@ public:
 	void PrintMeasurementsToStation();
 
 	bool PrintEstimatedStationCoordinatestoSNX(string& sinex_file);
-	void PrintEstimatedStationCoordinatestoDNAXML(const string& stnFile, INPUT_FILE_TYPE t);
+	void PrintEstimatedStationCoordinatestoDNAXML(const string& stnFile, INPUT_FILE_TYPE t, bool flagUnused = false);
 
 	void CloseOutputFiles();
 	void UpdateBinaryFiles();
