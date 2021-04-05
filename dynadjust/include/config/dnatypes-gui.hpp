@@ -57,6 +57,12 @@ typedef enum ADJ_MSR_SORT_UI
 	outl_adj_msr_sort_ui = 8
 } _ADJ_MSR_SORT_UI_;
 
+typedef enum MSR_TO_STN_SORT_UI
+{
+	orig_stn_sort_ui = 0,		// original station order
+	meas_stn_sort_ui = 1		// measurement count
+} _MSR_TO_STN_SORT_UI_;
+
 
 #endif
 

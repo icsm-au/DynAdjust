@@ -777,6 +777,10 @@ int main(int argc, char* argv[])
 		output_options.add_options()
 			(OUTPUT_MSR_TO_STN,
 				"Output summary of measurements connected to each station.")
+			(OUTPUT_MSR_TO_STN_SORTBY, value<UINT16>(&p.o._sort_msr_to_stn),
+				string("Sort order for measurement to stations summary.\n  " +
+					StringFromT(orig_stn_sort_ui) + ": Original station order (default)\n  " +
+					StringFromT(meas_stn_sort_ui) + ": Measurement count").c_str())
 			(OUTPUT_ADJ_STN_ITER,
 				"Output adjusted station coordinates on each iteration.")
 			(OUTPUT_ADJ_STAT_ITER,
@@ -805,7 +809,7 @@ int main(int argc, char* argv[])
 					StringFromT(type_adj_msr_sort_ui) + ": Measurement type\n  " + 
 					StringFromT(inst_adj_msr_sort_ui) + ": Station 1\n  " + 
 					StringFromT(targ_adj_msr_sort_ui) + ": Station 2\n  " + 
-					StringFromT(meas_adj_msr_sort_ui) + ": Meausrement value\n  " + 
+					StringFromT(meas_adj_msr_sort_ui) + ": Measurement value\n  " + 
 					StringFromT(corr_adj_msr_sort_ui) + ": Correction\n  " + 
 					StringFromT(a_sd_adj_msr_sort_ui) + ": Adjusted std. dev.\n  " + 
 					StringFromT(n_st_adj_msr_sort_ui) + ": N-statistic\n  " + 

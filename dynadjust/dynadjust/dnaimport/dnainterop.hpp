@@ -50,12 +50,12 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/thread/mutex.hpp>
 
-
 #include <include/exception/dnaexception.hpp>
 #include <include/config/dnaexports.hpp>
 #include <include/config/dnaversion.hpp>
 #include <include/config/dnaconsts.hpp>
 #include <include/config/dnatypes.hpp>
+#include <include/config/dnatypes-gui.hpp>
 
 #include <include/math/dnamatrix_contiguous.hpp>
 

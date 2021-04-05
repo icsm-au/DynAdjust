@@ -124,6 +124,7 @@ const char* const OUTPUT_APU_UNITS = "output-apu-vcv-units";
 const char* const OUTPUT_MSR_TO_STN = "output-msr-to-stn";
 
 const char* const OUTPUT_ADJ_MSR_SORTBY = "sort-adj-msr-field";
+const char* const OUTPUT_MSR_TO_STN_SORTBY = "sort-msr-to-stn-field";
 
 const char* const OUTPUT_ADJ_MSR_DBID = "output-database-ids";
 
