@@ -1480,6 +1480,12 @@ void dna_import::ParseDNASTN(vdnaStnPtr* vStations, PUINT32 stnCount, string* su
 			catch (...) {
 				switch (stn_ptr->GetMyCoordTypeC())
 				{
+				case LLh_type_i:
+				case LLH_type_i:
+				case ENU_type_i:
+				case AED_type_i:
+				case XYZ_type_i:
+					break;
 				case UTM_type_i:	// Hemisphere and zone is only essential for UTM types
 					stringstream ss;
 					ss << "ParseDNASTN(): Could not extract station hemisphere and zone from the record:  " << endl << "    " << sBuf << endl;
@@ -3112,7 +3118,7 @@ void dna_import::ExtractStnsAndAssociatedMsrs(const string& stnListInclude, cons
 	// backup station vector
 	vdnaStnPtr bvStations = *vStations;
 
-	const string *stnListIn, *stnListEx;
+	const string *stnListIn;
 
 	vstring vIncludedStns;
 	pvstring pvStnsIn, pvStnsEx;
@@ -3123,7 +3129,6 @@ void dna_import::ExtractStnsAndAssociatedMsrs(const string& stnListInclude, cons
 		pvStnsIn = &vIncludedStns;
 		pvStnsEx = vExcludedStns;		
 		stnListIn = &stnListInclude; 
-		stnListEx = &stnListExclude;
 	}
 	// Has the user provided a list of stations to exclude?
 	else if (!stnListExclude.empty()) 
@@ -3131,7 +3136,6 @@ void dna_import::ExtractStnsAndAssociatedMsrs(const string& stnListInclude, cons
 		pvStnsIn = vExcludedStns;
 		pvStnsEx = &vIncludedStns;
 		stnListIn = &stnListExclude; 
-		stnListEx = &stnListInclude;
 	}
 	else
 	{
