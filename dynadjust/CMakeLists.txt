@@ -229,6 +229,9 @@ if (BUILD_TESTING)
     add_test (NAME ref-itrf-pmm-05 COMMAND $<TARGET_FILE:dnaimportwrapper> -n apr -r itrf2008 ${CMAKE_SOURCE_DIR}/../sampleData/apr.ITRF2008.04.06.2020.stn ${CMAKE_SOURCE_DIR}/../sampleData/apr.ITRF2008.04.06.2020.msr)
     add_test (NAME ref-itrf-pmm-06 COMMAND $<TARGET_FILE:dnareftranwrapper> apr -r itrf2008 -e 01.01.2021 --export-dna --verb 2 --plate-model-option 1 -b ${CMAKE_SOURCE_DIR}/../sampleData/MORVEL56_plates.dig -m ${CMAKE_SOURCE_DIR}/../sampleData/NNR-MORVEL56_poles.dat)
     add_test (NAME ref-itrf-pmm-07 COMMAND bash -c "diff <(tail -n +6 apr.ITRF2008.01.01.2021.stn) <(tail -n +4 ${CMAKE_SOURCE_DIR}/../sampleData/apr.ITRF2008.01.01.2021.stn.expected)")
+
+    add_test (NAME imp-discont-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n discont -r itrf2005 ${CMAKE_SOURCE_DIR}/../sampleData/TEST_ITRF05.SNX --discontinuity-file ${CMAKE_SOURCE_DIR}/../sampleData/disconts20201205.snx)
+    add_test (NAME imp-discont-02 COMMAND $<TARGET_FILE:dnaimportwrapper> -n discont -r itrf2005 ${CMAKE_SOURCE_DIR}/../sampleData/TEST_ITRF05.SNX --discontinuity-file ${CMAKE_SOURCE_DIR}/../sampleData/disconts20201205.snx --split-gnss --include-stn "ALIC" --export-dna)
     
     # set execution dependencies (the execution of tests must be sequential)
     set_tests_properties(
