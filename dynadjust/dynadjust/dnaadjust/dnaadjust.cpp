@@ -9641,9 +9641,9 @@ void dna_adjust::PrintAdjStation(ostream& os,
 			StringFromTW(sqrt(var_local.get(2, 2)), STDDEV, PRECISION_MTR_STN);
 	else
 		os <<
-			StringFromT(sqrt(var_local.get(0, 0)), PRECISION_MTR_STN) <<
-			StringFromT(sqrt(var_local.get(1, 1)), PRECISION_MTR_STN) <<
-			StringFromT(sqrt(var_local.get(2, 2)), PRECISION_MTR_STN);
+			setw(STDDEV) << right << StringFromT(sqrt(var_local.get(0, 0)), PRECISION_MTR_STN) <<
+			setw(STDDEV) << right << StringFromT(sqrt(var_local.get(1, 1)), PRECISION_MTR_STN) <<
+			setw(STDDEV) << right << StringFromT(sqrt(var_local.get(2, 2)), PRECISION_MTR_STN);
 
 	if (projectSettings_.o._stn_corr)
 	{

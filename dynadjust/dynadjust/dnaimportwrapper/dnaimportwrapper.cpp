@@ -550,6 +550,7 @@ void ExportStationsandMeasurements(dna_import* parserDynaML, const project_setti
 				cout << "Done." << endl;
 				cout.flush();
 			}
+			*imp_file << "Done." << endl;
 		}
 		else
 		{
@@ -584,6 +585,7 @@ void ExportStationsandMeasurements(dna_import* parserDynaML, const project_setti
 				cout << "Done." << endl;
 				cout.flush();
 			}
+			*imp_file << "Done." << endl;
 		}		
 	}
 
@@ -1442,6 +1444,18 @@ int main(int argc, char* argv[])
 		}
 	}
 
+	/////////////////////////////////////////////////////////////////////////
+	// Add discontinuity sites to vStations
+	//
+	// WARNING: If discontinuity sites are present in the renaming file, and
+	// the renaming file changes the name from the four-character id in the 
+	// discontinuity file to another name, this function call will not work
+	// properly. Hence, sites in the discontinuity file must be consistently
+	// named in the station and measurement files and not renamed to another
+	// name.
+	if (p.i.apply_discontinuities && !vstationsTotal.empty())
+		parserDynaML.AddDiscontinuityStations(&vstationsTotal);
+
 	UINT32 stn;
 
 	// Extract user-defined stations and all connected measurements
@@ -1861,24 +1875,11 @@ int main(int argc, char* argv[])
 			imp_file.close();
 			return EXIT_FAILURE;
 		}		
-	
-		/////////////////////////////////////////////////////////////////////////
-		// Add discontinuity sites to vStations
-		//
-		// WARNING: If discontinuity sites are present in the renaming file, and
-		// the renaming file changes the name from the four-character id in the 
-		// discontinuity file to another name, this function call will not work
-		// properly. Hence, sites in the discontinuity file must be consistently
-		// named in the station and measurement files and not renamed to another
-		// name.
-		if (p.i.apply_discontinuities && stnCount > 0)
-			parserDynaML.AddDiscontinuityStations(&vstationsTotal);
 
 		/////////////////////////////////////////////////////////////////
 		// Now commence sorting and mapping
 		// 1. Sort stations
-		// 2. Add new discontinuity sites
-		// 3. Create station map
+		// 2. Create station map
 		try {
 			if (!p.g.quiet)
 			{
@@ -2218,8 +2219,7 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	// Create ASL and AML files
-	// Export to text if required
+	// Export ASL and AML to text if required
 	if (measurements_mapped) 
 	{
 		try {

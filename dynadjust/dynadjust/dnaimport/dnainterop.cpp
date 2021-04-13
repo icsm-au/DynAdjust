@@ -156,6 +156,46 @@ void dna_import::BuildExtractStationsList(const string& stnList, pvstring vstnLi
 		ss << "BuildExtractStationsList(): An error was encountered when parsing " << stnList << "." << endl;
 		SignalExceptionParse(ss.str(), 0);
 	}
+
+	// Have discontinuities been applied?
+	if (!projectSettings_.i.apply_discontinuities)
+		return;
+
+	if (stn_renamed_.empty())
+		return;
+
+	it_string_pair _it_discont_ren;
+
+	_it_vstr _it_stn;
+	string station_name;
+	vstring renamed_stations;
+
+	// loop through all station names in vstnList
+	for (_it_stn = vstnList->begin();
+		_it_stn != vstnList->end();
+		_it_stn++)
+	{
+		station_name = *_it_stn;
+		
+		_it_discont_ren = stn_renamed_.begin();
+
+		// Advance through _it_discont_ren for all occurrences of station_name
+		while ((_it_discont_ren = lower_bound(_it_discont_ren, stn_renamed_.end(), 
+			station_name, ComparePairFirst<string>())) != stn_renamed_.end())
+		{
+			// found a station that has been renamed.			
+			// add the discontinuity name to the list
+			renamed_stations.push_back(_it_discont_ren->second);
+			_it_discont_ren++;
+		}
+	}
+
+	// Add discontinuity sites and remove duplicates
+	if (!renamed_stations.empty())
+	{
+		vstnList->insert(vstnList->end(), renamed_stations.begin(), renamed_stations.end());
+		strip_duplicates(vstnList);
+	}
 }
 	
 
@@ -719,25 +759,32 @@ void dna_import::ParseDiscontinuities(const string& fileName)
 	discont_file.close();
 }
 	
+// Station names in SINEX files are automatically renamed to account for discontinuities and added
+// to vStations.  For non SINEX files, any renamed stations are tracked in stn_renamed_.  After
+// all files have been loaded, this function is called to (1) find any discontinuity stations not in the 
+// station list and (2) add a duplicate for it, renamed to the respective discontinuity site name.
 void dna_import::AddDiscontinuityStations(vdnaStnPtr* vStations)
 {
 	_it_vdnastnptr _it_stn(vStations->begin());
-	it_string_pair stn_renames_it;
+	it_string_pair stn_renames_it(stn_renamed_.begin());
 
 	dnaStnPtr stn_ptr;
 	string stationName;
 	
 	UINT32 i, station_count(static_cast<UINT32>(vStations->size()));
 	UINT32 station_index(station_count);
+
+	sort(vStations->begin(), vStations->end(), CompareStationName<dnaStnPtr>());
 	
 	for (i=0; i<station_count; ++i)
 	{
 		stationName = vStations->at(i)->GetName();
-
+	
 		// For each occurrence of stationName in stn_renamed_, create a clone and add it to 
-		// vStations so that the measurement stations renamed by ApplyDiscontinuitiesMeasurements
-		// are supported by corresponding stations
-		while ((stn_renames_it = binary_search_index_pair(stn_renamed_.begin(), stn_renamed_.end(), stationName)) != stn_renamed_.end())
+		// vStations so that the measurement stations in non SINEX files that are
+		// renamed by ApplyDiscontinuitiesMeasurements (via TrackDiscontinuitySite) are 
+		// supported by corresponding stations.
+		while ((stn_renames_it = binary_search_index_pair(stn_renames_it, stn_renamed_.end(), stationName)) != stn_renamed_.end())
 		{
 			// If a sinex file has been loaded and stationName exists in the sinex file, stn_renames_it->second may 
 			// already exist in vStations.  In this case, the following code will add a duplicate station.
@@ -752,15 +799,13 @@ void dna_import::AddDiscontinuityStations(vdnaStnPtr* vStations)
 			stn_ptr->SetfileOrder(++station_index);
 			vStations->push_back(stn_ptr);
 			
-			if (!stn_renamed_.empty())
-				stn_renamed_.erase(stn_renames_it);
+			stn_renames_it++;
 		}
 
-		if (stn_renamed_.empty())
-			break;
+		stn_renames_it = stn_renamed_.begin();
 	}
 
-	// Removde duplicates which may have been added through the above process
+	// Remove duplicates which may have been added through the above process
 	sort(vStations->begin(), vStations->end(), CompareStationName<dnaStnPtr>());
 	_it_vdnastnptr _it_stn_newend = unique(vStations->begin(), vStations->end(), EqualStationName<dnaStnPtr>());
 	if (_it_stn_newend != vStations->end())
@@ -771,11 +816,6 @@ void dna_import::AddDiscontinuityStations(vdnaStnPtr* vStations)
 
 void dna_import::ApplyDiscontinuities(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, project_settings* p)
 {
-#ifndef _MSDEBUG
-	// return on release
-	return;
-#endif
-
 	if (stn_discontinuities_.empty())
 		return;
 
@@ -786,11 +826,16 @@ void dna_import::ApplyDiscontinuities(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasur
 		m_discontsSortedbyName = true;
 	}
 
-	// There isn't any need to apply discontinuities to a station file, since those
-	// stations will be introduced via the process of handling a discontinuity file.
-	// DynAdjust should load the stations as normal. If a station becomes renamed
-	// through the process of applying discontinuities to measurements, then it will
-	// be flagged as unused (since it won't be found in the measurements).
+	// If the only input file is a SINEX file, there isn't any need to apply discontinuities 
+	// to a station file, since those stations will be introduced via the process of 
+	// handling a discontinuity file. 
+	// However, if other station and measurement file types are loaded, there may be a case 
+	// where station discontinuities exist but have not been accounted for at this point.  
+	// For this purpose, a call to ApplyDiscontinuitiesStations will be made after all files 
+	// have been imported.
+	// If a station becomes renamed through the process of applying discontinuities to 
+	// measurements, then it will be flagged as unused (since it won't be found in the 
+	// measurements).
 
 	if (!vMeasurements->empty())
 		ApplyDiscontinuitiesMeasurements(vMeasurements, p);
@@ -805,9 +850,10 @@ void dna_import::TrackDiscontinuitySite(const string& site, const string& site_r
 	}
 }
 	
+
 // This function renames stations in each measurement based on a discontinuity file
 // NOTE: A fundamental prerequisite for the proper renaming of discontinuity sites
-// in this function is a valid epoch for each measurement!s
+// in this function is a valid epoch for each measurement!
 void dna_import::ApplyDiscontinuitiesMeasurements(vdnaMsrPtr* vMeasurements, project_settings* p)
 {
 	_it_vdiscontinuity_tuple _it_discont(stn_discontinuities_.begin());
@@ -1434,6 +1480,12 @@ void dna_import::ParseDNASTN(vdnaStnPtr* vStations, PUINT32 stnCount, string* su
 			catch (...) {
 				switch (stn_ptr->GetMyCoordTypeC())
 				{
+				case LLh_type_i:
+				case LLH_type_i:
+				case ENU_type_i:
+				case AED_type_i:
+				case XYZ_type_i:
+					break;
 				case UTM_type_i:	// Hemisphere and zone is only essential for UTM types
 					stringstream ss;
 					ss << "ParseDNASTN(): Could not extract station hemisphere and zone from the record:  " << endl << "    " << sBuf << endl;
@@ -3066,7 +3118,7 @@ void dna_import::ExtractStnsAndAssociatedMsrs(const string& stnListInclude, cons
 	// backup station vector
 	vdnaStnPtr bvStations = *vStations;
 
-	const string *stnListIn, *stnListEx;
+	const string *stnListIn;
 
 	vstring vIncludedStns;
 	pvstring pvStnsIn, pvStnsEx;
@@ -3077,7 +3129,6 @@ void dna_import::ExtractStnsAndAssociatedMsrs(const string& stnListInclude, cons
 		pvStnsIn = &vIncludedStns;
 		pvStnsEx = vExcludedStns;		
 		stnListIn = &stnListInclude; 
-		stnListEx = &stnListExclude;
 	}
 	// Has the user provided a list of stations to exclude?
 	else if (!stnListExclude.empty()) 
@@ -3085,7 +3136,6 @@ void dna_import::ExtractStnsAndAssociatedMsrs(const string& stnListInclude, cons
 		pvStnsIn = vExcludedStns;
 		pvStnsEx = &vIncludedStns;
 		stnListIn = &stnListExclude; 
-		stnListEx = &stnListInclude;
 	}
 	else
 	{

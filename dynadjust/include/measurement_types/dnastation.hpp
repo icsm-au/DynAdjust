@@ -73,6 +73,7 @@ typedef boost::shared_ptr<CDnaStation> dnaStnPtr;
 typedef vector<dnaStnPtr> vdnaStnPtr;		// vector of dnaStnPtr
 typedef vdnaStnPtr::iterator _it_vdnastnptr;
 typedef vdnaStnPtr::const_iterator _it_vdnastnptr_const;
+typedef pair<_it_vdnastnptr, _it_vdnastnptr> it_pair_dnastnptr;
 
 typedef vector<CAStationList> vASL, *pvASL;
 typedef vASL::iterator _it_vasl;

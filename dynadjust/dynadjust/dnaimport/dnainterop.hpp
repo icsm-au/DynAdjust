@@ -135,7 +135,6 @@ public:
 	void RenameStations(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, project_settings* p);
 	void ApplyDiscontinuities(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, project_settings* p);
 	void TrackDiscontinuitySite(const string& site, const string& site_renamed);
-	void ApplyDiscontinuitiesStations(vdnaStnPtr* vStations, project_settings* p);
 	void ApplyDiscontinuitiesMeasurements(vdnaMsrPtr* vMeasurements, project_settings* p);
 
 	void ApplyDiscontinuitiesMeasurements_GX(vector<CDnaGpsBaseline>* vGpsBaselines);
