@@ -170,7 +170,12 @@ bool InterpolateGridPointFile(dna_geoid_interpolation* g, const char* inputfileP
 {
 	path inputFile(inputfilePath);
 	if (inputFile.has_extension())
-		outputfilePath = inputFile.parent_path().string() + inputFile.stem().string() + "_out" + inputFile.extension().string();
+	{
+		if (inputFile.parent_path().empty())
+			outputfilePath = inputFile.stem().string() + "_out" + inputFile.extension().string();
+		else
+			outputfilePath = inputFile.parent_path().string() + "/" + inputFile.stem().string() + "_out" + inputFile.extension().string();
+	}
 	else
 	{
 		outputfilePath = inputfilePath; 
