@@ -209,6 +209,9 @@ if (BUILD_TESTING)
     add_test (NAME geo-interpolate-01 COMMAND $<TARGET_FILE:dnageoidwrapper> -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb --interactive --latitude -36.3348253617 --longitude 145.5741006771)
     add_test (NAME geo-interpolate-02 COMMAND $<TARGET_FILE:dnageoidwrapper> -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb --interactive --latitude -36.2704890597 --longitude 146.4809871537 --interpolation-method 0)
     add_test (NAME geo-interpolate-03 COMMAND $<TARGET_FILE:dnageoidwrapper> -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb --summary)
+    add_test (NAME geo-interpolate-04 COMMAND $<TARGET_FILE:dnageoidwrapper> --version)
+    add_test (NAME geo-interpolate-05 COMMAND $<TARGET_FILE:dnageoidwrapper> -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb -t ${CMAKE_SOURCE_DIR}/../sampleData/geoid-points-dat.txt)
+    add_test (NAME geo-interpolate-06 COMMAND $<TARGET_FILE:dnageoidwrapper> -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb -t ${CMAKE_SOURCE_DIR}/../sampleData/geoid-points-csv.csv)    
 
     # bash command to check results
     add_test (NAME test-gnss-network COMMAND bash -c "diff <(tail -n +53 gnss.simult.adj) <(tail -n +53 ${CMAKE_SOURCE_DIR}/../sampleData/gnss.simult.adj.expected)")
