@@ -184,6 +184,11 @@ if (BUILD_TESTING)
     add_test (NAME segment-urban-network-thread COMMAND $<TARGET_FILE:dnasegmentwrapper> urban_mt --min 50 --max 85 --verb 3)
     add_test (NAME adjust-urban-network-thread COMMAND $<TARGET_FILE:dnaadjustwrapper> urban_mt --output-adj-msr --multi  --free-stn-sd 4.0 --fixed-stn-sd 0.000001 --max-iterations 20 --output-tstat-adj-msr --sort-adj-msr-field 2 --sort-stn-orig-order --stn-coord-types PLHhENz --angular-stn-type 1 --angular-msr-type 1 --precision-stn-linear 3 --precision-msr-linear 3 --precision-stn-angular 4 --precision-msr-angular 4 --output-pos-uncertainty --output-all-covariances --output-corrections-file)
     add_test (NAME plot-urban-network-thread COMMAND $<TARGET_FILE:dnaplotwrapper> urban_mt --supress-pdf --phased --label-sta --label-font 16 --msr-line-w 0.5 --map-proj 3)
+
+    file (COPY ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn DESTINATION ./)
+    file (COPY ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr DESTINATION ./)
+    add_test (NAME dynadjust-proj COMMAND $<TARGET_FILE:dynadjust> -p ${CMAKE_SOURCE_DIR}/../sampleData/sample.dnaproj --import --geoid --reftran --segment --adjust)
+
     # 4. urban data manipulation
     file (COPY ${CMAKE_SOURCE_DIR}/../sampleData/DynaML.xsd DESTINATION ./)
     add_test (NAME imp-urb00-dna-data COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban_dna ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr --export-xml --export-asl --export-aml --export-map --output-msr-to-stn)
