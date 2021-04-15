@@ -209,8 +209,14 @@ void dna_geoid_interpolation::ProcessCsvFile(std::ifstream* f_in, std::ofstream*
 				return;
 		}
 
-		m_iBytesRead = (int)f_in->tellg();
-		m_dPercentComplete = (double)m_iBytesRead / (double)lFileLen * 100.0;
+		try
+		{
+			if (f_in)
+				m_iBytesRead = (int)f_in->tellg();
+			m_dPercentComplete = (double)m_iBytesRead / (double)lFileLen * 100.0;
+		}
+		// Catch any type of error; do nothing.
+		catch (...)	{}
 
 		sBuf = cBuf;
 
@@ -397,8 +403,14 @@ void dna_geoid_interpolation::ProcessDatFile(std::ifstream* f_in, std::ofstream*
 				return;
 		}
 
-		m_iBytesRead = (int)f_in->tellg();
-		m_dPercentComplete = (double)m_iBytesRead / (double)lFileLen * 100.0;
+		try
+		{
+			if (f_in)
+				m_iBytesRead = (int)f_in->tellg();
+			m_dPercentComplete = (double)m_iBytesRead / (double)lFileLen * 100.0;
+		}
+		// Catch any type of error; do nothing.
+		catch (...)	{}
 
 		strBuf = cBuf;
 
