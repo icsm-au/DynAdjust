@@ -41,7 +41,7 @@ const char* const IMPORT_MODULE_SIMULATE = "Network simulation options";
 
 const char* const ADJUST_MODULE_MODE = "Adjustment mode options";
 const char* const ADJUST_MODULE_PHASED = "Phased adjustment options";
-const char* const ADJUST_MODULE_CONFIG = "Adjustment configuration options";
+const char* const ADJUST_MODULE_CONFIG = "Configuration options";
 const char* const ADJUST_MODULE_STAGE = "Stage adjustment options";
 
 const char* const SEGMENT_MODULE_CONFIG = "Configuration options";
