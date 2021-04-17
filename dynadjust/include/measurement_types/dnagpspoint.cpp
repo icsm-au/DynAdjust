@@ -518,7 +518,7 @@ void CDnaGpsPoint::PopulateMsr(pvstn_t bstRecords, uint32_uint32_map* blockStati
 		_it_cov->SetM32(variances_cart.get(2, 1));
 		_it_cov->SetM33(variances_cart.get(2, 2));
 		
-		_it_cov++;
+		++_it_cov;
 	}
 }
 
@@ -1234,7 +1234,7 @@ void CDnaGpsPointCluster::PopulateMsr(pvstn_t bstRecords, uint32_uint32_map* blo
 		_it_pnt->SetTotal(blockStations->size());
 		_it_pnt->PopulateMsr(bstRecords, blockStationsMap, blockStations,
 			i, datum, estimates, variances);
-		_it_pnt++;
+		++_it_pnt;
 	}
 }
 	
