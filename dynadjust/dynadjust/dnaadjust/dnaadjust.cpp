@@ -2682,7 +2682,7 @@ void dna_adjust::PrintPositionalUncertainty()
 			PrintPosUncertainties(apu_file, block, 
 				&v_rigorousVariances_.at(block));
 
-			// unload previous block
+			// unload this block
 			if (projectSettings_.a.stage)
 				UnloadBlock(block, 1, 
 					sf_rigorous_vars);
@@ -2791,9 +2791,14 @@ bool dna_adjust::PrintEstimatedStationCoordinatestoSNX(string& sinex_filename)
 			ssBlock << "-block" << block + 1;
 			sinexFilename += ssBlock.str();
 
+			// if staged, load up the block from memory mapped files
+			if (projectSettings_.a.stage)
+				DeserialiseBlockFromMappedFile(block, 2, 
+					sf_rigorous_stns, sf_rigorous_vars);
+
 			estimates = &v_rigorousStations_.at(block);
 			variances = &v_rigorousVariances_.at(block);
-
+			break;
 		case SimultaneousMode:
 			estimates = &v_estimatedStations_.at(block);
 			variances = &v_normals_.at(block);
@@ -2831,6 +2836,12 @@ bool dna_adjust::PrintEstimatedStationCoordinatestoSNX(string& sinex_filename)
 		catch (const runtime_error& e) {
 			SignalExceptionAdjustment(e.what(), 0);
 		}
+
+		if (projectSettings_.a.adjust_mode == PhasedMode)
+			// if staged, unload the block
+			if (projectSettings_.a.stage)
+				UnloadBlock(block, 2, 
+					sf_rigorous_stns, sf_rigorous_vars);
 
 		sinex_file.close();
 
@@ -2937,6 +2948,12 @@ void dna_adjust::PrintEstimatedStationCoordinatestoDNAXML_Y(const string& msrFil
 					continue;
 				}
 			case PhasedMode:
+				
+				// if staged, load up the block from memory mapped files
+				if (projectSettings_.a.stage)
+					DeserialiseBlockFromMappedFile(block, 2, 
+						sf_rigorous_stns, sf_rigorous_vars);
+
 				estimates = &v_rigorousStations_.at(block);
 				variances = &v_rigorousVariances_.at(block);
 				break;
@@ -2949,6 +2966,12 @@ void dna_adjust::PrintEstimatedStationCoordinatestoDNAXML_Y(const string& msrFil
 			msr_ptr.get()->PopulateMsr(&bstBinaryRecords_, 
 				&v_blockStationsMap_.at(block), &v_parameterStationList_.at(block), 
 				block, &datum_, estimates, variances);
+
+			if (projectSettings_.a.adjust_mode == PhasedMode)
+				// if staged, unload the block
+				if (projectSettings_.a.stage)
+					UnloadBlock(block, 2, 
+						sf_rigorous_stns, sf_rigorous_vars);
 
 			ss.str("");
 
