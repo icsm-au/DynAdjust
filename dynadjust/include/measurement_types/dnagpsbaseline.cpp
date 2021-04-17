@@ -295,7 +295,7 @@ void CDnaGpsBaseline::coutBaselineData(ostream &os, const int& pad, const UINT16
 }
 
 
-void CDnaGpsBaseline::WriteDynaMLMsr(std::ofstream* dynaml_stream, bool bSubMeasurement /*= false*/) const
+void CDnaGpsBaseline::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool bSubMeasurement /*= false*/) const
 {
 	*dynaml_stream << "    <First>" << m_strFirst << "</First>" << endl;
 	*dynaml_stream << "    <Second>" << m_strTarget << "</Second>" << endl;
@@ -327,16 +327,16 @@ void CDnaGpsBaseline::WriteDynaMLMsr(std::ofstream* dynaml_stream, bool bSubMeas
 }
 
 
-void CDnaGpsBaseline::WriteDNAMsr(std::ofstream* dynaml_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool bSubMeasurement /*= false*/) const
+void CDnaGpsBaseline::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool bSubMeasurement /*= false*/) const
 {
-	*dynaml_stream << setw(dmw.msr_type) << m_strType;
+	*dna_stream << setw(dmw.msr_type) << m_strType;
 	if (m_bIgnore)
-		*dynaml_stream << setw(dmw.msr_ignore) << "*";
+		*dna_stream << setw(dmw.msr_ignore) << "*";
 	else
-		*dynaml_stream << setw(dmw.msr_ignore) << " ";
+		*dna_stream << setw(dmw.msr_ignore) << " ";
 
-	*dynaml_stream << left << setw(dmw.msr_inst) << m_strFirst;
-	*dynaml_stream << left << setw(dmw.msr_targ1) << m_strTarget;
+	*dna_stream << left << setw(dmw.msr_inst) << m_strFirst;
+	*dna_stream << left << setw(dmw.msr_targ1) << m_strTarget;
 
 	// Print header for G baseline and first X cluster baseline
 	bool printHeader(true);
@@ -349,8 +349,8 @@ void CDnaGpsBaseline::WriteDNAMsr(std::ofstream* dynaml_stream, const dna_msr_fi
 			// print database ids
 			if (m_databaseIdSet)
 			{
-				*dynaml_stream << setw(dml.msr_id_msr - dml.msr_targ2) << " ";
-				*dynaml_stream << right << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id <<
+				*dna_stream << setw(dml.msr_id_msr - dml.msr_targ2) << " ";
+				*dna_stream << right << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id <<
 					setw(dmw.msr_id_cluster) << m_msr_db_map.cluster_id;
 			}
 		}
@@ -359,12 +359,12 @@ void CDnaGpsBaseline::WriteDNAMsr(std::ofstream* dynaml_stream, const dna_msr_fi
 	if (printHeader)
 	{
 		if (GetTypeC() == 'X')
-			*dynaml_stream << left << setw(dmw.msr_targ2) << m_lRecordedTotal;
+			*dna_stream << left << setw(dmw.msr_targ2) << m_lRecordedTotal;
 		else
-			*dynaml_stream << right << setw(dmw.msr_targ2) << " ";
+			*dna_stream << right << setw(dmw.msr_targ2) << " ";
 		
 		// print scaling
-		*dynaml_stream << 
+		*dna_stream << 
 			fixed << setprecision(2) << 
 			right << setw(dmw.msr_gps_vscale) << double_string_width<double, UINT32, string>(m_dVscale, dmw.msr_gps_vscale) <<
 			right << setw(dmw.msr_gps_pscale) << double_string_width<double, UINT32, string>(m_dPscale, dmw.msr_gps_vscale) <<
@@ -372,58 +372,58 @@ void CDnaGpsBaseline::WriteDNAMsr(std::ofstream* dynaml_stream, const dna_msr_fi
 			right << setw(dmw.msr_gps_hscale) << double_string_width<double, UINT32, string>(m_dHscale, dmw.msr_gps_vscale);
 
 		// print reference frame and epoch
-		*dynaml_stream <<
+		*dna_stream <<
 			right << setw(dmw.msr_gps_reframe) << m_referenceFrame <<
 			right << setw(dmw.msr_gps_epoch) << m_epoch;
 
 		// print database ids
 		if (m_databaseIdSet)
 		{
-			*dynaml_stream << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id <<
+			*dna_stream << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id <<
 				setw(dmw.msr_id_cluster) << m_msr_db_map.cluster_id;
 		}
 	}
 
-	*dynaml_stream << endl;
+	*dna_stream << endl;
 
 	UINT32 pad(dmw.msr_type + dmw.msr_ignore + dmw.msr_inst + dmw.msr_targ1 + dmw.msr_targ2);
 
 	// X
-	*dynaml_stream << setw(pad) << " ";
-	*dynaml_stream << right << setw(dmw.msr_gps) << fixed << setprecision(4) << m_dX;
-	*dynaml_stream << right << setw(dmw.msr_gps_vcv_1) << scientific << setprecision(13) << m_dSigmaXX;
+	*dna_stream << setw(pad) << " ";
+	*dna_stream << right << setw(dmw.msr_gps) << fixed << setprecision(4) << m_dX;
+	*dna_stream << right << setw(dmw.msr_gps_vcv_1) << scientific << setprecision(13) << m_dSigmaXX;
 
 	// print database ids
 	if (m_databaseIdSet)
 	{
-		*dynaml_stream << setw(dml.msr_id_msr - dml.msr_gps_vcv_2) << " ";
-		*dynaml_stream << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id <<
+		*dna_stream << setw(dml.msr_id_msr - dml.msr_gps_vcv_2) << " ";
+		*dna_stream << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id <<
 			setw(dmw.msr_id_cluster) << m_msr_db_map.cluster_id;
 	}
 
-	*dynaml_stream << endl;
+	*dna_stream << endl;
 		
 	// Y
-	*dynaml_stream << setw(pad) << " ";
-	*dynaml_stream << right << setw(dmw.msr_gps) << fixed << setprecision(4) << m_dY;
-	*dynaml_stream << 
+	*dna_stream << setw(pad) << " ";
+	*dna_stream << right << setw(dmw.msr_gps) << fixed << setprecision(4) << m_dY;
+	*dna_stream << 
 		right << setw(dmw.msr_gps_vcv_1) << scientific << setprecision(13) << m_dSigmaXY << 
 		right << setw(dmw.msr_gps_vcv_2) << m_dSigmaYY;
 
 	// print database ids
 	if (m_databaseIdSet)
 	{
-		*dynaml_stream << setw(dml.msr_id_msr - dml.msr_gps_vcv_3) << " ";
-		*dynaml_stream << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id <<
+		*dna_stream << setw(dml.msr_id_msr - dml.msr_gps_vcv_3) << " ";
+		*dna_stream << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id <<
 			setw(dmw.msr_id_cluster) << m_msr_db_map.cluster_id;
 	}
 
-	*dynaml_stream << endl;
+	*dna_stream << endl;
 
 	// Z
-	*dynaml_stream << setw(pad) << " ";
-	*dynaml_stream << right << setw(dmw.msr_gps) << fixed << setprecision(4) << m_dZ;
-	*dynaml_stream << 
+	*dna_stream << setw(pad) << " ";
+	*dna_stream << right << setw(dmw.msr_gps) << fixed << setprecision(4) << m_dZ;
+	*dna_stream << 
 		right << setw(dmw.msr_gps_vcv_1) << scientific << setprecision(13) << m_dSigmaXZ <<
 		right << setw(dmw.msr_gps_vcv_2) << m_dSigmaYZ << 
 		right << setw(dmw.msr_gps_vcv_3) << m_dSigmaZZ;
@@ -431,16 +431,16 @@ void CDnaGpsBaseline::WriteDNAMsr(std::ofstream* dynaml_stream, const dna_msr_fi
 	// print database ids
 	if (m_databaseIdSet)
 	{
-		*dynaml_stream << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id <<
+		*dna_stream << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id <<
 			setw(dmw.msr_id_cluster) << m_msr_db_map.cluster_id;
 	}
 
-	*dynaml_stream << endl;
+	*dna_stream << endl;
 
 	// write GPSBaseline covariances (not supported by DNA format)
 	vector<CDnaCovariance>::const_iterator _it_cov = m_vGpsCovariances.begin();
 	for (_it_cov=m_vGpsCovariances.begin(); _it_cov!=m_vGpsCovariances.end(); ++_it_cov)
-		_it_cov->WriteDNAMsr(dynaml_stream, dmw, dml, 
+		_it_cov->WriteDNAMsr(dna_stream, dmw, dml, 
 			m_msr_db_map, m_databaseIdSet);
 }
 	
@@ -1031,20 +1031,26 @@ UINT32 CDnaGpsBaselineCluster::CalcBinaryRecordCount() const
 }
 
 
-void CDnaGpsBaselineCluster::WriteDynaMLMsr(std::ofstream* dynaml_stream, bool bSubMeasurement /*= false*/) const
+void CDnaGpsBaselineCluster::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool bSubMeasurement /*= false*/) const
 {
 	const size_t bslCount = m_vGpsBaselines.size();
 	char cType = GetTypeC();
 
-	*dynaml_stream << "  <!--Type " << measurement_name<char, string>(GetTypeC());
-	if (cType == 'X')
+	if (comment.empty())
 	{
-		if (bslCount > 1)
-			*dynaml_stream << " (set of " << bslCount << ")" << endl;
-		else
-			*dynaml_stream << "  (single)" << endl;
+		*dynaml_stream << "  <!-- Type " << measurement_name<char, string>(GetTypeC());
+		if (cType == 'X')
+		{
+			if (bslCount > 1)
+				*dynaml_stream << " (set of " << bslCount << ")" << endl;
+			else
+				*dynaml_stream << "  (single)" << endl;
+		}
+		*dynaml_stream << " -->" << endl;
 	}
-	*dynaml_stream << "-->" << endl;
+	else
+		*dynaml_stream << "  <!-- " << comment << " -->" << endl;
+	
 	*dynaml_stream << "  <DnaMeasurement>" << endl;
 	*dynaml_stream << "    <Type>" << cType << "</Type>" << endl;
 	// Source file from which the measurement came
@@ -1074,19 +1080,19 @@ void CDnaGpsBaselineCluster::WriteDynaMLMsr(std::ofstream* dynaml_stream, bool b
 	// write GpsBaselines
 	vector<CDnaGpsBaseline>::const_iterator _it_bsl;
 	for (_it_bsl=m_vGpsBaselines.begin(); _it_bsl!=m_vGpsBaselines.end(); ++_it_bsl)
-		_it_bsl->WriteDynaMLMsr(dynaml_stream, true);
+		_it_bsl->WriteDynaMLMsr(dynaml_stream, comment, true);
 
 	*dynaml_stream << "  </DnaMeasurement>" << endl;
 
 }
 	
 
-void CDnaGpsBaselineCluster::WriteDNAMsr(std::ofstream* dynaml_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool bSubMeasurement /*= false*/) const
+void CDnaGpsBaselineCluster::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool bSubMeasurement /*= false*/) const
 {
 	// write GpsBaselines
 	vector<CDnaGpsBaseline>::const_iterator _it_bsl;
 	for (_it_bsl=m_vGpsBaselines.begin(); _it_bsl!=m_vGpsBaselines.end(); ++_it_bsl)
-		_it_bsl->WriteDNAMsr(dynaml_stream, dmw, dml, true);
+		_it_bsl->WriteDNAMsr(dna_stream, dmw, dml, true);
 }
 	
 

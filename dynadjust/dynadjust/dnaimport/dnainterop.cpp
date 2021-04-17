@@ -4163,6 +4163,7 @@ void dna_import::SerialiseDynaMLfromMemory(vdnaStnPtr* vStations, vdnaMsrPtr* vM
 	InitialiseDynaMLFile(p, vinput_file_meta, outfilename, &dynaml_file);
 
 	CDnaProjection projection(UTM);
+	string comment("");
 
 	try {
 		// Write the stations (from memory)
@@ -4186,8 +4187,8 @@ void dna_import::SerialiseDynaMLfromMemory(vdnaStnPtr* vStations, vdnaMsrPtr* vM
 		
 		// Write the measurements (from memory)
 		for_each(vMeasurements->begin(), vMeasurements->end(), 
-			[this, &projection, &dynaml_file] (dnaMsrPtr msr) {
-				msr->WriteDynaMLMsr(&dynaml_file);
+			[this, &projection, &comment, &dynaml_file] (dnaMsrPtr msr) {
+				msr->WriteDynaMLMsr(&dynaml_file, comment);
 		});
 	}
 	catch (const std::ifstream::failure& f) {
@@ -4329,7 +4330,8 @@ void dna_import::SerialiseDynaMLSepfromMemory(vdnaStnPtr* vStations, vdnaMsrPtr*
 	InitialiseDynaMLSepStationFile(p, vinput_file_meta, stnfilename, &dynaml_stn_file);
 
 	CDnaProjection projection(UTM);
-
+	string comment("");
+	
 	// Write the stations (from memory)
 	try {	
 		if (flagUnused)
@@ -4368,8 +4370,8 @@ void dna_import::SerialiseDynaMLSepfromMemory(vdnaStnPtr* vStations, vdnaMsrPtr*
 	// Write the measurements (from memory)
 	try {	
 		for_each(vMeasurements->begin(), vMeasurements->end(), 
-			[this, &projection, &dynaml_msr_file] (dnaMsrPtr msr) {
-				msr->WriteDynaMLMsr(&dynaml_msr_file);
+			[this, &projection, &comment, &dynaml_msr_file] (dnaMsrPtr msr) {
+				msr->WriteDynaMLMsr(&dynaml_msr_file, comment);
 		});
 
 		dynaml_msr_file << "</DnaXmlFormat>" << endl;
@@ -4468,6 +4470,7 @@ void dna_import::SerialiseXmlMsr(std::ifstream* ifs_stns, std::ifstream* ifs_msr
 
 	// get number of measurements
 	UINT32 msrCount;
+	string comment("");
 	ifs_msrs->read(reinterpret_cast<char *>(&msrCount), sizeof(UINT32)); 
 
 	for (UINT32 i=0; i<msrCount; i++)
@@ -4477,7 +4480,7 @@ void dna_import::SerialiseXmlMsr(std::ifstream* ifs_stns, std::ifstream* ifs_msr
 		ifs_msrs->read(reinterpret_cast<char *>(&measRecord), sizeof(measurement_t));
 		ResetMeasurementPtr(&msrPtr, measRecord.measType);
 		i += msrPtr->SetMeasurementRec(ifs_stns, ifs_msrs, &measRecord); // increment by number of elements read from binary file
-		msrPtr->WriteDynaMLMsr(ofs_dynaml);
+		msrPtr->WriteDynaMLMsr(ofs_dynaml, comment);
 	}
 }
 	

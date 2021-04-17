@@ -134,9 +134,13 @@ void CDnaAngle::coutMeasurementData(ostream &os, const UINT16& uType) const
 }
 	
 
-void CDnaAngle::WriteDynaMLMsr(std::ofstream* dynaml_stream, bool bSubMeasurement /*= false*/) const
+void CDnaAngle::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool bSubMeasurement /*= false*/) const
 {
-	*dynaml_stream << "  <!--Type " << measurement_name<char, string>(GetTypeC()) << "-->" << endl;
+	if (comment.empty())
+		*dynaml_stream << "  <!-- Type " << measurement_name<char, string>(GetTypeC()) << " -->" << endl;
+	else
+		*dynaml_stream << "  <!-- " << comment << " -->" << endl;
+
 	*dynaml_stream << "  <DnaMeasurement>" << endl;
 	*dynaml_stream << "    <Type>" << m_strType << "</Type>" << endl;
 	// Source file from which the measurement came
@@ -156,28 +160,28 @@ void CDnaAngle::WriteDynaMLMsr(std::ofstream* dynaml_stream, bool bSubMeasuremen
 }
 	
 
-void CDnaAngle::WriteDNAMsr(std::ofstream* dynaml_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool bSubMeasurement /*= false*/) const
+void CDnaAngle::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool bSubMeasurement /*= false*/) const
 {
-	*dynaml_stream << setw(dmw.msr_type) << m_strType;
+	*dna_stream << setw(dmw.msr_type) << m_strType;
 	if (m_bIgnore)
-		*dynaml_stream << setw(dmw.msr_ignore) << "*";
+		*dna_stream << setw(dmw.msr_ignore) << "*";
 	else
-		*dynaml_stream << setw(dmw.msr_ignore) << " ";
-	*dynaml_stream << left << setw(dmw.msr_inst) << m_strFirst;
-	*dynaml_stream << left << setw(dmw.msr_targ1) << m_strTarget;
-	*dynaml_stream << left << setw(dmw.msr_targ2) << m_strTarget2;
-	*dynaml_stream << setw(dmw.msr_linear) << " ";	// linear measurement value
-	*dynaml_stream << setw(dmw.msr_ang_d + dmw.msr_ang_m + dmw.msr_ang_s) << 
+		*dna_stream << setw(dmw.msr_ignore) << " ";
+	*dna_stream << left << setw(dmw.msr_inst) << m_strFirst;
+	*dna_stream << left << setw(dmw.msr_targ1) << m_strTarget;
+	*dna_stream << left << setw(dmw.msr_targ2) << m_strTarget2;
+	*dna_stream << setw(dmw.msr_linear) << " ";	// linear measurement value
+	*dna_stream << setw(dmw.msr_ang_d + dmw.msr_ang_m + dmw.msr_ang_s) << 
 		right << FormatDnaDmsString(RadtoDms(m_drValue), 8);
-	*dynaml_stream << setw(dmw.msr_stddev) << fixed << setprecision(3) << Seconds(m_dStdDev);
+	*dna_stream << setw(dmw.msr_stddev) << fixed << setprecision(3) << Seconds(m_dStdDev);
 	
 	if (m_databaseIdSet)
 	{ 
-		*dynaml_stream << setw(dml.msr_id_msr - dml.msr_inst_ht) << " ";
-		*dynaml_stream << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
+		*dna_stream << setw(dml.msr_id_msr - dml.msr_inst_ht) << " ";
+		*dna_stream << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
 	}
 	
-	*dynaml_stream << endl;
+	*dna_stream << endl;
 }
 	
 

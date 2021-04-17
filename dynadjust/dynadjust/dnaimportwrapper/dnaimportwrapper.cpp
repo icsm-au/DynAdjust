@@ -366,6 +366,7 @@ int SearchForSimilarMeasurements(dna_import* parserDynaML, project_settings* p, 
 	std::ofstream dms_file;
 	UINT32 msr;
 	vdnaMsrPtr vSimilarMeasurements;
+	string comment("");
 
 	try {
 		if (!p->g.quiet)
@@ -428,8 +429,8 @@ int SearchForSimilarMeasurements(dna_import* parserDynaML, project_settings* p, 
 
 			// dump measurements to dms file
 			for_each (vSimilarMeasurements.begin(), vSimilarMeasurements.end(),
-				[&dms_file] (dnaMsrPtr& m) {
-					m->WriteDynaMLMsr(&dms_file);
+				[&dms_file, &comment] (dnaMsrPtr& m) {
+					m->WriteDynaMLMsr(&dms_file, comment);
 			});
 
 			dms_file.close();

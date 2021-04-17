@@ -323,11 +323,11 @@ void UpdateBinaryFiles(dna_adjust* netAdjust, const project_settings* p)
 
 void ExportDynaML(dna_adjust* netAdjust, project_settings* p)
 {
-	// Output adjustment as XML
+	// Output adjustment as XML stn
 	if (p->o._export_xml_stn_file)
 	{
 		// single file for both stations and measurements
-		p->o._xml_file = p->o._adj_file + ".xml";
+		p->o._xml_file = p->o._adj_file + ".stn.xml";
 				
 		if (!p->g.quiet)
 			cout << "+ Serializing estimated coordinates to " << leafStr<string>(p->o._xml_file) << "... ";
@@ -339,11 +339,28 @@ void ExportDynaML(dna_adjust* netAdjust, project_settings* p)
 		if (!p->g.quiet)
 			cout << "Done." << endl;
 	}
+
+	// Output adjustment as XML msr
+	if (p->o._export_xml_msr_file)
+	{
+		// single file for both stations and measurements
+		p->o._xml_file = p->o._adj_file + ".msr.xml";
+				
+		if (!p->g.quiet)
+			cout << "+ Serializing estimated coordinates and uncertainties to " << leafStr<string>(p->o._xml_file) << "... ";
+				
+		// Export Measurements file (exclude unused stations given 
+		// they will not have been estimated)
+		netAdjust->PrintEstimatedStationCoordinatestoDNAXML_Y(p->o._xml_file, dynaml);
+
+		if (!p->g.quiet)
+			cout << "Done." << endl;
+	}
 }
 
 void ExportDNA(dna_adjust* netAdjust, project_settings* p)
 {
-	// Print adjusted stations and measurements to DNA stn and msr
+	// Print adjusted stations and measurements to DNA stn
 	if (p->o._export_dna_stn_file)
 	{
 		string stnfilename(p->o._adj_file + ".stn");
@@ -354,6 +371,22 @@ void ExportDNA(dna_adjust* netAdjust, project_settings* p)
 		// Export Station file
 		netAdjust->PrintEstimatedStationCoordinatestoDNAXML(stnfilename, dna, 
 			(p->i.flag_unused_stn ? true : false));
+
+		if (!p->g.quiet)
+			cout << "Done." << endl;
+	}
+
+	// Print adjusted stations and measurements to DNA msr
+	if (p->o._export_dna_msr_file)
+	{
+		string msrfilename(p->o._adj_file + ".msr");
+		
+		if (!p->g.quiet)
+			cout << "+ Serializing estimated coordinates and uncertainties to " << leafStr<string>(msrfilename) << "... ";
+					
+		// Export Measurements file (exclude unused stations given 
+		// they will not have been estimated)
+		netAdjust->PrintEstimatedStationCoordinatestoDNAXML_Y(msrfilename, dna);
 
 		if (!p->g.quiet)
 			cout << "Done." << endl;
@@ -656,8 +689,14 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 	if (vm.count(EXPORT_XML_STN_FILE))
 		p.o._export_xml_stn_file = 1;
 
+	if (vm.count(EXPORT_XML_MSR_FILE))
+		p.o._export_xml_msr_file = 1;
+
 	if (vm.count(EXPORT_DNA_STN_FILE))
 		p.o._export_dna_stn_file = 1;
+
+	if (vm.count(EXPORT_DNA_MSR_FILE))
+		p.o._export_dna_msr_file = 1;
 
 	if (vm.count(EXPORT_SNX_FILE))
 		p.o._export_snx_file = 1;
@@ -875,10 +914,14 @@ int main(int argc, char* argv[])
 			//	"Update original station file with adjusted station coordinates.")
 			(EXPORT_XML_STN_FILE,
 				"Export estimated station coordinates to DynaML (DynAdjust XML) station file.")
+			(EXPORT_XML_MSR_FILE,
+				"Export estimated station coordinates and uncertainties to DynaML (DynAdjust XML) measurement file as a GNSS Y cluster.")
 			(EXPORT_DNA_STN_FILE,
 				"Export estimated station coordinates to DNA station file.")
+			(EXPORT_DNA_MSR_FILE,
+				"Export estimated station coordinates and uncertainties to DNA measurement file as a GNSS Y cluster.")
 			(EXPORT_SNX_FILE,
-				"Export estimated station coordinates and full variance matrix to SINEX file.")
+				"Export estimated station coordinates and full variance matrix to SINEX file. Note: station names will be truncated to four characters as per the SINEX standard.")
 			;
 
 		// Declare a group of options that will be 
