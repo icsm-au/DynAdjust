@@ -163,12 +163,14 @@ add_subdirectory (dynadjust/dynadjust)
 if (BUILD_TESTING)
     message ("  ")
     message (STATUS "Configuring tests")
+    
     # test execution of dynadjust binaries
     # 1. gnss network (simultaneous)
     add_test (NAME import-gnss-network COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.msr --export-dna --export-xml --export-asl --export-aml --export-map --output-msr-to-stn --test-integrity -r GDA94) 
     add_test (NAME geoid-gnss-network COMMAND $<TARGET_FILE:dnageoidwrapper> gnss -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb --convert-stn-hts --export-dna-geo)
     add_test (NAME reftran-gnss-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r gda2020 --export-dna --export-xml)
     add_test (NAME adjust-gnss-network COMMAND $<TARGET_FILE:dnaadjustwrapper> gnss --output-adj-msr --export-dna-msr --export-xml-msr)
+    
     # 2. urban network (phased-sequential)
     add_test (NAME import-urban-network COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr)
     add_test (NAME geoid-urban-network COMMAND $<TARGET_FILE:dnageoidwrapper> urban -g ${CMAKE_SOURCE_DIR}/../sampleData/urban-network-geoid.gsb --convert-stn-hts --export-dna-geo)
@@ -177,6 +179,7 @@ if (BUILD_TESTING)
     add_test (NAME plot-urban-network COMMAND $<TARGET_FILE:dnaplotwrapper> urban --supress-pdf --phased --label-sta --correction-arrows --label-corr --compute-corrections --scale-arrows 10.5 --error-ellipse --positional-uncertainty --scale-ellipse-c 10.5)
     add_test (NAME plot-urban-seg-stn COMMAND $<TARGET_FILE:dnaplotwrapper> urban --supress-pdf --graph-stn)
     add_test (NAME plot-urban-seg-msr COMMAND $<TARGET_FILE:dnaplotwrapper> urban --supress-pdf --graph-msr)
+    
     # 3. urban network (transform to GDA2020, phased-concurrent)
     add_test (NAME import-urban-network-thread COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban_mt ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr)
     add_test (NAME reftran-urban-network-thread COMMAND $<TARGET_FILE:dnareftranwrapper> urban_mt -r gda2020)
@@ -185,11 +188,18 @@ if (BUILD_TESTING)
     add_test (NAME adjust-urban-network-thread COMMAND $<TARGET_FILE:dnaadjustwrapper> urban_mt --output-adj-msr --multi  --free-stn-sd 4.0 --fixed-stn-sd 0.000001 --max-iterations 20 --output-tstat-adj-msr --sort-adj-msr-field 2 --sort-stn-orig-order --stn-coord-types PLHhENz --angular-stn-type 1 --angular-msr-type 1 --precision-stn-linear 3 --precision-msr-linear 3 --precision-stn-angular 4 --precision-msr-angular 4 --output-pos-uncertainty --output-all-covariances --output-corrections-file)
     add_test (NAME plot-urban-network-thread COMMAND $<TARGET_FILE:dnaplotwrapper> urban_mt --supress-pdf --phased --label-sta --label-font 16 --msr-line-w 0.5 --map-proj 3)
 
+    # 4. urban network (phased-staged)
+    add_test (NAME import-urban-network-stage COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban_st ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr)
+    add_test (NAME geoid-urban-network-stage COMMAND $<TARGET_FILE:dnageoidwrapper> urban_st -g ${CMAKE_SOURCE_DIR}/../sampleData/urban-network-geoid.gsb --convert-stn-hts --export-dna-geo)
+    add_test (NAME segment-urban-network-stage COMMAND $<TARGET_FILE:dnasegmentwrapper> urban_st --min 90 --max 90)
+    add_test (NAME adjust-urban-network-stage COMMAND $<TARGET_FILE:dnaadjustwrapper> urban_st --phased --staged-adjustment --create-stage-files --export-sinex-file --output-pos-uncertainty --export-xml-stn-file --export-xml-msr-file --export-dna-stn-file --export-dna-msr)
+    
+    # 5. dynadjust project mode
     file (COPY ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn DESTINATION ./)
     file (COPY ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr DESTINATION ./)
     add_test (NAME dynadjust-proj COMMAND $<TARGET_FILE:dynadjust> -p ${CMAKE_SOURCE_DIR}/../sampleData/sample.dnaproj --import --geoid --reftran --segment --adjust)
 
-    # 4. urban data manipulation
+    # 6. urban data manipulation
     file (COPY ${CMAKE_SOURCE_DIR}/../sampleData/DynaML.xsd DESTINATION ./)
     add_test (NAME imp-urb00-dna-data COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban_dna ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr --export-xml --export-asl --export-aml --export-map --output-msr-to-stn)
     add_test (NAME imp-urb01-xml-data COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban_xml ./urban_dnastn.xml ./urban_dnamsr.xml --include-msr-types gxyemsabdpqr --exclude-msr-types vz)
@@ -211,38 +221,85 @@ if (BUILD_TESTING)
     add_test (NAME adj-psu00-xml-data COMMAND $<TARGET_FILE:dnaadjustwrapper> pseudo --output-adj-msr --free-stn-sd 5.0 --fixed-stn-sd 0.000005 --max-iterations 15 --output-tstat-adj-msr --sort-adj-msr-field 7 --sort-stn-orig-order --stn-coord-types XYZPLHhENz --angular-stn-type 1 --angular-msr-type 1 --precision-stn-linear 3 --precision-msr-linear 3 --precision-stn-angular 4 --precision-msr-angular 4 --output-pos-uncertainty --output-all-covariances --output-corrections-file)
     add_test (NAME imp-gnss0-xml-data COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss_xml ./gnssstn.xml ./gnssmsr.xml --bounding-box -36.3000,145.4500,-36.4500,146.4500 --get-msrs-transcending-box --split-gnss-cluster-msrs --prefer-single-x-as-g)
     add_test (NAME imp-gnss1-xml-data COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss_xml ./gnssstn.xml ./gnssmsr.xml --include-stns-assoc-msrs "BEEC,BNLA,EURA,HOTH,MNSF,MYRT,320500750,385900240" --get-msrs-transcending-box --split-gnss-cluster-msrs --prefer-single-x-as-g -r itrf2014 --override-input-ref-frame)
+
+    # 7. geoid data manipulation
     add_test (NAME geo-interpolate-01 COMMAND $<TARGET_FILE:dnageoidwrapper> -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb --interactive --latitude -36.3348253617 --longitude 145.5741006771)
     add_test (NAME geo-interpolate-02 COMMAND $<TARGET_FILE:dnageoidwrapper> -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb --interactive --latitude -36.2704890597 --longitude 146.4809871537 --interpolation-method 0)
     add_test (NAME geo-interpolate-03 COMMAND $<TARGET_FILE:dnageoidwrapper> -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb --summary)
     add_test (NAME geo-interpolate-04 COMMAND $<TARGET_FILE:dnageoidwrapper> --version)
     add_test (NAME geo-interpolate-05 COMMAND $<TARGET_FILE:dnageoidwrapper> -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb -t ${CMAKE_SOURCE_DIR}/../sampleData/geoid-points-dat.txt)
     add_test (NAME geo-interpolate-06 COMMAND $<TARGET_FILE:dnageoidwrapper> -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb -t ${CMAKE_SOURCE_DIR}/../sampleData/geoid-points-csv.csv)    
-
+    
     # bash command to check results
     add_test (NAME test-gnss-network COMMAND bash -c "diff <(tail -n +53 gnss.simult.adj) <(tail -n +53 ${CMAKE_SOURCE_DIR}/../sampleData/gnss.simult.adj.expected)")
     #add_test (NAME test-urban-phased-network COMMAND bash -c "diff <(tail -n +62 urban.phased.adj) <(tail -n +62 ${CMAKE_SOURCE_DIR}/../sampleData/urban.phased.adj.expected)")
     #add_test (NAME test-urban-thread-network COMMAND bash -c "diff <(tail -n +64 urban_mt.phased-mt.adj) <(tail -n +64 ${CMAKE_SOURCE_DIR}/../sampleData/urban_mt.phased-mt.adj.expected)")
 
+    # 8. gnss reference frame transformations
     add_test (NAME ref-gnss01-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r itrf2014 -e 01.01.2020)
     add_test (NAME ref-gnss02-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r itrf1991 -e 03.12.1995)
     add_test (NAME ref-gnss03-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r itrf2005 -e 05.05.2005)
     add_test (NAME ref-gnss04-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r itrf1991 -e 05.05.2005)
     add_test (NAME ref-gnss05-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r gda94)
 
+    # 9. gnss reference frame transformations with plate motion model
     add_test (NAME ref-itrf-pmm-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n itrf05_itrf1997_a -r itrf2005 ${CMAKE_SOURCE_DIR}/../sampleData/TEST_ITRF05.SNX)
     add_test (NAME ref-itrf-pmm-02 COMMAND $<TARGET_FILE:dnareftranwrapper> itrf05_itrf1997_a -r itrf1997 -e 25.10.2017 --export-dna --verb 2 --plate-model-option 1 -b ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_plates.dig -m ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_poles.dat)
     add_test (NAME ref-itrf-pmm-03 COMMAND $<TARGET_FILE:dnaimportwrapper> -n itrf05_itrf1997_b -r itrf2005 ${CMAKE_SOURCE_DIR}/../sampleData/TEST_ITRF05.SNX)
     add_test (NAME ref-itrf-pmm-04 COMMAND $<TARGET_FILE:dnareftranwrapper> itrf05_itrf1997_b -r itrf1997 -e 01.01.2020 --export-dna --verb 3 --plate-model-option 1 -b ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_plates.dig -m ${CMAKE_SOURCE_DIR}/../sampleData/PB2002_poles.dat)
-
     add_test (NAME ref-itrf-pmm-05 COMMAND $<TARGET_FILE:dnaimportwrapper> -n apr -r itrf2008 ${CMAKE_SOURCE_DIR}/../sampleData/apr.ITRF2008.04.06.2020.stn ${CMAKE_SOURCE_DIR}/../sampleData/apr.ITRF2008.04.06.2020.msr)
     add_test (NAME ref-itrf-pmm-06 COMMAND $<TARGET_FILE:dnareftranwrapper> apr -r itrf2008 -e 01.01.2021 --export-dna --verb 2 --plate-model-option 1 -b ${CMAKE_SOURCE_DIR}/../sampleData/MORVEL56_plates.dig -m ${CMAKE_SOURCE_DIR}/../sampleData/NNR-MORVEL56_poles.dat)
     #add_test (NAME ref-itrf-pmm-07 COMMAND bash -c "diff <(tail -n +6 apr.ITRF2008.01.01.2021.stn) <(tail -n +4 ${CMAKE_SOURCE_DIR}/../sampleData/apr.ITRF2008.01.01.2021.stn.expected)")
 
+    # 10. station discontinuities
     add_test (NAME imp-discont-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n discont -r itrf2005 ${CMAKE_SOURCE_DIR}/../sampleData/TEST_ITRF05.SNX --discontinuity-file ${CMAKE_SOURCE_DIR}/../sampleData/disconts20201205.snx)
     add_test (NAME imp-discont-02 COMMAND $<TARGET_FILE:dnaimportwrapper> -n discont -r itrf2005 ${CMAKE_SOURCE_DIR}/../sampleData/TEST_ITRF05.SNX --discontinuity-file ${CMAKE_SOURCE_DIR}/../sampleData/disconts20201205.snx --split-gnss --include-stn "ALIC" --export-dna)
     
+    # 11. measurements to stations sorting
     add_test (NAME imp-m2s-sort-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.msr --output-msr-to-stn --sort-msr-to-stn-field 1 -r GDA94) 
 
+    # 12. help modules
+    add_test (NAME imp-help-01 COMMAND $<TARGET_FILE:dnaimportwrapper> --help-module standard)
+    add_test (NAME imp-help-02 COMMAND $<TARGET_FILE:dnaimportwrapper> --help-module reference)
+    add_test (NAME imp-help-03 COMMAND $<TARGET_FILE:dnaimportwrapper> --help-module screening)
+    add_test (NAME imp-help-04 COMMAND $<TARGET_FILE:dnaimportwrapper> --help-module gnss)
+    add_test (NAME imp-help-05 COMMAND $<TARGET_FILE:dnaimportwrapper> --help-module simulation)
+    add_test (NAME imp-help-06 COMMAND $<TARGET_FILE:dnaimportwrapper> --help-module output)
+    add_test (NAME imp-help-07 COMMAND $<TARGET_FILE:dnaimportwrapper> --help-module export)
+    add_test (NAME imp-help-08 COMMAND $<TARGET_FILE:dnaimportwrapper> --help-module generic)
+
+    add_test (NAME geo-help-01 COMMAND $<TARGET_FILE:dnageoidwrapper> --help-module standard)
+    add_test (NAME geo-help-02 COMMAND $<TARGET_FILE:dnageoidwrapper> --help-module interpolation)
+    add_test (NAME geo-help-03 COMMAND $<TARGET_FILE:dnageoidwrapper> --help-module ntv2)
+    add_test (NAME geo-help-04 COMMAND $<TARGET_FILE:dnageoidwrapper> --help-module interactive)
+    add_test (NAME geo-help-05 COMMAND $<TARGET_FILE:dnageoidwrapper> --help-module file)
+    add_test (NAME geo-help-06 COMMAND $<TARGET_FILE:dnageoidwrapper> --help-module export)
+    add_test (NAME geo-help-07 COMMAND $<TARGET_FILE:dnageoidwrapper> --help-module generic)
+    
+    add_test (NAME seg-help-01 COMMAND $<TARGET_FILE:dnasegmentwrapper> --help-module standard)
+    add_test (NAME seg-help-02 COMMAND $<TARGET_FILE:dnasegmentwrapper> --help-module configuration)
+    add_test (NAME seg-help-03 COMMAND $<TARGET_FILE:dnasegmentwrapper> --help-module generic)
+    
+    add_test (NAME ref-help-01 COMMAND $<TARGET_FILE:dnareftranwrapper> --help-module standard)
+    add_test (NAME ref-help-02 COMMAND $<TARGET_FILE:dnareftranwrapper> --help-module transformation)
+    add_test (NAME ref-help-03 COMMAND $<TARGET_FILE:dnareftranwrapper> --help-module export)
+    add_test (NAME ref-help-04 COMMAND $<TARGET_FILE:dnareftranwrapper> --help-module generic)
+    
+    add_test (NAME adj-help-01 COMMAND $<TARGET_FILE:dnaadjustwrapper> --help-module standard)
+    add_test (NAME adj-help-02 COMMAND $<TARGET_FILE:dnaadjustwrapper> --help-module adjustment)
+    add_test (NAME adj-help-03 COMMAND $<TARGET_FILE:dnaadjustwrapper> --help-module phased)
+    add_test (NAME adj-help-04 COMMAND $<TARGET_FILE:dnaadjustwrapper> --help-module configuration)
+    add_test (NAME adj-help-05 COMMAND $<TARGET_FILE:dnaadjustwrapper> --help-module stage)
+    add_test (NAME adj-help-06 COMMAND $<TARGET_FILE:dnaadjustwrapper> --help-module output)
+    add_test (NAME adj-help-07 COMMAND $<TARGET_FILE:dnaadjustwrapper> --help-module export)
+    add_test (NAME adj-help-08 COMMAND $<TARGET_FILE:dnaadjustwrapper> --help-module generic)
+
+    add_test (NAME plt-help-01 COMMAND $<TARGET_FILE:dnaplotwrapper> --help-module standard)
+    add_test (NAME plt-help-02 COMMAND $<TARGET_FILE:dnaplotwrapper> --help-module data)
+    add_test (NAME plt-help-03 COMMAND $<TARGET_FILE:dnaplotwrapper> --help-module mapping)
+    add_test (NAME plt-help-04 COMMAND $<TARGET_FILE:dnaplotwrapper> --help-module pdf)
+    add_test (NAME plt-help-05 COMMAND $<TARGET_FILE:dnaplotwrapper> --help-module generic)
+    
     # set execution dependencies (the execution of tests must be sequential)
     set_tests_properties(
         import-gnss-network geoid-gnss-network adjust-gnss-network
@@ -256,6 +313,7 @@ if (BUILD_TESTING)
     set_tests_properties(test-gnss-network PROPERTIES DEPENDS adjust-gnss-network)
     set_tests_properties(ref-itrf-pmm-06 PROPERTIES DEPENDS ref-itrf-pmm-05)
     #set_tests_properties(ref-itrf-pmm-07 PROPERTIES DEPENDS ref-itrf-pmm-06)
+
 endif ()
 
 message (" ")
