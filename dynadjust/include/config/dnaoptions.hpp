@@ -445,7 +445,8 @@ public:
 		, _output_stn_blocks(0), _output_msr_blocks(0), _sort_stn_file_order(0), _sort_adj_msr(0), _sort_msr_to_stn(0)
 		, _init_stn_corrections(0), _msr_to_stn(0), _stn_corr(0), _positional_uncertainty(0)
 		, _apu_vcv_units(0), _output_pu_covariances(0)
-		, _export_xml_stn_file(0), _export_dna_stn_file(0), _export_snx_file(false)
+		, _export_xml_stn_file(0), _export_xml_msr_file(0), _export_dna_stn_file(0), _export_dna_msr_file(0)
+		, _export_snx_file(0)
 		, _hz_corr_threshold(0.0), _vt_corr_threshold(0.0)
 		, _stn_coord_types("PLHhXYZ"), _angular_type_stn(DMS)
 		, _precision_seconds_stn(5), _precision_metres_stn(4), _precision_seconds_msr(4), _precision_metres_msr(4)
@@ -476,7 +477,9 @@ public:
 			_precision_metres_msr == o._precision_metres_msr && _precision_seconds_msr == o._precision_seconds_msr &&
 			_angular_type_msr == o._angular_type_msr && _dms_format_msr == o._dms_format_msr &&
 			_export_xml_stn_file == o._export_xml_stn_file &&
+			_export_xml_msr_file == o._export_xml_msr_file &&
 			_export_dna_stn_file == o._export_dna_stn_file &&
+			_export_dna_msr_file == o._export_dna_msr_file &&
 			_export_snx_file == o._export_snx_file;
 	}
 
@@ -509,7 +512,9 @@ public:
 	UINT16			_apu_vcv_units;			// Units of the VCV elements to be printed to the apu file
 	UINT16			_output_pu_covariances;	// Output covariances between adjusted station coordinates to .apu file.
 	UINT16			_export_xml_stn_file;	// Create a DynaML stn file
+	UINT16			_export_xml_msr_file;	// Create a DynaML msr file
 	UINT16			_export_dna_stn_file;	// Create a DNA stn file
+	UINT16			_export_dna_msr_file;	// Create a DNA msr file
 	UINT16			_export_snx_file;		// Create a sinex file from the adjustment
 	double			_hz_corr_threshold;		// Minimum horizontal threshold for station corrections
 	double			_vt_corr_threshold;		// Minimum vertical threshold for station corrections

@@ -805,7 +805,7 @@ public:
 	bool operator()(const pair<U, pair<U, U> >& lhs, const pair<U, pair<U, U> >& rhs) {
 		if (isCompoundMeasAll(_m->at(lhs.first).measType) && notCompoundMeasAll(_m->at(rhs.first).measType))
 		{
-			double lhsValue;
+			double lhsValue = 0.0;
 			switch (_m->at(lhs.first).measType)
 			{
 			case 'G':
@@ -831,7 +831,7 @@ public:
 		}
 		else if (notCompoundMeasAll(_m->at(lhs.first).measType) && isCompoundMeasAll(_m->at(rhs.first).measType))
 		{			
-			double rhsValue;
+			double rhsValue = 0.0;
 			switch (_m->at(rhs.first).measType)
 			{
 			case 'G':
@@ -857,7 +857,7 @@ public:
 		}
 		else if (isCompoundMeasAll(_m->at(lhs.first).measType) && isCompoundMeasAll(_m->at(rhs.first).measType))
 		{
-			double lhsValue;
+			double lhsValue = 0.0;
 			switch (_m->at(lhs.first).measType)
 			{
 			case 'G':
@@ -879,7 +879,7 @@ public:
 				break;
 			}
 
-			double rhsValue;
+			double rhsValue = 0.0;
 			switch (_m->at(rhs.first).measType)
 			{
 			case 'G':

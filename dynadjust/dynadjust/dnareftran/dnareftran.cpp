@@ -1756,12 +1756,13 @@ void dna_reftran::SerialiseDynaMLMsr(std::ofstream* xml_file)
 {
 	dnaMsrPtr msrPtr;
 	it_vmsr_t _it_msr;
+	string comment("");
 	
 	for (_it_msr=bmsBinaryRecords_.begin(); _it_msr!=bmsBinaryRecords_.end(); ++_it_msr)
 	{
 		ResetMeasurementPtr<char>(&msrPtr, _it_msr->measType);
 		msrPtr->SetMeasurementRec(bstBinaryRecords_, _it_msr);
-		msrPtr->WriteDynaMLMsr(xml_file);
+		msrPtr->WriteDynaMLMsr(xml_file, comment);
 	}
 }
 

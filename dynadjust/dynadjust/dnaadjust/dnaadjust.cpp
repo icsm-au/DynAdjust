@@ -2760,7 +2760,6 @@ void dna_adjust::PrintNetworkStationCorrections()
 	
 	cor_file.close();
 }
-	
 
 bool dna_adjust::PrintEstimatedStationCoordinatestoSNX(string& sinex_filename)
 {
@@ -2856,6 +2855,163 @@ bool dna_adjust::PrintEstimatedStationCoordinatestoSNX(string& sinex_filename)
 	return success;
 }
 		
+void dna_adjust::PrintEstimatedStationCoordinatestoDNAXML_Y(const string& msrFile, INPUT_FILE_TYPE t)
+{
+	// Measurements
+	std::ofstream msr_file;
+	try {
+		// Create STN/XML file. 
+		file_opener(msr_file, msrFile);
+	}
+	catch (const runtime_error& e) {
+		SignalExceptionAdjustment(e.what(), 0);
+	}
+
+	dna_msr_fields dml, dmw;
+
+	stringstream ss;
+
+	try {
+	
+		UINT32 count(static_cast<UINT32>(v_blockStationsMapUnique_.size()));
+		ss << "Source data:  Coordinates and uncertainties for " << 
+			count << " unique stations in " << blockCount_ << " blocks " <<
+			"estimated from least squares adjustment.";
+		string headerComment(ss.str());
+		
+		// print header
+		switch (t)
+		{
+		case dynaml:
+
+			// Write header and comments
+			dynaml_header(msr_file, "Measurement File", datum_.GetName(), datum_.GetEpoch_s());
+			dynaml_comment(msr_file, "File type:    Measurement file");
+			dynaml_comment(msr_file, "Project name: " + projectSettings_.g.network_name);
+			dynaml_comment(msr_file, headerComment);
+			dynaml_comment(msr_file, "Adj file:     " + projectSettings_.o._adj_file);
+			break;
+
+		case dna:
+
+			// get file format field widths
+			determineDNAMSRFieldParameters<UINT16>("3.01", dml, dmw);
+
+			// Write header and comments
+			dna_header(msr_file, "3.01", "MSR", datum_.GetName(), datum_.GetEpoch_s(), blockCount_);
+			dna_comment(msr_file, "File type:    Measurement file");
+			dna_comment(msr_file, "Project name: " + projectSettings_.g.network_name);
+			dna_comment(msr_file, headerComment);
+			dna_comment(msr_file, "Adj file:     " + projectSettings_.o._adj_file);
+			break;
+		default:
+			break;
+		}
+	}
+	catch (const std::ofstream::failure& f) {
+		SignalExceptionAdjustment(f.what(), 0);
+	}
+	catch (const XMLInteropException& e)  {
+		SignalExceptionAdjustment(e.what(), 0);
+	}
+	catch (const runtime_error& e) {
+		SignalExceptionAdjustment(e.what(), 0);
+	}
+
+	try
+	{	
+		matrix_2d *estimates = nullptr, *variances = nullptr;
+		dnaMsrPtr msr_ptr;
+		string comment;
+
+		// Create a Y cluster for each block
+		for (UINT32 block(0); block<blockCount_; ++block)
+		{
+			// Get the appropriate coordinate and uncertainty estimates
+			switch (projectSettings_.a.adjust_mode)
+			{
+			case Phased_Block_1Mode:
+				if (block > 0)
+				{
+					block = blockCount_;
+					continue;
+				}
+			case PhasedMode:
+				estimates = &v_rigorousStations_.at(block);
+				variances = &v_rigorousVariances_.at(block);
+				break;
+			case SimultaneousMode:
+				estimates = &v_estimatedStations_.at(block);
+				variances = &v_normals_.at(block);
+			}
+
+			msr_ptr.reset(new CDnaGpsPointCluster(block, datum_.GetName(), datum_.GetEpoch_s()));
+			msr_ptr.get()->PopulateMsr(&bstBinaryRecords_, 
+				&v_blockStationsMap_.at(block), &v_parameterStationList_.at(block), 
+				block, &datum_, estimates, variances);
+
+			ss.str("");
+
+			// print station coordinate estimates as a GNSS Y cluster
+			switch (t)
+			{
+			case dynaml:
+				ss << endl <<
+					"    - Estimated station coordinates and uncertainties";
+				if (blockCount_ > 1)
+					ss << " for block " << (block + 1);
+				ss << endl <<
+					"    - Type (Y) GPS point cluster (set of " << v_blockStationsMap_.at(block).size() << " stations)";
+				if (blockCount_ > 1)
+				{
+					ss << ":" << endl <<
+						"      - " << v_ISL_.at(block).size() << " inner station";
+					if (v_ISL_.at(block).size() != 1)
+						ss << "s";
+					ss << endl <<
+						"      - " << v_JSL_.at(block).size() << " junction station";
+					if (v_JSL_.at(block).size() != 1)
+						ss << "s";
+					ss << endl;
+				}
+				else
+					ss << endl;
+
+				ss << " ";
+				comment = ss.str();
+				// Print station coordinate estimates in DynaML format
+				msr_ptr.get()->WriteDynaMLMsr(&msr_file, comment);
+				break;
+			case dna:
+				// Print station coordinate estimates in DNA format
+				msr_ptr.get()->WriteDNAMsr(&msr_file, dmw, dml);
+				break;
+			default:
+				break;
+			}
+		}
+
+		switch (t)
+		{
+		case dynaml:
+			msr_file << "</DnaXmlFormat>" << endl;
+			break;
+		case dna:
+		default:
+			break;
+		}
+
+		msr_file.close();
+	}
+	catch (const std::ofstream::failure& f) {
+		SignalExceptionAdjustment(f.what(), 0);
+	}
+	catch (const XMLInteropException& e)  {
+		SignalExceptionAdjustment(e.what(), 0);
+	}
+}
+	
+
 // This should be put into a class separate to dnaadjust
 void dna_adjust::PrintEstimatedStationCoordinatestoDNAXML(const string& stnFile, INPUT_FILE_TYPE t, bool flagUnused)
 {
@@ -2980,7 +3136,7 @@ void dna_adjust::PrintEstimatedStationCoordinatestoDNAXML(const string& stnFile,
 
 		stn_file.close();
 	}
-	catch (const std::ifstream::failure& f) {
+	catch (const std::ofstream::failure& f) {
 		SignalExceptionAdjustment(f.what(), 0);
 	}
 	catch (const XMLInteropException& e)  {
@@ -10009,7 +10165,8 @@ void dna_adjust::PrintPosUncertaintiesUniqueList(ostream& os, const v_mat_2d* st
 	}
 }
 
-void dna_adjust::PrintPosUncertainty(ostream& os, /*ostream* csv,*/ const UINT32& block, const UINT32& stn, const UINT32& mat_idx, const matrix_2d* stationVariances, const UINT32& map_idx, const vUINT32* blockStations)
+void dna_adjust::PrintPosUncertainty(ostream& os, /*ostream* csv,*/ const UINT32& block, const UINT32& stn, 
+		const UINT32& mat_idx, const matrix_2d* stationVariances, const UINT32& map_idx, const vUINT32* blockStations)
 {
 	double semimajor, semiminor, azimuth, hzPosU, vtPosU;
 	UINT32 ic, jc;
@@ -10118,7 +10275,7 @@ void dna_adjust::PrintPosUncertainty(ostream& os, /*ostream* csv,*/ const UINT32
 	{
 		jc = v_blockStationsMap_.at(block)[blockStations->at(ic)] * 3;
 
-		// get cartesian matrix
+		// get cartesian submatrix corresponding to the covariance
 		stationVariances->submatrix(mat_idx, jc, &variances_cart, 3, 3);
 			
 		switch (projectSettings_.o._apu_vcv_units)
@@ -10136,19 +10293,19 @@ void dna_adjust::PrintPosUncertainty(ostream& os, /*ostream* csv,*/ const UINT32
 			
 		os.flags(ios::scientific | ios::right);
 		os << 
-			setw(PAD2+LAT_EAST+LON_NORTH+STAT+STAT+PREC+PREC+PREC) << " " <<								// padding
+			setw(PAD2+LAT_EAST+LON_NORTH+STAT+STAT+PREC+PREC+PREC) << " " <<					// padding
 			setprecision(PRECISION_UNCERTAINTY) << setw(MSR) << variances->get(0, 0) <<			// 11
 			setprecision(PRECISION_UNCERTAINTY) << setw(MSR) << variances->get(0, 1) <<			// 12
 			setprecision(PRECISION_UNCERTAINTY) << setw(MSR) << variances->get(0, 2) <<	endl;	// 13
 			
 		os <<
-			setw(STATION+PAD2+LAT_EAST+LON_NORTH+STAT+STAT+PREC+PREC+PREC) << " " <<						// padding
+			setw(STATION+PAD2+LAT_EAST+LON_NORTH+STAT+STAT+PREC+PREC+PREC) << " " <<			// padding
 			setprecision(PRECISION_UNCERTAINTY) << setw(MSR) << variances->get(1, 0) <<			// 21
 			setprecision(PRECISION_UNCERTAINTY) << setw(MSR) << variances->get(1, 1) <<			// 22
 			setprecision(PRECISION_UNCERTAINTY) << setw(MSR) << variances->get(1, 2) <<	endl;	// 23
 		
 		os <<
-			setw(STATION+PAD2+LAT_EAST+LON_NORTH+STAT+STAT+PREC+PREC+PREC) << " " <<						// padding
+			setw(STATION+PAD2+LAT_EAST+LON_NORTH+STAT+STAT+PREC+PREC+PREC) << " " <<			// padding
 			setprecision(PRECISION_UNCERTAINTY) << setw(MSR) << variances->get(2, 0) <<			// 31
 			setprecision(PRECISION_UNCERTAINTY) << setw(MSR) << variances->get(2, 1) <<			// 32
 			setprecision(PRECISION_UNCERTAINTY) << setw(MSR) << variances->get(2, 2) <<	endl;	// 33

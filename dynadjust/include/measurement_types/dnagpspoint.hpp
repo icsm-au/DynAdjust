@@ -116,9 +116,11 @@ public:
 	virtual void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) const;
 	virtual UINT32 SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord);
 	virtual UINT32 SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr);
-	virtual void WriteDynaMLMsr(std::ofstream* dynaml_stream, bool bSubMeasurement = false) const;
-	virtual void WriteDNAMsr(std::ofstream* dynaml_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool bSubMeasurement = false) const;
+	virtual void WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool bSubMeasurement = false) const;
+	virtual void WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool bSubMeasurement = false) const;
 	virtual void SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* ellipsoid);
+	virtual void PopulateMsr(pvstn_t bstRecords, uint32_uint32_map* blockStationsMap, vUINT32* blockStations,
+		const UINT32& stn, const CDnaDatum* datum, math::matrix_2d* estimates, math::matrix_2d* variances);
 
 	virtual void SerialiseDatabaseMap(std::ofstream* os);
 
@@ -229,9 +231,11 @@ public:
 	virtual void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) const;
 	virtual UINT32 SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord);
 	virtual UINT32 SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr);
-	virtual void WriteDynaMLMsr(std::ofstream* dynaml_stream, bool bSubMeasurement = false) const;
-	virtual void WriteDNAMsr(std::ofstream* dynaml_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool bSubMeasurement = false) const;
+	virtual void WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool bSubMeasurement = false) const;
+	virtual void WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool bSubMeasurement = false) const;
 	virtual void SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* ellipsoid);
+	virtual void PopulateMsr(pvstn_t bstRecords, uint32_uint32_map* blockStationsMap, vUINT32* blockStations,
+		const UINT32& block, const CDnaDatum* datum, math::matrix_2d* estimates, math::matrix_2d* variances);
 
 	virtual void SerialiseDatabaseMap(std::ofstream* os);
 	//virtual void SetDatabaseMap_bmsIndex(const UINT32& bmsIndex);

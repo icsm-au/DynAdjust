@@ -24,6 +24,7 @@
 #include <include/measurement_types/dnameasurement.hpp>
 
 using namespace dynadjust::exception;
+using namespace dynadjust::math;
 
 namespace dynadjust {
 namespace measurements {
@@ -140,61 +141,61 @@ void CDnaCovariance::WriteDynaMLMsr(std::ofstream* dynaml_stream) const
 	*dynaml_stream << "        <m33>" << m_dM33 << "</m33>" << endl;
 	
 	if (GetTypeC() == 'X')
-		*dynaml_stream << "      </GPSCovariance>";
+		*dynaml_stream << "      </GPSCovariance>" << endl;
 	else
-		*dynaml_stream << "      </PointCovariance>";
+		*dynaml_stream << "      </PointCovariance>" << endl;
 }
 	
 
-void CDnaCovariance::WriteDNAMsr(std::ofstream* dynaml_stream, 
+void CDnaCovariance::WriteDNAMsr(std::ofstream* dna_stream, 
 	const dna_msr_fields& dmw, const dna_msr_fields& dml, 
 	const msr_database_id_map& dbidmap, bool dbidSet) const
 {
 	UINT32 pad(dmw.msr_type + dmw.msr_ignore + dmw.msr_inst + dmw.msr_targ1 + dmw.msr_targ2 + dmw.msr_gps);
 	// X
-	*dynaml_stream << setw(pad) << " ";
-	*dynaml_stream <<
+	*dna_stream << setw(pad) << " ";
+	*dna_stream <<
 		right << setw(dmw.msr_gps_vcv_1) << scientific << setprecision(13) << m_dM11 <<
 		right << setw(dmw.msr_gps_vcv_2) << m_dM12 <<
 		right << setw(dmw.msr_gps_vcv_3) << m_dM13;
 
 	if (dbidSet)
 	{
-		*dynaml_stream << setw(dmw.msr_id_msr) << dbidmap.msr_id;
-		*dynaml_stream << setw(dmw.msr_id_cluster) << dbidmap.cluster_id;
+		*dna_stream << setw(dmw.msr_id_msr) << dbidmap.msr_id;
+		*dna_stream << setw(dmw.msr_id_cluster) << dbidmap.cluster_id;
 	}
 
-	*dynaml_stream << endl;
+	*dna_stream << endl;
 		
 	// Y
-	*dynaml_stream << setw(pad) << " ";
-	*dynaml_stream << 
+	*dna_stream << setw(pad) << " ";
+	*dna_stream << 
 		right << setw(dmw.msr_gps_vcv_1) << scientific << setprecision(13) << m_dM21 <<
 		right << setw(dmw.msr_gps_vcv_2) << m_dM22 <<
 		right << setw(dmw.msr_gps_vcv_3) << m_dM23;
 
 	if (dbidSet)
 	{
-		*dynaml_stream << setw(dmw.msr_id_msr) << dbidmap.msr_id;
-		*dynaml_stream << setw(dmw.msr_id_cluster) << dbidmap.cluster_id;
+		*dna_stream << setw(dmw.msr_id_msr) << dbidmap.msr_id;
+		*dna_stream << setw(dmw.msr_id_cluster) << dbidmap.cluster_id;
 	}
 
-	*dynaml_stream << endl;
+	*dna_stream << endl;
 
 	// Z
-	*dynaml_stream << setw(pad) << " ";
-	*dynaml_stream << 
+	*dna_stream << setw(pad) << " ";
+	*dna_stream << 
 		right << setw(dmw.msr_gps_vcv_1) << scientific << setprecision(13) << m_dM31 <<
 		right << setw(dmw.msr_gps_vcv_2) << m_dM32 <<
 		right << setw(dmw.msr_gps_vcv_3) << m_dM33;
 
 	if (dbidSet)
 	{
-		*dynaml_stream << setw(dmw.msr_id_msr) << dbidmap.msr_id;
-		*dynaml_stream << setw(dmw.msr_id_cluster) << dbidmap.cluster_id;
+		*dna_stream << setw(dmw.msr_id_msr) << dbidmap.msr_id;
+		*dna_stream << setw(dmw.msr_id_cluster) << dbidmap.cluster_id;
 	}
 
-	*dynaml_stream << endl;
+	*dna_stream << endl;
 }
 	
 
@@ -210,7 +211,6 @@ void CDnaCovariance::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* ell
 	m_dM32 = 0.0;
 	m_dM33 = 0.0;
 }
-	
 
 UINT32 CDnaCovariance::SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord)
 {

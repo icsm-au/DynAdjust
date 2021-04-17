@@ -42,6 +42,8 @@
 #include <include/functions/dnastrmanipfuncs.hpp>
 #include <include/config/dnatypes.hpp>
 #include <include/measurement_types/dnastation.hpp>
+#include <include/math/dnamatrix_contiguous.hpp>
+#include <include/parameters/dnadatum.hpp>
 
 #include <boost/shared_ptr.hpp>
 
@@ -232,11 +234,11 @@ public:
 	virtual UINT32 SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord);
 	virtual UINT32 SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr);
 	virtual void WriteDynaMLMsr(std::ofstream* dynaml_stream) const;
-	virtual void WriteDNAMsr(std::ofstream* dynaml_stream, 
+	virtual void WriteDNAMsr(std::ofstream* dna_stream, 
 		const dna_msr_fields& dmw, const dna_msr_fields& dml, 
 		const msr_database_id_map& dbidmap, bool dbidSet) const;
 	virtual void SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* ellipsoid);
-
+	
 	void SerialiseDatabaseMap(std::ofstream* os, const UINT32& msr_id, const UINT32& cluster_id);
 
 	inline void SetClusterID(const UINT32& id) { m_lclusterID = id; }
@@ -346,9 +348,11 @@ public:
 	virtual void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) const = 0;
 	virtual UINT32 SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord) = 0;
 	virtual UINT32 SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr) = 0;
-	virtual void WriteDynaMLMsr(std::ofstream* dynaml_stream, bool bSubMeasurement = false) const = 0;
-	virtual void WriteDNAMsr(std::ofstream* dynaml_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool bSubMeasurement = false) const = 0;
+	virtual void WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool bSubMeasurement = false) const = 0;
+	virtual void WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool bSubMeasurement = false) const = 0;
 	virtual void SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* ellipsoid) = 0;
+	virtual void PopulateMsr(pvstn_t bstRecords, uint32_uint32_map* blockStationsMap, vUINT32* blockStations,
+		const UINT32& block, const CDnaDatum* datum, math::matrix_2d* estimates, math::matrix_2d* variances) {}
 
 	// virtual functions overridden by specialised classes
 	virtual inline UINT32 GetClusterID() const { return 0; }

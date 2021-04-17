@@ -182,11 +182,13 @@ const char* const SCALAR_FILE = "baseline-scalar-file";
 
 const char* const EXPORT_XML_FILES = "export-xml-files";
 const char* const EXPORT_XML_STN_FILE = "export-xml-stn-file";
+const char* const EXPORT_XML_MSR_FILE = "export-xml-msr-file";
 const char* const EXPORT_FROM_BINARY = "export-from-binary";
 const char* const EXPORT_SINGLE_XML_FILE = "single-xml-file";
 const char* const PREFER_X_MSR_AS_G = "prefer-single-x-as-g";
 const char* const EXPORT_DNA_FILES = "export-dna-files";
 const char* const EXPORT_DNA_STN_FILE = "export-dna-stn-file";
+const char* const EXPORT_DNA_MSR_FILE = "export-dna-msr-file";
 const char* const EXPORT_GEO_FILE = "export-dna-geo-file";
 const char* const EXPORT_SNX_FILE = "export-sinex-file";
 const char* const IMPORT_GEO_FILE = "geo-file";
