@@ -92,7 +92,7 @@ bool prepareAdjustmentExceptionThrown(const vector<boost::exception_ptr>& prep_e
 //
 void dna_adjust::AdjustPhasedMultiThread()
 {
-	currentIteration_ = 0;
+	initialiseIteration();
 
 	string corr_msg;
 	ostringstream ss;
@@ -126,7 +126,7 @@ void dna_adjust::AdjustPhasedMultiThread()
 		// Print the iteration # to adj file.
 		// protected write to adj file (not needed here since write to
 		// adj file at this stage is via single thread
-		PrintIteration(++currentIteration_);
+		PrintIteration(incrementIteration());
 		///////////////////////////////////
 
 		concurrentAdjustments.reset_adjustment_runs();		
@@ -213,7 +213,7 @@ void dna_adjust::AdjustPhasedMultiThread()
 			debug_file << concurrentAdjustments.print_adjusted_blocks();
 
 		iterationCorrections_.add_message(corr_msg);
-		iterationQueue_.push_and_notify(currentIteration_);				// currentIteration begins at 1, so not zero-indexed
+		iterationQueue_.push_and_notify(CurrentIteration());				// currentIteration begins at 1, so not zero-indexed
 
 		// continue iterating?
 		iterate = fabs(maxCorr_) > projectSettings_.a.iteration_threshold;
@@ -241,7 +241,7 @@ void dna_adjust::AdjustPhasedMultiThread()
 		return;
 	}
 
-	if (currentIteration_ == projectSettings_.a.max_iterations)
+	if (CurrentIteration() == projectSettings_.a.max_iterations)
 		adjustStatus_ = ADJUST_MAX_ITERATIONS_EXCEEDED;
 
 	// Print status

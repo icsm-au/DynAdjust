@@ -155,65 +155,7 @@ dna_adjust::dna_adjust()
 		v_correctionsR_.clear();
 	}
 }
-
-//dna_adjust::dna_adjust(const dna_adjust& newdnaAdjust)
-//{	
-//	isAdjusting_ = newdnaAdjust.isAdjusting_;
-//	adjustStatus_ = newdnaAdjust.adjustStatus_;
-//	statusMessages_ = newdnaAdjust.statusMessages_;
-//	currentBlock_ = newdnaAdjust.currentBlock_;
-//	currentIteration_ = newdnaAdjust.currentIteration_;
-//	projectSettings_ = newdnaAdjust.projectSettings_;
-//	bstBinaryRecords_ = newdnaAdjust.bstBinaryRecords_;
-//	bmsBinaryRecords_ = newdnaAdjust.bmsBinaryRecords_;
-//	bmsr_count_ = newdnaAdjust.bmsr_count_;
-//	bstn_count_ = newdnaAdjust.bstn_count_;
-//	asl_count_ = newdnaAdjust.asl_count_;
-//	memcpy(debug_file, newdnaAdjust.debug_file, sizeof(debug_file));
-//	adjustProgress_ = newdnaAdjust.adjustProgress_;
-//
-//	chiSquared_ = newdnaAdjust.chiSquared_;
-//	sigmaZero_ = newdnaAdjust.sigmaZero_;
-//	sigmaZeroSqRt_ = newdnaAdjust.sigmaZeroSqRt_;
-//	chiSquaredUpperLimit_ = newdnaAdjust.chiSquaredUpperLimit_;
-//	chiSquaredLowerLimit_ = newdnaAdjust.chiSquaredLowerLimit_;
-//	globalPelzerReliability_ = newdnaAdjust.globalPelzerReliability_;
-//	degreesofFreedom_ = newdnaAdjust.degreesofFreedom_;
-//	measurementParams_ = newdnaAdjust.measurementParams_;
-//	measurementCount_ = newdnaAdjust.measurementCount_;
-//	unknownParams_ = newdnaAdjust.unknownParams_;
-//	unknownsCount_ = newdnaAdjust.unknownsCount_;
-//	
-//	v_pseudoMeasCountFwd_ = newdnaAdjust.v_pseudoMeasCountFwd_;
-//	v_measurementParams_ = newdnaAdjust.v_measurementParams_;
-//	v_measurementCount_ = newdnaAdjust.v_measurementCount_;
-//	v_unknownParams_ = newdnaAdjust.v_unknownParams_;
-//	v_unknownsCount_ = newdnaAdjust.v_unknownsCount_;
-//	v_sigmaZero_ = newdnaAdjust.v_sigmaZero_;
-//	v_chiSquaredUpperLimit_ = newdnaAdjust.v_chiSquaredUpperLimit_;
-//	v_chiSquaredLowerLimit_ = newdnaAdjust.v_chiSquaredLowerLimit_;
-//	v_passFail_ = newdnaAdjust.v_passFail_;
-//	
-//	v_originalStations_ = newdnaAdjust.v_originalStations_;
-//	v_design_ = newdnaAdjust.v_design_;
-//	v_measMinusComp_ = newdnaAdjust.v_measMinusComp_;
-//
-//	v_AtVinv_ = newdnaAdjust.v_AtVinv_;
-//	v_normals_ = newdnaAdjust.v_normals_;
-//	v_estimatedStations_ = newdnaAdjust.v_estimatedStations_;
-//	v_rigorousStations_ = newdnaAdjust.v_rigorousStations_;
-//	v_junctionVariances_ = newdnaAdjust.v_junctionVariances_;
-//	v_junctionVariancesFwd_ = newdnaAdjust.v_junctionVariancesFwd_;
-//	v_junctionEstimatesFwd_ = newdnaAdjust.v_junctionEstimatesFwd_;
-//	v_junctionEstimatesRev_ = newdnaAdjust.v_junctionEstimatesRev_;
-//	v_rigorousVariances_ = newdnaAdjust.v_rigorousVariances_;
-//	v_precAdjMsrsFull_ = newdnaAdjust.v_precAdjMsrsFull_;
-//	v_corrections_ = newdnaAdjust.v_corrections_;
-//	v_blockStationsMap_ = newdnaAdjust.v_blockStationsMap_;
-//
-//	v_parameterStationCount_ = newdnaAdjust.v_parameterStationCount_;
-//	v_parameterStationList_ = newdnaAdjust.v_parameterStationList_;
-//}
+	
 
 dna_adjust::~dna_adjust()
 {
@@ -260,6 +202,14 @@ UINT32& dna_adjust::incrementIteration()
 	return ++currentIteration_; 
 }
 
+void dna_adjust::initialiseIteration(const UINT32& iteration) 
+{ 
+#ifdef MULTI_THREAD_ADJUST
+	boost::lock_guard<boost::mutex> lock(current_iterationMutex);
+#endif
+	currentIteration_ = iteration; 
+}
+
 void dna_adjust::InitialiseAdjustment()
 {
 	adj_file << endl << "+ Initialising adjustment" << endl;
@@ -278,7 +228,7 @@ void dna_adjust::InitialiseAdjustment()
 	adjustStatus_ = ADJUST_SUCCESS;
 	statusMessages_.clear();
 	currentBlock_ = 0;
-	currentIteration_ = 0;
+	initialiseIteration();
 	
 	bstBinaryRecords_.clear();
 	bmsBinaryRecords_.clear();
@@ -3420,7 +3370,7 @@ void dna_adjust::CloseOutputFiles()
 void dna_adjust::AdjustSimultaneous()
 {
 	adjustStatus_ = ADJUST_SUCCESS;
-	currentIteration_ = 0;
+	initialiseIteration();
 	
 	ostringstream ss;
 	string corr_msg;
@@ -3440,7 +3390,7 @@ void dna_adjust::AdjustSimultaneous()
 		largestCorr_ = 0.0;
 
 		// Print the iteration # to adj file
-		PrintIteration(++currentIteration_);
+		PrintIteration(incrementIteration());
 
 		// Does the user want to print computed measurements on each iteration?
 		if (projectSettings_.o._cmp_msr_iteration)
@@ -3456,7 +3406,7 @@ void dna_adjust::AdjustSimultaneous()
 		//	- The network contains non-GPS measurements, in which an updated 
 		//	  normals matrix would be available based upon reformed partial
 		//	  derivatives in the design matrix
-		SolveTry(currentIteration_ < 2 || v_msrTally_.at(0).ContainsNonGPS());
+		SolveTry(CurrentIteration() < 2 || v_msrTally_.at(0).ContainsNonGPS());
 
 		// calculate and print total time
 		PrintAdjustmentTime(it_time, iteration_time);
@@ -3470,7 +3420,7 @@ void dna_adjust::AdjustSimultaneous()
 
 		// update data for messages
 		iterationCorrections_.add_message(corr_msg);
-		iterationQueue_.push_and_notify(currentIteration_);	// currentIteration begins at 1, so not zero-indexed
+		iterationQueue_.push_and_notify(CurrentIteration());	// currentIteration begins at 1, so not zero-indexed
 		isIterationComplete_ = true;
 		
 		// continue iterating?
@@ -3520,7 +3470,7 @@ void dna_adjust::ValidateandFinaliseAdjustment(cpu_timer& tot_time)
 		return;
 	}
 
-	if (currentIteration_ == projectSettings_.a.max_iterations &&
+	if (CurrentIteration() == projectSettings_.a.max_iterations &&
 		fabs(maxCorr_) > projectSettings_.a.iteration_threshold)
 		adjustStatus_ = ADJUST_MAX_ITERATIONS_EXCEEDED;
 
@@ -3553,7 +3503,7 @@ void dna_adjust::PrintAdjustmentStatus()
 		break;
 	default:
 		if (adjustStatus_ == ADJUST_SUCCESS && 
-			currentIteration_ <= projectSettings_.a.max_iterations &&
+			CurrentIteration() <= projectSettings_.a.max_iterations &&
 			fabs(maxCorr_) <= projectSettings_.a.iteration_threshold)
 			adj_file << "Converged" << endl;
 		else
@@ -3600,7 +3550,7 @@ void dna_adjust::PrintIteration(const UINT32& iteration)
 
 void dna_adjust::AdjustPhased()
 {
-	currentIteration_ = 0;
+	initialiseIteration();
 
 	string corr_msg;
 	ostringstream ss;
@@ -3628,7 +3578,7 @@ void dna_adjust::AdjustPhased()
 		measurementParams_ = 0;
 	
 		// Print the iteration # to adj file
-		PrintIteration(++currentIteration_);
+		PrintIteration(incrementIteration());
 		
 		it_time.start();
 
@@ -3647,7 +3597,7 @@ void dna_adjust::AdjustPhased()
 		OutputLargestCorrection(corr_msg);
 		
 		iterationCorrections_.add_message(corr_msg);
-		iterationQueue_.push_and_notify(currentIteration_);	// currentIteration begins at 1, so not zero-indexed
+		iterationQueue_.push_and_notify(CurrentIteration());	// currentIteration begins at 1, so not zero-indexed
 		isIterationComplete_ = true;
 
 		// Continue iterating?
@@ -3689,7 +3639,7 @@ void dna_adjust::AdjustPhased()
 // the adjustment assumes that rigorous estimates have already been produced
 void dna_adjust::AdjustPhasedBlock1()
 {
-	currentIteration_ = 1;
+	initialiseIteration(1);
 	
 	ostringstream ss;
 	string corr_msg;
@@ -3725,7 +3675,7 @@ void dna_adjust::AdjustPhasedBlock1()
 		adjustStatus_ = ADJUST_THRESHOLD_EXCEEDED;
 		
 	iterationCorrections_.add_message(corr_msg);
-	iterationQueue_.push_and_notify(currentIteration_);	// currentIteration begins at 1, so not zero-indexed
+	iterationQueue_.push_and_notify(CurrentIteration());	// currentIteration begins at 1, so not zero-indexed
 
 	ValidateandFinaliseAdjustment(tot_time);
 }
@@ -12210,7 +12160,7 @@ void dna_adjust::PrintAdjMeasurements(v_uint32_u32u32_pair msr_block, bool print
 		}
 		else if (projectSettings_.a.adjust_mode == PhasedMode && isIterationComplete_)
 		{
-			ss << " (Iteration " << currentIteration_ << ")";
+			ss << " (Iteration " << CurrentIteration() << ")";
 			table_heading.append(ss.str());
 		}
 	}
