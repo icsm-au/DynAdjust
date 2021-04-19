@@ -1067,7 +1067,7 @@ void dna_geoid_interpolation::CreateNTv2File(const char* datFile, const n_file_p
 	// So, read data to the end of the file to determine grid file limits and record count, then
 	// store data in array.  Use this loop to determine limits and grid node increments
 	double lat, lon, min_lat(90.), max_lat(-90.), min_lon(180.), max_lon(-180.);
-	double init_lat, lat_inc, lon_inc;
+	double init_lat(0.), lat_inc(60.), lon_inc(60.);
 
 	cout << endl << "+ Reading contents of WINTER DAT file... ";
 
@@ -1244,7 +1244,7 @@ void dna_geoid_interpolation::CreateNTv2File(const char* datFile, const n_file_p
 // On Entry:  File path for Binary distortion grid file 
 // On Exit:   An ASCII grid file is created and saved to the specified file path
 /////////////////////////////////////////////////////////////////////////
-void dna_geoid_interpolation::ExportToAscii(char *gridFile, char *gridType, char *OutputGrid, int *IO_Status)
+void dna_geoid_interpolation::ExportToAscii(const char *gridFile, const char *gridType, const char *OutputGrid, int *IO_Status)
 {
 	int i, j;
 	float fTemp;
@@ -1296,10 +1296,10 @@ void dna_geoid_interpolation::ExportToAscii(char *gridFile, char *gridType, char
 	f_out << "VERSION " << setw(8) << right << m_pGridfile->chVersion << endl;	// grid file version (VERSION)
 	f_out << "SYSTEM_F" << setw(8) << right << m_pGridfile->chSystem_f << endl;	// reference system (SYSTEM_F)
 	f_out << "SYSTEM_T" << setw(8) << right << m_pGridfile->chSystem_t << endl;	// reference system (SYSTEM_T)
-	f_out << "MAJOR_F " << setw(15) << right << setprecision(3) << m_pGridfile->daf << endl;	// semi major of from system (MAJOR_F)
-	f_out << "MINOR_F " << setw(15) << right << setprecision(3) << m_pGridfile->dbf << endl;	// semi minor of from system (MINOR_F)
-	f_out << "MAJOR_T " << setw(15) << right << setprecision(3) << m_pGridfile->dat << endl;	// semi major of to system (MAJOR_T)
-	f_out << "MINOR_T " << setw(15) << right << setprecision(3) << m_pGridfile->dbt << endl;	// semi minor of to system (MINOR_T)
+	f_out << "MAJOR_F " << setw(15) << right << fixed << setprecision(3) << m_pGridfile->daf << endl;	// semi major of from system (MAJOR_F)
+	f_out << "MINOR_F " << setw(15) << right << fixed << setprecision(3) << m_pGridfile->dbf << endl;	// semi minor of from system (MINOR_F)
+	f_out << "MAJOR_T " << setw(15) << right << fixed << setprecision(3) << m_pGridfile->dat << endl;	// semi major of to system (MAJOR_T)
+	f_out << "MINOR_T " << setw(15) << right << fixed << setprecision(3) << m_pGridfile->dbt << endl;	// semi minor of to system (MINOR_T)
 	
 	// loop through number of sub grids
 	for (i=0; i<m_pGridfile->iNumsubgrids; i++)
@@ -1352,7 +1352,7 @@ void dna_geoid_interpolation::ExportToAscii(char *gridFile, char *gridType, char
 				
 				// Longitude accuracy
 				m_pGfileptr.read(reinterpret_cast<char *>(&fTemp), sizeof(float));
-				f_out << setw(10) << setprecision(6) << fTemp;
+				f_out << setw(10) << setprecision(6) << fTemp << endl;
 
 				m_dPercentComplete = (double)(m_pGfileptr.tellg()) / (double)m_pGridfile->iGfilelength * 100.0;	
 			}
@@ -1383,7 +1383,7 @@ void dna_geoid_interpolation::ExportToAscii(char *gridFile, char *gridType, char
 // On Entry:  File path for ASCII distortion grid file 
 // On Exit:   A Binary grid file is created and saved to the specified file path
 /////////////////////////////////////////////////////////////////////////
-void dna_geoid_interpolation::ExportToBinary(char *gridFile, char *gridType, char *OutputGrid, int *IO_Status)
+void dna_geoid_interpolation::ExportToBinary(const char *gridFile, const char *gridType, const char *OutputGrid, int *IO_Status)
 {
 	*IO_Status = ERR_TRANS_SUCCESS;
 	m_dPercentComplete = 0.0;
@@ -2397,51 +2397,45 @@ int dna_geoid_interpolation::OpenGridFile(const char *filename, const char *file
 	ptheGrid->iGfilelength = (int)pgrid_ifs->tellg();
 	pgrid_ifs->seekg(0, ios::beg);
 
-	char identifier[IDENT_BUF + 1], cBuf[HEADER_RECORD + 1];
+	char identifier[IDENT_BUF + 1];
+	string sBuf;
 
 	try {
 		// read in all Overview Header information
 		if (gridType == TYPE_ASC)		// ascii
 		{
-			pgrid_ifs->ignore(OVERVIEW_RECS);
-			pgrid_ifs->getline(cBuf, OVERVIEW_RECS, '\n');
-			sscanf(cBuf, "%d", &ptheGrid->iH_info);
+			getline(*pgrid_ifs, sBuf);
+			ptheGrid->iH_info = lexical_cast<int, string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
-			pgrid_ifs->ignore(OVERVIEW_RECS);
-			pgrid_ifs->getline(cBuf, OVERVIEW_RECS, '\n');
-			sscanf(cBuf, "%d", &ptheGrid->iSubH_info);
+			getline(*pgrid_ifs, sBuf);
+			ptheGrid->iSubH_info = lexical_cast<int, string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+
+			getline(*pgrid_ifs, sBuf);
+			ptheGrid->iNumsubgrids = lexical_cast<int, string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+
+			getline(*pgrid_ifs, sBuf);
+			strcpy(ptheGrid->chGs_type, trimstr(sBuf.substr(OVERVIEW_RECS)).c_str());
 			
-			pgrid_ifs->ignore(OVERVIEW_RECS);
-			pgrid_ifs->getline(cBuf, OVERVIEW_RECS, '\n');
-			sscanf(cBuf, "%d", &ptheGrid->iNumsubgrids);
-			
-			pgrid_ifs->ignore(OVERVIEW_RECS);
-			pgrid_ifs->getline(ptheGrid->chGs_type, OVERVIEW_RECS, '\n');
+			getline(*pgrid_ifs, sBuf);
+			strcpy(ptheGrid->chVersion, trimstr(sBuf.substr(OVERVIEW_RECS)).c_str());
 
-			pgrid_ifs->ignore(OVERVIEW_RECS);
-			pgrid_ifs->getline(ptheGrid->chVersion, OVERVIEW_RECS, '\n');
+			getline(*pgrid_ifs, sBuf);
+			strcpy(ptheGrid->chSystem_f, trimstr(sBuf.substr(OVERVIEW_RECS)).c_str());
 
-			pgrid_ifs->ignore(OVERVIEW_RECS);
-			pgrid_ifs->getline(ptheGrid->chSystem_f, OVERVIEW_RECS, '\n');
+			getline(*pgrid_ifs, sBuf);
+			strcpy(ptheGrid->chSystem_t, trimstr(sBuf.substr(OVERVIEW_RECS)).c_str());
 
-			pgrid_ifs->ignore(OVERVIEW_RECS);
-			pgrid_ifs->getline(ptheGrid->chSystem_t, OVERVIEW_RECS, '\n');
-				
-			pgrid_ifs->ignore(OVERVIEW_RECS);
-			pgrid_ifs->getline(cBuf, OVERVIEW_RECS, '\n');
-			sscanf(cBuf, "%lf", &ptheGrid->daf);
+			getline(*pgrid_ifs, sBuf);
+			ptheGrid->daf = lexical_cast<double, string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
-			pgrid_ifs->ignore(OVERVIEW_RECS);
-			pgrid_ifs->getline(cBuf, OVERVIEW_RECS, '\n');
-			sscanf(cBuf, "%lf", &ptheGrid->dbf);
+			getline(*pgrid_ifs, sBuf);
+			ptheGrid->dbf = lexical_cast<double, string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
-			pgrid_ifs->ignore(OVERVIEW_RECS);
-			pgrid_ifs->getline(cBuf, OVERVIEW_RECS, '\n');
-			sscanf(cBuf, "%lf", &ptheGrid->dat);
+			getline(*pgrid_ifs, sBuf);
+			ptheGrid->dat = lexical_cast<double, string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
-			pgrid_ifs->ignore(OVERVIEW_RECS);
-			pgrid_ifs->getline(cBuf, OVERVIEW_RECS, '\n');
-			sscanf(cBuf, "%lf", &ptheGrid->dbt);
+			getline(*pgrid_ifs, sBuf);
+			ptheGrid->dbt = lexical_cast<double, string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 		}
 		else					// binary
 		{
@@ -2513,45 +2507,38 @@ int dna_geoid_interpolation::OpenGridFile(const char *filename, const char *file
 	{	
 		if (gridType == TYPE_ASC)		// ascii
 		{
-			pgrid_ifs->ignore(OVERVIEW_RECS);
-			pgrid_ifs->getline(ptheGrid->ptrIndex[i].chSubname, OVERVIEW_RECS, '\n');
+			getline(*pgrid_ifs, sBuf);
+			strcpy(ptheGrid->ptrIndex[i].chSubname, sBuf.substr(OVERVIEW_RECS).c_str());
 			
-			pgrid_ifs->ignore(OVERVIEW_RECS);
-			pgrid_ifs->getline(ptheGrid->ptrIndex[i].chParent, OVERVIEW_RECS, '\n');
-			
-			pgrid_ifs->ignore(OVERVIEW_RECS);
-			pgrid_ifs->getline(ptheGrid->ptrIndex[i].chCreated, OVERVIEW_RECS, '\n');
-			
-			pgrid_ifs->ignore(OVERVIEW_RECS);
-			pgrid_ifs->getline(ptheGrid->ptrIndex[i].chUpdated, OVERVIEW_RECS, '\n');
-			
-			pgrid_ifs->ignore(OVERVIEW_RECS);
-			pgrid_ifs->getline(cBuf, OVERVIEW_RECS, '\n');
-			sscanf(cBuf, "%lf", &ptheGrid->ptrIndex[i].dSlat);
+			getline(*pgrid_ifs, sBuf);
+			strcpy(ptheGrid->ptrIndex[i].chParent, sBuf.substr(OVERVIEW_RECS).c_str());
 
-			pgrid_ifs->ignore(OVERVIEW_RECS);
-			pgrid_ifs->getline(cBuf, OVERVIEW_RECS, '\n');
-			sscanf(cBuf, "%lf", &ptheGrid->ptrIndex[i].dNlat);
+			getline(*pgrid_ifs, sBuf);
+			strcpy(ptheGrid->ptrIndex[i].chCreated, trimstr(sBuf.substr(OVERVIEW_RECS)).c_str());
 
-			pgrid_ifs->ignore(OVERVIEW_RECS);
-			pgrid_ifs->getline(cBuf, OVERVIEW_RECS, '\n');
-			sscanf(cBuf, "%lf", &ptheGrid->ptrIndex[i].dElong);
+			getline(*pgrid_ifs, sBuf);
+			strcpy(ptheGrid->ptrIndex[i].chUpdated, trimstr(sBuf.substr(OVERVIEW_RECS)).c_str());
 
-			pgrid_ifs->ignore(OVERVIEW_RECS);
-			pgrid_ifs->getline(cBuf, OVERVIEW_RECS, '\n');
-			sscanf(cBuf, "%lf", &ptheGrid->ptrIndex[i].dWlong);
+			getline(*pgrid_ifs, sBuf);
+			ptheGrid->ptrIndex[i].dSlat = lexical_cast<double, string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
-			pgrid_ifs->ignore(OVERVIEW_RECS);
-			pgrid_ifs->getline(cBuf, OVERVIEW_RECS, '\n');
-			sscanf(cBuf, "%lf", &ptheGrid->ptrIndex[i].dLatinc);
+			getline(*pgrid_ifs, sBuf);
+			ptheGrid->ptrIndex[i].dNlat = lexical_cast<double, string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
-			pgrid_ifs->ignore(OVERVIEW_RECS);
-			pgrid_ifs->getline(cBuf, OVERVIEW_RECS, '\n');
-			sscanf(cBuf, "%lf", &ptheGrid->ptrIndex[i].dLonginc);
+			getline(*pgrid_ifs, sBuf);
+			ptheGrid->ptrIndex[i].dElong = lexical_cast<double, string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
-			pgrid_ifs->ignore(OVERVIEW_RECS);
-			pgrid_ifs->getline(cBuf, OVERVIEW_RECS, '\n');
-			sscanf(cBuf, "%ld", &ptheGrid->ptrIndex[i].lGscount);
+			getline(*pgrid_ifs, sBuf);
+			ptheGrid->ptrIndex[i].dWlong = lexical_cast<double, string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+
+			getline(*pgrid_ifs, sBuf);
+			ptheGrid->ptrIndex[i].dLatinc = lexical_cast<double, string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+
+			getline(*pgrid_ifs, sBuf);
+			ptheGrid->ptrIndex[i].dLonginc = lexical_cast<double, string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+
+			getline(*pgrid_ifs, sBuf);
+			ptheGrid->ptrIndex[i].lGscount = lexical_cast<double, string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
 			// Save ASCII position in grid file for first record of lat & long shifts 
 			ptheGrid->ptrIndex[i].iGridPos = (int)pgrid_ifs->tellg();
@@ -2770,7 +2757,7 @@ void dna_geoid_interpolation::SetDefaultGridFileParametersTmp(n_file_par* ntv2_p
 	if (!ntv2_params->ptrIndex)
 	{
 		ntv2_params->ptrIndex = new n_gridfileindex;
-		memset(ntv2_params->ptrIndex, 0, sizeof(n_gridfileindex));
+		//memset(ntv2_params->ptrIndex, 0, sizeof(n_gridfileindex));
 
 		sprintf(ntv2_params->ptrIndex[0].chSubname, "%s", "AUSGEOID");	// SUB_NAME
 		sprintf(ntv2_params->ptrIndex[0].chParent, "%s", "NONE    ");	// PARENT

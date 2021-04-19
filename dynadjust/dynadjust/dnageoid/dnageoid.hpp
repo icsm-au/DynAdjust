@@ -161,10 +161,10 @@ public:
 	void CreateNTv2File(const char* datFile, const n_file_par* grid);
 
 	// Exports an Binary grid file to a Ascii format
-	void ExportToAscii(char* inputGrid, char* gridtype, char* outputGrid, int* IO_Status);
+	void ExportToAscii(const char* inputGrid, const char* gridtype, const char* outputGrid, int* IO_Status);
 
 	// Exports an Ascii grid file to a Binary format
-	void ExportToBinary(char* inputGrid, char* gridtype, char* outputGrid, int* IO_Status);
+	void ExportToBinary(const char* inputGrid, const char* gridtype, const char* outputGrid, int* IO_Status);
 
 	// Prints the gridfile header information to a file_par struct
 	void ReportGridProperties(const char* fileName, const char* fileType, n_file_par* gridProperties);

@@ -236,7 +236,11 @@ if (BUILD_TESTING)
     add_test (NAME geo-interpolate-04 COMMAND $<TARGET_FILE:dnageoidwrapper> --version)
     add_test (NAME geo-interpolate-05 COMMAND $<TARGET_FILE:dnageoidwrapper> -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb -t ${CMAKE_SOURCE_DIR}/../sampleData/geoid-points-dat.txt)
     add_test (NAME geo-interpolate-06 COMMAND $<TARGET_FILE:dnageoidwrapper> -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb -t ${CMAKE_SOURCE_DIR}/../sampleData/geoid-points-csv.csv)    
-    
+    add_test (NAME geo-ntv2-create-01 COMMAND $<TARGET_FILE:dnageoidwrapper> -d ${CMAKE_SOURCE_DIR}/../sampleData/ausgeoid09_gda94_v1.01_clip_1x1.dat -c -g ausgeoid_clip_default.gsb)
+    add_test (NAME geo-ntv2-create-02 COMMAND $<TARGET_FILE:dnageoidwrapper> -d ${CMAKE_SOURCE_DIR}/../sampleData/ausgeoid09_gda94_v1.01_clip_1x1.dat -c -g ausgeoid_clip_1.0.1.0.gsb --grid-shift radians --grid-version 1.0.1.0 --system-fr ___GDA94 --system-to ___AHD71 --sub-grid-n 1D-grid --creation 21.04.2021 --update 22.04.2021)
+    add_test (NAME geo-ntv2-export-01 COMMAND $<TARGET_FILE:dnageoidwrapper> -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb --export-ntv2-asc)
+    add_test (NAME geo-ntv2-export-02 COMMAND $<TARGET_FILE:dnageoidwrapper> -g ./gnss-network-geoid.gsb.asc --export-ntv2-gsb)
+
     # bash command to check results
     add_test (NAME test-gnss-network COMMAND bash -c "diff <(tail -n +53 gnss.simult.adj) <(tail -n +53 ${CMAKE_SOURCE_DIR}/../sampleData/gnss.simult.adj.expected)")
     #add_test (NAME test-urban-phased-network COMMAND bash -c "diff <(tail -n +62 urban.phased.adj) <(tail -n +62 ${CMAKE_SOURCE_DIR}/../sampleData/urban.phased.adj.expected)")
