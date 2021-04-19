@@ -65,6 +65,7 @@
 #include <include/functions/dnafilepathfuncs.hpp>
 #include <include/functions/dnatemplatedatetimefuncs.hpp>
 #include <include/functions/dnastrmanipfuncs.hpp>
+#include <include/functions/dnatemplatefuncs.hpp>
 
 #include <dynadjust/dnageoid/dnageoid.hpp>
 

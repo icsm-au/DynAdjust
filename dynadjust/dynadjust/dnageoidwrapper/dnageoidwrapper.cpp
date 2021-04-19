@@ -53,7 +53,9 @@ bool CreateNTv2Grid(dna_geoid_interpolation* g, const char* dat_gridfilePath, co
 	}
 	cout << endl;
 
-	reportGridProperties(g, grid->filename, grid->filetype);
+	// Open the new grid file and print its properties
+	if (!reportGridProperties(g, grid->filename, grid->filetype))
+		return false;
 
 	return true;
 }
@@ -66,6 +68,8 @@ bool ExportNTv2GridToAscii(dna_geoid_interpolation* g, const char* dat_gridfileP
 
 	int ioStatus;
 	
+	cout << endl << "+ Exporting geoid file to " << leafStr<string>(outfile) << "... ";
+
 	try {
 		g->ExportToAscii(dat_gridfilePath, gridfileType, outfile.c_str(), &ioStatus);
 	}
@@ -73,9 +77,12 @@ bool ExportNTv2GridToAscii(dna_geoid_interpolation* g, const char* dat_gridfileP
 		cout << endl << "- Error: " << e.what() << endl;
 		return false;
 	}
-	cout << endl;
 
-	reportGridProperties(g, outfile.c_str(), exportfileType);
+	cout << "done." << endl << endl;
+
+	// Open the new grid file and print its properties
+	if (!reportGridProperties(g, outfile.c_str(), exportfileType))
+		return false;
 
 	return true;
 }
@@ -89,6 +96,8 @@ bool ExportNTv2GridToBinary(dna_geoid_interpolation* g, const char* dat_gridfile
 
 	int ioStatus;
 	
+	cout << endl << "+ Exporting geoid file to " << leafStr<string>(outfile) << "... ";
+
 	try {
 		g->ExportToBinary(dat_gridfilePath, gridfileType, outfile.c_str(), &ioStatus);
 	}
@@ -96,9 +105,12 @@ bool ExportNTv2GridToBinary(dna_geoid_interpolation* g, const char* dat_gridfile
 		cout << endl << "- Error: " << e.what() << endl;
 		return false;
 	}
-	cout << endl;
 
-	reportGridProperties(g, outfile.c_str(), exportfileType);
+	cout << "done." << endl << endl;
+
+	// Open the grid file and print its properties
+	if (!reportGridProperties(g, outfile.c_str(), exportfileType))
+		return false;
 
 	return true;
 }
@@ -136,6 +148,8 @@ bool reportGridProperties(dna_geoid_interpolation* g, const char* gridfilePath, 
 		return false;
 	}
 
+	string formattedLimit;
+
 	cout << "+ Grid properties for " << gridfilePath << ":" << endl;
 	cout << "  - GS_TYPE  = " << grid_properties.chGs_type << endl;							// grid shift type (GS_TYPE)
 	cout << "  - VERSION  = " << grid_properties.chVersion << endl;							// grid file version (VERSION)
@@ -151,15 +165,29 @@ bool reportGridProperties(dna_geoid_interpolation* g, const char* gridfilePath, 
 
 	for (int i=0; i<grid_properties.iNumsubgrids; ++i)
 	{
+		string formattedLimit;
 		cout << "  - SUBGRID " << i << ":" << endl;
 		cout << "    - SUB_NAME = " << grid_properties.ptrIndex[i].chSubname << endl;  		// name of subgrid (SUB_NAME)
 		cout << "    - PARENT   = " << grid_properties.ptrIndex[i].chParent << endl;		// name of parent grid (PARENT)
 		cout << "    - CREATED  = " << grid_properties.ptrIndex[i].chCreated << endl;		// date of creation (CREATED)
 		cout << "    - UPDATED  = " << grid_properties.ptrIndex[i].chUpdated << endl;		// date of last file update (UPDATED)
-		cout << "    - S_LAT    = " << grid_properties.ptrIndex[i].dSlat << endl;			// lower latitude (S_LAT)
-		cout << "    - N_LAT    = " << grid_properties.ptrIndex[i].dNlat << endl;			// upper latitude (N_LAT)
-		cout << "    - E_LONG   = " << grid_properties.ptrIndex[i].dElong << endl;			// lower longitude (E_LONG)
-		cout << "    - W_LONG   = " << grid_properties.ptrIndex[i].dWlong << endl;			// upper longitude (W_LONG)
+		
+		cout << "    - S_LAT    = " << right << setw(REL) << grid_properties.ptrIndex[i].dSlat;					// lower latitude (S_LAT)
+		formattedLimit = "(" + FormatDmsString(DegtoDms(grid_properties.ptrIndex[i].dSlat / DEG_TO_SEC), 6, true, false) + ")";
+		cout << right << setw(MEASR) << formattedLimit << endl;								
+		
+		cout << "    - N_LAT    = " << setw(REL) << grid_properties.ptrIndex[i].dNlat;					// upper latitude (N_LAT)
+		formattedLimit = "(" + FormatDmsString(DegtoDms(grid_properties.ptrIndex[i].dNlat / DEG_TO_SEC), 6, true, false) + ")";
+		cout << right << setw(MEASR) << formattedLimit << endl;								
+		
+		cout << "    - E_LONG   = " << setw(REL) << grid_properties.ptrIndex[i].dElong;					// lower longitude (E_LONG)
+		formattedLimit = "(" + FormatDmsString(DegtoDms(grid_properties.ptrIndex[i].dElong / DEG_TO_SEC), 6, true, false) + ")";
+		cout << right << setw(MEASR) << formattedLimit << endl;
+
+		cout << "    - W_LONG   = " << setw(REL) << grid_properties.ptrIndex[i].dWlong;					// upper longitude (W_LONG)
+		formattedLimit = "(" + FormatDmsString(DegtoDms(grid_properties.ptrIndex[i].dWlong / DEG_TO_SEC), 6, true, false) + ")";
+		cout << right << setw(MEASR) << formattedLimit << endl;
+		
 		cout << "    - LAT_INC  = " << grid_properties.ptrIndex[i].dLatinc << endl;			// latitude interval (LAT_INC)
 		cout << "    - LONG_INC = " << grid_properties.ptrIndex[i].dLonginc << endl;		// longitude interval (LONG_INC)
 		cout << "    - GS_COUNT = " << grid_properties.ptrIndex[i].lGscount << endl;		// number of nodes (GS_COUNT)
@@ -215,12 +243,7 @@ bool InterpolateGridPointFile(dna_geoid_interpolation* g, const char* inputfileP
 {
 	path inputFile(inputfilePath);
 	if (inputFile.has_extension())
-	{
-		if (inputFile.parent_path().empty())
-			outputfilePath = inputFile.stem().string() + "_out" + inputFile.extension().string();
-		else
-			outputfilePath = inputFile.parent_path().string() + "/" + inputFile.stem().string() + "_out" + inputFile.extension().string();
-	}
+		outputfilePath = inputFile.stem().string() + "_out" + inputFile.extension().string();
 	else
 	{
 		outputfilePath = inputfilePath; 
@@ -263,6 +286,15 @@ bool InterpolateGridBinaryStationFile(dna_geoid_interpolation* g, const string& 
 } // InterpolateGridBinaryStationFile
 
 
+string GetFileType(const string inputfilePath)
+{
+	path inputFile(inputfilePath);
+	if (inputFile.has_extension())
+		return inputFile.extension().string();
+	else
+		return "";
+}
+
 int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& vm, project_settings& p)
 {
 	// capture command line arguments
@@ -298,6 +330,7 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 		!vm.count(CREATE_NTV2) &&				// User wants to create a NTv2 grid file
 		!vm.count(SUMMARY) &&					// User wants to print to the screen the details of the grid file
 		!vm.count(INPUT_FILE) &&				// User wants to interpolate geoid information in text file mode
+		!vm.count(DAT_FILEPATH) &&				// User supplied file path to WINTER DAT file
 		!vm.count(EXPORT_NTV2_ASCII_FILE) &&	// User wants to export a geoid file to ASCII
 		!vm.count(EXPORT_NTV2_BINARY_FILE))		// User wants to export a geoid file to binary
 	{
@@ -327,7 +360,7 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 	}
 
 	// check mandatory arguments for text file mode
-	if (!vm.count(INPUT_FILE) && !vm.count(NTV2_FILEPATH))
+	if (!vm.count(INPUT_FILE) && !vm.count(NTV2_FILEPATH) && !vm.count(CREATE_NTV2))
 	{
 		cout << endl << "- Error: Interpolation input file not specified. " << endl << endl;
 		return EXIT_FAILURE;
@@ -623,10 +656,6 @@ int main(int argc, char* argv[])
 		return EXIT_SUCCESS;
 	}
 
-	const char* const NTV2_TYPE_ASC = "asc";
-	const char* const NTV2_TYPE_GSB = "gsb";
-	strcpy(ntv2.filetype, NTV2_TYPE_GSB);
-	
 	if (ParseCommandLineOptions(argc, argv, vm, p) != EXIT_SUCCESS)
 		return EXIT_FAILURE;
 
@@ -635,11 +664,49 @@ int main(int argc, char* argv[])
 	if (!p.g.project_file.empty())
 		userSuppliedProjectFile = true;
 
-	// NTv2 file path
-	if (!p.n.ntv2_geoid_file.empty())
+	// Capture NTv2 file path and extension
+	// grid file path not supplied.  Generate name from dat file
+	if (p.n.ntv2_geoid_file.empty())
+	{
+		path gsbFile(p.n.rdat_geoid_file);
+		p.n.ntv2_geoid_file = gsbFile.stem().string() + gsbFile.extension().string() + ".gsb";
 		strcpy(ntv2.filename, p.n.ntv2_geoid_file.c_str());
+		strcpy(ntv2.filetype, GSB);
+	}
 	else
-		strcpy(ntv2.filename, (p.n.rdat_geoid_file + "." + NTV2_TYPE_GSB).c_str());
+	{
+		string extension(GetFileType(p.n.ntv2_geoid_file));
+		if (extension.empty())
+		{
+			cout << endl << "- Error: NTv2 grid file type cannot be determined from a file without a file extension. " << endl << endl;
+			return EXIT_FAILURE;
+		}
+
+		if (!iequals(extension.substr(1), GSB) &&
+			!iequals(extension.substr(1), ASC))
+		{
+			cout << endl << "- Error: NTv2 grid file type cannot be determined from file extension \"" << extension << "\"." << endl << 
+				"         Supported types are ." << GSB << " and ." << ASC << " only." << endl << endl;
+			return EXIT_FAILURE;
+		}
+
+		if (vm.count(EXPORT_NTV2_ASCII_FILE) &&
+			iequals(extension.substr(1), ASC))
+		{
+			cout << endl << "- Error: Export to ASCII NTv2 grid file option only supported for " << GSB " grid files." << endl << endl;
+			return EXIT_FAILURE;
+		}
+
+		if (vm.count(EXPORT_NTV2_BINARY_FILE) &&
+			iequals(extension.substr(1), GSB))
+		{
+			cout << endl << "- Error: Export to Binary NTv2 grid file option only supported for " << ASC " grid files." << endl << endl;
+			return EXIT_FAILURE;
+		}
+
+		strcpy(ntv2.filename, p.n.ntv2_geoid_file.c_str());
+		strcpy(ntv2.filetype, extension.substr(1).c_str());
+	}	
 	
 	if (vm.count(QUIET))
 		p.g.quiet = 1;
@@ -728,6 +795,16 @@ int main(int argc, char* argv[])
 
 		}
 
+		if (vm.count(EXPORT_NTV2_ASCII_FILE) ||
+			vm.count(EXPORT_NTV2_BINARY_FILE))
+		{
+			cout << setw(PRINT_VAR_PAD) << left << "  Export NTv2 file to: ";
+			if (vm.count(EXPORT_NTV2_ASCII_FILE))
+				cout << "ASCII (." << ASC << ")" << endl;
+			if (vm.count(EXPORT_NTV2_BINARY_FILE))
+				cout << "Binary (." << GSB << ")" << endl;
+		}
+
 		if (p.n.file_mode || vm.count(INTERACTIVE))
 		{
 			cout << setw(PRINT_VAR_PAD) << left << "  Interpolation method: ";
@@ -793,6 +870,8 @@ int main(int argc, char* argv[])
 		if (ntv2.ptrIndex)
 			delete [] ntv2.ptrIndex;
 
+		cout << "+ Geoid file creation completed successfully." << endl << endl;
+
 		return EXIT_SUCCESS;
 	}
 	else if (vm.count(EXPORT_NTV2_ASCII_FILE))
@@ -803,9 +882,11 @@ int main(int argc, char* argv[])
 			return EXIT_FAILURE;
 		}
 
-		if (!ExportNTv2GridToAscii(&g, p.n.ntv2_geoid_file.c_str(), NTV2_TYPE_GSB, NTV2_TYPE_ASC))
+		if (!ExportNTv2GridToAscii(&g, ntv2.filename, ntv2.filetype, ASC))
 			return EXIT_FAILURE;
 		
+		cout << "+ Geoid file creation completed successfully." << endl << endl;
+
 		return EXIT_SUCCESS;
 	}
 	else if (vm.count(EXPORT_NTV2_BINARY_FILE))
@@ -816,9 +897,11 @@ int main(int argc, char* argv[])
 			return EXIT_FAILURE;
 		}
 
-		if (!ExportNTv2GridToBinary(&g, p.n.ntv2_geoid_file.c_str(), NTV2_TYPE_ASC, NTV2_TYPE_GSB))
+		if (!ExportNTv2GridToBinary(&g, ntv2.filename, ntv2.filetype, GSB))
 			return EXIT_FAILURE;
-		
+
+		cout << "+ Geoid file creation completed successfully." << endl << endl;
+
 		return EXIT_SUCCESS;
 	}
 
@@ -852,10 +935,15 @@ int main(int argc, char* argv[])
 		if (!createGridIndex(&g, ntv2.filename, ntv2.filetype, p.g.quiet))
 			return EXIT_FAILURE;
 
-		if (!InterpolateGridPoint(&g, ntv2.filename, &apInterpolant, 
+		if (!InterpolateGridPoint(&g, ntv2.filename, &apInterpolant,
 			p.n.interpolation_method, p.n.coordinate_format, inputLatitude, inputLongitude))
+		{
+			cout << endl;
+			if (apInterpolant.cVar.IO_Status == ERR_FINDSUBGRID_OUTSIDE)
+				reportGridProperties(&g, ntv2.filename, ntv2.filetype);
+
 			return EXIT_FAILURE;
-		
+		}
 		return EXIT_SUCCESS;
 	}
 	 
