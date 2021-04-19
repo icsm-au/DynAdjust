@@ -58,6 +58,51 @@ bool CreateNTv2Grid(dna_geoid_interpolation* g, const char* dat_gridfilePath, co
 	return true;
 }
 
+	
+bool ExportNTv2GridToAscii(dna_geoid_interpolation* g, const char* dat_gridfilePath, const char* gridfileType, const char* exportfileType)
+{
+	string outfile(dat_gridfilePath);
+	outfile.append(".").append(exportfileType);
+
+	int ioStatus;
+	
+	try {
+		g->ExportToAscii(dat_gridfilePath, gridfileType, outfile.c_str(), &ioStatus);
+	}
+	catch (const NetGeoidException& e) {
+		cout << endl << "- Error: " << e.what() << endl;
+		return false;
+	}
+	cout << endl;
+
+	reportGridProperties(g, outfile.c_str(), exportfileType);
+
+	return true;
+}
+
+
+	
+bool ExportNTv2GridToBinary(dna_geoid_interpolation* g, const char* dat_gridfilePath, const char* gridfileType, const char* exportfileType)
+{
+	string outfile(dat_gridfilePath);
+	outfile.append(".").append(exportfileType);
+
+	int ioStatus;
+	
+	try {
+		g->ExportToBinary(dat_gridfilePath, gridfileType, outfile.c_str(), &ioStatus);
+	}
+	catch (const NetGeoidException& e) {
+		cout << endl << "- Error: " << e.what() << endl;
+		return false;
+	}
+	cout << endl;
+
+	reportGridProperties(g, outfile.c_str(), exportfileType);
+
+	return true;
+}
+
 
 	
 bool createGridIndex(dna_geoid_interpolation* g, const char* gridfilePath, const char* gridfileType, const int& quiet)
@@ -248,11 +293,13 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 		return EXIT_FAILURE;
 	}
 
-	if (!vm.count(NETWORK_NAME) &&		// User wants to populate a binary station file for a particular DynAdjust project
-		!vm.count(INTERACTIVE) &&		// User wants to interpolate geoid information from the command line
-		!vm.count(CREATE_NTV2) &&		// User wants to create a NTv2 grid file
-		!vm.count(SUMMARY) &&			// User wants to print to the screen the details of the grid file
-		!vm.count(INPUT_FILE))			// User wants to interpolate geoid information in text file mode
+	if (!vm.count(NETWORK_NAME) &&				// User wants to populate a binary station file for a particular DynAdjust project
+		!vm.count(INTERACTIVE) &&				// User wants to interpolate geoid information from the command line
+		!vm.count(CREATE_NTV2) &&				// User wants to create a NTv2 grid file
+		!vm.count(SUMMARY) &&					// User wants to print to the screen the details of the grid file
+		!vm.count(INPUT_FILE) &&				// User wants to interpolate geoid information in text file mode
+		!vm.count(EXPORT_NTV2_ASCII_FILE) &&	// User wants to export a geoid file to ASCII
+		!vm.count(EXPORT_NTV2_BINARY_FILE))		// User wants to export a geoid file to binary
 	{
 		cout << endl << "- Nothing to do - no standard options specified. " << endl << endl;
 		return EXIT_FAILURE;
@@ -484,6 +531,10 @@ int main(int argc, char* argv[])
 		export_options.add_options()
 			(EXPORT_GEO_FILE, 
 				"Create a DNA geoid file from interpolated geoid information.")
+			(EXPORT_NTV2_ASCII_FILE,
+				"Export a binary NTv2 geoid file to ASCII (.asc) format.")
+			(EXPORT_NTV2_BINARY_FILE,
+				"Export an ASCII NTv2 geoid file to binary (.gsb) format.")
 			;
 
 		generic_options.add_options()
@@ -572,8 +623,9 @@ int main(int argc, char* argv[])
 		return EXIT_SUCCESS;
 	}
 
-	const char* const NTV2_TYPE = "gsb";
-	strcpy(ntv2.filetype, NTV2_TYPE);
+	const char* const NTV2_TYPE_ASC = "asc";
+	const char* const NTV2_TYPE_GSB = "gsb";
+	strcpy(ntv2.filetype, NTV2_TYPE_GSB);
 	
 	if (ParseCommandLineOptions(argc, argv, vm, p) != EXIT_SUCCESS)
 		return EXIT_FAILURE;
@@ -587,7 +639,7 @@ int main(int argc, char* argv[])
 	if (!p.n.ntv2_geoid_file.empty())
 		strcpy(ntv2.filename, p.n.ntv2_geoid_file.c_str());
 	else
-		strcpy(ntv2.filename, (p.n.rdat_geoid_file + "." + NTV2_TYPE).c_str());
+		strcpy(ntv2.filename, (p.n.rdat_geoid_file + "." + NTV2_TYPE_GSB).c_str());
 	
 	if (vm.count(QUIET))
 		p.g.quiet = 1;
@@ -741,6 +793,32 @@ int main(int argc, char* argv[])
 		if (ntv2.ptrIndex)
 			delete [] ntv2.ptrIndex;
 
+		return EXIT_SUCCESS;
+	}
+	else if (vm.count(EXPORT_NTV2_ASCII_FILE))
+	{
+		if (p.n.ntv2_geoid_file.empty())
+		{
+			cout << endl << "- Error: No NTv2 grid file specified. " << endl << endl;
+			return EXIT_FAILURE;
+		}
+
+		if (!ExportNTv2GridToAscii(&g, p.n.ntv2_geoid_file.c_str(), NTV2_TYPE_GSB, NTV2_TYPE_ASC))
+			return EXIT_FAILURE;
+		
+		return EXIT_SUCCESS;
+	}
+	else if (vm.count(EXPORT_NTV2_BINARY_FILE))
+	{
+		if (p.n.ntv2_geoid_file.empty())
+		{
+			cout << endl << "- Error: No NTv2 grid file specified. " << endl << endl;
+			return EXIT_FAILURE;
+		}
+
+		if (!ExportNTv2GridToBinary(&g, p.n.ntv2_geoid_file.c_str(), NTV2_TYPE_ASC, NTV2_TYPE_GSB))
+			return EXIT_FAILURE;
+		
 		return EXIT_SUCCESS;
 	}
 

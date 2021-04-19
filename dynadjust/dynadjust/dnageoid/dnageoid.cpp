@@ -1244,7 +1244,7 @@ void dna_geoid_interpolation::CreateNTv2File(const char* datFile, const n_file_p
 // On Entry:  File path for Binary distortion grid file 
 // On Exit:   An ASCII grid file is created and saved to the specified file path
 /////////////////////////////////////////////////////////////////////////
-void dna_geoid_interpolation::ExportToAscii(char *gridFile, char *gridType, char *OutputGrid, int *IO_Status)
+void dna_geoid_interpolation::ExportToAscii(const char *gridFile, const char *gridType, const char *OutputGrid, int *IO_Status)
 {
 	int i, j;
 	float fTemp;
@@ -1383,7 +1383,7 @@ void dna_geoid_interpolation::ExportToAscii(char *gridFile, char *gridType, char
 // On Entry:  File path for ASCII distortion grid file 
 // On Exit:   A Binary grid file is created and saved to the specified file path
 /////////////////////////////////////////////////////////////////////////
-void dna_geoid_interpolation::ExportToBinary(char *gridFile, char *gridType, char *OutputGrid, int *IO_Status)
+void dna_geoid_interpolation::ExportToBinary(const char *gridFile, const char *gridType, const char *OutputGrid, int *IO_Status)
 {
 	*IO_Status = ERR_TRANS_SUCCESS;
 	m_dPercentComplete = 0.0;
