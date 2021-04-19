@@ -63,8 +63,8 @@ bool CreateNTv2Grid(dna_geoid_interpolation* g, const char* dat_gridfilePath, co
 	
 bool ExportNTv2GridToAscii(dna_geoid_interpolation* g, const char* dat_gridfilePath, const char* gridfileType, const char* exportfileType)
 {
-	string outfile(dat_gridfilePath);
-	outfile.append(".").append(exportfileType);
+	path asciiGridFile(dat_gridfilePath);
+	string outfile = asciiGridFile.filename().string() + "." + exportfileType;
 
 	int ioStatus;
 	
@@ -91,8 +91,8 @@ bool ExportNTv2GridToAscii(dna_geoid_interpolation* g, const char* dat_gridfileP
 	
 bool ExportNTv2GridToBinary(dna_geoid_interpolation* g, const char* dat_gridfilePath, const char* gridfileType, const char* exportfileType)
 {
-	string outfile(dat_gridfilePath);
-	outfile.append(".").append(exportfileType);
+	path asciiGridFile(dat_gridfilePath);
+	string outfile = asciiGridFile.filename().string() + "." + exportfileType;
 
 	int ioStatus;
 	
