@@ -2508,10 +2508,10 @@ int dna_geoid_interpolation::OpenGridFile(const char *filename, const char *file
 		if (gridType == TYPE_ASC)		// ascii
 		{
 			getline(*pgrid_ifs, sBuf);
-			strcpy(ptheGrid->ptrIndex[i].chSubname, trimstr(sBuf.substr(OVERVIEW_RECS)).c_str());
+			strcpy(ptheGrid->ptrIndex[i].chSubname, sBuf.substr(OVERVIEW_RECS).c_str());
 			
 			getline(*pgrid_ifs, sBuf);
-			strcpy(ptheGrid->ptrIndex[i].chParent, trimstr(sBuf.substr(OVERVIEW_RECS)).c_str());
+			strcpy(ptheGrid->ptrIndex[i].chParent, sBuf.substr(OVERVIEW_RECS).c_str());
 
 			getline(*pgrid_ifs, sBuf);
 			strcpy(ptheGrid->ptrIndex[i].chCreated, trimstr(sBuf.substr(OVERVIEW_RECS)).c_str());
