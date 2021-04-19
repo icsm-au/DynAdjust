@@ -165,11 +165,18 @@ if (BUILD_TESTING)
     message (STATUS "Configuring tests")
     
     # test execution of dynadjust binaries
-    # 1. gnss network (simultaneous)
+    # 1. gnss network (simultaneous, phased-block 1)
     add_test (NAME import-gnss-network COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.msr --export-dna --export-xml --export-asl --export-aml --export-map --output-msr-to-stn --test-integrity -r GDA94) 
     add_test (NAME geoid-gnss-network COMMAND $<TARGET_FILE:dnageoidwrapper> gnss -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb --convert-stn-hts --export-dna-geo)
     add_test (NAME reftran-gnss-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r gda2020 --export-dna --export-xml)
     add_test (NAME adjust-gnss-network COMMAND $<TARGET_FILE:dnaadjustwrapper> gnss --output-adj-msr --export-dna-msr --export-xml-msr)
+    file (COPY ${CMAKE_SOURCE_DIR}/../sampleData/gnss_b1.net DESTINATION ./)
+    add_test (NAME import-gnss-network-block1 COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss_b1 ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.msr --export-dna --export-xml --export-asl --export-aml --export-map --output-msr-to-stn --test-integrity -r GDA94) 
+    add_test (NAME segment-gnss-network-block1-a COMMAND $<TARGET_FILE:dnasegmentwrapper> gnss_b1 --min 90 --max 90 --starting-stns 220700210)
+    add_test (NAME segment-gnss-network-block1-b COMMAND $<TARGET_FILE:dnasegmentwrapper> gnss_b1 --min 110 --max 110 --net-file)
+    add_test (NAME segment-gnss-network-block1-c COMMAND $<TARGET_FILE:dnasegmentwrapper> gnss_b1 --min 80 --max 200 --net-file --starting-stns 211300940 --verbose 3)
+    add_test (NAME adjust-gnss-network-block1 COMMAND $<TARGET_FILE:dnaadjustwrapper> gnss_b1 --block1-phased --output-adj-msr --output-adj-gnss-units 1)
+    add_test (NAME adjust-gnss-network-verb COMMAND $<TARGET_FILE:dnaadjustwrapper> gnss_b1 --verbose 5)
     
     # 2. urban network (phased-sequential)
     add_test (NAME import-urban-network COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr)
@@ -192,7 +199,7 @@ if (BUILD_TESTING)
     add_test (NAME import-urban-network-stage COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban_st ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr)
     add_test (NAME geoid-urban-network-stage COMMAND $<TARGET_FILE:dnageoidwrapper> urban_st -g ${CMAKE_SOURCE_DIR}/../sampleData/urban-network-geoid.gsb --convert-stn-hts --export-dna-geo)
     add_test (NAME segment-urban-network-stage COMMAND $<TARGET_FILE:dnasegmentwrapper> urban_st --min 90 --max 90)
-    add_test (NAME adjust-urban-network-stage COMMAND $<TARGET_FILE:dnaadjustwrapper> urban_st --phased --staged-adjustment --create-stage-files --export-sinex-file --output-pos-uncertainty --export-xml-stn-file --export-xml-msr-file --export-dna-stn-file --export-dna-msr)
+    add_test (NAME adjust-urban-network-stage COMMAND $<TARGET_FILE:dnaadjustwrapper> urban_st --phased --staged-adjustment --create-stage-files --output-adj-msr --export-sinex-file --output-pos-uncertainty --export-xml-stn-file --export-xml-msr-file --export-dna-stn-file --export-dna-msr)
     
     # 5. dynadjust project mode
     file (COPY ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn DESTINATION ./)
@@ -258,7 +265,7 @@ if (BUILD_TESTING)
     # 11. measurements to stations sorting
     add_test (NAME imp-m2s-sort-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.msr --output-msr-to-stn --sort-msr-to-stn-field 1 -r GDA94) 
 
-    # 12. help modules
+    # 12. help modules and version
     add_test (NAME imp-help-01 COMMAND $<TARGET_FILE:dnaimportwrapper> --help-module standard)
     add_test (NAME imp-help-02 COMMAND $<TARGET_FILE:dnaimportwrapper> --help-module reference)
     add_test (NAME imp-help-03 COMMAND $<TARGET_FILE:dnaimportwrapper> --help-module screening)
@@ -267,6 +274,7 @@ if (BUILD_TESTING)
     add_test (NAME imp-help-06 COMMAND $<TARGET_FILE:dnaimportwrapper> --help-module output)
     add_test (NAME imp-help-07 COMMAND $<TARGET_FILE:dnaimportwrapper> --help-module export)
     add_test (NAME imp-help-08 COMMAND $<TARGET_FILE:dnaimportwrapper> --help-module generic)
+    add_test (NAME imp-version-01 COMMAND $<TARGET_FILE:dnaimportwrapper> --version)
 
     add_test (NAME geo-help-01 COMMAND $<TARGET_FILE:dnageoidwrapper> --help-module standard)
     add_test (NAME geo-help-02 COMMAND $<TARGET_FILE:dnageoidwrapper> --help-module interpolation)
@@ -275,16 +283,19 @@ if (BUILD_TESTING)
     add_test (NAME geo-help-05 COMMAND $<TARGET_FILE:dnageoidwrapper> --help-module file)
     add_test (NAME geo-help-06 COMMAND $<TARGET_FILE:dnageoidwrapper> --help-module export)
     add_test (NAME geo-help-07 COMMAND $<TARGET_FILE:dnageoidwrapper> --help-module generic)
-    
+    add_test (NAME geo-version-01 COMMAND $<TARGET_FILE:dnageoidwrapper> --version)
+
     add_test (NAME seg-help-01 COMMAND $<TARGET_FILE:dnasegmentwrapper> --help-module standard)
     add_test (NAME seg-help-02 COMMAND $<TARGET_FILE:dnasegmentwrapper> --help-module configuration)
     add_test (NAME seg-help-03 COMMAND $<TARGET_FILE:dnasegmentwrapper> --help-module generic)
-    
+    add_test (NAME seg-version-01 COMMAND $<TARGET_FILE:dnasegmentwrapper> --version)
+
     add_test (NAME ref-help-01 COMMAND $<TARGET_FILE:dnareftranwrapper> --help-module standard)
     add_test (NAME ref-help-02 COMMAND $<TARGET_FILE:dnareftranwrapper> --help-module transformation)
     add_test (NAME ref-help-03 COMMAND $<TARGET_FILE:dnareftranwrapper> --help-module export)
     add_test (NAME ref-help-04 COMMAND $<TARGET_FILE:dnareftranwrapper> --help-module generic)
-    
+    add_test (NAME ref-version-01 COMMAND $<TARGET_FILE:dnareftranwrapper> --version)
+
     add_test (NAME adj-help-01 COMMAND $<TARGET_FILE:dnaadjustwrapper> --help-module standard)
     add_test (NAME adj-help-02 COMMAND $<TARGET_FILE:dnaadjustwrapper> --help-module adjustment)
     add_test (NAME adj-help-03 COMMAND $<TARGET_FILE:dnaadjustwrapper> --help-module phased)
@@ -293,13 +304,19 @@ if (BUILD_TESTING)
     add_test (NAME adj-help-06 COMMAND $<TARGET_FILE:dnaadjustwrapper> --help-module output)
     add_test (NAME adj-help-07 COMMAND $<TARGET_FILE:dnaadjustwrapper> --help-module export)
     add_test (NAME adj-help-08 COMMAND $<TARGET_FILE:dnaadjustwrapper> --help-module generic)
+    add_test (NAME adj-version-01 COMMAND $<TARGET_FILE:dnaadjustwrapper> --version)
 
     add_test (NAME plt-help-01 COMMAND $<TARGET_FILE:dnaplotwrapper> --help-module standard)
     add_test (NAME plt-help-02 COMMAND $<TARGET_FILE:dnaplotwrapper> --help-module data)
     add_test (NAME plt-help-03 COMMAND $<TARGET_FILE:dnaplotwrapper> --help-module mapping)
     add_test (NAME plt-help-04 COMMAND $<TARGET_FILE:dnaplotwrapper> --help-module pdf)
     add_test (NAME plt-help-05 COMMAND $<TARGET_FILE:dnaplotwrapper> --help-module generic)
-    
+    add_test (NAME plt-version-01 COMMAND $<TARGET_FILE:dnaplotwrapper> --version)
+
+    add_test (NAME dyn-help-01 COMMAND $<TARGET_FILE:dynadjust> --help-module standard)
+    add_test (NAME dyn-help-02 COMMAND $<TARGET_FILE:dynadjust> --help-module generic)
+    add_test (NAME dyn-version-01 COMMAND $<TARGET_FILE:dynadjust> --version)
+
     # set execution dependencies (the execution of tests must be sequential)
     set_tests_properties(
         import-gnss-network geoid-gnss-network adjust-gnss-network

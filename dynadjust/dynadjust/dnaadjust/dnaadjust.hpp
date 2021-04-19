@@ -276,6 +276,7 @@ public:
 
 	UINT32 CurrentIteration() const;
 	UINT32& incrementIteration();
+	void initialiseIteration(const UINT32& iteration = 0);
 	
 	inline UINT32 CurrentBlock() const { 
 		return currentBlock_;
