@@ -252,6 +252,7 @@ void CRegProc::SaveTFString(FILE* fout, char* s, int iLen)
 CString CRegProc::GetTFString(FILE* fin, int iLen)
 {
 	char* str = new char[iLen+1];
+	memset(str, '\0', iLen);
 	fread(&(*str), sizeof(char), iLen, fin);
 	CString s = str;
 	delete []str;
