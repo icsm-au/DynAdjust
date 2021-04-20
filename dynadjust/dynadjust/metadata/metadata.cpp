@@ -597,7 +597,7 @@ int main(int argc, char* argv[])
 
 		// Close input file
 		try {
-			if (ifsDynaML_ != 0)
+			if (ifsDynaML_)
 			{
 				if (ifsDynaML_->good())
 					ifsDynaML_->close();
@@ -610,7 +610,7 @@ int main(int argc, char* argv[])
 			{
 				ifsDynaML_ = 0;
 			}
-			cout << "- Error: An error was encountered when opening " << input_file << "." << endl << endl << e.what() << endl << "  Check that the file exists and that the file is not already opened.";
+			cout << "- Error: An error was encountered when closing " << input_file << "." << endl << endl << e.what() << endl << "  Check that the file exists and that the file is not already opened.";
 			return EXIT_FAILURE;
 		}
 
@@ -618,7 +618,7 @@ int main(int argc, char* argv[])
 
 		// Close output file
 		try {
-			if (ofsDynaML_ != 0)
+			if (ofsDynaML_)
 			{
 				if (ofsDynaML_->good())
 					ofsDynaML_->close();
@@ -631,7 +631,7 @@ int main(int argc, char* argv[])
 			{
 				ofsDynaML_ = 0;
 			}
-			cout << "- Error: An error was encountered when opening " << output_file << "." << endl << endl << e.what() << endl;
+			cout << "- Error: An error was encountered when closing " << output_file << "." << endl << endl << e.what() << endl;
 			return EXIT_FAILURE;
 		}
 
