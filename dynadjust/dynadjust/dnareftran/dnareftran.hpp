@@ -82,7 +82,7 @@ using namespace dynadjust::geometries;
 namespace dynadjust {
 namespace referenceframe {
 
-// This class is exported from the dnaSegment.dll
+// This class is exported from the dnaReftran.dll
 #ifdef _MSC_VER
 class DNAREFTRAN_API dna_reftran {
 #else

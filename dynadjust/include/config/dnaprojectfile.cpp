@@ -436,6 +436,30 @@ void CDnaProjectFile::InitialiseReftranSettings()
 	string firstPart(settings_.g.output_folder + FOLDER_SLASH + settings_.g.network_name + ".");
 	settings_.r.bst_file = firstPart + "bst";	// binary stations file
 	settings_.r.bms_file = firstPart + "bms";	// binary measurements file
+	settings_.r.rft_file = firstPart + "rft";	// log
+
+	if (settings_.i.export_dynaml == 1)
+	{
+		if (settings_.i.export_single_xml_file == 1)
+			settings_.i.xml_outfile = firstPart + "xml";		// single XML file
+		else
+		{
+			settings_.i.xml_stnfile = formPath<string>(settings_.g.output_folder,
+				settings_.g.network_name + "stn", "xml");
+			settings_.i.xml_msrfile = formPath<string>(settings_.g.output_folder,
+				settings_.g.network_name + "msr", "xml");;
+		}
+	}
+
+	if (settings_.i.export_dna_files == 1)
+	{
+		settings_.i.dna_stnfile = firstPart + "stn";	// station file
+		settings_.i.dna_msrfile = firstPart + "msr";	// measurement file
+	}
+	
+	if (settings_.o._export_snx_file == 1)
+		settings_.o._snx_file = firstPart + "snx";		// SINEX file
+
 }
 
 void CDnaProjectFile::InitialiseGeoidSettings()
@@ -1333,6 +1357,12 @@ void CDnaProjectFile::LoadSettingOutput(const settingMode mSetting, const string
 			return;
 		settings_.o._msr_to_stn = yesno_uint<UINT16, string>(val);
 	}
+	else if (iequals(var, OUTPUT_MSR_TO_STN_SORTBY))
+	{
+		if (val.empty())
+			return;
+		settings_.o._sort_msr_to_stn = lexical_cast<UINT16, string>(val);
+	}
 	else if (iequals(var, OUTPUT_ADJ_STN_ITER))
 	{
 		if (val.empty())
@@ -1837,6 +1867,7 @@ void CDnaProjectFile::PrintProjectFile()
 
 	PrintRecord(dnaproj_file, OUTPUT_MSR_TO_STN, 
 		yesno_string(settings_.o._msr_to_stn));
+	PrintRecord(dnaproj_file, OUTPUT_MSR_TO_STN_SORTBY, settings_.o._sort_msr_to_stn);
 	PrintRecord(dnaproj_file, OUTPUT_ADJ_STN_ITER, 
 		yesno_string(settings_.o._adj_stn_iteration));
 	PrintRecord(dnaproj_file, OUTPUT_ADJ_STAT_ITER, 

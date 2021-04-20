@@ -442,10 +442,11 @@ public:
 		, _snx_file(""), _xml_file(""), _cor_file(""), _apu_file("")
 		, _adj_stn_iteration(0), _adj_msr_iteration(0), _cmp_msr_iteration(0), _adj_stat_iteration(0)
 		, _adj_msr_final(0), _adj_msr_tstat(0), _database_ids(0), _print_ignored_msrs(0), _adj_gnss_units(0)
-		, _output_stn_blocks(0), _output_msr_blocks(0), _sort_stn_file_order(0), _sort_adj_msr(0)
+		, _output_stn_blocks(0), _output_msr_blocks(0), _sort_stn_file_order(0), _sort_adj_msr(0), _sort_msr_to_stn(0)
 		, _init_stn_corrections(0), _msr_to_stn(0), _stn_corr(0), _positional_uncertainty(0)
 		, _apu_vcv_units(0), _output_pu_covariances(0)
-		, _export_xml_stn_file(0), _export_dna_stn_file(0), _export_snx_file(false)
+		, _export_xml_stn_file(0), _export_xml_msr_file(0), _export_dna_stn_file(0), _export_dna_msr_file(0)
+		, _export_snx_file(0)
 		, _hz_corr_threshold(0.0), _vt_corr_threshold(0.0)
 		, _stn_coord_types("PLHhXYZ"), _angular_type_stn(DMS)
 		, _precision_seconds_stn(5), _precision_metres_stn(4), _precision_seconds_msr(4), _precision_metres_msr(4)
@@ -464,6 +465,7 @@ public:
 			_adj_msr_final == o._adj_msr_final && _adj_msr_tstat == o._adj_msr_tstat &&
 			_database_ids == o._database_ids && _print_ignored_msrs == o._print_ignored_msrs &&
 			_sort_adj_msr == o._sort_adj_msr &&
+			_sort_msr_to_stn == o._sort_msr_to_stn &&
 			_adj_gnss_units == o._adj_gnss_units &&
 			_init_stn_corrections == o._init_stn_corrections && _msr_to_stn == o._msr_to_stn &&
 			_output_pu_covariances == o._output_pu_covariances &&
@@ -475,7 +477,9 @@ public:
 			_precision_metres_msr == o._precision_metres_msr && _precision_seconds_msr == o._precision_seconds_msr &&
 			_angular_type_msr == o._angular_type_msr && _dms_format_msr == o._dms_format_msr &&
 			_export_xml_stn_file == o._export_xml_stn_file &&
+			_export_xml_msr_file == o._export_xml_msr_file &&
 			_export_dna_stn_file == o._export_dna_stn_file &&
+			_export_dna_msr_file == o._export_dna_msr_file &&
 			_export_snx_file == o._export_snx_file;
 	}
 
@@ -500,6 +504,7 @@ public:
 	UINT16			_output_msr_blocks;		// For phased adjustments, output adjusted measurement information for each segmented block.
 	UINT16			_sort_stn_file_order;	// Outputs stations in original station file sort order
 	UINT16			_sort_adj_msr;			// Field by which adjusted measurements are sorted
+	UINT16			_sort_msr_to_stn;		// Field by which measurement to station connectivity summary is sorted
 	UINT16			_init_stn_corrections;	// Output corrections (azimuth, distance, e, n, up) to initial station coordinates
 	UINT16			_msr_to_stn;			// Output summary of measurements connected to each station
 	UINT16			_stn_corr;				// Output station corrections to station file.
@@ -507,7 +512,9 @@ public:
 	UINT16			_apu_vcv_units;			// Units of the VCV elements to be printed to the apu file
 	UINT16			_output_pu_covariances;	// Output covariances between adjusted station coordinates to .apu file.
 	UINT16			_export_xml_stn_file;	// Create a DynaML stn file
+	UINT16			_export_xml_msr_file;	// Create a DynaML msr file
 	UINT16			_export_dna_stn_file;	// Create a DNA stn file
+	UINT16			_export_dna_msr_file;	// Create a DNA msr file
 	UINT16			_export_snx_file;		// Create a sinex file from the adjustment
 	double			_hz_corr_threshold;		// Minimum horizontal threshold for station corrections
 	double			_vt_corr_threshold;		// Minimum vertical threshold for station corrections

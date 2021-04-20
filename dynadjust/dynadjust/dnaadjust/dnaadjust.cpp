@@ -57,6 +57,8 @@ dna_adjust::dna_adjust()
 	, isCombining_(false)
 	, forward_(true)
 	, isFirstTimeAdjustment_(true)
+	, isIterationComplete_(false)
+	, isAdjustmentQuestionable_(false)
 	, blockCount_(1)
 	, currentBlock_(0)
 	, total_time_(0)
@@ -153,65 +155,7 @@ dna_adjust::dna_adjust()
 		v_correctionsR_.clear();
 	}
 }
-
-//dna_adjust::dna_adjust(const dna_adjust& newdnaAdjust)
-//{	
-//	isAdjusting_ = newdnaAdjust.isAdjusting_;
-//	adjustStatus_ = newdnaAdjust.adjustStatus_;
-//	statusMessages_ = newdnaAdjust.statusMessages_;
-//	currentBlock_ = newdnaAdjust.currentBlock_;
-//	currentIteration_ = newdnaAdjust.currentIteration_;
-//	projectSettings_ = newdnaAdjust.projectSettings_;
-//	bstBinaryRecords_ = newdnaAdjust.bstBinaryRecords_;
-//	bmsBinaryRecords_ = newdnaAdjust.bmsBinaryRecords_;
-//	bmsr_count_ = newdnaAdjust.bmsr_count_;
-//	bstn_count_ = newdnaAdjust.bstn_count_;
-//	asl_count_ = newdnaAdjust.asl_count_;
-//	memcpy(debug_file, newdnaAdjust.debug_file, sizeof(debug_file));
-//	adjustProgress_ = newdnaAdjust.adjustProgress_;
-//
-//	chiSquared_ = newdnaAdjust.chiSquared_;
-//	sigmaZero_ = newdnaAdjust.sigmaZero_;
-//	sigmaZeroSqRt_ = newdnaAdjust.sigmaZeroSqRt_;
-//	chiSquaredUpperLimit_ = newdnaAdjust.chiSquaredUpperLimit_;
-//	chiSquaredLowerLimit_ = newdnaAdjust.chiSquaredLowerLimit_;
-//	globalPelzerReliability_ = newdnaAdjust.globalPelzerReliability_;
-//	degreesofFreedom_ = newdnaAdjust.degreesofFreedom_;
-//	measurementParams_ = newdnaAdjust.measurementParams_;
-//	measurementCount_ = newdnaAdjust.measurementCount_;
-//	unknownParams_ = newdnaAdjust.unknownParams_;
-//	unknownsCount_ = newdnaAdjust.unknownsCount_;
-//	
-//	v_pseudoMeasCountFwd_ = newdnaAdjust.v_pseudoMeasCountFwd_;
-//	v_measurementParams_ = newdnaAdjust.v_measurementParams_;
-//	v_measurementCount_ = newdnaAdjust.v_measurementCount_;
-//	v_unknownParams_ = newdnaAdjust.v_unknownParams_;
-//	v_unknownsCount_ = newdnaAdjust.v_unknownsCount_;
-//	v_sigmaZero_ = newdnaAdjust.v_sigmaZero_;
-//	v_chiSquaredUpperLimit_ = newdnaAdjust.v_chiSquaredUpperLimit_;
-//	v_chiSquaredLowerLimit_ = newdnaAdjust.v_chiSquaredLowerLimit_;
-//	v_passFail_ = newdnaAdjust.v_passFail_;
-//	
-//	v_originalStations_ = newdnaAdjust.v_originalStations_;
-//	v_design_ = newdnaAdjust.v_design_;
-//	v_measMinusComp_ = newdnaAdjust.v_measMinusComp_;
-//
-//	v_AtVinv_ = newdnaAdjust.v_AtVinv_;
-//	v_normals_ = newdnaAdjust.v_normals_;
-//	v_estimatedStations_ = newdnaAdjust.v_estimatedStations_;
-//	v_rigorousStations_ = newdnaAdjust.v_rigorousStations_;
-//	v_junctionVariances_ = newdnaAdjust.v_junctionVariances_;
-//	v_junctionVariancesFwd_ = newdnaAdjust.v_junctionVariancesFwd_;
-//	v_junctionEstimatesFwd_ = newdnaAdjust.v_junctionEstimatesFwd_;
-//	v_junctionEstimatesRev_ = newdnaAdjust.v_junctionEstimatesRev_;
-//	v_rigorousVariances_ = newdnaAdjust.v_rigorousVariances_;
-//	v_precAdjMsrsFull_ = newdnaAdjust.v_precAdjMsrsFull_;
-//	v_corrections_ = newdnaAdjust.v_corrections_;
-//	v_blockStationsMap_ = newdnaAdjust.v_blockStationsMap_;
-//
-//	v_parameterStationCount_ = newdnaAdjust.v_parameterStationCount_;
-//	v_parameterStationList_ = newdnaAdjust.v_parameterStationList_;
-//}
+	
 
 dna_adjust::~dna_adjust()
 {
@@ -258,6 +202,14 @@ UINT32& dna_adjust::incrementIteration()
 	return ++currentIteration_; 
 }
 
+void dna_adjust::initialiseIteration(const UINT32& iteration) 
+{ 
+#ifdef MULTI_THREAD_ADJUST
+	boost::lock_guard<boost::mutex> lock(current_iterationMutex);
+#endif
+	currentIteration_ = iteration; 
+}
+
 void dna_adjust::InitialiseAdjustment()
 {
 	adj_file << endl << "+ Initialising adjustment" << endl;
@@ -276,7 +228,7 @@ void dna_adjust::InitialiseAdjustment()
 	adjustStatus_ = ADJUST_SUCCESS;
 	statusMessages_.clear();
 	currentBlock_ = 0;
-	currentIteration_ = 0;
+	initialiseIteration();
 	
 	bstBinaryRecords_.clear();
 	bmsBinaryRecords_.clear();
@@ -2385,6 +2337,8 @@ void dna_adjust::FormConstraintStationVarianceMatrix(
 _ADJUST_STATUS_ dna_adjust::AdjustNetwork()
 {
 	isAdjusting_ = true;
+	isIterationComplete_ = false;
+	isAdjustmentQuestionable_ = false;
 	iterationCorrections_.clear_messages();
 
 	if (projectSettings_.o._database_ids)
@@ -2678,7 +2632,7 @@ void dna_adjust::PrintPositionalUncertainty()
 			PrintPosUncertainties(apu_file, block, 
 				&v_rigorousVariances_.at(block));
 
-			// unload previous block
+			// unload this block
 			if (projectSettings_.a.stage)
 				UnloadBlock(block, 1, 
 					sf_rigorous_vars);
@@ -2756,7 +2710,6 @@ void dna_adjust::PrintNetworkStationCorrections()
 	
 	cor_file.close();
 }
-	
 
 bool dna_adjust::PrintEstimatedStationCoordinatestoSNX(string& sinex_filename)
 {
@@ -2788,9 +2741,14 @@ bool dna_adjust::PrintEstimatedStationCoordinatestoSNX(string& sinex_filename)
 			ssBlock << "-block" << block + 1;
 			sinexFilename += ssBlock.str();
 
+			// if staged, load up the block from memory mapped files
+			if (projectSettings_.a.stage)
+				DeserialiseBlockFromMappedFile(block, 2, 
+					sf_rigorous_stns, sf_rigorous_vars);
+
 			estimates = &v_rigorousStations_.at(block);
 			variances = &v_rigorousVariances_.at(block);
-
+			break;
 		case SimultaneousMode:
 			estimates = &v_estimatedStations_.at(block);
 			variances = &v_normals_.at(block);
@@ -2829,6 +2787,12 @@ bool dna_adjust::PrintEstimatedStationCoordinatestoSNX(string& sinex_filename)
 			SignalExceptionAdjustment(e.what(), 0);
 		}
 
+		if (projectSettings_.a.adjust_mode == PhasedMode)
+			// if staged, unload the block
+			if (projectSettings_.a.stage)
+				UnloadBlock(block, 2, 
+					sf_rigorous_stns, sf_rigorous_vars);
+
 		sinex_file.close();
 
 		if (!snx.warnings_exist())
@@ -2852,8 +2816,177 @@ bool dna_adjust::PrintEstimatedStationCoordinatestoSNX(string& sinex_filename)
 	return success;
 }
 		
+void dna_adjust::PrintEstimatedStationCoordinatestoDNAXML_Y(const string& msrFile, INPUT_FILE_TYPE t)
+{
+	// Measurements
+	std::ofstream msr_file;
+	try {
+		// Create STN/XML file. 
+		file_opener(msr_file, msrFile);
+	}
+	catch (const runtime_error& e) {
+		SignalExceptionAdjustment(e.what(), 0);
+	}
+
+	dna_msr_fields dml, dmw;
+
+	stringstream ss;
+
+	try {
+	
+		UINT32 count(static_cast<UINT32>(v_blockStationsMapUnique_.size()));
+		ss << "Source data:  Coordinates and uncertainties for " << 
+			count << " unique stations in " << blockCount_ << " blocks " <<
+			"estimated from least squares adjustment.";
+		string headerComment(ss.str());
+		
+		// print header
+		switch (t)
+		{
+		case dynaml:
+
+			// Write header and comments
+			dynaml_header(msr_file, "Measurement File", datum_.GetName(), datum_.GetEpoch_s());
+			dynaml_comment(msr_file, "File type:    Measurement file");
+			dynaml_comment(msr_file, "Project name: " + projectSettings_.g.network_name);
+			dynaml_comment(msr_file, headerComment);
+			dynaml_comment(msr_file, "Adj file:     " + projectSettings_.o._adj_file);
+			break;
+
+		case dna:
+
+			// get file format field widths
+			determineDNAMSRFieldParameters<UINT16>("3.01", dml, dmw);
+
+			// Write header and comments
+			dna_header(msr_file, "3.01", "MSR", datum_.GetName(), datum_.GetEpoch_s(), blockCount_);
+			dna_comment(msr_file, "File type:    Measurement file");
+			dna_comment(msr_file, "Project name: " + projectSettings_.g.network_name);
+			dna_comment(msr_file, headerComment);
+			dna_comment(msr_file, "Adj file:     " + projectSettings_.o._adj_file);
+			break;
+		default:
+			break;
+		}
+	}
+	catch (const std::ofstream::failure& f) {
+		SignalExceptionAdjustment(f.what(), 0);
+	}
+	catch (const XMLInteropException& e)  {
+		SignalExceptionAdjustment(e.what(), 0);
+	}
+	catch (const runtime_error& e) {
+		SignalExceptionAdjustment(e.what(), 0);
+	}
+
+	try
+	{	
+		matrix_2d *estimates = nullptr, *variances = nullptr;
+		dnaMsrPtr msr_ptr;
+		string comment;
+
+		// Create a Y cluster for each block
+		for (UINT32 block(0); block<blockCount_; ++block)
+		{
+			// Get the appropriate coordinate and uncertainty estimates
+			switch (projectSettings_.a.adjust_mode)
+			{
+			case Phased_Block_1Mode:
+				if (block > 0)
+				{
+					block = blockCount_;
+					continue;
+				}
+			case PhasedMode:
+				
+				// if staged, load up the block from memory mapped files
+				if (projectSettings_.a.stage)
+					DeserialiseBlockFromMappedFile(block, 2, 
+						sf_rigorous_stns, sf_rigorous_vars);
+
+				estimates = &v_rigorousStations_.at(block);
+				variances = &v_rigorousVariances_.at(block);
+				break;
+			case SimultaneousMode:
+				estimates = &v_estimatedStations_.at(block);
+				variances = &v_normals_.at(block);
+			}
+
+			msr_ptr.reset(new CDnaGpsPointCluster(block, datum_.GetName(), datum_.GetEpoch_s()));
+			msr_ptr.get()->PopulateMsr(&bstBinaryRecords_, 
+				&v_blockStationsMap_.at(block), &v_parameterStationList_.at(block), 
+				block, &datum_, estimates, variances);
+
+			if (projectSettings_.a.adjust_mode == PhasedMode)
+				// if staged, unload the block
+				if (projectSettings_.a.stage)
+					UnloadBlock(block, 2, 
+						sf_rigorous_stns, sf_rigorous_vars);
+
+			ss.str("");
+
+			// print station coordinate estimates as a GNSS Y cluster
+			switch (t)
+			{
+			case dynaml:
+				ss << endl <<
+					"    - Estimated station coordinates and uncertainties";
+				if (blockCount_ > 1)
+					ss << " for block " << (block + 1);
+				ss << endl <<
+					"    - Type (Y) GPS point cluster (set of " << v_blockStationsMap_.at(block).size() << " stations)";
+				if (blockCount_ > 1)
+				{
+					ss << ":" << endl <<
+						"      - " << v_ISL_.at(block).size() << " inner station";
+					if (v_ISL_.at(block).size() != 1)
+						ss << "s";
+					ss << endl <<
+						"      - " << v_JSL_.at(block).size() << " junction station";
+					if (v_JSL_.at(block).size() != 1)
+						ss << "s";
+					ss << endl;
+				}
+				else
+					ss << endl;
+
+				ss << " ";
+				comment = ss.str();
+				// Print station coordinate estimates in DynaML format
+				msr_ptr.get()->WriteDynaMLMsr(&msr_file, comment);
+				break;
+			case dna:
+				// Print station coordinate estimates in DNA format
+				msr_ptr.get()->WriteDNAMsr(&msr_file, dmw, dml);
+				break;
+			default:
+				break;
+			}
+		}
+
+		switch (t)
+		{
+		case dynaml:
+			msr_file << "</DnaXmlFormat>" << endl;
+			break;
+		case dna:
+		default:
+			break;
+		}
+
+		msr_file.close();
+	}
+	catch (const std::ofstream::failure& f) {
+		SignalExceptionAdjustment(f.what(), 0);
+	}
+	catch (const XMLInteropException& e)  {
+		SignalExceptionAdjustment(e.what(), 0);
+	}
+}
+	
+
 // This should be put into a class separate to dnaadjust
-void dna_adjust::PrintEstimatedStationCoordinatestoDNAXML(const string& stnFile, INPUT_FILE_TYPE t)
+void dna_adjust::PrintEstimatedStationCoordinatestoDNAXML(const string& stnFile, INPUT_FILE_TYPE t, bool flagUnused)
 {
 	// Stations
 	std::ofstream stn_file;
@@ -2922,32 +3055,51 @@ void dna_adjust::PrintEstimatedStationCoordinatestoDNAXML(const string& stnFile,
 		CompareStnFileOrder<station_t, UINT32> stnorderCompareFunc(&bstBinaryRecords_);
 		sort(vStationList.begin(), vStationList.end(), stnorderCompareFunc);
 
-		// print header
+		// print station coordinates
 		switch (t)
 		{
 		case dynaml:
 
-			// Print stations in DynaML format
-			for_each(vStationList.begin(), vStationList.end(),
-				[&stn_file, &stnPtr, this](const UINT32& stn) {
-					stnPtr->SetStationRec(bstBinaryRecords_.at(stn));
-					stnPtr->WriteDNAXMLStnCurrentEstimates(&stn_file, 
-						datum_.GetEllipsoidRef(), &projection_, dynaml);
-			});
+			if (flagUnused)
+				// Print stations in DynaML format
+				for_each(vStationList.begin(), vStationList.end(),
+					[&stn_file, &stnPtr, this](const UINT32& stn) {
+						stnPtr->SetStationRec(bstBinaryRecords_.at(stn));
+						if (stnPtr->IsNotUnused())
+							stnPtr->WriteDNAXMLStnCurrentEstimates(&stn_file,
+								datum_.GetEllipsoidRef(), &projection_, dynaml);
+				});
+			else
+				// Print stations in DynaML format
+				for_each(vStationList.begin(), vStationList.end(),
+					[&stn_file, &stnPtr, this](const UINT32& stn) {
+						stnPtr->SetStationRec(bstBinaryRecords_.at(stn));
+						stnPtr->WriteDNAXMLStnCurrentEstimates(&stn_file,
+							datum_.GetEllipsoidRef(), &projection_, dynaml);
+				});
 
 			stn_file << "</DnaXmlFormat>" << endl;
 
 			break;
 		case dna:
 
-			// Print stations in DNA format
-			for_each(vStationList.begin(), vStationList.end(),
-				[&stn_file, &stnPtr, &dsw, this](const UINT32& stn) {
-					stnPtr->SetStationRec(bstBinaryRecords_.at(stn));
-					//if (stnPtr->IsNotUnused())
-					stnPtr->WriteDNAXMLStnCurrentEstimates(&stn_file, 
-						datum_.GetEllipsoidRef(), &projection_, dna, &dsw);
-			});
+			if (flagUnused)
+				// Print stations in DNA format
+				for_each(vStationList.begin(), vStationList.end(),
+					[&stn_file, &stnPtr, &dsw, this](const UINT32& stn) {
+						stnPtr->SetStationRec(bstBinaryRecords_.at(stn));
+						if (stnPtr->IsNotUnused())
+							stnPtr->WriteDNAXMLStnCurrentEstimates(&stn_file, 
+								datum_.GetEllipsoidRef(), &projection_, dna, &dsw);
+				});
+			else
+				// Print stations in DNA format
+				for_each(vStationList.begin(), vStationList.end(),
+					[&stn_file, &stnPtr, &dsw, this](const UINT32& stn) {
+						stnPtr->SetStationRec(bstBinaryRecords_.at(stn));
+						stnPtr->WriteDNAXMLStnCurrentEstimates(&stn_file,
+							datum_.GetEllipsoidRef(), &projection_, dna, &dsw);
+				});
 
 			break;
 		default:
@@ -2957,7 +3109,7 @@ void dna_adjust::PrintEstimatedStationCoordinatestoDNAXML(const string& stnFile,
 
 		stn_file.close();
 	}
-	catch (const std::ifstream::failure& f) {
+	catch (const std::ofstream::failure& f) {
 		SignalExceptionAdjustment(f.what(), 0);
 	}
 	catch (const XMLInteropException& e)  {
@@ -3167,11 +3319,24 @@ void dna_adjust::PrintMeasurementsToStation()
 	// initialise vector with 0,1,2,...,n-2,n-1,n
 	initialiseIncrementingIntegerVector<UINT32>(vStationList, static_cast<UINT32>(bstBinaryRecords_.size()));
 	
-	// if required, sort stations according to original station file order
-	if (projectSettings_.o._sort_stn_file_order)
+	// Print measurement to station summary, sort stations as required
+	switch (projectSettings_.o._sort_msr_to_stn)
 	{
+	case meas_stn_sort_ui:
+	{
+		// sort summary according to measurement to station count
+		CompareMeasCount<CAStationList, UINT32> msrcountCompareFunc(&vAssocStnList_);
+		sort(vStationList.begin(), vStationList.end(), msrcountCompareFunc);
+	}
+	break;
+	case orig_stn_sort_ui:
+	default:
+	{
+		// sort summary according to original station file order
 		CompareStnFileOrder<station_t, UINT32> stnorderCompareFunc(&bstBinaryRecords_);
 		sort(vStationList.begin(), vStationList.end(), stnorderCompareFunc);
+	}
+	break;
 	}
 
 	// Print measurements to each station and the total count for each station
@@ -3205,7 +3370,7 @@ void dna_adjust::CloseOutputFiles()
 void dna_adjust::AdjustSimultaneous()
 {
 	adjustStatus_ = ADJUST_SUCCESS;
-	currentIteration_ = 0;
+	initialiseIteration();
 	
 	ostringstream ss;
 	string corr_msg;
@@ -3219,11 +3384,13 @@ void dna_adjust::AdjustSimultaneous()
 		if (IsCancelled())
 			break;
 
+		isIterationComplete_ = false;
+
 		blockLargeCorr_ = 0;
 		largestCorr_ = 0.0;
 
 		// Print the iteration # to adj file
-		PrintIteration(++currentIteration_);
+		PrintIteration(incrementIteration());
 
 		// Does the user want to print computed measurements on each iteration?
 		if (projectSettings_.o._cmp_msr_iteration)
@@ -3239,7 +3406,7 @@ void dna_adjust::AdjustSimultaneous()
 		//	- The network contains non-GPS measurements, in which an updated 
 		//	  normals matrix would be available based upon reformed partial
 		//	  derivatives in the design matrix
-		SolveTry(currentIteration_ < 2 || v_msrTally_.at(0).ContainsNonGPS());
+		SolveTry(CurrentIteration() < 2 || v_msrTally_.at(0).ContainsNonGPS());
 
 		// calculate and print total time
 		PrintAdjustmentTime(it_time, iteration_time);
@@ -3253,7 +3420,8 @@ void dna_adjust::AdjustSimultaneous()
 
 		// update data for messages
 		iterationCorrections_.add_message(corr_msg);
-		iterationQueue_.push_and_notify(currentIteration_);	// currentIteration begins at 1, so not zero-indexed
+		iterationQueue_.push_and_notify(CurrentIteration());	// currentIteration begins at 1, so not zero-indexed
+		isIterationComplete_ = true;
 		
 		// continue iterating?
 		iterate = !IsCancelled() && fabs(maxCorr_) > projectSettings_.a.iteration_threshold;
@@ -3302,7 +3470,8 @@ void dna_adjust::ValidateandFinaliseAdjustment(cpu_timer& tot_time)
 		return;
 	}
 
-	if (currentIteration_ == projectSettings_.a.max_iterations)
+	if (CurrentIteration() == projectSettings_.a.max_iterations &&
+		fabs(maxCorr_) > projectSettings_.a.iteration_threshold)
 		adjustStatus_ = ADJUST_MAX_ITERATIONS_EXCEEDED;
 
 	// Print status
@@ -3334,7 +3503,8 @@ void dna_adjust::PrintAdjustmentStatus()
 		break;
 	default:
 		if (adjustStatus_ == ADJUST_SUCCESS && 
-			currentIteration_ < projectSettings_.a.max_iterations)
+			CurrentIteration() <= projectSettings_.a.max_iterations &&
+			fabs(maxCorr_) <= projectSettings_.a.iteration_threshold)
 			adj_file << "Converged" << endl;
 		else
 			adj_file << "Failed to converge" << endl;
@@ -3380,7 +3550,7 @@ void dna_adjust::PrintIteration(const UINT32& iteration)
 
 void dna_adjust::AdjustPhased()
 {
-	currentIteration_ = 0;
+	initialiseIteration();
 
 	string corr_msg;
 	ostringstream ss;
@@ -3395,6 +3565,8 @@ void dna_adjust::AdjustPhased()
 		if (IsCancelled())
 			break;
 
+		isIterationComplete_ = false;
+
 		blockLargeCorr_ = 0;
 		largestCorr_ = 0.0;
 		maxCorr_ = 0.0;
@@ -3406,7 +3578,7 @@ void dna_adjust::AdjustPhased()
 		measurementParams_ = 0;
 	
 		// Print the iteration # to adj file
-		PrintIteration(++currentIteration_);
+		PrintIteration(incrementIteration());
 		
 		it_time.start();
 
@@ -3425,7 +3597,8 @@ void dna_adjust::AdjustPhased()
 		OutputLargestCorrection(corr_msg);
 		
 		iterationCorrections_.add_message(corr_msg);
-		iterationQueue_.push_and_notify(currentIteration_);	// currentIteration begins at 1, so not zero-indexed
+		iterationQueue_.push_and_notify(CurrentIteration());	// currentIteration begins at 1, so not zero-indexed
+		isIterationComplete_ = true;
 
 		// Continue iterating?
 		iterate = !IsCancelled() && fabs(maxCorr_) > projectSettings_.a.iteration_threshold;
@@ -3466,7 +3639,7 @@ void dna_adjust::AdjustPhased()
 // the adjustment assumes that rigorous estimates have already been produced
 void dna_adjust::AdjustPhasedBlock1()
 {
-	currentIteration_ = 1;
+	initialiseIteration(1);
 	
 	ostringstream ss;
 	string corr_msg;
@@ -3502,7 +3675,7 @@ void dna_adjust::AdjustPhasedBlock1()
 		adjustStatus_ = ADJUST_THRESHOLD_EXCEEDED;
 		
 	iterationCorrections_.add_message(corr_msg);
-	iterationQueue_.push_and_notify(currentIteration_);	// currentIteration begins at 1, so not zero-indexed
+	iterationQueue_.push_and_notify(CurrentIteration());	// currentIteration begins at 1, so not zero-indexed
 
 	ValidateandFinaliseAdjustment(tot_time);
 }
@@ -3603,16 +3776,18 @@ void dna_adjust::AdjustPhasedForward()
 			projectSettings_.o._cmp_msr_iteration)
 			adj_file << " done." << endl;
 
+		// Add corrections to estimates and update degrees of freedom.
+		UpdateEstimatesForward(currentBlock);
+
+		// Compute and print adjusted measurements for this 
+		// block during an iteration
 		if (projectSettings_.o._adj_msr_iteration)
 		{
 			end = begin + v_CML_.at(currentBlock).size();
 			ComputeandPrintAdjMsrBlockOnIteration(currentBlock, v_uint32_u32u32_pair(begin, end), true);
-			begin = end+1;
+			begin = end;
 		}
 		
-		// Add corrections to estimates and update degrees of freedom.
-		UpdateEstimatesForward(currentBlock);
-
 		// Debug and diagnose (if required)
 		debug_BlockInformation(currentBlock, (forward_ ? " (Forward)" : " (Reverse)"));
 		
@@ -7756,6 +7931,14 @@ void dna_adjust::GenerateStatistics()
 		PrintStatistics();
 		break;
 	}
+
+	isAdjustmentQuestionable_ = (
+		// non zero means something is amiss
+		adjustStatus_ ||
+		// a much larger than expected outcome
+		sigmaZero_ > 10.0 * chiSquaredUpperLimit_ ||
+		// didn't converge
+		fabs(maxCorr_) > projectSettings_.a.iteration_threshold);
 }
 	
 
@@ -7820,8 +8003,9 @@ void dna_adjust::ComputeTestStat(const double& dof, double& chiUpper, double& ch
 		if (projectSettings_.g.verbose > 0)
 			debug_file << endl << "ComputeTestStat():\n     " << e.what() << endl;
 
-		if (dof == 0)
-			adj_file << endl << "Cannot perform chi-square test with zero degrees of freedom." << endl << endl; 
+		if (projectSettings_.g.verbose > 0)
+			if (dof == 0)
+				adj_file << endl << "Cannot perform chi-square test with zero degrees of freedom." << endl << endl; 
 	
 		passFail = test_stat_fail;
 	}
@@ -8055,12 +8239,14 @@ void dna_adjust::ComputeandPrintAdjMsrOnIteration()
 	_it_uint32_u32u32_pair begin, end;
 	begin = v_msr_block_.begin();
 
+	// Compute and print adjusted measurements for all 
+	// blocks at the end of an iteration
 	for (UINT32 block(0); block<blockCount_; ++block)
 	{
 		// send subvector of measurements from this block
 		end = begin + v_CML_.at(block).size();
 		ComputeandPrintAdjMsrBlockOnIteration(block, v_uint32_u32u32_pair(begin, end), printHeader);
-		begin = end+1;
+		begin = end;
 		printHeader = false;
 	}
 }
@@ -8075,7 +8261,38 @@ void dna_adjust::ComputeAdjMsrBlockOnIteration(const UINT32& block)
 	UpdateMsrRecords(block);
 
 	if (projectSettings_.a.stage)
-		ComputeChiSquarePhased(block);		// This initialises chiSquared_ on each call	
+		ComputeChiSquarePhased(block);		// This initialises chiSquared_ on each call
+
+	if (projectSettings_.o._adj_msr_iteration ||
+			projectSettings_.o._adj_stn_iteration ||
+			projectSettings_.o._cmp_msr_iteration)
+	{
+		ComputeChiSquarePhased(block);		// This initialises chiSquared_ on each call
+
+		switch (projectSettings_.a.adjust_mode)
+		{
+		case PhasedMode:
+		case Phased_Block_1Mode:
+			
+			ComputeBlockTestStat(block);
+
+			isAdjustmentQuestionable_ = (
+				v_passFail_.at(block) != test_stat_pass ||
+				// a much larger than expected outcome
+				v_sigmaZero_.at(block) > 3.0 * v_chiSquaredUpperLimit_.at(block));
+			break;
+		default:
+			ComputeGlobalNetStat();
+			ComputeGlobalTestStat();
+
+			isAdjustmentQuestionable_ = (
+				// a much larger than expected outcome
+				sigmaZero_ > 3.0 * chiSquaredUpperLimit_);
+			break;
+		}		
+		
+		
+	}
 }
 	
 
@@ -9382,10 +9599,18 @@ void dna_adjust::PrintCorStation(ostream& os,
 	os << setw(MSR) << right << FormatDmsString(RadtoDms(azimuth), 4, true, false) << 
 		setw(MSR) << right << FormatDmsString(RadtoDms(vertical_angle), 4, true, false) << 
 		setw(MSR) << setprecision(PRECISION_MTR_STN) << fixed << right << slope_distance << 
-		setw(MSR) << setprecision(PRECISION_MTR_STN) << fixed << right << horiz_distance << 
-		setw(HEIGHT) << setprecision(PRECISION_MTR_STN) << fixed << right << local_12e << 
-		setw(HEIGHT) << setprecision(PRECISION_MTR_STN) << fixed << right << local_12n << 
-		setw(HEIGHT) << setprecision(PRECISION_MTR_STN) << fixed << right << local_12up << endl;
+		setw(MSR) << setprecision(PRECISION_MTR_STN) << fixed << right << horiz_distance;
+
+	if (isAdjustmentQuestionable_)
+		os << 
+			StringFromTW(local_12e, HEIGHT, PRECISION_MTR_STN) << 
+			StringFromTW(local_12n, HEIGHT, PRECISION_MTR_STN) << 
+			StringFromTW(local_12up, HEIGHT, PRECISION_MTR_STN) << endl;
+	else
+		os << 
+			setw(HEIGHT) << setprecision(PRECISION_MTR_STN) << fixed << right << local_12e << 
+			setw(HEIGHT) << setprecision(PRECISION_MTR_STN) << fixed << right << local_12n << 
+			setw(HEIGHT) << setprecision(PRECISION_MTR_STN) << fixed << right << local_12up << endl;
 }
 	
 
@@ -9498,13 +9723,19 @@ void dna_adjust::PrintAdjStation(ostream& os,
 			break;
 		case 'H':
 			// Orthometric height
-			os << setprecision(PRECISION_MTR_STN) << fixed << right << setw(HEIGHT) << 
-				estHeight - stn_it->geoidSep;
+			if (isAdjustmentQuestionable_)
+				os << right << StringFromTW((estHeight - stn_it->geoidSep), HEIGHT, PRECISION_MTR_STN);
+			else
+				os << setprecision(PRECISION_MTR_STN) << fixed << right << setw(HEIGHT) << 
+					estHeight - stn_it->geoidSep;
 			break;
 		case 'h':
 			// Ellipsoidal height
-			os << setprecision(PRECISION_MTR_STN) << fixed << right << setw(HEIGHT) << 
-				estHeight;
+			if (isAdjustmentQuestionable_)
+				os << right << StringFromTW(estHeight, HEIGHT, PRECISION_MTR_STN);
+			else
+				os << setprecision(PRECISION_MTR_STN) << fixed << right << setw(HEIGHT) << 
+					estHeight;
 			break;
 		case 'X':
 			// Cartesian X
@@ -9531,10 +9762,17 @@ void dna_adjust::PrintAdjStation(ostream& os,
 	var_cart.copyelements(0, 0, stationVariances, mat_idx, mat_idx, 3, 3);
 	PropagateVariances_LocalCart(var_cart, var_local, 
 		estLatitude, estLongitude, false);
-	os << 
-		setprecision(PRECISION_MTR_STN) << fixed << right << setw(STDDEV) << sqrt(var_local.get(0, 0)) << 
-		setprecision(PRECISION_MTR_STN) << fixed << right << setw(STDDEV) << sqrt(var_local.get(1, 1)) << 
-		setprecision(PRECISION_MTR_STN) << fixed << right << setw(STDDEV) << sqrt(var_local.get(2, 2));
+	
+	if (isAdjustmentQuestionable_)
+		os <<
+			StringFromTW(sqrt(var_local.get(0, 0)), STDDEV, PRECISION_MTR_STN) <<
+			StringFromTW(sqrt(var_local.get(1, 1)), STDDEV, PRECISION_MTR_STN) <<
+			StringFromTW(sqrt(var_local.get(2, 2)), STDDEV, PRECISION_MTR_STN);
+	else
+		os <<
+			setw(STDDEV) << right << StringFromT(sqrt(var_local.get(0, 0)), PRECISION_MTR_STN) <<
+			setw(STDDEV) << right << StringFromT(sqrt(var_local.get(1, 1)), PRECISION_MTR_STN) <<
+			setw(STDDEV) << right << StringFromT(sqrt(var_local.get(2, 2)), PRECISION_MTR_STN);
 
 	if (projectSettings_.o._stn_corr)
 	{
@@ -9900,7 +10138,8 @@ void dna_adjust::PrintPosUncertaintiesUniqueList(ostream& os, const v_mat_2d* st
 	}
 }
 
-void dna_adjust::PrintPosUncertainty(ostream& os, /*ostream* csv,*/ const UINT32& block, const UINT32& stn, const UINT32& mat_idx, const matrix_2d* stationVariances, const UINT32& map_idx, const vUINT32* blockStations)
+void dna_adjust::PrintPosUncertainty(ostream& os, /*ostream* csv,*/ const UINT32& block, const UINT32& stn, 
+		const UINT32& mat_idx, const matrix_2d* stationVariances, const UINT32& map_idx, const vUINT32* blockStations)
 {
 	double semimajor, semiminor, azimuth, hzPosU, vtPosU;
 	UINT32 ic, jc;
@@ -9952,8 +10191,14 @@ void dna_adjust::PrintPosUncertainty(ostream& os, /*ostream* csv,*/ const UINT32
 			DegreesL(bstBinaryRecords_.at(stn).currentLongitude);
 
 	// positional uncertainty 
-	os << setprecision(PRECISION_MTR_STN) << setw(STAT) << hzPosU <<
-		setprecision(PRECISION_MTR_STN) << fixed << right << setw(STAT) << vtPosU;
+	if (isAdjustmentQuestionable_)
+		os << 
+			StringFromTW(hzPosU, STAT, PRECISION_MTR_STN) <<
+			StringFromTW(vtPosU, STAT, PRECISION_MTR_STN);
+	else
+		os << setprecision(PRECISION_MTR_STN) << setw(STAT) << hzPosU <<
+			setprecision(PRECISION_MTR_STN) << fixed << right << setw(STAT) << vtPosU;
+	
 	// error ellipse semi-major, semi-minor, orientation
 	os << setprecision(PRECISION_MTR_STN) << setw(PREC) << semimajor <<
 		setprecision(PRECISION_MTR_STN) << setw(PREC) << semiminor <<
@@ -9961,20 +10206,39 @@ void dna_adjust::PrintPosUncertainty(ostream& os, /*ostream* csv,*/ const UINT32
 
 	os.flags(ios::scientific | ios::right);
 
+	UINT16 PRECISION_UNCERTAINTY(9);
+
 	// xx, xy, xz
-	os << 
-		setprecision(9) << setw(MSR) << variances->get(0, 0) <<				// e
-		setprecision(9) << setw(MSR) << variances->get(0, 1) <<				// n
-		setprecision(9) << setw(MSR) << variances->get(0, 2) <<	endl;		// up
+	if (isAdjustmentQuestionable_)
+		os << 
+			StringFromTW(variances->get(0, 0), MSR, PRECISION_UNCERTAINTY) <<						// e
+			StringFromTW(variances->get(0, 1), MSR, PRECISION_UNCERTAINTY) <<						// n
+			StringFromTW(variances->get(0, 2), MSR, PRECISION_UNCERTAINTY) <<	endl;				// up
+	else
+		os << 
+			setprecision(PRECISION_UNCERTAINTY) << setw(MSR) << variances->get(0, 0) <<				// e
+			setprecision(PRECISION_UNCERTAINTY) << setw(MSR) << variances->get(0, 1) <<				// n
+			setprecision(PRECISION_UNCERTAINTY) << setw(MSR) << variances->get(0, 2) <<	endl;		// up
+	
 	// Next line: yy, yz
-	os << 
-		setw(STATION+PAD2+LAT_EAST+LON_NORTH+STAT+STAT+PREC+PREC+PREC+MSR) << " " <<				// padding
-		setprecision(9) << setw(MSR) << variances->get(1, 1) <<				// n
-		setprecision(9) << setw(MSR) << variances->get(1, 2) << endl;		// up
-	// zz
-	os << 
-		setw(STATION+PAD2+LAT_EAST+LON_NORTH+STAT+STAT+PREC+PREC+PREC+MSR+MSR) << " " <<			// padding
-		setprecision(9) << setw(MSR) << variances->get(2, 2) << endl;		// up
+	os << setw(STATION+PAD2+LAT_EAST+LON_NORTH+STAT+STAT+PREC+PREC+PREC+MSR) << " ";		// padding
+	if (isAdjustmentQuestionable_)
+		os << 
+			StringFromTW(variances->get(1, 1), MSR, PRECISION_UNCERTAINTY) <<						// n
+			StringFromTW(variances->get(1, 2), MSR, PRECISION_UNCERTAINTY) << endl;					// up
+	else
+		os << 
+			setprecision(PRECISION_UNCERTAINTY) << setw(MSR) << variances->get(1, 1) <<				// n
+			setprecision(PRECISION_UNCERTAINTY) << setw(MSR) << variances->get(1, 2) << endl;		// up
+	
+	// Next line: zz
+	os << setw(STATION+PAD2+LAT_EAST+LON_NORTH+STAT+STAT+PREC+PREC+PREC+MSR+MSR) << " ";	// padding
+	if (isAdjustmentQuestionable_)
+		os <<
+			StringFromTW(variances->get(2, 2), MSR, PRECISION_UNCERTAINTY) << endl;		// up
+	else
+		os <<
+			setprecision(PRECISION_UNCERTAINTY) << setw(MSR) << variances->get(2, 2) << endl;		// up
 	
 	if (!projectSettings_.o._output_pu_covariances)
 		return;
@@ -9984,7 +10248,7 @@ void dna_adjust::PrintPosUncertainty(ostream& os, /*ostream* csv,*/ const UINT32
 	{
 		jc = v_blockStationsMap_.at(block)[blockStations->at(ic)] * 3;
 
-		// get cartesian matrix
+		// get cartesian submatrix corresponding to the covariance
 		stationVariances->submatrix(mat_idx, jc, &variances_cart, 3, 3);
 			
 		switch (projectSettings_.o._apu_vcv_units)
@@ -10002,22 +10266,22 @@ void dna_adjust::PrintPosUncertainty(ostream& os, /*ostream* csv,*/ const UINT32
 			
 		os.flags(ios::scientific | ios::right);
 		os << 
-			setw(PAD2+LAT_EAST+LON_NORTH+STAT+STAT+PREC+PREC+PREC) << " " <<								// padding
-			setprecision(9) << setw(MSR) << variances->get(0, 0) <<			// 11
-			setprecision(9) << setw(MSR) << variances->get(0, 1) <<			// 12
-			setprecision(9) << setw(MSR) << variances->get(0, 2) <<	endl;	// 13
+			setw(PAD2+LAT_EAST+LON_NORTH+STAT+STAT+PREC+PREC+PREC) << " " <<					// padding
+			setprecision(PRECISION_UNCERTAINTY) << setw(MSR) << variances->get(0, 0) <<			// 11
+			setprecision(PRECISION_UNCERTAINTY) << setw(MSR) << variances->get(0, 1) <<			// 12
+			setprecision(PRECISION_UNCERTAINTY) << setw(MSR) << variances->get(0, 2) <<	endl;	// 13
 			
 		os <<
-			setw(STATION+PAD2+LAT_EAST+LON_NORTH+STAT+STAT+PREC+PREC+PREC) << " " <<						// padding
-			setprecision(9) << setw(MSR) << variances->get(1, 0) <<			// 21
-			setprecision(9) << setw(MSR) << variances->get(1, 1) <<			// 22
-			setprecision(9) << setw(MSR) << variances->get(1, 2) <<	endl;	// 23
+			setw(STATION+PAD2+LAT_EAST+LON_NORTH+STAT+STAT+PREC+PREC+PREC) << " " <<			// padding
+			setprecision(PRECISION_UNCERTAINTY) << setw(MSR) << variances->get(1, 0) <<			// 21
+			setprecision(PRECISION_UNCERTAINTY) << setw(MSR) << variances->get(1, 1) <<			// 22
+			setprecision(PRECISION_UNCERTAINTY) << setw(MSR) << variances->get(1, 2) <<	endl;	// 23
 		
 		os <<
-			setw(STATION+PAD2+LAT_EAST+LON_NORTH+STAT+STAT+PREC+PREC+PREC) << " " <<						// padding
-			setprecision(9) << setw(MSR) << variances->get(2, 0) <<			// 31
-			setprecision(9) << setw(MSR) << variances->get(2, 1) <<			// 32
-			setprecision(9) << setw(MSR) << variances->get(2, 2) <<	endl;	// 33
+			setw(STATION+PAD2+LAT_EAST+LON_NORTH+STAT+STAT+PREC+PREC+PREC) << " " <<			// padding
+			setprecision(PRECISION_UNCERTAINTY) << setw(MSR) << variances->get(2, 0) <<			// 31
+			setprecision(PRECISION_UNCERTAINTY) << setw(MSR) << variances->get(2, 1) <<			// 32
+			setprecision(PRECISION_UNCERTAINTY) << setw(MSR) << variances->get(2, 2) <<	endl;	// 33
 	}
 }
 
@@ -11880,6 +12144,27 @@ void dna_adjust::PrintAdjMeasurements(v_uint32_u32u32_pair msr_block, bool print
 {
 	// Print heading
 	string table_heading("Adjusted Measurements");
+
+	if (projectSettings_.o._adj_msr_iteration)
+	{
+		stringstream ss;
+		if (projectSettings_.a.adjust_mode == PhasedMode && forward_)
+		{
+			UINT32 block = msr_block.at(0).second.first;
+			ss << " (Block " << msr_block.at(0).second.first + 1 << ", ";
+			if (v_blockMeta_.at(block)._blockLast || v_blockMeta_.at(block)._blockIsolated)
+				ss << "rigorous)";
+			else
+				ss << "in isolation)";
+			table_heading.append(ss.str());
+		}
+		else if (projectSettings_.a.adjust_mode == PhasedMode && isIterationComplete_)
+		{
+			ss << " (Iteration " << CurrentIteration() << ")";
+			table_heading.append(ss.str());
+		}
+	}
+
 	PrintAdjMeasurementsHeader(printHeader, table_heading,
 		adjustedMsrs, msr_block.at(0).second.first + 1, true);
 		
@@ -11921,7 +12206,7 @@ void dna_adjust::PrintAdjMeasurements(v_uint32_u32u32_pair msr_block, bool print
 	}
 	catch (...) {
 		stringstream ss;
-		ss << "Failed to sort measurements according to the";
+		ss << "Failed to sort measurements according to the ";
 
 		switch (projectSettings_.o._sort_adj_msr)
 		{
@@ -12061,6 +12346,14 @@ void dna_adjust::PrintCompMeasurementsAngular(const char cardinal, const double&
 
 void dna_adjust::PrintCompMeasurementsLinear(const char cardinal, const double& computed, const double& correction, const it_vmsr_t& _it_msr)
 {
+	// If a user wants to print apriori computed measurements, via 
+	//   --output-iter-cmp-msr
+	// it is likely an attempt is being made to diagnose a problematic 
+	// adjustment.  For this cause, test if a linear measurement correction
+	// is in the order of 1 Km
+	if (!isAdjustmentQuestionable_)
+		isAdjustmentQuestionable_ = (fabs(correction) > 999.9999);
+
 	// Print computed linear measurements
 	PrintMeasurementsLinear(cardinal, computed, correction, _it_msr, false);
 
@@ -12435,7 +12728,6 @@ void dna_adjust::PrintCompMeasurements_HR(const UINT32& block, it_vmsr_t& _it_ms
 		break;
 	}
 
-
 	string ignoreFlag(" ");
 	if (_it_msr->ignore)
 		ignoreFlag = "*";
@@ -12531,7 +12823,7 @@ void dna_adjust::PrintMeasurementsAngular(const char cardinal, const double& mea
 
 	adj_file << setw(PAD3) << left << ignoreFlag << setw(PAD2) << left << cardinal;
 
-	double precision;
+	double precision(0.0);
 	
 	// get the correct precision term
 	switch (_it_msr->measType)
@@ -12570,13 +12862,13 @@ void dna_adjust::PrintMeasurementsAngular(const char cardinal, const double& mea
 			adj_file << 
 				setw(MSR) << right << FormatDmsString(RadtoDms(preAdjMeas), 4+PRECISION_SEC_MSR, 					// Measured (less correction  
 					true, true) <<																					// for deflections if applied)
-				setw(MSR) << right << FormatDmsString(RadtoDms(adjMeas), 4+PRECISION_SEC_MSR,					// Adjusted
+				setw(MSR) << right << FormatDmsString(RadtoDms(adjMeas), 4+PRECISION_SEC_MSR,						// Adjusted
 					true, true);
 			break;
 		case HP_NOTATION:
 			// ddd.mmssssss
 			adj_file << setw(MSR) << right << StringFromT(RadtoDms(preAdjMeas), 4+PRECISION_SEC_MSR) <<				// Measured (less correction for deflections)
-				setw(MSR) << right << StringFromT(RadtoDms(adjMeas), 4+PRECISION_SEC_MSR);						// Adjusted
+				setw(MSR) << right << StringFromT(RadtoDms(adjMeas), 4+PRECISION_SEC_MSR);							// Adjusted
 			break;
 		case SEPARATED:
 		default:
@@ -12584,36 +12876,58 @@ void dna_adjust::PrintMeasurementsAngular(const char cardinal, const double& mea
 			adj_file << 
 				setw(MSR) << right << FormatDmsString(RadtoDms(preAdjMeas), 4+PRECISION_SEC_MSR,					// Measured (less correction  
 					true, false) <<																					// for deflections if applied)
-				setw(MSR) << right << FormatDmsString(RadtoDms(adjMeas), 4+PRECISION_SEC_MSR,					// Computed
+				setw(MSR) << right << FormatDmsString(RadtoDms(adjMeas), 4+PRECISION_SEC_MSR,						// Computed
 					true, false);
 			break;
 		}
 
-		adj_file << 
-			setw(CORR) << right << StringFromT(removeNegativeZero(Seconds(correction), PRECISION_SEC_MSR), PRECISION_SEC_MSR) <<	// correction
-			setw(PREC) << right << StringFromT(Seconds(sqrt(precision)), PRECISION_SEC_MSR);						// Precision (Meas)
+		if (isAdjustmentQuestionable_)
+			adj_file << 
+				right << StringFromTW(removeNegativeZero(Seconds(correction), PRECISION_SEC_MSR), CORR, PRECISION_SEC_MSR) <<	// correction
+				right << StringFromTW(Seconds(sqrt(precision)), PREC, PRECISION_SEC_MSR);							// Precision (Meas)
+		else
+			adj_file << 
+				setw(CORR) << right << StringFromT(removeNegativeZero(Seconds(correction), PRECISION_SEC_MSR), PRECISION_SEC_MSR) <<	// correction
+				setw(PREC) << right << StringFromT(Seconds(sqrt(precision)), PRECISION_SEC_MSR);					// Precision (Meas)
 
 		if (printAdjMsr)
 		{
-			adj_file << 
-				setw(PREC) << right << StringFromT(Seconds(sqrt(_it_msr->measAdjPrec)), PRECISION_SEC_MSR) <<		// Precision (Adjusted)
-				setw(PREC) << right << StringFromT(Seconds(sqrt(_it_msr->residualPrec)), PRECISION_SEC_MSR);		// Precision (Residual)
+			if (isAdjustmentQuestionable_)
+				adj_file << 
+					right << StringFromTW(Seconds(sqrt(_it_msr->measAdjPrec)), PREC, PRECISION_SEC_MSR) <<			// Precision (Adjusted)
+					right << StringFromTW(Seconds(sqrt(_it_msr->residualPrec)), PREC, PRECISION_SEC_MSR);			// Precision (Residual)
+			else
+				adj_file << 
+					setw(PREC) << right << StringFromT(Seconds(sqrt(_it_msr->measAdjPrec)), PRECISION_SEC_MSR) <<	// Precision (Adjusted)
+					setw(PREC) << right << StringFromT(Seconds(sqrt(_it_msr->residualPrec)), PRECISION_SEC_MSR);	// Precision (Residual)
 		}
 	}
 	else	// DDEG
 	{
 		// ddd.dddddddd
 		//TODO - is longitude being printed?  If so, use DegreesL
-		adj_file << setw(MSR) << right << StringFromT(Degrees(preAdjMeas), 4+PRECISION_SEC_MSR) <<				// Measured (less correction for deflections)
-			setw(MSR) << right << StringFromT(Degrees(adjMeas), 4+PRECISION_SEC_MSR) <<						// Adjusted
-			setw(CORR) << right << StringFromT(removeNegativeZero(Degrees(correction), PRECISION_SEC_MSR), PRECISION_SEC_MSR) <<	// Correction
-			setw(PREC) << right << StringFromT(Degrees(sqrt(precision)), PRECISION_SEC_MSR);					// Precision (Meas)
+		adj_file << setw(MSR) << right << StringFromT(Degrees(preAdjMeas), 4+PRECISION_SEC_MSR) <<					// Measured (less correction for deflections)
+			setw(MSR) << right << StringFromT(Degrees(adjMeas), 4+PRECISION_SEC_MSR); 								// Adjusted
+		
+		if (isAdjustmentQuestionable_)
+			adj_file <<
+				right << StringFromTW(removeNegativeZero(Degrees(correction), PRECISION_SEC_MSR), CORR, PRECISION_SEC_MSR) <<	// Correction
+				right << StringFromTW(Degrees(sqrt(precision)), PREC, PRECISION_SEC_MSR);							// Precision (Meas)
+		else
+			adj_file <<
+				setw(CORR) << right << StringFromT(removeNegativeZero(Degrees(correction), PRECISION_SEC_MSR), PRECISION_SEC_MSR) <<	// Correction
+				setw(PREC) << right << StringFromT(Degrees(sqrt(precision)), PRECISION_SEC_MSR);					// Precision (Meas)
 		
 		if (printAdjMsr)
 		{
-			adj_file <<
-				setw(PREC) << right << StringFromT(Degrees(sqrt(_it_msr->measAdjPrec)), PRECISION_SEC_MSR) <<	// Precision (Adjusted)
-				setw(PREC) << right << StringFromT(Degrees(sqrt(_it_msr->residualPrec)), PRECISION_SEC_MSR);	// Precision (Residual)
+			if (isAdjustmentQuestionable_)
+				adj_file <<
+					right << StringFromTW(Degrees(sqrt(_it_msr->measAdjPrec)), PREC, PRECISION_SEC_MSR) <<			// Precision (Adjusted)
+					right << StringFromTW(Degrees(sqrt(_it_msr->residualPrec)), PREC, PRECISION_SEC_MSR);			// Precision (Residual)
+			else
+				adj_file <<
+					setw(PREC) << right << StringFromT(Degrees(sqrt(_it_msr->measAdjPrec)), PRECISION_SEC_MSR) <<	// Precision (Adjusted)
+					setw(PREC) << right << StringFromT(Degrees(sqrt(_it_msr->residualPrec)), PRECISION_SEC_MSR);	// Precision (Residual)
 		}
 	}
 }
@@ -12700,9 +13014,15 @@ void dna_adjust::PrintMeasurementsLinear(
 	
 	adj_file << setw(PAD3) << left << ignoreFlag << setw(PAD2) << left << cardinal <<				// If GPS, then 'X', 'Y' or 'Z', else ' '
 		setw(MSR) << setprecision(PRECISION_MTR_MSR) << fixed << right << _it_msr->preAdjMeas <<	// Measured (less correction for geoid)
-		setw(MSR) << setprecision(PRECISION_MTR_MSR) << fixed << right << measurement <<			// Adjusted
-		setw(CORR) << setprecision(PRECISION_MTR_MSR) << fixed << right << 
-		removeNegativeZero(correction, PRECISION_MTR_MSR);											// Correction
+		setw(MSR) << setprecision(PRECISION_MTR_MSR) << fixed << right << measurement;				// Adjusted
+	
+	if (isAdjustmentQuestionable_)
+		adj_file <<			
+			right << StringFromTW(removeNegativeZero(correction, PRECISION_MTR_MSR), CORR, PRECISION_MTR_MSR);	// Correction
+	else
+		adj_file <<			
+			setw(CORR) << setprecision(PRECISION_MTR_MSR) << fixed << right << 
+			removeNegativeZero(correction, PRECISION_MTR_MSR);										// Correction
 
 	// print the correct precision term
 	switch (_it_msr->measType)
@@ -12729,23 +13049,31 @@ void dna_adjust::PrintMeasurementsLinear(
 			switch (projectSettings_.o._adj_gnss_units)
 			{
 			case AED_adj_gnss_ui:
-				adj_file << setw(PREC) << setprecision(PRECISION_MTR_MSR) << fixed << right << sqrt(_it_msr->term4);		// Precision (Meas)
+				adj_file << setw(PREC) << setprecision(PRECISION_MTR_MSR) << fixed << right << sqrt(_it_msr->term4);	// Precision (Meas)
 				break;
 			case ADU_adj_gnss_ui:
-				adj_file << setw(PREC) << setprecision(PRECISION_MTR_MSR) << fixed << right << sqrt(_it_msr->term3);		// Precision (Meas)
+				adj_file << setw(PREC) << setprecision(PRECISION_MTR_MSR) << fixed << right << sqrt(_it_msr->term3);	// Precision (Meas)
 				break;
 			}
 			break;
 		}
 		break;
 	default:
-		adj_file << setw(PREC) << setprecision(PRECISION_MTR_MSR) << fixed << right << sqrt(_it_msr->term2);			// Precision (Meas)
+		if (isAdjustmentQuestionable_)
+			adj_file << StringFromTW(sqrt(_it_msr->term2), PREC, PRECISION_MTR_MSR);				// Precision (Meas)
+		else
+			adj_file << setw(PREC) << setprecision(PRECISION_MTR_MSR) << fixed << right << sqrt(_it_msr->term2);			// Precision (Meas)
 	}
 
 	if (printAdjMsr)
 	{
-		adj_file << setw(PREC) << setprecision(PRECISION_MTR_MSR) << fixed << right << sqrt(_it_msr->measAdjPrec) <<	// Precision (Adjusted)
-			setw(PREC) << setprecision(PRECISION_MTR_MSR) << fixed << right << sqrt(_it_msr->residualPrec); 			// Precision (Residual)
+		if (isAdjustmentQuestionable_)
+			adj_file << 
+				right << StringFromTW(sqrt(_it_msr->measAdjPrec), PREC, PRECISION_MTR_MSR) <<		// Precision (Adjusted)
+				right << StringFromTW(sqrt(_it_msr->residualPrec), PREC, PRECISION_MTR_MSR); 		// Precision (Residual)
+		else
+			adj_file << setw(PREC) << setprecision(PRECISION_MTR_MSR) << fixed << right << sqrt(_it_msr->measAdjPrec) <<	// Precision (Adjusted)
+				setw(PREC) << setprecision(PRECISION_MTR_MSR) << fixed << right << sqrt(_it_msr->residualPrec); 			// Precision (Residual)
 	}
 }
 
@@ -12828,14 +13156,24 @@ void dna_adjust::PrintMeasurementDatabaseID(const it_vmsr_t& _it_msr)
 
 void dna_adjust::PrintAdjMeasurementStatistics(const char cardinal, const it_vmsr_t& _it_msr)
 {
-	adj_file << setw(STAT) << setprecision(2) << fixed << right << 
-		removeNegativeZero(_it_msr->NStat, 2);												// N Stat
+	UINT16 PRECISION_STAT(2);
+
+	if (isAdjustmentQuestionable_)
+		adj_file << StringFromTW(removeNegativeZero(_it_msr->NStat, 2), STAT, PRECISION_STAT);		// N Stat
+	else
+		adj_file << setw(STAT) << setprecision(2) << fixed << right << 
+			removeNegativeZero(_it_msr->NStat, 2);													// N Stat	
 
 	if (projectSettings_.o._adj_msr_tstat)
-		adj_file << setw(STAT) << setprecision(2) << fixed << right << 
-			removeNegativeZero(_it_msr->TStat, 2);												// T Stat
-	
-	adj_file << setw(REL) << setprecision(2) << fixed << right << _it_msr->PelzerRel;		// Pelzer's reliability
+	{
+		if (isAdjustmentQuestionable_)
+			adj_file << StringFromTW(removeNegativeZero(_it_msr->TStat, 2), STAT, PRECISION_STAT);	// T Stat
+		else
+			adj_file << setw(STAT) << setprecision(2) << fixed << right << 
+				removeNegativeZero(_it_msr->TStat, 2);												// T Stat
+	}
+
+	adj_file << setw(REL) << setprecision(2) << fixed << right << _it_msr->PelzerRel;				// Pelzer's reliability
 
 	// Print measurement correction
 	PrintMeasurementCorrection(cardinal, _it_msr);
@@ -12954,13 +13292,6 @@ void dna_adjust::ReduceYLLHMeasurementsforPrinting(it_vmsr_t& _it_msr, vmsr_t& y
 		// transform computed values to geographic
 		switch (print_mode)
 		{
-		case adjustedMsrs:
-			x = _it_y_msr->measAdj;
-			_it_y_msr++;
-			y = _it_y_msr->measAdj;
-			_it_y_msr++;
-			z = _it_y_msr->measAdj;
-			break;
 		case computedMsrs:
 			x = _it_y_msr->term1;
 			_it_y_msr++;
@@ -12968,7 +13299,13 @@ void dna_adjust::ReduceYLLHMeasurementsforPrinting(it_vmsr_t& _it_msr, vmsr_t& y
 			_it_y_msr++;
 			z = _it_y_msr->term1;
 			break;
+		case adjustedMsrs:
 		default:
+			x = _it_y_msr->measAdj;
+			_it_y_msr++;
+			y = _it_y_msr->measAdj;
+			_it_y_msr++;
+			z = _it_y_msr->measAdj;
 			break;
 		}
 		

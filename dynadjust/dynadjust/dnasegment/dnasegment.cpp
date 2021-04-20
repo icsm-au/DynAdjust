@@ -117,22 +117,24 @@ void dna_segment::ParseStartingStations()
 	if (projectSettings_.s.seg_starting_stns.empty())
 		return;
 
+	vstring cmd_line_stations;
+
 	try {
 		// Extract stations from comma delimited string
 		SplitDelimitedString<string>(
 			projectSettings_.s.seg_starting_stns,	// the comma delimited string
 			string(","),							// the delimiter
-			&vinitialStns_);						// the respective values
+			&cmd_line_stations);						// the respective values
 	}
 	catch (...) {
 		return;
 	}
 
-	// Nothing to do?
-	if (vinitialStns_.size() < 2)
-		return;
-	
-	strip_duplicates(vinitialStns_);
+	if (!cmd_line_stations.empty())
+		vinitialStns_.insert(vinitialStns_.end(), cmd_line_stations.begin(), cmd_line_stations.end());
+		
+	if (!vinitialStns_.empty())
+		strip_duplicates(vinitialStns_);
 }
 	
 

@@ -252,7 +252,7 @@ class dna_io_snx : public dna_io_base
 public:
 	dna_io_snx(void) 
 	: blockCount_(0), block_(0), measurementParams_(0), unknownParams_(0)
-	, sigmaZero_(0.), uniqueStationCount_(0)
+	, sigmaZero_(0.), blockStationsMap_(0), uniqueStationCount_(0)
 	, containsVelocities_(false), containsDiscontinuities_(false), applyDiscontinuities_(false)
 	, siteIDsRead_(false), solutionEpochsRead_(false) {
 	}

@@ -268,13 +268,15 @@ public:
 	void PrintMeasurementsToStation();
 
 	bool PrintEstimatedStationCoordinatestoSNX(string& sinex_file);
-	void PrintEstimatedStationCoordinatestoDNAXML(const string& stnFile, INPUT_FILE_TYPE t);
+	void PrintEstimatedStationCoordinatestoDNAXML(const string& stnFile, INPUT_FILE_TYPE t, bool flagUnused = false);
+	void PrintEstimatedStationCoordinatestoDNAXML_Y(const string& msrFile, INPUT_FILE_TYPE t);
 
 	void CloseOutputFiles();
 	void UpdateBinaryFiles();
 
 	UINT32 CurrentIteration() const;
 	UINT32& incrementIteration();
+	void initialiseIteration(const UINT32& iteration = 0);
 	
 	inline UINT32 CurrentBlock() const { 
 		return currentBlock_;
@@ -360,6 +362,8 @@ public:
 	bool					isCombining_;
 	bool					forward_;
 	bool					isFirstTimeAdjustment_;
+	bool					isIterationComplete_;
+	bool					isAdjustmentQuestionable_;
 	
 	UINT32					blockCount_;
 	UINT32					currentBlock_;
@@ -967,9 +971,6 @@ private:
 	// queue to handle notification of messages for each iteration
 	concurrent_queue<UINT32> iterationQueue_;
 
-	// flag to tell if users have cancelled running dynajust
-	std::atomic<bool>				isCancelled_;
-
 #ifdef MULTI_THREAD_ADJUST
 	// ----------------------------------------------
 	// Adjustment matrices for multi-threaded phased adjustment
@@ -992,6 +993,10 @@ private:
 	bool					databaseIDsLoaded_;
 
 	void LoadDatabaseId();
+
+	// flag to tell if users have cancelled running dynajust
+	std::atomic<bool>				isCancelled_;
+
 };
 
 }	// namespace networkadjust

@@ -50,12 +50,12 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/thread/mutex.hpp>
 
-
 #include <include/exception/dnaexception.hpp>
 #include <include/config/dnaexports.hpp>
 #include <include/config/dnaversion.hpp>
 #include <include/config/dnaconsts.hpp>
 #include <include/config/dnatypes.hpp>
+#include <include/config/dnatypes-gui.hpp>
 
 #include <include/math/dnamatrix_contiguous.hpp>
 
@@ -135,7 +135,6 @@ public:
 	void RenameStations(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, project_settings* p);
 	void ApplyDiscontinuities(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, project_settings* p);
 	void TrackDiscontinuitySite(const string& site, const string& site_renamed);
-	void ApplyDiscontinuitiesStations(vdnaStnPtr* vStations, project_settings* p);
 	void ApplyDiscontinuitiesMeasurements(vdnaMsrPtr* vMeasurements, project_settings* p);
 
 	void ApplyDiscontinuitiesMeasurements_GX(vector<CDnaGpsBaseline>* vGpsBaselines);

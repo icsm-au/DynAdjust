@@ -85,7 +85,7 @@ typedef boost::geometry::strategy::centroid::average<dnaGeometryPoint<double>, d
 BOOST_GEOMETRY_REGISTER_POINT_2D_GET_SET(
 	dynadjust::geometries::dnaGeometryPoint<double>,
 	double,
-	boost::geometry::cs::geographic<boost::geometry::degree>,
+	boost::geometry::cs::spherical_equatorial<boost::geometry::degree>,
 	dynadjust::geometries::dnaGeometryPoint<double>::get_east_long,
 	dynadjust::geometries::dnaGeometryPoint<double>::get_north_lat,
 	dynadjust::geometries::dnaGeometryPoint<double>::set_east_long,

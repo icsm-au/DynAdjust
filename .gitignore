@@ -22,7 +22,7 @@ dynadjust/bin/
 *.db-wal
 *.user
 /.idea/
-.vscode/launch.json
+.vscode/*
 
 # readme and other files not requiring external contribution
 README.md

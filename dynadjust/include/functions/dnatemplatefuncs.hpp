@@ -805,7 +805,7 @@ public:
 	bool operator()(const pair<U, pair<U, U> >& lhs, const pair<U, pair<U, U> >& rhs) {
 		if (isCompoundMeasAll(_m->at(lhs.first).measType) && notCompoundMeasAll(_m->at(rhs.first).measType))
 		{
-			double lhsValue;
+			double lhsValue = 0.0;
 			switch (_m->at(lhs.first).measType)
 			{
 			case 'G':
@@ -831,7 +831,7 @@ public:
 		}
 		else if (notCompoundMeasAll(_m->at(lhs.first).measType) && isCompoundMeasAll(_m->at(rhs.first).measType))
 		{			
-			double rhsValue;
+			double rhsValue = 0.0;
 			switch (_m->at(rhs.first).measType)
 			{
 			case 'G':
@@ -857,7 +857,7 @@ public:
 		}
 		else if (isCompoundMeasAll(_m->at(lhs.first).measType) && isCompoundMeasAll(_m->at(rhs.first).measType))
 		{
-			double lhsValue;
+			double lhsValue = 0.0;
 			switch (_m->at(lhs.first).measType)
 			{
 			case 'G':
@@ -879,7 +879,7 @@ public:
 				break;
 			}
 
-			double rhsValue;
+			double rhsValue = 0.0;
 			switch (_m->at(rhs.first).measType)
 			{
 			case 'G':
@@ -959,15 +959,28 @@ private:
 
 
 // S = CDnaStation
-template<typename S>
+template<typename S, typename T>
 class CompareStnName_CDnaStn
 {
 public:
 	bool operator()(const boost::shared_ptr<S> lhs, const boost::shared_ptr<S> rhs) {
 		if (lhs.get()->GetName() == rhs.get()->GetName())
 			return (lhs.get()->GetfileOrder() < rhs.get()->GetfileOrder());
-		return (lhs.get()->GetName() < rhs.get()->GetName());
-		
+		return keyLess(lhs.get()->GetName(), rhs.get()->GetName());
+	}
+
+	bool operator()(const T lhs, const boost::shared_ptr<S> rhs) {
+		return keyLess(lhs, rhs.get()->GetName());
+	}
+
+	bool operator()(const boost::shared_ptr<S> lhs, const T rhs) {
+		return keyLess(lhs.get()->GetName(), rhs);
+	}
+
+private:
+	// the "real" comparison function
+	bool keyLess(const T& k1, const T& k2) const {
+		return k1 < k2;
 	}
 };
 

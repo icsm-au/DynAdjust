@@ -366,6 +366,7 @@ int SearchForSimilarMeasurements(dna_import* parserDynaML, project_settings* p, 
 	std::ofstream dms_file;
 	UINT32 msr;
 	vdnaMsrPtr vSimilarMeasurements;
+	string comment("");
 
 	try {
 		if (!p->g.quiet)
@@ -428,8 +429,8 @@ int SearchForSimilarMeasurements(dna_import* parserDynaML, project_settings* p, 
 
 			// dump measurements to dms file
 			for_each (vSimilarMeasurements.begin(), vSimilarMeasurements.end(),
-				[&dms_file] (dnaMsrPtr& m) {
-					m->WriteDynaMLMsr(&dms_file);
+				[&dms_file, &comment] (dnaMsrPtr& m) {
+					m->WriteDynaMLMsr(&dms_file, comment);
 			});
 
 			dms_file.close();
@@ -550,6 +551,7 @@ void ExportStationsandMeasurements(dna_import* parserDynaML, const project_setti
 				cout << "Done." << endl;
 				cout.flush();
 			}
+			*imp_file << "Done." << endl;
 		}
 		else
 		{
@@ -584,6 +586,7 @@ void ExportStationsandMeasurements(dna_import* parserDynaML, const project_setti
 				cout << "Done." << endl;
 				cout.flush();
 			}
+			*imp_file << "Done." << endl;
 		}		
 	}
 
@@ -1026,6 +1029,10 @@ int main(int argc, char* argv[])
 		output_options.add_options()
 			(OUTPUT_MSR_TO_STN,
 				"Output summary of measurements connected to each station.")
+			(OUTPUT_MSR_TO_STN_SORTBY, value<UINT16>(&p.o._sort_msr_to_stn),
+				string("Sort order for measurement to stations summary.\n  " +
+					StringFromT(orig_stn_sort_ui) + ": Original station order (default)\n  " +
+					StringFromT(meas_stn_sort_ui) + ": Measurement count").c_str())
 			;
 
 		export_options.add_options()
@@ -1437,6 +1444,18 @@ int main(int argc, char* argv[])
 			return EXIT_FAILURE;
 		}
 	}
+
+	/////////////////////////////////////////////////////////////////////////
+	// Add discontinuity sites to vStations
+	//
+	// WARNING: If discontinuity sites are present in the renaming file, and
+	// the renaming file changes the name from the four-character id in the 
+	// discontinuity file to another name, this function call will not work
+	// properly. Hence, sites in the discontinuity file must be consistently
+	// named in the station and measurement files and not renamed to another
+	// name.
+	if (p.i.apply_discontinuities && !vstationsTotal.empty())
+		parserDynaML.AddDiscontinuityStations(&vstationsTotal);
 
 	UINT32 stn;
 
@@ -1857,24 +1876,11 @@ int main(int argc, char* argv[])
 			imp_file.close();
 			return EXIT_FAILURE;
 		}		
-	
-		/////////////////////////////////////////////////////////////////////////
-		// Add discontinuity sites to vStations
-		//
-		// WARNING: If discontinuity sites are present in the renaming file, and
-		// the renaming file changes the name from the four-character id in the 
-		// discontinuity file to another name, this function call will not work
-		// properly. Hence, sites in the discontinuity file must be consistently
-		// named in the station and measurement files and not renamed to another
-		// name.
-		if (p.i.apply_discontinuities && stnCount > 0)
-			parserDynaML.AddDiscontinuityStations(&vstationsTotal);
 
 		/////////////////////////////////////////////////////////////////
 		// Now commence sorting and mapping
 		// 1. Sort stations
-		// 2. Add new discontinuity sites
-		// 3. Create station map
+		// 2. Create station map
 		try {
 			if (!p.g.quiet)
 			{
@@ -2214,8 +2220,7 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	// Create ASL and AML files
-	// Export to text if required
+	// Export ASL and AML to text if required
 	if (measurements_mapped) 
 	{
 		try {
