@@ -608,14 +608,14 @@ void VincentyDirect(const T& dLatitudeAT, const T& dLongitudeAT, const T& dAzimu
 	// iterate until no signigicant change in sigma
 	for (UINT16 i(0); i<10; i++)
 	{
-		if (fabs(SigmaDiff) < PRECISION_1E16)
-			break;
-
 		twoSigmam = (2.0 * atan(tanSigma1)) + Sigma;
 		deltaSigma = B * sin(Sigma) * (cos(twoSigmam) + (B / 4.0 * ((cos(Sigma) * (-1.0 + (2.0 * pow(cos(twoSigmam), 2.0)))) - (B / 6.0 * cos(twoSigmam) * (-3.0 + (4.0 * pow(sin(Sigma), 2.0))) * ((-3.0 + (4.0 * pow(cos(twoSigmam), 2.0))))))));
 		SigmaDiff = Sigma;
 		Sigma = (dDistance / (b * A)) + deltaSigma;
 		SigmaDiff -= Sigma;
+
+		if (fabs(SigmaDiff) < PRECISION_1E16)
+			break;
 	}
 	
 	// latitude of new position

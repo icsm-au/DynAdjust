@@ -109,7 +109,7 @@ typedef struct gridfileindex {
 public:
 	gridfileindex()
 		: dSlat(-165600.), dNlat(-28800.), dElong(-576000.), dWlong(-388800.)
-		, dLatinc(60.), dLonginc(60.), lGscount(0)
+		, dLatinc(60.), dLonginc(60.), lGscount(0), iGridPos(0)
 	{
 		strcpy(chSubname, "AUSGEOID");
 		strcpy(chParent, "NONE    ");
@@ -137,6 +137,7 @@ typedef struct file_par {
 public:
 	file_par()
 		: ptrIndex(0), daf(6378137.), dat(6378137.), dbf(6356752.314), dbt(6356752.314)
+		, dLat(0.), dLatacc(0.), dLong(0.), dLongacc(0.)
 		, iH_info(11), iSubH_info(11), iNumsubgrids(1), Can_Format(true)
 	{
 		memset(filename, 0, 601);
