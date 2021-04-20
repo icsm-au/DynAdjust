@@ -61,8 +61,7 @@ void processGNSSMeasurement(string& dnaMeasurementGNSS, string& referenceFrame, 
 	string referenceframeTagClose = "</ReferenceFrame>";
 	string epochTagOpen = "<Epoch>";
 	string epochTagClose = "</Epoch>";
-	string closeTag = "</";
-
+	
 	string referenceFrameElement, epochElement;
 	referenceFrameElement = referenceframeTagOpen + referenceFrame + referenceframeTagClose + "\n        ";
 	epochElement = epochTagOpen + epoch + epochTagClose + "\n        ";

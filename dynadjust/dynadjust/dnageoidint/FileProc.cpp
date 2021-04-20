@@ -427,13 +427,13 @@ bool CFileProc::DoCopy(CString sSource, CString sDest, bool bDelteAfterCopy)
 	// source not found
 	if (CheckPath(sSource) == PATH_NOT_FOUND)
 	{
-		CString sError = sSource + CString(" not found");
+		m_sError = sSource + CString(" not found");
 		return false;
 	}
 	// dest not found
 	if (CheckPath(sDest) == PATH_NOT_FOUND)
 	{
-		CString sError = sDest + CString(" not found");
+		m_sError = sDest + CString(" not found");
 		return false;
 	}
 	// folder to file
@@ -444,7 +444,7 @@ bool CFileProc::DoCopy(CString sSource, CString sDest, bool bDelteAfterCopy)
 	if (CheckPath(sSource) == PATH_IS_FOLDER && CheckPath(sDest) == PATH_IS_FOLDER) 
 	{
 		CFileFind ff;
-		CString sError = sSource + CString(" not found");
+		m_sError = sSource + CString(" not found");
 		PreparePath(sSource);
 		PreparePath(sDest);
 		sSource += "*.*";
