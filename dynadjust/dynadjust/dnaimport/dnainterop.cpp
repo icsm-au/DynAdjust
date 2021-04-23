@@ -5216,6 +5216,20 @@ void dna_import::RenameStationsDir(vector<CDnaDirection>* vDirections,
 			RenameStationsMsr(&dir, stnRenaming.begin(), stnRenaming.end());
 	});
 }
+
+void dna_import::ApplyGNSSMsrScalar(vector<CDnaGpsBaseline>::iterator& _it_bsl, vscl_t& bslScalars)
+{
+	vscl_t::iterator _it_scalar;
+	CompareScalarStations< scalar_t, string> scalarComparisonFunc(_it_bsl->GetFirst(), _it_bsl->GetTarget());
+
+	if ((_it_scalar = find_if(bslScalars.begin(), bslScalars.end(), scalarComparisonFunc)) != bslScalars.end())
+	{		
+		_it_bsl->SetVscale(_it_bsl->GetVscale() * _it_scalar->v_scale);
+		_it_bsl->SetPscale(_it_bsl->GetPscale() * _it_scalar->p_scale);
+		_it_bsl->SetLscale(_it_bsl->GetLscale() * _it_scalar->l_scale);
+		_it_bsl->SetHscale(_it_bsl->GetHscale() * _it_scalar->h_scale);
+	}
+}
 	
 	
 void dna_import::EditGNSSMsrScalars(vdnaMsrPtr* vMeasurements, project_settings* p)
@@ -5247,6 +5261,8 @@ void dna_import::EditGNSSMsrScalars(vdnaMsrPtr* vMeasurements, project_settings*
 		dna_io_scalar scalar;
 		scalar.load_scalar_file(p->i.scalar_file, &bslScalars);
 	}
+
+	sort(bslScalars.begin(), bslScalars.end(), CompareScalars<scalar_t>());
 
 	vector<CDnaGpsBaseline>* vgpsBsls;
 	vector<CDnaGpsBaseline>::iterator _it_bsl;
@@ -5288,7 +5304,7 @@ void dna_import::EditGNSSMsrScalars(vdnaMsrPtr* vMeasurements, project_settings*
 					{
 						// Find the stations in the list contained in the scalar file.
 						// If the first and second stations match, then apply.
-						
+						ApplyGNSSMsrScalar(_it_bsl, bslScalars);						
 					}
 				}
 				if (applyVScale)

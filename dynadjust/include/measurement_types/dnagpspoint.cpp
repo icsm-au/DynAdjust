@@ -493,7 +493,7 @@ void CDnaGpsPoint::PopulateMsr(pvstn_t bstRecords, uint32_uint32_map* blockStati
 	m_dSigmaZZ = variances->get(mat_idx+2, mat_idx+2);
 
 	// populate station covariances
-	UINT32 covariance_count = blockStations->size() - map_idx - 1;
+	UINT32 covariance_count = static_cast<UINT32>(blockStations->size()) - map_idx - 1;
 	m_vPointCovariances.clear();
 	m_vPointCovariances.resize(covariance_count);
 
@@ -1214,7 +1214,7 @@ void CDnaGpsPointCluster::PopulateMsr(pvstn_t bstRecords, uint32_uint32_map* blo
 
 	m_lclusterID = block;
 	m_MSmeasurementStations = ONE_STATION;
-	m_lRecordedTotal = blockStationsMap->size();
+	m_lRecordedTotal = static_cast<UINT32>(blockStationsMap->size());
 	m_vGpsPoints.clear();
 	m_vGpsPoints.resize(m_lRecordedTotal);
 
@@ -1231,7 +1231,7 @@ void CDnaGpsPointCluster::PopulateMsr(pvstn_t bstRecords, uint32_uint32_map* blo
 	for (UINT32 i(0); i<m_lRecordedTotal; ++i)
 	{
 		_it_pnt->SetClusterID(block);
-		_it_pnt->SetTotal(blockStations->size());
+		_it_pnt->SetTotal(static_cast<UINT32>(blockStations->size()));
 		_it_pnt->PopulateMsr(bstRecords, blockStationsMap, blockStations,
 			i, datum, estimates, variances);
 		++_it_pnt;

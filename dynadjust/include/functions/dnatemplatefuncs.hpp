@@ -1077,56 +1077,38 @@ private:
 };
 
 
-template<typename T = scalar_t, typename S = string>
-class CompareScalarStation1
+template<typename T = scalar_t>
+class CompareScalars
 {
 public:
 	// used for lower_bound, upper_bound, etc...
-	bool operator()(const T& scalar, const S& station) {
-		return (scalar.station1 == station);
-	}
-};
-	
-template<typename T = scalar_t, typename S = string>
-class CompareScalarStation2
-{
-public:
-	// used for lower_bound, upper_bound, etc...
-	bool operator()(const T& scalar, const S& station) {
-		return (scalar.station2 == station);
+	bool operator()(const T& lhs, const T& rhs)
+	{
+		if (lhs.station1 == rhs.station1)
+			return lhs.station2 < rhs.station2;
+		return lhs.station1 < rhs.station1;
 	}
 };
 
-// Baseline scalar functions
-//template <typename T = scalar_t>
-//class CompareBaselineScalar {
-//public:
-//
-//	CompareBaselineScalar(vector<T>* scalars)
-//		: _scalars(scalars)
-//	{
-//	}
-//
-//	bool operator()(const T& left, const T& right) {
-//		if (equals(left.station1, right->station1))
-//			return left.station2 < right->station2;
-//		else
-//			return left.station1 < right->station1;
-//	}
-//
-//	bool operator()(const string& station1, const string& station2) {
-//		// not right
-//		if (!lower_bound(_scalars.begin(), _scalars.end(),
-//			boost::bind(CompareScalarStation1<scalar_t, string>(), station1)))
-//			return false;
-//		if (!binary_search(_scalars.begin(), _scalars.end(),
-//			boost::bind(CompareScalarStation2<scalar_t, string>(), station2)))
-//			return false;
-//		return true;
-//	}
-//private:
-//	vector<T>*	_scalars;
-//};
+template<typename T = scalar_t, typename S = string>
+class CompareScalarStations
+{
+public:
+	CompareScalarStations(const S& s1, const S& s2)
+		: s1_(s1), s2_(s2) {}
+	inline void SetComparands(const S& s1, const S& s2) {
+		s1_ = s1; 
+		s2_ = s2;
+	}
+	// used for lower_bound, upper_bound, etc...
+	bool operator()(T& scalar) {
+		return (scalar.station1 == s1_ && 
+			scalar.station2 == s2_);
+	}
+private:
+	S s1_;
+	S s2_;
+};
 
 
 // M = measurement_t
@@ -1371,11 +1353,22 @@ private:
 };
 	
 // tweak the binary search so it returns the iterator of the object found
-template<typename Iter, typename T>
-Iter binary_search_index(Iter begin, Iter end, T value)
+template<typename Iter, typename C>
+Iter binary_search_index_noval(Iter begin, Iter end, C compare)
 {
-	Iter i = lower_bound(begin, end, value);
-	if (i != end && *i == value)
+	Iter i = lower_bound(begin, end, compare);
+	if (i != end)
+		return i;
+	else
+		return end;
+}
+
+// tweak the binary search so it returns the iterator of the object found
+template<typename Iter, typename T, typename C>
+Iter binary_search_index(Iter begin, Iter end, T value, C compare)
+{
+	Iter i = lower_bound(begin, end, value, compare);
+	if (i != end)
 		return i;
 	else 
 		return end;
