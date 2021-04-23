@@ -72,6 +72,12 @@
     <ClInclude Include="..\..\include\math\dnamatrix_contiguous.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\measurement_types\dnagpspoint.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\measurement_types\dnameasurement.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dnaadjust.cpp">
@@ -138,6 +144,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\include\math\dnamatrix_contiguous.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\include\measurement_types\dnagpspoint.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\include\measurement_types\dnameasurement.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

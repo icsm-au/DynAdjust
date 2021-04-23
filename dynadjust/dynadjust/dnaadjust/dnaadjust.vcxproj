@@ -212,6 +212,8 @@
     <ClInclude Include="..\..\include\io\dnaioseg.hpp" />
     <ClInclude Include="..\..\include\io\dnaiosnx.hpp" />
     <ClInclude Include="..\..\include\math\dnamatrix_contiguous.hpp" />
+    <ClInclude Include="..\..\include\measurement_types\dnagpspoint.hpp" />
+    <ClInclude Include="..\..\include\measurement_types\dnameasurement.hpp" />
     <ClInclude Include="..\..\include\measurement_types\dnastation.hpp" />
     <ClInclude Include="..\..\include\memory\dnafile_mapping.hpp" />
     <ClInclude Include="..\..\include\parameters\dnadatum.hpp" />
@@ -221,68 +223,31 @@
     <ClInclude Include="precompile.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\include\functions\dnastringfuncs.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-    </ClCompile>
+    <ClCompile Include="..\..\include\functions\dnastringfuncs.cpp" />
     <ClCompile Include="..\..\include\ide\trace.cpp" />
-    <ClCompile Include="..\..\include\io\dnaioadj.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\..\include\io\dnaioaml.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\..\include\io\dnaioasl.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\..\include\io\dnaiobase.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\..\include\io\dnaiobms.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\..\include\io\dnaiobst.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\..\include\io\dnaiomap.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\..\include\io\dnaioseg.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\..\include\io\dnaiosnxwrite.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-    </ClCompile>
+    <ClCompile Include="..\..\include\io\dnaioadj.cpp" />
+    <ClCompile Include="..\..\include\io\dnaioaml.cpp" />
+    <ClCompile Include="..\..\include\io\dnaioasl.cpp" />
+    <ClCompile Include="..\..\include\io\dnaiobase.cpp" />
+    <ClCompile Include="..\..\include\io\dnaiobms.cpp" />
+    <ClCompile Include="..\..\include\io\dnaiobst.cpp" />
+    <ClCompile Include="..\..\include\io\dnaiomap.cpp" />
+    <ClCompile Include="..\..\include\io\dnaioseg.cpp" />
+    <ClCompile Include="..\..\include\io\dnaiosnxwrite.cpp" />
     <ClCompile Include="..\..\include\math\dnamatrix_contiguous.cpp" />
-    <ClCompile Include="..\..\include\measurement_types\dnamsrtally.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\..\include\measurement_types\dnastation.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\..\include\measurement_types\dnastntally.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\..\include\memory\dnafile_mapping.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\..\include\parameters\dnadatum.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\..\include\parameters\dnaellipsoid.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\..\include\parameters\dnaprojection.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dnaadjust-stage.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="dnaadjust.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
-    </ClCompile>
+    <ClCompile Include="..\..\include\measurement_types\dnagpspoint.cpp" />
+    <ClCompile Include="..\..\include\measurement_types\dnameasurement.cpp" />
+    <ClCompile Include="..\..\include\measurement_types\dnamsrtally.cpp" />
+    <ClCompile Include="..\..\include\measurement_types\dnastation.cpp" />
+    <ClCompile Include="..\..\include\measurement_types\dnastntally.cpp" />
+    <ClCompile Include="..\..\include\memory\dnafile_mapping.cpp" />
+    <ClCompile Include="..\..\include\parameters\dnadatum.cpp" />
+    <ClCompile Include="..\..\include\parameters\dnaellipsoid.cpp" />
+    <ClCompile Include="..\..\include\parameters\dnaprojection.cpp" />
+    <ClCompile Include="dnaadjust-stage.cpp" />
+    <ClCompile Include="dnaadjust.cpp" />
     <ClCompile Include="precompile.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">precompile.h</ForcedIncludeFiles>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
