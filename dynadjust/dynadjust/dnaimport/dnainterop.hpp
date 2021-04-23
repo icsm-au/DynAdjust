@@ -144,6 +144,8 @@ public:
 	void AddDiscontinuityStations(vdnaStnPtr* vstationsTotal);
 
 	void EditGNSSMsrScalars(vdnaMsrPtr* vMeasurements, project_settings* p);
+	void ApplyGNSSMsrScalar(vector<CDnaGpsBaseline>::iterator& _it_bsl, vscl_t& bslScalars);
+
 	void MapMeasurementStations(vdnaMsrPtr* vMeasurements, pvASLPtr vAssocStnList, PUINT32 lMapCount, pvstring vUnusedStns, pvUINT32 vIgnoredMsrs);
 	UINT32 ComputeMeasurementCount(vdnaMsrPtr* vMeasurements, const vUINT32& vIgnoredMsrs);
 
