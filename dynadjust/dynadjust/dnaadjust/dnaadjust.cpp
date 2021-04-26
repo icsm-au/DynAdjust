@@ -446,6 +446,19 @@ void dna_adjust::PrepareAdjustment(const project_settings& projectSettings)
 			adj_file << "+ Preparing for adjustment is";
 
 		adj_file <<  " done.";
+
+		if (projectSettings_.g.verbose > 0)
+		{
+			double memory;
+			stringstream ss;
+			try {
+				GetMemoryFootprint(memory, GIGABYTE_SIZE);
+				ss << endl << "+ The memory footprint consumed by " << __BINARY_NAME__ << " is " <<
+					fixed << setprecision(2) << memory << " GB" << endl;
+				adj_file << ss.str();
+			}
+			catch (...) { /*do nothing*/ }
+		}
 	}
 }
 
@@ -820,7 +833,7 @@ void dna_adjust::GetMemoryFootprint(double& memory, const _MEM_UNIT_ unit)
 			ss << "-";
 		ss << endl;
 		ss << left << setw(PRINT_VAR_PAD) << "  Total" << right << setw(NUMERIC_WIDTH) << fixed << setprecision(precision) << memory << endl << endl;
-		adj_file << ss.str();
+		debug_file << ss.str();
 	}
 }
 	
