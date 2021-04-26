@@ -1,0 +1,139 @@
+<?xml version="1.0"?>
+<DnaXmlFormat type="Station File" referenceframe="GDA2020" epoch="01.01.2020" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="DynaML.xsd">
+<!-- Created by:   dnaimport, File import and format exchange software -->
+<!-- Version:      1.1.0, Release -->
+<!-- Project name: Sample measurements connected to ALIC and AU001 -->
+<!-- Source files: apref20200328.snx stn/SA_GDA2020_20200713.adj.xml  -->
+  <DnaStation>
+    <Name>ADE1</Name>
+    <Constraints>FFF</Constraints>
+    <Type>XYZ</Type>
+    <StationCoord>
+      <Name>ADE1</Name>
+      <XAxis>-3939182.8428</XAxis>
+      <YAxis>3467075.3659</YAxis>
+      <Height>-3613219.8375</Height>
+    </StationCoord>
+    <Description>ADE1</Description>
+  </DnaStation>
+  <DnaStation>
+    <Name>PERT</Name>
+    <Constraints>FFF</Constraints>
+    <Type>XYZ</Type>
+    <StationCoord>
+      <Name>PERT</Name>
+      <XAxis>-2368688.0415</XAxis>
+      <YAxis>4881316.6866</YAxis>
+      <Height>-3341794.9754</Height>
+    </StationCoord>
+    <Description>PERT</Description>
+  </DnaStation>
+  <DnaStation>
+    <Name>WARA</Name>
+    <Constraints>FFF</Constraints>
+    <Type>XYZ</Type>
+    <StationCoord>
+      <Name>WARA</Name>
+      <XAxis>-3583757.5894</XAxis>
+      <YAxis>4538446.7027</YAxis>
+      <Height>-2683056.6932</Height>
+    </StationCoord>
+    <Description>WARA</Description>
+  </DnaStation>
+  <DnaStation>
+    <Name>ALIC</Name>
+    <Constraints>FFF</Constraints>
+    <Type>XYZ</Type>
+    <StationCoord>
+      <Name>ALIC</Name>
+      <XAxis>-4052052.7379</XAxis>
+      <YAxis>4212835.9824</YAxis>
+      <Height>-2545104.5871</Height>
+    </StationCoord>
+    <Description>ALIC</Description>
+  </DnaStation>
+  <DnaStation>
+    <Name>4936/ 1009</Name>
+    <Constraints>FFF</Constraints>
+    <Type>XYZ</Type>
+    <StationCoord>
+      <Name>4936/ 1009</Name>
+      <XAxis>-3560604.3794</XAxis>
+      <YAxis>4183987.5565</YAxis>
+      <Height>-3229248.1005</Height>
+    </StationCoord>
+    <Description></Description>
+  </DnaStation>
+  <DnaStation>
+    <Name>5035/ 1002</Name>
+    <Constraints>FFF</Constraints>
+    <Type>XYZ</Type>
+    <StationCoord>
+      <Name>5035/ 1002</Name>
+      <XAxis>-3569582.3546</XAxis>
+      <YAxis>4114330.6371</YAxis>
+      <Height>-3307237.2190</Height>
+    </StationCoord>
+    <Description></Description>
+  </DnaStation>
+  <DnaStation>
+    <Name>5145/ 1020</Name>
+    <Constraints>FFF</Constraints>
+    <Type>XYZ</Type>
+    <StationCoord>
+      <Name>5145/ 1020</Name>
+      <XAxis>-3786311.5427</XAxis>
+      <YAxis>4288090.6748</YAxis>
+      <Height>-2812796.2259</Height>
+    </StationCoord>
+    <Description></Description>
+  </DnaStation>
+  <DnaStation>
+    <Name>5237/ 1004</Name>
+    <Constraints>FFF</Constraints>
+    <Type>XYZ</Type>
+    <StationCoord>
+      <Name>5237/ 1004</Name>
+      <XAxis>-3671003.4278</XAxis>
+      <YAxis>4099412.5424</YAxis>
+      <Height>-3214180.7941</Height>
+    </StationCoord>
+    <Description></Description>
+  </DnaStation>
+  <DnaStation>
+    <Name>5736/ 1044</Name>
+    <Constraints>FFF</Constraints>
+    <Type>XYZ</Type>
+    <StationCoord>
+      <Name>5736/ 1044</Name>
+      <XAxis>-3826897.6855</XAxis>
+      <YAxis>3937198.4225</YAxis>
+      <Height>-3235007.7711</Height>
+    </StationCoord>
+    <Description></Description>
+  </DnaStation>
+  <DnaStation>
+    <Name>AU001</Name>
+    <Constraints>FFF</Constraints>
+    <Type>LLH</Type>
+    <StationCoord>
+      <Name>AU001</Name>
+      <XAxis>-23.4532366108</XAxis>
+      <YAxis>133.5257273702</YAxis>
+      <Height>556.0946</Height>
+    </StationCoord>
+    <Description>AU001</Description>
+  </DnaStation>
+  <DnaStation>
+    <Name>ALIC</Name>
+    <Constraints>FFF</Constraints>
+    <Type>XYZ</Type>
+    <StationCoord>
+      <Name>ALIC</Name>
+      <XAxis>-4052052.7417</XAxis>
+      <YAxis>4212835.9885</YAxis>
+      <Height>-2545104.5928</Height>
+    </StationCoord>
+    <Description>ALIC</Description>
+  </DnaStation>
+</DnaXmlFormat>
