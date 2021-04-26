@@ -267,7 +267,7 @@ if (BUILD_TESTING)
     # 10. station discontinuities
     add_test (NAME imp-discont-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n discont -r itrf2005 ${CMAKE_SOURCE_DIR}/../sampleData/TEST_ITRF05.SNX --discontinuity-file ${CMAKE_SOURCE_DIR}/../sampleData/disconts20201205.snx)
     add_test (NAME imp-discont-02 COMMAND $<TARGET_FILE:dnaimportwrapper> -n discont -r itrf2005 ${CMAKE_SOURCE_DIR}/../sampleData/TEST_ITRF05.SNX --discontinuity-file ${CMAKE_SOURCE_DIR}/../sampleData/disconts20201205.snx --split-gnss --include-stn "ALIC" --export-dna)
-    add_test (NAME imp-discont-03 COMMAND $<TARGET_FILE:dnaimportwrapper> -n discont -r GDA2020 ${CMAKE_SOURCE_DIR}/../sampleData/TEST_ITRF05.SNX ${CMAKE_SOURCE_DIR}/../sampleData/sa-gnss-stn.xml ${CMAKE_SOURCE_DIR}/../sampleData/sa-gnss-msr.xml --prefer-single-x-as-g --flag-unused --discontinuity-file ${CMAKE_SOURCE_DIR}/../sampleData/disconts20201205.snx --remove-ignored-msr --split-gnss --include-stns-assoc-msrs "ALIC" --export-dna --export-xml)
+    add_test (NAME imp-discont-03 COMMAND $<TARGET_FILE:dnaimportwrapper> -n discont -r itrf2014 --override-input-ref-frame ${CMAKE_SOURCE_DIR}/../sampleData/TEST_ITRF05.SNX ${CMAKE_SOURCE_DIR}/../sampleData/sa-gnss-stn.xml ${CMAKE_SOURCE_DIR}/../sampleData/sa-gnss-msr.xml --prefer-single-x-as-g --flag-unused --discontinuity-file ${CMAKE_SOURCE_DIR}/../sampleData/disconts20201205.snx --remove-ignored-msr --split-gnss --include-stns-assoc-msrs "ALIC" --export-dna --export-xml)
     
     # 11. measurements to stations sorting
     add_test (NAME imp-m2s-sort-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.msr --output-msr-to-stn --sort-msr-to-stn-field 1 -r GDA94) 
