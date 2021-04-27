@@ -329,9 +329,9 @@ if (BUILD_TESTING)
     add_test (NAME dyn-help-02 COMMAND $<TARGET_FILE:dynadjust> --help-module generic)
     add_test (NAME dyn-version-01 COMMAND $<TARGET_FILE:dynadjust> --version)
 
-    # 13. database id
+    # 13. Handle database id, output measurement to stations, and output adjustment information on each iteration
     add_test (NAME import-dbid COMMAND $<TARGET_FILE:dnaimportwrapper> -n dbid ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr) 
-    add_test (NAME adjust-dbid COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --output-adj-msr --output-database-ids --output-ignored-msrs --sort-adj-msr-field 6)
+    add_test (NAME adjust-dbid COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --output-adj-msr --output-database-ids --output-ignored-msrs --sort-adj-msr-field 6 --output-msr-to-stn --sort-msr-to-stn-field 1 --output-iter-adj-stn --output-iter-adj-stat --output-iter-adj-msr --output-iter-cmp-msr)
     
     # set execution dependencies (the execution of tests must be sequential)
     set_tests_properties(
