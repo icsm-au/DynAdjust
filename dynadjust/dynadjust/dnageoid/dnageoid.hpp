@@ -132,11 +132,17 @@ class DNAGEOID_API dna_geoid_interpolation {
 	// Non MS Windows
 class dna_geoid_interpolation {
 #endif
+
 public:
 	dna_geoid_interpolation();
-	dna_geoid_interpolation(const dna_geoid_interpolation& orig);
 	virtual ~dna_geoid_interpolation();
 
+private:
+	// Disallow use of compiler generated functions. See dnaadjust.hpp
+	dna_geoid_interpolation(const dna_geoid_interpolation&);
+	dna_geoid_interpolation& operator=(const dna_geoid_interpolation&);	
+
+public:
 	static void Version(char* version);
 
 	// Interpolates AusGeoid values using bi linear interpolation 

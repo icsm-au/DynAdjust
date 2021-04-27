@@ -165,19 +165,24 @@ if (BUILD_TESTING)
     message (STATUS "Configuring tests")
     
     # test execution of dynadjust binaries
-    # 1. gnss network (simultaneous, phased-block 1)
+    # 1. gnss network (simultaneous, phased-block 1, phased, staged)
     add_test (NAME import-gnss-network COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.msr --export-dna --export-xml --export-asl --export-aml --export-map --output-msr-to-stn --test-integrity -r GDA94) 
     add_test (NAME geoid-gnss-network COMMAND $<TARGET_FILE:dnageoidwrapper> gnss -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb --convert-stn-hts --export-dna-geo)
     add_test (NAME reftran-gnss-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r gda2020 --export-dna --export-xml)
     add_test (NAME adjust-gnss-network COMMAND $<TARGET_FILE:dnaadjustwrapper> gnss --output-adj-msr --export-dna-msr --export-xml-msr)
     file (COPY ${CMAKE_SOURCE_DIR}/../sampleData/gnss_b1.net DESTINATION ./)
+    add_test (NAME import-gnss-network-similar COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss_similar ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.msr -r itrf2008 --override-input-ref-frame --search-similar-gnss-msr --quiet) 
+    add_test (NAME import-gnss-network-exclude COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss_excl ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.msr --exclude-stns-assoc-msrs "BEEC,261000380,356000780,349800490" --split) 
     add_test (NAME import-gnss-network-scaled COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss_scaled ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.msr --baseline-scalar-file ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.scalars -r GDA94) 
-    add_test (NAME import-gnss-network-block1 COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss_b1 ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.msr --export-dna --export-xml --export-asl --export-aml --export-map --output-msr-to-stn --test-integrity -r GDA94) 
+    add_test (NAME import-gnss-network-block1 COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss_b1 ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.msr --export-dna --export-xml --single-xml-file --export-asl --export-aml --export-map --output-msr-to-stn --test-integrity -r GDA94) 
     add_test (NAME segment-gnss-network-block1-a COMMAND $<TARGET_FILE:dnasegmentwrapper> gnss_b1 --min 90 --max 90 --starting-stns 220700210)
     add_test (NAME segment-gnss-network-block1-b COMMAND $<TARGET_FILE:dnasegmentwrapper> gnss_b1 --min 110 --max 110 --net-file)
     add_test (NAME segment-gnss-network-block1-c COMMAND $<TARGET_FILE:dnasegmentwrapper> gnss_b1 --min 80 --max 200 --net-file --starting-stns 211300940 --verbose 3)
     add_test (NAME adjust-gnss-network-block1 COMMAND $<TARGET_FILE:dnaadjustwrapper> gnss_b1 --block1-phased --output-adj-msr --output-adj-gnss-units 1)
+    add_test (NAME adjust-gnss-network-phased COMMAND $<TARGET_FILE:dnaadjustwrapper> gnss_b1 --phased --output-adj-msr --output-adj-gnss-units 2)
     add_test (NAME adjust-gnss-network-verb COMMAND $<TARGET_FILE:dnaadjustwrapper> gnss_b1 --verbose 5)
+    add_test (NAME adjust-gnss-network-staged-a COMMAND $<TARGET_FILE:dnaadjustwrapper> gnss_b1 --staged-adjustment --create-stage-files --output-adj-msr --output-adj-gnss-units 2 --sort-adj-msr-field 4)
+    add_test (NAME adjust-gnss-network-staged-b COMMAND $<TARGET_FILE:dnaadjustwrapper> gnss_b1 --staged-adjustment --output-adj-msr --output-adj-gnss-units 3 --output-stn-blocks --output-msr-blocks --sort-adj-msr-field 5)
     
     # 2. urban network (phased-sequential)
     add_test (NAME import-urban-network COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr)
@@ -324,6 +329,10 @@ if (BUILD_TESTING)
     add_test (NAME dyn-help-02 COMMAND $<TARGET_FILE:dynadjust> --help-module generic)
     add_test (NAME dyn-version-01 COMMAND $<TARGET_FILE:dynadjust> --version)
 
+    # 13. database id
+    add_test (NAME import-dbid COMMAND $<TARGET_FILE:dnaimportwrapper> -n dbid ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr) 
+    add_test (NAME adjust-dbid COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --output-adj-msr --output-database-ids --output-ignored-msrs --sort-adj-msr-field 6)
+    
     # set execution dependencies (the execution of tests must be sequential)
     set_tests_properties(
         import-gnss-network geoid-gnss-network adjust-gnss-network

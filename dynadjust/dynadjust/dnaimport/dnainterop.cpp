@@ -73,21 +73,6 @@ dna_import::dna_import()
 	stn_discontinuities_.clear();
 }
 
-dna_import::dna_import(const dna_import& newdynamlparser)
-{
-	ifsInputFILE_ = newdynamlparser.ifsInputFILE_;
-	percentComplete_ = newdynamlparser.percentComplete_;
-	sifsFileSize_ = newdynamlparser.sifsFileSize_;
-	isProcessing_ = newdynamlparser.isProcessing_;
-	
-	p_parsemsr_tally = newdynamlparser.p_parsemsr_tally;
-	p_parsestn_tally = newdynamlparser.p_parsestn_tally;
-
-	stn_discontinuities_.clear();
-
-	m_strProjectDefaultEpoch = DEFAULT_EPOCH;
-}
-
 dna_import::~dna_import()
 {
 

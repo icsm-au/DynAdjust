@@ -31,18 +31,11 @@ dna_segment::dna_segment()
 	network_name_ = "";
 }
 
-dna_segment::dna_segment(const dna_segment& newdnaSegment)
-{
-	isProcessing_ = newdnaSegment.isProcessing_;
-
-	network_name_ = newdnaSegment.network_name_;
-	projectSettings_ = newdnaSegment.projectSettings_;
-}
-
 dna_segment::~dna_segment()
 {
 
 }
+	
 
 void dna_segment::coutVersion()
 {

@@ -101,8 +101,12 @@ class dna_import {
 #endif
 public:
 	dna_import();
-	dna_import(const dna_import& orig);
 	virtual ~dna_import();
+
+private:
+	// Disallow use of compiler generated functions. See dnaadjust.hpp
+	dna_import(const dna_import&);	
+	dna_import& operator=(const dna_import&);
 
 public:
 	// Parse an xml file
