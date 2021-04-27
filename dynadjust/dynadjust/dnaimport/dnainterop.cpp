@@ -79,14 +79,6 @@ dna_import::~dna_import()
 }
 	
 
-void dna_import::coutVersion()
-{
-	string msg;
-	fileproc_help_header(&msg);
-	cout << msg << endl;
-}
-	
-
 double dna_import::GetProgress()
 {
 	// calculate on the fly

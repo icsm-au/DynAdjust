@@ -114,8 +114,6 @@ public:
 
 	void LoadNetworkFiles(const project_settings& projectSettings);
 	
-	static void coutVersion();
-
 private:
 
 	CDnaDatum			datum_;

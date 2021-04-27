@@ -372,8 +372,6 @@ public:
 	inline void ThreadSafeWritetoDbgFile(const string& s) { concurrent_adj_ofstream.wrtie(debug_file, s); }
 #endif
 
-	static void coutVersion();
-
 	_ADJUST_STATUS_ AdjustNetwork();
 
 	bool					isPreparing_;

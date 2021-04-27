@@ -43,13 +43,6 @@ dna_reftran::~dna_reftran()
 
 }
 
-void dna_reftran::coutVersion()
-{
-	string msg;
-	fileproc_help_header(&msg);
-	cout << msg << endl;
-}
-
 void dna_reftran::TransformBinaryFiles(const string& bstFile, const string& bmsFile, const string& newFrame, const string& newEpoch)
 {
 	// TODO - Would it be faster to use memory mapping instead of reading

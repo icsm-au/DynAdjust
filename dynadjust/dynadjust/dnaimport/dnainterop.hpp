@@ -176,8 +176,6 @@ public:
 
 	void CompleteAssociationLists(vdnaMsrPtr* vMeasurements, pvASLPtr vAssocStnList, pvUINT32 vAssocMsrList, pvstring vUnusedStns, pvUINT32 vIgnoredMsrs);
 
-	static void coutVersion();
-
 	double GetProgress();
 	inline bool IsProcessing() const { return isProcessing_; }
 	inline MsrTally& GetMsrTally() const { return *p_parsemsr_tally; }

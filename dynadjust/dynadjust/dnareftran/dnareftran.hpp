@@ -104,8 +104,6 @@ private:
 	dna_reftran& operator=(const dna_reftran&);	
 
 public:
-	static void coutVersion();
-
 	void TransformBinaryFiles(const string& bstFile, const string& bmsFile, const string& newFrame, const string& newEpoch="");
 	
 	// Returns the file progress

@@ -108,7 +108,6 @@ public:
 	inline UINT32 maxBlockSize() const { return maxBlockSize_; }
 	inline UINT32 minBlockSize() const { return minBlockSize_; }
 	
-	static void coutVersion();
 	void coutSummary() const;
 	void coutCurrentBlockSummary(ostream &os);
 
