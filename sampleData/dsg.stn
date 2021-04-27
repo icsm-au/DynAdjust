@@ -1,0 +1,21 @@
+!#=DNA 3.01 STN    08.08.2020       GDA2020    01.01.2020        13
+* Created by:   dnaimport, File import and format exchange software. 
+* Version:      1.0.2, Debug. 
+* Build:        Aug  8 2020, 15:02:26 (GNU GCC 10.2.1 20200723 (Red Hat 10.2.1-1))
+* File type:    Station file
+* Project name: tmp
+* Source files: 50k_ex.stn 
+409704930           FFF LLH      -33.5545908400      141.0009905410             29.7450    LAKE LITTRA
+409600170           FFF LLH      -34.1653411205      140.5338834181             49.4570    THIELE
+309100090           FFF LLH      -34.1736568897      141.2222094911             67.3200    MCKNIGHT
+365300060           FFF LLH      -34.1445174978      141.4600868068             64.3830    ODAY
+310211240           FFF LLH      -34.1311014400      142.1128355250             66.3300    IRYMPLE BASE
+236300210           CCC LLH      -34.3007504493      142.1121017591             62.4850    BOONOONAR
+360100260           FFF LLH      -34.3926827924      142.4702025207            103.0800    TOL TOL
+335800500           FFF LLH      -35.0342338113      142.1845573098             72.4750    OUYEN 1960
+299000080           FFF LLH      -35.1512615514      142.5342562831             91.9550    LIANIDUCK
+230900140           FFF LLH      -35.3007989603      142.5112565270             56.0840    BURUPGA     14
+269100210           FFF LLH      -35.3703846398      143.2711888440            123.8620    POLA
+212000820           FFF LLH      -35.3043378405      143.4625024111             88.0000    TUTCHEWOP
+409700110           FFF LLH      -35.0104800825      143.2934345858             71.9570    GENOE
+999999999           FFF LLH      -33.5545908490      141.0009905500             29.7450    LAKE LITTRA
