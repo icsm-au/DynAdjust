@@ -235,6 +235,25 @@ public:
 	dna_adjust();
 	virtual ~dna_adjust();
 
+private:
+	// From Williams, A. 2018, C++ Concurrency in Action, Manning Publications.
+	//
+	// The standard idiom for preventing copies of a class used to be to declare the copy
+	// constructor and copy assignment operator private and then not provide an implementation.
+	// This would cause a compile error if any code outside the class in question tried to copy an
+	// instance and a link-time error (due to lack of an implementation) if any of the class'
+	// member functions or friends tried to copy an instance.
+	// With C++11, the committee realized that this was a common idiom but also realized that it's
+	// a bit of a hack. The committee therefore provided a more general mechanism that can be
+	// applied in other cases too: you can declare a function as deleted.
+	//
+	// Disallow use of compiler generated functions. For backward compatibility with older
+	// C++ compilers, keep the "idiom" of private copy constructor and assignment operator, rather
+	// than use delete.
+	dna_adjust(const dna_adjust&);
+	dna_adjust& operator=(const dna_adjust&);
+
+public:
 	void ShrinkForwardMatrices(const UINT32 currentBlock);
 	void CarryForwardJunctions(const UINT32 currentBlock, const UINT32 nextBlock);
 	bool CarryReverseJunctions(const UINT32 currentBlock, const UINT32 nextBlock, bool MT_ReverseOrCombine);
@@ -409,16 +428,6 @@ public:
 
 private:
 
-	// The standard idiom for preventing copies of a class used to be to declare the copy
-	// constructor and copy assignment operator private and then not provide an implementation.
-	// This would cause a compile error if any code outside the class in question tried to copy an
-	// instance and a link-time error (due to lack of an implementation) if any of the class\92s
-	// member functions or friends tried to copy an instance.
-	// With C++11, the committee realized that this was a common idiom but also realized that it\92s
-	// a bit of a hack. The committee therefore provided a more general mechanism that can be
-	// applied in other cases too: you can declare a function as deleted.
-	dna_adjust& operator=(const dna_adjust& rhs);
-	
 	bool InitialiseandValidateMsrPointer(const it_vUINT32& _it_block_msr, it_vmsr_t& _it_msr);
 	bool InitialiseMeasurement(pit_vmsr_t _it_msr, bool buildnewMatrices);
 

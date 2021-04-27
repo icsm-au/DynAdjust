@@ -57,6 +57,7 @@ dna_plot::~dna_plot()
 {
 	
 }
+	
 
 void dna_plot::coutVersion()
 {

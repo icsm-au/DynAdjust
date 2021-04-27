@@ -38,11 +38,6 @@ dna_reftran::dna_reftran()
 	rft_file = 0;
 }
 
-//dna_reftran::dna_reftran(const dna_reftran& newdnaReftran)
-//{
-//	
-//}
-
 dna_reftran::~dna_reftran()
 {
 

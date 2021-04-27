@@ -88,6 +88,7 @@ class DNAREFTRAN_API dna_reftran {
 #else
 class dna_reftran {
 #endif
+
 public:
 	dna_reftran();
 	dna_reftran(const project_settings& p, std::ofstream* f_out) {
@@ -97,6 +98,12 @@ public:
 	}
 	virtual ~dna_reftran();
 
+private:
+	// Disallow use of compiler generated functions. See dnaadjust.hpp
+	dna_reftran(const dna_reftran&);
+	dna_reftran& operator=(const dna_reftran&);	
+
+public:
 	static void coutVersion();
 
 	void TransformBinaryFiles(const string& bstFile, const string& bmsFile, const string& newFrame, const string& newEpoch="");

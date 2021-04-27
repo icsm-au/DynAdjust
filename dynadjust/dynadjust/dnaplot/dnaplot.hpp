@@ -97,10 +97,17 @@ class DNAPLOT_API dna_plot {
 #else
 class dna_plot {
 #endif
+
 public:
 	dna_plot();
 	virtual ~dna_plot();
 
+private:
+	// Disallow use of compiler generated functions. See dnaadjust.hpp
+	dna_plot(const dna_plot&);
+	dna_plot& operator=(const dna_plot&);	
+
+public:
 	_PLOT_STATUS_ CreateGMTPlot(plot_settings* plotCriteria, const string& network_name, const string& output_folder);
 	_PLOT_STATUS_ CreateSegmentationGraph(plot_settings* plotCriteria, const string& network_name, 
 		const string& output_folder, const plotGraphMode& graphMode);

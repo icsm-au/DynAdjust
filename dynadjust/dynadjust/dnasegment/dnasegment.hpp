@@ -81,11 +81,18 @@ class DNASEGMENT_API dna_segment {
 #else
 class dna_segment {
 #endif
+
 public:
 	dna_segment();
-	dna_segment(const dna_segment& orig);
 	virtual ~dna_segment();
 
+private:
+	// Disallow use of compiler generated functions. See dnaadjust.hpp
+	dna_segment(const dna_segment&);
+	dna_segment& operator=(const dna_segment&);	
+
+public:
+	
 	void PrepareSegmentation(project_settings* projectSettings);
 
 	// Segment a memory-based network and store blocked lists in memory

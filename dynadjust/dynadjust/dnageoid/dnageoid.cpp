@@ -36,17 +36,6 @@ dna_geoid_interpolation::dna_geoid_interpolation()
 	
 }
 
-dna_geoid_interpolation::dna_geoid_interpolation(const dna_geoid_interpolation& orig)
-{
-	*m_pGridfile = *orig.m_pGridfile;
-	m_dPercentComplete = orig.m_dPercentComplete;
-	m_iBytesRead = orig.m_iBytesRead;
-	m_Grid_Success = orig.m_Grid_Success;
-	m_isReading = orig.m_isReading;
-	m_isWriting = orig.m_isWriting;
-}
-	
-
 dna_geoid_interpolation::~dna_geoid_interpolation()
 {
 	ClearGridFileMemory();
