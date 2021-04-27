@@ -387,9 +387,9 @@ int SearchForSimilarMeasurements(dna_import* parserDynaML, project_settings* p, 
 		{
 			ostringstream ss_msg;
 			if (!p->i.ignore_similar_msr)
-				ss_msg << endl << "- Error: ";
-			else
 				ss_msg << endl << "- Warning: ";
+			else
+				ss_msg << endl << "- Note: ";
 
 			ss_msg << msr << " measurement" << (msr > 1 ? "s were" : " was") << 
 				" found to be very similar (if not identical)\n  to " << 
@@ -450,8 +450,8 @@ int SearchForSimilarMeasurements(dna_import* parserDynaML, project_settings* p, 
 
 			if (!p->i.ignore_similar_msr)
 			{
-				imp_file->close();
-				return EXIT_FAILURE;
+				//imp_file->close();
+				return EXIT_SUCCESS;
 			}
 		}
 		else
