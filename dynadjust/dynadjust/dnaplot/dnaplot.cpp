@@ -59,14 +59,6 @@ dna_plot::~dna_plot()
 }
 	
 
-void dna_plot::coutVersion()
-{
-	string msg;
-	fileproc_help_header(&msg);
-	cout << msg << endl;
-}
-
-
 _PLOT_STATUS_ dna_plot::CreateSegmentationGraph(plot_settings* plotCriteria, const string& network_name, 
 				const string& output_folder, const plotGraphMode& graphMode)
 {

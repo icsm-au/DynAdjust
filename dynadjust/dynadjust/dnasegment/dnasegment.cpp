@@ -37,14 +37,6 @@ dna_segment::~dna_segment()
 }
 	
 
-void dna_segment::coutVersion()
-{
-	string msg;
-	fileproc_help_header(&msg);
-	cout << msg << endl;
-}
-	
-
 double dna_segment::GetProgress() const
 { 
 	return ((bstBinaryRecords_.size() - vfreeStnList_.size()) * 100. / bstBinaryRecords_.size()); 

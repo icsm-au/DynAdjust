@@ -179,13 +179,6 @@ dna_adjust::~dna_adjust()
 }
 	
 
-void dna_adjust::coutVersion()
-{
-	string msg;
-	fileproc_help_header(&msg);
-	cout << msg << endl;
-}
-
 UINT32 dna_adjust::CurrentIteration() const 
 { 
 #ifdef MULTI_THREAD_ADJUST
