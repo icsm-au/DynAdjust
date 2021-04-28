@@ -7589,85 +7589,85 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_Y(pit_vmsr_t _it_msr, UINT32& de
 }
 	
 
-// Used by:
-//	- AdjustPhasedReverseCombine
-// nextBlock = thisBlock-1, prevBlock = thisBlock+1
-void dna_adjust::RecomputeMeasurementsCommonJunctions(
-	const UINT32& nextBlock, const UINT32& thisBlock, const UINT32& prevBlock)
-{
-	matrix_2d* estimatedStations(&v_estimatedStations_.at(thisBlock));
-	matrix_2d* measMinusComp(&v_measMinusComp_.at(thisBlock));
-
-#ifdef MULTI_THREAD_ADJUST
-	if (projectSettings_.a.multi_thread)
-	{
-		estimatedStations = &v_estimatedStationsR_.at(thisBlock);
-		measMinusComp = &v_measMinusCompR_.at(thisBlock);
-	}
-#endif
-
-	UINT32 this_stn, prev_stn(0), next_stn(0), rowCount(v_measurementParams_.at(thisBlock));
-	it_vUINT32 _it_jsl_next;
-
-	// 1. Update measured-computed for junction station measurements carried forward (from thisBlock-1)
-	for (_it_jsl_next=v_JSL_.at(nextBlock).begin(); 
-		_it_jsl_next!=v_JSL_.at(nextBlock).end(); 
-		++_it_jsl_next, next_stn += 3)
-	{
-		// At this point, station _it_jsl_next is a junction station in nextBlock AND thisBlock.
-		// Accordingly, compute meas-minus-computed using the two junction stations
-		this_stn = v_blockStationsMap_.at(thisBlock)[(*_it_jsl_next)] * 3;
-		
-		// Measured-computed for junction stations carried forward (from thisBlock-1)
-		// add station X measurement
-		measMinusComp->put(rowCount++, 0, 
-			(v_junctionEstimatesFwd_.at(nextBlock).get(next_stn, 0) -
-			estimatedStations->get(this_stn, 0)));			// X (meas - computed)
-		
-		// add station Y measurement
-		measMinusComp->put(rowCount++, 0, 
-			(v_junctionEstimatesFwd_.at(nextBlock).get(next_stn+1, 0) -
-			estimatedStations->get(this_stn+1, 0)));		// Y (meas - computed)
-		
-		// add station Z measurement
-		measMinusComp->put(rowCount++, 0, 
-			(v_junctionEstimatesFwd_.at(nextBlock).get(next_stn+2, 0) -
-			estimatedStations->get(this_stn+2, 0)));		// Z (meas - computed)
-	}
-
-	if (v_blockMeta_.at(thisBlock)._blockLast)	
-		return;
-
-	it_vUINT32 _it_jsl_this;
-
-	// 2. Update measured-computed for junction station measurements carried reverse (from thisBlock!!!)
-	// Remember, it is the junction stations on this block that are used to carry station estimates
-	// from prevBlock (thisBlock+1) to thisBlock
-	for (_it_jsl_this=v_JSL_.at(thisBlock).begin(); 
-		_it_jsl_this!=v_JSL_.at(thisBlock).end(); 
-		++_it_jsl_this, prev_stn += 3)
-	{
-		// At this point, station _it_jsl_this is a junction station in nextBlock AND thisBlock.
-		// Accordingly, compute meas-minus-computed using the two junction stations
-		this_stn = v_blockStationsMap_.at(thisBlock)[(*_it_jsl_this)] * 3;
-		
-		// Measured-computed for junction stations carried reverse (from thisBlock+1)
-		// add station X measurement
-		measMinusComp->put(rowCount++, 0, 
-			(v_junctionEstimatesRev_.at(prevBlock).get(prev_stn, 0) -
-			estimatedStations->get(this_stn, 0)));			// X (meas - computed)
-		
-		// add station Y measurement
-		measMinusComp->put(rowCount++, 0, 
-			(v_junctionEstimatesRev_.at(prevBlock).get(prev_stn+1, 0) -
-			estimatedStations->get(this_stn+1, 0)));		// Y (meas - computed)
-		
-		// add station Z measurement
-		measMinusComp->put(rowCount++, 0, 
-			(v_junctionEstimatesRev_.at(prevBlock).get(prev_stn+2, 0) -
-			estimatedStations->get(this_stn+2, 0)));		// Z (meas - computed)
-	}
-}
+// // Used by:
+// //	- AdjustPhasedReverseCombine
+// // nextBlock = thisBlock-1, prevBlock = thisBlock+1
+// void dna_adjust::RecomputeMeasurementsCommonJunctions(
+// 	const UINT32& nextBlock, const UINT32& thisBlock, const UINT32& prevBlock)
+// {
+// 	matrix_2d* estimatedStations(&v_estimatedStations_.at(thisBlock));
+// 	matrix_2d* measMinusComp(&v_measMinusComp_.at(thisBlock));
+// 
+// #ifdef MULTI_THREAD_ADJUST
+// 	if (projectSettings_.a.multi_thread)
+// 	{
+// 		estimatedStations = &v_estimatedStationsR_.at(thisBlock);
+// 		measMinusComp = &v_measMinusCompR_.at(thisBlock);
+// 	}
+// #endif
+// 
+// 	UINT32 this_stn, prev_stn(0), next_stn(0), rowCount(v_measurementParams_.at(thisBlock));
+// 	it_vUINT32 _it_jsl_next;
+// 
+// 	// 1. Update measured-computed for junction station measurements carried forward (from thisBlock-1)
+// 	for (_it_jsl_next=v_JSL_.at(nextBlock).begin(); 
+// 		_it_jsl_next!=v_JSL_.at(nextBlock).end(); 
+// 		++_it_jsl_next, next_stn += 3)
+// 	{
+// 		// At this point, station _it_jsl_next is a junction station in nextBlock AND thisBlock.
+// 		// Accordingly, compute meas-minus-computed using the two junction stations
+// 		this_stn = v_blockStationsMap_.at(thisBlock)[(*_it_jsl_next)] * 3;
+// 		
+// 		// Measured-computed for junction stations carried forward (from thisBlock-1)
+// 		// add station X measurement
+// 		measMinusComp->put(rowCount++, 0, 
+// 			(v_junctionEstimatesFwd_.at(nextBlock).get(next_stn, 0) -
+// 			estimatedStations->get(this_stn, 0)));			// X (meas - computed)
+// 		
+// 		// add station Y measurement
+// 		measMinusComp->put(rowCount++, 0, 
+// 			(v_junctionEstimatesFwd_.at(nextBlock).get(next_stn+1, 0) -
+// 			estimatedStations->get(this_stn+1, 0)));		// Y (meas - computed)
+// 		
+// 		// add station Z measurement
+// 		measMinusComp->put(rowCount++, 0, 
+// 			(v_junctionEstimatesFwd_.at(nextBlock).get(next_stn+2, 0) -
+// 			estimatedStations->get(this_stn+2, 0)));		// Z (meas - computed)
+// 	}
+// 
+// 	if (v_blockMeta_.at(thisBlock)._blockLast)	
+// 		return;
+// 
+// 	it_vUINT32 _it_jsl_this;
+// 
+// 	// 2. Update measured-computed for junction station measurements carried reverse (from thisBlock!!!)
+// 	// Remember, it is the junction stations on this block that are used to carry station estimates
+// 	// from prevBlock (thisBlock+1) to thisBlock
+// 	for (_it_jsl_this=v_JSL_.at(thisBlock).begin(); 
+// 		_it_jsl_this!=v_JSL_.at(thisBlock).end(); 
+// 		++_it_jsl_this, prev_stn += 3)
+// 	{
+// 		// At this point, station _it_jsl_this is a junction station in nextBlock AND thisBlock.
+// 		// Accordingly, compute meas-minus-computed using the two junction stations
+// 		this_stn = v_blockStationsMap_.at(thisBlock)[(*_it_jsl_this)] * 3;
+// 		
+// 		// Measured-computed for junction stations carried reverse (from thisBlock+1)
+// 		// add station X measurement
+// 		measMinusComp->put(rowCount++, 0, 
+// 			(v_junctionEstimatesRev_.at(prevBlock).get(prev_stn, 0) -
+// 			estimatedStations->get(this_stn, 0)));			// X (meas - computed)
+// 		
+// 		// add station Y measurement
+// 		measMinusComp->put(rowCount++, 0, 
+// 			(v_junctionEstimatesRev_.at(prevBlock).get(prev_stn+1, 0) -
+// 			estimatedStations->get(this_stn+1, 0)));		// Y (meas - computed)
+// 		
+// 		// add station Z measurement
+// 		measMinusComp->put(rowCount++, 0, 
+// 			(v_junctionEstimatesRev_.at(prevBlock).get(prev_stn+2, 0) -
+// 			estimatedStations->get(this_stn+2, 0)));		// Z (meas - computed)
+// 	}
+// }
 	
 
 void dna_adjust::SolveTry(bool COMPUTE_INVERSE, const UINT32& block)
