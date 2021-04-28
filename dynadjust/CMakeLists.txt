@@ -206,7 +206,7 @@ if (BUILD_TESTING)
     add_test (NAME import-urban-network-stage COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban_st ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr)
     add_test (NAME geoid-urban-network-stage COMMAND $<TARGET_FILE:dnageoidwrapper> urban_st -g ${CMAKE_SOURCE_DIR}/../sampleData/urban-network-geoid.gsb --convert-stn-hts --export-dna-geo)
     add_test (NAME segment-urban-network-stage COMMAND $<TARGET_FILE:dnasegmentwrapper> urban_st --min 90 --max 90)
-    add_test (NAME adjust-urban-network-stage COMMAND $<TARGET_FILE:dnaadjustwrapper> urban_st --phased --staged-adjustment --create-stage-files --output-adj-msr --export-sinex-file --output-pos-uncertainty --export-xml-stn-file --export-xml-msr-file --export-dna-stn-file --export-dna-msr)
+    add_test (NAME adjust-urban-network-stage COMMAND $<TARGET_FILE:dnaadjustwrapper> urban_st --phased --staged-adjustment --create-stage-files --output-adj-msr --export-sinex-file --output-pos-uncertainty --export-xml-stn-file --export-xml-msr-file --export-dna-stn-file --export-dna-msr --output-iter-adj-stn --output-iter-adj-stat --output-iter-adj-msr --output-iter-cmp-msr --stn-corrections --output-corrections-file)
     
     # 5. dynadjust project mode
     file (COPY ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn DESTINATION ./)
