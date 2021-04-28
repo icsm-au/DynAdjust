@@ -333,7 +333,7 @@ if (BUILD_TESTING)
     add_test (NAME import-dbid COMMAND $<TARGET_FILE:dnaimportwrapper> -n dbid ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr) 
     add_test (NAME adjust-dbid-01 COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --output-adj-msr --output-database-ids --output-ignored-msrs --sort-adj-msr-field 6 --output-msr-to-stn --sort-msr-to-stn-field 1 --output-iter-adj-stn --output-iter-adj-stat --output-iter-adj-msr --output-iter-cmp-msr)
     add_test (NAME adjust-dbid-02 COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --scale-normals-to-unity)
-    add_test (NAME adjust-dbid-03 COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --report-results --output-adj-msr)
+    add_test (NAME adjust-dbid-03 COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --report-results --output-adj-msr--output-pos-uncertainty --output-apu-vcv-units 1)
     add_test (NAME adjust-dbid-04 COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --comments "This is a comment that is quite lengthy in content and is relatively meaningless.  Feel free to delete this comment.")
     
     # set execution dependencies (the execution of tests must be sequential)
