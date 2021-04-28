@@ -678,7 +678,7 @@ private:
 	void PrepareDesignAndMsrMnsCmpMatricesStage(const UINT32& block);
 	void FillDesignNormalMeasurementsMatrices(bool buildnewMatrices, const UINT32& block, bool MT_ReverseOrCombine);
 	
-	void RecomputeMeasurementsCommonJunctions(const UINT32& nextBlock, const UINT32& thisBlock, const UINT32& prevBlock);
+	//void RecomputeMeasurementsCommonJunctions(const UINT32& nextBlock, const UINT32& thisBlock, const UINT32& prevBlock);
 	void AddConstraintStationstoNormalsForward(const UINT32& block);
 	void AddConstraintStationstoNormalsReverse(const UINT32& block, bool MT_ReverseOrCombine);
 	void AddConstraintStationstoNormalsCombine(const UINT32& block, bool MT_ReverseOrCombine);
