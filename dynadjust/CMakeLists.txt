@@ -179,7 +179,7 @@ if (BUILD_TESTING)
     add_test (NAME segment-gnss-network-block1-b COMMAND $<TARGET_FILE:dnasegmentwrapper> gnss_b1 --min 110 --max 110 --net-file)
     add_test (NAME segment-gnss-network-block1-c COMMAND $<TARGET_FILE:dnasegmentwrapper> gnss_b1 --min 80 --max 200 --net-file --starting-stns 211300940 --verbose 3)
     add_test (NAME adjust-gnss-network-block1 COMMAND $<TARGET_FILE:dnaadjustwrapper> gnss_b1 --block1-phased --output-adj-msr --output-adj-gnss-units 1)
-    add_test (NAME adjust-gnss-network-phased COMMAND $<TARGET_FILE:dnaadjustwrapper> gnss_b1 --phased --output-adj-msr --output-adj-gnss-units 2)
+    add_test (NAME adjust-gnss-network-phased COMMAND $<TARGET_FILE:dnaadjustwrapper> gnss_b1 --phased --output-adj-msr --output-adj-gnss-units 2 --output-iter-adj-msr)
     add_test (NAME adjust-gnss-network-verb COMMAND $<TARGET_FILE:dnaadjustwrapper> gnss_b1 --verbose 5)
     add_test (NAME adjust-gnss-network-staged-a COMMAND $<TARGET_FILE:dnaadjustwrapper> gnss_b1 --staged-adjustment --create-stage-files --output-adj-msr --output-adj-gnss-units 2 --sort-adj-msr-field 4)
     add_test (NAME adjust-gnss-network-staged-b COMMAND $<TARGET_FILE:dnaadjustwrapper> gnss_b1 --staged-adjustment --purge-stage-files --output-adj-msr --output-adj-gnss-units 3 --output-stn-blocks --output-msr-blocks --sort-adj-msr-field 5)
@@ -331,9 +331,10 @@ if (BUILD_TESTING)
 
     # 13. Handle database id, output measurement to stations, output adjustment information on each iteration, scale normals to unity, report results
     add_test (NAME import-dbid COMMAND $<TARGET_FILE:dnaimportwrapper> -n dbid ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr) 
-    add_test (NAME adjust-dbid COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --output-adj-msr --output-database-ids --output-ignored-msrs --sort-adj-msr-field 6 --output-msr-to-stn --sort-msr-to-stn-field 1 --output-iter-adj-stn --output-iter-adj-stat --output-iter-adj-msr --output-iter-cmp-msr)
-    add_test (NAME adjust-dbid COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --scale-normals-to-unity)
-    add_test (NAME adjust-dbid COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --report-results --output-adj-msr)
+    add_test (NAME adjust-dbid-01 COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --output-adj-msr --output-database-ids --output-ignored-msrs --sort-adj-msr-field 6 --output-msr-to-stn --sort-msr-to-stn-field 1 --output-iter-adj-stn --output-iter-adj-stat --output-iter-adj-msr --output-iter-cmp-msr)
+    add_test (NAME adjust-dbid-02 COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --scale-normals-to-unity)
+    add_test (NAME adjust-dbid-03 COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --report-results --output-adj-msr)
+    add_test (NAME adjust-dbid-04 COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --comments "This is a comment that is quite lengthy in content and is relatively meaningless.  Feel free to delete this comment.")
     
     # set execution dependencies (the execution of tests must be sequential)
     set_tests_properties(
