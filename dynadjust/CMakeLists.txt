@@ -182,7 +182,7 @@ if (BUILD_TESTING)
     add_test (NAME adjust-gnss-network-phased COMMAND $<TARGET_FILE:dnaadjustwrapper> gnss_b1 --phased --output-adj-msr --output-adj-gnss-units 2)
     add_test (NAME adjust-gnss-network-verb COMMAND $<TARGET_FILE:dnaadjustwrapper> gnss_b1 --verbose 5)
     add_test (NAME adjust-gnss-network-staged-a COMMAND $<TARGET_FILE:dnaadjustwrapper> gnss_b1 --staged-adjustment --create-stage-files --output-adj-msr --output-adj-gnss-units 2 --sort-adj-msr-field 4)
-    add_test (NAME adjust-gnss-network-staged-b COMMAND $<TARGET_FILE:dnaadjustwrapper> gnss_b1 --staged-adjustment --output-adj-msr --output-adj-gnss-units 3 --output-stn-blocks --output-msr-blocks --sort-adj-msr-field 5)
+    add_test (NAME adjust-gnss-network-staged-b COMMAND $<TARGET_FILE:dnaadjustwrapper> gnss_b1 --staged-adjustment --purge-stage-files --output-adj-msr --output-adj-gnss-units 3 --output-stn-blocks --output-msr-blocks --sort-adj-msr-field 5)
     
     # 2. urban network (phased-sequential)
     add_test (NAME import-urban-network COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr)
