@@ -249,7 +249,7 @@ int main(int argc, char* argv[])
 
 	ss << "- Error: Could not open dynadjust.log for writing." << endl;
 	try {
-		// Create segmentation file.  Throws runtime_error on failure.
+		// Create dynadjust log file.  Throws runtime_error on failure.
 		file_opener(dynadjust_log, dynadjustLogFilePath);
 	}
 	catch (const runtime_error& e) {
