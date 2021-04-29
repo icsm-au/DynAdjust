@@ -8249,11 +8249,19 @@ void dna_adjust::ComputeandPrintAdjMsrOnIteration()
 	// blocks at the end of an iteration
 	for (UINT32 block(0); block<blockCount_; ++block)
 	{
+		if (projectSettings_.a.stage)
+			DeserialiseBlockFromMappedFile(block, 4, sf_normals,
+				sf_meas_minus_comp, sf_design, sf_prec_adj_msrs);
+
 		// send subvector of measurements from this block
 		end = begin + v_CML_.at(block).size();
 		ComputeandPrintAdjMsrBlockOnIteration(block, v_uint32_u32u32_pair(begin, end), printHeader);
 		begin = end;
 		printHeader = false;
+
+		if (projectSettings_.a.stage)
+			UnloadBlock(block, 4, sf_normals,
+				sf_meas_minus_comp, sf_design, sf_prec_adj_msrs);
 	}
 }
 
