@@ -115,6 +115,51 @@ bool ExportNTv2GridToBinary(dna_geoid_interpolation* g, const char* dat_gridfile
 	return true;
 }
 
+void ReturnBadStationRecords(dna_geoid_interpolation* g, project_settings& p)
+{
+	string records, filename(p.g.network_name);
+	string badpointsPath(formPath<string>(p.g.output_folder, filename, "gil"));
+	stringstream ss;
+	std::ofstream badpoints_log;
+
+	ss << "- Error: Could not open " << filename << " for writing." << endl;
+	try {
+		// Create dynadjust log file.  Throws runtime_error on failure.
+		file_opener(badpoints_log, badpointsPath);
+	}
+	catch (const runtime_error& e) {
+		ss << e.what();
+		throw boost::enable_current_exception(runtime_error(ss.str()));
+	}
+	catch (...) {
+		throw boost::enable_current_exception(runtime_error(ss.str()));
+	}
+
+	// Print formatted header
+	print_file_header(badpoints_log, "DYNADJUST GEOID INTERPOLATION LOG FILE");
+
+	badpoints_log << setw(PRINT_VAR_PAD) << left << "File name:" << badpointsPath << endl << endl;
+	
+	badpoints_log << setw(PRINT_VAR_PAD) << left << "Command line arguments: ";
+	badpoints_log << p.n.command_line_arguments << endl << endl;
+
+	badpoints_log << setw(PRINT_VAR_PAD) << left << "Network name:" <<  p.g.network_name << endl;
+	badpoints_log << setw(PRINT_VAR_PAD) << left << "Stations file:" << system_complete(p.n.bst_file).string() << endl;
+	badpoints_log << setw(PRINT_VAR_PAD) << left << "Geoid model: " << system_complete(p.n.ntv2_geoid_file).string() << endl << endl;
+
+	badpoints_log << setw(PRINT_VAR_PAD) << left << "Stations not interpolated:" << g->PointsNotInterpolated() << endl << endl;
+
+	records = g->ReturnBadStationRecords();
+
+	badpoints_log << records << endl;
+
+	badpoints_log.close();
+
+	cout << endl << "  See " << badpointsPath << " to view the list of stations for which an" << endl <<
+		"  N-value could not be interpolated." << endl;
+
+}
+
 
 	
 bool createGridIndex(dna_geoid_interpolation* g, const char* gridfilePath, const char* gridfileType, const int& quiet)
@@ -1018,15 +1063,20 @@ int main(int argc, char* argv[])
 				else
 					cout << " stations";
 
-				cout << " could not be interpolated";
+				cout << " could not be interpolated.  ";
 					
 				if (p.g.verbose > 0)
 				{
-					cout << ":" << endl;
-					cout << g.ReturnBadStationRecords();
+					try {
+						ReturnBadStationRecords(&g, p);
+					}
+					catch (const runtime_error& e) {
+						// print error message, and continue
+						cout << "- Error: " << e.what() << endl;
+					}
 				}
 				else
-					cout << ".  To view the list of stations " << endl <<
+					cout << "To view the list of stations " << endl <<
 						"  for which a height could not be interpolated, call " << __BINARY_NAME__ << " with --verbose-level 1." << endl;
 			}
 			// If this point is reached, then this wrapper must have been called
