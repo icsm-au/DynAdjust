@@ -143,8 +143,6 @@ private:
 	dna_geoid_interpolation& operator=(const dna_geoid_interpolation&);	
 
 public:
-	static void Version(char* version);
-
 	// Interpolates AusGeoid values using bi linear interpolation 
 	void FileTransformation(const char* fileIn, const char* fileOut, const int& method, 
 		const int& intEllipsoidtoOrtho, const int& intDmsFlag, 

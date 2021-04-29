@@ -147,13 +147,6 @@ void dna_geoid_interpolation::PopulateStationRecords(const int& method, bool con
 }
 
 
-void dna_geoid_interpolation::Version(char* version)
-{
-	string msg;
-	fileproc_help_header(&msg);
-	sprintf(version, "%s", msg.c_str());
-}
-
 void dna_geoid_interpolation::ProcessCsvFile(std::ifstream* f_in, std::ofstream* f_out, std::ofstream* f_dnageo, const int& method, const int& intEllipsoidtoOrtho, const int& intDmsFlag)
 {
 	m_fileMode = true;
