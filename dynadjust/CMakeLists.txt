@@ -247,6 +247,8 @@ if (BUILD_TESTING)
     add_test (NAME geo-ntv2-create-02 COMMAND $<TARGET_FILE:dnageoidwrapper> -d ${CMAKE_SOURCE_DIR}/../sampleData/ausgeoid09_gda94_v1.01_clip_1x1.dat -c -g ausgeoid_clip_1.0.1.0.gsb --grid-shift radians --grid-version 1.0.1.0 --system-fr ___GDA94 --system-to ___AHD71 --sub-grid-n 1D-grid --creation 21.04.2021 --update 22.04.2021)
     add_test (NAME geo-ntv2-export-01 COMMAND $<TARGET_FILE:dnageoidwrapper> -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb --export-ntv2-asc)
     add_test (NAME geo-ntv2-export-02 COMMAND $<TARGET_FILE:dnageoidwrapper> -g ./gnss-network-geoid.gsb.asc --export-ntv2-gsb)
+    add_test (NAME imp-outside COMMAND $<TARGET_FILE:dnaimportwrapper> -n outside ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr)
+    add_test (NAME geo-outside COMMAND $<TARGET_FILE:dnageoidwrapper> outside -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb --convert --verbose 1)
 
     # bash command to check results
     add_test (NAME test-gnss-network COMMAND bash -c "diff <(tail -n +53 gnss.simult.adj) <(tail -n +53 ${CMAKE_SOURCE_DIR}/../sampleData/gnss.simult.adj.expected)")
