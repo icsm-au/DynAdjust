@@ -32,6 +32,12 @@ dna_geoid_interpolation::dna_geoid_interpolation()
 	, m_dPercentComplete(0.0)
 	, m_iBytesRead(0)
 	, m_Grid_Success(ERR_TRANS_SUCCESS)
+	, m_pointsInterpolated(0)
+	, m_pointsNotInterpolated(0)
+	, m_exportDNAGeoidFile(false)
+	, m_fileMode(false)
+	, m_inputCoordinates("")
+	, m_isRadians(false)
 {
 	
 }
@@ -1105,6 +1111,7 @@ void dna_geoid_interpolation::CreateNTv2File(const char* datFile, const n_file_p
 	}
 
 	// update with relevant details from DAT file
+	// convert to seconds (default)
 	GridfileTmp.ptrIndex[0].dSlat = min_lat * DEG_TO_SEC;
 	GridfileTmp.ptrIndex[0].dNlat = max_lat * DEG_TO_SEC;
 	GridfileTmp.ptrIndex[0].dElong = min_lon * DEG_TO_SEC;
@@ -1142,9 +1149,16 @@ void dna_geoid_interpolation::CreateNTv2File(const char* datFile, const n_file_p
 	// Now, write to the new binary file
 	//
 
-	// Print default header info.
-	PrintDefaultGridHeaderInfo(&f_out, &GridfileTmp);
-	PrintDefaultSubGridHeaderInfo(&f_out, GridfileTmp.ptrIndex, grid->chGs_type);
+	// Default option is to create a geoid grid file in seconds.
+	// Change to Radians if required
+	geoidConversion conversionType(geoidConversion::Same);
+	string shiftType(grid->chGs_type);
+	if (iequals(trimstr(shiftType), "radians"))
+		conversionType = SecondsToRadians;
+
+	// Print default header block and subgrid header block information.
+	PrintGridHeaderInfoBinary(&f_out, &GridfileTmp);
+	PrintSubGridHeaderInfoBinary(&f_out, GridfileTmp.ptrIndex, shiftType);
 	
 	// put file pointer back to beginning
 	f_in.clear();
@@ -1172,12 +1186,18 @@ void dna_geoid_interpolation::CreateNTv2File(const char* datFile, const n_file_p
 			// deflection in prime vertical (seconds)
 			ScanDatFileValues(szLine, &n_value, &c_northsouth, &lat_deg, &lat_min, &lat_sec, &c_eastwest, &lon_deg, &lon_min, &lon_sec, &dDefl_meridian, &dDefl_primev);
 
-			// Has the user specified radians?
-			if (strcmp(grid->chGs_type, "RADIANS ") == 0)
+			switch (conversionType)
 			{
-				// convert seconds values to radians
+			case SecondsToRadians:
+				// Has the user specified radians?
+				// Convert seconds values to radians
 				dDefl_meridian /= (float)RAD_TO_SEC;
 				dDefl_primev /= (float)RAD_TO_SEC;
+				break;
+			case RadiansToSeconds:
+			case Same:
+			default:
+				break;
 			}
 
 			// write to array
@@ -1219,20 +1239,16 @@ void dna_geoid_interpolation::CreateNTv2File(const char* datFile, const n_file_p
 
 
 /////////////////////////////////////////////////////////////////////////
-// ExportToAscii:  Exports a Binary NTv2 distortion grid to the specified
+// ExportToAscii:  Exports a Binary NTv2 geoid grid to the specified
 //			  output file. Any errors that occur are captured and an error
 //            value is saved to IO_Status.
 /////////////////////////////////////////////////////////////////////////
-// On Entry:  File path for Binary distortion grid file 
+// On Entry:  File path for Binary geoid grid file 
 // On Exit:   An ASCII grid file is created and saved to the specified file path
 /////////////////////////////////////////////////////////////////////////
-void dna_geoid_interpolation::ExportToAscii(const char *gridFile, const char *gridType, const char *OutputGrid, int *IO_Status)
+void dna_geoid_interpolation::ExportToAscii(const char *gridFile, const char *gridType, const char* shiftType, const char *OutputGrid, int *IO_Status)
 {
-	int i, j;
-	float fTemp;
-	
 	*IO_Status = ERR_TRANS_SUCCESS;
-
 	m_dPercentComplete = 0.0;
 
 	// Open grid file
@@ -1258,7 +1274,7 @@ void dna_geoid_interpolation::ExportToAscii(const char *gridFile, const char *gr
 	std::ofstream f_out;
 	*IO_Status = ERR_OUTFILE_WRITE;
 	try {
-		// Create distortion grid file.  Throws runtime_error on failure.
+		// Create geoid grid file.  Throws runtime_error on failure.
 		file_opener(f_out, OutputGrid);
 	}
 	catch (const runtime_error& e) {
@@ -1268,50 +1284,38 @@ void dna_geoid_interpolation::ExportToAscii(const char *gridFile, const char *gr
 			"  " << e.what();
 		throw NetGeoidException(ss.str(), ERR_OUTFILE_WRITE);
 	}
+
 	*IO_Status = ERR_TRANS_SUCCESS;
-	
-	// print header block information
-	f_out << "NUM_OREC" << setw(8) << right << m_pGridfile->iH_info << endl;	// Number of header identifiers (NUM_OREC)
-	f_out << "NUM_SREC" << setw(8) << right << m_pGridfile->iSubH_info << endl;	// Number of sub-header idents (NUM_SREC)
-	f_out << "NUM_FILE" << setw(8) << right << m_pGridfile->iNumsubgrids << endl;	// number of subgrids in file (NUM_FILE)
-	f_out << "GS_TYPE " << setw(8) << right << m_pGridfile->chGs_type << endl;	// grid shift type (GS_TYPE)
-	f_out << "VERSION " << setw(8) << right << m_pGridfile->chVersion << endl;	// grid file version (VERSION)
-	f_out << "SYSTEM_F" << setw(8) << right << m_pGridfile->chSystem_f << endl;	// reference system (SYSTEM_F)
-	f_out << "SYSTEM_T" << setw(8) << right << m_pGridfile->chSystem_t << endl;	// reference system (SYSTEM_T)
-	f_out << "MAJOR_F " << setw(15) << right << fixed << setprecision(3) << m_pGridfile->daf << endl;	// semi major of from system (MAJOR_F)
-	f_out << "MINOR_F " << setw(15) << right << fixed << setprecision(3) << m_pGridfile->dbf << endl;	// semi minor of from system (MINOR_F)
-	f_out << "MAJOR_T " << setw(15) << right << fixed << setprecision(3) << m_pGridfile->dat << endl;	// semi major of to system (MAJOR_T)
-	f_out << "MINOR_T " << setw(15) << right << fixed << setprecision(3) << m_pGridfile->dbt << endl;	// semi minor of to system (MINOR_T)
-	
+
+	string shiftTypeFrom(m_pGridfile->chGs_type);
+	string shiftTypeTo(shiftType);
+	shiftTypeFrom = trimstr(shiftTypeFrom);
+	shiftTypeTo = trimstr(shiftTypeTo);
+
+	geoidConversion conversionType;
+
+	if (iequals(shiftTypeFrom, "seconds") &&
+		iequals(shiftTypeTo, "radians"))
+		conversionType = SecondsToRadians;
+	else if (iequals(shiftTypeFrom, "radians") &&
+		iequals(shiftTypeTo, "seconds"))
+		conversionType = RadiansToSeconds;
+	else
+		conversionType = Same;
+
+	strcpy(m_pGridfile->chGs_type, shiftTypeTo.c_str());
+
+	// Print header block information.
+	PrintGridHeaderInfoAscii(&f_out, m_pGridfile);
+
+	int i, j;
+	float fValue1, fValue2, fValue3, fValue4;
+
 	// loop through number of sub grids
 	for (i=0; i<m_pGridfile->iNumsubgrids; i++)
 	{
-		f_out << "SUB_NAME" << setw(8) << right << m_pGridfile->ptrIndex[i].chSubname << endl;
-		f_out << "PARENT  " << setw(8) << right << m_pGridfile->ptrIndex[i].chParent << endl;
-		f_out << "CREATED " << setw(8) << right << m_pGridfile->ptrIndex[i].chCreated << endl;
-		f_out << "UPDATED " << setw(8) << right << m_pGridfile->ptrIndex[i].chUpdated << endl;
-
-		if (strcmp(m_pGridfile->chGs_type, "RADIANS ") == 0)
-		{
-			// convert all seconds values to radians
-			f_out << "S_LAT   " << setw(15) << right << setprecision(6) << m_pGridfile->ptrIndex[i].dSlat / RAD_TO_SEC << endl;
-			f_out << "N_LAT   " << setw(15) << right << setprecision(6) << m_pGridfile->ptrIndex[i].dNlat / RAD_TO_SEC << endl;
-			f_out << "E_LONG  " << setw(15) << right << setprecision(6) << m_pGridfile->ptrIndex[i].dElong / RAD_TO_SEC << endl;
-			f_out << "W_LONG  " << setw(15) << right << setprecision(6) << m_pGridfile->ptrIndex[i].dWlong / RAD_TO_SEC << endl;
-			f_out << "LAT_INC " << setw(15) << right << setprecision(6) << m_pGridfile->ptrIndex[i].dLatinc / RAD_TO_SEC << endl;
-			f_out << "LONG_INC" << setw(15) << right << setprecision(6) << m_pGridfile->ptrIndex[i].dLonginc / RAD_TO_SEC << endl;			
-		}
-		else
-		{
-			f_out << "S_LAT   " << setw(15) << right << setprecision(6) << m_pGridfile->ptrIndex[i].dSlat << endl;
-			f_out << "N_LAT   " << setw(15) << right << setprecision(6) << m_pGridfile->ptrIndex[i].dNlat << endl;
-			f_out << "E_LONG  " << setw(15) << right << setprecision(6) << m_pGridfile->ptrIndex[i].dElong << endl;
-			f_out << "W_LONG  " << setw(15) << right << setprecision(6) << m_pGridfile->ptrIndex[i].dWlong << endl;
-			f_out << "LAT_INC " << setw(15) << right << setprecision(6) << m_pGridfile->ptrIndex[i].dLatinc << endl;
-			f_out << "LONG_INC" << setw(15) << right << setprecision(6) << m_pGridfile->ptrIndex[i].dLonginc << endl;			
-		}
-
-		f_out << "GS_COUNT" << setw(6) << right << m_pGridfile->ptrIndex[i].lGscount << endl;
+		// print sub-grid header block information
+		PrintSubGridHeaderInfoAscii(&f_out, &(m_pGridfile->ptrIndex[i]), shiftTypeTo);
 		
 		// set file pointer to file position held by ptrIndex[i].fpGridPos
 		m_pGfileptr.seekg(m_pGridfile->ptrIndex[i].iGridPos);
@@ -1320,21 +1324,43 @@ void dna_geoid_interpolation::ExportToAscii(const char *gridFile, const char *gr
 			// read / write all coordinate shifts in this sub file
 			for (j=0; j<m_pGridfile->ptrIndex[i].lGscount; j++)
 			{
-				// Latitude shift
-				m_pGfileptr.read(reinterpret_cast<char *>(&fTemp), sizeof(float));
-				f_out << setw(10) << setprecision(6) << fTemp;			
+				// N Value
+				m_pGfileptr.read(reinterpret_cast<char *>(&fValue1), sizeof(float));
+				// Deflection in Prime meridian
+				m_pGfileptr.read(reinterpret_cast<char *>(&fValue2), sizeof(float));
+				// Deflection in Prime vertical
+				m_pGfileptr.read(reinterpret_cast<char *>(&fValue3), sizeof(float));
+				// Blank (unused)
+				m_pGfileptr.read(reinterpret_cast<char *>(&fValue4), sizeof(float));
 
-				// Longitude shift
-				m_pGfileptr.read(reinterpret_cast<char *>(&fTemp), sizeof(float));
-				f_out << setw(10) << setprecision(6) << fTemp;			
+				// Write N value
+				f_out << setw(10) << fixed << setprecision(6) << fValue1;
 
-				// Latitude accuracy
-				m_pGfileptr.read(reinterpret_cast<char *>(&fTemp), sizeof(float));
-				f_out << setw(10) << setprecision(6) << fTemp;			
-				
-				// Longitude accuracy
-				m_pGfileptr.read(reinterpret_cast<char *>(&fTemp), sizeof(float));
-				f_out << setw(10) << setprecision(6) << fTemp << endl;
+				// Write deflections (check type first)
+				switch (conversionType)
+				{
+				case SecondsToRadians:
+					// convert seconds values to radians
+					f_out << setw(10) << scientific << setprecision(3) << fValue2 / RAD_TO_SEC;
+					f_out << setw(10) << scientific << setprecision(3) << fValue3 / RAD_TO_SEC;
+					break;
+				case RadiansToSeconds:
+					// convert radians values to seconds
+					f_out << setw(10) << setprecision(6) << fValue2 * RAD_TO_SEC;
+					f_out << setw(10) << setprecision(6) << fValue3 * RAD_TO_SEC;
+					break;
+				case Same:
+				default:
+					// as-is, so cater for precision
+					if (iequals(shiftTypeTo, "radians"))
+						f_out << scientific << setprecision(3);
+					f_out << setw(10) << setprecision(6) << fValue2;
+					f_out << setw(10) << setprecision(6) << fValue3;
+					break;
+				}
+
+				// Write blank value (not used for NTv2 geoid grid files)
+				f_out << setw(10) << fixed << setprecision(6) << fValue4 << endl;
 
 				m_dPercentComplete = (double)(m_pGfileptr.tellg()) / (double)m_pGridfile->iGfilelength * 100.0;	
 			}
@@ -1358,14 +1384,14 @@ void dna_geoid_interpolation::ExportToAscii(const char *gridFile, const char *gr
 
 
 /////////////////////////////////////////////////////////////////////////
-// ExportToBinary:  Exports an ASCII NTv2 distortion grid to the specified
+// ExportToBinary:  Exports an ASCII NTv2 geoid grid to the specified
 //			  output file. Any errors that occur are captured and an error
 //            value is saved to IO_Status.
 /////////////////////////////////////////////////////////////////////////
-// On Entry:  File path for ASCII distortion grid file 
+// On Entry:  File path for ASCII geoid grid file 
 // On Exit:   A Binary grid file is created and saved to the specified file path
 /////////////////////////////////////////////////////////////////////////
-void dna_geoid_interpolation::ExportToBinary(const char *gridFile, const char *gridType, const char *OutputGrid, int *IO_Status)
+void dna_geoid_interpolation::ExportToBinary(const char *gridFile, const char *gridType, const char* shiftType, const char *OutputGrid, int *IO_Status)
 {
 	*IO_Status = ERR_TRANS_SUCCESS;
 	m_dPercentComplete = 0.0;
@@ -1405,8 +1431,26 @@ void dna_geoid_interpolation::ExportToBinary(const char *gridFile, const char *g
 	}
 	*IO_Status = ERR_TRANS_SUCCESS;
 	
+	string shiftTypeFrom(m_pGridfile->chGs_type);
+	string shiftTypeTo(shiftType);
+	shiftTypeFrom = trimstr(shiftTypeFrom);
+	shiftTypeTo = trimstr(shiftTypeTo);
+
+	geoidConversion conversionType;
+
+	if (iequals(shiftTypeFrom, "seconds") &&
+		iequals(shiftTypeTo, "radians"))
+		conversionType = SecondsToRadians;
+	else if (iequals(shiftTypeFrom, "radians") &&
+		iequals(shiftTypeTo, "seconds"))
+		conversionType = RadiansToSeconds;
+	else
+		conversionType = Same;
+
+	strcpy(m_pGridfile->chGs_type, shiftTypeTo.c_str());
+
 	// print header block information
-	PrintDefaultGridHeaderInfo(&f_out, m_pGridfile);
+	PrintGridHeaderInfoBinary(&f_out, m_pGridfile);
 
 	char cBuf[DATA_RECORD];
 	float fGSRecord[5];
@@ -1415,7 +1459,7 @@ void dna_geoid_interpolation::ExportToBinary(const char *gridFile, const char *g
 	for (int j, i=0; i<m_pGridfile->iNumsubgrids; ++i)
 	{
 		// print sub-grid header block information
-		PrintDefaultSubGridHeaderInfo(&f_out, &(m_pGridfile->ptrIndex[i]), m_pGridfile->chGs_type);
+		PrintSubGridHeaderInfoBinary(&f_out, &(m_pGridfile->ptrIndex[i]), shiftTypeTo);
 		
 		m_pGfileptr.seekg(m_pGridfile->ptrIndex[i].iGridPos);
 		
@@ -1838,7 +1882,7 @@ int dna_geoid_interpolation::InterpolateNvalue_BiCubic(double dlat, double dlon,
 	// J  B  A  I
 	// H  G  F  E
 	
-	// Compute the four immediately surrounding node indeces
+	// Compute the four immediately surrounding node indices
 	iA = (iRow_Index * iGrid_Points_Per_Row) + iColumn_Index + 1;			// Lower Right node
 	iB = iA + 1;															// Lower Left node
 	iC = iA + iGrid_Points_Per_Row;											// Upper Right node
@@ -2260,7 +2304,7 @@ bool dna_geoid_interpolation::ReadAsciiShifts(geoid_values *pNShifts[], int iNod
 	pNShifts[iNodeIndex]->dDefl_meridian = fNum2;		// seconds by default
 	pNShifts[iNodeIndex]->dDefl_primev = fNum3;			// seconds by default
 
-	if (strcmp(m_pGridfile->chGs_type, "RADIANS ") == 0)
+	if (m_isRadians)
 	{
 		// convert radians values to seconds
 		pNShifts[iNodeIndex]->dDefl_meridian *= (float)RAD_TO_SEC;
@@ -2304,7 +2348,7 @@ bool dna_geoid_interpolation::ReadBinaryShifts(geoid_values *pNShifts[], int iNo
 		return false;
 	}
 	
-	if (strcmp(m_pGridfile->chGs_type, "RADIANS ") == 0)
+	if (m_isRadians)
 	{
 		// convert radians values to seconds
 		pNShifts[iNodeIndex]->dDefl_meridian *= (float)RAD_TO_SEC;
@@ -2485,6 +2529,16 @@ int dna_geoid_interpolation::OpenGridFile(const char *filename, const char *file
 	// fills the new elements with default values
 	ptheGrid->ptrIndex = new n_gridfileindex[ptheGrid->iNumsubgrids];
 
+	bool isRadians(false);
+	string shiftType(ptheGrid->chGs_type);
+	if (iequals(trimstr(shiftType), "radians"))
+	{
+		isRadians = true;
+		m_isRadians = true;
+	}
+	else
+		m_isRadians = false;
+
 	for (int i=0; i<ptheGrid->iNumsubgrids; i++)
 	{	
 		if (gridType == TYPE_ASC)		// ascii
@@ -2573,23 +2627,30 @@ int dna_geoid_interpolation::OpenGridFile(const char *filename, const char *file
 			// End of file encountered first???
 			pgrid_ifs->seekg(ptheGrid->ptrIndex[i].lGscount * iLineLength, ios::cur);
 		}
-
-		if (strcmp(ptheGrid->chGs_type, "RADIANS ") == 0)
-		{
-			// convert all radians values to seconds
-			ptheGrid->ptrIndex[i].dSlat *= RAD_TO_SEC;					// S_LAT
-			ptheGrid->ptrIndex[i].dNlat *= RAD_TO_SEC;					// N_LAT
-			ptheGrid->ptrIndex[i].dElong *= RAD_TO_SEC;					// E_LONG
-			ptheGrid->ptrIndex[i].dWlong *= RAD_TO_SEC;					// W_LONG
-			ptheGrid->ptrIndex[i].dLatinc *= RAD_TO_SEC;				// LAT_INC
-			ptheGrid->ptrIndex[i].dLonginc *= RAD_TO_SEC;				// LONG_INC
-		}
 	}
 
 	return 0;
 }
+	
 
-void dna_geoid_interpolation::PrintDefaultGridHeaderInfo(std::ofstream* f_out, n_file_par* pGridfile, bool isBinary)
+void dna_geoid_interpolation::PrintGridHeaderInfoAscii(std::ofstream* f_out, n_file_par* pGridfile)
+{
+	// print header block information
+	*f_out << "NUM_OREC" << setw(8) << right << m_pGridfile->iH_info << endl;			// Number of header identifiers (NUM_OREC)
+	*f_out << "NUM_SREC" << setw(8) << right << m_pGridfile->iSubH_info << endl;		// Number of sub-header idents (NUM_SREC)
+	*f_out << "NUM_FILE" << setw(8) << right << m_pGridfile->iNumsubgrids << endl;		// number of subgrids in file (NUM_FILE)
+	*f_out << "GS_TYPE " << setw(8) << right << m_pGridfile->chGs_type << endl;			// grid shift type (GS_TYPE)
+	*f_out << "VERSION " << setw(8) << right << m_pGridfile->chVersion << endl;			// grid file version (VERSION)
+	*f_out << "SYSTEM_F" << setw(8) << right << m_pGridfile->chSystem_f << endl;		// reference system (SYSTEM_F)
+	*f_out << "SYSTEM_T" << setw(8) << right << m_pGridfile->chSystem_t << endl;		// reference system (SYSTEM_T)
+	*f_out << "MAJOR_F " << setw(15) << right << fixed << setprecision(3) << m_pGridfile->daf << endl;	// semi major of from system (MAJOR_F)
+	*f_out << "MINOR_F " << setw(15) << right << fixed << setprecision(3) << m_pGridfile->dbf << endl;	// semi minor of from system (MINOR_F)
+	*f_out << "MAJOR_T " << setw(15) << right << fixed << setprecision(3) << m_pGridfile->dat << endl;	// semi major of to system (MAJOR_T)
+	*f_out << "MINOR_T " << setw(15) << right << fixed << setprecision(3) << m_pGridfile->dbt << endl;	// semi minor of to system (MINOR_T)
+}
+	
+
+void dna_geoid_interpolation::PrintGridHeaderInfoBinary(std::ofstream* f_out, n_file_par* pGridfile)
 {
 	char cPad[NULL_PAD + 1];
 	memset(cPad, '\0', NULL_PAD);
@@ -2598,41 +2659,64 @@ void dna_geoid_interpolation::PrintDefaultGridHeaderInfo(std::ofstream* f_out, n
 	f_out->write(reinterpret_cast<const char *>("NUM_OREC"), OVERVIEW_RECS);	// Number of header identifiers (NUM_OREC)
 	f_out->write(reinterpret_cast<char *>(&pGridfile->iH_info), sizeof(int));
 	f_out->write(reinterpret_cast<char *>(cPad), NULL_PAD);				// Pad out extra 4 bytes of null space
-	
+
 	f_out->write(reinterpret_cast<const char *>("NUM_SREC"), OVERVIEW_RECS);	// Number of header identifiers (NUM_SREC)
 	f_out->write(reinterpret_cast<char *>(&pGridfile->iSubH_info), sizeof(int));
 	f_out->write(reinterpret_cast<char *>(cPad), NULL_PAD);				// Pad out extra 4 bytes of null space
-		
+
 	f_out->write(reinterpret_cast<const char *>("NUM_FILE"), OVERVIEW_RECS);	// number of subgrids in file (NUM_FILE)
 	f_out->write(reinterpret_cast<char *>(&pGridfile->iNumsubgrids), sizeof(int));
 	f_out->write(reinterpret_cast<char *>(cPad), NULL_PAD);				// Pad out extra 4 bytes of null space
-	
+
 	f_out->write(reinterpret_cast<const char *>("GS_TYPE "), OVERVIEW_RECS);	// grid shift type (GS_TYPE)
 	f_out->write(reinterpret_cast<char *>(&pGridfile->chGs_type), OVERVIEW_RECS);
-	
+
 	f_out->write(reinterpret_cast<const char *>("VERSION "), OVERVIEW_RECS);	// grid shift version (VERSION)
 	f_out->write(reinterpret_cast<char *>(&pGridfile->chVersion), OVERVIEW_RECS);
-	
+
 	f_out->write(reinterpret_cast<const char *>("SYSTEM_F"), OVERVIEW_RECS);	// reference system (SYSTEM_F)
 	f_out->write(reinterpret_cast<char *>(&pGridfile->chSystem_f), OVERVIEW_RECS);
-	
+
 	f_out->write(reinterpret_cast<const char *>("SYSTEM_T"), OVERVIEW_RECS);	// reference system (SYSTEM_T)
 	f_out->write(reinterpret_cast<char *>(&pGridfile->chSystem_t), OVERVIEW_RECS);
-	
+
 	f_out->write(reinterpret_cast<const char *>("MAJOR_F "), OVERVIEW_RECS);	// semi major of from system (MAJOR_F)
 	f_out->write(reinterpret_cast<char *>(&pGridfile->daf), sizeof(double));
-	
+
 	f_out->write(reinterpret_cast<const char *>("MINOR_F "), OVERVIEW_RECS);	// semi minor of from system (MINOR_F)
 	f_out->write(reinterpret_cast<char *>(&pGridfile->dbf), sizeof(double));
-	
+
 	f_out->write(reinterpret_cast<const char *>("MAJOR_T "), OVERVIEW_RECS);	// semi major of to system (MAJOR_T)
 	f_out->write(reinterpret_cast<char *>(&pGridfile->dat), sizeof(double));
-	
+
 	f_out->write(reinterpret_cast<const char *>("MINOR_T "), OVERVIEW_RECS);	// semi minor of to system (MINOR_T)
 	f_out->write(reinterpret_cast<char *>(&pGridfile->dbt), sizeof(double));
 }
 
-void dna_geoid_interpolation::PrintDefaultSubGridHeaderInfo(std::ofstream* f_out, n_gridfileindex* gfIndex, const char* chGs_type, bool isBinary)
+
+void dna_geoid_interpolation::PrintSubGridHeaderInfoAscii(std::ofstream* f_out, n_gridfileindex* gfIndex, const string& shiftType)
+{
+	// Print header info for sub-grid
+	*f_out << "SUB_NAME" << setw(8) << right << gfIndex->chSubname << endl;
+	*f_out << "PARENT  " << setw(8) << right << gfIndex->chParent << endl;
+	*f_out << "CREATED " << setw(8) << right << gfIndex->chCreated << endl;
+	*f_out << "UPDATED " << setw(8) << right << gfIndex->chUpdated << endl;
+
+	// Output all values in seconds, irrespective of whether shifts are in radians or not. 
+	// NTv2 simply doesn't afford enough width for these fields to provide sufficient 
+	// precision for values in radians.
+	*f_out << "S_LAT   " << setw(15) << right << setprecision(6) << gfIndex->dSlat << endl;
+	*f_out << "N_LAT   " << setw(15) << right << setprecision(6) << gfIndex->dNlat << endl;
+	*f_out << "E_LONG  " << setw(15) << right << setprecision(6) << gfIndex->dElong << endl;
+	*f_out << "W_LONG  " << setw(15) << right << setprecision(6) << gfIndex->dWlong << endl;
+	*f_out << "LAT_INC " << setw(15) << right << setprecision(6) << gfIndex->dLatinc << endl;
+	*f_out << "LONG_INC" << setw(15) << right << setprecision(6) << gfIndex->dLonginc << endl;
+
+	*f_out << "GS_COUNT" << setw(6) << right << gfIndex->lGscount << endl;
+}
+	
+
+void dna_geoid_interpolation::PrintSubGridHeaderInfoBinary(std::ofstream* f_out, n_gridfileindex* gfIndex, const string& shiftType)
 {
 	// Print header info for sub-grid
 	f_out->write(reinterpret_cast<const char *>("SUB_NAME"), OVERVIEW_RECS);
@@ -2647,62 +2731,35 @@ void dna_geoid_interpolation::PrintDefaultSubGridHeaderInfo(std::ofstream* f_out
 	f_out->write(reinterpret_cast<const char *>("UPDATED "), OVERVIEW_RECS);
 	f_out->write(reinterpret_cast<char *>(&gfIndex->chUpdated), OVERVIEW_RECS);
 
-	if (strcmp(chGs_type, "RADIANS ") == 0)
-	{
-		double dTemp;
-		// convert all seconds values to radians
-		f_out->write(reinterpret_cast<const char *>("S_LAT   "), OVERVIEW_RECS);
-		dTemp = gfIndex->dSlat / RAD_TO_SEC;
-		f_out->write(reinterpret_cast<char *>(&dTemp), sizeof(double));
-		
-		f_out->write(reinterpret_cast<const char *>("N_LAT   "), OVERVIEW_RECS);
-		dTemp = gfIndex->dNlat / RAD_TO_SEC;
-		f_out->write(reinterpret_cast<char *>(&dTemp), sizeof(double));
-		
-		f_out->write(reinterpret_cast<const char *>("E_LONG  "), OVERVIEW_RECS);
-		dTemp = gfIndex->dElong / RAD_TO_SEC;
-		f_out->write(reinterpret_cast<char *>(&dTemp), sizeof(double));
-		
-		f_out->write(reinterpret_cast<const char *>("W_LONG  "), OVERVIEW_RECS);
-		dTemp = gfIndex->dWlong / RAD_TO_SEC;
-		f_out->write(reinterpret_cast<char *>(&dTemp), sizeof(double));
-		
-		f_out->write(reinterpret_cast<const char *>("LAT_INC "), OVERVIEW_RECS);
-		dTemp = gfIndex->dLatinc / RAD_TO_SEC;
-		f_out->write(reinterpret_cast<char *>(&dTemp), sizeof(double));
-		
-		f_out->write(reinterpret_cast<const char *>("LONG_INC"), OVERVIEW_RECS);
-		dTemp = gfIndex->dLonginc / RAD_TO_SEC;
-		f_out->write(reinterpret_cast<char *>(&dTemp), sizeof(double));
-	}
-	else
-	{
-		f_out->write(reinterpret_cast<const char *>("S_LAT   "), OVERVIEW_RECS);
-		f_out->write(reinterpret_cast<char *>(&gfIndex->dSlat), sizeof(double));
-		
-		f_out->write(reinterpret_cast<const char *>("N_LAT   "), OVERVIEW_RECS);
-		f_out->write(reinterpret_cast<char *>(&gfIndex->dNlat), sizeof(double));
-		
-		f_out->write(reinterpret_cast<const char *>("E_LONG  "), OVERVIEW_RECS);
-		f_out->write(reinterpret_cast<char *>(&gfIndex->dElong), sizeof(double));
-		
-		f_out->write(reinterpret_cast<const char *>("W_LONG  "), OVERVIEW_RECS);
-		f_out->write(reinterpret_cast<char *>(&gfIndex->dWlong), sizeof(double));
-		
-		f_out->write(reinterpret_cast<const char *>("LAT_INC "), OVERVIEW_RECS);
-		f_out->write(reinterpret_cast<char *>(&gfIndex->dLatinc), sizeof(double));
-		
-		f_out->write(reinterpret_cast<const char *>("LONG_INC"), OVERVIEW_RECS);
-		f_out->write(reinterpret_cast<char *>(&gfIndex->dLonginc), sizeof(double));
-	}
+	// Output all values in Seconds. NTv2 doesn't afford enough width for these
+	// fields to provide sufficient precision for values in radians.
+	f_out->write(reinterpret_cast<const char *>("S_LAT   "), OVERVIEW_RECS);
+	f_out->write(reinterpret_cast<char *>(&gfIndex->dSlat), sizeof(double));
+
+	f_out->write(reinterpret_cast<const char *>("N_LAT   "), OVERVIEW_RECS);
+	f_out->write(reinterpret_cast<char *>(&gfIndex->dNlat), sizeof(double));
+
+	f_out->write(reinterpret_cast<const char *>("E_LONG  "), OVERVIEW_RECS);
+	f_out->write(reinterpret_cast<char *>(&gfIndex->dElong), sizeof(double));
+
+	f_out->write(reinterpret_cast<const char *>("W_LONG  "), OVERVIEW_RECS);
+	f_out->write(reinterpret_cast<char *>(&gfIndex->dWlong), sizeof(double));
+
+	f_out->write(reinterpret_cast<const char *>("LAT_INC "), OVERVIEW_RECS);
+	f_out->write(reinterpret_cast<char *>(&gfIndex->dLatinc), sizeof(double));
+
+	f_out->write(reinterpret_cast<const char *>("LONG_INC"), OVERVIEW_RECS);
+	f_out->write(reinterpret_cast<char *>(&gfIndex->dLonginc), sizeof(double));
+	
 
 	f_out->write(reinterpret_cast<const char *>("GS_COUNT"), OVERVIEW_RECS);
 	f_out->write(reinterpret_cast<char *>(&gfIndex->lGscount), sizeof(int));
-	
+
 	char cPad[NULL_PAD + 1];
 	memset(cPad, '\0', NULL_PAD);
 	f_out->write(reinterpret_cast<char *>(cPad), NULL_PAD);				// Pad out extra 4 bytes of null space
 }
+	
 
 // Sets up the temporary grid file buffers with default parameters (based on national grid file)
 //

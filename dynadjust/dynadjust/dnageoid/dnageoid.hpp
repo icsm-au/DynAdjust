@@ -165,10 +165,10 @@ public:
 	void CreateNTv2File(const char* datFile, const n_file_par* grid);
 
 	// Exports an Binary grid file to a Ascii format
-	void ExportToAscii(const char* inputGrid, const char* gridtype, const char* outputGrid, int* IO_Status);
+	void ExportToAscii(const char* inputGrid, const char* gridType, const char* shiftType, const char* outputGrid, int* IO_Status);
 
 	// Exports an Ascii grid file to a Binary format
-	void ExportToBinary(const char* inputGrid, const char* gridtype, const char* outputGrid, int* IO_Status);
+	void ExportToBinary(const char* inputGrid, const char* gridType, const char* shiftType, const char* outputGrid, int* IO_Status);
 
 	// Prints the gridfile header information to a file_par struct
 	void ReportGridProperties(const char* fileName, const char* fileType, n_file_par* gridProperties);
@@ -204,8 +204,10 @@ private:
 	
 	// NTv2 File creation
 	void SetDefaultGridFileParametersTmp(n_file_par* ntv2_params);
-	void PrintDefaultGridHeaderInfo(std::ofstream* f_out, n_file_par* pGridfile, bool isBinary=true);
-	void PrintDefaultSubGridHeaderInfo(std::ofstream* f_out, n_gridfileindex* m_gfIndex, const char* chGs_type, bool isBinary=true);
+	void PrintGridHeaderInfoAscii(std::ofstream* f_out, n_file_par* pGridfile);
+	void PrintGridHeaderInfoBinary(std::ofstream* f_out, n_file_par* pGridfile);
+	void PrintSubGridHeaderInfoAscii(std::ofstream* f_out, n_gridfileindex* m_gfIndex, const string& shiftType);
+	void PrintSubGridHeaderInfoBinary(std::ofstream* f_out, n_gridfileindex* m_gfIndex, const string& shiftType);
 	void UpdateHeaderInfo(std::ofstream* f_out);
 	void ScanDatFileValues(char* szLine, float* n_value, char* c_northsouth, int* lat_deg, int* lat_min, float* lat_sec, char* c_eastwest, int* lon_deg, int* lon_min, float* lon_sec, float* defl_meridian, float* defl_primev);
 	void ScanNodeLocations(char* szLine, double* latitude, double* longitude, const UINT32& lNodeRead);
@@ -262,6 +264,8 @@ private:
 	bool				m_fileMode;
 
 	string				m_inputCoordinates;
+
+	bool				m_isRadians;
 };
 
 }	// namespace geoidinterpolation
