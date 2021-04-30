@@ -1480,10 +1480,36 @@ void dna_geoid_interpolation::ExportToBinary(const char *gridFile, const char *g
 				}
 				else
 				{
+					// N value
 					f_out.write(reinterpret_cast<char *>(&fGSRecord[0]), sizeof(float));
+
+					// Write deflections (check type first)
+					switch (conversionType)
+					{
+					case SecondsToRadians:
+						// convert seconds values to radians
+						fGSRecord[1] /= (float)RAD_TO_SEC;
+						fGSRecord[2] /= (float)RAD_TO_SEC;
+						break;
+					case RadiansToSeconds:
+						// convert radians values to seconds
+						fGSRecord[1] *= (float)RAD_TO_SEC;
+						fGSRecord[2] *= (float)RAD_TO_SEC;
+						break;
+					case Same:
+					default:
+						// as-is, so cater for precision
+						break;
+					}
+
+					// Deflection in Prime meridian
 					f_out.write(reinterpret_cast<char *>(&fGSRecord[1]), sizeof(float));
+					// Deflection in Prime vertical
 					f_out.write(reinterpret_cast<char *>(&fGSRecord[2]), sizeof(float));
-					f_out.write(reinterpret_cast<char *>(&fGSRecord[3]), sizeof(float));	// last element (fGSRecord[3]) is zero
+
+					// Last element (fGSRecord[3]) is zero by default, but may be used to 
+					// hold a specific value (e.g. N value uncertainty)
+					f_out.write(reinterpret_cast<char *>(&fGSRecord[3]), sizeof(float));
 				}
 
 				m_dPercentComplete = (double)(m_pGfileptr.tellg()) / (double)m_pGridfile->iGfilelength * 100.0;
