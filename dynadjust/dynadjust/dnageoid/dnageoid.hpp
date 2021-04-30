@@ -87,8 +87,10 @@ using namespace dynadjust::measurements;
 using namespace dynadjust::exception;
 using namespace dynadjust::iostreams;
 
-/* format identifiers for NTv2 grid file */
+// grid node format identifiers for ASCII NTv2 grid file
 const char* const SHIFTS = "%f%f%f%f";
+// grid node line length for ASCII NTv2 grid file
+const UINT32 ASCII_LINE_LENGTH = 40;
 	
 #define GSB		"gsb"
 #define ASC		"asc"
@@ -266,6 +268,8 @@ private:
 	string				m_inputCoordinates;
 
 	bool				m_isRadians;
+	
+	UINT32 				m_lineLength;
 };
 
 }	// namespace geoidinterpolation

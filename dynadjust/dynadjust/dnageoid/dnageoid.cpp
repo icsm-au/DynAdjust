@@ -39,7 +39,8 @@ dna_geoid_interpolation::dna_geoid_interpolation()
 	, m_inputCoordinates("")
 	, m_isRadians(false)
 {
-	
+	// Set the actual ASCII line length based on the system
+	m_lineLength = real_line_length_ascii<UINT32>(ASCII_LINE_LENGTH);
 }
 
 dna_geoid_interpolation::~dna_geoid_interpolation()
@@ -922,7 +923,7 @@ void dna_geoid_interpolation::CreateGridIndex(const char* fileName, const char* 
 	double dNum;
 	char cBuf[DATA_RECORD];
 	char ident_rec[9];
-
+	
 	int gridType = DetermineFileType(m_pGridfile->filetype);
 
 	try {
@@ -933,7 +934,7 @@ void dna_geoid_interpolation::CreateGridIndex(const char* fileName, const char* 
 		{
 			if (gridType == TYPE_ASC)		// ascii
 			{
-				filePos = m_pGridfile->ptrIndex[i].iGridPos + m_pGridfile->ptrIndex[i].lGscount * 42;
+				filePos = m_pGridfile->ptrIndex[i].iGridPos + m_pGridfile->ptrIndex[i].lGscount * m_lineLength;
 				m_pGfileptr.seekg(filePos);
 				m_pGfileptr.getline(cBuf, DATA_RECORD);
 			}
@@ -2314,7 +2315,7 @@ bool dna_geoid_interpolation::ReadAsciiShifts(geoid_values *pNShifts[], int iNod
 
 	try {
 		// calculate file position and set stream pointer
-		filePos = m_pGridfile->ptrIndex[m_pGridfile->iTheGrid].iGridPos + ((lNode-1) * 42);
+		filePos = m_pGridfile->ptrIndex[m_pGridfile->iTheGrid].iGridPos + ((lNode-1) * m_lineLength);
 		m_pGfileptr.seekg(filePos);
 			
 		// Retrieve the whole line for node A
@@ -2555,16 +2556,12 @@ int dna_geoid_interpolation::OpenGridFile(const char *filename, const char *file
 	// fills the new elements with default values
 	ptheGrid->ptrIndex = new n_gridfileindex[ptheGrid->iNumsubgrids];
 
-	bool isRadians(false);
 	string shiftType(ptheGrid->chGs_type);
 	if (iequals(trimstr(shiftType), "radians"))
-	{
-		isRadians = true;
 		m_isRadians = true;
-	}
 	else
 		m_isRadians = false;
-
+	
 	for (int i=0; i<ptheGrid->iNumsubgrids; i++)
 	{	
 		if (gridType == TYPE_ASC)		// ascii
@@ -2606,11 +2603,10 @@ int dna_geoid_interpolation::OpenGridFile(const char *filename, const char *file
 			ptheGrid->ptrIndex[i].iGridPos = (int)pgrid_ifs->tellg();
 
 			// Set the file position after the GS_COUNT number...which is the start of the next sub file.
-			pgrid_ifs->seekg(ptheGrid->ptrIndex[i].iGridPos + (ptheGrid->ptrIndex[i].lGscount * 42));
+			pgrid_ifs->seekg(ptheGrid->ptrIndex[i].iGridPos + (ptheGrid->ptrIndex[i].lGscount * m_lineLength));
 		}
 		else					// binary
-		{
-		
+		{		
 			pgrid_ifs->ignore(IDENT_BUF);	
 			pgrid_ifs->read(reinterpret_cast<char *>(ptheGrid->ptrIndex[i].chSubname), IDENT_BUF);
 			
