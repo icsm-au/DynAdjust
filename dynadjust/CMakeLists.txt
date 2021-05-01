@@ -258,6 +258,7 @@ if (BUILD_TESTING)
     add_test (NAME imp-outside COMMAND $<TARGET_FILE:dnaimportwrapper> -n outside ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr)
     add_test (NAME geo-outside-01 COMMAND $<TARGET_FILE:dnageoidwrapper> outside -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb --convert --verbose 1)
     add_test (NAME geo-outside-02 COMMAND $<TARGET_FILE:dnageoidwrapper> outside -g ./gnss-network-geoid.gsb.asc --convert --verbose 1)
+    add_test (NAME geo-inside-01 COMMAND $<TARGET_FILE:dnageoidwrapper> gnss -g ./gnss-network-geoid.gsb.asc --convert --export-dna-geo)
 
     # bash command to check results
     #add_test (NAME test-urban-phased-network COMMAND bash -c "diff <(tail -n +62 urban.phased.adj) <(tail -n +62 ${CMAKE_SOURCE_DIR}/../sampleData/urban.phased.adj.expected)")
