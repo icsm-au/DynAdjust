@@ -205,16 +205,13 @@ private:
 		n_file_par* pGridfile, bool isTEMP=true);
 	
 	// NTv2 File creation
-	void SetDefaultGridFileParametersTmp(n_file_par* ntv2_params);
 	void PrintGridHeaderInfoAscii(std::ofstream* f_out, n_file_par* pGridfile);
 	void PrintGridHeaderInfoBinary(std::ofstream* f_out, n_file_par* pGridfile);
 	void PrintSubGridHeaderInfoAscii(std::ofstream* f_out, n_gridfileindex* m_gfIndex, const string& shiftType);
 	void PrintSubGridHeaderInfoBinary(std::ofstream* f_out, n_gridfileindex* m_gfIndex, const string& shiftType);
-	void UpdateHeaderInfo(std::ofstream* f_out);
 	void ScanDatFileValues(char* szLine, float* n_value, char* c_northsouth, int* lat_deg, int* lat_min, float* lat_sec, char* c_eastwest, int* lon_deg, int* lon_min, float* lon_sec, float* defl_meridian, float* defl_primev);
 	void ScanNodeLocations(char* szLine, double* latitude, double* longitude, const UINT32& lNodeRead);
 	void ComputeLatLong(double* dlat_initial, const char& c_northsouth, const int& lat_deg, const int& lat_min, const double& lat_sec, double* dlon_initial, const char& c_eastwest, const int& lon_deg, const int& lon_min, const double& lon_sec);
-	void ReComputeGridSeparation(const double& dlat_current, const double& dlon_current, const double& dlat_previous, const double& dlon_previous);
 	void WriteBinaryRecords(std::ofstream* f_out, float n_value, float defl_meridian, float defl_primev);
 
 	// NTv2 interpolation
