@@ -3401,27 +3401,27 @@ void dna_plot::LoadStationMap()
 }
 	
 
-void dna_plot::SortandMapStations()
-{
-	UINT32 stnCount(static_cast<UINT32>(bstBinaryRecords_.size()));
-	stnsMap_.clear();
-	stnsMap_.reserve(stnCount);
-
-	// Create the Station-Name / ID map
-	string_uint32_pair stnID;
-	for (UINT32 stnIndex=0; stnIndex<stnCount; stnIndex++)
-	{
-		stnID.first = bstBinaryRecords_.at(stnIndex).stationName;
-		stnID.second = stnIndex;
-		stnsMap_.push_back(stnID);
-	}
-
-	// sort on station name (i.e. first of the pair)
-	sort(stnsMap_.begin(), stnsMap_.end(), StationNameIDCompareName());
-
-	if (stnsMap_.size() < stnCount)
-		SignalExceptionPlot("SortandMapStations(): Could not allocate sufficient memory for the Station map.", 0, NULL);
-}
+//void dna_plot::SortandMapStations()
+//{
+//	UINT32 stnCount(static_cast<UINT32>(bstBinaryRecords_.size()));
+//	stnsMap_.clear();
+//	stnsMap_.reserve(stnCount);
+//
+//	// Create the Station-Name / ID map
+//	string_uint32_pair stnID;
+//	for (UINT32 stnIndex=0; stnIndex<stnCount; stnIndex++)
+//	{
+//		stnID.first = bstBinaryRecords_.at(stnIndex).stationName;
+//		stnID.second = stnIndex;
+//		stnsMap_.push_back(stnID);
+//	}
+//
+//	// sort on station name (i.e. first of the pair)
+//	sort(stnsMap_.begin(), stnsMap_.end(), StationNameIDCompareName());
+//
+//	if (stnsMap_.size() < stnCount)
+//		SignalExceptionPlot("SortandMapStations(): Could not allocate sufficient memory for the Station map.", 0, NULL);
+//}
 	
 
 void dna_plot::LoadSegmentationFile()

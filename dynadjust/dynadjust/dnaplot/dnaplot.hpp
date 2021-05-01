@@ -136,7 +136,7 @@ private:
 		matrix_2d& currentEstimates, matrix_2d& initialEstimates);
 	void LoadCorrectionsFile();
 	
-	void SortandMapStations();
+	//void SortandMapStations();
 	void ComputeMeasurementCount();
 
 	// GMT plotting methods

@@ -5047,31 +5047,31 @@ void dna_import::SortStationsForExport(vdnaStnPtr* vStations)
 }
 	
 
-void dna_import::SortandMapStations(vdnaStnPtr* vStations, pv_string_uint32_pair vStnsMap_sortName)
-{
-	UINT32 stnCount(static_cast<UINT32>(vStations->size()));
-	vStnsMap_sortName->clear();
-	vStnsMap_sortName->reserve(stnCount);
-
-	// Sort on station name (by string, not int!!!)
-	sort(vStations->begin(), vStations->end());
-	
-	// Create the Station-Name / ID map
-	string_uint32_pair stnID;
-	for (UINT32 stnIndex=0; stnIndex<stnCount; stnIndex++)
-	{
-		stnID.first = vStations->at(stnIndex)->GetName();
-		stnID.second = stnIndex;
-		vStnsMap_sortName->push_back(stnID);
-		vStations->at(stnIndex)->SetnameOrder(stnIndex);
-	}
-
-	// sort on station name (i.e. first of the pair)
-	sort(vStnsMap_sortName->begin(), vStnsMap_sortName->end(), StationNameIDCompareName());
-
-	if (vStnsMap_sortName->size() < stnCount)
-		throw XMLInteropException("SortandMapStations(): Could not allocate sufficient memory for the Station map.", 0);
-}
+//void dna_import::SortandMapStations(vdnaStnPtr* vStations, pv_string_uint32_pair vStnsMap_sortName)
+//{
+//	UINT32 stnCount(static_cast<UINT32>(vStations->size()));
+//	vStnsMap_sortName->clear();
+//	vStnsMap_sortName->reserve(stnCount);
+//
+//	// Sort on station name (by string, not int!!!)
+//	sort(vStations->begin(), vStations->end());
+//	
+//	// Create the Station-Name / ID map
+//	string_uint32_pair stnID;
+//	for (UINT32 stnIndex=0; stnIndex<stnCount; stnIndex++)
+//	{
+//		stnID.first = vStations->at(stnIndex)->GetName();
+//		stnID.second = stnIndex;
+//		vStnsMap_sortName->push_back(stnID);
+//		vStations->at(stnIndex)->SetnameOrder(stnIndex);
+//	}
+//
+//	// sort on station name (i.e. first of the pair)
+//	sort(vStnsMap_sortName->begin(), vStnsMap_sortName->end(), StationNameIDCompareName());
+//
+//	if (vStnsMap_sortName->size() < stnCount)
+//		throw XMLInteropException("SortandMapStations(): Could not allocate sufficient memory for the Station map.", 0);
+//}
 	
 
 void dna_import::ReduceStations(vdnaStnPtr* vStations, const CDnaProjection& projection)

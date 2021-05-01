@@ -132,7 +132,7 @@ public:
 	UINT32 FindSimilarMeasurements(vdnaMsrPtr* vMeasurements, vdnaMsrPtr* vSimilarMeasurements);
 	UINT32 FindSimilarGXMeasurements(vdnaMsrPtr* vMeasurements, vdnaMsrPtr* vSimilarMeasurements);
 	void FullSortandMapStations(vdnaStnPtr* vStations, pv_string_uint32_pair vStnsMap_sortName);
-	void SortandMapStations(vdnaStnPtr* vStations, pv_string_uint32_pair vStnsMap_sortName);
+	//void SortandMapStations(vdnaStnPtr* vStations, pv_string_uint32_pair vStnsMap_sortName);
 	void SortStationsForExport(vdnaStnPtr* vStations);
 	void ReduceStations(vdnaStnPtr* vStations, const CDnaProjection& projection);
 	void ReduceStations(vdnaStnPtr* vStations, const CDnaProjection& projection, const UINT32& cores);
