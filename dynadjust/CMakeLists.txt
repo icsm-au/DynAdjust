@@ -170,6 +170,10 @@ if (BUILD_TESTING)
     add_test (NAME geoid-gnss-network COMMAND $<TARGET_FILE:dnageoidwrapper> gnss -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb --convert-stn-hts --export-dna-geo)
     add_test (NAME reftran-gnss-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r gda2020 --export-dna --export-xml)
     add_test (NAME adjust-gnss-network COMMAND $<TARGET_FILE:dnaadjustwrapper> gnss --output-adj-msr --export-dna-msr --export-xml-msr)
+
+    # bash command to check results
+    add_test (NAME test-gnss-network COMMAND bash -c "diff <(tail -n +53 gnss.simult.adj) <(tail -n +53 ${CMAKE_SOURCE_DIR}/../sampleData/gnss.simult.adj.expected)")
+    
     file (COPY ${CMAKE_SOURCE_DIR}/../sampleData/gnss_b1.net DESTINATION ./)
     add_test (NAME import-gnss-network-similar COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss_similar ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.msr -r itrf2008 --override-input-ref-frame --search-similar-gnss-msr --quiet) 
     add_test (NAME import-gnss-network-exclude COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss_excl ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.msr --exclude-stns-assoc-msrs "BEEC,261000380,356000780,349800490" --split) 
@@ -252,10 +256,10 @@ if (BUILD_TESTING)
     add_test (NAME geo-ntv2-export-03 COMMAND $<TARGET_FILE:dnageoidwrapper> -g ./gnss-network-geoid.gsb.asc --export-ntv2-gsb)
     add_test (NAME geo-ntv2-export-04 COMMAND $<TARGET_FILE:dnageoidwrapper> -g ./gnss-network-geoid.gsb.asc --export-ntv2-gsb --grid-shift-type radians)
     add_test (NAME imp-outside COMMAND $<TARGET_FILE:dnaimportwrapper> -n outside ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr)
-    add_test (NAME geo-outside COMMAND $<TARGET_FILE:dnageoidwrapper> outside -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb --convert --verbose 1)
+    add_test (NAME geo-outside-01 COMMAND $<TARGET_FILE:dnageoidwrapper> outside -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb --convert --verbose 1)
+    add_test (NAME geo-outside-02 COMMAND $<TARGET_FILE:dnageoidwrapper> outside -g ./gnss-network-geoid.gsb.asc --convert --verbose 1)
 
     # bash command to check results
-    add_test (NAME test-gnss-network COMMAND bash -c "diff <(tail -n +53 gnss.simult.adj) <(tail -n +53 ${CMAKE_SOURCE_DIR}/../sampleData/gnss.simult.adj.expected)")
     #add_test (NAME test-urban-phased-network COMMAND bash -c "diff <(tail -n +62 urban.phased.adj) <(tail -n +62 ${CMAKE_SOURCE_DIR}/../sampleData/urban.phased.adj.expected)")
     #add_test (NAME test-urban-thread-network COMMAND bash -c "diff <(tail -n +64 urban_mt.phased-mt.adj) <(tail -n +64 ${CMAKE_SOURCE_DIR}/../sampleData/urban_mt.phased-mt.adj.expected)")
 
