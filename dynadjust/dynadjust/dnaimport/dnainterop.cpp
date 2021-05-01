@@ -5357,8 +5357,10 @@ void dna_import::SerialiseMapTextFile(const string& stnmap_file)
 void dna_import::SerialiseDiscontTextFile(const string& discont_file)
 {
 	std::ofstream discont_outfile;
+	
 	try {
-		string outfileName(discont_file);
+		path discontFile(discont_file);
+		string outfileName = discontFile.filename().string();
 		outfileName.append(".discont");
 		// Open discontinuity output file.  Throws runtime_error on failure.
 		file_opener(discont_outfile, outfileName,

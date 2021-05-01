@@ -350,7 +350,7 @@ if (BUILD_TESTING)
     add_test (NAME adjust-dbid-04 COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --comments "This is a comment that is quite lengthy in content and is relatively meaningless.  Feel free to delete this comment.")
 
     # 13. Renaming, 
-    add_test (NAME import-misc-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-ignored.msr --stn-renaming-file ${CMAKE_SOURCE_DIR}/../sampleData/dsg.renaming)
+    add_test (NAME import-misc-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-ignored.msr --stn-renaming-file ${CMAKE_SOURCE_DIR}/../sampleData/dsg.renaming --export-xml)
     
     # set execution dependencies (the execution of tests must be sequential)
     set_tests_properties(
