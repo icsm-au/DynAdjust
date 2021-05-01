@@ -944,18 +944,21 @@ void dna_geoid_interpolation::CreateGridIndex(const char* fileName, const char* 
 				m_pGfileptr.seekg(filePos);
 
 				// read the record tag
-				m_pGfileptr.read(reinterpret_cast<char *>(ident_rec), IDENT_BUF);
+				if (!m_pGfileptr.read(reinterpret_cast<char *>(ident_rec), IDENT_BUF))
+					throw NetGeoidException(ErrorString(ERR_GRID_CORRUPT, m_pGridfile->filename), ERR_GRIDFILE_READ);
 
 				if (i == m_pGridfile->iNumsubgrids-1)
 				{
 					if (strncmp("END     ", ident_rec, IDENT_BUF) != 0)
 						throw NetGeoidException(ErrorString(ERR_GRID_CORRUPT, m_pGridfile->filename), ERR_GRID_CORRUPT);
 					// last subgrid - read the EOF value, being (double) 3.33E+32
-					m_pGfileptr.read(reinterpret_cast<char *>(&dNum), sizeof(double));
+					if (!m_pGfileptr.read(reinterpret_cast<char *>(&dNum), sizeof(double)))
+						throw NetGeoidException(ErrorString(ERR_GRID_CORRUPT, m_pGridfile->filename), ERR_GRIDFILE_READ);
 				}
 				else
 					// not the last subgrid - read the SUB_NAME
-					m_pGfileptr.read(reinterpret_cast<char *>(ident_rec), IDENT_BUF);
+					if (!m_pGfileptr.read(reinterpret_cast<char *>(ident_rec), IDENT_BUF))
+						throw NetGeoidException(ErrorString(ERR_GRID_CORRUPT, m_pGridfile->filename), ERR_GRIDFILE_READ);
 			}
 		}
 	}
@@ -1311,7 +1314,7 @@ void dna_geoid_interpolation::ExportToAscii(const char *gridFile, const char *gr
 
 	int i, j;
 	float fValue1, fValue2, fValue3, fValue4;
-
+	
 	// loop through number of sub grids
 	for (i=0; i<m_pGridfile->iNumsubgrids; i++)
 	{
@@ -1326,13 +1329,17 @@ void dna_geoid_interpolation::ExportToAscii(const char *gridFile, const char *gr
 			for (j=0; j<m_pGridfile->ptrIndex[i].lGscount; j++)
 			{
 				// N Value
-				m_pGfileptr.read(reinterpret_cast<char *>(&fValue1), sizeof(float));
+				if (!m_pGfileptr.read(reinterpret_cast<char *>(&fValue1), sizeof(float)))
+					throw NetGeoidException(ErrorString(ERR_READ_BIN_SHIFT, m_pGridfile->filename), ERR_GRIDFILE_READ);
 				// Deflection in Prime meridian
-				m_pGfileptr.read(reinterpret_cast<char *>(&fValue2), sizeof(float));
+				if (!m_pGfileptr.read(reinterpret_cast<char *>(&fValue2), sizeof(float)))
+					throw NetGeoidException(ErrorString(ERR_READ_BIN_SHIFT, m_pGridfile->filename), ERR_GRIDFILE_READ);
 				// Deflection in Prime vertical
-				m_pGfileptr.read(reinterpret_cast<char *>(&fValue3), sizeof(float));
+				if (!m_pGfileptr.read(reinterpret_cast<char *>(&fValue3), sizeof(float)))
+					throw NetGeoidException(ErrorString(ERR_READ_BIN_SHIFT, m_pGridfile->filename), ERR_GRIDFILE_READ);
 				// Blank (unused)
-				m_pGfileptr.read(reinterpret_cast<char *>(&fValue4), sizeof(float));
+				if (!m_pGfileptr.read(reinterpret_cast<char *>(&fValue4), sizeof(float)))
+					throw NetGeoidException(ErrorString(ERR_READ_BIN_SHIFT, m_pGridfile->filename), ERR_GRIDFILE_READ);
 
 				// Write N value
 				f_out << setw(10) << fixed << setprecision(6) << fValue1;
@@ -2362,13 +2369,16 @@ bool dna_geoid_interpolation::ReadBinaryShifts(geoid_values *pNShifts[], int iNo
 		int filePos = m_pGridfile->ptrIndex[m_pGridfile->iTheGrid].iGridPos + ((lNode-1) * 4 * sizeof(float));
 		m_pGfileptr.seekg(filePos);
 	
-		m_pGfileptr.read(reinterpret_cast<char *>(&fNum), sizeof(float));
+		if (!m_pGfileptr.read(reinterpret_cast<char *>(&fNum), sizeof(float)))
+			throw NetGeoidException(ErrorString(ERR_READ_BIN_SHIFT, m_pGridfile->filename), ERR_GRIDFILE_READ);
 		pNShifts[iNodeIndex]->dN_value = fNum;	
 
-		m_pGfileptr.read(reinterpret_cast<char *>(&fNum), sizeof(float));
+		if (!m_pGfileptr.read(reinterpret_cast<char *>(&fNum), sizeof(float)))
+			throw NetGeoidException(ErrorString(ERR_READ_BIN_SHIFT, m_pGridfile->filename), ERR_GRIDFILE_READ);
 		pNShifts[iNodeIndex]->dDefl_meridian = fNum;	
 
-		m_pGfileptr.read(reinterpret_cast<char *>(&fNum), sizeof(float));
+		if (!m_pGfileptr.read(reinterpret_cast<char *>(&fNum), sizeof(float)))
+			throw NetGeoidException(ErrorString(ERR_READ_BIN_SHIFT, m_pGridfile->filename), ERR_GRIDFILE_READ);
 		pNShifts[iNodeIndex]->dDefl_primev = fNum;	
 	}
 	catch (...) {
