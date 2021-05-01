@@ -127,7 +127,7 @@ bool ExportNTv2GridToBinary(dna_geoid_interpolation* g, const char* dat_gridfile
 void ReturnBadStationRecords(dna_geoid_interpolation* g, project_settings& p)
 {
 	string records, filename(p.g.network_name);
-	string badpointsPath(formPath<string>(p.g.output_folder, filename, "gil"));
+	string badpointsPath(formPath<string>(p.g.output_folder, filename, "int"));
 	stringstream ss;
 	std::ofstream badpoints_log;
 
@@ -161,6 +161,24 @@ void ReturnBadStationRecords(dna_geoid_interpolation* g, project_settings& p)
 	records = g->ReturnBadStationRecords();
 
 	badpoints_log << records << endl;
+
+	if (p.g.verbose > 1)
+	{
+		string data("<file record or filename>");
+		badpoints_log << endl << endl <<
+			"DYNADJUST GEOID INTERPOLARION ERROR CODES" << endl << endl <<
+			setw(PAD) << "Code" << "Description (short and long)" << endl <<
+			"------------------------------------------------------" << endl;
+		for (int i=ERR_AUS_BINARY; i<=ERR_INTERPOLATION_TYPE; ++i)
+		{
+			badpoints_log << 
+				setw(PAD) << i << 
+				setw(ZONE) << "Short: " << g->ErrorCaption(i) << endl <<
+				setw(PAD) << " " <<
+				setw(ZONE) << "Long:  " << g->ErrorString(i, data) << endl;
+		}
+	}
+	
 
 	badpoints_log.close();
 

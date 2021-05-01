@@ -257,8 +257,10 @@ if (BUILD_TESTING)
     add_test (NAME geo-ntv2-export-04 COMMAND $<TARGET_FILE:dnageoidwrapper> -g ./gnss-network-geoid.gsb.asc --export-ntv2-gsb --grid-shift-type radians)
     add_test (NAME imp-outside COMMAND $<TARGET_FILE:dnaimportwrapper> -n outside ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr)
     add_test (NAME geo-outside-01 COMMAND $<TARGET_FILE:dnageoidwrapper> outside -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb --convert --verbose 1)
-    add_test (NAME geo-outside-02 COMMAND $<TARGET_FILE:dnageoidwrapper> outside -g ./gnss-network-geoid.gsb.asc --convert --verbose 1)
+    add_test (NAME geo-outside-02 COMMAND $<TARGET_FILE:dnageoidwrapper> outside -g ./gnss-network-geoid.gsb.asc --convert --verbose 2)
     add_test (NAME geo-inside-01 COMMAND $<TARGET_FILE:dnageoidwrapper> gnss -g ./gnss-network-geoid.gsb.asc --convert --export-dna-geo)
+    add_test (NAME geo-inside-02 COMMAND $<TARGET_FILE:dnageoidwrapper> -g ./gnss-network-geoid.gsb.asc -t ${CMAKE_SOURCE_DIR}/../sampleData/geoid-points-dat.txt)
+    add_test (NAME geo-inside-03 COMMAND $<TARGET_FILE:dnageoidwrapper> -g ./gnss-network-geoid.gsb.asc -t ${CMAKE_SOURCE_DIR}/../sampleData/geoid-points-dat.txt --interpolation-method 0)
 
     # bash command to check results
     #add_test (NAME test-urban-phased-network COMMAND bash -c "diff <(tail -n +62 urban.phased.adj) <(tail -n +62 ${CMAKE_SOURCE_DIR}/../sampleData/urban.phased.adj.expected)")
@@ -281,7 +283,7 @@ if (BUILD_TESTING)
     #add_test (NAME ref-itrf-pmm-07 COMMAND bash -c "diff <(tail -n +6 apr.ITRF2008.01.01.2021.stn) <(tail -n +4 ${CMAKE_SOURCE_DIR}/../sampleData/apr.ITRF2008.01.01.2021.stn.expected)")
 
     # 10. station discontinuities
-    add_test (NAME imp-discont-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n discont -r itrf2005 ${CMAKE_SOURCE_DIR}/../sampleData/TEST_ITRF05.SNX --discontinuity-file ${CMAKE_SOURCE_DIR}/../sampleData/disconts20201205.snx)
+    add_test (NAME imp-discont-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n discont -r itrf2005 ${CMAKE_SOURCE_DIR}/../sampleData/TEST_ITRF05.SNX --discontinuity-file ${CMAKE_SOURCE_DIR}/../sampleData/disconts20201205.snx --export-discont-file)
     add_test (NAME imp-discont-02 COMMAND $<TARGET_FILE:dnaimportwrapper> -n discont -r itrf2005 ${CMAKE_SOURCE_DIR}/../sampleData/TEST_ITRF05.SNX --discontinuity-file ${CMAKE_SOURCE_DIR}/../sampleData/disconts20201205.snx --split-gnss --include-stn "ALIC" --export-dna)
     add_test (NAME imp-discont-03 COMMAND $<TARGET_FILE:dnaimportwrapper> -n discont -r itrf2014 --override-input-ref-frame ${CMAKE_SOURCE_DIR}/../sampleData/TEST_ITRF05.SNX ${CMAKE_SOURCE_DIR}/../sampleData/sa-gnss-stn.xml ${CMAKE_SOURCE_DIR}/../sampleData/sa-gnss-msr.xml --prefer-single-x-as-g --flag-unused --discontinuity-file ${CMAKE_SOURCE_DIR}/../sampleData/disconts20201205.snx --remove-ignored-msr --split-gnss --include-stns-assoc-msrs "ALIC" --export-dna --export-xml)
     
@@ -346,6 +348,9 @@ if (BUILD_TESTING)
     add_test (NAME adjust-dbid-02 COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --scale-normals-to-unity)
     add_test (NAME adjust-dbid-03 COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --report-results --output-adj-msr --output-pos-uncertainty --output-apu-vcv-units 1)
     add_test (NAME adjust-dbid-04 COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --comments "This is a comment that is quite lengthy in content and is relatively meaningless.  Feel free to delete this comment.")
+
+    # 13. Renaming, 
+    add_test (NAME import-misc-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-ignored.msr --stn-renaming-file ${CMAKE_SOURCE_DIR}/../sampleData/dsg.renaming --export-xml)
     
     # set execution dependencies (the execution of tests must be sequential)
     set_tests_properties(
