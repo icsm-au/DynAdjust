@@ -155,9 +155,9 @@ public:
 
 	// file handling
 	void SerialiseDNA(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, const string& stnfilename, const string& msrfilename, const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused=false);
-	void SerialiseDynaMLfromBinary(const string& outfilename, const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused=false);
+	//void SerialiseDynaMLfromBinary(const string& outfilename, const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused=false);
 	void SerialiseDynaMLfromMemory(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, const string& outfilename, const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused=false);
-	void SerialiseDynaMLSepfromBinary(const string& stnfilename, const string& msrfilename, const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused=false);
+	//void SerialiseDynaMLSepfromBinary(const string& stnfilename, const string& msrfilename, const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused=false);
 	void SerialiseDynaMLSepfromMemory(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, const string& stnfilename, const string& msrfilename, const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused=false);
 	//void SerialiseGeoidData(vdnaStnPtr* vStations, const string& geofilename);
 	void SimulateMSR(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, const string& msrfilename, const project_settings& p);

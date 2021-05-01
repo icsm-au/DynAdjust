@@ -286,9 +286,9 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 	{
 		p.i.export_dynaml = 1;
 	
-		// Export from binary
-		if (vm.count(EXPORT_FROM_BINARY))
-			p.i.export_from_bfiles = 1;
+		//// Export from binary
+		//if (vm.count(EXPORT_FROM_BINARY))
+		//	p.i.export_from_bfiles = 1;
 
 		// single file for both stations and measurements
 		if (vm.count(EXPORT_SINGLE_XML_FILE))
@@ -515,46 +515,46 @@ void ExportStationsandMeasurements(dna_import* parserDynaML, const project_setti
 	// DynaML file format
 	if (p.i.export_dynaml && (stnCount > 0 || msrCount > 0)) 
 	{
-		// The export from binary files here is merely to test functionality and to
-		// diagnose problems.  It is somewhat excessive to allow the user to choose 
-		// the source from which XML files should be exported
-		if (p.i.export_from_bfiles)
-		{
-			if (p.i.export_single_xml_file)
-			{
-				// Single output file
-				if (!p.g.quiet)
-				{
-					cout << "+ Exporting stations and measurements to " << leafStr<string>(p.i.xml_outfile) << "... ";
-					cout.flush();
-				}
-				*imp_file << "+ Exporting stations and measurements to " << leafStr<string>(p.i.xml_outfile) << "... ";
-				parserDynaML->SerialiseDynaMLfromBinary(
-					p.i.xml_outfile, p, vinput_file_meta,
-					(p.i.flag_unused_stn ? true : false));
-			}
-			else
-			{
-				// Separate output files (default)
-				if (!p.g.quiet)
-				{
-					cout << "+ Exporting stations and measurements to " << leafStr<string>(p.i.xml_stnfile) << " and " << leafStr<string>(p.i.xml_msrfile) << "... ";
-					cout.flush();
-				}
-				*imp_file << "+ Exporting stations and measurements to " << leafStr<string>(p.i.xml_stnfile) << " and " << leafStr<string>(p.i.xml_msrfile) << "... ";
-				parserDynaML->SerialiseDynaMLSepfromBinary(
-					p.i.xml_stnfile, p.i.xml_msrfile, p, vinput_file_meta,
-					(p.i.flag_unused_stn ? true : false));	
-			}
-			if (!p.g.quiet)
-			{
-				cout << "Done." << endl;
-				cout.flush();
-			}
-			*imp_file << "Done." << endl;
-		}
-		else
-		{
+		//// The export from binary files here is merely to test functionality and to
+		//// diagnose problems.  It is somewhat excessive to allow the user to choose 
+		//// the source from which XML files should be exported
+		//if (p.i.export_from_bfiles)
+		//{
+		//	if (p.i.export_single_xml_file)
+		//	{
+		//		// Single output file
+		//		if (!p.g.quiet)
+		//		{
+		//			cout << "+ Exporting stations and measurements to " << leafStr<string>(p.i.xml_outfile) << "... ";
+		//			cout.flush();
+		//		}
+		//		*imp_file << "+ Exporting stations and measurements to " << leafStr<string>(p.i.xml_outfile) << "... ";
+		//		parserDynaML->SerialiseDynaMLfromBinary(
+		//			p.i.xml_outfile, p, vinput_file_meta,
+		//			(p.i.flag_unused_stn ? true : false));
+		//	}
+		//	else
+		//	{
+		//		// Separate output files (default)
+		//		if (!p.g.quiet)
+		//		{
+		//			cout << "+ Exporting stations and measurements to " << leafStr<string>(p.i.xml_stnfile) << " and " << leafStr<string>(p.i.xml_msrfile) << "... ";
+		//			cout.flush();
+		//		}
+		//		*imp_file << "+ Exporting stations and measurements to " << leafStr<string>(p.i.xml_stnfile) << " and " << leafStr<string>(p.i.xml_msrfile) << "... ";
+		//		parserDynaML->SerialiseDynaMLSepfromBinary(
+		//			p.i.xml_stnfile, p.i.xml_msrfile, p, vinput_file_meta,
+		//			(p.i.flag_unused_stn ? true : false));	
+		//	}
+		//	if (!p.g.quiet)
+		//	{
+		//		cout << "Done." << endl;
+		//		cout.flush();
+		//	}
+		//	*imp_file << "Done." << endl;
+		//}
+		//else
+		//{
 			if (p.i.export_single_xml_file)
 			{
 				// Single output file
@@ -587,7 +587,7 @@ void ExportStationsandMeasurements(dna_import* parserDynaML, const project_setti
 				cout.flush();
 			}
 			*imp_file << "Done." << endl;
-		}		
+		//}		
 	}
 
 	// DNA file format
@@ -1040,6 +1040,8 @@ int main(int argc, char* argv[])
 				"Export stations and measurements to DynaML (DynAdjust XML) format.")
 			(EXPORT_SINGLE_XML_FILE,
 				"Create a single DynaML file for stations and measurements.")
+			// Nice, but somewhat redundant functionality that offers no
+			// benefit to the user
 			//(EXPORT_FROM_BINARY,
 			//	"Create DynaML output file using binary files. Default option uses internal memory.")
 			(EXPORT_DNA_FILES,
