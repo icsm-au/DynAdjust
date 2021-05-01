@@ -51,6 +51,7 @@ void PrintSummaryMessage(dna_adjust* netAdjust, const project_settings* p, milli
 	if (p->a.report_mode)
 	{
 		cout << "+ Printing results of last adjustment only" << endl;
+		cout_mutex.unlock();
 		return;
 	}
 

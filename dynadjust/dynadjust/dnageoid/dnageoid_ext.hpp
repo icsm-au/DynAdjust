@@ -213,10 +213,10 @@ extern "C" {
 	bool DNAGEOID_CAPI DNAGEOID_FileTransformation(const char* fileIn, const char* fileOut, const int& method, const int& intEllipsoidtoOrtho, const int& intDmsFlag, bool exportDnaGeoidFile, int* status);
 	
 	// Exports an Binary grid file to a Ascii format
-	bool DNAGEOID_CAPI DNAGEOID_ExporttoAscii(char *gridFile, char *gridType, char *outputGrid, int *status);
+	bool DNAGEOID_CAPI DNAGEOID_ExporttoAscii(char *gridFile, char *gridType, char* shiftType, char *outputGrid, int *status);
 	
 	// Exports an Ascii grid file to a Binary format
-	bool DNAGEOID_CAPI DNAGEOID_ExporttoBinary(char *gridFile, char *gridType, char *outputGrid, int *status);
+	bool DNAGEOID_CAPI DNAGEOID_ExporttoBinary(char *gridFile, char *gridType, char* shiftType, char *outputGrid, int *status);
 
 	// Returns the file progress as a percentage
 	bool DNAGEOID_CAPI DNAGEOID_ReturnFileProgress(int *percentComplete, int *status);

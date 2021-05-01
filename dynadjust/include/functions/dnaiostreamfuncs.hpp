@@ -75,6 +75,27 @@ using namespace boost::gregorian;
 //    return input;
 //}
 
+template <typename T>
+T real_line_length_ascii(const T& line_length_ascii)
+{
+	// return the real length of a line based on the system definition 
+	// of a "new line".  On Windows, a new line is comprised of two characters
+	// namely, carriage return (CR, '\r') and line feed (LF, '\n'). On Unix
+	// and Unix-like systems (Linux, mac OS, BSD, etc.), a new line is 
+	// comprised of a line feed (LF, '\n') only.
+	//
+
+#if defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
+	// "real" line length = line_length_ascii + "\n"
+	return line_length_ascii + 1;
+
+#else // #if defined(_WIN32) || defined(__WIN32__)
+	// "real" line length = line_length_ascii + "\r\n"
+	return line_length_ascii + 2;
+	
+#endif
+}
+
 
 template <typename T>
 void file_opener(

@@ -66,6 +66,13 @@ enum inverseMethod
 };
 
 
+enum geoidConversion
+{
+	Same = 0,
+	SecondsToRadians = 1,
+	RadiansToSeconds = 2
+};
+
 enum settingMode
 {
 	unknownSetting = 0,

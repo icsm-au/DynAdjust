@@ -185,11 +185,11 @@ extern "C"
 	}
 
 	// Exports an Binary grid file to a Ascii format
-	bool DNAGEOID_CAPI DNAGEOID_ExporttoAscii(char* gridFile, char* gridType, char* outputGrid, int* status)
+	bool DNAGEOID_CAPI DNAGEOID_ExporttoAscii(char* gridFile, char* gridType, const char* shiftType, char* outputGrid, int* status)
 	{
 		try {
 			*status = 0;
-			theApp.ExportToAscii(gridFile, gridType, outputGrid, status);
+			theApp.ExportToAscii(gridFile, gridType, shiftType, outputGrid, status);
 		}
 		catch (const NetGeoidException& e) {
 			*status = e.error_no();
@@ -200,11 +200,11 @@ extern "C"
 	}
 
 	// Exports an Ascii grid file to a Binary format
-	bool DNAGEOID_CAPI DNAGEOID_ExporttoBinary(char *gridFile, char *gridType, char *outputGrid, int *status)
+	bool DNAGEOID_CAPI DNAGEOID_ExporttoBinary(char *gridFile, char *gridType, char* shiftType, char *outputGrid, int *status)
 	{
 		try {
 			*status = 0;
-			theApp.ExportToBinary(gridFile, gridType, outputGrid, status);
+			theApp.ExportToBinary(gridFile, gridType, shiftType, outputGrid, status);
 		}
 		catch (const NetGeoidException& e) {
 			*status = e.error_no();
