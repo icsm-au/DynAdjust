@@ -352,8 +352,10 @@ if (BUILD_TESTING)
     # 13. Renaming, 
     add_test (NAME import-misc-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-ignored.msr --stn-renaming-file ${CMAKE_SOURCE_DIR}/../sampleData/dsg.renaming --export-xml)
     add_test (NAME import-misc-02 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg-retained.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-retained.msr --search-similar-msr --export-dna --export-xml --single-xml-file)
-    add_test (NAME import-misc-03 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ./misc.xml)
-    
+    add_test (NAME import-misc-03 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ./misc.xml ${CMAKE_SOURCE_DIR}/../sampleData/sa-gnss-stn.xml --flag-unused-stations --export-dna --export-xml)
+    add_test (NAME segment-misc-01 COMMAND $<TARGET_FILE:dnasegmentwrapper> misc --min 500 --max 500 --starting-stns 230900140)
+    add_test (NAME import-misc-04 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ./misc.xml --import-block-stn-msr 2)
+
     # set execution dependencies (the execution of tests must be sequential)
     set_tests_properties(
         import-gnss-network geoid-gnss-network adjust-gnss-network
