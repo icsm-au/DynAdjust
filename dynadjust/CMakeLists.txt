@@ -351,6 +351,7 @@ if (BUILD_TESTING)
 
     # 13. Renaming, 
     add_test (NAME import-misc-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-ignored.msr --stn-renaming-file ${CMAKE_SOURCE_DIR}/../sampleData/dsg.renaming --export-xml)
+    add_test (NAME import-misc-02 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg-retained.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-retained.msr --search-similar-msr --export-dna --export-xml --single-xml-file)
     
     # set execution dependencies (the execution of tests must be sequential)
     set_tests_properties(

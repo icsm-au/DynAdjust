@@ -132,7 +132,7 @@ public:
 	UINT32 FindSimilarMeasurements(vdnaMsrPtr* vMeasurements, vdnaMsrPtr* vSimilarMeasurements);
 	UINT32 FindSimilarGXMeasurements(vdnaMsrPtr* vMeasurements, vdnaMsrPtr* vSimilarMeasurements);
 	void FullSortandMapStations(vdnaStnPtr* vStations, pv_string_uint32_pair vStnsMap_sortName);
-	void SortandMapStations(vdnaStnPtr* vStations, pv_string_uint32_pair vStnsMap_sortName);
+	//void SortandMapStations(vdnaStnPtr* vStations, pv_string_uint32_pair vStnsMap_sortName);
 	void SortStationsForExport(vdnaStnPtr* vStations);
 	void ReduceStations(vdnaStnPtr* vStations, const CDnaProjection& projection);
 	void ReduceStations(vdnaStnPtr* vStations, const CDnaProjection& projection, const UINT32& cores);
@@ -159,7 +159,7 @@ public:
 	void SerialiseDynaMLfromMemory(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, const string& outfilename, const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused=false);
 	void SerialiseDynaMLSepfromBinary(const string& stnfilename, const string& msrfilename, const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused=false);
 	void SerialiseDynaMLSepfromMemory(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, const string& stnfilename, const string& msrfilename, const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused=false);
-	void SerialiseGeoidData(vdnaStnPtr* vStations, const string& geofilename);
+	//void SerialiseGeoidData(vdnaStnPtr* vStations, const string& geofilename);
 	void SimulateMSR(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, const string& msrfilename, const project_settings& p);
 
 	void SerialiseBst(const string& bst_filename, vdnaStnPtr* vStations, pvstring vUnusedStns, vifm_t& vinput_file_meta, bool flagUnused=false);
@@ -285,7 +285,7 @@ private:
 	void CompleteASLGpsPoints(vector<CDnaGpsPoint>* vGpsPoints, pvASLPtr vAssocStnList, 
 		pvUINT32 vAssocMsrList, PUINT32 currentBmsFileIndex);
 
-	void FindUnusedStationsInIgnoredMeasurements(vdnaMsrPtr* vMeasurements, pvASLPtr vAssocStnList, pvUINT32 vAssocMsrList, pvstring vUnusedStns, pvUINT32 vIgnoredMsrs);
+	//void FindUnusedStationsInIgnoredMeasurements(vdnaMsrPtr* vMeasurements, pvASLPtr vAssocStnList, pvUINT32 vAssocMsrList, pvstring vUnusedStns, pvUINT32 vIgnoredMsrs);
 
 	void SerialiseXmlStn(std::ifstream* ifs_stns, std::ofstream* ofs_dynaml);
 	void SerialiseXmlMsr(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, std::ofstream* ofs_dynaml);

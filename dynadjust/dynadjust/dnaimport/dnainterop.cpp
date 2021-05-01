@@ -4364,36 +4364,36 @@ void dna_import::SerialiseDynaMLSepfromMemory(vdnaStnPtr* vStations, vdnaMsrPtr*
 }
 
 
-void dna_import::SerialiseGeoidData(vdnaStnPtr* vStations, const string& geofilename)
-{
-	std::ofstream dynaml_geo_file;
-	try {
-		// Create geoid file.  Throws runtime_error on failure.
-		file_opener(dynaml_geo_file, geofilename);
-	}
-	catch (const runtime_error& e) {
-		SignalExceptionInterop(e.what(), 0, NULL);
-	}
-	
-	_it_vdnastnptr _it_stn;
-
-	try {
-		// Write header line
-		dna_comment(dynaml_geo_file, "DNA geoid file.");
-
-		// Print data to geoid file
-		for (_it_stn=vStations->begin(); _it_stn!=vStations->end(); _it_stn++)
-			_it_stn->get()->WriteGeoidfile(&dynaml_geo_file);
-		dynaml_geo_file.close();
-		
-	}
-	catch (const std::ifstream::failure& f) {
-		SignalExceptionInterop(static_cast<string>(f.what()), 0, "o", &dynaml_geo_file);
-	}
-	catch (const XMLInteropException& e)  {
-		SignalExceptionInterop(static_cast<string>(e.what()), 0, "o", &dynaml_geo_file);
-	}
-}
+//void dna_import::SerialiseGeoidData(vdnaStnPtr* vStations, const string& geofilename)
+//{
+//	std::ofstream dynaml_geo_file;
+//	try {
+//		// Create geoid file.  Throws runtime_error on failure.
+//		file_opener(dynaml_geo_file, geofilename);
+//	}
+//	catch (const runtime_error& e) {
+//		SignalExceptionInterop(e.what(), 0, NULL);
+//	}
+//	
+//	_it_vdnastnptr _it_stn;
+//
+//	try {
+//		// Write header line
+//		dna_comment(dynaml_geo_file, "DNA geoid file.");
+//
+//		// Print data to geoid file
+//		for (_it_stn=vStations->begin(); _it_stn!=vStations->end(); _it_stn++)
+//			_it_stn->get()->WriteGeoidfile(&dynaml_geo_file);
+//		dynaml_geo_file.close();
+//		
+//	}
+//	catch (const std::ifstream::failure& f) {
+//		SignalExceptionInterop(static_cast<string>(f.what()), 0, "o", &dynaml_geo_file);
+//	}
+//	catch (const XMLInteropException& e)  {
+//		SignalExceptionInterop(static_cast<string>(e.what()), 0, "o", &dynaml_geo_file);
+//	}
+//}
 	
 
 void dna_import::SerialiseXmlStn(std::ifstream* ifs_stns, std::ofstream* ofs_dynaml)
@@ -5047,31 +5047,31 @@ void dna_import::SortStationsForExport(vdnaStnPtr* vStations)
 }
 	
 
-void dna_import::SortandMapStations(vdnaStnPtr* vStations, pv_string_uint32_pair vStnsMap_sortName)
-{
-	UINT32 stnCount(static_cast<UINT32>(vStations->size()));
-	vStnsMap_sortName->clear();
-	vStnsMap_sortName->reserve(stnCount);
-
-	// Sort on station name (by string, not int!!!)
-	sort(vStations->begin(), vStations->end());
-	
-	// Create the Station-Name / ID map
-	string_uint32_pair stnID;
-	for (UINT32 stnIndex=0; stnIndex<stnCount; stnIndex++)
-	{
-		stnID.first = vStations->at(stnIndex)->GetName();
-		stnID.second = stnIndex;
-		vStnsMap_sortName->push_back(stnID);
-		vStations->at(stnIndex)->SetnameOrder(stnIndex);
-	}
-
-	// sort on station name (i.e. first of the pair)
-	sort(vStnsMap_sortName->begin(), vStnsMap_sortName->end(), StationNameIDCompareName());
-
-	if (vStnsMap_sortName->size() < stnCount)
-		throw XMLInteropException("SortandMapStations(): Could not allocate sufficient memory for the Station map.", 0);
-}
+//void dna_import::SortandMapStations(vdnaStnPtr* vStations, pv_string_uint32_pair vStnsMap_sortName)
+//{
+//	UINT32 stnCount(static_cast<UINT32>(vStations->size()));
+//	vStnsMap_sortName->clear();
+//	vStnsMap_sortName->reserve(stnCount);
+//
+//	// Sort on station name (by string, not int!!!)
+//	sort(vStations->begin(), vStations->end());
+//	
+//	// Create the Station-Name / ID map
+//	string_uint32_pair stnID;
+//	for (UINT32 stnIndex=0; stnIndex<stnCount; stnIndex++)
+//	{
+//		stnID.first = vStations->at(stnIndex)->GetName();
+//		stnID.second = stnIndex;
+//		vStnsMap_sortName->push_back(stnID);
+//		vStations->at(stnIndex)->SetnameOrder(stnIndex);
+//	}
+//
+//	// sort on station name (i.e. first of the pair)
+//	sort(vStnsMap_sortName->begin(), vStnsMap_sortName->end(), StationNameIDCompareName());
+//
+//	if (vStnsMap_sortName->size() < stnCount)
+//		throw XMLInteropException("SortandMapStations(): Could not allocate sufficient memory for the Station map.", 0);
+//}
 	
 
 void dna_import::ReduceStations(vdnaStnPtr* vStations, const CDnaProjection& projection)
@@ -6278,77 +6278,77 @@ void dna_import::CompleteAssociationLists(vdnaMsrPtr* vMeasurements, pvASLPtr vA
 }
 	
 
-// Find unused stations resulting from ignored measurements and add to the vector
-// NOTE - this function is not used
-void dna_import::FindUnusedStationsInIgnoredMeasurements(vdnaMsrPtr* vMeasurements, pvASLPtr vAssocStnList, pvUINT32 vAssocMsrList, pvstring vUnusedStns, pvUINT32 vIgnoredMsrs)
-{
-	vASLPtr::iterator _it_asl(vAssocStnList->begin()), _it_asl_begin(vAssocStnList->begin());
-
-	it_vUINT32 it_ignmsr, _it_stn_newend;
-
-	vector<CDnaDirection>* vDirns;
-	vector<CDnaDirection>::iterator it_Dirns;
-	vector<CDnaGpsBaseline>* vGpsBsls;
-	vector<CDnaGpsBaseline>::iterator it_GpsBsls;
-	vector<CDnaGpsPoint>* vGpsPnts;
-	vector<CDnaGpsPoint>::iterator it_GpsPnts;
-
-	vUINT32 vIgnoredMsrStations;
-	// Iterate through the ignored measurement list and build unique list of stations in ignored measurements
-	for (it_ignmsr=vIgnoredMsrs->begin(); it_ignmsr!=vIgnoredMsrs->end(); ++it_ignmsr)
-	{
-		switch (vMeasurements->at(*it_ignmsr)->GetTypeC())
-		{
-		case 'A':	// Horizontal angles
-			vIgnoredMsrStations.push_back(it_Dirns->GetStn3Index());			
-		case 'B':	// Geodetic azimuth
-		case 'K':	// Astronomic azimuth
-		case 'C':	// Chord dist
-		case 'E':	// Ellipsoid arc
-		case 'M':	// MSL arc
-		case 'S':	// Slope distance
-		case 'L':	// Level difference
-		case 'V':	// Zenith angle
-		case 'Z':	// Vertical angle
-			vIgnoredMsrStations.push_back(it_Dirns->GetStn2Index());
-		case 'H':	// Orthometric height
-		case 'R':	// Ellipsoidal height
-		case 'I':	// Astronomic latitude
-		case 'J':	// Astronomic longitude
-		case 'P':	// Geodetic latitude
-		case 'Q':	// Geodetic longitude
-			vIgnoredMsrStations.push_back(it_Dirns->GetStn1Index());
-			break;
-		case 'D':	// Direction set
-			vDirns = vMeasurements->at(*it_ignmsr)->GetDirections_ptr();
-			vIgnoredMsrStations.push_back(it_Dirns->GetStn1Index());
-			vIgnoredMsrStations.push_back(it_Dirns->GetStn2Index());
-			for (it_Dirns=vDirns->begin(); it_Dirns!=vDirns->end(); ++it_Dirns)
-				vIgnoredMsrStations.push_back(it_Dirns->GetStn2Index());
-			break;
-		case 'G':	// GPS Baseline (treat as single-baseline cluster)
-		case 'X':	// GPS Baseline cluster
-			vGpsBsls = vMeasurements->at(*it_ignmsr)->GetBaselines_ptr();
-			for (it_GpsBsls=vGpsBsls->begin(); it_GpsBsls!=vGpsBsls->end(); ++it_GpsBsls)
-			{
-				vIgnoredMsrStations.push_back(it_GpsBsls->GetStn1Index());
-				vIgnoredMsrStations.push_back(it_GpsBsls->GetStn2Index());
-			}
-			break;
-		case 'Y':	// GPS point cluster
-			vGpsPnts = vMeasurements->at(*it_ignmsr)->GetPoints_ptr();
-			for (it_GpsPnts=vGpsPnts->begin(); it_GpsPnts!=vGpsPnts->end(); ++it_GpsPnts)
-				vIgnoredMsrStations.push_back(it_GpsPnts->GetStn1Index());
-			break;
-		}
-	}
-
-	//sort(vIgnoredMsrStations.begin(), vIgnoredMsrStations.end());
-	//_it_stn_newend = unique(vIgnoredMsrStations.begin(), vIgnoredMsrStations.end());
-	//if (_it_stn_newend != vIgnoredMsrStations.end())
-	//	vIgnoredMsrStations.resize(_it_stn_newend - vIgnoredMsrStations.begin());
-	strip_duplicates(vIgnoredMsrStations);
-}
+//// Find unused stations resulting from ignored measurements and add to the vector
+//// NOTE - this function is not used
+//void dna_import::FindUnusedStationsInIgnoredMeasurements(vdnaMsrPtr* vMeasurements, pvASLPtr vAssocStnList, pvUINT32 vAssocMsrList, pvstring vUnusedStns, pvUINT32 vIgnoredMsrs)
+//{
+//	vASLPtr::iterator _it_asl(vAssocStnList->begin()), _it_asl_begin(vAssocStnList->begin());
+//
+//	it_vUINT32 it_ignmsr, _it_stn_newend;
+//
+//	vector<CDnaDirection>* vDirns;
+//	vector<CDnaDirection>::iterator it_Dirns;
+//	vector<CDnaGpsBaseline>* vGpsBsls;
+//	vector<CDnaGpsBaseline>::iterator it_GpsBsls;
+//	vector<CDnaGpsPoint>* vGpsPnts;
+//	vector<CDnaGpsPoint>::iterator it_GpsPnts;
+//
+//	vUINT32 vIgnoredMsrStations;
+//	// Iterate through the ignored measurement list and build unique list of stations in ignored measurements
+//	for (it_ignmsr=vIgnoredMsrs->begin(); it_ignmsr!=vIgnoredMsrs->end(); ++it_ignmsr)
+//	{
+//		switch (vMeasurements->at(*it_ignmsr)->GetTypeC())
+//		{
+//		case 'A':	// Horizontal angles
+//			vIgnoredMsrStations.push_back(it_Dirns->GetStn3Index());			
+//		case 'B':	// Geodetic azimuth
+//		case 'K':	// Astronomic azimuth
+//		case 'C':	// Chord dist
+//		case 'E':	// Ellipsoid arc
+//		case 'M':	// MSL arc
+//		case 'S':	// Slope distance
+//		case 'L':	// Level difference
+//		case 'V':	// Zenith angle
+//		case 'Z':	// Vertical angle
+//			vIgnoredMsrStations.push_back(it_Dirns->GetStn2Index());
+//		case 'H':	// Orthometric height
+//		case 'R':	// Ellipsoidal height
+//		case 'I':	// Astronomic latitude
+//		case 'J':	// Astronomic longitude
+//		case 'P':	// Geodetic latitude
+//		case 'Q':	// Geodetic longitude
+//			vIgnoredMsrStations.push_back(it_Dirns->GetStn1Index());
+//			break;
+//		case 'D':	// Direction set
+//			vDirns = vMeasurements->at(*it_ignmsr)->GetDirections_ptr();
+//			vIgnoredMsrStations.push_back(it_Dirns->GetStn1Index());
+//			vIgnoredMsrStations.push_back(it_Dirns->GetStn2Index());
+//			for (it_Dirns=vDirns->begin(); it_Dirns!=vDirns->end(); ++it_Dirns)
+//				vIgnoredMsrStations.push_back(it_Dirns->GetStn2Index());
+//			break;
+//		case 'G':	// GPS Baseline (treat as single-baseline cluster)
+//		case 'X':	// GPS Baseline cluster
+//			vGpsBsls = vMeasurements->at(*it_ignmsr)->GetBaselines_ptr();
+//			for (it_GpsBsls=vGpsBsls->begin(); it_GpsBsls!=vGpsBsls->end(); ++it_GpsBsls)
+//			{
+//				vIgnoredMsrStations.push_back(it_GpsBsls->GetStn1Index());
+//				vIgnoredMsrStations.push_back(it_GpsBsls->GetStn2Index());
+//			}
+//			break;
+//		case 'Y':	// GPS point cluster
+//			vGpsPnts = vMeasurements->at(*it_ignmsr)->GetPoints_ptr();
+//			for (it_GpsPnts=vGpsPnts->begin(); it_GpsPnts!=vGpsPnts->end(); ++it_GpsPnts)
+//				vIgnoredMsrStations.push_back(it_GpsPnts->GetStn1Index());
+//			break;
+//		}
+//	}
+//
+//	//sort(vIgnoredMsrStations.begin(), vIgnoredMsrStations.end());
+//	//_it_stn_newend = unique(vIgnoredMsrStations.begin(), vIgnoredMsrStations.end());
+//	//if (_it_stn_newend != vIgnoredMsrStations.end())
+//	//	vIgnoredMsrStations.resize(_it_stn_newend - vIgnoredMsrStations.begin());
+//	strip_duplicates(vIgnoredMsrStations);
+//}
 	
 
 void dna_import::CompleteASLDirections(_it_vdnamsrptr _it_msr, vector<CDnaDirection>* vDirections, pvASLPtr vAssocStnList, 
