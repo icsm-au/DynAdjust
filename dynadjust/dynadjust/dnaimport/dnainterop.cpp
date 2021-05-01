@@ -4062,61 +4062,62 @@ void dna_import::InitialiseDynaMLFile(const project_settings& p, vifm_t* vinput_
 		SignalExceptionInterop(e.what(), 0, NULL);
 	}
 }
-	
 
-void dna_import::SerialiseDynaMLfromBinary(const string& outfilename, 
-	const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused)
-{
-	// Load stations from binary file and serialise to XML
-	std::ifstream bst_file;
-	try {
-		// Load binary stations data.  Throws runtime_error on failure.
-		file_opener(bst_file, p.i.bst_file, ios::in | ios::binary, binary, true);
-	}
-	catch (const runtime_error& e) {
-		SignalExceptionInterop(e.what(), 0, NULL);
-	}
+// A useful, but unnecessary function	
+//
+//void dna_import::SerialiseDynaMLfromBinary(const string& outfilename, 
+//	const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused)
+//{
+//	// Load stations from binary file and serialise to XML
+//	std::ifstream bst_file;
+//	try {
+//		// Load binary stations data.  Throws runtime_error on failure.
+//		file_opener(bst_file, p.i.bst_file, ios::in | ios::binary, binary, true);
+//	}
+//	catch (const runtime_error& e) {
+//		SignalExceptionInterop(e.what(), 0, NULL);
+//	}
+//
+//	std::ofstream dynaml_file;
+//	InitialiseDynaMLFile(p, vinput_file_meta, outfilename, &dynaml_file);
+//
+//	// Write the stations (from memory)
+//	try {
+//		SerialiseXmlStn(&bst_file, &dynaml_file);
+//	}
+//	catch (const ios_base::failure& f) {
+//		SignalExceptionInterop(static_cast<string>(f.what()), 0, 
+//			"io", &bst_file, &dynaml_file);	
+//	}
+//
+//	std::ifstream bms_file;
+//	try {
+//		// Load binary measurements data.  Throws runtime_error on failure.
+//		file_opener(bms_file, p.i.bms_file, ios::in | ios::binary, binary, true);
+//	}
+//	catch (const runtime_error& e) {
+//		SignalExceptionInterop(e.what(), 0, NULL);
+//	}
+//
+//	// Write the measurements (from binary file)
+//	try {
+//		SerialiseXmlMsr(&bst_file, &bms_file, &dynaml_file);
+//	}
+//	catch (const std::ifstream::failure& f) {
+//		SignalExceptionInterop(static_cast<string>(f.what()), 0, 
+//			"iio", &bst_file, &bms_file, &dynaml_file);
+//	}
+//	catch (const XMLInteropException& e)  {
+//		SignalExceptionInterop(static_cast<string>(e.what()), 0, 
+//			"iio", &bst_file, &bms_file, &dynaml_file);
+//	}
+//
+//	bst_file.close();
+//	bms_file.close();
+//	dynaml_file << "</DnaXmlFormat>" << endl;
+//	dynaml_file.close();
+//}
 
-	std::ofstream dynaml_file;
-	InitialiseDynaMLFile(p, vinput_file_meta, outfilename, &dynaml_file);
-
-	// Write the stations (from memory)
-	try {
-		SerialiseXmlStn(&bst_file, &dynaml_file);
-	}
-	catch (const ios_base::failure& f) {
-		SignalExceptionInterop(static_cast<string>(f.what()), 0, 
-			"io", &bst_file, &dynaml_file);	
-	}
-
-	std::ifstream bms_file;
-	try {
-		// Load binary measurements data.  Throws runtime_error on failure.
-		file_opener(bms_file, p.i.bms_file, ios::in | ios::binary, binary, true);
-	}
-	catch (const runtime_error& e) {
-		SignalExceptionInterop(e.what(), 0, NULL);
-	}
-
-	// Write the measurements (from binary file)
-	try {
-		SerialiseXmlMsr(&bst_file, &bms_file, &dynaml_file);
-	}
-	catch (const std::ifstream::failure& f) {
-		SignalExceptionInterop(static_cast<string>(f.what()), 0, 
-			"iio", &bst_file, &bms_file, &dynaml_file);
-	}
-	catch (const XMLInteropException& e)  {
-		SignalExceptionInterop(static_cast<string>(e.what()), 0, 
-			"iio", &bst_file, &bms_file, &dynaml_file);
-	}
-
-	bst_file.close();
-	bms_file.close();
-	dynaml_file << "</DnaXmlFormat>" << endl;
-	dynaml_file.close();
-}
-	
 
 void dna_import::SerialiseDynaMLfromMemory(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, 
 	const string& outfilename, const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused)
@@ -4237,65 +4238,67 @@ void dna_import::InitialiseDynaMLSepMeasurementFile(const project_settings& p, v
 	}
 }
 
-void dna_import::SerialiseDynaMLSepfromBinary(const string& stnfilename, const string& msrfilename, 
-	const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused)
-{
-	// Load stations from binary file and serialise to XML
-	std::ifstream bst_file;
-	try {
-		// Load binary stations data.  Throws runtime_error on failure.
-		file_opener(bst_file, p.i.bst_file, ios::in | ios::binary, binary, true);
-	}
-	catch (const runtime_error& e) {
-		SignalExceptionInterop(e.what(), 0, NULL);
-	}
-
-	// Create Station file and initialise header
-	std::ofstream dynaml_stn_file;
-	InitialiseDynaMLSepStationFile(p, vinput_file_meta, stnfilename, &dynaml_stn_file);
-
-	// Write the stations (from binary file)
-	try {		
-		SerialiseXmlStn(&bst_file, &dynaml_stn_file);
-		dynaml_stn_file << "</DnaXmlFormat>" << endl;
-		dynaml_stn_file.close();
-	}
-	catch (const ios_base::failure& f) {
-		SignalExceptionInterop(static_cast<string>(f.what()), 0, 
-			"io", &bst_file, &dynaml_stn_file);	
-	}
-
-	std::ifstream bms_file;
-	try {
-		// Load binary measurements data.  Throws runtime_error on failure.
-		file_opener(bms_file, p.i.bms_file, ios::in | ios::binary, binary, true);
-	}
-	catch (const runtime_error& e) {
-		SignalExceptionInterop(e.what(), 0, NULL);
-	}
-
-	// Create Measurement file and initialise header
-	std::ofstream dynaml_msr_file;
-	InitialiseDynaMLSepMeasurementFile(p, vinput_file_meta, msrfilename, &dynaml_msr_file);
-	
-	// Write the measurements (from binary file)
-	try {
-		SerialiseXmlMsr(&bst_file, &bms_file, &dynaml_msr_file);
-		dynaml_msr_file << "</DnaXmlFormat>" << endl;
-		dynaml_msr_file.close();
-	}
-	catch (const std::ifstream::failure& f) {
-		SignalExceptionInterop(static_cast<string>(f.what()), 0, 
-			"iio", &bst_file, &bms_file, &dynaml_msr_file);
-	}
-	catch (const XMLInteropException& e)  {
-		SignalExceptionInterop(static_cast<string>(e.what()), 0, 
-			"iio", &bst_file, &bms_file, &dynaml_msr_file);
-	}
-
-	bst_file.close();
-	bms_file.close();
-}
+// A useful, but unnecessary function	
+//
+//void dna_import::SerialiseDynaMLSepfromBinary(const string& stnfilename, const string& msrfilename, 
+//	const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused)
+//{
+//	// Load stations from binary file and serialise to XML
+//	std::ifstream bst_file;
+//	try {
+//		// Load binary stations data.  Throws runtime_error on failure.
+//		file_opener(bst_file, p.i.bst_file, ios::in | ios::binary, binary, true);
+//	}
+//	catch (const runtime_error& e) {
+//		SignalExceptionInterop(e.what(), 0, NULL);
+//	}
+//
+//	// Create Station file and initialise header
+//	std::ofstream dynaml_stn_file;
+//	InitialiseDynaMLSepStationFile(p, vinput_file_meta, stnfilename, &dynaml_stn_file);
+//
+//	// Write the stations (from binary file)
+//	try {		
+//		SerialiseXmlStn(&bst_file, &dynaml_stn_file);
+//		dynaml_stn_file << "</DnaXmlFormat>" << endl;
+//		dynaml_stn_file.close();
+//	}
+//	catch (const ios_base::failure& f) {
+//		SignalExceptionInterop(static_cast<string>(f.what()), 0, 
+//			"io", &bst_file, &dynaml_stn_file);	
+//	}
+//
+//	std::ifstream bms_file;
+//	try {
+//		// Load binary measurements data.  Throws runtime_error on failure.
+//		file_opener(bms_file, p.i.bms_file, ios::in | ios::binary, binary, true);
+//	}
+//	catch (const runtime_error& e) {
+//		SignalExceptionInterop(e.what(), 0, NULL);
+//	}
+//
+//	// Create Measurement file and initialise header
+//	std::ofstream dynaml_msr_file;
+//	InitialiseDynaMLSepMeasurementFile(p, vinput_file_meta, msrfilename, &dynaml_msr_file);
+//	
+//	// Write the measurements (from binary file)
+//	try {
+//		SerialiseXmlMsr(&bst_file, &bms_file, &dynaml_msr_file);
+//		dynaml_msr_file << "</DnaXmlFormat>" << endl;
+//		dynaml_msr_file.close();
+//	}
+//	catch (const std::ifstream::failure& f) {
+//		SignalExceptionInterop(static_cast<string>(f.what()), 0, 
+//			"iio", &bst_file, &bms_file, &dynaml_msr_file);
+//	}
+//	catch (const XMLInteropException& e)  {
+//		SignalExceptionInterop(static_cast<string>(e.what()), 0, 
+//			"iio", &bst_file, &bms_file, &dynaml_msr_file);
+//	}
+//
+//	bst_file.close();
+//	bms_file.close();
+//}
 	
 
 void dna_import::SerialiseDynaMLSepfromMemory(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, 
@@ -4396,70 +4399,72 @@ void dna_import::SerialiseDynaMLSepfromMemory(vdnaStnPtr* vStations, vdnaMsrPtr*
 //}
 	
 
-void dna_import::SerialiseXmlStn(std::ifstream* ifs_stns, std::ofstream* ofs_dynaml)
-{
-	try
-	{
-		// Reset the default datum.
-		datum_.SetDatumFromEpsg(m_strProjectDefaultEpsg, m_strProjectDefaultEpoch);
-	}
-	catch (const runtime_error& e) {
-		SignalExceptionInterop(e.what(), 0, NULL);
-	}
-
-	station_t stationRecord;
-	dnaStnPtr stnPtr(new CDnaStation(datum_.GetName(), datum_.GetEpoch_s()));
-	stnPtr->SetCoordType(LLH_type);
-
-	CDnaProjection projection(UTM);
-
-	// get number of stations
-	UINT32 i, stnCount;
-	ifs_stns->read(reinterpret_cast<char *>(&stnCount), sizeof(UINT32)); 
-
-	for (i=0; i<stnCount; i++)
-	{
-		if (ifs_stns->eof() || !ifs_stns->good())
-			throw XMLInteropException("SerialiseXMLStn(): Errors were encountered when reading from the binary station file.", 0);
-		ifs_stns->read(reinterpret_cast<char *>(&stationRecord), sizeof(station_t)); 
-		stnPtr->SetStationRec(stationRecord);
-		stnPtr->WriteDNAXMLStnInitialEstimates(ofs_dynaml,
-			datum_.GetEllipsoidRef(), &projection,
-			dynaml);
-	}
-}
+// A useful, but unnecessary function	
+//
+//void dna_import::SerialiseXmlStn(std::ifstream* ifs_stns, std::ofstream* ofs_dynaml)
+//{
+//	try
+//	{
+//		// Reset the default datum.
+//		datum_.SetDatumFromEpsg(m_strProjectDefaultEpsg, m_strProjectDefaultEpoch);
+//	}
+//	catch (const runtime_error& e) {
+//		SignalExceptionInterop(e.what(), 0, NULL);
+//	}
+//
+//	station_t stationRecord;
+//	dnaStnPtr stnPtr(new CDnaStation(datum_.GetName(), datum_.GetEpoch_s()));
+//	stnPtr->SetCoordType(LLH_type);
+//
+//	CDnaProjection projection(UTM);
+//
+//	// get number of stations
+//	UINT32 i, stnCount;
+//	ifs_stns->read(reinterpret_cast<char *>(&stnCount), sizeof(UINT32)); 
+//
+//	for (i=0; i<stnCount; i++)
+//	{
+//		if (ifs_stns->eof() || !ifs_stns->good())
+//			throw XMLInteropException("SerialiseXMLStn(): Errors were encountered when reading from the binary station file.", 0);
+//		ifs_stns->read(reinterpret_cast<char *>(&stationRecord), sizeof(station_t)); 
+//		stnPtr->SetStationRec(stationRecord);
+//		stnPtr->WriteDNAXMLStnInitialEstimates(ofs_dynaml,
+//			datum_.GetEllipsoidRef(), &projection,
+//			dynaml);
+//	}
+//}
 	
 
-void dna_import::SerialiseXmlMsr(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, std::ofstream* ofs_dynaml)
-{
-	try
-	{
-		// Reset the default datum.
-		datum_.SetDatumFromEpsg(m_strProjectDefaultEpsg, m_strProjectDefaultEpoch);
-	}
-	catch (const runtime_error& e) {
-		SignalExceptionInterop(e.what(), 0, NULL);
-	}
-
-	measurement_t measRecord;
-	dnaMsrPtr msrPtr;
-	msrPtr.reset();
-
-	// get number of measurements
-	UINT32 msrCount;
-	string comment("");
-	ifs_msrs->read(reinterpret_cast<char *>(&msrCount), sizeof(UINT32)); 
-
-	for (UINT32 i=0; i<msrCount; i++)
-	{
-		if (ifs_msrs->eof() || !ifs_msrs->good())
-			throw XMLInteropException("SerialiseXMLMsr(): Errors were encountered when reading from the binary measurement file.", 0);
-		ifs_msrs->read(reinterpret_cast<char *>(&measRecord), sizeof(measurement_t));
-		ResetMeasurementPtr(&msrPtr, measRecord.measType);
-		i += msrPtr->SetMeasurementRec(ifs_stns, ifs_msrs, &measRecord); // increment by number of elements read from binary file
-		msrPtr->WriteDynaMLMsr(ofs_dynaml, comment);
-	}
-}
+//void dna_import::SerialiseXmlMsr(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, std::ofstream* ofs_dynaml)
+//{
+//	try
+//	{
+//		// Reset the default datum.
+//		datum_.SetDatumFromEpsg(m_strProjectDefaultEpsg, m_strProjectDefaultEpoch);
+//	}
+//	catch (const runtime_error& e) {
+//		SignalExceptionInterop(e.what(), 0, NULL);
+//	}
+//
+//	measurement_t measRecord;
+//	dnaMsrPtr msrPtr;
+//	msrPtr.reset();
+//
+//	// get number of measurements
+//	UINT32 msrCount;
+//	string comment("");
+//	ifs_msrs->read(reinterpret_cast<char *>(&msrCount), sizeof(UINT32)); 
+//
+//	for (UINT32 i=0; i<msrCount; i++)
+//	{
+//		if (ifs_msrs->eof() || !ifs_msrs->good())
+//			throw XMLInteropException("SerialiseXMLMsr(): Errors were encountered when reading from the binary measurement file.", 0);
+//		ifs_msrs->read(reinterpret_cast<char *>(&measRecord), sizeof(measurement_t));
+//		ResetMeasurementPtr(&msrPtr, measRecord.measType);
+//		i += msrPtr->SetMeasurementRec(ifs_stns, ifs_msrs, &measRecord); // increment by number of elements read from binary file
+//		msrPtr->WriteDynaMLMsr(ofs_dynaml, comment);
+//	}
+//}
 	
 
 void dna_import::SerialiseBms(const string& bms_filename, vdnaMsrPtr* vMeasurements,
