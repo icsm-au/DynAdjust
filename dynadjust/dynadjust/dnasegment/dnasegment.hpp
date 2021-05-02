@@ -160,8 +160,8 @@ private:
 	void SetAvailableMsrCount();
 	void RemoveDuplicateStations(pvstring vStations);
 	void RemoveInvalidFreeStations();
-	void RemoveNonMeasurements();
-	void RemoveIgnoredMeasurements();
+	//void RemoveNonMeasurements();
+	//void RemoveIgnoredMeasurements();
 	void BuildFreeStationAvailabilityList();
 	void BuildFreeStationAvailabilityList(vASL& assocStnList, v_freestn_pair& freeStnList);
 	void BuildStationAppearanceList();
