@@ -127,9 +127,7 @@ public:
 	void SerialiseDynaMLStn(std::ofstream* xml_file, CDnaProjection& projection, bool flagUnused=false);
 	void SerialiseDynaMLMsr(std::ofstream* xml_file);
 
-	bool PrintTransformedStationCoordinatestoSNX();
-
-	void Identify_Plate();
+	//bool PrintTransformedStationCoordinatestoSNX();
 
 	void LoadTectonicPlateParameters(const string& pltfileName, const string& pmmfileName);
 

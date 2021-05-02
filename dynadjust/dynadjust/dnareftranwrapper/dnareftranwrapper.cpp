@@ -73,8 +73,8 @@ void PrintOutputFileHeaderInfo(std::ofstream* f_out, const string& out_file, pro
 		*f_out << setw(PRINT_VAR_PAD) << left << "DNA measurement file: " << p->i.dna_msrfile << endl;
 	}
 
-	if (p->o._export_snx_file)
-		*f_out << setw(PRINT_VAR_PAD) << left << "SINEX file: " << p->o._snx_file << endl;
+//	if (p->o._export_snx_file)
+//		*f_out << setw(PRINT_VAR_PAD) << left << "SINEX file: " << p->o._snx_file << endl;
 
 
 	*f_out << OUTPUTLINE << endl << endl;
@@ -229,13 +229,13 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 			fileName, "msr");
 	}
 
-	// Export dna files
-	if (vm.count(EXPORT_SNX_FILE))
-	{
-		p.o._export_snx_file = 1;		
-		p.o._snx_file = formPath<string>(p.g.output_folder, 
-			fileName, "snx");
-	}
+//	// Export dna files
+//	if (vm.count(EXPORT_SNX_FILE))
+//	{
+//		p.o._export_snx_file = 1;		
+//		p.o._snx_file = formPath<string>(p.g.output_folder, 
+//			fileName, "snx");
+//	}
 
 	return EXIT_SUCCESS;
 }
@@ -484,8 +484,8 @@ int main(int argc, char* argv[])
 			cout << setw(PRINT_VAR_PAD) << left << "  DNA measurement file: " << p.i.dna_msrfile << endl;
 		}
 
-		if (p.o._export_snx_file)
-			cout << setw(PRINT_VAR_PAD) << left << "  SINEX file: " << p.o._snx_file << endl;
+//		if (p.o._export_snx_file)
+//			cout << setw(PRINT_VAR_PAD) << left << "  SINEX file: " << p.o._snx_file << endl;
 
 		cout << endl;
 	}
@@ -734,34 +734,34 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	// Print adjusted stations and measurements to SINEX
-	if (p.o._export_snx_file)
-	{
-		// Export to SINEX
-		if (!p.g.quiet)
-			cout << "+ Exporting stations and measurements to " << 
-				leafStr<string>(p.o._snx_file) << "... ";
-		cout.flush();
-		rft_file << "+ Exporting stations and measurements to " << 
-			leafStr<string>(p.o._snx_file) << "... ";
-
-		bool success(refTran.PrintTransformedStationCoordinatestoSNX());
-
-		// SomeFunc()
-		if (!p.g.quiet)
-			cout << " done." << endl;
-		rft_file << " done." << endl;
-
-		ss_msg.str("");
-
-		if (!success)
-		{
-			ss_msg << "- Warning: The SINEX export process produced some warnings." << endl;
-			ss_msg << "  See " << p.g.network_name << "*.snx.err for details." << endl; 
-		}
-		cout << ss_msg.str();
-		rft_file << ss_msg.str();
-	}
+//	// Print adjusted stations and measurements to SINEX
+//	if (p.o._export_snx_file)
+//	{
+//		// Export to SINEX
+//		if (!p.g.quiet)
+//			cout << "+ Exporting stations and measurements to " << 
+//				leafStr<string>(p.o._snx_file) << "... ";
+//		cout.flush();
+//		rft_file << "+ Exporting stations and measurements to " << 
+//			leafStr<string>(p.o._snx_file) << "... ";
+//
+//		bool success(refTran.PrintTransformedStationCoordinatestoSNX());
+//
+//		// SomeFunc()
+//		if (!p.g.quiet)
+//			cout << " done." << endl;
+//		rft_file << " done." << endl;
+//
+//		ss_msg.str("");
+//
+//		if (!success)
+//		{
+//			ss_msg << "- Warning: The SINEX export process produced some warnings." << endl;
+//			ss_msg << "  See " << p.g.network_name << "*.snx.err for details." << endl; 
+//		}
+//		cout << ss_msg.str();
+//		rft_file << ss_msg.str();
+//	}
 
 	cout << endl;
 
