@@ -277,7 +277,6 @@ public:
 	inline _ADJUST_STATUS_ GetStatus() const { return adjustStatus_; }
 	inline bool IsPreparing() { return isPreparing_; }
 	inline bool IsAdjusting() { return isAdjusting_; }
-	inline double GetProgress() const { return adjustProgress_; }
 	inline bool ExceptionRaised() { return adjustStatus_ == ADJUST_EXCEPTION_RAISED; }
 	
 	void PrintAdjustedNetworkStations();
@@ -847,7 +846,6 @@ private:
 	std::ofstream			adj_file;
 	std::ofstream			xyz_file;
 
-	double				adjustProgress_;
 	UINT32				blockLargeCorr_;
 	double				largestCorr_;
 

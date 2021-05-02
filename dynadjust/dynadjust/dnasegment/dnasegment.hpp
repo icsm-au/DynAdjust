@@ -144,8 +144,8 @@ private:
 	void MoveFreeStnToInnerList(it_vUINT32 it_freeisl, const UINT32& stn_index);
 	void MoveFreeStnToJunctionList(it_vUINT32 it_freeisl, const UINT32& stn_index);
 
-	bool IncrementNextAvailableAMLIndex(UINT32& amlIndex, const UINT32& lastamlIndex);
-	bool IncrementNextAvailableAMLIndex(it_aml_pair& _it_aml, const it_aml_pair& _it_lastaml);
+	//bool IncrementNextAvailableAMLIndex(UINT32& amlIndex, const UINT32& lastamlIndex);
+	//bool IncrementNextAvailableAMLIndex(it_aml_pair& _it_aml, const it_aml_pair& _it_lastaml);
 	void GetInnerMeasurements(const UINT32& innerStation);
 	void IdentifyLowestStationAssociation(pvUINT32 vStnList, vUINT32& totalStations,const int currentLevel, const int maxLevel, pvUINT32 vStnCount);
 	void IdentifyInnerMsrsandAssociatedStns(const UINT32& innerStation, vUINT32& totalStations);

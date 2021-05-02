@@ -639,44 +639,44 @@ void dna_segment::FinaliseBlock()
 }
 	
 
-bool dna_segment::IncrementNextAvailableAMLIndex(UINT32& amlIndex, const UINT32& lastamlIndex)
-{
-	// Already at the last measurement?
-	if (amlIndex > lastamlIndex)
-		return false;
-
-	while (!vAssocFreeMsrList_.at(amlIndex).available)
-	{
-		// Already at the last measurement?
-		if (amlIndex == lastamlIndex)
-			return false;
-
-		// Get the next measurement record tied 
-		// to this measurement
-		++amlIndex;			
-	}
-	return true;
-}
-	
-
-bool dna_segment::IncrementNextAvailableAMLIndex(it_aml_pair& _it_aml, const it_aml_pair& _it_lastaml)
-{
-	// Already at the last measurement?
-	if (_it_aml > _it_lastaml)
-		return false;
-
-	while (!_it_aml->available)
-	{
-		// Already at the last measurement?
-		if (_it_aml == _it_lastaml)
-			return false;
-
-		// Get the next measurement record tied 
-		// to this measurement
-		++_it_aml;			
-	}
-	return true;
-}
+//bool dna_segment::IncrementNextAvailableAMLIndex(UINT32& amlIndex, const UINT32& lastamlIndex)
+//{
+//	// Already at the last measurement?
+//	if (amlIndex > lastamlIndex)
+//		return false;
+//
+//	while (!vAssocFreeMsrList_.at(amlIndex).available)
+//	{
+//		// Already at the last measurement?
+//		if (amlIndex == lastamlIndex)
+//			return false;
+//
+//		// Get the next measurement record tied 
+//		// to this measurement
+//		++amlIndex;			
+//	}
+//	return true;
+//}
+//	
+//
+//bool dna_segment::IncrementNextAvailableAMLIndex(it_aml_pair& _it_aml, const it_aml_pair& _it_lastaml)
+//{
+//	// Already at the last measurement?
+//	if (_it_aml > _it_lastaml)
+//		return false;
+//
+//	while (!_it_aml->available)
+//	{
+//		// Already at the last measurement?
+//		if (_it_aml == _it_lastaml)
+//			return false;
+//
+//		// Get the next measurement record tied 
+//		// to this measurement
+//		++_it_aml;			
+//	}
+//	return true;
+//}
 	
 
 // Name:				GetInnerMeasurements
