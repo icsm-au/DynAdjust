@@ -612,53 +612,6 @@ void dna_reftran::TransformEpochs_PlateMotionModel(it_vstn_t& stn_it, const matr
 	coordinates_mod.trace(ss.str().c_str(), "%.4f ");
 #endif
 }
-
-void dna_reftran::Identify_Plate()
-{
-	dnaGeometryPoint<double> point;
-	dnaGeometryPolygon platePolygon;
-
-	// Define a (crude) polygon for Victoria
-	// Clockwise
-	boost::geometry::read_wkt("POLYGON((140 -34, 147 -36, 149 -37.30, 146 -39, 140 -38 ))", platePolygon);
-
-	bool within(false);
-	
-	// Eltham (inside)
-	point.set_east_long(145.150890);
-	point.set_north_lat(-37.735957);
-	within = boost::geometry::within(point, platePolygon);
-
-	cout << "  - Coordinates " << fixed << setprecision(9) << point.get_east_long() << ", " << point.get_north_lat() << " are" << (within ? " " : " not ") << "within the polygon." << endl;
-
-	//  Just east of the north western boundary of the polygon (outside)
-	point.set_east_long(140.00000125);
-	point.set_north_lat(-34.);
-	within = boost::geometry::within(point, platePolygon);
-
-	cout << "  - Coordinates " << point.get_east_long() << ", " << point.get_north_lat() << " are" << (within ? " " : " not ") << "within the polygon." << endl;
-
-	//  Further east of the north western boundary of the polygon (outside)
-	point.set_east_long(140.0045);
-	point.set_north_lat(-34.);
-	within = boost::geometry::within(point, platePolygon);
-
-	cout << "  - Coordinates " << point.get_east_long() << ", " << point.get_north_lat() << " are" << (within ? " " : " not ") << "within the polygon." << endl;
-
-	//  West of the western boundary of the polygon (outside)
-	point.set_east_long(139.995478);
-	point.set_north_lat(-35.);
-	within = boost::geometry::within(point, platePolygon);
-
-	cout << "  - Coordinates " << point.get_east_long() << ", " << point.get_north_lat() << " are" << (within ? " " : " not ") << "within the polygon." << endl;
-
-	//  West of the most eastern corner of the polygon (inside)
-	point.set_east_long(148.995478);
-	point.set_north_lat(-37.30);
-	within = boost::geometry::within(point, platePolygon);
-
-	cout << "  - Coordinates " << point.get_east_long() << ", " << point.get_north_lat() << " are" << (within ? " " : " not ") << "within the polygon." << endl;
-}
 	
 
 void dna_reftran::TransformFrames_PlateMotionModel(it_vstn_t& stn_it, const matrix_2d& coordinates, matrix_2d& coordinates_mod,
@@ -1754,24 +1707,24 @@ void dna_reftran::SerialiseDynaMLMsr(std::ofstream* xml_file)
 	}
 }
 
-bool dna_reftran::PrintTransformedStationCoordinatestoSNX()
-{
-	std::ofstream sinex_file;
-
-	try {
-		// Open output file stream.  Throws runtime_error on failure.
-		file_opener(sinex_file, projectSettings_.o._snx_file);
-	}
-	catch (const runtime_error& e) {
-		throw RefTranException(e.what());
-	}
-
-	//dna_io_snx snx;
-
-	sinex_file.close();
-
-	return true;
-}
+//bool dna_reftran::PrintTransformedStationCoordinatestoSNX()
+//{
+//	std::ofstream sinex_file;
+//
+//	try {
+//		// Open output file stream.  Throws runtime_error on failure.
+//		file_opener(sinex_file, projectSettings_.o._snx_file);
+//	}
+//	catch (const runtime_error& e) {
+//		throw RefTranException(e.what());
+//	}
+//
+//	//dna_io_snx snx;
+//
+//	sinex_file.close();
+//
+//	return true;
+//}
 
 
 }	// namespace referenceframe

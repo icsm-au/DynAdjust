@@ -269,9 +269,9 @@ if (BUILD_TESTING)
     # 8. gnss reference frame transformations
     add_test (NAME ref-gnss01-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r itrf2014 -e 01.01.2020)
     add_test (NAME ref-gnss02-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r itrf1991 -e 03.12.1995)
-    add_test (NAME ref-gnss03-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r itrf2005 -e 05.05.2005)
-    add_test (NAME ref-gnss04-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r itrf1991 -e 05.05.2005)
-    add_test (NAME ref-gnss05-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r gda94)
+    add_test (NAME ref-gnss03-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r itrf2005 -e 05.05.2005 --export-xml --single-xml-file --verb 3)
+    add_test (NAME ref-gnss04-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r itrf1991 -e 05.05.2005 --verb 3)
+    add_test (NAME ref-gnss05-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r gda94 --export-xml --single-xml-file --verb 3)
 
     # 9. gnss reference frame transformations with plate motion model
     add_test (NAME ref-itrf-pmm-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n itrf05_itrf1997_a -r itrf2005 ${CMAKE_SOURCE_DIR}/../sampleData/TEST_ITRF05.SNX)
@@ -349,10 +349,12 @@ if (BUILD_TESTING)
     add_test (NAME adjust-dbid-03 COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --report-results --output-adj-msr --output-pos-uncertainty --output-apu-vcv-units 1)
     add_test (NAME adjust-dbid-04 COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --comments "This is a comment that is quite lengthy in content and is relatively meaningless.  Feel free to delete this comment.")
 
-    # 13. Renaming, 
+    # 13. Renaming, no export of flagged stations
     add_test (NAME import-misc-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-ignored.msr --stn-renaming-file ${CMAKE_SOURCE_DIR}/../sampleData/dsg.renaming --export-xml)
     add_test (NAME import-misc-02 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg-retained.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-retained.msr --search-similar-msr --export-dna --export-xml --single-xml-file)
     add_test (NAME import-misc-03 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ./misc.xml ${CMAKE_SOURCE_DIR}/../sampleData/sa-gnss-stn.xml --flag-unused-stations --export-dna --export-xml)
+    add_test (NAME reftran-misc-01 COMMAND $<TARGET_FILE:dnareftranwrapper> misc -r itrf1991 --export-xml --verb 3)
+    add_test (NAME reftran-misc-02 COMMAND $<TARGET_FILE:dnareftranwrapper> -p misc.dnaproj)
     add_test (NAME segment-misc-01 COMMAND $<TARGET_FILE:dnasegmentwrapper> misc --min 500 --max 500 --starting-stns 230900140)
     add_test (NAME import-misc-04 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ./misc.xml --import-block-stn-msr 2)
 
