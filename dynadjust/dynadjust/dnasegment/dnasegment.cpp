@@ -1317,26 +1317,26 @@ void dna_segment::RemoveDuplicateStations(pvstring vStations)
 	strip_duplicates(vStations);
 }
 	
-void dna_segment::RemoveNonMeasurements()
-{
-	if (vfreeMsrList_.size() < 2)
-		return;
-	CompareNonMeasStart<measurement_t, UINT32> measstartCompareFunc(&bmsBinaryRecords_, xMeas);
-	sort(vfreeMsrList_.begin(), vfreeMsrList_.end(), measstartCompareFunc);
-	erase_if(vfreeMsrList_, measstartCompareFunc);
-	
-}
+//void dna_segment::RemoveNonMeasurements()
+//{
+//	if (vfreeMsrList_.size() < 2)
+//		return;
+//	CompareNonMeasStart<measurement_t, UINT32> measstartCompareFunc(&bmsBinaryRecords_, xMeas);
+//	sort(vfreeMsrList_.begin(), vfreeMsrList_.end(), measstartCompareFunc);
+//	erase_if(vfreeMsrList_, measstartCompareFunc);
+//	
+//}
 	
 
-void dna_segment::RemoveIgnoredMeasurements()
-{
-	if (vfreeMsrList_.size() < 2)
-		return;
-	CompareIgnoreedMeas<measurement_t, UINT32> ignoremeasCompareFunc(&bmsBinaryRecords_);
-	sort(vfreeMsrList_.begin(), vfreeMsrList_.end(), ignoremeasCompareFunc);
-	erase_if(vfreeMsrList_, ignoremeasCompareFunc);
-	
-}
+//void dna_segment::RemoveIgnoredMeasurements()
+//{
+//	if (vfreeMsrList_.size() < 2)
+//		return;
+//	CompareIgnoreedMeas<measurement_t, UINT32> ignoremeasCompareFunc(&bmsBinaryRecords_);
+//	sort(vfreeMsrList_.begin(), vfreeMsrList_.end(), ignoremeasCompareFunc);
+//	erase_if(vfreeMsrList_, ignoremeasCompareFunc);
+//	
+//}
 	
 
 void dna_segment::WriteFreeStnListSortedbyASLMsrCount()
