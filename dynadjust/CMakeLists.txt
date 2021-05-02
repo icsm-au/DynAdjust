@@ -360,6 +360,7 @@ if (BUILD_TESTING)
     add_test (NAME import-noncontiguous COMMAND $<TARGET_FILE:dnaimportwrapper> -n noncontig ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr ${CMAKE_SOURCE_DIR}/../sampleData/skye-tutorial.stn ${CMAKE_SOURCE_DIR}/../sampleData/skye-tutorial.msr -r itrf2000 --override-input-ref-frame)
     add_test (NAME segment-noncontiguous-01 COMMAND $<TARGET_FILE:dnasegmentwrapper> noncontig --min 3 --max 5 --search-level 1 --test-integrity --verbose 3)
     add_test (NAME segment-noncontiguous-02 COMMAND $<TARGET_FILE:dnasegmentwrapper> noncontig --min 3 --max 5 --contiguous-blocks 0 --search-level 1 --test-integrity  --verbose 3)
+    add_test (NAME segment-noncontiguous-03 COMMAND $<TARGET_FILE:dnasegmentwrapper> -p noncontig.dnaproj)
 
     # set execution dependencies (the execution of tests must be sequential)
     set_tests_properties(
