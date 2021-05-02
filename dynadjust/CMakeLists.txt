@@ -349,7 +349,7 @@ if (BUILD_TESTING)
     add_test (NAME adjust-dbid-03 COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --report-results --output-adj-msr --output-pos-uncertainty --output-apu-vcv-units 1)
     add_test (NAME adjust-dbid-04 COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --comments "This is a comment that is quite lengthy in content and is relatively meaningless.  Feel free to delete this comment.")
 
-    # 13. Renaming, no export of flagged stations
+    # 13. Renaming, no export of flagged stations, non-contiguous networks
     add_test (NAME import-misc-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-ignored.msr --stn-renaming-file ${CMAKE_SOURCE_DIR}/../sampleData/dsg.renaming --export-xml)
     add_test (NAME import-misc-02 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg-retained.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-retained.msr --search-similar-msr --export-dna --export-xml --single-xml-file)
     add_test (NAME import-misc-03 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ./misc.xml ${CMAKE_SOURCE_DIR}/../sampleData/sa-gnss-stn.xml --flag-unused-stations --export-dna --export-xml)
@@ -357,6 +357,9 @@ if (BUILD_TESTING)
     add_test (NAME reftran-misc-02 COMMAND $<TARGET_FILE:dnareftranwrapper> -p misc.dnaproj)
     add_test (NAME segment-misc-01 COMMAND $<TARGET_FILE:dnasegmentwrapper> misc --min 500 --max 500 --starting-stns 230900140)
     add_test (NAME import-misc-04 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ./misc.xml --import-block-stn-msr 2)
+    add_test (NAME import-noncontiguous COMMAND $<TARGET_FILE:dnaimportwrapper> -n noncontig ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr ${CMAKE_SOURCE_DIR}/../sampleData/skye-tutorial.stn ${CMAKE_SOURCE_DIR}/../sampleData/skye-tutorial.msr -r itrf2000 --override-input-ref-frame)
+    add_test (NAME segment-noncontiguous-01 COMMAND $<TARGET_FILE:dnasegmentwrapper> noncontig --min 3 --max 5 --search-level 1 --test-integrity --verbose 3)
+    add_test (NAME segment-noncontiguous-02 COMMAND $<TARGET_FILE:dnasegmentwrapper> noncontig --min 3 --max 5 --contiguous-blocks 0 --search-level 1 --test-integrity  --verbose 3)
 
     # set execution dependencies (the execution of tests must be sequential)
     set_tests_properties(
