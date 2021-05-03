@@ -194,21 +194,21 @@ public:
 	matrix_2d add(const matrix_2d& rhs);
 	matrix_2d add(const matrix_2d& lhs, const matrix_2d& rhs);
 	
-	matrix_2d multiply(const matrix_2d& rhs);			// multiplication
-	matrix_2d multiply(const matrix_2d& lhs, 
-		const matrix_2d& rhs);							// multiplication
+	//matrix_2d multiply(const matrix_2d& rhs);			// multiplication
+	//matrix_2d multiply(const matrix_2d& lhs, 
+	//	const matrix_2d& rhs);							// multiplication
 
 	matrix_2d multiply_mkl(const char* lhs_trans, 
 		const matrix_2d& rhs, const char* rhs_trans);			// multiplication
 	matrix_2d multiply_mkl(const matrix_2d& lhs, const char* lhs_trans, 
 		const matrix_2d& rhs, const char* rhs_trans);			// multiplication
 
-	matrix_2d multiply_square(const matrix_2d& lhs,		// multiplication, calculate upper triangle only, then copy to lower
-		const matrix_2d& rhs);							
-	matrix_2d multiply_square_triangular(const matrix_2d& lhs,		// multiplication, calculate upper triangle only, then copy to lower
-		const matrix_2d& rhs);							
-	matrix_2d multiply_square_t(const matrix_2d& lhs,	// same as multiply_square, except lhs is multiplied by transpose of rhs.
-		const matrix_2d& rhs);							
+	//matrix_2d multiply_square(const matrix_2d& lhs,		// multiplication, calculate upper triangle only, then copy to lower
+	//	const matrix_2d& rhs);							
+	//matrix_2d multiply_square_triangular(const matrix_2d& lhs,		// multiplication, calculate upper triangle only, then copy to lower
+	//	const matrix_2d& rhs);							
+	//matrix_2d multiply_square_t(const matrix_2d& lhs,	// same as multiply_square, except lhs is multiplied by transpose of rhs.
+	//	const matrix_2d& rhs);							
 	matrix_2d sweepinverse();							// Sweep inverse (good for rotation matrices)
 	//matrix_2d gaussianinverse();						// Gaussian inverse
 	//matrix_2d choleskyinverse(bool LOWER_IS_CLEARED=false);				// Cholesky inverse
@@ -297,15 +297,15 @@ public:
 	//	const UINT32& rows, const UINT32& columns);						// set sub-matrix to Identity
 
 	// comparison
-	void difference(const matrix_2d* lhs, const matrix_2d* rhs);
-	void difference(const UINT32& row_begin, const UINT32& col_begin, const matrix_2d& lhs, const matrix_2d& rhs);
-	void differenceabs(const matrix_2d& lhs, const matrix_2d& rhs);
-	void differenceabs(const matrix_2d& lhs, const matrix_2d* rhs);
-	double vectordifference(const matrix_2d& rhs);
+	//void difference(const matrix_2d* lhs, const matrix_2d* rhs);
+	//void difference(const UINT32& row_begin, const UINT32& col_begin, const matrix_2d& lhs, const matrix_2d& rhs);
+	//void differenceabs(const matrix_2d& lhs, const matrix_2d& rhs);
+	//void differenceabs(const matrix_2d& lhs, const matrix_2d* rhs);
+	//double vectordifference(const matrix_2d& rhs);
 	double compute_maximum_value();
 
 	// Printing
-	void coutmatrix(const string& sTitle, const short& precision) const;
+	//void coutmatrix(const string& sTitle, const short& precision) const;
 	friend ostream& operator<< (ostream& os, const matrix_2d& rhs);
 	//friend ostream& operator<< (ostream& os, const matrix_2d* rhs);
 	//friend ostream& operator<< (ostream& os, const v_mat_2d& rhs);
