@@ -106,8 +106,8 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 
 			if (!exists(p.s.seg_file))
 			{
-				cout << endl << "- Error: ";  
-				cout << "Segmentation file " << leafStr<string>(p.s.seg_file) << " does not exist." << endl << endl;  
+				cout << endl << "- Error: " <<
+					"Segmentation file " << leafStr<string>(p.s.seg_file) << " does not exist." << endl << endl;  
 				return EXIT_FAILURE;
 			}
 		}
@@ -216,15 +216,15 @@ int main(int argc, char* argv[])
 		notify(vm);
 	} 
 	catch (const std::exception& e) {
-		cout << "- Error: " << e.what() << endl;
-		cout << cmd_line_banner << allowable_options << endl;
+		cout << "- Error: " << e.what() << endl <<
+			cmd_line_banner << allowable_options << endl;
 		return EXIT_FAILURE;
 	}
 
 	if (argc < 2)
 	{
-		cout << endl << "- Nothing to do - no options provided. " << endl << endl;  
-		cout << cmd_line_banner << allowable_options << endl;
+		cout << endl << "- Nothing to do - no options provided. " << endl << endl <<
+			cmd_line_banner << allowable_options << endl;
 		return EXIT_FAILURE;
 	}
 
@@ -311,9 +311,9 @@ int main(int argc, char* argv[])
 		if (!exists(p.s.net_file))
 		{
 			cout_mutex.lock();
-			cout << endl;
-			cout << "- Error: " << p.s.net_file << " does not exist." << endl;  
-			cout << "  A file named " << p.g.network_name << ".net must exist in the input folder\n  in order to use this option." << endl << endl;
+			cout << endl <<
+				"- Error: " << p.s.net_file << " does not exist." << endl <<
+				"  A file named " << p.g.network_name << ".net must exist in the input folder\n  in order to use this option." << endl << endl;
 			cout_mutex.unlock();
 			return EXIT_FAILURE;
 		}
