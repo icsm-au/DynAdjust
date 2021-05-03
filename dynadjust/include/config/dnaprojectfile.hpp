@@ -52,17 +52,20 @@ public:
 
 	CDnaProjectFile(void);
 	CDnaProjectFile(const string& projectFile, const UINT16& verifyContext);
+	
+	virtual inline ~CDnaProjectFile(void) {}
+	//virtual inline CDnaProjectFile* clone() const { 
+	//	return new CDnaProjectFile(*this); 
+	//}
+
+private:
+	// Disallow
 	CDnaProjectFile(const project_settings& project);
 	CDnaProjectFile(const CDnaProjectFile& newProject);
-
-	virtual inline ~CDnaProjectFile(void) {}
-	virtual inline CDnaProjectFile* clone() const { 
-		return new CDnaProjectFile(*this); 
-	}
-
 	CDnaProjectFile& operator=(const CDnaProjectFile& rhs);
 	bool operator==(const CDnaProjectFile& rhs) const;
 	
+public:
 	inline project_settings GetSettings() const { return settings_; }
 	inline CDnaProjectFile& operator[](int iIndex) { return this[iIndex]; }
 
