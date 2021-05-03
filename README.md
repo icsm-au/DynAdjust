@@ -2,7 +2,7 @@
 [![GitHub Downloads](https://img.shields.io/github/downloads/icsm-au/DynAdjust/total)](https://github.com/icsm-au/DynAdjust/releases)
 [![Lines of code](https://img.shields.io/tokei/lines/github/icsm-au/DynAdjust)](https://github.com/icsm-au/DynAdjust/tree/master/dynadjust)
 [![Build Status](https://travis-ci.org/icsm-au/DynAdjust.svg?branch=master)](https://travis-ci.org/icsm-au/DynAdjust)
-[![Coveralls status](https://coveralls.io/repos/github/icsm-au/DynAdjust/badge.svg?branch=master)](https://coveralls.io/github/icsm-au/DynAdjust?branch=master)
+[![Coveralls status](https://coveralls.io/repos/github/icsm-au/DynAdjust/badge.svg)](https://coveralls.io/github/icsm-au/DynAdjust)
 [![Codecov status](https://codecov.io/gh/icsm-au/DynAdjust/branch/master/graph/badge.svg)](https://codecov.io/gh/icsm-au/DynAdjust)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/a3944cda0c72445f8a13b1f82b64f714)](https://www.codacy.com/gh/icsm-au/DynAdjust/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=icsm-au/DynAdjust&amp;utm_campaign=Badge_Grade)
 [![GitHub Releases](https://img.shields.io/github/v/release/icsm-au/DynAdjust.svg)](https://github.com/icsm-au/DynAdjust/releases)
