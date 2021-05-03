@@ -1653,33 +1653,33 @@ void matrix_2d::zero(const UINT32& row_begin, const UINT32& col_begin,
 	
 
 
-// coutMatrix()
+//// coutMatrix()
+////
+//void matrix_2d::coutmatrix(const string& sTitle, const short& precision) const
+//{
+//	cout << sTitle << " (" << _rows << "x" << _cols << ")" << endl;
+//	UINT32 column, row;
+//	stringstream ss;
+//	for (row=0; row<_rows; row++) {
+//		for (column=0; column<_cols; column++) {
+//			ss.str("");
+//			ss << fixed << setprecision(precision) << get(row, column) << " ";
+//			if (precision < 1)
+//				cout << setw(3) << ss.str();
+//			else
+//				cout << setw(precision + 4) << right << ss.str();
 //
-void matrix_2d::coutmatrix(const string& sTitle, const short& precision) const
-{
-	cout << sTitle << " (" << _rows << "x" << _cols << ")" << endl;
-	UINT32 column, row;
-	stringstream ss;
-	for (row=0; row<_rows; row++) {
-		for (column=0; column<_cols; column++) {
-			ss.str("");
-			ss << fixed << setprecision(precision) << get(row, column) << " ";
-			if (precision < 1)
-				cout << setw(3) << ss.str();
-			else
-				cout << setw(precision + 4) << right << ss.str();
-
-			if (column > 20)
-				break;
-		}
-		cout << endl;
-		if (row > 20)
-			break;
-		
-	}
-	cout << endl;
-
-} // coutMatrix()
+//			if (column > 20)
+//				break;
+//		}
+//		cout << endl;
+//		if (row > 20)
+//			break;
+//		
+//	}
+//	cout << endl;
+//
+//} // coutMatrix()
 	
 
 matrix_2d matrix_2d::operator=(const matrix_2d& rhs)
@@ -1880,25 +1880,25 @@ matrix_2d matrix_2d::add(const matrix_2d& lhs, const matrix_2d& rhs)
 
 }
 
-// multiplies this matrix by rhs and stores the result in a new matrix
-matrix_2d matrix_2d::multiply(const matrix_2d& rhs)
-{
-	if (_cols != rhs.rows())
-		throw boost::enable_current_exception(runtime_error("multiply(): Matrix dimensions are incompatible."));
-	
-	matrix_2d m(_rows, rhs.columns());
-	
-	// Perform the multiplication
-	UINT32 row, column, i;
-	for (row=0; row<_rows; row++) {
-		for (column=0; column<rhs.columns(); ++column) {
-			m.put(row, column, 0.0);
-			for (i=0; i<_cols; ++i)
-				m.elementadd(row, column, get(row, i) * rhs.get(i, column));
-		}
-	}
-	return (*this = m);
-}
+//// multiplies this matrix by rhs and stores the result in a new matrix
+//matrix_2d matrix_2d::multiply(const matrix_2d& rhs)
+//{
+//	if (_cols != rhs.rows())
+//		throw boost::enable_current_exception(runtime_error("multiply(): Matrix dimensions are incompatible."));
+//	
+//	matrix_2d m(_rows, rhs.columns());
+//	
+//	// Perform the multiplication
+//	UINT32 row, column, i;
+//	for (row=0; row<_rows; row++) {
+//		for (column=0; column<rhs.columns(); ++column) {
+//			m.put(row, column, 0.0);
+//			for (i=0; i<_cols; ++i)
+//				m.elementadd(row, column, get(row, i) * rhs.get(i, column));
+//		}
+//	}
+//	return (*this = m);
+//}
 	
 // multiplies this matrix by rhs and stores the result in a new matrix
 // Uses Intel MKL dgemm
@@ -1958,26 +1958,26 @@ matrix_2d matrix_2d::multiply_mkl(const char* lhs_trans, const matrix_2d& rhs, c
 	return (*this = m);
 }
 	
-// Multiplies lhs by rhs and stores the result in this.
-matrix_2d matrix_2d::multiply(const matrix_2d& lhs, const matrix_2d& rhs)
-{
-	if (lhs.columns() != rhs.rows())
-		throw boost::enable_current_exception(runtime_error("multiply(): Matrix dimensions are incompatible."));
-	else if (_rows != lhs.rows() || _cols != rhs.columns())
-		throw boost::enable_current_exception(runtime_error("multiply(): Result matrix dimensions are incompatible."));
-	
-	// Perform the multiplication
-	UINT32 row, column, i;
-	for (row=0; row<lhs.rows(); row++) {
-		for (column=0; column<rhs.columns(); ++column) {
-			put(row, column, 0.0);
-			for (i=0; i<lhs.columns(); ++i)
-				*getelementref(row, column) += lhs.get(row, i) * rhs.get(i, column);	
-		}
-	}
-
-	return *this;
-} // Multiply()
+//// Multiplies lhs by rhs and stores the result in this.
+//matrix_2d matrix_2d::multiply(const matrix_2d& lhs, const matrix_2d& rhs)
+//{
+//	if (lhs.columns() != rhs.rows())
+//		throw boost::enable_current_exception(runtime_error("multiply(): Matrix dimensions are incompatible."));
+//	else if (_rows != lhs.rows() || _cols != rhs.columns())
+//		throw boost::enable_current_exception(runtime_error("multiply(): Result matrix dimensions are incompatible."));
+//	
+//	// Perform the multiplication
+//	UINT32 row, column, i;
+//	for (row=0; row<lhs.rows(); row++) {
+//		for (column=0; column<rhs.columns(); ++column) {
+//			put(row, column, 0.0);
+//			for (i=0; i<lhs.columns(); ++i)
+//				*getelementref(row, column) += lhs.get(row, i) * rhs.get(i, column);	
+//		}
+//	}
+//
+//	return *this;
+//} // Multiply()
 	
 
 // Multiplies lhs by rhs and stores the result in this.
@@ -2036,86 +2036,86 @@ matrix_2d matrix_2d::multiply_mkl(const matrix_2d& lhs, const char* lhs_trans,
 } // Multiply()
 	
 
-// Multiply_Square()
-// Stores the multiplication of two matrices.  Assumes the result will be square, hence the upper
-// triangular component is calculated first, then the lower is copied from the upper.
-matrix_2d matrix_2d::multiply_square(const matrix_2d& lhs, const matrix_2d& rhs)
-{
-	//if (lhs.columns() != rhs.rows())
-	//	throw boost::enable_current_exception(runtime_error("multiply_square(): Matrix dimensions are incompatible."));
-	//else if (_rows != lhs.rows() || _cols != rhs.columns())
-	//	throw boost::enable_current_exception(runtime_error("multiply_square(): Result matrix dimensions are incompatible."));
-	//else if (_rows != _cols)
-	//	throw boost::enable_current_exception(runtime_error("multiply_square(): Result matrix must be square."));
-	//
-	//// Perform the multiplication:
-	//UINT32 row, column, i;
-	//for (row=0; row<lhs.rows(); row++) {
-	//	for (column=row; column<rhs.columns(); ++column) {
-	//		put(row, column, 0.0);
-	//		for (i=0; i<lhs.columns(); ++i)
-	//			*getelementref(row, column) += lhs.get(row, i) * rhs.get(i, column);
-	//	}
-	//}
-
-	multiply_square_triangular(lhs, rhs);
-
-	filllower();
-	return *this;
-} // Multiply()
-	
-
-// Multiply_Square()
-// Stores the multiplication of two matrices.  Assumes the result will be square, hence the upper
-// triangular component is calculated.
-matrix_2d matrix_2d::multiply_square_triangular(const matrix_2d& lhs, const matrix_2d& rhs)
-{
-	if (lhs.columns() != rhs.rows())
-		throw boost::enable_current_exception(runtime_error("multiply_square_triangular(): Matrix dimensions are incompatible."));
-	else if (_rows != lhs.rows() || _cols != rhs.columns())
-		throw boost::enable_current_exception(runtime_error("multiply_square_triangular(): Result matrix dimensions are incompatible."));
-	else if (_rows != _cols)
-		throw boost::enable_current_exception(runtime_error("multiply_square_triangular(): Result matrix must be square."));
-	
-	// Perform the multiplication:
-	UINT32 row, column, i;
-	for (row=0; row<lhs.rows(); row++) {
-		for (column=row; column<rhs.columns(); ++column) {
-			put(row, column, 0.0);
-			for (i=0; i<lhs.columns(); ++i)
-				*getelementref(row, column) += lhs.get(row, i) * rhs.get(i, column);
-		}
-	}
-	return *this;
-} // Multiply()
-	
-
-// Multiply_square_t()
+//// Multiply_Square()
+//// Stores the multiplication of two matrices.  Assumes the result will be square, hence the upper
+//// triangular component is calculated first, then the lower is copied from the upper.
+//matrix_2d matrix_2d::multiply_square(const matrix_2d& lhs, const matrix_2d& rhs)
+//{
+//	//if (lhs.columns() != rhs.rows())
+//	//	throw boost::enable_current_exception(runtime_error("multiply_square(): Matrix dimensions are incompatible."));
+//	//else if (_rows != lhs.rows() || _cols != rhs.columns())
+//	//	throw boost::enable_current_exception(runtime_error("multiply_square(): Result matrix dimensions are incompatible."));
+//	//else if (_rows != _cols)
+//	//	throw boost::enable_current_exception(runtime_error("multiply_square(): Result matrix must be square."));
+//	//
+//	//// Perform the multiplication:
+//	//UINT32 row, column, i;
+//	//for (row=0; row<lhs.rows(); row++) {
+//	//	for (column=row; column<rhs.columns(); ++column) {
+//	//		put(row, column, 0.0);
+//	//		for (i=0; i<lhs.columns(); ++i)
+//	//			*getelementref(row, column) += lhs.get(row, i) * rhs.get(i, column);
+//	//	}
+//	//}
 //
-// Stores the multiplication of one matrix by the transpose of the second.  Assumes the result will be square, hence the upper
-// triangular component is calculated. The lower is copied from the upper.
-// 
-matrix_2d matrix_2d::multiply_square_t(const matrix_2d& lhs, const matrix_2d& rhs)
-{
-	if (lhs.columns() != rhs.rows())
-		throw boost::enable_current_exception(runtime_error("multiply_square_t(): Matrix dimensions are incompatible."));
-	else if (_rows != lhs.rows() || _cols != rhs.columns())
-		throw boost::enable_current_exception(runtime_error("multiply_square_t(): Result matrix dimensions are incompatible."));
-	else if (_rows != _cols)
-		throw boost::enable_current_exception(runtime_error("multiply_square_t(): Result matrix must be square."));
+//	multiply_square_triangular(lhs, rhs);
+//
+//	filllower();
+//	return *this;
+//} // Multiply()
 	
-	// Perform the multiplication:
-	UINT32 row, column, i;
-	for (row=0; row<lhs.rows(); row++) {
-		for (column=row; column<rhs.columns(); ++column) {
-			put(row, column, 0.0);
-			for (i=0; i<lhs.columns(); ++i)
-				*getelementref(row, column) += lhs.get(row, i) * rhs.get(column, i);
-		}
-	}
-	filllower();
-	return *this;
-} // Multiply()
+
+//// Multiply_Square()
+//// Stores the multiplication of two matrices.  Assumes the result will be square, hence the upper
+//// triangular component is calculated.
+//matrix_2d matrix_2d::multiply_square_triangular(const matrix_2d& lhs, const matrix_2d& rhs)
+//{
+//	if (lhs.columns() != rhs.rows())
+//		throw boost::enable_current_exception(runtime_error("multiply_square_triangular(): Matrix dimensions are incompatible."));
+//	else if (_rows != lhs.rows() || _cols != rhs.columns())
+//		throw boost::enable_current_exception(runtime_error("multiply_square_triangular(): Result matrix dimensions are incompatible."));
+//	else if (_rows != _cols)
+//		throw boost::enable_current_exception(runtime_error("multiply_square_triangular(): Result matrix must be square."));
+//	
+//	// Perform the multiplication:
+//	UINT32 row, column, i;
+//	for (row=0; row<lhs.rows(); row++) {
+//		for (column=row; column<rhs.columns(); ++column) {
+//			put(row, column, 0.0);
+//			for (i=0; i<lhs.columns(); ++i)
+//				*getelementref(row, column) += lhs.get(row, i) * rhs.get(i, column);
+//		}
+//	}
+//	return *this;
+//} // Multiply()
+	
+
+//// Multiply_square_t()
+////
+//// Stores the multiplication of one matrix by the transpose of the second.  Assumes the result will be square, hence the upper
+//// triangular component is calculated. The lower is copied from the upper.
+//// 
+//matrix_2d matrix_2d::multiply_square_t(const matrix_2d& lhs, const matrix_2d& rhs)
+//{
+//	if (lhs.columns() != rhs.rows())
+//		throw boost::enable_current_exception(runtime_error("multiply_square_t(): Matrix dimensions are incompatible."));
+//	else if (_rows != lhs.rows() || _cols != rhs.columns())
+//		throw boost::enable_current_exception(runtime_error("multiply_square_t(): Result matrix dimensions are incompatible."));
+//	else if (_rows != _cols)
+//		throw boost::enable_current_exception(runtime_error("multiply_square_t(): Result matrix must be square."));
+//	
+//	// Perform the multiplication:
+//	UINT32 row, column, i;
+//	for (row=0; row<lhs.rows(); row++) {
+//		for (column=row; column<rhs.columns(); ++column) {
+//			put(row, column, 0.0);
+//			for (i=0; i<lhs.columns(); ++i)
+//				*getelementref(row, column) += lhs.get(row, i) * rhs.get(column, i);
+//		}
+//	}
+//	filllower();
+//	return *this;
+//} // Multiply()
 	
 
 // Transpose()
@@ -2160,85 +2160,85 @@ double matrix_2d::compute_maximum_value()
 	return get(_maxvalRow, _maxvalCol);
 }
 
-// compares the first column only (i.e. use this to compare a vector of coordinates)
-double matrix_2d::vectordifference(const matrix_2d& rhs)
-{
-	if (_rows != rhs.rows() && _cols != rhs.columns())
-		throw boost::enable_current_exception(runtime_error("vectordifference(): Matrix dimensions are incompatible."));
+//// compares the first column only (i.e. use this to compare a vector of coordinates)
+//double matrix_2d::vectordifference(const matrix_2d& rhs)
+//{
+//	if (_rows != rhs.rows() && _cols != rhs.columns())
+//		throw boost::enable_current_exception(runtime_error("vectordifference(): Matrix dimensions are incompatible."));
+//
+//	double diffPrev(0.), diff(0.);
+//	for (UINT32 row=0; row<_rows; ++row)
+//	{
+//		if ((diff = fabs(get(row, 0) - rhs.get(row, 0))) > diffPrev)
+//			diffPrev = diff;
+//	}
+//	return diffPrev;
+//}
 
-	double diffPrev(0.), diff(0.);
-	for (UINT32 row=0; row<_rows; ++row)
-	{
-		if ((diff = fabs(get(row, 0) - rhs.get(row, 0))) > diffPrev)
-			diffPrev = diff;
-	}
-	return diffPrev;
-}
+//// stores the difference between two matrices (lhs - rhs)
+//void matrix_2d::difference(const matrix_2d* lhs, const matrix_2d* rhs)
+//{
+//	if (_rows != rhs->rows() && _cols != rhs->columns())
+//		throw boost::enable_current_exception(runtime_error("difference(): Matrix dimensions are incompatible."));
+//
+//	if (_rows != lhs->rows() && _cols != lhs->columns())
+//		throw boost::enable_current_exception(runtime_error("difference(): Matrix dimensions are incompatible."));
+//
+//	UINT32 i, j;
+//	for (i=0; i<_rows; ++i)
+//		for (j=0; j<_cols; ++j)
+//			put(i, j, lhs->get(i, j) - rhs->get(i, j));
+//}
 
-// stores the difference between two matrices (lhs - rhs)
-void matrix_2d::difference(const matrix_2d* lhs, const matrix_2d* rhs)
-{
-	if (_rows != rhs->rows() && _cols != rhs->columns())
-		throw boost::enable_current_exception(runtime_error("difference(): Matrix dimensions are incompatible."));
-
-	if (_rows != lhs->rows() && _cols != lhs->columns())
-		throw boost::enable_current_exception(runtime_error("difference(): Matrix dimensions are incompatible."));
-
-	UINT32 i, j;
-	for (i=0; i<_rows; ++i)
-		for (j=0; j<_cols; ++j)
-			put(i, j, lhs->get(i, j) - rhs->get(i, j));
-}
-
-// stores the difference between two matrices (lhs - rhs) beginning at row and col
-void matrix_2d::difference(const UINT32& row_begin, const UINT32& col_begin, const matrix_2d& lhs, const matrix_2d& rhs)
-{
-	if (lhs.rows() != rhs.rows() && lhs.columns() != rhs.columns())
-		throw boost::enable_current_exception(runtime_error("differenceabs(): Matrix dimensions are incompatible."));
-	if (row_begin >= _rows)
-		return;
-	if (col_begin >= _cols)
-		return;
-	if (row_begin + lhs.rows() > _rows)
-		return;
-	if (col_begin + lhs.columns() > _cols)
-		return;
+//// stores the difference between two matrices (lhs - rhs) beginning at row and col
+//void matrix_2d::difference(const UINT32& row_begin, const UINT32& col_begin, const matrix_2d& lhs, const matrix_2d& rhs)
+//{
+//	if (lhs.rows() != rhs.rows() && lhs.columns() != rhs.columns())
+//		throw boost::enable_current_exception(runtime_error("differenceabs(): Matrix dimensions are incompatible."));
+//	if (row_begin >= _rows)
+//		return;
+//	if (col_begin >= _cols)
+//		return;
+//	if (row_begin + lhs.rows() > _rows)
+//		return;
+//	if (col_begin + lhs.columns() > _cols)
+//		return;
+//	
+//	UINT32 i, ii(row_begin), j, jj(col_begin);
+//
+//	for (i=0; i<lhs.rows(); ++i, ++ii)
+//		for (j=0; j<lhs.columns(); ++j, +jj)
+//			put(ii, jj, lhs.get(i, j) - rhs.get(i, j));
+//}
 	
-	UINT32 i, ii(row_begin), j, jj(col_begin);
 
-	for (i=0; i<lhs.rows(); ++i, ++ii)
-		for (j=0; j<lhs.columns(); ++j, +jj)
-			put(ii, jj, lhs.get(i, j) - rhs.get(i, j));
-}
-	
+//void matrix_2d::differenceabs(const matrix_2d& lhs, const matrix_2d& rhs)
+//{
+//	if (_rows != rhs.rows() && _cols != rhs.columns())
+//		throw boost::enable_current_exception(runtime_error("differenceabs(): Matrix dimensions are incompatible."));
+//
+//	if (_rows != lhs.rows() && _cols != lhs.columns())
+//		throw boost::enable_current_exception(runtime_error("differenceabs(): Matrix dimensions are incompatible."));
+//
+//	UINT32 i, j;
+//	for (i=0; i<_rows; ++i)
+//		for (j=0; j<_cols; ++j)
+//			put(i, j, fabs(lhs.get(i, j) - rhs.get(i, j)));
+//}
 
-void matrix_2d::differenceabs(const matrix_2d& lhs, const matrix_2d& rhs)
-{
-	if (_rows != rhs.rows() && _cols != rhs.columns())
-		throw boost::enable_current_exception(runtime_error("differenceabs(): Matrix dimensions are incompatible."));
-
-	if (_rows != lhs.rows() && _cols != lhs.columns())
-		throw boost::enable_current_exception(runtime_error("differenceabs(): Matrix dimensions are incompatible."));
-
-	UINT32 i, j;
-	for (i=0; i<_rows; ++i)
-		for (j=0; j<_cols; ++j)
-			put(i, j, fabs(lhs.get(i, j) - rhs.get(i, j)));
-}
-
-void matrix_2d::differenceabs(const matrix_2d& lhs, const matrix_2d* rhs)
-{
-	if (_rows != rhs->rows() && _cols != rhs->columns())
-		throw boost::enable_current_exception(runtime_error("differenceabs(): Matrix dimensions are incompatible."));
-
-	if (_rows != lhs.rows() && _cols != lhs.columns())
-		throw boost::enable_current_exception(runtime_error("differenceabs(): Matrix dimensions are incompatible."));
-
-	UINT32 i, j;
-	for (i=0; i<_rows; ++i)
-		for (j=0; j<_cols; ++j)
-			put(i, j, fabs(lhs.get(i, j) - rhs->get(i, j)));
-}
+//void matrix_2d::differenceabs(const matrix_2d& lhs, const matrix_2d* rhs)
+//{
+//	if (_rows != rhs->rows() && _cols != rhs->columns())
+//		throw boost::enable_current_exception(runtime_error("differenceabs(): Matrix dimensions are incompatible."));
+//
+//	if (_rows != lhs.rows() && _cols != lhs.columns())
+//		throw boost::enable_current_exception(runtime_error("differenceabs(): Matrix dimensions are incompatible."));
+//
+//	UINT32 i, j;
+//	for (i=0; i<_rows; ++i)
+//		for (j=0; j<_cols; ++j)
+//			put(i, j, fabs(lhs.get(i, j) - rhs->get(i, j)));
+//}
 
 void matrix_2d::trace(const char* comment, const char* format) const
 {
