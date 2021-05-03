@@ -108,133 +108,133 @@ ostream& operator<< (ostream& os, const matrix_2d& rhs)
 	return os;
 }
 	
+// Commented IO operators which are useful but unused.
+//ostream& operator<< (ostream& os, const matrix_2d* rhs)  
+//{	
+//	os << *rhs;
+//	return os;
+//}
 
-ostream& operator<< (ostream& os, const matrix_2d* rhs)  
-{	
-	os << *rhs;
-	return os;
-}
+//// Output to stream vectors of matrix_2d
+//ostream& operator<< (ostream& os, const v_mat_2d& rhs)
+//{
+//	UINT32 vector_size(static_cast<UINT32>(rhs.size()));
+//	if (os.iword(0) == binary)
+//		os.write(reinterpret_cast<char *>(&vector_size), sizeof(UINT32));
+//	else
+//		os << vector_size << endl;
+//	for (_it_v_mat_2d_const iter = rhs.begin(); iter != rhs.end(); ++iter)
+//		os << *iter;	// calls ostream& operator<< (ostream& os, const matrix_2d& rhs)
+//	return os;
+//}
 
-// Output to stream vectors of matrix_2d
-ostream& operator<< (ostream& os, const v_mat_2d& rhs)
-{
-	UINT32 vector_size(static_cast<UINT32>(rhs.size()));
-	if (os.iword(0) == binary)
-		os.write(reinterpret_cast<char *>(&vector_size), sizeof(UINT32));
-	else
-		os << vector_size << endl;
-	for (_it_v_mat_2d_const iter = rhs.begin(); iter != rhs.end(); ++iter)
-		os << *iter;	// calls ostream& operator<< (ostream& os, const matrix_2d& rhs)
-	return os;
-}
+//// Output to stream vectors of matrix_2d
+//ostream& operator<< (ostream& os, const v_mat_2d* rhs)
+//{
+//	os << *rhs;
+//	return os;
+//}
 
-// Output to stream vectors of matrix_2d
-ostream& operator<< (ostream& os, const v_mat_2d* rhs)
-{
-	os << *rhs;
-	return os;
-}
-
-istream& operator>> (istream& is, matrix_2d& rhs)
-{
-	if (is.iword(0) == binary)
-	{
-		// Binary input
-				
-		// matrix type 
-		is.read(reinterpret_cast<char *>(&rhs._matrixType), sizeof(UINT32));
-		
-		// input rows and columns
-		is.read(reinterpret_cast<char *>(&rhs._rows), sizeof(UINT32));
-		is.read(reinterpret_cast<char *>(&rhs._cols), sizeof(UINT32));
-
-		is.read(reinterpret_cast<char *>(&rhs._mem_rows), sizeof(UINT32));
-		is.read(reinterpret_cast<char *>(&rhs._mem_cols), sizeof(UINT32));
-
-		// resize and populate the matrix
-		rhs.allocate(rhs._mem_rows, rhs._mem_cols);
-		UINT32 c, r;
-
-		switch (rhs._matrixType)
-		{
-		case mtx_lower:
-			// output lower triangular part of a square matrix
-			if (rhs._mem_rows != rhs._mem_cols)
-				throw boost::enable_current_exception(runtime_error("matrix_2d operator>> (): Matrix is not square."));
-			
-			// retrieve each column
-			for (c=0; c<rhs._mem_cols; ++c)
-				is.read(reinterpret_cast<char *>(rhs.getelementref(c,c)), (rhs._mem_rows - c) * sizeof(double));
-			
-			rhs.fillupper();
-			break;
-		case mtx_sparse:
-		case mtx_full:
-		default:
-			// input full matrix data
-			for (r=0; r<rhs._mem_rows; ++r)
-				for (c=0; c<rhs._mem_cols; ++c)
-					is.read(reinterpret_cast<char *>(rhs.getelementref(r,c)), sizeof(double));
-			break;
-		}
-
-		is.read(reinterpret_cast<char *>(&rhs._maxvalRow), sizeof(UINT32));
-		is.read(reinterpret_cast<char *>(&rhs._maxvalCol), sizeof(UINT32));
-	}
-	else
-	{
-		// ASCII input
-		//throw boost::enable_current_exception(runtime_error("istream& operator>> has not been tested"));
-		
-		string str;
-		UINT32 type;
-		is >> type;
-		rhs._matrixType = static_cast<mtxType>(type);
-		is >> rhs._rows >> rhs._cols >> rhs._mem_rows >> rhs._mem_cols;
-		rhs.allocate(rhs._mem_rows, rhs._mem_cols);
-
-		for (UINT32 c, r=0; r<rhs._mem_rows; ++r) 
-			for (c=0; c<rhs._mem_cols; ++c) 
-				is >> *(rhs.getelementref(r,c));
-
-		is >> rhs._maxvalRow >> rhs._maxvalCol;
-	}
-
-	return is;
-}
+//istream& operator>> (istream& is, matrix_2d& rhs)
+//{
+//	if (is.iword(0) == binary)
+//	{
+//		// Binary input
+//				
+//		// matrix type 
+//		is.read(reinterpret_cast<char *>(&rhs._matrixType), sizeof(UINT32));
+//		
+//		// input rows and columns
+//		is.read(reinterpret_cast<char *>(&rhs._rows), sizeof(UINT32));
+//		is.read(reinterpret_cast<char *>(&rhs._cols), sizeof(UINT32));
+//
+//		is.read(reinterpret_cast<char *>(&rhs._mem_rows), sizeof(UINT32));
+//		is.read(reinterpret_cast<char *>(&rhs._mem_cols), sizeof(UINT32));
+//
+//		// resize and populate the matrix
+//		rhs.allocate(rhs._mem_rows, rhs._mem_cols);
+//		UINT32 c, r;
+//
+//		switch (rhs._matrixType)
+//		{
+//		case mtx_lower:
+//			// output lower triangular part of a square matrix
+//			if (rhs._mem_rows != rhs._mem_cols)
+//				throw boost::enable_current_exception(runtime_error("matrix_2d operator>> (): Matrix is not square."));
+//			
+//			// retrieve each column
+//			for (c=0; c<rhs._mem_cols; ++c)
+//				is.read(reinterpret_cast<char *>(rhs.getelementref(c,c)), (rhs._mem_rows - c) * sizeof(double));
+//			
+//			rhs.fillupper();
+//			break;
+//		case mtx_sparse:
+//		case mtx_full:
+//		default:
+//			// input full matrix data
+//			for (r=0; r<rhs._mem_rows; ++r)
+//				for (c=0; c<rhs._mem_cols; ++c)
+//					is.read(reinterpret_cast<char *>(rhs.getelementref(r,c)), sizeof(double));
+//			break;
+//		}
+//
+//		is.read(reinterpret_cast<char *>(&rhs._maxvalRow), sizeof(UINT32));
+//		is.read(reinterpret_cast<char *>(&rhs._maxvalCol), sizeof(UINT32));
+//	}
+//	else
+//	{
+//		// ASCII input
+//		//throw boost::enable_current_exception(runtime_error("istream& operator>> has not been tested"));
+//		
+//		string str;
+//		UINT32 type;
+//		is >> type;
+//		rhs._matrixType = static_cast<mtxType>(type);
+//		is >> rhs._rows >> rhs._cols >> rhs._mem_rows >> rhs._mem_cols;
+//		rhs.allocate(rhs._mem_rows, rhs._mem_cols);
+//
+//		for (UINT32 c, r=0; r<rhs._mem_rows; ++r) 
+//			for (c=0; c<rhs._mem_cols; ++c) 
+//				is >> *(rhs.getelementref(r,c));
+//
+//		is >> rhs._maxvalRow >> rhs._maxvalCol;
+//	}
+//
+//	return is;
+//}
 
 
-istream& operator>> (istream& is, matrix_2d* rhs)
-{
-	is >> *rhs;
-	return is;
-}
+//istream& operator>> (istream& is, matrix_2d* rhs)
+//{
+//	is >> *rhs;
+//	return is;
+//}
 
-istream& operator>> (istream& is, v_mat_2d& rhs)
-{
-	UINT32 vector_size(0);
-	if (is.iword(0) == binary)
-		is.read(reinterpret_cast<char *>(&vector_size), sizeof(UINT32));
-	else
-	{
-		is >> vector_size;		// throws
-	}
-	
-	// resize the vector
-	rhs.resize(vector_size);
-	
-	// Now load up the matrices
-	for (_it_v_mat_2d iter = rhs.begin(); iter != rhs.end(); ++iter)
-		is >> *iter;	// calls istream& operator>> (istream& is, matrix_2d& rhs)
+//istream& operator>> (istream& is, v_mat_2d& rhs)
+//{
+//	UINT32 vector_size(0);
+//	if (is.iword(0) == binary)
+//		is.read(reinterpret_cast<char *>(&vector_size), sizeof(UINT32));
+//	else
+//	{
+//		is >> vector_size;		// throws
+//	}
+//	
+//	// resize the vector
+//	rhs.resize(vector_size);
+//	
+//	// Now load up the matrices
+//	for (_it_v_mat_2d iter = rhs.begin(); iter != rhs.end(); ++iter)
+//		is >> *iter;	// calls istream& operator>> (istream& is, matrix_2d& rhs)
+//
+//	return is;
+//}
 
-	return is;
-}
-
-istream& operator>> (istream& is, v_mat_2d* rhs)
-{
-	is >> *rhs;
-	return is;
-}
+//istream& operator>> (istream& is, v_mat_2d* rhs)
+//{
+//	is >> *rhs;
+//	return is;
+//}
 
 	
 UINT32 __row__;
@@ -1238,71 +1238,71 @@ matrix_2d matrix_2d::sweepinverse()
 }
 	
 
-// gaussianinverse()
+//// gaussianinverse()
+////
+//// Calculates the inverse using Gaussian elimination.
+//// The following assumptions are made:
+////	 - matrix is symmetric, and
+////	 - matrix is upper triangular (or a full matrix). 
+////	
+//// The inversion does not destroy the contents of the matrix 
+//// passed to the function, instead it operates on a copy.
+//matrix_2d matrix_2d::gaussianinverse()
+//{
+//	if (_rows != _cols)
+//		throw boost::enable_current_exception(runtime_error("gaussinverse(): Matrix is not square."));
 //
-// Calculates the inverse using Gaussian elimination.
-// The following assumptions are made:
-//	 - matrix is symmetric, and
-//	 - matrix is upper triangular (or a full matrix). 
+//	// create copy of upper triangular
+//	matrix_2d matcopy(*this);
+//	matcopy.clearlower();
+//
+//	identity();
 //	
-// The inversion does not destroy the contents of the matrix 
-// passed to the function, instead it operates on a copy.
-matrix_2d matrix_2d::gaussianinverse()
-{
-	if (_rows != _cols)
-		throw boost::enable_current_exception(runtime_error("gaussinverse(): Matrix is not square."));
-
-	// create copy of upper triangular
-	matrix_2d matcopy(*this);
-	matcopy.clearlower();
-
-	identity();
-	
-	int nRow, nCol, k, columns(_cols);
-	double dTemp;
-	const double epsilon = PRECISION_1E35;
-
-	//	Gaussian Elimination, Forward pass:
-   for (nRow = 0; nRow<columns-1; nRow++) 
-	{
-		for (nCol = nRow+1; nCol<columns; nCol++)
-		{
-			if (fabs(matcopy.get(nRow, nRow)) < epsilon)
-				throw boost::enable_current_exception(runtime_error("gaussinverse(): Matrix inversion failed."));
-			
-			dTemp = matcopy.get(nRow, nCol) / matcopy.get(nRow, nRow);
-			
-			for (k = nCol; k<columns; k++)
-				matcopy.put(nCol, k, matcopy.get(nCol, k) - dTemp * matcopy.get(nRow, k));
-			
-			for (k = 0; k<nRow+1; k++)
-				put(k, nCol, get(k, nCol) - dTemp * get(k, nRow));
-			
-		}
-	}
-
-	 //	Gaussian Elimination, Backward Pass:
-	for (nRow = columns-1; nRow>=0; nRow--)
-	{
-		if (fabs(matcopy.get(nRow, nRow)) < epsilon)
-			throw boost::enable_current_exception(runtime_error("gaussinverse(): Matrix inversion failed."));
-		
-		for (nCol = 0; nCol<nRow+1; nCol++)
-			put(nCol, nRow, get(nCol, nRow) / matcopy.get(nRow, nRow));
-		
-		if (nRow == 0)
-			break;		// don't enter the following loop
-
-		for (nCol = nRow-1; nCol >= 0; nCol--)
-			for (k = 0; k < nCol+1; k++)
-				put(k, nCol, get(k, nCol) - get(k, nRow) * matcopy.get(nCol,nRow));
-	}
-
-	// Copy upper triangle values to lower triangle:
-	filllower();
-
-	return *this;
-}
+//	int nRow, nCol, k, columns(_cols);
+//	double dTemp;
+//	const double epsilon = PRECISION_1E35;
+//
+//	//	Gaussian Elimination, Forward pass:
+//   for (nRow = 0; nRow<columns-1; nRow++) 
+//	{
+//		for (nCol = nRow+1; nCol<columns; nCol++)
+//		{
+//			if (fabs(matcopy.get(nRow, nRow)) < epsilon)
+//				throw boost::enable_current_exception(runtime_error("gaussinverse(): Matrix inversion failed."));
+//			
+//			dTemp = matcopy.get(nRow, nCol) / matcopy.get(nRow, nRow);
+//			
+//			for (k = nCol; k<columns; k++)
+//				matcopy.put(nCol, k, matcopy.get(nCol, k) - dTemp * matcopy.get(nRow, k));
+//			
+//			for (k = 0; k<nRow+1; k++)
+//				put(k, nCol, get(k, nCol) - dTemp * get(k, nRow));
+//			
+//		}
+//	}
+//
+//	 //	Gaussian Elimination, Backward Pass:
+//	for (nRow = columns-1; nRow>=0; nRow--)
+//	{
+//		if (fabs(matcopy.get(nRow, nRow)) < epsilon)
+//			throw boost::enable_current_exception(runtime_error("gaussinverse(): Matrix inversion failed."));
+//		
+//		for (nCol = 0; nCol<nRow+1; nCol++)
+//			put(nCol, nRow, get(nCol, nRow) / matcopy.get(nRow, nRow));
+//		
+//		if (nRow == 0)
+//			break;		// don't enter the following loop
+//
+//		for (nCol = nRow-1; nCol >= 0; nCol--)
+//			for (k = 0; k < nCol+1; k++)
+//				put(k, nCol, get(k, nCol) - get(k, nRow) * matcopy.get(nCol,nRow));
+//	}
+//
+//	// Copy upper triangle values to lower triangle:
+//	filllower();
+//
+//	return *this;
+//}
 	
 
 // choleskyinverse_mkl()
@@ -1354,144 +1354,144 @@ matrix_2d matrix_2d::choleskyinverse_mkl(bool LOWER_IS_CLEARED /*=false*/)
 	return *this;
 }
 
-// Choleskyinverse()
+//// Choleskyinverse()
+////
+//// Inverts the calling matrix using the Cholesky method.
+//// Based upon Numerical Recipes code
+//// The following assumptions are made:
+////	 - matrix is symmetric, and
+////	 - matrix is upper triangular (or a full matrix). 
+////
+//// The inversion does not destroy the contents of the matrix 
+//// passed to the function, instead it operates on a copy.
+//// Index pointers use UINT32
+//matrix_2d matrix_2d::choleskyinverse(bool LOWER_IS_CLEARED /*=false*/)
+//{
+//	if (_rows != _cols)
+//		throw boost::enable_current_exception(runtime_error("choleskyinverse(): Matrix is not square."));
 //
-// Inverts the calling matrix using the Cholesky method.
-// Based upon Numerical Recipes code
-// The following assumptions are made:
-//	 - matrix is symmetric, and
-//	 - matrix is upper triangular (or a full matrix). 
+//	// fill lower triangle with zeros
+//	if (!LOWER_IS_CLEARED)
+//		clearlower();
+//	
+//	UINT32 i(0), j(0);
 //
-// The inversion does not destroy the contents of the matrix 
-// passed to the function, instead it operates on a copy.
-// Index pointers use UINT32
-matrix_2d matrix_2d::choleskyinverse(bool LOWER_IS_CLEARED /*=false*/)
-{
-	if (_rows != _cols)
-		throw boost::enable_current_exception(runtime_error("choleskyinverse(): Matrix is not square."));
-
-	// fill lower triangle with zeros
-	if (!LOWER_IS_CLEARED)
-		clearlower();
-	
-	UINT32 i(0), j(0);
-
-	//trace("Matrix", "%.16G ");
-
-	double* _factors = new double[_rows];
-
-	// Condition matrix (the diagonal elements)
-	for (i=0; i<_rows; i++)
-	{
-		if (get(i, i) < 0.)
-		{
-			stringstream ss;
-			ss << "choleskyinverse(): Diagonal terms cannot be negative:" << endl <<
-				"  " << "element " << i << ", " << i << " = " << get(i, i);
-			throw boost::enable_current_exception(runtime_error(ss.str()));
-		}
-		_factors[i] = sqrt(get(i,i));
-	}
-
-	// Apply factors
-	for (i=0; i<_rows; i++)
-		for (j=i; j<_rows; j++)
-			put(i, j, get(i, j) / (_factors[i] * _factors[j])); 
-	
-	// Cholesky Decomposition
-	decomposeupper();
-
-	double tmp;
-	UINT32 k(0), a(0);
-
-	// Form the w matrix
-	i = _rows - 1;
-	while (a++ < _rows)
-	{
-		j = _rows - 1;
-		while (j - i >= 0)
-		{
-			if (i == j)
-			{
-				put(i, i, 1.0 / get(i, i));
-				break;
-			}
-			else
-			{
-				tmp = 0.;
-				for (k = i + 1; k <= j; k++)
-					tmp += get(i, k) * get(k, j);
-				put(i, j, -tmp / get(i, i));
-			}
-			j--;
-		}
-		i--;
-	}
-
-	// form wwt (inverse)
-	for (i=0; i<_rows; i++)
-	{
-		for (j=i; j<_rows; j++)
-		{
-			tmp = 0.;
-			for (k=j; k<_rows; k++)
-				tmp += get(i, k) * get(j, k);
-			put(i, j, tmp / (_factors[i] * _factors[j]));
-		}                                       
-	}
-
-	delete []_factors;
-
-	// Copy upper triangle values to lower triangle:
-	filllower();
-
-	//trace("Matrix", "%.16G ");
-
-	return *this;
-}
-	
-
-// DecomposeUpper()
+//	//trace("Matrix", "%.16G ");
 //
-void matrix_2d::decomposeupper()
-{
-	UINT32 i, j, k;
-	double tmp;
+//	double* _factors = new double[_rows];
+//
+//	// Condition matrix (the diagonal elements)
+//	for (i=0; i<_rows; i++)
+//	{
+//		if (get(i, i) < 0.)
+//		{
+//			stringstream ss;
+//			ss << "choleskyinverse(): Diagonal terms cannot be negative:" << endl <<
+//				"  " << "element " << i << ", " << i << " = " << get(i, i);
+//			throw boost::enable_current_exception(runtime_error(ss.str()));
+//		}
+//		_factors[i] = sqrt(get(i,i));
+//	}
+//
+//	// Apply factors
+//	for (i=0; i<_rows; i++)
+//		for (j=i; j<_rows; j++)
+//			put(i, j, get(i, j) / (_factors[i] * _factors[j])); 
+//	
+//	// Cholesky Decomposition
+//	decomposeupper();
+//
+//	double tmp;
+//	UINT32 k(0), a(0);
+//
+//	// Form the w matrix
+//	i = _rows - 1;
+//	while (a++ < _rows)
+//	{
+//		j = _rows - 1;
+//		while (j - i >= 0)
+//		{
+//			if (i == j)
+//			{
+//				put(i, i, 1.0 / get(i, i));
+//				break;
+//			}
+//			else
+//			{
+//				tmp = 0.;
+//				for (k = i + 1; k <= j; k++)
+//					tmp += get(i, k) * get(k, j);
+//				put(i, j, -tmp / get(i, i));
+//			}
+//			j--;
+//		}
+//		i--;
+//	}
+//
+//	// form wwt (inverse)
+//	for (i=0; i<_rows; i++)
+//	{
+//		for (j=i; j<_rows; j++)
+//		{
+//			tmp = 0.;
+//			for (k=j; k<_rows; k++)
+//				tmp += get(i, k) * get(j, k);
+//			put(i, j, tmp / (_factors[i] * _factors[j]));
+//		}                                       
+//	}
+//
+//	delete []_factors;
+//
+//	// Copy upper triangle values to lower triangle:
+//	filllower();
+//
+//	//trace("Matrix", "%.16G ");
+//
+//	return *this;
+//}
 	
-	// for every row
-	for (i=0; i<_rows; ++i)
-	{
-		// for every column in the row, commencing at 
-		// the diagonal element
-		for (j=i; j<_rows; ++j)
-		{
-			if (i == j)
-			{
-				tmp = 0.;
-				for (k=0; k<i; k++)
-					tmp += get(k, i) * get(k, i);
-				if ((get(i, j) - tmp) < -0.) 
-				{
-					stringstream ss;
-					ss << "choleskyinverse(): Matrix is not positive definite:" << endl <<
-						"  " << "decomposition value (" << i << ", " << j << " = " << 
-						scientific << setprecision(6) << (get(i, j) - tmp) << ")" <<
-						"  must be greater than zero.";			
-					throw boost::enable_current_exception(
-					runtime_error(ss.str()));
-				}
-				put(i, j, pow((get(i, j) - tmp), .5));
-			}
-			else
-			{
-				tmp = 0.;
-				for (k=0; k<i; k++)
-					tmp += get(k, i) * get(k, j);
-				put(i, j, (get(i, j) - tmp) / get(i, i));
-			}
-		}
-	}
-} // DecomposeUpper()
+
+//// DecomposeUpper()
+////
+//void matrix_2d::decomposeupper()
+//{
+//	UINT32 i, j, k;
+//	double tmp;
+//	
+//	// for every row
+//	for (i=0; i<_rows; ++i)
+//	{
+//		// for every column in the row, commencing at 
+//		// the diagonal element
+//		for (j=i; j<_rows; ++j)
+//		{
+//			if (i == j)
+//			{
+//				tmp = 0.;
+//				for (k=0; k<i; k++)
+//					tmp += get(k, i) * get(k, i);
+//				if ((get(i, j) - tmp) < -0.) 
+//				{
+//					stringstream ss;
+//					ss << "choleskyinverse(): Matrix is not positive definite:" << endl <<
+//						"  " << "decomposition value (" << i << ", " << j << " = " << 
+//						scientific << setprecision(6) << (get(i, j) - tmp) << ")" <<
+//						"  must be greater than zero.";			
+//					throw boost::enable_current_exception(
+//					runtime_error(ss.str()));
+//				}
+//				put(i, j, pow((get(i, j) - tmp), .5));
+//			}
+//			else
+//			{
+//				tmp = 0.;
+//				for (k=0; k<i; k++)
+//					tmp += get(k, i) * get(k, j);
+//				put(i, j, (get(i, j) - tmp) / get(i, i));
+//			}
+//		}
+//	}
+//} // DecomposeUpper()
 	
 
 // scale()
@@ -1591,65 +1591,65 @@ void matrix_2d::zero(const UINT32& row_begin, const UINT32& col_begin,
 		memset(getelementref(row_begin, col), 0, rows * sizeof(double));
 }
 
-// identity()
-void matrix_2d::identity()
-{
-	// Turn matrix into an identity matrix:
-	if (_rows != _cols)
-		throw boost::enable_current_exception(runtime_error("identity(): Matrix is not square."));
-	zero();
-	for (UINT32 row=0; row<_rows; row++)
-		put(row, row, 1.0);
-}
+//// identity()
+//void matrix_2d::identity()
+//{
+//	// Turn matrix into an identity matrix:
+//	if (_rows != _cols)
+//		throw boost::enable_current_exception(runtime_error("identity(): Matrix is not square."));
+//	zero();
+//	for (UINT32 row=0; row<_rows; row++)
+//		put(row, row, 1.0);
+//}
 	
 
-void matrix_2d::identity(const UINT32& row_begin, const UINT32& col_begin)
-{
-	if (_rows-row_begin != _cols-col_begin)
-		throw boost::enable_current_exception(runtime_error("identity(): the sub-matrix from [rowstart,columnstart] to the end is not square."));
+//void matrix_2d::identity(const UINT32& row_begin, const UINT32& col_begin)
+//{
+//	if (_rows-row_begin != _cols-col_begin)
+//		throw boost::enable_current_exception(runtime_error("identity(): the sub-matrix from [rowstart,columnstart] to the end is not square."));
+//
+//	UINT32 row, column;
+//
+//	// It is faster to zero the entire matrix and re-write diagonal terms than it is
+//	// to test every element for diagonal condition (i.e. if (row == column)
+//	zero(row_begin, col_begin, _rows - row_begin, _cols - col_begin);
+//
+//	column=col_begin;
+//	for (row=row_begin; row<_rows && column<_cols; row++)
+//		put(row, column++, 1.0);
+//}
 
-	UINT32 row, column;
 
-	// It is faster to zero the entire matrix and re-write diagonal terms than it is
-	// to test every element for diagonal condition (i.e. if (row == column)
-	zero(row_begin, col_begin, _rows - row_begin, _cols - col_begin);
-
-	column=col_begin;
-	for (row=row_begin; row<_rows && column<_cols; row++)
-		put(row, column++, 1.0);
-}
-	
-
-void matrix_2d::identity(const UINT32& rowstart, const UINT32& columnstart,	const UINT32& rows, const UINT32& columns)
-{
-	if (rows != columns)
-		throw boost::enable_current_exception(runtime_error("identity(): the specified sub-matrix is not square."));
-
-	UINT32 rowend(rowstart+rows), columnend(columnstart+columns);
-
-	if (rowend > _rows || columnend > _cols)
-	{
-		stringstream ss;
-		ss << "identity(): " << endl;
-		if (rowend >= _rows)
-			ss << "    Row index (destination) " << rowend << " exceeds the matrix row count (" << _rows << "). " << endl;
-		if (columnend >= _cols)
-			ss << "    Column index (destination) " << columnend << " exceeds the matrix column count (" << _cols << ").";
-		throw boost::enable_current_exception(runtime_error(ss.str()));
-	}
-
-	UINT32 row, column;
-
-	// It is faster to zero the entire matrix and re-write diagonal terms than it is
-	// to test every element for diagonal condition (i.e. if (row == column)
-	for (row=rowstart; row<rowend; row++)
-		for (column=columnstart; column<columnend; column++)
-			put(row, column, 0.0);
-
-	column=columnstart;
-	for (row=rowstart; row<rowend && column<columnend; row++)
-		put(row, column++, 1.0);
-}
+//void matrix_2d::identity(const UINT32& rowstart, const UINT32& columnstart,	const UINT32& rows, const UINT32& columns)
+//{
+//	if (rows != columns)
+//		throw boost::enable_current_exception(runtime_error("identity(): the specified sub-matrix is not square."));
+//
+//	UINT32 rowend(rowstart+rows), columnend(columnstart+columns);
+//
+//	if (rowend > _rows || columnend > _cols)
+//	{
+//		stringstream ss;
+//		ss << "identity(): " << endl;
+//		if (rowend >= _rows)
+//			ss << "    Row index (destination) " << rowend << " exceeds the matrix row count (" << _rows << "). " << endl;
+//		if (columnend >= _cols)
+//			ss << "    Column index (destination) " << columnend << " exceeds the matrix column count (" << _cols << ").";
+//		throw boost::enable_current_exception(runtime_error(ss.str()));
+//	}
+//
+//	UINT32 row, column;
+//
+//	// It is faster to zero the entire matrix and re-write diagonal terms than it is
+//	// to test every element for diagonal condition (i.e. if (row == column)
+//	for (row=rowstart; row<rowend; row++)
+//		for (column=columnstart; column<columnend; column++)
+//			put(row, column, 0.0);
+//
+//	column=columnstart;
+//	for (row=rowstart; row<rowend && column<columnend; row++)
+//		put(row, column++, 1.0);
+//}
 	
 
 
