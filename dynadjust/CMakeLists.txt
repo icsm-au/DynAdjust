@@ -349,7 +349,7 @@ if (BUILD_TESTING)
     add_test (NAME adjust-dbid-03 COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --report-results --output-adj-msr --output-pos-uncertainty --output-apu-vcv-units 1)
     add_test (NAME adjust-dbid-04 COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --comments "This is a comment that is quite lengthy in content and is relatively meaningless.  Feel free to delete this comment.")
 
-    # 13. Renaming, no export of flagged stations, non-contiguous networks
+    # 13. Renaming, no export of flagged stations, no network name, non-contiguous networks, import block, nearby stations
     add_test (NAME import-misc-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-ignored.msr --stn-renaming-file ${CMAKE_SOURCE_DIR}/../sampleData/dsg.renaming --export-xml)
     add_test (NAME import-misc-02 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg-retained.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-retained.msr --search-similar-msr --export-dna --export-xml --single-xml-file)
     add_test (NAME import-misc-03 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ./misc.xml ${CMAKE_SOURCE_DIR}/../sampleData/sa-gnss-stn.xml --flag-unused-stations --export-dna --export-xml)
@@ -357,10 +357,20 @@ if (BUILD_TESTING)
     add_test (NAME reftran-misc-02 COMMAND $<TARGET_FILE:dnareftranwrapper> -p misc.dnaproj)
     add_test (NAME segment-misc-01 COMMAND $<TARGET_FILE:dnasegmentwrapper> misc --min 500 --max 500 --starting-stns 230900140)
     add_test (NAME import-misc-04 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ./misc.xml --import-block-stn-msr 2)
+    add_test (NAME import-misc-05 COMMAND $<TARGET_FILE:dnaimportwrapper> -p misc.dnaproj)
+    add_test (NAME import-noname-01 COMMAND $<TARGET_FILE:dnaimportwrapper> ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr)
+    add_test (NAME import-noname-02 COMMAND $<TARGET_FILE:dnaimportwrapper> ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr)
     add_test (NAME import-noncontiguous COMMAND $<TARGET_FILE:dnaimportwrapper> -n noncontig ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr ${CMAKE_SOURCE_DIR}/../sampleData/skye-tutorial.stn ${CMAKE_SOURCE_DIR}/../sampleData/skye-tutorial.msr -r itrf2000 --override-input-ref-frame)
     add_test (NAME segment-noncontiguous-01 COMMAND $<TARGET_FILE:dnasegmentwrapper> noncontig --min 3 --max 5 --search-level 1 --test-integrity --verbose 3)
     add_test (NAME segment-noncontiguous-02 COMMAND $<TARGET_FILE:dnasegmentwrapper> noncontig --min 3 --max 5 --contiguous-blocks 0 --search-level 1 --test-integrity  --verbose 3)
     add_test (NAME segment-noncontiguous-03 COMMAND $<TARGET_FILE:dnasegmentwrapper> -p noncontig.dnaproj)
+    add_test (NAME import-block-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr)
+    add_test (NAME segment-block COMMAND $<TARGET_FILE:dnasegmentwrapper> misc --min 2 --max 3)
+    add_test (NAME import-block-02 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr --seg-file ${CMAKE_SOURCE_DIR}/../sampleData/misc.seg --import-block 2)
+
+    # the --search-nearby-stn option in import will return a failure if nearby stations are found.  In this case, check it is non-zero (i.e. it will fail!)
+    add_test (NAME import-nearby COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr --search-nearby-stn --nearby-stn-buffer 10)
+    set_tests_properties(import-nearby PROPERTIES WILL_FAIL TRUE)
 
     # set execution dependencies (the execution of tests must be sequential)
     set_tests_properties(
