@@ -373,9 +373,47 @@ if (BUILD_TESTING)
     add_test (NAME segment-block COMMAND $<TARGET_FILE:dnasegmentwrapper> misc --min 2 --max 3)
     add_test (NAME import-block-02 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr --seg-file ${CMAKE_SOURCE_DIR}/../sampleData/misc.seg --import-block 2)
 
+    # 14. Exceptions
+    ### IMPORT ###
+    # invalid options
+    add_test (NAME import-no-option COMMAND $<TARGET_FILE:dnaimportwrapper> -x)
     # the --search-nearby-stn option in import will return a failure if nearby stations are found.  In this case, check it is non-zero (i.e. it will fail!)
     add_test (NAME import-nearby COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr --search-nearby-stn --nearby-stn-buffer 10)
-    set_tests_properties(import-nearby PROPERTIES WILL_FAIL TRUE)
+    # files don't exist
+    add_test (NAME import-no-files COMMAND $<TARGET_FILE:dnaimportwrapper> -n bigdata ${CMAKE_SOURCE_DIR}/../sampleData/bigdata.stn ${CMAKE_SOURCE_DIR}/../sampleData/bigdata.msr)
+    # reference frame doesn't exist
+    add_test (NAME import-no-frame COMMAND $<TARGET_FILE:dnaimportwrapper> -n sample -r itrf1975 ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr)
+    # no dynaml.xsd
+    file (REMOVE ./DynaML.xsd)
+    add_test (NAME import-no-xsd-file COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss gnss-networkstn.xml gnss-networkmsr.xml)
+    # no geoid file
+    add_test (NAME import-no-geoid COMMAND $<TARGET_FILE:dnaimportwrapper> -n geoid --geo-file ./nofile.geo)
+    # no project file
+    add_test (NAME import-no-project COMMAND $<TARGET_FILE:dnaimportwrapper> -n proj -p ./nofile.dnaproj)
+    # no help module
+    add_test (NAME import-no-help COMMAND $<TARGET_FILE:dnaimportwrapper> --help-module cplusplus)
+
+    set_tests_properties(import-no-option import-nearby import-no-files import-no-frame import-no-xsd-file import-no-geoid import-no-project import-no-help
+        PROPERTIES WILL_FAIL TRUE)
+
+    ### ADJUST ###
+    # invalid options
+    add_test (NAME adjust-no-option COMMAND $<TARGET_FILE:dnaadjustwrapper> -x)
+    # no project file
+    add_test (NAME adjust-no-project COMMAND $<TARGET_FILE:dnaadjustwrapper> -n proj -p ./nofile.dnaproj)
+    # no network name
+    add_test (NAME adjust-no-name COMMAND $<TARGET_FILE:dnaadjustwrapper> --phased)
+    # no help module
+    add_test (NAME adjust-no-help COMMAND $<TARGET_FILE:dnaadjustwrapper> --help-module cplusplus)
+    # no binary files
+    add_test (NAME adjust-no-bst-bms COMMAND $<TARGET_FILE:dnaadjustwrapper> largenet)
+    # no segment file
+    add_test (NAME import-no-seg COMMAND $<TARGET_FILE:dnaimportwrapper> -n noseg ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr)
+    add_test (NAME adjust-no-seg COMMAND $<TARGET_FILE:dnaadjustwrapper> noseg --phased)
+    
+    set_tests_properties(
+        adjust-no-option adjust-no-project adjust-no-name adjust-no-help adjust-no-bst-bms adjust-no-seg
+        PROPERTIES WILL_FAIL TRUE)    
 
     # set execution dependencies (the execution of tests must be sequential)
     set_tests_properties(
