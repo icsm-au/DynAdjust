@@ -1091,6 +1091,17 @@ int main(int argc, char* argv[])
 		{
 		case Phased_Block_1Mode:
 		case PhasedMode:
+
+			if (!exists(p.a.seg_file))
+			{
+				cout << endl << endl << 
+					"- Error: The required segmentation file does not exist:" << endl;  
+				cout << "         " << p.a.seg_file << endl << endl;
+				cout << "  Run  'segment " << p.g.network_name << "' to create a segmentation file" << endl << endl;
+				cout_mutex.unlock();
+				return EXIT_FAILURE;
+			}
+
 			// Load the segmentation file parameters into the dll, mainly
 			// the segmentation block count, which is used by the progress 
 			// thread before the adjustment begins
@@ -1108,15 +1119,6 @@ int main(int argc, char* argv[])
 			cout << "+ Rigorous sequential phased adjustment mode";
 			if (p.a.stage)
 				cout << " (staged)";
-
-			if (!exists(p.a.seg_file))
-			{
-				cout << endl << endl << 
-					"- Error: The required segmentation file does not exist:" << endl;  
-				cout << "         " << p.a.seg_file << endl << endl;
-				cout << "  Run  'segment " << p.g.network_name << "' to create a segmentation file" << endl << endl;
-				return EXIT_FAILURE;
-			}
 
 			// If the user has not provided a seg file, check the meta of the default file
 			if (!userSuppliedSegFile)
@@ -1139,7 +1141,8 @@ int main(int argc, char* argv[])
 						cout << "   " << leafStr<string>(p.a.bms_file) << "  last modified on  " << ctime(&t_bms) << endl;
 						cout << "   " << leafStr<string>(p.a.seg_file) << "  created on  " << ctime(&t_seg) << endl;
 						cout << "  Run 'segment " << p.g.network_name << " [options]' to re-create the segmentation file, or re-run" << endl << 
-							"  the adjust using the " << SEG_FILE << " option if this segmentation file must\n  be used." << endl << endl;
+							"  adjust using the --" << SEG_FILE << " option if the file " << basename(p.a.seg_file) << " must\n  be used." << endl << endl;
+						cout_mutex.unlock();
 						return EXIT_FAILURE;
 					}
 				}
@@ -1201,15 +1204,6 @@ int main(int argc, char* argv[])
 			break;
 		case Phased_Block_1Mode:
 			cout << "+ Sequential phased adjustment resulting in rigorous estimates for Block 1 only" << endl;
-			
-			if (!exists(p.a.seg_file))
-			{
-				cout << endl << endl << 
-					"- Error: The required segmentation file does not exist:" << endl;  
-				cout << "         " << p.a.seg_file << endl;
-				cout << "  Run  'segment " << p.g.network_name << "' to create a segmentation file" << endl << endl;
-				return EXIT_FAILURE;
-			}
 			
 			break;
 		case SimulationMode:
