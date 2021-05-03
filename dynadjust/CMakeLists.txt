@@ -269,10 +269,13 @@ if (BUILD_TESTING)
 
     # 8. gnss reference frame transformations
     add_test (NAME ref-gnss01-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r itrf2014 -e 01.01.2020)
-    add_test (NAME ref-gnss02-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r itrf1991 -e 03.12.1995)
-    add_test (NAME ref-gnss03-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r itrf2005 -e 05.05.2005 --export-xml --single-xml-file --verb 3)
-    add_test (NAME ref-gnss04-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r itrf1991 -e 05.05.2005 --verb 3)
-    add_test (NAME ref-gnss05-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r gda94 --export-xml --single-xml-file --verb 3)
+    add_test (NAME ref-gnss02-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r itrf1988 -e 03.12.1995)
+    add_test (NAME ref-gnss03-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r itrf1989)
+    add_test (NAME ref-gnss04-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r itrf1990)
+    add_test (NAME ref-gnss05-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r itrf1991)
+    add_test (NAME ref-gnss06-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r itrf2005 -e 05.05.2005 --export-xml --single-xml-file --verb 3)
+    add_test (NAME ref-gnss07-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r itrf1992 --verb 3)
+    add_test (NAME ref-gnss08-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r gda94 --export-xml --single-xml-file --verb 3)
 
     # 9. gnss reference frame transformations with plate motion model
     add_test (NAME ref-itrf-pmm-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n itrf05_itrf1997_a -r itrf2005 ${CMAKE_SOURCE_DIR}/../sampleData/TEST_ITRF05.SNX)
