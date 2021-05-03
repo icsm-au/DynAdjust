@@ -210,9 +210,9 @@ public:
 	matrix_2d multiply_square_t(const matrix_2d& lhs,	// same as multiply_square, except lhs is multiplied by transpose of rhs.
 		const matrix_2d& rhs);							
 	matrix_2d sweepinverse();							// Sweep inverse (good for rotation matrices)
-	matrix_2d gaussianinverse();						// Gaussian inverse
-	matrix_2d choleskyinverse(bool LOWER_IS_CLEARED=false);				// Cholesky inverse
-	void decomposeupper();								// Cholesky decomposition 
+	//matrix_2d gaussianinverse();						// Gaussian inverse
+	//matrix_2d choleskyinverse(bool LOWER_IS_CLEARED=false);				// Cholesky inverse
+	//void decomposeupper();								// Cholesky decomposition 
 	
 	matrix_2d choleskyinverse_mkl(bool LOWER_IS_CLEARED=false);	// Cholesky inverse using MKL
 
@@ -291,10 +291,10 @@ public:
 	void fillupper();			// copies lower tri to upper
 	void zero();				// sets all elements to zero
 	void zero(const UINT32& row_begin, const UINT32& col_begin, const UINT32& rows, const UINT32& columns);
-	void identity();													// set matrix to Identity
-	void identity(const UINT32& rowstart, const UINT32& columnstart);	// set sub-matrix to Identity (from
-	void identity(const UINT32& rowstart, const UINT32& columnstart,	// at rowstart, columnstart to end)
-		const UINT32& rows, const UINT32& columns);						// set sub-matrix to Identity
+	//void identity();													// set matrix to Identity
+	//void identity(const UINT32& rowstart, const UINT32& columnstart);	// set sub-matrix to Identity (from
+	//void identity(const UINT32& rowstart, const UINT32& columnstart,	// at rowstart, columnstart to end)
+	//	const UINT32& rows, const UINT32& columns);						// set sub-matrix to Identity
 
 	// comparison
 	void difference(const matrix_2d* lhs, const matrix_2d* rhs);
@@ -307,15 +307,15 @@ public:
 	// Printing
 	void coutmatrix(const string& sTitle, const short& precision) const;
 	friend ostream& operator<< (ostream& os, const matrix_2d& rhs);
-	friend ostream& operator<< (ostream& os, const matrix_2d* rhs);
-	friend ostream& operator<< (ostream& os, const v_mat_2d& rhs);
-	friend ostream& operator<< (ostream& os, const v_mat_2d* rhs);
+	//friend ostream& operator<< (ostream& os, const matrix_2d* rhs);
+	//friend ostream& operator<< (ostream& os, const v_mat_2d& rhs);
+	//friend ostream& operator<< (ostream& os, const v_mat_2d* rhs);
 
-	// Reading
-	friend istream& operator>> (istream& is, matrix_2d& rhs);
-	friend istream& operator>> (istream& is, matrix_2d* rhs);
-	friend istream& operator>> (istream& is, v_mat_2d& rhs);
-	friend istream& operator>> (istream& is, v_mat_2d* rhs);
+	//// Reading
+	//friend istream& operator>> (istream& is, matrix_2d& rhs);
+	//friend istream& operator>> (istream& is, matrix_2d* rhs);
+	//friend istream& operator>> (istream& is, v_mat_2d& rhs);
+	//friend istream& operator>> (istream& is, v_mat_2d* rhs);
 
 	// Reading from memory mapped file
 	void ReadMappedFileRegion(void* addr);
