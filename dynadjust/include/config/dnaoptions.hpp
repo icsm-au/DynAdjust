@@ -152,14 +152,19 @@ public:
 		, network_name("network1"), input_folder("."), output_folder(".") { 
 	}
 
+private:
+	// Disallow use of compiler generated equality operator.
+	bool operator==(const general_settings&);
+	//
 	// Ensure operator== methods for all settings test *all* member variables (required for project dialog)
-	bool operator==(const general_settings& g) const {
-		return quiet == g.quiet && verbose == g.verbose && version == g.version && interactive == g.interactive &&
-			log_file == g.log_file &&
-			project_file == g.project_file && network_name == g.network_name &&
-			input_folder == g.input_folder && output_folder == g.output_folder;
-	}
+	//bool operator==(const general_settings& g) const {
+	//	return quiet == g.quiet && verbose == g.verbose && version == g.version && interactive == g.interactive &&
+	//		log_file == g.log_file &&
+	//		project_file == g.project_file && network_name == g.network_name &&
+	//		input_folder == g.input_folder && output_folder == g.output_folder;
+	//}
 
+public:
 	UINT16					quiet;				// Suppresses all explanation of what dnainterop is doing unless an error occurs
 	UINT16					verbose;			// Give detailed information about what dnainterop is doing.\n0: No information (default)\n1: Helpful information\n2: Extended information\n3: Debug level information
 	UINT16					version;			// Display the current program version
@@ -195,28 +200,33 @@ public:
 			input_files.clear();
 	}
 
-	// The following equality function is used in the GUI to test whether any settings have been modified
-	bool operator==(const import_settings& i) const {
-		return reference_frame == i.reference_frame && user_supplied_frame == i.user_supplied_frame && override_input_rfame == i.override_input_rfame &&
-			test_integrity == i.test_integrity && verify_coordinates == i.verify_coordinates && export_dynaml == i.export_dynaml &&
-			export_from_bfiles == i.export_from_bfiles && export_single_xml_file == i.export_single_xml_file && prefer_single_x_as_g ==i.prefer_single_x_as_g &&
-			export_asl_file == i.export_asl_file && export_aml_file == i.export_aml_file && export_map_file == i.export_map_file &&
-			export_dna_files == i.export_dna_files && export_discont_file == i.export_discont_file && import_geo_file == i.import_geo_file &&
-			simulate_measurements == i.simulate_measurements && split_clusters == i.split_clusters && include_transcending_msrs == i.include_transcending_msrs && 
-			apply_scaling == i.apply_scaling && input_files == i.input_files &&
-			map_file == i.map_file && asl_file == i.asl_file && aml_file == i.aml_file && bst_file == i.bst_file && bms_file == i.bms_file &&
-			dst_file == i.dst_file && dms_file == i.dms_file && imp_file == i.imp_file && geo_file == i.geo_file && seg_file == i.seg_file && 
-			xml_outfile == i.xml_outfile && xml_stnfile == i.xml_stnfile && xml_msrfile == i.xml_msrfile && 
-			dna_stnfile == i.dna_stnfile && dna_msrfile == i.dna_msrfile && simulate_msrfile == i.simulate_msrfile &&
-			include_msrs == i.include_msrs && exclude_msrs == i.exclude_msrs &&
-			stn_associated_msr_include == i.stn_associated_msr_include && stn_associated_msr_exclude == i.stn_associated_msr_exclude && rename_stations == i.rename_stations &&
-			search_nearby_stn == i.search_nearby_stn && search_similar_msr == i.search_similar_msr && search_similar_msr_gx == i.search_similar_msr_gx &&
-			ignore_similar_msr == i.ignore_similar_msr && remove_ignored_msr == i.remove_ignored_msr &&
-			flag_unused_stn == i.flag_unused_stn && import_block == i.import_block && import_block_number == i.import_block_number &&
-			cluster_id == i.cluster_id && msr_id == i.msr_id &&
-			vscale == i.vscale && pscale == i.pscale && lscale == i.lscale && hscale == i.hscale && scalar_file == i.scalar_file;
-	}
+private:
+	// Disallow use of compiler generated equality operator.
+	bool operator==(const general_settings&);
+	//
+	//// The following equality function is used in the GUI to test whether any settings have been modified
+	//bool operator==(const import_settings& i) const {
+	//	return reference_frame == i.reference_frame && user_supplied_frame == i.user_supplied_frame && override_input_rfame == i.override_input_rfame &&
+	//		test_integrity == i.test_integrity && verify_coordinates == i.verify_coordinates && export_dynaml == i.export_dynaml &&
+	//		export_from_bfiles == i.export_from_bfiles && export_single_xml_file == i.export_single_xml_file && prefer_single_x_as_g ==i.prefer_single_x_as_g &&
+	//		export_asl_file == i.export_asl_file && export_aml_file == i.export_aml_file && export_map_file == i.export_map_file &&
+	//		export_dna_files == i.export_dna_files && export_discont_file == i.export_discont_file && import_geo_file == i.import_geo_file &&
+	//		simulate_measurements == i.simulate_measurements && split_clusters == i.split_clusters && include_transcending_msrs == i.include_transcending_msrs && 
+	//		apply_scaling == i.apply_scaling && input_files == i.input_files &&
+	//		map_file == i.map_file && asl_file == i.asl_file && aml_file == i.aml_file && bst_file == i.bst_file && bms_file == i.bms_file &&
+	//		dst_file == i.dst_file && dms_file == i.dms_file && imp_file == i.imp_file && geo_file == i.geo_file && seg_file == i.seg_file && 
+	//		xml_outfile == i.xml_outfile && xml_stnfile == i.xml_stnfile && xml_msrfile == i.xml_msrfile && 
+	//		dna_stnfile == i.dna_stnfile && dna_msrfile == i.dna_msrfile && simulate_msrfile == i.simulate_msrfile &&
+	//		include_msrs == i.include_msrs && exclude_msrs == i.exclude_msrs &&
+	//		stn_associated_msr_include == i.stn_associated_msr_include && stn_associated_msr_exclude == i.stn_associated_msr_exclude && rename_stations == i.rename_stations &&
+	//		search_nearby_stn == i.search_nearby_stn && search_similar_msr == i.search_similar_msr && search_similar_msr_gx == i.search_similar_msr_gx &&
+	//		ignore_similar_msr == i.ignore_similar_msr && remove_ignored_msr == i.remove_ignored_msr &&
+	//		flag_unused_stn == i.flag_unused_stn && import_block == i.import_block && import_block_number == i.import_block_number &&
+	//		cluster_id == i.cluster_id && msr_id == i.msr_id &&
+	//		vscale == i.vscale && pscale == i.pscale && lscale == i.lscale && hscale == i.hscale && scalar_file == i.scalar_file;
+	//}
 
+public:
 	string		reference_frame;			// Default reference frame - used primarily for reductions on the ellipsoid.
 	UINT16		user_supplied_frame;		// User has supplied a frame - use this to change the default frame
 	UINT16		override_input_rfame;		// Override reference frame specified in input files using the default or user supplied frame.
@@ -291,11 +301,16 @@ public:
 		, plate_model_option(0)
 		, command_line_arguments("") {}
 
-	bool operator==(const reftran_settings& r) const {
-		return rft_file == r.rft_file && bst_file == r.bst_file && bms_file == r.bms_file &&
-			reference_frame == r.reference_frame && epoch == r.epoch;
-	}
+private:
+	// Disallow use of compiler generated equality operator.
+	bool operator==(const general_settings&);
+	//
+	//bool operator==(const reftran_settings& r) const {
+	//	return rft_file == r.rft_file && bst_file == r.bst_file && bms_file == r.bms_file &&
+	//		reference_frame == r.reference_frame && epoch == r.epoch;
+	//}
 
+public:
 	string		rft_file;					// reftran log file
 	string		bst_file;					// Binary station output file
 	string		bms_file;					// Binary measurement output file
@@ -316,18 +331,23 @@ public:
 		, rdat_geoid_file(""), ntv2_geoid_file(""), input_file(""), bst_file(""), geo_file("")
 		, command_line_arguments("") {}
 
-	bool operator==(const geoid_settings& n) const {
-		return interpolation_method == n.interpolation_method &&
-			ellipsoid_to_ortho == n.ellipsoid_to_ortho &&
-			coordinate_format == n.coordinate_format &&
-			convert_heights == n.convert_heights &&
-			export_dna_geo_file == n.export_dna_geo_file &&
-			rdat_geoid_file == n.rdat_geoid_file && 
-			ntv2_geoid_file == n.ntv2_geoid_file &&
-			input_file == n.input_file &&
-			bst_file == n.bst_file;
-	}
+private:
+	// Disallow use of compiler generated equality operator.
+	bool operator==(const general_settings&);
+	//
+	//bool operator==(const geoid_settings& n) const {
+	//	return interpolation_method == n.interpolation_method &&
+	//		ellipsoid_to_ortho == n.ellipsoid_to_ortho &&
+	//		coordinate_format == n.coordinate_format &&
+	//		convert_heights == n.convert_heights &&
+	//		export_dna_geo_file == n.export_dna_geo_file &&
+	//		rdat_geoid_file == n.rdat_geoid_file && 
+	//		ntv2_geoid_file == n.ntv2_geoid_file &&
+	//		input_file == n.input_file &&
+	//		bst_file == n.bst_file;
+	//}
 
+public:
 	UINT16		file_mode;						// file mode
 	UINT16		interpolation_method;			// bi-linear/bi-cubic
 	UINT16		ellipsoid_to_ortho;				// direction of conversion of heights
@@ -352,16 +372,21 @@ public:
 		, bst_file(""), bms_file(""), seg_file(""), sap_file(""), net_file(""), seg_starting_stns("") 
 		, command_line_arguments("") {}
 
-	bool operator==(const segment_settings& s) const {
-		return test_integrity == s.test_integrity && min_inner_stations == s.min_inner_stations && 
-			max_total_stations == s.max_total_stations && seg_search_level == s.seg_search_level &&
-			display_block_network == s.display_block_network && view_block_on_segment == s.view_block_on_segment &&
-			show_segment_summary == s.show_segment_summary && print_segment_debug == s.print_segment_debug &&
-			map_file == s.map_file && asl_file == s.asl_file && aml_file == s.aml_file && bst_file == s.bst_file && bms_file == s.bms_file &&
-			seg_file == s.seg_file && sap_file == s.sap_file &&
-			net_file == s.net_file && seg_starting_stns == s.seg_starting_stns;
-	}
+private:
+	// Disallow use of compiler generated equality operator.
+	bool operator==(const general_settings&);
+	//
+	//bool operator==(const segment_settings& s) const {
+	//	return test_integrity == s.test_integrity && min_inner_stations == s.min_inner_stations && 
+	//		max_total_stations == s.max_total_stations && seg_search_level == s.seg_search_level &&
+	//		display_block_network == s.display_block_network && view_block_on_segment == s.view_block_on_segment &&
+	//		show_segment_summary == s.show_segment_summary && print_segment_debug == s.print_segment_debug &&
+	//		map_file == s.map_file && asl_file == s.asl_file && aml_file == s.aml_file && bst_file == s.bst_file && bms_file == s.bms_file &&
+	//		seg_file == s.seg_file && sap_file == s.sap_file &&
+	//		net_file == s.net_file && seg_starting_stns == s.seg_starting_stns;
+	//}
 
+public:
 	UINT16		test_integrity;				// Test integrity of network
 	UINT16		min_inner_stations;			// Minumum number of inner stations per block
 	UINT16		max_total_stations;			// Maxumum number of total stations per block
@@ -395,18 +420,23 @@ public:
 		, map_file(""), bst_file(""), bms_file(""), seg_file(""), comments("") 
 		, command_line_arguments("") {}
 
-	bool operator==(const adjust_settings& a) const {
-		return adjust_mode == a.adjust_mode && 
-			inverse_method_msr == a.inverse_method_msr && inverse_method_lsq == a.inverse_method_lsq && 
-			max_iterations == a.max_iterations && confidence_interval == a.confidence_interval && 
-			report_mode == a.report_mode && multi_thread == a.multi_thread && stage == a.stage && 
-			iteration_threshold == a.iteration_threshold && 
-			purge_stage_files == a.purge_stage_files && recreate_stage_files == a.recreate_stage_files &&
-			free_std_dev == a.free_std_dev && fixed_std_dev == a.fixed_std_dev &&
-			map_file == a.map_file && bst_file == a.bst_file && bms_file == a.bms_file &&
-			seg_file == a.seg_file && comments == a.comments;
-	}
+private:
+	// Disallow use of compiler generated equality operator.
+	bool operator==(const general_settings&);
+	//
+	//bool operator==(const adjust_settings& a) const {
+	//	return adjust_mode == a.adjust_mode && 
+	//		inverse_method_msr == a.inverse_method_msr && inverse_method_lsq == a.inverse_method_lsq && 
+	//		max_iterations == a.max_iterations && confidence_interval == a.confidence_interval && 
+	//		report_mode == a.report_mode && multi_thread == a.multi_thread && stage == a.stage && 
+	//		iteration_threshold == a.iteration_threshold && 
+	//		purge_stage_files == a.purge_stage_files && recreate_stage_files == a.recreate_stage_files &&
+	//		free_std_dev == a.free_std_dev && fixed_std_dev == a.fixed_std_dev &&
+	//		map_file == a.map_file && bst_file == a.bst_file && bms_file == a.bms_file &&
+	//		seg_file == a.seg_file && comments == a.comments;
+	//}
 
+public:
 	inline void setFilenames(const string& name) {
 		map_file = name + ".map";
 		bst_file = name + ".bst";
@@ -461,35 +491,40 @@ public:
 		
 	{}
 
-	bool operator==(const output_settings& o) const {
-		return _datum == o._datum && _adj_file == o._adj_file && _xyz_file == o._xyz_file &&
-			 _snx_file == o._snx_file && _xml_file == o._xml_file &&
-			_cor_file == o._cor_file && _apu_file == o._apu_file && _m2s_file == o._m2s_file &&
-			_adj_stn_iteration == o._adj_stn_iteration && _adj_msr_iteration == o._adj_msr_iteration && 
-			_cmp_msr_iteration == o._cmp_msr_iteration && _adj_stat_iteration == o._adj_stat_iteration && 
-			_output_stn_blocks == o._output_stn_blocks && _output_msr_blocks == o._output_msr_blocks &&
-			_sort_stn_file_order == o._sort_stn_file_order && 
-			_adj_msr_final == o._adj_msr_final && _adj_msr_tstat == o._adj_msr_tstat &&
-			_database_ids == o._database_ids && _print_ignored_msrs == o._print_ignored_msrs &&
-			_sort_adj_msr == o._sort_adj_msr &&
-			_sort_msr_to_stn == o._sort_msr_to_stn &&
-			_adj_gnss_units == o._adj_gnss_units &&
-			_init_stn_corrections == o._init_stn_corrections && _msr_to_stn == o._msr_to_stn &&
-			_output_pu_covariances == o._output_pu_covariances &&
-			_apu_vcv_units == o._apu_vcv_units &&
-			_hz_corr_threshold == o._hz_corr_threshold && _vt_corr_threshold == o._vt_corr_threshold && 
-			_stn_coord_types == o._stn_coord_types && _angular_type_stn == o._angular_type_stn &&
-			_stn_corr == o._stn_corr && _positional_uncertainty == o._positional_uncertainty &&
-			_precision_metres_stn == o._precision_metres_stn && _precision_seconds_stn == o._precision_seconds_stn && 
-			_precision_metres_msr == o._precision_metres_msr && _precision_seconds_msr == o._precision_seconds_msr &&
-			_angular_type_msr == o._angular_type_msr && _dms_format_msr == o._dms_format_msr &&
-			_export_xml_stn_file == o._export_xml_stn_file &&
-			_export_xml_msr_file == o._export_xml_msr_file &&
-			_export_dna_stn_file == o._export_dna_stn_file &&
-			_export_dna_msr_file == o._export_dna_msr_file &&
-			_export_snx_file == o._export_snx_file;
-	}
+private:
+	// Disallow use of compiler generated equality operator.
+	bool operator==(const general_settings&);
+	//
+	//bool operator==(const output_settings& o) const {
+	//	return _datum == o._datum && _adj_file == o._adj_file && _xyz_file == o._xyz_file &&
+	//		 _snx_file == o._snx_file && _xml_file == o._xml_file &&
+	//		_cor_file == o._cor_file && _apu_file == o._apu_file && _m2s_file == o._m2s_file &&
+	//		_adj_stn_iteration == o._adj_stn_iteration && _adj_msr_iteration == o._adj_msr_iteration && 
+	//		_cmp_msr_iteration == o._cmp_msr_iteration && _adj_stat_iteration == o._adj_stat_iteration && 
+	//		_output_stn_blocks == o._output_stn_blocks && _output_msr_blocks == o._output_msr_blocks &&
+	//		_sort_stn_file_order == o._sort_stn_file_order && 
+	//		_adj_msr_final == o._adj_msr_final && _adj_msr_tstat == o._adj_msr_tstat &&
+	//		_database_ids == o._database_ids && _print_ignored_msrs == o._print_ignored_msrs &&
+	//		_sort_adj_msr == o._sort_adj_msr &&
+	//		_sort_msr_to_stn == o._sort_msr_to_stn &&
+	//		_adj_gnss_units == o._adj_gnss_units &&
+	//		_init_stn_corrections == o._init_stn_corrections && _msr_to_stn == o._msr_to_stn &&
+	//		_output_pu_covariances == o._output_pu_covariances &&
+	//		_apu_vcv_units == o._apu_vcv_units &&
+	//		_hz_corr_threshold == o._hz_corr_threshold && _vt_corr_threshold == o._vt_corr_threshold && 
+	//		_stn_coord_types == o._stn_coord_types && _angular_type_stn == o._angular_type_stn &&
+	//		_stn_corr == o._stn_corr && _positional_uncertainty == o._positional_uncertainty &&
+	//		_precision_metres_stn == o._precision_metres_stn && _precision_seconds_stn == o._precision_seconds_stn && 
+	//		_precision_metres_msr == o._precision_metres_msr && _precision_seconds_msr == o._precision_seconds_msr &&
+	//		_angular_type_msr == o._angular_type_msr && _dms_format_msr == o._dms_format_msr &&
+	//		_export_xml_stn_file == o._export_xml_stn_file &&
+	//		_export_xml_msr_file == o._export_xml_msr_file &&
+	//		_export_dna_stn_file == o._export_dna_stn_file &&
+	//		_export_dna_msr_file == o._export_dna_msr_file &&
+	//		_export_snx_file == o._export_snx_file;
+	//}
 
+public:
 	string			_datum;					// Datum switch.  Requires datum.conf and ellipsoid.conf.
 	string			_m2s_file;				// Measurement to stations file
 	string			_adj_file;				// Adjustment output
@@ -559,24 +594,29 @@ public:
 		_msr_colours.clear();
 	}
 
-	bool operator==(const plot_settings& p) const {
-		return _projection == p._projection && _gmt_params == p._gmt_params && _separate_msrs == p._separate_msrs && _msr_colours == p._msr_colours &&
-			_gmt_cmd_file == p._gmt_cmd_file && _gnuplot_cmd_file == p._gnuplot_cmd_file && _pdf_cmd_file == p._pdf_cmd_file && _eps_file_name == p._eps_file_name &&
-			_pdf_file_name == p._pdf_file_name && _plot_phased_blocks == p._plot_phased_blocks && _use_pdflatex == p._use_pdflatex && 
-			_plot_station_labels == p._plot_station_labels && _plot_ignored_msrs == p._plot_ignored_msrs &&
-			_plot_alt_name ==p._plot_alt_name && _plot_station_constraints == p._plot_station_constraints &&
-			_plot_correction_arrows == p._plot_correction_arrows && _plot_correction_labels == p._plot_correction_labels && 
-			_compute_corrections == p._compute_corrections &&
-			_plot_positional_uncertainty == p._plot_positional_uncertainty && _plot_error_ellipses == p._plot_error_ellipses && 
-			_user_defined_projection == p._user_defined_projection && _omit_title_block == p._omit_title_block &&
-			_omit_measurements == p._omit_measurements &&
-			_label_font_size == p._label_font_size && _msr_line_width == p._msr_line_width &&
-			_correction_scale == p._correction_scale && _pu_ellipse_scale == p._pu_ellipse_scale &&
-			_bounding_box == p._bounding_box && _plot_station_centre == p._plot_station_centre && _plot_area_radius == p._plot_area_radius && 
-			_plot_centre_latitude == p._plot_centre_latitude && _plot_centre_longitude == p._plot_centre_longitude && _plot_scale == p._plot_scale &&
-			_plot_block_number == p._plot_block_number && _keep_gen_files == p._keep_gen_files;
-	}
+private:
+	// Disallow use of compiler generated equality operator.
+	bool operator==(const general_settings&);
+	//
+	//bool operator==(const plot_settings& p) const {
+	//	return _projection == p._projection && _gmt_params == p._gmt_params && _separate_msrs == p._separate_msrs && _msr_colours == p._msr_colours &&
+	//		_gmt_cmd_file == p._gmt_cmd_file && _gnuplot_cmd_file == p._gnuplot_cmd_file && _pdf_cmd_file == p._pdf_cmd_file && _eps_file_name == p._eps_file_name &&
+	//		_pdf_file_name == p._pdf_file_name && _plot_phased_blocks == p._plot_phased_blocks && _use_pdflatex == p._use_pdflatex && 
+	//		_plot_station_labels == p._plot_station_labels && _plot_ignored_msrs == p._plot_ignored_msrs &&
+	//		_plot_alt_name ==p._plot_alt_name && _plot_station_constraints == p._plot_station_constraints &&
+	//		_plot_correction_arrows == p._plot_correction_arrows && _plot_correction_labels == p._plot_correction_labels && 
+	//		_compute_corrections == p._compute_corrections &&
+	//		_plot_positional_uncertainty == p._plot_positional_uncertainty && _plot_error_ellipses == p._plot_error_ellipses && 
+	//		_user_defined_projection == p._user_defined_projection && _omit_title_block == p._omit_title_block &&
+	//		_omit_measurements == p._omit_measurements &&
+	//		_label_font_size == p._label_font_size && _msr_line_width == p._msr_line_width &&
+	//		_correction_scale == p._correction_scale && _pu_ellipse_scale == p._pu_ellipse_scale &&
+	//		_bounding_box == p._bounding_box && _plot_station_centre == p._plot_station_centre && _plot_area_radius == p._plot_area_radius && 
+	//		_plot_centre_latitude == p._plot_centre_latitude && _plot_centre_longitude == p._plot_centre_longitude && _plot_scale == p._plot_scale &&
+	//		_plot_block_number == p._plot_block_number && _keep_gen_files == p._keep_gen_files;
+	//}
 
+public:
 	UINT16					_projection;					// Projection for the plot
 															//	0 Allow plot to determine the projection from the data spatial extents
 															//	1 World plot
@@ -630,17 +670,22 @@ public:
 // project settings
 struct project_settings : private boost::equality_comparable<project_settings> {
 
-	bool operator==(const project_settings& proj) const {
-		return g == proj.g && 
-			r == proj.r &&
-			n == proj.n &&
-			i == proj.i && 
-			s == proj.s &&
-			a == proj.a &&
-			o == proj.o &&
-			p == proj.p;
-	}
+private:
+	// Disallow use of compiler generated equality operator.
+	bool operator==(const general_settings&);
+	//
+	//bool operator==(const project_settings& proj) const {
+	//	return g == proj.g && 
+	//		r == proj.r &&
+	//		n == proj.n &&
+	//		i == proj.i && 
+	//		s == proj.s &&
+	//		a == proj.a &&
+	//		o == proj.o &&
+	//		p == proj.p;
+	//}
 
+public:
 	general_settings	g;
 	reftran_settings	r;
 	geoid_settings		n;

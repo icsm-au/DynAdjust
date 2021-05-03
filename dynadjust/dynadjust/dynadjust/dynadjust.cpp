@@ -44,12 +44,6 @@ boost::mutex cout_mutex;
 
 using namespace dynadjust;
 
-void PrintOutputFileHeaderInfo(std::ofstream* f_out, const string& out_file, project_settings* p, const string& header)
-{
-	// Print formatted header
-	print_file_header(*f_out, header);
-}
-
 int CloseLogandReturn(std::ofstream& os, const int status, const string& output_file="")
 {
 	if (status == EXIT_FAILURE)

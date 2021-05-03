@@ -98,12 +98,11 @@ void PrintSummaryMessage(dna_adjust* netAdjust, const project_settings* p, milli
 		switch (p->a.adjust_mode)
 		{
 		case Phased_Block_1Mode:
-			cout << "estimates solved for Block 1 only." << endl; 
-			cout << endl << 
+			cout << "estimates solved for Block 1 only." << endl <<
+				endl << 
 				"- Warning: Depending on the quality of the apriori station estimates, further" << endl <<
 				"  iterations may be needed. --block1-phased mode should only be used once" << endl <<
-				"  rigorous estimates have been produced for the entire network." << endl;
-			cout << endl;
+				"  rigorous estimates have been produced for the entire network." << endl << endl;
 			break;
 		default:
 			cout << "converged after " << netAdjust->CurrentIteration() << " iteration"; 

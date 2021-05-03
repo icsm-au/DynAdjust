@@ -63,31 +63,30 @@ CDnaProjectFile::CDnaProjectFile(const string& projectFile, const UINT16& verify
 }
 
 
-CDnaProjectFile::CDnaProjectFile(const project_settings& project)
-	: settings_(project)
-{
-}
+//CDnaProjectFile::CDnaProjectFile(const project_settings& project)
+//	: settings_(project)
+//{
+//}
 
-CDnaProjectFile::CDnaProjectFile(const CDnaProjectFile& newProject)
-	: settings_(newProject.settings_)
-{
-	
-}
+//CDnaProjectFile::CDnaProjectFile(const CDnaProjectFile& newProject)
+//	: settings_(newProject.settings_)
+//{	
+//}
 
-CDnaProjectFile& CDnaProjectFile::operator=(const CDnaProjectFile& rhs)
-{
-	if (this == &rhs)	// check for assignment to self!
-		return *this;
+//CDnaProjectFile& CDnaProjectFile::operator=(const CDnaProjectFile& rhs)
+//{
+//	if (this == &rhs)	// check for assignment to self!
+//		return *this;
+//
+//	settings_ = rhs.settings_;
+//
+//	return *this;
+//}
 
-	settings_ = rhs.settings_;
-
-	return *this;
-}
-
-bool CDnaProjectFile::operator==(const CDnaProjectFile& rhs) const
-{
-	return (settings_ == rhs.settings_);
-}
+//bool CDnaProjectFile::operator==(const CDnaProjectFile& rhs) const
+//{
+//	return (settings_ == rhs.settings_);
+//}
 	
 
 void CDnaProjectFile::LoadProjectFile(const string& projectFile)

@@ -1300,7 +1300,6 @@ int main(int argc, char* argv[])
 		{
 			path discontPath(p.i.stn_discontinuityfile);
 			stringstream ss;
-			ss.str("");
 			ss << "- Warning: The station discontinuity file " << discontPath.filename().string() << " does not exist... ignoring discontinuity input." << endl;
 			imp_file << endl << ss.str();
 		}
@@ -1776,8 +1775,8 @@ int main(int argc, char* argv[])
 					file_opener(dst_file, p.i.dst_file);
 				}
 				catch (const runtime_error& e) {
-					ss_msg << "- Error: Could not open " << p.i.dst_file << ". \n  Check that the file exists and that the file is not already opened." << endl;
-					ss_msg << e.what() << endl;
+					ss_msg << "- Error: Could not open " << p.i.dst_file << ". \n  Check that the file exists and that the file is not already opened." << 
+						endl << e.what() << endl;
 					if (!p.g.quiet)
 						cout << ss_msg.str();
 					imp_file << ss_msg.str();
@@ -1946,7 +1945,6 @@ int main(int argc, char* argv[])
 		{
 			path geoPath(p.i.geo_file);
 			stringstream ss;
-			ss.str("");
 			ss << "- Error: The geoid file " << geoPath.filename().string() << " does not exist." << endl;
 			cout << endl << ss.str();
 			imp_file << endl << ss.str();
