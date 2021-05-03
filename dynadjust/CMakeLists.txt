@@ -215,7 +215,8 @@ if (BUILD_TESTING)
     # 5. dynadjust project mode
     file (COPY ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn DESTINATION ./)
     file (COPY ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr DESTINATION ./)
-    add_test (NAME dynadjust-proj COMMAND $<TARGET_FILE:dynadjust> -p ${CMAKE_SOURCE_DIR}/../sampleData/sample.dnaproj --import --geoid --reftran --segment --adjust)
+    add_test (NAME dynadjust-proj-01 COMMAND $<TARGET_FILE:dynadjust> -p ${CMAKE_SOURCE_DIR}/../sampleData/sample.dnaproj --import --geoid --reftran --segment --adjust)
+    add_test (NAME dynadjust-proj-02 COMMAND $<TARGET_FILE:dynadjust> -p ${CMAKE_SOURCE_DIR}/../sampleData/sample.dnaproj --import --geoid --reftran --segment --adjust --quiet)
 
     # 6. urban data manipulation
     file (COPY ${CMAKE_SOURCE_DIR}/../sampleData/DynaML.xsd DESTINATION ./)
