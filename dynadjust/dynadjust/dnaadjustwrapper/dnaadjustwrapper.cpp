@@ -1188,6 +1188,7 @@ int main(int argc, char* argv[])
 						cout << "   " << leafStr<string>(p.a.bms_file) << "  last modified on  " << ctime(&t_bms) << endl;
 						cout << "   " << leafStr<string>(est_mmapfile_wildcard) << "  created on  " << ctime(&t_mtx) << endl;
 						cout << "  To readjust this network, re-run adjust using the " << RECREATE_STAGE_FILES << " option." << endl;
+						cout_mutex.unlock();
 						return EXIT_FAILURE;
 					}				
 				}
