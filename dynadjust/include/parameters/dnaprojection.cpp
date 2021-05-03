@@ -39,47 +39,47 @@ CDnaProjection::CDnaProjection(const PROJECTION_NAME& pName)
 	SetProjection(pName);
 }
 
-CDnaProjection::CDnaProjection(const CDnaProjection& newProjection) 
-{
-	m_dFalseE = newProjection.m_dFalseE;
-	m_dFalseN = newProjection.m_dFalseN;
-	m_dKo = newProjection.m_dKo;	
-	m_dZw = newProjection.m_dZw;	
-	m_dLcmZ1 = newProjection.m_dLcmZ1;
-	m_dLweZ0 = newProjection.m_dLweZ0;
-	m_dLcmZ0 = newProjection.m_dLcmZ0;
-	projectionName = newProjection.projectionName;
-}
+//CDnaProjection::CDnaProjection(const CDnaProjection& newProjection) 
+//{
+//	m_dFalseE = newProjection.m_dFalseE;
+//	m_dFalseN = newProjection.m_dFalseN;
+//	m_dKo = newProjection.m_dKo;	
+//	m_dZw = newProjection.m_dZw;	
+//	m_dLcmZ1 = newProjection.m_dLcmZ1;
+//	m_dLweZ0 = newProjection.m_dLweZ0;
+//	m_dLcmZ0 = newProjection.m_dLcmZ0;
+//	projectionName = newProjection.projectionName;
+//}
 
-CDnaProjection& CDnaProjection::operator=(const CDnaProjection& rhs) 
-{
-	if (this == &rhs)	// check for assignment to self!
-		return *this;
-	m_dFalseE = rhs.m_dFalseE;
-	m_dFalseN = rhs.m_dFalseN;
-	m_dKo = rhs.m_dKo;	
-	m_dZw = rhs.m_dZw;	
-	m_dLcmZ1 = rhs.m_dLcmZ1;
-	m_dLweZ0 = rhs.m_dLweZ0;
-	m_dLcmZ0 = rhs.m_dLcmZ0;
-	projectionName = rhs.projectionName;
+//CDnaProjection& CDnaProjection::operator=(const CDnaProjection& rhs) 
+//{
+//	if (this == &rhs)	// check for assignment to self!
+//		return *this;
+//	m_dFalseE = rhs.m_dFalseE;
+//	m_dFalseN = rhs.m_dFalseN;
+//	m_dKo = rhs.m_dKo;	
+//	m_dZw = rhs.m_dZw;	
+//	m_dLcmZ1 = rhs.m_dLcmZ1;
+//	m_dLweZ0 = rhs.m_dLweZ0;
+//	m_dLcmZ0 = rhs.m_dLcmZ0;
+//	projectionName = rhs.projectionName;
+//
+//	return *this;
+//}
 
-	return *this;
-}
-
-bool CDnaProjection::operator==(const CDnaProjection& rhs) const
-{
-	return (
-		m_dFalseE == rhs.m_dFalseE &&
-		m_dFalseN == rhs.m_dFalseN &&
-		m_dKo == rhs.m_dKo &&
-		m_dZw == rhs.m_dZw &&
-		m_dLcmZ1 == rhs.m_dLcmZ1 &&
-		m_dLweZ0 == rhs.m_dLweZ0 &&
-		m_dLcmZ0 == rhs.m_dLcmZ0 &&
-		projectionName == rhs.projectionName
-		);
-}
+//bool CDnaProjection::operator==(const CDnaProjection& rhs) const
+//{
+//	return (
+//		m_dFalseE == rhs.m_dFalseE &&
+//		m_dFalseN == rhs.m_dFalseN &&
+//		m_dKo == rhs.m_dKo &&
+//		m_dZw == rhs.m_dZw &&
+//		m_dLcmZ1 == rhs.m_dLcmZ1 &&
+//		m_dLweZ0 == rhs.m_dLweZ0 &&
+//		m_dLcmZ0 == rhs.m_dLcmZ0 &&
+//		projectionName == rhs.projectionName
+//		);
+//}
 
 void CDnaProjection::SetProjection(const PROJECTION_NAME& pName) 
 {
@@ -99,28 +99,28 @@ void CDnaProjection::SetProjection(const PROJECTION_NAME& pName)
 	}
 }
 
-void CDnaProjection::SetProjectionParams(const double& dFalseE, const double& dFalseN, const double& dKo,	
-	const double& dZw, const double& dLcmZ1, const double& dLweZ0, const double& dLcmZ0) 
-{
-	m_dFalseE = dFalseE;
-	m_dFalseN = dFalseN;
-	m_dKo = dKo;	
-	m_dZw = dZw;	
-	m_dLcmZ1 = dLcmZ1;
-	m_dLweZ0 = dLweZ0;
-	m_dLcmZ0 = dLcmZ0;
-
-	if (m_dFalseE == FALSE_E &&
-		m_dFalseN == FALSE_N &&
-		m_dKo == K0 &&
-		m_dZw == ZW &&
-		m_dLcmZ1 == LCMZ1 &&
-		m_dLweZ0 == LWEZ0 &&
-		m_dLcmZ0 == LCMZ0)
-		projectionName = UTM;
-	else
-		projectionName = USER_DEFINED_PROJECTION;
-}
+//void CDnaProjection::SetProjectionParams(const double& dFalseE, const double& dFalseN, const double& dKo,	
+//	const double& dZw, const double& dLcmZ1, const double& dLweZ0, const double& dLcmZ0) 
+//{
+//	m_dFalseE = dFalseE;
+//	m_dFalseN = dFalseN;
+//	m_dKo = dKo;	
+//	m_dZw = dZw;	
+//	m_dLcmZ1 = dLcmZ1;
+//	m_dLweZ0 = dLweZ0;
+//	m_dLcmZ0 = dLcmZ0;
+//
+//	if (m_dFalseE == FALSE_E &&
+//		m_dFalseN == FALSE_N &&
+//		m_dKo == K0 &&
+//		m_dZw == ZW &&
+//		m_dLcmZ1 == LCMZ1 &&
+//		m_dLweZ0 == LWEZ0 &&
+//		m_dLcmZ0 == LCMZ0)
+//		projectionName = UTM;
+//	else
+//		projectionName = USER_DEFINED_PROJECTION;
+//}
 
 }	// namespace datum_parameters
 }	// namespace dynadjust

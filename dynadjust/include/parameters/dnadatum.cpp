@@ -63,14 +63,14 @@ CDnaDatum::CDnaDatum(const string& epsgCode, const string& epoch)
 //	SetDatumFromName(datumName, epoch);
 //}
 
-CDnaDatum::CDnaDatum(const CDnaDatum& newDatum)
-{
-	epsgCode_ = newDatum.epsgCode_;
-	ellipsoid_ = newDatum.ellipsoid_;
-	epoch_ = newDatum.epoch_;
-	datumType_ = newDatum.datumType_;
-	datumName_ = newDatum.datumName_;
-}
+//CDnaDatum::CDnaDatum(const CDnaDatum& newDatum)
+//{
+//	epsgCode_ = newDatum.epsgCode_;
+//	ellipsoid_ = newDatum.ellipsoid_;
+//	epoch_ = newDatum.epoch_;
+//	datumType_ = newDatum.datumType_;
+//	datumName_ = newDatum.datumName_;
+//}
 
 CDnaDatum& CDnaDatum::operator=(const CDnaDatum& rhs)
 {
@@ -96,14 +96,14 @@ bool CDnaDatum::operator==(const CDnaDatum& rhs) const
 		);
 }
 
-bool CDnaDatum::isSameFrame(const CDnaDatum& rhs) const
-{
-	return (
-		epsgCode_ == rhs.epsgCode_ &&
-		ellipsoid_ == rhs.ellipsoid_ &&
-		datumType_ == rhs.datumType_
-		);
-}
+//bool CDnaDatum::isSameFrame(const CDnaDatum& rhs) const
+//{
+//	return (
+//		epsgCode_ == rhs.epsgCode_ &&
+//		ellipsoid_ == rhs.ellipsoid_ &&
+//		datumType_ == rhs.datumType_
+//		);
+//}
 
 void CDnaDatum::initialiseDatumFromEpsgCode()
 {
@@ -157,11 +157,11 @@ void CDnaDatum::SetDatum(const string& epsgCode)
 	SetDatum(LongFromString<UINT32>(trimstr(epsgCode)));
 }
 
-void CDnaDatum::SetDatum(const string& epsgCode, const date& epoch)
-{
-	// Reuse
-	SetDatum(LongFromString<UINT32>(trimstr(epsgCode)), epoch);
-}
+//void CDnaDatum::SetDatum(const string& epsgCode, const date& epoch)
+//{
+//	// Reuse
+//	SetDatum(LongFromString<UINT32>(trimstr(epsgCode)), epoch);
+//}
 
 void CDnaDatum::SetEpoch(const string& epoch)
 {
@@ -172,11 +172,11 @@ void CDnaDatum::SetEpoch(const string& epoch)
 		epoch_ = dateFromString<date>(epoch);
 }
 
-void CDnaDatum::SetEpoch(const double& decimal_year)
-{
-	epoch_ = dateFromDouble_doy_year<date, double>(decimal_year);
-
-}
+//void CDnaDatum::SetEpoch(const double& decimal_year)
+//{
+//	epoch_ = dateFromDouble_doy_year<date, double>(decimal_year);
+//
+//}
 
 void CDnaDatum::SetDatumFromName(const string& datumName, const string& epoch)
 {
