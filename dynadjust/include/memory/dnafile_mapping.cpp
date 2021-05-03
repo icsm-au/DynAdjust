@@ -25,11 +25,11 @@
 namespace dynadjust { 
 namespace memory {
 
-block_map_t::block_map_t()
-		: data_size_(0), region_offset_(0) 
-{
-
-}
+//block_map_t::block_map_t()
+//		: data_size_(0), region_offset_(0) 
+//{
+//
+//}
 	
 
 block_map_t::block_map_t(const size_t& size)
@@ -48,25 +48,25 @@ block_map_t::block_map_t(const block_map_t &p)
 }
 	
 
-block_map_t& block_map_t::operator=(const block_map_t& rhs) 
-{
-	if (this == &rhs)
-		return *this;
-	data_size_ = rhs.data_size_;
-	region_offset_ = rhs.region_offset_;
-	region_ptr_ = rhs.region_ptr_;
-	return *this;
-}
+//block_map_t& block_map_t::operator=(const block_map_t& rhs) 
+//{
+//	if (this == &rhs)
+//		return *this;
+//	data_size_ = rhs.data_size_;
+//	region_offset_ = rhs.region_offset_;
+//	region_ptr_ = rhs.region_ptr_;
+//	return *this;
+//}
 	
 
-bool block_map_t::operator==(const block_map_t& rhs) const 
-{
-	return (
-		data_size_ == rhs.data_size_ &&
-		region_offset_ == rhs.region_offset_ &&
-		region_ptr_ == rhs.region_ptr_
-		);
-}
+//bool block_map_t::operator==(const block_map_t& rhs) const 
+//{
+//	return (
+//		data_size_ == rhs.data_size_ &&
+//		region_offset_ == rhs.region_offset_ &&
+//		region_ptr_ == rhs.region_ptr_
+//		);
+//}
 	
 
 void block_map_t::MapRegion(FileMapPtr file_map_ptr) {

@@ -58,14 +58,18 @@ public:
 	CDnaDatum(const UINT32& epsgCode);
 	CDnaDatum(const UINT32& epsgCode, const date& epoch);
 	CDnaDatum(const string& epsgCode, const string& epoch);
-	//CDnaDatum(const string& datumName, const string& epoch);
+	virtual inline ~CDnaDatum(void) {}
+
+private:	
+	// Disallow use of compiler generated functions. 
 	CDnaDatum(const CDnaDatum& newDatum);
 
-	virtual inline ~CDnaDatum(void) {}
-	virtual inline CDnaDatum* clone() const { 
-		return new CDnaDatum(*this); 
-	}
+	
+	//virtual inline CDnaDatum* clone() const { 
+	//	return new CDnaDatum(*this); 
+	//}
 
+public:
 	CDnaDatum& operator=(const CDnaDatum& rhs);
 	bool operator==(const CDnaDatum& rhs) const;
 	
@@ -85,17 +89,17 @@ public:
 
 	inline void SetEpoch(const date& epoch) { epoch_ = epoch; }
 	void SetEpoch(const string& epoch);
-	void SetEpoch(const double& decimal_year);
+	//void SetEpoch(const double& decimal_year);
 
 	void SetDatum(const UINT32& epsgCode);
 	void SetDatum(const UINT32& epsgCode, const date& epoch);
 	void SetDatum(const string& epsgCode);
-	void SetDatum(const string& epsgCode, const date& epoch);
+	//void SetDatum(const string& epsgCode, const date& epoch);
 
 	void SetDatumFromName(const string& datumName, const string& epoch);
 	void SetDatumFromEpsg(const string& epsgCode, const string& epoch);
 
-	bool isSameFrame(const CDnaDatum& rhs) const;
+	//bool isSameFrame(const CDnaDatum& rhs) const;
 
 private:
 	void initialiseDatumFromEpsgCode();

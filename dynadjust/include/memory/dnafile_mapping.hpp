@@ -51,13 +51,17 @@ typedef boost::shared_ptr<file_mapping> FileMapPtr;
 class block_map_t
 {
 public:
-	block_map_t();
 	block_map_t(const size_t& size);
 	block_map_t(const block_map_t &p);
 
-	virtual inline block_map_t* clone() const { return new block_map_t(*this); }
+private:
+	// Disallow use of compiler generated functions. 
+	block_map_t();
+	// virtual inline block_map_t* clone() const { return new block_map_t(*this); }
 	block_map_t& operator=(const block_map_t& rhs);
 	bool operator==(const block_map_t& rhs) const;
+
+public:
 
 	inline void* GetRegionAddr() { return region_ptr_->get_address(); }
 	inline size_t GetDataSize() const { return data_size_; }

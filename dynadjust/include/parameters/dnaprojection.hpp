@@ -47,17 +47,21 @@ public:
 
 	CDnaProjection(void);
 	CDnaProjection(const PROJECTION_NAME& pName);
-	CDnaProjection(const CDnaProjection& newProjection);
 
 	virtual inline ~CDnaProjection(void) {}
-	virtual inline CDnaProjection* clone() const { 
-		return new CDnaProjection(*this); 
-	}
+//	virtual inline CDnaProjection* clone() const { 
+//		return new CDnaProjection(*this); 
+//	}
 
+private:
+	// Disallow use of compiler generated functions. 
+	CDnaProjection(const CDnaProjection& newProjection);
 	CDnaProjection& operator=(const CDnaProjection& rhs);
 	bool operator==(const CDnaProjection& rhs) const;
 	
 	inline CDnaProjection& operator[](int iIndex) { return this[iIndex]; }
+
+public:
 
 	void SetProjection(const PROJECTION_NAME& pName);
 	
@@ -70,8 +74,8 @@ public:
 	inline double GetLongWesternEdgeZone0() const { return m_dLweZ0; }
 	
 private:
-	void SetProjectionParams(const double& dFalseE, const double& dFalseN, const double& dKo,	
-		const double& dZw, const double& dLcmZ1, const double& dLweZ0, const double& dLcmZ0);
+	//void SetProjectionParams(const double& dFalseE, const double& dFalseN, const double& dKo,	
+	//	const double& dZw, const double& dLcmZ1, const double& dLweZ0, const double& dLcmZ0);
 
 	double m_dFalseE;				// False Easting
 	double m_dFalseN;				// False Northing
