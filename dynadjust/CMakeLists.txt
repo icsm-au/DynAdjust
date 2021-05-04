@@ -367,6 +367,7 @@ if (BUILD_TESTING)
     add_test (NAME reftran-misc-01 COMMAND $<TARGET_FILE:dnareftranwrapper> misc -r itrf1991 --export-xml --verb 3)
     add_test (NAME reftran-misc-02 COMMAND $<TARGET_FILE:dnareftranwrapper> -p misc.dnaproj)
     add_test (NAME segment-misc-01 COMMAND $<TARGET_FILE:dnasegmentwrapper> misc --min 500 --max 500 --starting-stns 230900140)
+    add_test (NAME segment-misc-02 COMMAND $<TARGET_FILE:dnasegmentwrapper> misc --min 50 --max 100 --starting-stns 230900140 --seg-file ./misc.seg)
     add_test (NAME import-misc-05 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ./misc.xml --import-block-stn-msr 2)
     add_test (NAME import-misc-06 COMMAND $<TARGET_FILE:dnaimportwrapper> -p misc.dnaproj)
     add_test (NAME import-noname-01 COMMAND $<TARGET_FILE:dnaimportwrapper> ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr)
@@ -422,6 +423,30 @@ if (BUILD_TESTING)
         geoid-no-option geoid-no-project geoid-no-std-options geoid-no-input-file geoid-no-bst geoid-no-help geoid-no-gsb
         PROPERTIES WILL_FAIL TRUE)
 
+    ### SEGMENT ###
+    # invalid options
+    add_test (NAME segment-no-option COMMAND $<TARGET_FILE:dnasegmentwrapper> -x)
+    # no project file
+    add_test (NAME segment-no-project COMMAND $<TARGET_FILE:dnasegmentwrapper> -p ./nofile.dnaproj)
+    # no binary files
+    add_test (NAME segment-no-bst-bms COMMAND $<TARGET_FILE:dnasegmentwrapper> extremelylargenetwork)
+    # no net file
+    add_test (NAME segment-no-net-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n nonetfile ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr)
+    add_test (NAME segment-no-net-02 COMMAND $<TARGET_FILE:dnasegmentwrapper> nonetfile --net-file)
+    # no option arguments
+    add_test (NAME segment-no-opt-arg-01 COMMAND $<TARGET_FILE:dnasegmentwrapper> nonetfile --starting-stns)
+    add_test (NAME segment-no-opt-arg-02 COMMAND $<TARGET_FILE:dnasegmentwrapper> nonetfile --min)
+    add_test (NAME segment-no-opt-arg-03 COMMAND $<TARGET_FILE:dnasegmentwrapper> nonetfile --max)
+    add_test (NAME segment-no-opt-arg-04 COMMAND $<TARGET_FILE:dnasegmentwrapper> nonetfile --contiguous)
+    add_test (NAME segment-no-opt-arg-05 COMMAND $<TARGET_FILE:dnasegmentwrapper> nonetfile --search)
+    # no help module
+    add_test (NAME segment-no-help COMMAND $<TARGET_FILE:dnasegmentwrapper> --help-module cplusplus)
+    
+    set_tests_properties(
+        segment-no-option segment-no-project segment-no-bst-bms segment-no-net-02 segment-no-help
+        segment-no-opt-arg-01 segment-no-opt-arg-02 segment-no-opt-arg-03 segment-no-opt-arg-04 segment-no-opt-arg-05
+        PROPERTIES WILL_FAIL TRUE)
+
     ### ADJUST ###
     # invalid options
     add_test (NAME adjust-no-option COMMAND $<TARGET_FILE:dnaadjustwrapper> -x)
@@ -436,9 +461,14 @@ if (BUILD_TESTING)
     # no segment file
     add_test (NAME import-no-seg COMMAND $<TARGET_FILE:dnaimportwrapper> -n noseg ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr)
     add_test (NAME adjust-no-seg COMMAND $<TARGET_FILE:dnaadjustwrapper> noseg --phased)
+    # no memory mapped files from previous adjustment
+    add_test (NAME import-no-memmap COMMAND $<TARGET_FILE:dnaimportwrapper> -n memmap ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr)
+    add_test (NAME segment-no-memmap COMMAND $<TARGET_FILE:dnasegmentwrapper> memmap --min 2 --max 3)
+    add_test (NAME adjust-no-memmap-01 COMMAND $<TARGET_FILE:dnaadjustwrapper> memmap --staged --create --purge)
+    add_test (NAME adjust-no-memmap-02 COMMAND $<TARGET_FILE:dnaadjustwrapper> memmap --staged)
     
     set_tests_properties(
-        adjust-no-option adjust-no-project adjust-no-name adjust-no-help adjust-no-bst-bms adjust-no-seg
+        adjust-no-option adjust-no-project adjust-no-name adjust-no-help adjust-no-bst-bms adjust-no-seg adjust-no-memmap-02
         PROPERTIES WILL_FAIL TRUE)
 
     ### PLOT ###
