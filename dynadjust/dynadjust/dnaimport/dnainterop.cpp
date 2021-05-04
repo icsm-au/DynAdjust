@@ -1115,45 +1115,45 @@ void dna_import::ApplyDiscontinuitiesMeasurements_D(vector<CDnaDirection>* vDire
 }
 
 
-// Get version number and assign field widths/locations
-void dna_import::ParseDNAVersion(const INPUT_DATA_TYPE& idt)
-{
-	string sBuf;
-
-	// Obtain exclusive use of the input file pointer
-	import_file_mutex.lock();
-	getline((*ifsInputFILE_), sBuf);
-	// release file pointer mutex
-	import_file_mutex.unlock();
-
-	// Set the default version
-	string version("1.00");
-
-	// Attempt to get this file's version
-	try {
-		if (iequals("!#=DNA", sBuf.substr(0, 6)))
-			version = trimstr(sBuf.substr(6, 6));
-	}
-	catch (...) {
-		SignalExceptionParseDNA("ParseDNAVersion(): Could not extract file version from the record:  ",
-			sBuf, 6);
-	}	
-
-	stringstream ss;
-	switch (idt)
-	{
-	case stn_data:
-		determineDNASTNFieldParameters<UINT16>(version, dsl_, dsw_);
-		break;
-	case msr_data:
-		determineDNAMSRFieldParameters<UINT16>(version, dml_, dmw_);
-		break;
-	default:
-		ss << " Unknown file type." << endl;
-		m_columnNo = 0;
-		throw XMLInteropException(ss.str(), m_lineNo);
-	}
-}
+//// Get version number and assign field widths/locations
+//void dna_import::ParseDNAVersion(const INPUT_DATA_TYPE& idt)
+//{
+//	string sBuf;
+//
+//	// Obtain exclusive use of the input file pointer
+//	import_file_mutex.lock();
+//	getline((*ifsInputFILE_), sBuf);
+//	// release file pointer mutex
+//	import_file_mutex.unlock();
+//
+//	// Set the default version
+//	string version("1.00");
+//
+//	// Attempt to get this file's version
+//	try {
+//		if (iequals("!#=DNA", sBuf.substr(0, 6)))
+//			version = trimstr(sBuf.substr(6, 6));
+//	}
+//	catch (...) {
+//		SignalExceptionParseDNA("ParseDNAVersion(): Could not extract file version from the record:  ",
+//			sBuf, 6);
+//	}	
+//
+//	stringstream ss;
+//	switch (idt)
+//	{
+//	case stn_data:
+//		determineDNASTNFieldParameters<UINT16>(version, dsl_, dsw_);
+//		break;
+//	case msr_data:
+//		determineDNAMSRFieldParameters<UINT16>(version, dml_, dmw_);
+//		break;
+//	default:
+//		ss << " Unknown file type." << endl;
+//		m_columnNo = 0;
+//		throw XMLInteropException(ss.str(), m_lineNo);
+//	}
+//}
 
 void dna_import::ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32 stnCount, 
 							   vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID, 

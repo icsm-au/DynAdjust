@@ -205,7 +205,7 @@ private:
 							   vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID, string* success_msg);
 	
 	// DNA Ascii files
-	void ParseDNAVersion(const INPUT_DATA_TYPE& idt);
+	//void ParseDNAVersion(const INPUT_DATA_TYPE& idt);
 	void ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32 stnCount, 
 							   vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID, 
 							   string& fileEpsg, string& fileEpoch, string* success_msg);
