@@ -396,6 +396,26 @@ if (BUILD_TESTING)
     set_tests_properties(import-no-option import-nearby import-no-files import-no-frame import-no-xsd-file import-no-geoid import-no-project import-no-help
         PROPERTIES WILL_FAIL TRUE)
 
+    ### GEOID ###
+    # invalid options
+    add_test (NAME geoid-no-option COMMAND $<TARGET_FILE:dnageoidwrapper> -x)
+    # no project file
+    add_test (NAME geoid-no-project COMMAND $<TARGET_FILE:dnageoidwrapper> -n proj -p ./nofile.dnaproj)
+    # no standard options
+    add_test (NAME geoid-no-std-options COMMAND $<TARGET_FILE:dnageoidwrapper> -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb)
+    # no interpolation input file
+    add_test (NAME geoid-no-input-file COMMAND $<TARGET_FILE:dnageoidwrapper> largenet)
+    # no standard options
+    add_test (NAME geoid-no-bst COMMAND $<TARGET_FILE:dnageoidwrapper> -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb largenet)
+    # no help module
+    add_test (NAME geoid-no-help COMMAND $<TARGET_FILE:dnageoidwrapper> --help-module cplusplus)
+    # no geoid file
+    add_test (NAME geoid-no-gsb COMMAND $<TARGET_FILE:dnageoidwrapper> gnss -g nogridfile.gsb)
+    
+    set_tests_properties(
+        geoid-no-option geoid-no-project geoid-no-std-options geoid-no-input-file geoid-no-bst geoid-no-help geoid-no-gsb
+        PROPERTIES WILL_FAIL TRUE)
+
     ### ADJUST ###
     # invalid options
     add_test (NAME adjust-no-option COMMAND $<TARGET_FILE:dnaadjustwrapper> -x)
@@ -413,7 +433,7 @@ if (BUILD_TESTING)
     
     set_tests_properties(
         adjust-no-option adjust-no-project adjust-no-name adjust-no-help adjust-no-bst-bms adjust-no-seg
-        PROPERTIES WILL_FAIL TRUE)    
+        PROPERTIES WILL_FAIL TRUE)
 
     # set execution dependencies (the execution of tests must be sequential)
     set_tests_properties(
