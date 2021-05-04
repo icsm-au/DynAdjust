@@ -230,8 +230,8 @@ if (BUILD_TESTING)
     add_test (NAME seg-urb00-xml-data COMMAND $<TARGET_FILE:dnasegmentwrapper> urban_xml --min 50 --max 50)
     add_test (NAME imp-urb07-xml-data COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban_xml ./urban_dnastn.xml ./urban_dnamsr.xml --import-block-stn-msr 2)
     add_test (NAME imp-urb08-xml-data COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban_xml ./urban_dnastn.xml ./urban_dnamsr.xml --geo-file urban.geo)
-    add_test (NAME plt-urb01-xml-data COMMAND $<TARGET_FILE:dnaplotwrapper> urban_xml --supress-pdf --centre-station 1004 --area-radius 5000 --plot-msr-types gxyasvz)
-    add_test (NAME plt-urb02-xml-data COMMAND $<TARGET_FILE:dnaplotwrapper> urban_xml --supress-pdf --centre-latitude -37.480489013 --centre-longitude 144.573579814 --area-radius 3000 --omit-meas)
+    add_test (NAME plt-urb01-xml-data COMMAND $<TARGET_FILE:dnaplotwrapper> urban_xml --supress-pdf --centre-station 1004 --area-radius 5000 --plot-msr-types gxyasvz --msr-line-width 0.5)
+    add_test (NAME plt-urb02-xml-data COMMAND $<TARGET_FILE:dnaplotwrapper> urban_xml --supress-pdf --centre-latitude -37.480489013 --centre-longitude 144.573579814 --area-radius 3000 --omit-measurements)
     add_test (NAME imp-psu01-dna-data COMMAND $<TARGET_FILE:dnaimportwrapper> -n pseudo ${CMAKE_SOURCE_DIR}/../sampleData/pseudo.stn)
     add_test (NAME geo-psu00-dna-data COMMAND $<TARGET_FILE:dnageoidwrapper> pseudo -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb --export-dna-geo-file)
     add_test (NAME imp-psu02-dna-data COMMAND $<TARGET_FILE:dnaimportwrapper> -n pseudo ${CMAKE_SOURCE_DIR}/../sampleData/pseudo.stn ${CMAKE_SOURCE_DIR}/../sampleData/pseudo-driver-file.msr --simulate --geo-file pseudo.geo --export-xml)
@@ -357,6 +357,12 @@ if (BUILD_TESTING)
     # 13. Renaming, no export of flagged stations, no network name, non-contiguous networks, import block, nearby stations
     add_test (NAME import-misc-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-ignored.msr --stn-renaming-file ${CMAKE_SOURCE_DIR}/../sampleData/dsg.renaming --export-xml)
     add_test (NAME import-misc-02 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg-retained.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-retained.msr --search-similar-msr --export-dna --export-xml --single-xml-file)
+    add_test (NAME import-misc-02 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg-retained.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-ignored.msr)
+    add_test (NAME segment-misc-plt COMMAND $<TARGET_FILE:dnasegmentwrapper> misc --min 500 --max 500)
+    add_test (NAME plot-misc-omit COMMAND $<TARGET_FILE:dnaplotwrapper> misc --omit-measurements --omit-title-block)
+    add_test (NAME plot-misc-all COMMAND $<TARGET_FILE:dnaplotwrapper> misc --plot-msr-types "ABCDEGHIJKLMNPQRSVXYZ")
+    add_test (NAME plot-misc-gph-stn COMMAND $<TARGET_FILE:dnaplotwrapper> misc --supress-pdf --graph-stn)
+    add_test (NAME plot-misc-gph-msr COMMAND $<TARGET_FILE:dnaplotwrapper> misc --supress-pdf --graph-msr)
     add_test (NAME import-misc-03 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ./misc.xml ${CMAKE_SOURCE_DIR}/../sampleData/sa-gnss-stn.xml --flag-unused-stations --export-dna --export-xml)
     add_test (NAME reftran-misc-01 COMMAND $<TARGET_FILE:dnareftranwrapper> misc -r itrf1991 --export-xml --verb 3)
     add_test (NAME reftran-misc-02 COMMAND $<TARGET_FILE:dnareftranwrapper> -p misc.dnaproj)
@@ -389,7 +395,7 @@ if (BUILD_TESTING)
     # no geoid file
     add_test (NAME import-no-geoid COMMAND $<TARGET_FILE:dnaimportwrapper> -n geoid --geo-file ./nofile.geo)
     # no project file
-    add_test (NAME import-no-project COMMAND $<TARGET_FILE:dnaimportwrapper> -n proj -p ./nofile.dnaproj)
+    add_test (NAME import-no-project COMMAND $<TARGET_FILE:dnaimportwrapper> -p ./nofile.dnaproj)
     # no help module
     add_test (NAME import-no-help COMMAND $<TARGET_FILE:dnaimportwrapper> --help-module cplusplus)
 
@@ -400,7 +406,7 @@ if (BUILD_TESTING)
     # invalid options
     add_test (NAME geoid-no-option COMMAND $<TARGET_FILE:dnageoidwrapper> -x)
     # no project file
-    add_test (NAME geoid-no-project COMMAND $<TARGET_FILE:dnageoidwrapper> -n proj -p ./nofile.dnaproj)
+    add_test (NAME geoid-no-project COMMAND $<TARGET_FILE:dnageoidwrapper> -p ./nofile.dnaproj)
     # no standard options
     add_test (NAME geoid-no-std-options COMMAND $<TARGET_FILE:dnageoidwrapper> -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb)
     # no interpolation input file
@@ -420,7 +426,7 @@ if (BUILD_TESTING)
     # invalid options
     add_test (NAME adjust-no-option COMMAND $<TARGET_FILE:dnaadjustwrapper> -x)
     # no project file
-    add_test (NAME adjust-no-project COMMAND $<TARGET_FILE:dnaadjustwrapper> -n proj -p ./nofile.dnaproj)
+    add_test (NAME adjust-no-project COMMAND $<TARGET_FILE:dnaadjustwrapper> -p ./nofile.dnaproj)
     # no network name
     add_test (NAME adjust-no-name COMMAND $<TARGET_FILE:dnaadjustwrapper> --phased)
     # no help module
@@ -433,6 +439,24 @@ if (BUILD_TESTING)
     
     set_tests_properties(
         adjust-no-option adjust-no-project adjust-no-name adjust-no-help adjust-no-bst-bms adjust-no-seg
+        PROPERTIES WILL_FAIL TRUE)
+
+    ### PLOT ###
+    # invalid options
+    add_test (NAME plot-no-option COMMAND $<TARGET_FILE:dnaplotwrapper> -x)
+    # no project file
+    add_test (NAME plot-no-project COMMAND $<TARGET_FILE:dnaplotwrapper> -p ./nofile.dnaproj)
+    # no standard options
+    add_test (NAME plot-no-std-options COMMAND $<TARGET_FILE:dnaplotwrapper> -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-plot.gsb)
+    # no such network
+    add_test (NAME plot-no-network COMMAND $<TARGET_FILE:dnaplotwrapper> largenet)
+    # no network-name
+    add_test (NAME plot-no-name COMMAND $<TARGET_FILE:dnaplotwrapper> --centre-station "PM1")
+    # no help module
+    add_test (NAME plot-no-help COMMAND $<TARGET_FILE:dnaplotwrapper> --help-module cplusplus)
+    
+    set_tests_properties(
+        plot-no-option plot-no-project plot-no-std-options plot-no-network plot-no-name plot-no-help
         PROPERTIES WILL_FAIL TRUE)
 
     # set execution dependencies (the execution of tests must be sequential)
