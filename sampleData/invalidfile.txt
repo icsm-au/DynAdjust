@@ -1,0 +1,11 @@
+this is an invalid file to test the way
+import handles an exception on an 
+unrecognised file.  Recognised file types
+must contain specific characters at the 
+beginning of a file, such as:
+
+FILE TYPE           FIRS chars
+------------------------------
+DynaML              <?xml
+SINEX               %=SNX
+DNA                 !#=DNA
