@@ -261,12 +261,21 @@ int main(int argc, char* argv[])
 		 p.p.command_line_arguments += " ";
 	}
 
+	// the network name
+	if (vm.count(NETWORK_NAME))
+		p.g.network_name = p.g.network_name;
+
+	// use pdflatex tool (discard???)
 	if (vm.count(USE_PDFLATEX))
 		p.p._use_pdflatex = true;
 
 	// plot ignored measurements?
 	if (vm.count(PLOT_MSRS_IGNORED))
 		p.p._plot_ignored_msrs = true;
+
+	// Segmented network view?
+	if (vm.count(PLOT_BLOCKS) || vm.count(BLOCK_NUMBER))
+		p.p._plot_phased_blocks = true;
 
 	// It doesn't make sense to plot a network, centred on a station or point, or
 	// within a bounding box in phased mode, so swich phased off in these cases.
@@ -275,18 +284,29 @@ int main(int argc, char* argv[])
 		vm.count(PLOT_CENTRE_STATION))
 		p.p._plot_phased_blocks = false;
 
-	// Segmented network view?
-	if (vm.count(PLOT_BLOCKS) || vm.count(BLOCK_NUMBER))
-		p.p._plot_phased_blocks = true;
-
+	// graph mode?
 	if (vm.count(GRAPH_SEGMENTATION_STNS) || vm.count(GRAPH_SEGMENTATION_MSRS))
 		p.p._plot_phased_blocks = true;
 
-	string file;
-	string status_msg;
+	// correction arrows?
+	if (vm.count(PLOT_CORRECTION_ARROWS))
+		p.p._plot_correction_arrows = true;
 
-	if (vm.count(NETWORK_NAME))
-		p.g.network_name = p.g.network_name;
+	// compute corrections, or use corrections file
+	if (vm.count(COMPUTE_CORRECTIONS))
+		p.p._compute_corrections = true;
+
+	// correction labels
+	if (vm.count(PLOT_CORRECTION_LABELS))
+		p.p._plot_correction_labels = true;
+
+	// plot error ellipses?
+	if (vm.count(PLOT_ERROR_ELLIPSES))
+		p.p._plot_error_ellipses = true;
+
+	// plot positional uncertainty?
+	if (vm.count(PLOT_POSITIONAL_UNCERTAINTY))
+		p.p._plot_positional_uncertainty = true;
 
 	// has the user specified a projection
 	if (vm.count(PROJECTION) && p.p._projection > 0)
@@ -301,31 +321,84 @@ int main(int argc, char* argv[])
 	if (vm.count(KEEP_FILES))
 		p.p._keep_gen_files = true;
 
-	// binary files 	
+	//////////////////////////////////////////////////////
+	// Form paths
+
+	// binary station file
 	if (!p.i.bst_file.empty())
 		p.i.bst_file = formPath<string>(p.g.input_folder, p.i.bst_file);
 	else
 		p.i.bst_file = formPath<string>(p.g.input_folder, p.g.network_name, "bst");
 
+	// binary measurement file
 	if (!p.i.bms_file.empty())
 		p.i.bms_file = formPath<string>(p.g.input_folder, p.i.bms_file);
 	else
 		p.i.bms_file = formPath<string>(p.g.input_folder, p.g.network_name, "bms");
 
+	// station map file
 	p.i.map_file = formPath<string>(p.g.input_folder, p.g.network_name, "map");
 
-	if (vm.count(PLOT_CORRECTION_ARROWS))
+	// segmentation file
+	if (p.p._plot_phased_blocks)
 	{
-		p.p._plot_correction_arrows = true;
+		if (vm.count(SEG_FILE))
+			p.s.seg_file = formPath<string>(p.g.input_folder, p.s.seg_file);
+		else
+			p.s.seg_file = formPath<string>(p.g.input_folder, p.g.network_name, "seg");
+	}
 
+	// correction file
+	if (p.p._plot_correction_arrows)
+	{
 		if (p.p._plot_phased_blocks)
 			p.o._cor_file = formPath<string>(p.g.output_folder, p.g.network_name, "phased.cor");
 		else
 			p.o._cor_file = formPath<string>(p.g.output_folder, p.g.network_name, "simult.cor");
+	}
 
-		if (vm.count(COMPUTE_CORRECTIONS))
-			p.p._compute_corrections = true;
+	// adjusted positional uncertainty file
+	if (p.p._plot_error_ellipses || p.p._plot_positional_uncertainty)
+	{
+		if (p.p._plot_phased_blocks)
+			p.o._apu_file = formPath<string>(p.g.output_folder, p.g.network_name, "phased.apu");
 		else
+			p.o._apu_file = formPath<string>(p.g.output_folder, p.g.network_name, "simult.apu");
+	}
+	//
+	//////////////////////////////////////////////////////
+
+	if (p.g.quiet != 1)
+	{	
+		cout << endl << "+ Options:" << endl; 
+		cout << setw(PRINT_VAR_PAD) << left << "  Network name: " <<  p.g.network_name << endl;
+		cout << setw(PRINT_VAR_PAD) << left << "  Input folder: " << p.g.input_folder << endl;
+		cout << setw(PRINT_VAR_PAD) << left << "  Output folder: " << p.g.output_folder << endl;
+		cout << setw(PRINT_VAR_PAD) << left << "  Binary station file: " << p.i.bst_file << endl;
+		cout << setw(PRINT_VAR_PAD) << left << "  Binary measurement file: " << p.i.bms_file << endl;
+		if (p.p._plot_phased_blocks)
+			cout << setw(PRINT_VAR_PAD) << left << "  Segmentation file: " << p.s.seg_file << endl;
+		if (p.p._plot_correction_arrows && !p.p._compute_corrections)
+			cout << setw(PRINT_VAR_PAD) << left << "  Corrections file: " << p.o._cor_file << endl;
+		if (p.p._plot_error_ellipses || p.p._plot_positional_uncertainty)
+			cout << setw(PRINT_VAR_PAD) << left << "  Positional uncertainty file: " << p.o._apu_file << endl;
+		cout << endl;
+	}
+	
+
+	if (!exists(p.i.bst_file) || !exists(p.i.bms_file))
+	{
+		cout << endl << endl << "- Nothing to do: network";
+		if (!vm.count(NETWORK_NAME))
+			cout << " name has not been specified, and" << endl << " ";
+		
+		cout << " files " << p.i.bst_file << " and " << p.i.bms_file << " do not exist." << endl << endl;  
+		return EXIT_FAILURE;
+	}
+
+	if (p.p._plot_correction_arrows)
+	{
+		if (!p.p._compute_corrections)
 		{
 			if (!exists(p.o._cor_file))
 			{
@@ -341,23 +414,10 @@ int main(int argc, char* argv[])
 				return EXIT_FAILURE;
 			}
 		}
-
-		if (vm.count(PLOT_CORRECTION_LABELS))
-			p.p._plot_correction_labels = true;
 	}
 
-	if (vm.count(PLOT_ERROR_ELLIPSES) || vm.count(PLOT_POSITIONAL_UNCERTAINTY))
+	if (p.p._plot_error_ellipses || p.p._plot_positional_uncertainty)
 	{
-		if (vm.count(PLOT_ERROR_ELLIPSES))
-			p.p._plot_error_ellipses = true;
-		if (vm.count(PLOT_POSITIONAL_UNCERTAINTY))
-			p.p._plot_positional_uncertainty = true;
-
-		if (p.p._plot_phased_blocks)
-			p.o._apu_file = formPath<string>(p.g.output_folder, p.g.network_name, "phased.apu");
-		else
-			p.o._apu_file = formPath<string>(p.g.output_folder, p.g.network_name, "simult.apu");
-
 		if (!exists(p.o._apu_file))
 		{
 			cout << endl << endl << 
@@ -375,12 +435,6 @@ int main(int argc, char* argv[])
 
 	if (p.p._plot_phased_blocks || vm.count(GRAPH_SEGMENTATION_STNS) || vm.count(GRAPH_SEGMENTATION_MSRS))
 	{
-		// has a seg file name been specified?
-		if (vm.count(SEG_FILE))
-			p.s.seg_file = formPath<string>(p.g.input_folder, p.s.seg_file);
-		else
-			p.s.seg_file = formPath<string>(p.g.input_folder, p.g.network_name, "seg");
-
 		if (!exists(p.s.seg_file))
 		{
 			cout << endl << endl << 
@@ -426,29 +480,6 @@ int main(int argc, char* argv[])
 				}
 			}
 		}
-	}
-
-	if (!exists(p.i.bst_file) || !exists(p.i.bms_file))
-	{
-		if (!vm.count(NETWORK_NAME))
-		{
-			cout << endl << "- Nothing to do: network name not specified specified, nor do" << endl;  
-			cout << "               " << p.i.bst_file << " and " << p.i.bms_file << " exist." << endl << endl;  
-			return EXIT_FAILURE;
-		}
-	}
-
-	if (p.g.quiet != 1)
-	{	
-		cout << endl << "+ Options:" << endl; 
-		cout << setw(PRINT_VAR_PAD) << left << "  Network name: " <<  p.g.network_name << endl;
-		cout << setw(PRINT_VAR_PAD) << left << "  Input folder: " << p.g.input_folder << endl;
-		cout << setw(PRINT_VAR_PAD) << left << "  Output folder: " << p.g.output_folder << endl;
-		cout << setw(PRINT_VAR_PAD) << left << "  Binary station file: " << p.i.bst_file << endl;
-		cout << setw(PRINT_VAR_PAD) << left << "  Binary measurement file: " << p.i.bms_file << endl;
-		if (p.p._plot_phased_blocks || vm.count(GRAPH_SEGMENTATION_STNS) || vm.count(GRAPH_SEGMENTATION_MSRS))
-			cout << setw(PRINT_VAR_PAD) << left << "  Segmentation file: " << p.s.seg_file << endl;
-		cout << endl;
 	}
 
 	try {
