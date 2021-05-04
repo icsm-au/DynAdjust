@@ -204,7 +204,7 @@ if (BUILD_TESTING)
     add_test (NAME geoid-urban-network-thread COMMAND $<TARGET_FILE:dnageoidwrapper> urban_mt -g ${CMAKE_SOURCE_DIR}/../sampleData/urban-network-geoid.gsb --convert-stn-hts)
     add_test (NAME segment-urban-network-thread COMMAND $<TARGET_FILE:dnasegmentwrapper> urban_mt --min 50 --max 85 --verb 3)
     add_test (NAME adjust-urban-network-thread COMMAND $<TARGET_FILE:dnaadjustwrapper> urban_mt --output-adj-msr --multi  --free-stn-sd 4.0 --fixed-stn-sd 0.000001 --max-iterations 20 --output-tstat-adj-msr --sort-adj-msr-field 2 --sort-stn-orig-order --stn-coord-types PLHhENz --angular-stn-type 1 --angular-msr-type 1 --precision-stn-linear 3 --precision-msr-linear 3 --precision-stn-angular 4 --precision-msr-angular 4 --output-pos-uncertainty --output-all-covariances --output-corrections-file)
-    add_test (NAME plot-urban-network-thread COMMAND $<TARGET_FILE:dnaplotwrapper> urban_mt --supress-pdf --phased --label-sta --label-font 16 --msr-line-w 0.5 --map-proj 3)
+    add_test (NAME plot-urban-network-thread COMMAND $<TARGET_FILE:dnaplotwrapper> urban_mt --supress-pdf --phased --label-sta --label-font 16 --msr-line-w 0.5 --map-projection 3)
 
     # 4. urban network (phased-staged)
     add_test (NAME import-urban-network-stage COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban_st ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr)
@@ -385,6 +385,27 @@ if (BUILD_TESTING)
     add_test (NAME import-include-msrs COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ./miscstn.xml ./miscmsr.xml --include-msr-types "ABCDEGHIJKLMNPQRSVXYZ")
     add_test (NAME import-exclude-msrs COMMAND $<TARGET_FILE:dnaimportwrapper> -n null ./miscstn.xml ./miscmsr.xml --exclude-msr-types "ABCDEGHIJKLMNPQRSVXYZ" --flag --export-dna)
     add_test (NAME import-stn-msr-connect COMMAND $<TARGET_FILE:dnaimportwrapper> -n connect ./miscstn.xml ./miscmsr.xml --include-stns-assoc-msrs "365300060,360100260,269100210")
+    add_test (NAME import-all COMMAND $<TARGET_FILE:dnaimportwrapper> -n all 
+        ./miscstn.xml 
+        ./miscmsr.xml
+        ${CMAKE_SOURCE_DIR}/../sampleData/apr.ITRF2008.04.06.2020.stn 
+        ${CMAKE_SOURCE_DIR}/../sampleData/apr.ITRF2008.04.06.2020.msr
+        ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.stn 
+        ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.msr
+        ${CMAKE_SOURCE_DIR}/../sampleData/sa-gnss-stn.xml 
+        ${CMAKE_SOURCE_DIR}/../sampleData/sa-gnss-msr.xml
+        ${CMAKE_SOURCE_DIR}/../sampleData/skye-tutorial.stn 
+        ${CMAKE_SOURCE_DIR}/../sampleData/skye-tutorial.msr 
+        ${CMAKE_SOURCE_DIR}/../sampleData/TEST_ITRF05.SNX 
+        ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn 
+        ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr)
+    add_test (NAME plot-all-01 COMMAND $<TARGET_FILE:dnaplotwrapper> all --map-projection 1)
+    add_test (NAME plot-all-02 COMMAND $<TARGET_FILE:dnaplotwrapper> all --map-projection 2)
+    add_test (NAME plot-all-03 COMMAND $<TARGET_FILE:dnaplotwrapper> all --map-projection 3)
+    add_test (NAME plot-all-04 COMMAND $<TARGET_FILE:dnaplotwrapper> all --map-projection 4)
+    add_test (NAME plot-all-05 COMMAND $<TARGET_FILE:dnaplotwrapper> all --map-projection 5)
+    add_test (NAME plot-all-06 COMMAND $<TARGET_FILE:dnaplotwrapper> all --map-projection 6)
+    add_test (NAME plot-all-07 COMMAND $<TARGET_FILE:dnaplotwrapper> all --map-projection 7)
 
     # 14. Exceptions
     ### IMPORT ###
