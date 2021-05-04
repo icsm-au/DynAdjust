@@ -36,12 +36,12 @@ MsrTally	g_parsemsr_tally;
 StnTally	g_parsestn_tally;
 UINT32		g_fileOrder;
 
-int compare_chararray(const void *a, const void *b)
-{
-	const char* a1 = *(const char**)a;
-	const char* b1 = *(const char**)b;
-	return strcmp(a1,b1);
-}
+//int compare_chararray(const void *a, const void *b)
+//{
+//	const char* a1 = *(const char**)a;
+//	const char* b1 = *(const char**)b;
+//	return strcmp(a1,b1);
+//}
 
 namespace dynadjust {
 namespace dynamlinterop {
@@ -258,8 +258,20 @@ void dna_import::SetDefaultReferenceFrame(vdnaStnPtr* vStations, vdnaMsrPtr* vMe
 		// Reference frame is properly handled in and ParseDNAMSR...
 		return;
 
+	//////////////////////////////////////////////////////////
+	// UNSUPPORTED OPTIONS
+
 	case geodesyml:		// GeodesyML - GML application schema
 	case csv:			// CSV
+	default:
+
+		//throw XMLInteropException("ParseInputFile(): Could not deduce file type from extension or contents.", 0);		
+		stringstream ss;
+		ss << "SetDefaultReferenceFrame(): unsupported file type.";
+		parseStatus_ = PARSE_UNRECOGNISED_FILE;
+		throw XMLInteropException(ss.str(), 0);
+
+
 		// Does the user want to override what is contained in the input files?
 		if (projectSettings_.i.override_input_rfame == 0)
 			// No, so don't override the reference frame found in the input files
@@ -267,51 +279,54 @@ void dna_import::SetDefaultReferenceFrame(vdnaStnPtr* vStations, vdnaMsrPtr* vMe
 		break;
 	}
 
-	// Yes, override what is contained in the input files.
-
-	// Get defaults
-	string strEpsg(datum_.GetEpsgCode_s());
-	string strEpoch(datum_.GetEpoch_s());
-
-	for_each(vStations->begin(), vStations->end(), 
-		[this, &strEpsg, &strEpoch] (dnaStnPtr& s) {			
-			s->SetReferenceFrame(projectSettings_.i.reference_frame);
-			s->SetEpoch(strEpoch);
-	});
-
-	// If only some dna records have frame and epoch, the default reference frame and epoch will be used.
-	
-	CDnaGpsBaselineCluster* bslCluster;
-	CDnaGpsPointCluster* pntCluster;
-
-	for_each(vMeasurements->begin(), vMeasurements->end(),
-		[this, &bslCluster, &pntCluster, &strEpsg, &strEpoch](dnaMsrPtr& m){
-			
-			// Set reference frame (and reference epoch) in the CDnaMeasurement (parent class)
-			m->SetReferenceFrame(projectSettings_.i.reference_frame);
-			m->SetEpoch(strEpoch);
-
-			switch (m->GetTypeC()) {
-			case 'G': // Single Baseline (treat as a single-baseline cluster)
-				bslCluster = (CDnaGpsBaselineCluster*) (m.get());
-				bslCluster->SetReferenceFrame(projectSettings_.i.reference_frame);
-				bslCluster->SetEpoch(strEpoch);
-				break;
-			case 'X': // GPS Baseline cluster
-				bslCluster = (CDnaGpsBaselineCluster*) (m.get());
-				bslCluster->SetReferenceFrame(projectSettings_.i.reference_frame);
-				bslCluster->SetEpoch(strEpoch);
-				break;
-			case 'Y': // GPS point cluster
-				pntCluster = (CDnaGpsPointCluster*) (m.get());
-				pntCluster->SetReferenceFrame(projectSettings_.i.reference_frame);
-				pntCluster->SetEpoch(strEpoch);
-				break;
-			default:
-				break;
-			}
-			
-	});
+//////////////////////////////////////////////////////////
+// Unused code - comment out until required
+//
+//	// Yes, override what is contained in the input files.
+//
+//	// Get defaults
+//	string strEpsg(datum_.GetEpsgCode_s());
+//	string strEpoch(datum_.GetEpoch_s());
+//
+//	for_each(vStations->begin(), vStations->end(), 
+//		[this, &strEpsg, &strEpoch] (dnaStnPtr& s) {			
+//			s->SetReferenceFrame(projectSettings_.i.reference_frame);
+//			s->SetEpoch(strEpoch);
+//	});
+//
+//	// If only some dna records have frame and epoch, the default reference frame and epoch will be used.
+//	
+//	CDnaGpsBaselineCluster* bslCluster;
+//	CDnaGpsPointCluster* pntCluster;
+//
+//	for_each(vMeasurements->begin(), vMeasurements->end(),
+//		[this, &bslCluster, &pntCluster, &strEpsg, &strEpoch](dnaMsrPtr& m){
+//			
+//			// Set reference frame (and reference epoch) in the CDnaMeasurement (parent class)
+//			m->SetReferenceFrame(projectSettings_.i.reference_frame);
+//			m->SetEpoch(strEpoch);
+//
+//			switch (m->GetTypeC()) {
+//			case 'G': // Single Baseline (treat as a single-baseline cluster)
+//				bslCluster = (CDnaGpsBaselineCluster*) (m.get());
+//				bslCluster->SetReferenceFrame(projectSettings_.i.reference_frame);
+//				bslCluster->SetEpoch(strEpoch);
+//				break;
+//			case 'X': // GPS Baseline cluster
+//				bslCluster = (CDnaGpsBaselineCluster*) (m.get());
+//				bslCluster->SetReferenceFrame(projectSettings_.i.reference_frame);
+//				bslCluster->SetEpoch(strEpoch);
+//				break;
+//			case 'Y': // GPS point cluster
+//				pntCluster = (CDnaGpsPointCluster*) (m.get());
+//				pntCluster->SetReferenceFrame(projectSettings_.i.reference_frame);
+//				pntCluster->SetEpoch(strEpoch);
+//				break;
+//			default:
+//				break;
+//			}
+//			
+//	});
 }
 	
 
@@ -1100,45 +1115,45 @@ void dna_import::ApplyDiscontinuitiesMeasurements_D(vector<CDnaDirection>* vDire
 }
 
 
-// Get version number and assign field widths/locations
-void dna_import::ParseDNAVersion(const INPUT_DATA_TYPE& idt)
-{
-	string sBuf;
-
-	// Obtain exclusive use of the input file pointer
-	import_file_mutex.lock();
-	getline((*ifsInputFILE_), sBuf);
-	// release file pointer mutex
-	import_file_mutex.unlock();
-
-	// Set the default version
-	string version("1.00");
-
-	// Attempt to get this file's version
-	try {
-		if (iequals("!#=DNA", sBuf.substr(0, 6)))
-			version = trimstr(sBuf.substr(6, 6));
-	}
-	catch (...) {
-		SignalExceptionParseDNA("ParseDNAVersion(): Could not extract file version from the record:  ",
-			sBuf, 6);
-	}	
-
-	stringstream ss;
-	switch (idt)
-	{
-	case stn_data:
-		determineDNASTNFieldParameters<UINT16>(version, dsl_, dsw_);
-		break;
-	case msr_data:
-		determineDNAMSRFieldParameters<UINT16>(version, dml_, dmw_);
-		break;
-	default:
-		ss << " Unknown file type." << endl;
-		m_columnNo = 0;
-		throw XMLInteropException(ss.str(), m_lineNo);
-	}
-}
+//// Get version number and assign field widths/locations
+//void dna_import::ParseDNAVersion(const INPUT_DATA_TYPE& idt)
+//{
+//	string sBuf;
+//
+//	// Obtain exclusive use of the input file pointer
+//	import_file_mutex.lock();
+//	getline((*ifsInputFILE_), sBuf);
+//	// release file pointer mutex
+//	import_file_mutex.unlock();
+//
+//	// Set the default version
+//	string version("1.00");
+//
+//	// Attempt to get this file's version
+//	try {
+//		if (iequals("!#=DNA", sBuf.substr(0, 6)))
+//			version = trimstr(sBuf.substr(6, 6));
+//	}
+//	catch (...) {
+//		SignalExceptionParseDNA("ParseDNAVersion(): Could not extract file version from the record:  ",
+//			sBuf, 6);
+//	}	
+//
+//	stringstream ss;
+//	switch (idt)
+//	{
+//	case stn_data:
+//		determineDNASTNFieldParameters<UINT16>(version, dsl_, dsw_);
+//		break;
+//	case msr_data:
+//		determineDNAMSRFieldParameters<UINT16>(version, dml_, dmw_);
+//		break;
+//	default:
+//		ss << " Unknown file type." << endl;
+//		m_columnNo = 0;
+//		throw XMLInteropException(ss.str(), m_lineNo);
+//	}
+//}
 
 void dna_import::ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32 stnCount, 
 							   vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID, 
