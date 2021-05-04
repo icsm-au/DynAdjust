@@ -359,19 +359,20 @@ if (BUILD_TESTING)
     # 13. Renaming, no export of flagged stations, no network name, non-contiguous networks, import block, nearby stations
     add_test (NAME import-misc-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-ignored.msr --stn-renaming-file ${CMAKE_SOURCE_DIR}/../sampleData/dsg.renaming --export-xml)
     add_test (NAME import-misc-02 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg-retained.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-retained.msr --search-similar-msr --export-dna --export-xml --single-xml-file)
-    add_test (NAME import-misc-03 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-retained.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-ignored.msr --export-xml)
+    add_test (NAME import-misc-03 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-retained.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-retained.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-ignored.msr --search-similar-msr --ignore-similar-msr --flag-unused-stations)
+    add_test (NAME import-misc-04 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-retained.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-ignored.msr --export-xml)
     add_test (NAME segment-misc-plt COMMAND $<TARGET_FILE:dnasegmentwrapper> misc --min 500 --max 500)
     add_test (NAME plot-misc-omit COMMAND $<TARGET_FILE:dnaplotwrapper> misc --omit-measurements --omit-title-block)
     add_test (NAME plot-misc-all COMMAND $<TARGET_FILE:dnaplotwrapper> misc --plot-msr-types "ABCDEGHIJKLMNPQRSVXYZ")
     add_test (NAME plot-misc-gph-stn COMMAND $<TARGET_FILE:dnaplotwrapper> misc --supress-pdf --graph-stn)
     add_test (NAME plot-misc-gph-msr COMMAND $<TARGET_FILE:dnaplotwrapper> misc --supress-pdf --graph-msr)
-    add_test (NAME import-misc-04 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ./misc.xml ${CMAKE_SOURCE_DIR}/../sampleData/sa-gnss-stn.xml --flag-unused-stations --export-dna --export-xml)
+    add_test (NAME import-misc-05 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ./misc.xml ${CMAKE_SOURCE_DIR}/../sampleData/sa-gnss-stn.xml --flag-unused-stations --export-dna --export-xml)
     add_test (NAME reftran-misc-01 COMMAND $<TARGET_FILE:dnareftranwrapper> misc -r itrf1991 --export-xml --verb 3)
     add_test (NAME reftran-misc-02 COMMAND $<TARGET_FILE:dnareftranwrapper> -p misc.dnaproj)
     add_test (NAME segment-misc-01 COMMAND $<TARGET_FILE:dnasegmentwrapper> misc --min 500 --max 500 --starting-stns 230900140)
     add_test (NAME segment-misc-02 COMMAND $<TARGET_FILE:dnasegmentwrapper> misc --min 50 --max 100 --starting-stns 230900140 --seg-file ./misc.seg)
-    add_test (NAME import-misc-05 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ./miscstn.xml ./miscmsr.xml --import-block-stn-msr 2)
-    add_test (NAME import-misc-06 COMMAND $<TARGET_FILE:dnaimportwrapper> -p misc.dnaproj)
+    add_test (NAME import-misc-06 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ./miscstn.xml ./miscmsr.xml --import-block-stn-msr 2)
+    add_test (NAME import-misc-07 COMMAND $<TARGET_FILE:dnaimportwrapper> -p misc.dnaproj)
     add_test (NAME import-noname-01 COMMAND $<TARGET_FILE:dnaimportwrapper> ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr)
     add_test (NAME import-noname-02 COMMAND $<TARGET_FILE:dnaimportwrapper> ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr)
     add_test (NAME import-noncontiguous COMMAND $<TARGET_FILE:dnaimportwrapper> -n noncontig ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr ${CMAKE_SOURCE_DIR}/../sampleData/skye-tutorial.stn ${CMAKE_SOURCE_DIR}/../sampleData/skye-tutorial.msr -r itrf2000 --override-input-ref-frame)
@@ -381,6 +382,9 @@ if (BUILD_TESTING)
     add_test (NAME import-block-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ./miscstn.xml ./miscmsr.xml)
     add_test (NAME segment-block COMMAND $<TARGET_FILE:dnasegmentwrapper> misc --min 2 --max 3)
     add_test (NAME import-block-02 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr --seg-file ${CMAKE_SOURCE_DIR}/../sampleData/misc.seg --import-block 2)
+    add_test (NAME import-include-msrs COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ./miscstn.xml ./miscmsr.xml --include-msr-types "ABCDEGHIJKLMNPQRSVXYZ")
+    add_test (NAME import-exclude-msrs COMMAND $<TARGET_FILE:dnaimportwrapper> -n null ./miscstn.xml ./miscmsr.xml --exclude-msr-types "ABCDEGHIJKLMNPQRSVXYZ" --flag --export-dna)
+    add_test (NAME import-stn-msr-connect COMMAND $<TARGET_FILE:dnaimportwrapper> -n connect ./miscstn.xml ./miscmsr.xml --include-stns-assoc-msrs "365300060,360100260,269100210")
 
     # 14. Exceptions
     ### IMPORT ###
@@ -394,6 +398,8 @@ if (BUILD_TESTING)
     add_test (NAME import-no-files COMMAND $<TARGET_FILE:dnaimportwrapper> -n bigdata ${CMAKE_SOURCE_DIR}/../sampleData/bigdata.stn ${CMAKE_SOURCE_DIR}/../sampleData/bigdata.msr)
     # reference frame doesn't exist
     add_test (NAME import-no-frame COMMAND $<TARGET_FILE:dnaimportwrapper> -n sample -r itrf1975 ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr)
+    # no stations and measurements (generated above)
+    add_test (NAME import-no-data COMMAND $<TARGET_FILE:dnaimportwrapper> -n null ./null.stn ./null.msr)
     # no dynaml.xsd
     file (REMOVE ./DynaML.xsd)
     add_test (NAME import-no-xsd-file COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss gnss-networkstn.xml gnss-networkmsr.xml)
@@ -404,7 +410,8 @@ if (BUILD_TESTING)
     # no help module
     add_test (NAME import-no-help COMMAND $<TARGET_FILE:dnaimportwrapper> --help-module cplusplus)
 
-    set_tests_properties(import-no-option import-invalid-file import-nearby import-no-files import-no-frame import-no-xsd-file import-no-geoid import-no-project import-no-help
+    set_tests_properties(import-no-option import-invalid-file import-nearby import-no-files import-no-frame 
+        import-no-data import-no-xsd-file import-no-geoid import-no-project import-no-help
         PROPERTIES WILL_FAIL TRUE)
 
     ### GEOID ###
