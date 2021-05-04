@@ -290,6 +290,8 @@ if (BUILD_TESTING)
     add_test (NAME imp-discont-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n discont -r itrf2005 ${CMAKE_SOURCE_DIR}/../sampleData/TEST_ITRF05.SNX --discontinuity-file ${CMAKE_SOURCE_DIR}/../sampleData/disconts20201205.snx --export-discont-file)
     add_test (NAME imp-discont-02 COMMAND $<TARGET_FILE:dnaimportwrapper> -n discont -r itrf2005 ${CMAKE_SOURCE_DIR}/../sampleData/TEST_ITRF05.SNX --discontinuity-file ${CMAKE_SOURCE_DIR}/../sampleData/disconts20201205.snx --split-gnss --include-stn "ALIC" --export-dna)
     add_test (NAME imp-discont-03 COMMAND $<TARGET_FILE:dnaimportwrapper> -n discont -r itrf2014 --override-input-ref-frame ${CMAKE_SOURCE_DIR}/../sampleData/TEST_ITRF05.SNX ${CMAKE_SOURCE_DIR}/../sampleData/sa-gnss-stn.xml ${CMAKE_SOURCE_DIR}/../sampleData/sa-gnss-msr.xml --prefer-single-x-as-g --flag-unused --discontinuity-file ${CMAKE_SOURCE_DIR}/../sampleData/disconts20201205.snx --remove-ignored-msr --split-gnss --include-stns-assoc-msrs "ALIC" --export-dna --export-xml)
+    add_test (NAME imp-discont-04 COMMAND $<TARGET_FILE:dnaimportwrapper> -n discont -r itrf2005 ${CMAKE_SOURCE_DIR}/../sampleData/TEST_ITRF05.SNX --export-xml)
+    add_test (NAME imp-discont-05 COMMAND $<TARGET_FILE:dnaimportwrapper> -n discont -r itrf2000 --override-input-ref-frame ./discontstn.xml ./discontmsr.xml --discontinuity-file ${CMAKE_SOURCE_DIR}/../sampleData/disconts20201205.snx)
     
     # 11. measurements to stations sorting
     add_test (NAME imp-m2s-sort-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.msr --output-msr-to-stn --sort-msr-to-stn-field 1 -r GDA94) 
@@ -384,6 +386,8 @@ if (BUILD_TESTING)
     ### IMPORT ###
     # invalid options
     add_test (NAME import-no-option COMMAND $<TARGET_FILE:dnaimportwrapper> -x)
+    # invalid input file
+    add_test (NAME import-invalid-file COMMAND $<TARGET_FILE:dnaimportwrapper> -n invalid invalidfile.txt)
     # the --search-nearby-stn option in import will return a failure if nearby stations are found.  In this case, check it is non-zero (i.e. it will fail!)
     add_test (NAME import-nearby COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr --search-nearby-stn --nearby-stn-buffer 10)
     # files don't exist
@@ -400,7 +404,7 @@ if (BUILD_TESTING)
     # no help module
     add_test (NAME import-no-help COMMAND $<TARGET_FILE:dnaimportwrapper> --help-module cplusplus)
 
-    set_tests_properties(import-no-option import-nearby import-no-files import-no-frame import-no-xsd-file import-no-geoid import-no-project import-no-help
+    set_tests_properties(import-no-option import-invalid-file import-nearby import-no-files import-no-frame import-no-xsd-file import-no-geoid import-no-project import-no-help
         PROPERTIES WILL_FAIL TRUE)
 
     ### GEOID ###
