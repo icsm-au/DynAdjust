@@ -194,7 +194,8 @@ if (BUILD_TESTING)
     add_test (NAME segment-urban-network COMMAND $<TARGET_FILE:dnasegmentwrapper> urban --min 50 --max 150 --test-integrity)
     add_test (NAME adjust-urban-network-verbose COMMAND $<TARGET_FILE:dnaadjustwrapper> urban --verbose 3)
     add_test (NAME adjust-urban-network COMMAND $<TARGET_FILE:dnaadjustwrapper> urban --output-adj-msr --phased --stn-corrections --export-sinex-file --export-xml-stn-file --export-dna-stn-file --output-pos-uncertainty --export-dna-msr --export-xml-msr)
-    add_test (NAME plot-urban-network COMMAND $<TARGET_FILE:dnaplotwrapper> urban --supress-pdf --phased --label-sta --correction-arrows --label-corr --compute-corrections --scale-arrows 10.5 --error-ellipse --positional-uncertainty --scale-ellipse-c 10.5)
+    add_test (NAME plot-urban-network-01 COMMAND $<TARGET_FILE:dnaplotwrapper> urban --supress-pdf --phased --label-sta --correction-arrows --label-corr --compute-corrections --scale-arrows 10.5 --error-ellipse --positional-uncertainty --scale-ellipse-c 10.5)
+    add_test (NAME plot-urban-network-02 COMMAND $<TARGET_FILE:dnaplotwrapper> urban --supress-pdf --phased --label-sta --correction-arrows --label-corr --compute-corrections --scale-arrows 10.5 --error-ellipse --positional-uncertainty --scale-ellipse-c 10.5 --block-number 2)
     add_test (NAME plot-urban-seg-stn COMMAND $<TARGET_FILE:dnaplotwrapper> urban --supress-pdf --graph-stn)
     add_test (NAME plot-urban-seg-msr COMMAND $<TARGET_FILE:dnaplotwrapper> urban --supress-pdf --graph-msr)
     
@@ -238,7 +239,7 @@ if (BUILD_TESTING)
     add_test (NAME imp-psu03-xml-data COMMAND $<TARGET_FILE:dnaimportwrapper> -n pseudo pseudostn.xml pseudomsr.xml)
     add_test (NAME geo-psu01-xml-data COMMAND $<TARGET_FILE:dnageoidwrapper> pseudo -g ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network-geoid.gsb --convert --interpolation-method 0)
     add_test (NAME adj-psu00-xml-data COMMAND $<TARGET_FILE:dnaadjustwrapper> pseudo --output-adj-msr --free-stn-sd 5.0 --fixed-stn-sd 0.000005 --max-iterations 15 --output-tstat-adj-msr --sort-adj-msr-field 7 --sort-stn-orig-order --stn-coord-types XYZPLHhENz --angular-stn-type 1 --angular-msr-type 1 --precision-stn-linear 3 --precision-msr-linear 3 --precision-stn-angular 4 --precision-msr-angular 4 --output-pos-uncertainty --output-all-covariances --output-corrections-file)
-    add_test (NAME imp-gnss0-xml-data COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss_xml ./gnssstn.xml ./gnssmsr.xml --bounding-box -36.3000,145.4500,-36.4500,146.4500 --get-msrs-transcending-box --split-gnss-cluster-msrs --prefer-single-x-as-g)
+    add_test (NAME imp-gnss0-xml-data COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss_xml ./gnssstn.xml ./gnssmsr.xml --bounding-box "-36.3000,145.4500,-36.4500,146.4500" --get-msrs-transcending-box --split-gnss-cluster-msrs --prefer-single-x-as-g)
     add_test (NAME imp-gnss1-xml-data COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss_xml ./gnssstn.xml ./gnssmsr.xml --include-stns-assoc-msrs "BEEC,BNLA,EURA,HOTH,MNSF,MYRT,320500750,385900240" --get-msrs-transcending-box --split-gnss-cluster-msrs --prefer-single-x-as-g -r itrf2014 --override-input-ref-frame)
 
     # 7. geoid data manipulation
@@ -399,14 +400,22 @@ if (BUILD_TESTING)
         ${CMAKE_SOURCE_DIR}/../sampleData/TEST_ITRF05.SNX 
         ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn 
         ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr)
-    add_test (NAME plot-all-01 COMMAND $<TARGET_FILE:dnaplotwrapper> all --map-projection 1)
-    add_test (NAME plot-all-02 COMMAND $<TARGET_FILE:dnaplotwrapper> all --map-projection 2)
-    add_test (NAME plot-all-03 COMMAND $<TARGET_FILE:dnaplotwrapper> all --map-projection 3)
-    add_test (NAME plot-all-04 COMMAND $<TARGET_FILE:dnaplotwrapper> all --map-projection 4)
-    add_test (NAME plot-all-05 COMMAND $<TARGET_FILE:dnaplotwrapper> all --map-projection 5)
-    add_test (NAME plot-all-06 COMMAND $<TARGET_FILE:dnaplotwrapper> all --map-projection 6)
-    add_test (NAME plot-all-07 COMMAND $<TARGET_FILE:dnaplotwrapper> all --map-projection 7)
-
+    add_test (NAME plot-all-01 COMMAND $<TARGET_FILE:dnaplotwrapper> all --supress-pdf --map-projection 1)
+    add_test (NAME plot-all-02 COMMAND $<TARGET_FILE:dnaplotwrapper> all --supress-pdf --map-projection 2)
+    add_test (NAME plot-all-03 COMMAND $<TARGET_FILE:dnaplotwrapper> all --supress-pdf --map-projection 3)
+    add_test (NAME plot-all-04 COMMAND $<TARGET_FILE:dnaplotwrapper> all --supress-pdf --map-projection 4)
+    add_test (NAME plot-all-05 COMMAND $<TARGET_FILE:dnaplotwrapper> all --supress-pdf --map-projection 5)
+    add_test (NAME plot-all-06 COMMAND $<TARGET_FILE:dnaplotwrapper> all --supress-pdf --map-projection 6)
+    add_test (NAME plot-all-07 COMMAND $<TARGET_FILE:dnaplotwrapper> all --supress-pdf --map-projection 7)
+    add_test (NAME plot-all-08 COMMAND $<TARGET_FILE:dnaplotwrapper> all --supress-pdf --bounding "-36.3000,-200.0,-36.4500,200.0")
+    add_test (NAME plot-all-09 COMMAND $<TARGET_FILE:dnaplotwrapper> all --supress-pdf --bounding "100.3000,130.0,-100.4500,150.0")
+    add_test (NAME plot-all-10 COMMAND $<TARGET_FILE:dnaplotwrapper> all --supress-pdf --bounding "80.3000,130.0,-80.4500,150.0")
+    add_test (NAME plot-all-11 COMMAND $<TARGET_FILE:dnaplotwrapper> all --supress-pdf --bounding "60.3000,100.0,-60.4500,180.0")
+    add_test (NAME plot-all-12 COMMAND $<TARGET_FILE:dnaplotwrapper> all --supress-pdf --centre-latitude "-36.0101" --centre-longitude "145.0202")
+    add_test (NAME plot-all-13 COMMAND $<TARGET_FILE:dnaplotwrapper> all --supress-pdf --centre-latitude "-66.0101" --centre-longitude "145.0202")
+    add_test (NAME plot-all-14 COMMAND $<TARGET_FILE:dnaplotwrapper> all --supress-pdf --centre-latitude "-86.0101" --centre-longitude "145.0202")
+    add_test (NAME plot-all-15 COMMAND $<TARGET_FILE:dnaplotwrapper> all --supress-pdf --pdflatex)
+    
     # 14. Exceptions
     ### IMPORT ###
     # invalid options
@@ -433,6 +442,37 @@ if (BUILD_TESTING)
 
     set_tests_properties(import-no-option import-invalid-file import-nearby import-no-files import-no-frame 
         import-no-data import-no-xsd-file import-no-geoid import-no-project import-no-help
+        PROPERTIES WILL_FAIL TRUE)
+
+    ### REFTRAN ###
+    # invalid options
+    add_test (NAME reftran-no-option COMMAND $<TARGET_FILE:dnareftranwrapper> -x)
+    # no project file
+    add_test (NAME reftran-no-project COMMAND $<TARGET_FILE:dnareftranwrapper> -p ./nofile.dnaproj)
+    # no name
+    add_test (NAME reftran-no-name COMMAND $<TARGET_FILE:dnareftranwrapper> -r "gda94")
+    # no reference frame
+    add_test (NAME reftran-no-frame COMMAND $<TARGET_FILE:dnareftranwrapper> all)
+    # no binary files
+    add_test (NAME reftran-no-bst-bms COMMAND $<TARGET_FILE:dnareftranwrapper> extremelylargenetwork -r "itrf1990")
+    # reference frame doesn't exist
+    add_test (NAME reftran-bad-frame COMMAND $<TARGET_FILE:dnareftranwrapper> all -r itrf1975)
+    # epoch doesn't exist
+    add_test (NAME reftran-bad-epoch COMMAND $<TARGET_FILE:dnareftranwrapper> all -r "itrf2000" -e "yyyy")
+    # no plate boundary file
+    add_test (NAME reftran-no-discont-file COMMAND $<TARGET_FILE:dnareftranwrapper> all -r "ITRF2008" --plate-boundary-file nofile.txt)
+    # no euler pole file
+    add_test (NAME reftran-no-euler-file COMMAND $<TARGET_FILE:dnareftranwrapper> all -r "ITRF2008" --plate-pole-file nofile.txt)
+    # no plate model option argument
+    add_test (NAME reftran-no-model-option COMMAND $<TARGET_FILE:dnareftranwrapper> all -r "ITRF2014" -e "31.12.9999" --plate-model-option)
+    # no help module
+    add_test (NAME reftran-no-help COMMAND $<TARGET_FILE:dnareftranwrapper> --help-module cplusplus)
+    
+    
+    set_tests_properties(
+        reftran-no-option reftran-no-project reftran-no-name reftran-no-frame reftran-no-bst-bms 
+        reftran-bad-frame reftran-bad-epoch reftran-no-discont-file reftran-no-euler-file
+        reftran-no-model-option reftran-no-help
         PROPERTIES WILL_FAIL TRUE)
 
     ### GEOID ###
@@ -516,9 +556,13 @@ if (BUILD_TESTING)
     add_test (NAME plot-no-name COMMAND $<TARGET_FILE:dnaplotwrapper> --centre-station "PM1")
     # no help module
     add_test (NAME plot-no-help COMMAND $<TARGET_FILE:dnaplotwrapper> --help-module cplusplus)
+    # bounding box error
+    add_test (NAME plot-box-ew COMMAND $<TARGET_FILE:dnaplotwrapper> all --supress-pdf --bounding "-36.3000,146.4500,-36.4500,145.4500")
+    add_test (NAME plot-box-ns COMMAND $<TARGET_FILE:dnaplotwrapper> all --supress-pdf --bounding "-36.4500,145.4500,-36.3000,146.4500")
     
     set_tests_properties(
-        plot-no-option plot-no-project plot-no-std-options plot-no-network plot-no-name plot-no-help
+        plot-no-option plot-no-project plot-no-std-options plot-no-network plot-no-name plot-no-help 
+        plot-box-ew plot-box-ns 
         PROPERTIES WILL_FAIL TRUE)
 
     # set execution dependencies (the execution of tests must be sequential)
