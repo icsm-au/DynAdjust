@@ -437,11 +437,13 @@ if (BUILD_TESTING)
     add_test (NAME import-no-geoid COMMAND $<TARGET_FILE:dnaimportwrapper> -n geoid --geo-file ./nofile.geo)
     # no project file
     add_test (NAME import-no-project COMMAND $<TARGET_FILE:dnaimportwrapper> -p ./nofile.dnaproj)
+    # measurement stns not in station file
+    add_test (NAME import-no-stns COMMAND $<TARGET_FILE:dnaimportwrapper> -n nostn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr)
     # no help module
     add_test (NAME import-no-help COMMAND $<TARGET_FILE:dnaimportwrapper> --help-module cplusplus)
 
     set_tests_properties(import-no-option import-invalid-file import-nearby import-no-files import-no-frame 
-        import-no-data import-no-xsd-file import-no-geoid import-no-project import-no-help
+        import-no-data import-no-xsd-file import-no-geoid import-no-project import-no-stns import-no-help
         PROPERTIES WILL_FAIL TRUE)
 
     ### REFTRAN ###
