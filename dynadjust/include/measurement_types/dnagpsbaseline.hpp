@@ -93,7 +93,6 @@ public:
 	inline void SetRecordedTotal(const UINT32& total) { m_lRecordedTotal = total; }
 	inline void SetTotal(const UINT32& l) { m_lRecordedTotal = l; }
 
-	virtual void coutMeasurementData(ostream &os, const UINT16& uType = 0) const;
 	virtual UINT32 CalcBinaryRecordCount() const;
 	void coutBaselineData(ostream &os, const int& pad, const UINT16& uType = 0) const;
 	virtual void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) const;
@@ -199,7 +198,6 @@ public:
 
 	void ReserveGpsBaselinesCount(const UINT32& size);
 
-	virtual void coutMeasurementData(ostream &os, const UINT16& uType = 0) const;
 	virtual UINT32 CalcBinaryRecordCount() const;
 	//virtual UINT32 CalcDbidRecordCount() const;
 	virtual void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) const;

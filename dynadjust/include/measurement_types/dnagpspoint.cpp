@@ -239,12 +239,8 @@ void CDnaGpsPoint::AddPointCovariance(const CDnaCovariance* pGpsCovariance)
 	CDnaCovariance vcv = (CDnaCovariance&)*pGpsCovariance;
 	m_vPointCovariances.push_back(vcv);
 }
-
-void CDnaGpsPoint::coutMeasurementData(ostream &os, const UINT16& uType) const
-{
-
-}
 	
+
 UINT32 CDnaGpsPoint::CalcBinaryRecordCount() const
 {
 	UINT32 RecordCount = 3;
@@ -1084,22 +1080,7 @@ void CDnaGpsPointCluster::ClearPoints()
 {
 	m_vGpsPoints.clear();
 }
-
-
-void CDnaGpsPointCluster::coutMeasurementData(ostream &os, const UINT16& uType) const
-{
-	coutMeasurement(os);
-	const size_t j = m_vGpsPoints.size();
-	if (j==1)
-		os << " (1 GPS point)";
-	else if (j>1)
-		os << " (" << j << " GPS points)";
-	os << endl;
-	for (size_t i=0; i<j; i++)
-		m_vGpsPoints[i].coutPointData(os);
-	if (j < 1)
-		os << endl;
-}
+	
 
 // void CDnaGpsPointCluster::SetDatabaseMap_bmsIndex(const UINT32& bmsIndex) 
 // { 

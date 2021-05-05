@@ -110,7 +110,6 @@ public:
 	void ReserveGpsCovariancesCount(const UINT32& size);
 	void ResizeGpsCovariancesCount(const UINT32& size = 0);
 
-	virtual void coutMeasurementData(ostream &os, const UINT16& uType = 0) const;
 	virtual UINT32 CalcBinaryRecordCount() const;
 	void coutPointData(ostream &os) const;
 	virtual void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) const;
@@ -225,7 +224,6 @@ public:
 	void AddGpsPoint(const CDnaMeasurement* pGpsPoint);
 	void ClearPoints();
 
-	virtual void coutMeasurementData(ostream &os, const UINT16& uType = 0) const;
 	virtual UINT32 CalcBinaryRecordCount() const;
 	//virtual UINT32 CalcDbidRecordCount() const;
 	virtual void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) const;

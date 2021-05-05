@@ -127,27 +127,6 @@ bool CDnaDistance::operator< (const CDnaDistance& rhs) const
 	else
 		return m_strFirst < rhs.m_strFirst;
 }
-
-
-void CDnaDistance::coutMeasurementData(ostream &os, const UINT16& uType) const
-{
-	coutMeasurement(os);
-	os << setw(INST_WIDTH) << m_strFirst;
-	os << setw(TARG_WIDTH) << m_strTarget;
-	os << setw(3) << (m_bIgnore ? "*" : " ") << setw(MEAS_WIDTH) << setprecision(4) << fixed << m_dValue;
-	os << setw(VAR_WIDTH) << setprecision(3) << fixed << m_dStdDev;
-	switch (GetTypeC())
-	{
-	case 'S':
-		os << setw(7) << setprecision(3) << fixed << m_fInstHeight << 
-			setw(7) << setprecision(3) << fixed << m_fTargHeight;
-		break;
-	default:
-		os << setw(7) << " " << setw(7) << " ";
-		break;
-	}
-	os << endl;
-}
 	
 
 void CDnaDistance::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool bSubMeasurement /*= false*/) const

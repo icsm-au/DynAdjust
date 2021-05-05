@@ -496,7 +496,6 @@ CDnaMeasurement& CDnaMeasurement::operator= (const CDnaMeasurement& rhs)
 }
 
 // virtual functions
-// void CDnaMeasurement::coutMeasurementData() { }
 
 void CDnaMeasurement::coutMeasurement(ostream& os) const
 {
