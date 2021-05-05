@@ -118,20 +118,6 @@ bool CDnaAngle::operator< (const CDnaAngle& rhs) const
 	else
 		return m_strFirst < rhs.m_strFirst;
 }
-
-void CDnaAngle::coutMeasurementData(ostream &os, const UINT16& uType) const
-{
-	coutMeasurement(os);
-	os << setw(INST_WIDTH) << m_strFirst;
-	os << setw(TARG_WIDTH) << m_strTarget;
-	os << setw(28) << m_strTarget2;
-	os << setw(3) << (m_bIgnore ? "*" : " ") << setw(MEAS_WIDTH) << setprecision(9) << fixed << RadtoDms(m_drValue);
-	os << setw(VAR_WIDTH) << fixed << setprecision(3) << Seconds(m_dStdDev);
-	os << setw(7) << " ";
-	os << setw(7) << " ";
-	os << setw(7) << m_lstn1Index << setw(7) << m_lstn2Index << setw(7) << m_lstn3Index;
-	os << endl;
-}
 	
 
 void CDnaAngle::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool bSubMeasurement /*= false*/) const

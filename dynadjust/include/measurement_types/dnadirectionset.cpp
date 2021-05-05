@@ -201,25 +201,8 @@ bool CDnaDirectionSet::IsRepeatedDirection(string strTarget)
 		return true;
 	return false;
 }
-
-
-void CDnaDirectionSet::coutMeasurementData(ostream &os, const UINT16& uType) const
-{
-	coutMeasurement(os);
-	os << setw(INST_WIDTH) << m_strFirst;
-	const size_t j(GetNumDirections());
-	os << setw(TARG_WIDTH) << m_strTarget;
-	os << setw(3) << (m_bIgnore ? "*" : " ") << setw(MEAS_WIDTH) << setprecision(9) << fixed << m_drValue;
-	os << setw(VAR_WIDTH) << setprecision(3) << fixed << m_dStdDev;
-	os << setw(7) << " " << setw(7) << " ";
-	if (j > 0)
-		os << "    " << j << (j<2 ? " observed direction" : " observed directions") << endl;
-	for (size_t i(0); i<j; i++)
-		m_vTargetDirections[i].coutDirectionData(os);
-	if (j < 1)
-		os << endl;
-}
 	
+
 //void CDnaDirectionSet::SetDatabaseMap_bmsIndex(const UINT32& bmsIndex) 
 //{ 
 //	m_msr_db_map.bms_index = bmsIndex; 

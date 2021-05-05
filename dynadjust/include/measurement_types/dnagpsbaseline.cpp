@@ -212,22 +212,6 @@ void CDnaGpsBaseline::AddGpsCovariance(const CDnaCovariance* pGpsCovariance)
 	CDnaCovariance vcv = (CDnaCovariance&)*pGpsCovariance;
 	m_vGpsCovariances.push_back(vcv);
 }
-
-
-
-
-
-void CDnaGpsBaseline::coutMeasurementData(ostream &os, const UINT16& uType) const
-{
-	switch (uType)
-	{
-	case DNA_COUT:
-	case GEOLAB_COUT:
-	case NEWGAN_COUT:
-		coutMeasurement(os);
-		break;
-	}
-}
 	
 
 UINT32 CDnaGpsBaseline::CalcBinaryRecordCount() const
@@ -962,33 +946,7 @@ void CDnaGpsBaselineCluster::ClearBaselines()
 {
 	m_vGpsBaselines.clear();
 }
-
-
-void CDnaGpsBaselineCluster::coutMeasurementData(ostream &os, const UINT16& uType) const
-{
-
-	switch (uType)
-	{
-	case DNA_COUT:
-	case GEOLAB_COUT:
-		coutMeasurement(os);
-		break;
-	}
 	
-	// NEWGAN_COUT	
-	const size_t j = m_vGpsBaselines.size();
-	if (j>1)
-	{
-		os << " (" << j << " GPS baselines)" << endl;
-		for (UINT32 i=0; i<j; i++)
-			m_vGpsBaselines[i].coutBaselineData(os, STN_WIDTH, uType);
-	}
-	else if (j == 1)
-		m_vGpsBaselines[0].coutBaselineData(os, 12, uType);
-	else // if (j < 1)
-		os << endl;
-}
-
 
 //void CDnaGpsBaselineCluster::SetDatabaseMap_bmsIndex(const UINT32& bmsIndex) 
 //{

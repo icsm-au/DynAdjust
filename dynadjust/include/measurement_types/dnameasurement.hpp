@@ -342,7 +342,6 @@ public:
 	inline double GetPreAdjCorr() const { return m_preAdjCorr; }
 
 	// pure virtual functions overridden by specialised classes
-	virtual void coutMeasurementData(ostream &os, const UINT16& uType = 0) const = 0;
 	virtual UINT32 CalcBinaryRecordCount() const = 0;
 	//virtual UINT32 CalcDbidRecordCount() const;
 	virtual void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) const = 0;

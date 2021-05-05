@@ -112,19 +112,7 @@ bool CDnaHeightDifference::operator< (const CDnaHeightDifference& rhs) const
 	else
 		return m_strFirst < rhs.m_strFirst;
 }
-
-
-void CDnaHeightDifference::coutMeasurementData(ostream &os, const UINT16& uType) const
-{
-	coutMeasurement(os);
-	os << setw(INST_WIDTH) << m_strFirst;
-	os << setw(TARG_WIDTH) << m_strTarget;
-	os << setw(3) << (m_bIgnore ? "*" : " ") << setw(MEAS_WIDTH) << setprecision(4) << fixed << m_dValue;
-	os << setw(VAR_WIDTH) << setprecision(3) << fixed << m_dStdDev;
-	os << setw(7) << " " << setw(7) << " ";
-	os << endl;
-}
-
+	
 
 void CDnaHeightDifference::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool bSubMeasurement /*= false*/) const
 {

@@ -89,7 +89,6 @@ public:
 	void ClearDirections();
 	bool IsRepeatedDirection(string);
 
-	virtual void coutMeasurementData(ostream &os, const UINT16& uType = 0) const;
 	virtual UINT32 CalcBinaryRecordCount() const;
 	//virtual UINT32 CalcDbidRecordCount() const;
 	virtual void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) const;

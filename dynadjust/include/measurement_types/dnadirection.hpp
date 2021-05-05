@@ -68,7 +68,6 @@ public:
 	void SetInstrumentHeight(const string& str);
 	void SetTargetHeight(const string& str);
 
-	virtual void coutMeasurementData(ostream &os, const UINT16& uType = 0) const;
 	inline virtual UINT32 CalcBinaryRecordCount() const { return 1; }
 	void coutDirectionData(ostream &os) const;
 	virtual void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) const;
