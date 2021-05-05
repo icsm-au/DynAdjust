@@ -48,7 +48,7 @@ public:
 	void write_map_file(const string& map_filename, pv_string_uint32_pair stnsMap);
 	void write_map_file_txt(const string& map_filename, pv_string_uint32_pair stnsMap);
 
-	void load_renaming_file(const string& map_filename, pv_string_string_pair stnRenaming);
+	//void load_renaming_file(const string& map_filename, pv_string_string_pair stnRenaming);
 	
 protected:
 

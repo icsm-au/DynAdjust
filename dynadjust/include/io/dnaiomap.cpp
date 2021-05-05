@@ -196,151 +196,151 @@ void dna_io_map::write_map_file_txt(const string& map_filename, pv_string_uint32
 	map_file.close();
 }
 
-void dna_io_map::load_renaming_file(const string& renaming_filename, pv_string_string_pair stnRenaming)
-{
-	std::ifstream renaming_file;
-
-	stringstream ss;
-	ss << "load_renaming_file(): An error was encountered when opening " << renaming_filename << "." << endl;
-
-	// The contents of the renaming file is as follows:
-	//
-	//  --------------------------------------------------------------------------------
-	//  DYNADJUST STATION RENAMING FILE
-	//  
-	//  Station count                      3 
-	//  Station name width                 20
-	//  --------------------------------------------------------------------------------
-	//  
-	//  STATION NAMES
-	//  
-	//  OLD NAME             NEW NAME
-	//  -------------------- --------------------
-	//  GABO                 262600060
-	//  BEEC                 209901750
-	//  PTLD                 341404410
-
-	//
-	try {
-		// Load renaming file.  Throws runtime_error on failure.
-		file_opener(renaming_file, renaming_filename, 
-			ios::in, ascii, true);
-	}
-	catch (const runtime_error& e) {
-		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
-	}
-	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
-	}
-	
-	ss.str("");
-	ss << "load_renaming_file(): An error was encountered when reading from " << renaming_filename << "." << endl;
-
-	stnRenaming->clear();
-
-	string_string_pair stnNames;
-	string sBuf("");
-	UINT32 stationWidth(STATION), stationCount(100);
-	UINT32 line(0);
-	
-	try {
-		
-		// continue until "STATION NAMES" is found
-		do 
-		{
-			line++;
-			getline(renaming_file, sBuf);
-
-			if (iequals(trimstr(sBuf), "STATION NAMES"))
-				break;
-
-			// blank or whitespace?
-			if (trimstr(sBuf).empty())		
-				continue;
-
-			if (iequals(trimstr(sBuf.substr(0, 13)), "Station count"))
-			{
-				stationCount = lexical_cast<UINT16, string>(trimstr(sBuf.substr(PRINT_VAR_PAD)));
-				continue;
-			}
-
-			if (iequals(trimstr(sBuf.substr(0, 18)), "Station name width"))
-			{
-				stationWidth = lexical_cast<UINT16, string>(trimstr(sBuf.substr(PRINT_VAR_PAD)));
-				continue;
-			}
-
-		}
-		while (!iequals(trimstr(sBuf), "STATION NAMES"));
-		
-		stnRenaming->reserve(stationCount);
-		
-		// Okay, now get the data
-		while (!renaming_file.eof())
-		{
-			getline(renaming_file, sBuf);
-
-			// blank or whitespace?
-			if (trimstr(sBuf).empty())			
-				continue;
-
-			if (trimstr(sBuf).length() < stationWidth)
-				continue;
-
-			if (iequals(trimstr(sBuf.substr(0, 8)), "OLD NAME"))
-				continue;
-
-			if (iequals(trimstr(sBuf.substr(0, 3)), "---"))
-				continue;
-
-			// Ignore lines with blank station name
-			if (trimstr(sBuf.substr(0, stationWidth)).empty())			
-				continue;
-
-			// Ignore lines with blank substitute name
-			if (trimstr(sBuf.substr(stationWidth+1)).empty())			
-				continue;
-
-			// initialise
-			stnNames.first = "";
-			stnNames.second = "";
-
-			// get the names
-			stnNames.first = trimstr(sBuf.substr(0, stationWidth));	
-			stnNames.second = trimstr(sBuf.substr(stationWidth+1));
-			stnRenaming->push_back(stnNames);
-		}
-	}
-	catch (const ios_base::failure& f) {
-		if (renaming_file.eof())
-		{
-			renaming_file.close();
-			return;
-		}
-		ss << f.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
-	}
-	catch (const runtime_error& e) {
-		if (renaming_file.eof())
-		{
-			renaming_file.close();
-			return;
-		}
-		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
-	}
-	catch (...) {
-		if (renaming_file.eof())
-		{
-			renaming_file.close();
-			return;
-		}
-		throw boost::enable_current_exception(runtime_error(ss.str()));
-	}
-
-	renaming_file.close();
-}
+//void dna_io_map::load_renaming_file(const string& renaming_filename, pv_string_string_pair stnRenaming)
+//{
+//	std::ifstream renaming_file;
+//
+//	stringstream ss;
+//	ss << "load_renaming_file(): An error was encountered when opening " << renaming_filename << "." << endl;
+//
+//	// The contents of the renaming file is as follows:
+//	//
+//	//  --------------------------------------------------------------------------------
+//	//  DYNADJUST STATION RENAMING FILE
+//	//  
+//	//  Station count                      3 
+//	//  Station name width                 20
+//	//  --------------------------------------------------------------------------------
+//	//  
+//	//  STATION NAMES
+//	//  
+//	//  OLD NAME             NEW NAME
+//	//  -------------------- --------------------
+//	//  GABO                 262600060
+//	//  BEEC                 209901750
+//	//  PTLD                 341404410
+//
+//	//
+//	try {
+//		// Load renaming file.  Throws runtime_error on failure.
+//		file_opener(renaming_file, renaming_filename, 
+//			ios::in, ascii, true);
+//	}
+//	catch (const runtime_error& e) {
+//		ss << e.what();
+//		throw boost::enable_current_exception(runtime_error(ss.str()));
+//	}
+//	catch (...) {
+//		throw boost::enable_current_exception(runtime_error(ss.str()));
+//	}
+//	
+//	ss.str("");
+//	ss << "load_renaming_file(): An error was encountered when reading from " << renaming_filename << "." << endl;
+//
+//	stnRenaming->clear();
+//
+//	string_string_pair stnNames;
+//	string sBuf("");
+//	UINT32 stationWidth(STATION), stationCount(100);
+//	UINT32 line(0);
+//	
+//	try {
+//		
+//		// continue until "STATION NAMES" is found
+//		do 
+//		{
+//			line++;
+//			getline(renaming_file, sBuf);
+//
+//			if (iequals(trimstr(sBuf), "STATION NAMES"))
+//				break;
+//
+//			// blank or whitespace?
+//			if (trimstr(sBuf).empty())		
+//				continue;
+//
+//			if (iequals(trimstr(sBuf.substr(0, 13)), "Station count"))
+//			{
+//				stationCount = lexical_cast<UINT16, string>(trimstr(sBuf.substr(PRINT_VAR_PAD)));
+//				continue;
+//			}
+//
+//			if (iequals(trimstr(sBuf.substr(0, 18)), "Station name width"))
+//			{
+//				stationWidth = lexical_cast<UINT16, string>(trimstr(sBuf.substr(PRINT_VAR_PAD)));
+//				continue;
+//			}
+//
+//		}
+//		while (!iequals(trimstr(sBuf), "STATION NAMES"));
+//		
+//		stnRenaming->reserve(stationCount);
+//		
+//		// Okay, now get the data
+//		while (!renaming_file.eof())
+//		{
+//			getline(renaming_file, sBuf);
+//
+//			// blank or whitespace?
+//			if (trimstr(sBuf).empty())			
+//				continue;
+//
+//			if (trimstr(sBuf).length() < stationWidth)
+//				continue;
+//
+//			if (iequals(trimstr(sBuf.substr(0, 8)), "OLD NAME"))
+//				continue;
+//
+//			if (iequals(trimstr(sBuf.substr(0, 3)), "---"))
+//				continue;
+//
+//			// Ignore lines with blank station name
+//			if (trimstr(sBuf.substr(0, stationWidth)).empty())			
+//				continue;
+//
+//			// Ignore lines with blank substitute name
+//			if (trimstr(sBuf.substr(stationWidth+1)).empty())			
+//				continue;
+//
+//			// initialise
+//			stnNames.first = "";
+//			stnNames.second = "";
+//
+//			// get the names
+//			stnNames.first = trimstr(sBuf.substr(0, stationWidth));	
+//			stnNames.second = trimstr(sBuf.substr(stationWidth+1));
+//			stnRenaming->push_back(stnNames);
+//		}
+//	}
+//	catch (const ios_base::failure& f) {
+//		if (renaming_file.eof())
+//		{
+//			renaming_file.close();
+//			return;
+//		}
+//		ss << f.what();
+//		throw boost::enable_current_exception(runtime_error(ss.str()));
+//	}
+//	catch (const runtime_error& e) {
+//		if (renaming_file.eof())
+//		{
+//			renaming_file.close();
+//			return;
+//		}
+//		ss << e.what();
+//		throw boost::enable_current_exception(runtime_error(ss.str()));
+//	}
+//	catch (...) {
+//		if (renaming_file.eof())
+//		{
+//			renaming_file.close();
+//			return;
+//		}
+//		throw boost::enable_current_exception(runtime_error(ss.str()));
+//	}
+//
+//	renaming_file.close();
+//}
 
 
 } // dnaiostreams
