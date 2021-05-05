@@ -444,6 +444,37 @@ if (BUILD_TESTING)
         import-no-data import-no-xsd-file import-no-geoid import-no-project import-no-help
         PROPERTIES WILL_FAIL TRUE)
 
+    ### REFTRAN ###
+    # invalid options
+    add_test (NAME reftran-no-option COMMAND $<TARGET_FILE:dnareftranwrapper> -x)
+    # no project file
+    add_test (NAME reftran-no-project COMMAND $<TARGET_FILE:dnareftranwrapper> -p ./nofile.dnaproj)
+    # no name
+    add_test (NAME reftran-no-name COMMAND $<TARGET_FILE:dnareftranwrapper> -r "gda94")
+    # no reference frame
+    add_test (NAME reftran-no-frame COMMAND $<TARGET_FILE:dnareftranwrapper> all)
+    # no binary files
+    add_test (NAME reftran-no-bst-bms COMMAND $<TARGET_FILE:dnareftranwrapper> extremelylargenetwork -r "itrf1990")
+    # reference frame doesn't exist
+    add_test (NAME reftran-bad-frame COMMAND $<TARGET_FILE:dnareftranwrapper> all -r itrf1975)
+    # epoch doesn't exist
+    add_test (NAME reftran-bad-epoch COMMAND $<TARGET_FILE:dnareftranwrapper> all -r "itrf2000" -e "yyyy")
+    # no plate boundary file
+    add_test (NAME reftran-no-discont-file COMMAND $<TARGET_FILE:dnareftranwrapper> all -r "ITRF2008" --plate-boundary-file nofile.txt)
+    # no euler pole file
+    add_test (NAME reftran-no-euler-file COMMAND $<TARGET_FILE:dnareftranwrapper> all -r "ITRF2008" --plate-pole-file nofile.txt)
+    # no plate model option argument
+    add_test (NAME reftran-no-model-option COMMAND $<TARGET_FILE:dnareftranwrapper> all -r "ITRF2014" -e "31.12.9999" --plate-model-option)
+    # no help module
+    add_test (NAME reftran-no-help COMMAND $<TARGET_FILE:dnareftranwrapper> --help-module cplusplus)
+    
+    
+    set_tests_properties(
+        reftran-no-option reftran-no-project reftran-no-name reftran-no-frame reftran-no-bst-bms 
+        reftran-bad-frame reftran-bad-epoch reftran-no-discont-file reftran-no-euler-file
+        reftran-no-model-option reftran-no-help
+        PROPERTIES WILL_FAIL TRUE)
+
     ### GEOID ###
     # invalid options
     add_test (NAME geoid-no-option COMMAND $<TARGET_FILE:dnageoidwrapper> -x)
