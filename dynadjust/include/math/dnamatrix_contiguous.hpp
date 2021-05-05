@@ -265,14 +265,14 @@ public:
 
 	matrix_2d operator=(const matrix_2d& rhs);
 	matrix_2d operator*(const double& rhs) const;
-	matrix_2d operator*(const matrix_2d& rhs) const;
-	matrix_2d operator+(const matrix_2d& rhs) const;
-	matrix_2d operator-(const matrix_2d& rhs) const;
+	//matrix_2d operator*(const matrix_2d& rhs) const;
+	//matrix_2d operator+(const matrix_2d& rhs) const;
+	//matrix_2d operator-(const matrix_2d& rhs) const;
 	
-	matrix_2d operator*=(const matrix_2d& rhs);
-	matrix_2d operator+=(const matrix_2d& rhs);
-	matrix_2d operator-=(const matrix_2d& rhs);
-	double operator() (const UINT32& row, const UINT32& column);
+	//matrix_2d operator*=(const matrix_2d& rhs);
+	//matrix_2d operator+=(const matrix_2d& rhs);
+	//matrix_2d operator-=(const matrix_2d& rhs);
+	//double operator() (const UINT32& row, const UINT32& column);
 
 	// Initialisation / manipulation
 	void allocate();

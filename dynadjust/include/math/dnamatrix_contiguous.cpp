@@ -1183,10 +1183,10 @@ void matrix_2d::copyelements(const UINT32& row_dest, const UINT32& column_dest,
 #endif
 
 
-double matrix_2d::operator() (const UINT32& row, const UINT32& column)
-{
-	return get(row, column);
-}
+//double matrix_2d::operator() (const UINT32& row, const UINT32& column)
+//{
+//	return get(row, column);
+//}
 	
 
 void matrix_2d::sweep(UINT32 k1, UINT32 k2)
@@ -1734,118 +1734,118 @@ matrix_2d matrix_2d::operator*(const double& rhs) const
 }
 	
 
-// Multiplication operator
-matrix_2d matrix_2d::operator*(const matrix_2d& rhs) const
-{
-	if (_cols != rhs.rows())
-		throw boost::enable_current_exception(runtime_error("operator*(): Matrix dimensions are incompatible."));
-	
-	matrix_2d m(_rows, rhs.columns());
-	
-	// Perform the multiplication:
-	UINT32 row, column, i;
-	for (row=0; row<_rows; row++) {
-		for (column=0; column<rhs.columns(); ++column) {
-			m.put(row, column, 0.0);
-			for (i=0; i<_cols; ++i)
-				m.elementadd(row, column, get(row, i) * rhs.get(i, column));	
-		}
-	}
-	return m;
-}
-	
-	
-// Addition operator
-//
-matrix_2d matrix_2d::operator+(const matrix_2d& rhs) const
-{
-	if (_cols != rhs.rows())
-		throw boost::enable_current_exception(runtime_error("operator+(): Matrix dimensions are incompatible."));
-	
-	matrix_2d m(_rows, rhs.columns());
-	
-	// Perform the multiplication:
-	UINT32 row, column;
-	for (row=0; row<_rows; row++) {
-		for (column=0; column<rhs.columns(); ++column) {
-			m.put(row, column, get(row, column) + rhs.get(row, column));	
-		}
-	}
-	return m;
-}
+//// Multiplication operator
+//matrix_2d matrix_2d::operator*(const matrix_2d& rhs) const
+//{
+//	if (_cols != rhs.rows())
+//		throw boost::enable_current_exception(runtime_error("operator*(): Matrix dimensions are incompatible."));
+//	
+//	matrix_2d m(_rows, rhs.columns());
+//	
+//	// Perform the multiplication:
+//	UINT32 row, column, i;
+//	for (row=0; row<_rows; row++) {
+//		for (column=0; column<rhs.columns(); ++column) {
+//			m.put(row, column, 0.0);
+//			for (i=0; i<_cols; ++i)
+//				m.elementadd(row, column, get(row, i) * rhs.get(i, column));	
+//		}
+//	}
+//	return m;
+//}
 	
 	
-// Subtraction operator
-//
-matrix_2d matrix_2d::operator-(const matrix_2d& rhs) const
-{
-	if (_cols != rhs.rows())
-		throw boost::enable_current_exception(runtime_error("operator-(): Matrix dimensions are incompatible."));
+//// Addition operator
+////
+//matrix_2d matrix_2d::operator+(const matrix_2d& rhs) const
+//{
+//	if (_cols != rhs.rows())
+//		throw boost::enable_current_exception(runtime_error("operator+(): Matrix dimensions are incompatible."));
+//	
+//	matrix_2d m(_rows, rhs.columns());
+//	
+//	// Perform the multiplication:
+//	UINT32 row, column;
+//	for (row=0; row<_rows; row++) {
+//		for (column=0; column<rhs.columns(); ++column) {
+//			m.put(row, column, get(row, column) + rhs.get(row, column));	
+//		}
+//	}
+//	return m;
+//}
 	
-	matrix_2d m(_rows, rhs.columns());
 	
-	// Perform the multiplication:
-	UINT32 row, column;
-	for (row=0; row<_rows; row++) {
-		for (column=0; column<rhs.columns(); ++column) {
-			m.put(row, column, get(row, column) - rhs.get(row, column));	
-		}
-	}
-	return m;
-}
+//// Subtraction operator
+////
+//matrix_2d matrix_2d::operator-(const matrix_2d& rhs) const
+//{
+//	if (_cols != rhs.rows())
+//		throw boost::enable_current_exception(runtime_error("operator-(): Matrix dimensions are incompatible."));
+//	
+//	matrix_2d m(_rows, rhs.columns());
+//	
+//	// Perform the multiplication:
+//	UINT32 row, column;
+//	for (row=0; row<_rows; row++) {
+//		for (column=0; column<rhs.columns(); ++column) {
+//			m.put(row, column, get(row, column) - rhs.get(row, column));	
+//		}
+//	}
+//	return m;
+//}
 	
 	
-// Multiplication-assignment operator
-//
-// Is this needed?
-matrix_2d matrix_2d::operator*=(const matrix_2d& rhs) 
-{			
-	if (_cols != rhs.rows())
-		throw boost::enable_current_exception(runtime_error("operator*=(): Matrix dimensions are incompatible."));
-	
-	matrix_2d m(_rows, rhs.columns());
-	
-	// Perform the multiplication:
-	UINT32 row, column, i;
-	for (row=0; row<_rows; row++) {
-		for (column=0; column<rhs.columns(); ++column) {
-			m.put(row, column, 0.0);
-			for (i=0; i<_cols; ++i)
-				m.elementadd(row, column, get(row, i) * rhs.get(i, column));
-		}
-	}
-	return (*this = m);
-}
+//// Multiplication-assignment operator
+////
+//// Is this needed?
+//matrix_2d matrix_2d::operator*=(const matrix_2d& rhs) 
+//{			
+//	if (_cols != rhs.rows())
+//		throw boost::enable_current_exception(runtime_error("operator*=(): Matrix dimensions are incompatible."));
+//	
+//	matrix_2d m(_rows, rhs.columns());
+//	
+//	// Perform the multiplication:
+//	UINT32 row, column, i;
+//	for (row=0; row<_rows; row++) {
+//		for (column=0; column<rhs.columns(); ++column) {
+//			m.put(row, column, 0.0);
+//			for (i=0; i<_cols; ++i)
+//				m.elementadd(row, column, get(row, i) * rhs.get(i, column));
+//		}
+//	}
+//	return (*this = m);
+//}
 
-// Addition-assignment operator
-//
-matrix_2d matrix_2d::operator+=(const matrix_2d& rhs) 
-{			
-	if (_cols != rhs.columns() || _rows != rhs.rows())
-		throw boost::enable_current_exception(runtime_error("operator+=(): Matrix dimensions are incompatible."));
-	
-	// Perform the addition
-	UINT32 row, column;
-	for (row=0; row<_rows; ++row)
-		for (column=0; column<_cols; ++column)
-			*getelementref(row, column) += rhs.get(row, column);
-	return *this;
-}
+//// Addition-assignment operator
+////
+//matrix_2d matrix_2d::operator+=(const matrix_2d& rhs) 
+//{			
+//	if (_cols != rhs.columns() || _rows != rhs.rows())
+//		throw boost::enable_current_exception(runtime_error("operator+=(): Matrix dimensions are incompatible."));
+//	
+//	// Perform the addition
+//	UINT32 row, column;
+//	for (row=0; row<_rows; ++row)
+//		for (column=0; column<_cols; ++column)
+//			*getelementref(row, column) += rhs.get(row, column);
+//	return *this;
+//}
 
-// Subtraction-assignment operator
-//
-matrix_2d matrix_2d::operator-=(const matrix_2d& rhs) 
-{			
-	if (_cols != rhs.columns() || _rows != rhs.rows())
-		throw boost::enable_current_exception(runtime_error("operator-=(): Matrix dimensions are incompatible."));
-	
-	// Perform the addition
-	UINT32 row, column;
-	for (row=0; row<_rows; ++row)
-		for (column=0; column<_cols; ++column)
-			*getelementref(row, column) -= rhs.get(row, column);
-	return *this;
-}
+//// Subtraction-assignment operator
+////
+//matrix_2d matrix_2d::operator-=(const matrix_2d& rhs) 
+//{			
+//	if (_cols != rhs.columns() || _rows != rhs.rows())
+//		throw boost::enable_current_exception(runtime_error("operator-=(): Matrix dimensions are incompatible."));
+//	
+//	// Perform the addition
+//	UINT32 row, column;
+//	for (row=0; row<_rows; ++row)
+//		for (column=0; column<_cols; ++column)
+//			*getelementref(row, column) -= rhs.get(row, column);
+//	return *this;
+//}
 
 matrix_2d matrix_2d::add(const matrix_2d& rhs)
 {
@@ -1862,23 +1862,23 @@ matrix_2d matrix_2d::add(const matrix_2d& rhs)
 
 }
 
-matrix_2d matrix_2d::add(const matrix_2d& lhs, const matrix_2d& rhs)
-{
-	if (_rows != lhs.rows() || _cols != lhs.columns())
-		throw boost::enable_current_exception(runtime_error("add(): Result matrix dimensions are incompatible."));
-	
-	if (_rows != rhs.rows() || _cols != rhs.columns())
-		throw boost::enable_current_exception(runtime_error("add(): Result matrix dimensions are incompatible."));
-	
-	UINT32 row, column;
-	for (row=0; row<_rows; row++) {
-		for (column=0; column<_cols; ++column) {
-			*getelementref(row, column) = lhs.get(row, column) + rhs.get(row, column);	
-		}
-	}
-	return *this;
-
-}
+//matrix_2d matrix_2d::add(const matrix_2d& lhs, const matrix_2d& rhs)
+//{
+//	if (_rows != lhs.rows() || _cols != lhs.columns())
+//		throw boost::enable_current_exception(runtime_error("add(): Result matrix dimensions are incompatible."));
+//	
+//	if (_rows != rhs.rows() || _cols != rhs.columns())
+//		throw boost::enable_current_exception(runtime_error("add(): Result matrix dimensions are incompatible."));
+//	
+//	UINT32 row, column;
+//	for (row=0; row<_rows; row++) {
+//		for (column=0; column<_cols; ++column) {
+//			*getelementref(row, column) = lhs.get(row, column) + rhs.get(row, column);	
+//		}
+//	}
+//	return *this;
+//
+//}
 
 //// multiplies this matrix by rhs and stores the result in a new matrix
 //matrix_2d matrix_2d::multiply(const matrix_2d& rhs)
