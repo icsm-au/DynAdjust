@@ -77,7 +77,7 @@ public:
 	void SetTargetHeight(const string& str);
 
 	inline virtual UINT32 CalcBinaryRecordCount() const { return 1; }
-	void coutDirectionData(ostream &os) const;
+	//void coutDirectionData(ostream &os) const;
 	virtual void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) const;
 	//virtual UINT32 SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord);
 	virtual UINT32 SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr);

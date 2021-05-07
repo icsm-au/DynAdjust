@@ -102,7 +102,7 @@ public:
 	inline void SetTotal(const UINT32& l) { m_lRecordedTotal = l; }
 
 	virtual UINT32 CalcBinaryRecordCount() const;
-	void coutBaselineData(ostream &os, const int& pad, const UINT16& uType = 0) const;
+	//void coutBaselineData(ostream &os, const int& pad, const UINT16& uType = 0) const;
 	virtual void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) const;
 	//virtual UINT32 SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord);
 	virtual UINT32 SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr);

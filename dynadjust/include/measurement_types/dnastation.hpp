@@ -90,13 +90,20 @@ class CAStationList
 public:
 	CAStationList();
 	CAStationList(bool validStation);
-	CAStationList(const CAStationList&);
-	CAStationList(const UINT32& assocMsrs, const UINT32& availMsrs, const UINT32& firstStnIndex, bool validStation=true);
 	virtual ~CAStationList();
 
+	// move constructor and assignment operator
+	CAStationList(const CAStationList&& s);
+	CAStationList& operator=(CAStationList&& rhs);
+
+private:
+	// disallow copying
+	CAStationList(const CAStationList&);
 	CAStationList& operator=(const CAStationList& rhs);
-	inline CAStationList* clone() const { return new CAStationList(*this); }
+	//inline CAStationList* clone() const { return new CAStationList(*this); }
 	//inline CAStationList& operator[](int iIndex) { return this[iIndex]; }
+
+public:
 
 	inline CAStationList* handle() { return this; }
 
@@ -133,8 +140,6 @@ public:
 	inline void SetAvailMsrCount(const UINT32& availMsrCount) { availMsrCount_ = availMsrCount; }
 	inline void SetAssocMsrCount(const UINT32& assocMsrCount) { assocMsrCount_ = assocMsrCount; }
 	inline void SetAMLStnIndex(const UINT32& amlStnIndex) { amlStnIndex_ = amlStnIndex; }
-
-	void coutStationListInfo();
 
 protected:
 	UINT32 availMsrCount_;			// all associated measurements, not including ignored measurements
@@ -264,7 +269,7 @@ public:
 		UINT32& LEX_precision, UINT32& LNY_precision, UINT32& HZ_precision,
 		const CDnaEllipsoid* ellipsoid, const CDnaProjection* projection, bool writeCurrentEstimates);
 	
-	void coutStationData(ostream &os, ostream &os2, const UINT16& uType = 0) const;
+	//void coutStationData(ostream &os, ostream &os2, const UINT16& uType = 0) const;
 	void WriteBinaryStn(std::ofstream* binary_stream, const UINT16 bUnused=0);
 		
 	void WriteDNAXMLStnCurrentEstimates(std::ofstream* dna_ofstream, 

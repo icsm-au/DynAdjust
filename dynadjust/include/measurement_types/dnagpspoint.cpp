@@ -189,16 +189,16 @@ CDnaGpsPoint& CDnaGpsPoint::operator= (CDnaGpsPoint&& rhs)
 //}
 
 
-CDnaGpsPoint::CDnaGpsPoint(const bool bIgnore, const string& strType, const string& strFirstStation)
-{
-	m_strType = strType;
-	m_strFirst = strFirstStation;
-	m_bIgnore = bIgnore;
-
-	m_referenceFrame = DEFAULT_DATUM;
-	m_epoch = DEFAULT_EPOCH;
-	SetEpsg(epsgStringFromName<string>(m_referenceFrame));
-}
+//CDnaGpsPoint::CDnaGpsPoint(const bool bIgnore, const string& strType, const string& strFirstStation)
+//{
+//	m_strType = strType;
+//	m_strFirst = strFirstStation;
+//	m_bIgnore = bIgnore;
+//
+//	m_referenceFrame = DEFAULT_DATUM;
+//	m_epoch = DEFAULT_EPOCH;
+//	SetEpsg(epsgStringFromName<string>(m_referenceFrame));
+//}
 
 // assignment operator (disabled)
 //CDnaGpsPoint& CDnaGpsPoint::operator= (const CDnaGpsPoint& rhs)
@@ -824,31 +824,31 @@ void CDnaGpsPoint::SerialiseDatabaseMap(std::ofstream* os)
 }
 	
 
-void CDnaGpsPoint::coutPointData(ostream &os) const
-{
-	os << left << setw(4) << " " << setw(INST_WIDTH) << m_strFirst;
-	os << setw(TARG_WIDTH) << (m_strTarget.empty() ? " " : m_strTarget);
-	string ignoreFlag = " ";
-	if (m_bIgnore)
-		ignoreFlag = "*";
-	bool bCoords_in_XYZ = true;
-	if (m_strCoordType.compare(LLH_type))
-		bCoords_in_XYZ = false;
-
-	size_t j = m_vPointCovariances.size();
-	os << left << setw(2) << ignoreFlag << setw(8) << setprecision(3) << fixed << m_dPscale << setw(2) << (bCoords_in_XYZ ? "X" : "P") << setw(MSR2_WIDTH) << right << m_dX << setw(VAR_WIDTH) << scientific << m_dSigmaXX << setw(VAR_WIDTH) << m_dSigmaXY << setw(VAR_WIDTH) << m_dSigmaXZ;
-	for (size_t i=0; i<j; i++)
-		os << setw(COV_WIDTH) << m_vPointCovariances[i].GetM11() << setw(COV_WIDTH) << m_vPointCovariances[i].GetM12() << setw(COV_WIDTH) << m_vPointCovariances[i].GetM13();
-	os << endl;
-	os << setw(28) << " " << left << setw(2) << ignoreFlag << setw(8) << fixed << m_dLscale << setw(2) << (bCoords_in_XYZ ? "Y" : "L") << setw(MSR2_WIDTH) << right << m_dY << setw(VAR_WIDTH) << " " << setw(VAR_WIDTH) << scientific << m_dSigmaYY << setw(VAR_WIDTH) << m_dSigmaYZ;
-	for (size_t i=0; i<j; i++)
-		os << setw(COV_WIDTH) << m_vPointCovariances[i].GetM21() << setw(COV_WIDTH) << m_vPointCovariances[i].GetM22() << setw(COV_WIDTH) << m_vPointCovariances[i].GetM23();
-	os << endl;
-	os << setw(28) << " " << left << setw(2) << ignoreFlag << setw(8) << fixed << m_dHscale << setw(2) << (bCoords_in_XYZ ? "Z" : "H")  << setw(MSR2_WIDTH) << right << m_dZ << setw(VAR_WIDTH) << " " << setw(VAR_WIDTH) << " " << setw(VAR_WIDTH) << scientific << m_dSigmaZZ;
-	for (size_t i=0; i<j; i++)
-		os << setw(COV_WIDTH) << m_vPointCovariances[i].GetM31() << setw(COV_WIDTH) << m_vPointCovariances[i].GetM32() << setw(COV_WIDTH) << m_vPointCovariances[i].GetM33();
-	os << endl;
-}
+//void CDnaGpsPoint::coutPointData(ostream &os) const
+//{
+//	os << left << setw(4) << " " << setw(INST_WIDTH) << m_strFirst;
+//	os << setw(TARG_WIDTH) << (m_strTarget.empty() ? " " : m_strTarget);
+//	string ignoreFlag = " ";
+//	if (m_bIgnore)
+//		ignoreFlag = "*";
+//	bool bCoords_in_XYZ = true;
+//	if (m_strCoordType.compare(LLH_type))
+//		bCoords_in_XYZ = false;
+//
+//	size_t j = m_vPointCovariances.size();
+//	os << left << setw(2) << ignoreFlag << setw(8) << setprecision(3) << fixed << m_dPscale << setw(2) << (bCoords_in_XYZ ? "X" : "P") << setw(MSR2_WIDTH) << right << m_dX << setw(VAR_WIDTH) << scientific << m_dSigmaXX << setw(VAR_WIDTH) << m_dSigmaXY << setw(VAR_WIDTH) << m_dSigmaXZ;
+//	for (size_t i=0; i<j; i++)
+//		os << setw(COV_WIDTH) << m_vPointCovariances[i].GetM11() << setw(COV_WIDTH) << m_vPointCovariances[i].GetM12() << setw(COV_WIDTH) << m_vPointCovariances[i].GetM13();
+//	os << endl;
+//	os << setw(28) << " " << left << setw(2) << ignoreFlag << setw(8) << fixed << m_dLscale << setw(2) << (bCoords_in_XYZ ? "Y" : "L") << setw(MSR2_WIDTH) << right << m_dY << setw(VAR_WIDTH) << " " << setw(VAR_WIDTH) << scientific << m_dSigmaYY << setw(VAR_WIDTH) << m_dSigmaYZ;
+//	for (size_t i=0; i<j; i++)
+//		os << setw(COV_WIDTH) << m_vPointCovariances[i].GetM21() << setw(COV_WIDTH) << m_vPointCovariances[i].GetM22() << setw(COV_WIDTH) << m_vPointCovariances[i].GetM23();
+//	os << endl;
+//	os << setw(28) << " " << left << setw(2) << ignoreFlag << setw(8) << fixed << m_dHscale << setw(2) << (bCoords_in_XYZ ? "Z" : "H")  << setw(MSR2_WIDTH) << right << m_dZ << setw(VAR_WIDTH) << " " << setw(VAR_WIDTH) << " " << setw(VAR_WIDTH) << scientific << m_dSigmaZZ;
+//	for (size_t i=0; i<j; i++)
+//		os << setw(COV_WIDTH) << m_vPointCovariances[i].GetM31() << setw(COV_WIDTH) << m_vPointCovariances[i].GetM32() << setw(COV_WIDTH) << m_vPointCovariances[i].GetM33();
+//	os << endl;
+//}
 
 
 void CDnaGpsPoint::SetEpoch(const string& epoch) 
@@ -1219,10 +1219,10 @@ void CDnaGpsPointCluster::AddGpsPoint(const CDnaMeasurement* pGpsPoint)
 }
 
 
-void CDnaGpsPointCluster::ClearPoints()
-{
-	m_vGpsPoints.clear();
-}
+//void CDnaGpsPointCluster::ClearPoints()
+//{
+//	m_vGpsPoints.clear();
+//}
 	
 
 // void CDnaGpsPointCluster::SetDatabaseMap_bmsIndex(const UINT32& bmsIndex) 

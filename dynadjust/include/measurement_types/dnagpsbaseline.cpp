@@ -303,59 +303,59 @@ UINT32 CDnaGpsBaseline::CalcBinaryRecordCount() const
 }
 
 
-void CDnaGpsBaseline::coutBaselineData(ostream &os, const int& pad, const UINT16& uType) const
-{
-	size_t i, j;
-	string ignoreFlag;
-
-	switch (uType)
-	{
-	case DNA_COUT:
-	case GEOLAB_COUT:
-		// normal format
-		os << setw(pad) << left << m_strFirst;
-		os << setw(TARG_WIDTH) << m_strTarget;
-		ignoreFlag = " ";
-
-		if (m_bIgnore)
-			ignoreFlag = "*";
-		j = m_vGpsCovariances.size();
-		os << setw(2) << ignoreFlag << setw(8) << setprecision(3) << fixed << m_dPscale << setw(2) << "X" << setw(MSR2_WIDTH) << right << m_dX << setw(VAR_WIDTH) << scientific << m_dSigmaXX << setw(VAR_WIDTH) << m_dSigmaXY << setw(VAR_WIDTH) << m_dSigmaXZ;
-		for (i=0; i<j; i++)
-			os << setw(COV_WIDTH) << m_vGpsCovariances[i].GetM11() << setw(COV_WIDTH) << m_vGpsCovariances[i].GetM12() << setw(COV_WIDTH) << m_vGpsCovariances[i].GetM13();
-		os << endl;
-		os << setw(4) << " " << 
-			setw(pad) << " " << setw(TARG_WIDTH) << " " <<
-			setw(2) << left << ignoreFlag << setw(8) << setprecision(3) << fixed << m_dLscale << setw(2) << "Y" << setw(MSR2_WIDTH) << right << m_dY << setw(VAR_WIDTH) << " " << setw(VAR_WIDTH) << scientific << m_dSigmaYY << setw(VAR_WIDTH) << m_dSigmaYZ;
-		for (i=0; i<j; i++)
-			os << setw(COV_WIDTH) << m_vGpsCovariances[i].GetM21() << setw(COV_WIDTH) << m_vGpsCovariances[i].GetM22() << setw(COV_WIDTH) << m_vGpsCovariances[i].GetM23();
-		os << endl;
-		os << setw(4) << " " <<
-			setw(pad) << " " << setw(TARG_WIDTH) << " " <<
-			setw(2) << left << ignoreFlag << setw(8) << setprecision(3) << fixed << m_dHscale << setw(2) << "Z" << setw(MSR2_WIDTH) << right << m_dZ << setw(VAR_WIDTH) << " " << setw(VAR_WIDTH) << " " << setw(VAR_WIDTH) << scientific << m_dSigmaZZ;
-		for (i=0; i<j; i++)
-			os << setw(COV_WIDTH) << m_vGpsCovariances[i].GetM31() << setw(COV_WIDTH) << m_vGpsCovariances[i].GetM32() << setw(COV_WIDTH) << m_vGpsCovariances[i].GetM33();
-		os << endl;
-		break;
-	case NEWGAN_COUT:
-
-		// NEWGAN format (ignore correlations)
-		const float M2TOCM2 = 10000.;
-		os << endl << "115" << endl;
-		os << setw(3) << "116" << setw(3) << " " << setw(9) << m_strFirst << setw(3) << " " << setw(9) << m_strTarget;
-		ignoreFlag = " ";
-
-		if (m_bIgnore)
-			ignoreFlag = "*";
-		j = m_vGpsCovariances.size();
-		os << setw(23) << setprecision(4) << fixed << m_dX << setw(13) << m_dY << setw(13) << m_dZ << endl;
-		os << "117" << setw(8) << "UPPER" << endl;
-		os << setw(26) << setprecision(8) << scientific << m_dSigmaXX * M2TOCM2 << setw(20) << m_dSigmaXY * M2TOCM2 << setw(20) << m_dSigmaXZ * M2TOCM2 << endl;
-		os << setw(26) << setprecision(8) << scientific << m_dSigmaYY * M2TOCM2 << setw(20) << m_dSigmaYZ * M2TOCM2 << endl;
-		os << setw(26) << setprecision(8) << scientific << m_dSigmaZZ * M2TOCM2 << endl;
-		break;
-	}
-}
+//void CDnaGpsBaseline::coutBaselineData(ostream &os, const int& pad, const UINT16& uType) const
+//{
+//	size_t i, j;
+//	string ignoreFlag;
+//
+//	switch (uType)
+//	{
+//	case DNA_COUT:
+//	case GEOLAB_COUT:
+//		// normal format
+//		os << setw(pad) << left << m_strFirst;
+//		os << setw(TARG_WIDTH) << m_strTarget;
+//		ignoreFlag = " ";
+//
+//		if (m_bIgnore)
+//			ignoreFlag = "*";
+//		j = m_vGpsCovariances.size();
+//		os << setw(2) << ignoreFlag << setw(8) << setprecision(3) << fixed << m_dPscale << setw(2) << "X" << setw(MSR2_WIDTH) << right << m_dX << setw(VAR_WIDTH) << scientific << m_dSigmaXX << setw(VAR_WIDTH) << m_dSigmaXY << setw(VAR_WIDTH) << m_dSigmaXZ;
+//		for (i=0; i<j; i++)
+//			os << setw(COV_WIDTH) << m_vGpsCovariances[i].GetM11() << setw(COV_WIDTH) << m_vGpsCovariances[i].GetM12() << setw(COV_WIDTH) << m_vGpsCovariances[i].GetM13();
+//		os << endl;
+//		os << setw(4) << " " << 
+//			setw(pad) << " " << setw(TARG_WIDTH) << " " <<
+//			setw(2) << left << ignoreFlag << setw(8) << setprecision(3) << fixed << m_dLscale << setw(2) << "Y" << setw(MSR2_WIDTH) << right << m_dY << setw(VAR_WIDTH) << " " << setw(VAR_WIDTH) << scientific << m_dSigmaYY << setw(VAR_WIDTH) << m_dSigmaYZ;
+//		for (i=0; i<j; i++)
+//			os << setw(COV_WIDTH) << m_vGpsCovariances[i].GetM21() << setw(COV_WIDTH) << m_vGpsCovariances[i].GetM22() << setw(COV_WIDTH) << m_vGpsCovariances[i].GetM23();
+//		os << endl;
+//		os << setw(4) << " " <<
+//			setw(pad) << " " << setw(TARG_WIDTH) << " " <<
+//			setw(2) << left << ignoreFlag << setw(8) << setprecision(3) << fixed << m_dHscale << setw(2) << "Z" << setw(MSR2_WIDTH) << right << m_dZ << setw(VAR_WIDTH) << " " << setw(VAR_WIDTH) << " " << setw(VAR_WIDTH) << scientific << m_dSigmaZZ;
+//		for (i=0; i<j; i++)
+//			os << setw(COV_WIDTH) << m_vGpsCovariances[i].GetM31() << setw(COV_WIDTH) << m_vGpsCovariances[i].GetM32() << setw(COV_WIDTH) << m_vGpsCovariances[i].GetM33();
+//		os << endl;
+//		break;
+//	case NEWGAN_COUT:
+//
+//		// NEWGAN format (ignore correlations)
+//		const float M2TOCM2 = 10000.;
+//		os << endl << "115" << endl;
+//		os << setw(3) << "116" << setw(3) << " " << setw(9) << m_strFirst << setw(3) << " " << setw(9) << m_strTarget;
+//		ignoreFlag = " ";
+//
+//		if (m_bIgnore)
+//			ignoreFlag = "*";
+//		j = m_vGpsCovariances.size();
+//		os << setw(23) << setprecision(4) << fixed << m_dX << setw(13) << m_dY << setw(13) << m_dZ << endl;
+//		os << "117" << setw(8) << "UPPER" << endl;
+//		os << setw(26) << setprecision(8) << scientific << m_dSigmaXX * M2TOCM2 << setw(20) << m_dSigmaXY * M2TOCM2 << setw(20) << m_dSigmaXZ * M2TOCM2 << endl;
+//		os << setw(26) << setprecision(8) << scientific << m_dSigmaYY * M2TOCM2 << setw(20) << m_dSigmaYZ * M2TOCM2 << endl;
+//		os << setw(26) << setprecision(8) << scientific << m_dSigmaZZ * M2TOCM2 << endl;
+//		break;
+//	}
+//}
 
 
 void CDnaGpsBaseline::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool bSubMeasurement /*= false*/) const

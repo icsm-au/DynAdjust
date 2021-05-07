@@ -53,7 +53,7 @@ private:
 	//CDnaGpsPoint& operator=(const CDnaGpsPoint& rhs);
 
 public:
-	CDnaGpsPoint(const bool bIgnore, const string& strType, const string& strFirstStation);
+	//CDnaGpsPoint(const bool bIgnore, const string& strType, const string& strFirstStation);
 
 	//virtual inline CDnaGpsPoint* clone() const { return new CDnaGpsPoint(*this); }
 	bool operator==(const CDnaGpsPoint& rhs) const;
@@ -119,7 +119,7 @@ public:
 	void ResizeGpsCovariancesCount(const UINT32& size = 0);
 
 	virtual UINT32 CalcBinaryRecordCount() const;
-	void coutPointData(ostream &os) const;
+	//void coutPointData(ostream &os) const;
 	virtual void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) const;
 	//virtual UINT32 SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord);
 	virtual UINT32 SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr);
@@ -237,7 +237,7 @@ public:
 	inline void SetVscale(const double& dbl) { m_dVscale = dbl; }
 
 	void AddGpsPoint(const CDnaMeasurement* pGpsPoint);
-	void ClearPoints();
+	//void ClearPoints();
 
 	virtual UINT32 CalcBinaryRecordCount() const;
 	virtual void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) const;

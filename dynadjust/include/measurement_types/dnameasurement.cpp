@@ -160,13 +160,7 @@ bool CDnaCovariance::operator== (const CDnaCovariance& rhs) const
 		m_dM32 == rhs.m_dM32 &&
 		m_dM33 == rhs.m_dM33
 	);
-}
-
-void CDnaCovariance::coutCovarianceData(ostream &os) const
-{
-
-}
-	
+}	
 
 void CDnaCovariance::WriteDynaMLMsr(std::ofstream* dynaml_stream) const
 {

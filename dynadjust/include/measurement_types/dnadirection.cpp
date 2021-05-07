@@ -606,24 +606,24 @@ void CDnaDirection::WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrInde
 }
 
 
-void CDnaDirection::coutDirectionData(ostream &os) const
-{
-	os << setw(16) << " " << setw(MSR2_WIDTH) << m_strTarget;
-	os << setw(3) << (m_bIgnore ? "*" : " ") << setw(MEAS_WIDTH) << m_drValue;
-	os << setw(VAR_WIDTH) << m_dStdDev;
-	os << setw(7) << " ";	// m_fInstHeight
-	switch (GetTypeC())
-	{
-	case 'Z':
-	case 'V':
-		os << setw(7) << setprecision(3) << fixed << m_fTargHeight;
-		break;
-	default:
-		os << setw(7) << " ";
-		break;
-	}
-	os << endl;
-}
+//void CDnaDirection::coutDirectionData(ostream &os) const
+//{
+//	os << setw(16) << " " << setw(MSR2_WIDTH) << m_strTarget;
+//	os << setw(3) << (m_bIgnore ? "*" : " ") << setw(MEAS_WIDTH) << m_drValue;
+//	os << setw(VAR_WIDTH) << m_dStdDev;
+//	os << setw(7) << " ";	// m_fInstHeight
+//	switch (GetTypeC())
+//	{
+//	case 'Z':
+//	case 'V':
+//		os << setw(7) << setprecision(3) << fixed << m_fTargHeight;
+//		break;
+//	default:
+//		os << setw(7) << " ";
+//		break;
+//	}
+//	os << endl;
+//}
 
 void CDnaDirection::SetValue(const string& str)
 {

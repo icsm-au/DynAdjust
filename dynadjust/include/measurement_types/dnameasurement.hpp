@@ -236,7 +236,6 @@ public:
 	inline void SetIgnore(const bool bval) { m_bIgnore = bval; }
 	inline bool GetIgnore() const { return m_bIgnore; }
 
-	void coutCovarianceData(ostream &os) const;
 	inline virtual UINT32 CalcBinaryRecordCount() const { return 3; }
 	void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex, const string& epsgCode, const string& epoch) const;
 	//virtual UINT32 SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord);
@@ -451,7 +450,7 @@ public:
 	
 	virtual void PreferGMeasurements() {}
 
-	virtual void coutBaselineData(ostream &os, const int& pad, const UINT16& uType = 0) {}
+	//virtual void coutBaselineData(ostream &os, const int& pad, const UINT16& uType = 0) {}
 
 	void SetMeasurementDBID(const string& str);
 	void SetClusterDBID(const string& str);
