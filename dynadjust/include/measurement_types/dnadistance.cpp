@@ -58,15 +58,15 @@ CDnaDistance::~CDnaDistance(void)
 //}
 
 
-CDnaDistance::CDnaDistance(const bool bIgnore, const string& strType, const string& strFirst, const string& strTarget, const double& dValue, const double& dStdDev)
-{
-	m_strType = strType;
-	m_strFirst = strFirst;
-	m_bIgnore = bIgnore;
-	m_strTarget = strTarget;
-	m_dValue = dValue;
-	m_dStdDev = dStdDev;
-}
+//CDnaDistance::CDnaDistance(const bool bIgnore, const string& strType, const string& strFirst, const string& strTarget, const double& dValue, const double& dStdDev)
+//{
+//	m_strType = strType;
+//	m_strFirst = strFirst;
+//	m_bIgnore = bIgnore;
+//	m_strTarget = strTarget;
+//	m_dValue = dValue;
+//	m_dStdDev = dStdDev;
+//}
 
 
 //CDnaDistance& CDnaDistance::operator= (const CDnaDistance& rhs)
@@ -281,35 +281,35 @@ void CDnaDistance::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* ellip
 }
 	
 
-UINT32 CDnaDistance::SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord)
-{
-	char stationName[STN_NAME_WIDTH];
-	m_strType = measRecord->measType;
-	m_bIgnore = measRecord->ignore;
-	m_MSmeasurementStations = (MEASUREMENT_STATIONS)measRecord->measurementStations;
-
-	// first station
-	m_lstn1Index = measRecord->station1;
-	ifs_stns->seekg(sizeof(UINT32) + measRecord->station1 * sizeof(station_t), ios::beg);
-	ifs_stns->read(reinterpret_cast<char *>(&stationName), sizeof(stationName));
-	m_strFirst = stationName;
-	// target station
-	m_lstn2Index = measRecord->station2;
-	ifs_stns->seekg(sizeof(UINT32) + measRecord->station2 * sizeof(station_t), ios::beg);
-	ifs_stns->read(reinterpret_cast<char *>(&stationName), sizeof(stationName));
-	m_strTarget = stationName;
-	
-	m_measAdj = measRecord->measAdj;
-	m_measCorr = measRecord->measCorr;
-	m_measAdjPrec = measRecord->measAdjPrec;
-	m_residualPrec = measRecord->residualPrec;
-	m_preAdjCorr = measRecord->preAdjCorr;
-	m_dValue = measRecord->term1;
-	m_dStdDev = sqrt(measRecord->term2);
-	m_fInstHeight = static_cast<float> (measRecord->term3);
-	m_fTargHeight = static_cast<float> (measRecord->term4);
-	return 0;
-}
+//UINT32 CDnaDistance::SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord)
+//{
+//	char stationName[STN_NAME_WIDTH];
+//	m_strType = measRecord->measType;
+//	m_bIgnore = measRecord->ignore;
+//	m_MSmeasurementStations = (MEASUREMENT_STATIONS)measRecord->measurementStations;
+//
+//	// first station
+//	m_lstn1Index = measRecord->station1;
+//	ifs_stns->seekg(sizeof(UINT32) + measRecord->station1 * sizeof(station_t), ios::beg);
+//	ifs_stns->read(reinterpret_cast<char *>(&stationName), sizeof(stationName));
+//	m_strFirst = stationName;
+//	// target station
+//	m_lstn2Index = measRecord->station2;
+//	ifs_stns->seekg(sizeof(UINT32) + measRecord->station2 * sizeof(station_t), ios::beg);
+//	ifs_stns->read(reinterpret_cast<char *>(&stationName), sizeof(stationName));
+//	m_strTarget = stationName;
+//	
+//	m_measAdj = measRecord->measAdj;
+//	m_measCorr = measRecord->measCorr;
+//	m_measAdjPrec = measRecord->measAdjPrec;
+//	m_residualPrec = measRecord->residualPrec;
+//	m_preAdjCorr = measRecord->preAdjCorr;
+//	m_dValue = measRecord->term1;
+//	m_dStdDev = sqrt(measRecord->term2);
+//	m_fInstHeight = static_cast<float> (measRecord->term3);
+//	m_fTargHeight = static_cast<float> (measRecord->term4);
+//	return 0;
+//}
 	
 
 UINT32 CDnaDistance::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr)

@@ -257,61 +257,61 @@ void CDnaCovariance::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* ell
 	m_dM33 = 0.0;
 }
 
-UINT32 CDnaCovariance::SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord)
-{
-	UINT32 measrecordCount = 0;
-
-	m_lstn1Index = measRecord->station1;
-	m_lstn2Index = measRecord->station2;
-	m_strType = measRecord->measType;
-
-	// get data relating to Z, sigmaZZ, sigmaXZ, sigmaYZ
-	if (ifs_msrs->eof() || !ifs_msrs->good())
-		throw XMLInteropException("SetMeasurementRec(): Errors were encountered when reading from the binary measurement file.", 0);
-	ifs_msrs->read(reinterpret_cast<char *>(measRecord), sizeof(measurement_t));
-	
-	// check integrity of the binary file (see WriteBinaryMsr())
-	if (measRecord->measType != 'X' && measRecord->measType != 'Y')
-		throw XMLInteropException("SetMeasurementRec(): Errors were encountered when attempting to read the next GpsPoint Covariance element.", 0);
-		
-	m_dM11 = measRecord->term1;
-	m_dM12 = measRecord->term2;
-	m_dM13 = measRecord->term3;
-
-	m_lclusterID = measRecord->clusterID;
-
-	measrecordCount++;
-
-	// get data relating to Z, sigmaZZ, sigmaXZ, sigmaYZ
-	if (ifs_msrs->eof() || !ifs_msrs->good())
-		throw XMLInteropException("SetMeasurementRec(): Errors were encountered when reading from the binary measurement file.", 0);
-	ifs_msrs->read(reinterpret_cast<char *>(measRecord), sizeof(measurement_t));
-	
-	// check integrity of the binary file (see WriteBinaryMsr())
-	if (measRecord->measType != 'X' && measRecord->measType != 'Y')
-		throw XMLInteropException("SetMeasurementRec(): Errors were encountered when attempting to read the next GpsPoint Covariance element.", 0);
-	
-	m_lstn1Index = measRecord->station1;
-	m_lstn2Index = measRecord->station2;
-	m_dM21 = measRecord->term1;
-	m_dM22 = measRecord->term2;
-	m_dM23 = measRecord->term3;
-	
-	measrecordCount++;
-
-	// get data relating to Z, sigmaZZ, sigmaXZ, sigmaYZ
-	if (ifs_msrs->eof() || !ifs_msrs->good())
-		throw XMLInteropException("SetMeasurementRec(): Errors were encountered when reading from the binary measurement file.", 0);
-	ifs_msrs->read(reinterpret_cast<char *>(measRecord), sizeof(measurement_t));
-	
-	m_lstn1Index = measRecord->station1;
-	m_lstn2Index = measRecord->station2;
-	m_dM31 = measRecord->term1;
-	m_dM32 = measRecord->term2;
-	m_dM33 = measRecord->term3;
-	
-	return ++measrecordCount;
-}
+//UINT32 CDnaCovariance::SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord)
+//{
+//	UINT32 measrecordCount = 0;
+//
+//	m_lstn1Index = measRecord->station1;
+//	m_lstn2Index = measRecord->station2;
+//	m_strType = measRecord->measType;
+//
+//	// get data relating to Z, sigmaZZ, sigmaXZ, sigmaYZ
+//	if (ifs_msrs->eof() || !ifs_msrs->good())
+//		throw XMLInteropException("SetMeasurementRec(): Errors were encountered when reading from the binary measurement file.", 0);
+//	ifs_msrs->read(reinterpret_cast<char *>(measRecord), sizeof(measurement_t));
+//	
+//	// check integrity of the binary file (see WriteBinaryMsr())
+//	if (measRecord->measType != 'X' && measRecord->measType != 'Y')
+//		throw XMLInteropException("SetMeasurementRec(): Errors were encountered when attempting to read the next GpsPoint Covariance element.", 0);
+//		
+//	m_dM11 = measRecord->term1;
+//	m_dM12 = measRecord->term2;
+//	m_dM13 = measRecord->term3;
+//
+//	m_lclusterID = measRecord->clusterID;
+//
+//	measrecordCount++;
+//
+//	// get data relating to Z, sigmaZZ, sigmaXZ, sigmaYZ
+//	if (ifs_msrs->eof() || !ifs_msrs->good())
+//		throw XMLInteropException("SetMeasurementRec(): Errors were encountered when reading from the binary measurement file.", 0);
+//	ifs_msrs->read(reinterpret_cast<char *>(measRecord), sizeof(measurement_t));
+//	
+//	// check integrity of the binary file (see WriteBinaryMsr())
+//	if (measRecord->measType != 'X' && measRecord->measType != 'Y')
+//		throw XMLInteropException("SetMeasurementRec(): Errors were encountered when attempting to read the next GpsPoint Covariance element.", 0);
+//	
+//	m_lstn1Index = measRecord->station1;
+//	m_lstn2Index = measRecord->station2;
+//	m_dM21 = measRecord->term1;
+//	m_dM22 = measRecord->term2;
+//	m_dM23 = measRecord->term3;
+//	
+//	measrecordCount++;
+//
+//	// get data relating to Z, sigmaZZ, sigmaXZ, sigmaYZ
+//	if (ifs_msrs->eof() || !ifs_msrs->good())
+//		throw XMLInteropException("SetMeasurementRec(): Errors were encountered when reading from the binary measurement file.", 0);
+//	ifs_msrs->read(reinterpret_cast<char *>(measRecord), sizeof(measurement_t));
+//	
+//	m_lstn1Index = measRecord->station1;
+//	m_lstn2Index = measRecord->station2;
+//	m_dM31 = measRecord->term1;
+//	m_dM32 = measRecord->term2;
+//	m_dM33 = measRecord->term3;
+//	
+//	return ++measrecordCount;
+//}
 	
 
 UINT32 CDnaCovariance::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr)

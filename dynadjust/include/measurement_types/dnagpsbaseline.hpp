@@ -53,7 +53,7 @@ private:
 	//CDnaGpsBaseline& operator=(const CDnaGpsBaseline& rhs);
 
 public:
-	CDnaGpsBaseline(const bool bIgnore, const string& strType, const string& strFirstStation, const string& strSecondStation);
+	//CDnaGpsBaseline(const bool bIgnore, const string& strType, const string& strFirstStation, const string& strSecondStation);
 
 	//virtual inline CDnaGpsBaseline* clone() const { return new CDnaGpsBaseline(*this); }
 	bool operator==(const CDnaGpsBaseline& rhs) const;
@@ -104,7 +104,7 @@ public:
 	virtual UINT32 CalcBinaryRecordCount() const;
 	void coutBaselineData(ostream &os, const int& pad, const UINT16& uType = 0) const;
 	virtual void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) const;
-	virtual UINT32 SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord);
+	//virtual UINT32 SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord);
 	virtual UINT32 SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr);
 	virtual void WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool bSubMeasurement = false) const;
 	virtual void WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool bSubMeasurement = false) const;
@@ -167,7 +167,7 @@ private:
 	CDnaGpsBaselineCluster& operator=(const CDnaGpsBaselineCluster& rhs);
 
 public:
-	CDnaGpsBaselineCluster(const bool bIgnore, const string& strType, const string& strFirstStation);
+	//CDnaGpsBaselineCluster(const bool bIgnore, const string& strType, const string& strFirstStation);
 	CDnaGpsBaselineCluster(const UINT32 lclusterID, const string& referenceframe, const string& epoch);
 
 	//virtual inline CDnaGpsBaselineCluster* clone() const { return new CDnaGpsBaselineCluster(*this); }
@@ -216,7 +216,7 @@ public:
 
 	virtual UINT32 CalcBinaryRecordCount() const;
 	virtual void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) const;
-	virtual UINT32 SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord);
+	//virtual UINT32 SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord);
 	virtual UINT32 SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr);
 	virtual void WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool bSubMeasurement = false) const;
 	virtual void WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool bSubMeasurement = false) const;

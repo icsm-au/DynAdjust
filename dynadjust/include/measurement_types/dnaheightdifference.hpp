@@ -48,7 +48,7 @@ private:
 	//CDnaHeightDifference& operator=(const CDnaHeightDifference& rhs);
 
 public:
-	CDnaHeightDifference(const bool bIgnore, const string& strType, const string& strFirst, const string& strTarget, const double& dValue, const double& dStdDev);
+	//CDnaHeightDifference(const bool bIgnore, const string& strType, const string& strFirst, const string& strTarget, const double& dValue, const double& dStdDev);
 
 	//virtual inline CDnaHeightDifference* clone() const { return new CDnaHeightDifference(*this); }
 	bool operator==(const CDnaHeightDifference& rhs) const;
@@ -67,7 +67,7 @@ public:
 	
 	inline virtual UINT32 CalcBinaryRecordCount() const { return 1; }
 	virtual void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) const;
-	virtual UINT32 SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord);
+	//virtual UINT32 SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord);
 	virtual UINT32 SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr);
 	virtual void WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool bSubMeasurement = false) const;
 	virtual void WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool bSubMeasurement = false) const;

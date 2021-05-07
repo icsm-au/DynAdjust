@@ -114,17 +114,17 @@ CDnaDirection& CDnaDirection::operator= (CDnaDirection&& rhs)
 //}
 
 
-CDnaDirection::CDnaDirection(const bool bIgnore, const string& strFirst, const string& strTarget, const double& drValue, const double& dStdDev)
-{
-	m_strType = "D";
-	m_strFirst = strFirst;
-	m_bIgnore = bIgnore;
-	m_strTarget = strTarget;
-	m_drValue = drValue;
-	m_dStdDev = dStdDev;
-	m_lRecordedTotal = 0;
-	m_lsetID = 0;
-}
+//CDnaDirection::CDnaDirection(const bool bIgnore, const string& strFirst, const string& strTarget, const double& drValue, const double& dStdDev)
+//{
+//	m_strType = "D";
+//	m_strFirst = strFirst;
+//	m_bIgnore = bIgnore;
+//	m_strTarget = strTarget;
+//	m_drValue = drValue;
+//	m_dStdDev = dStdDev;
+//	m_lRecordedTotal = 0;
+//	m_lsetID = 0;
+//}
 
 // assignment operator (disabled)
 //CDnaDirection& CDnaDirection::operator= (const CDnaDirection& rhs)
@@ -486,55 +486,55 @@ void CDnaDirection::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* elli
 }
 	
 
-UINT32 CDnaDirection::SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord)
-{
-	char stationName[STN_NAME_WIDTH];
-
-	if (GetTypeC() == 'D')		// part of a DnaDirectionSet
-	{
-		// get data relating to each direction
-		if (ifs_msrs->eof() || !ifs_msrs->good())
-			throw XMLInteropException("SetMeasurementRec(): Errors were encountered when reading from the binary measurement file.", 0);
-		ifs_msrs->read(reinterpret_cast<char *>(measRecord), sizeof(measurement_t));
-	}
-
-	m_bIgnore = measRecord->ignore;
-	m_lsetID = measRecord->clusterID;
-	m_MSmeasurementStations = (MEASUREMENT_STATIONS)measRecord->measurementStations;
-	// measRecord holds the full number of measurement blocks, which is 
-	// the numberofdirections in the vector plus one for the RO
-	m_lRecordedTotal = measRecord->vectorCount1;
-
-	if (GetTypeC() != 'D')		// not part of a DnaDirectionSet (e.g. vertical angle, zenith angle)
-	{
-		m_strType = measRecord->measType;
-		
-		// first station
-		m_lstn1Index = measRecord->station1;
-		ifs_stns->seekg(sizeof(UINT32) + measRecord->station1 * sizeof(station_t), ios::beg);
-		ifs_stns->read(reinterpret_cast<char *>(&stationName), sizeof(stationName));
-		m_strFirst = stationName;
-
-		m_fInstHeight = static_cast<float> (measRecord->term3);
-		m_fTargHeight = static_cast<float> (measRecord->term4);
-	}
-
-	// target station
-	m_lstn2Index = measRecord->station2;
-	ifs_stns->seekg(sizeof(UINT32) + measRecord->station2 * sizeof(station_t), ios::beg);
-	ifs_stns->read(reinterpret_cast<char *>(&stationName), sizeof(stationName));
-	m_strTarget = stationName;
-	
-	m_measAdj = measRecord->measAdj;
-	m_measCorr = measRecord->measCorr;
-	m_measAdjPrec = measRecord->measAdjPrec;
-	m_residualPrec = measRecord->residualPrec;
-	m_preAdjCorr = measRecord->preAdjCorr;
-	m_drValue = measRecord->term1;
-	m_dStdDev = sqrt(measRecord->term2);
-	
-	return 1;
-}
+//UINT32 CDnaDirection::SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord)
+//{
+//	char stationName[STN_NAME_WIDTH];
+//
+//	if (GetTypeC() == 'D')		// part of a DnaDirectionSet
+//	{
+//		// get data relating to each direction
+//		if (ifs_msrs->eof() || !ifs_msrs->good())
+//			throw XMLInteropException("SetMeasurementRec(): Errors were encountered when reading from the binary measurement file.", 0);
+//		ifs_msrs->read(reinterpret_cast<char *>(measRecord), sizeof(measurement_t));
+//	}
+//
+//	m_bIgnore = measRecord->ignore;
+//	m_lsetID = measRecord->clusterID;
+//	m_MSmeasurementStations = (MEASUREMENT_STATIONS)measRecord->measurementStations;
+//	// measRecord holds the full number of measurement blocks, which is 
+//	// the numberofdirections in the vector plus one for the RO
+//	m_lRecordedTotal = measRecord->vectorCount1;
+//
+//	if (GetTypeC() != 'D')		// not part of a DnaDirectionSet (e.g. vertical angle, zenith angle)
+//	{
+//		m_strType = measRecord->measType;
+//		
+//		// first station
+//		m_lstn1Index = measRecord->station1;
+//		ifs_stns->seekg(sizeof(UINT32) + measRecord->station1 * sizeof(station_t), ios::beg);
+//		ifs_stns->read(reinterpret_cast<char *>(&stationName), sizeof(stationName));
+//		m_strFirst = stationName;
+//
+//		m_fInstHeight = static_cast<float> (measRecord->term3);
+//		m_fTargHeight = static_cast<float> (measRecord->term4);
+//	}
+//
+//	// target station
+//	m_lstn2Index = measRecord->station2;
+//	ifs_stns->seekg(sizeof(UINT32) + measRecord->station2 * sizeof(station_t), ios::beg);
+//	ifs_stns->read(reinterpret_cast<char *>(&stationName), sizeof(stationName));
+//	m_strTarget = stationName;
+//	
+//	m_measAdj = measRecord->measAdj;
+//	m_measCorr = measRecord->measCorr;
+//	m_measAdjPrec = measRecord->measAdjPrec;
+//	m_residualPrec = measRecord->residualPrec;
+//	m_preAdjCorr = measRecord->preAdjCorr;
+//	m_drValue = measRecord->term1;
+//	m_dStdDev = sqrt(measRecord->term2);
+//	
+//	return 1;
+//}
 	
 
 UINT32 CDnaDirection::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr)

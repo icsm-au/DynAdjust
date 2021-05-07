@@ -51,14 +51,14 @@ CDnaHeight::~CDnaHeight(void)
 //}
 
 
-CDnaHeight::CDnaHeight(const bool bIgnore, const string& strType, const string& strFirst, const double& dValue, const double& dStdDev)
-{
-	m_strFirst = strFirst;
-	m_strType = strType;
-	m_bIgnore = bIgnore;
-	m_dValue = dValue;
-	m_dStdDev = dStdDev;
-}
+//CDnaHeight::CDnaHeight(const bool bIgnore, const string& strType, const string& strFirst, const double& dValue, const double& dStdDev)
+//{
+//	m_strFirst = strFirst;
+//	m_strType = strType;
+//	m_bIgnore = bIgnore;
+//	m_dValue = dValue;
+//	m_dStdDev = dStdDev;
+//}
 
 
 //CDnaHeight& CDnaHeight::operator= (const CDnaHeight& rhs)
@@ -185,27 +185,27 @@ void CDnaHeight::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* ellipso
 }
 	
 
-UINT32 CDnaHeight::SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord)
-{
-	char stationName[STN_NAME_WIDTH];
-	m_strType = measRecord->measType;
-	m_bIgnore = measRecord->ignore;
-	m_MSmeasurementStations = (MEASUREMENT_STATIONS)measRecord->measurementStations;
-	
-	m_lstn1Index = measRecord->station1;
-	ifs_stns->seekg(sizeof(UINT32) + measRecord->station1 * sizeof(station_t), ios::beg);
-	ifs_stns->read(reinterpret_cast<char *>(&stationName), sizeof(stationName));
-	m_strFirst = stationName;
-	
-	m_measAdj = measRecord->measAdj;
-	m_measCorr = measRecord->measCorr;
-	m_measAdjPrec = measRecord->measAdjPrec;
-	m_residualPrec = measRecord->residualPrec;
-	m_preAdjCorr = measRecord->preAdjCorr;
-	m_dValue = measRecord->term1;
-	m_dStdDev = sqrt(measRecord->term2);
-	return 0;
-}
+//UINT32 CDnaHeight::SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord)
+//{
+//	char stationName[STN_NAME_WIDTH];
+//	m_strType = measRecord->measType;
+//	m_bIgnore = measRecord->ignore;
+//	m_MSmeasurementStations = (MEASUREMENT_STATIONS)measRecord->measurementStations;
+//	
+//	m_lstn1Index = measRecord->station1;
+//	ifs_stns->seekg(sizeof(UINT32) + measRecord->station1 * sizeof(station_t), ios::beg);
+//	ifs_stns->read(reinterpret_cast<char *>(&stationName), sizeof(stationName));
+//	m_strFirst = stationName;
+//	
+//	m_measAdj = measRecord->measAdj;
+//	m_measCorr = measRecord->measCorr;
+//	m_measAdjPrec = measRecord->measAdjPrec;
+//	m_residualPrec = measRecord->residualPrec;
+//	m_preAdjCorr = measRecord->preAdjCorr;
+//	m_dValue = measRecord->term1;
+//	m_dStdDev = sqrt(measRecord->term2);
+//	return 0;
+//}
 
 UINT32 CDnaHeight::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr)
 {

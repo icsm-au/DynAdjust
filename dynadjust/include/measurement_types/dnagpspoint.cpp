@@ -603,79 +603,79 @@ void CDnaGpsPoint::PopulateMsr(pvstn_t bstRecords, uint32_uint32_map* blockStati
 
 	
 
-UINT32 CDnaGpsPoint::SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord)
-{
-	char stationName[STN_NAME_WIDTH];
-
-	// get first station name 
-	m_lstn1Index = measRecord->station1;
-	ifs_stns->seekg(sizeof(UINT32) + measRecord->station1 * sizeof(station_t), ios::beg);
-	ifs_stns->read(reinterpret_cast<char *>(&stationName), sizeof(stationName));
-	m_strFirst = stationName;
-
-	m_dPscale = measRecord->scale1;
-	m_dLscale = measRecord->scale2;
-	m_dHscale = measRecord->scale3;
-	m_dVscale = measRecord->scale4;
-
-	m_epoch = measRecord->epoch;
-	m_epsgCode = measRecord->epsgCode;
-	m_referenceFrame = datumFromEpsgCode<string, UINT32>(LongFromString<UINT32>(measRecord->epsgCode));
-
-	m_lclusterID = measRecord->clusterID;
-	m_MSmeasurementStations = (MEASUREMENT_STATIONS)measRecord->measurementStations;
-	
-	// X, sigmaXX
-	m_bIgnore = measRecord->ignore;
-	m_strType = measRecord->measType;
-	m_dX = measRecord->term1;
-	m_dSigmaXX = measRecord->term2;
-	m_lRecordedTotal = measRecord->vectorCount1;
-	SetCoordType(measRecord->coordType);
-	
-	UINT32 measrecordCount = 0;
-	
-	// get data relating to Y, sigmaYY, sigmaXY
-	if (ifs_msrs->eof() || !ifs_msrs->good())
-		throw XMLInteropException("SetMeasurementRec(): Errors were encountered when reading from the binary measurement file.", 0);
-	ifs_msrs->read(reinterpret_cast<char *>(measRecord), sizeof(measurement_t));
-	
-	// check integrity of the binary file (see WriteBinaryMsr())
-	if (measRecord->measType != 'Y')
-		throw XMLInteropException("SetMeasurementRec(): Errors were encountered when attempting to read the next GpsPoint element (Y block).", 0);
-	
-	m_dY = measRecord->term1;
-	m_dSigmaXY = measRecord->term2;
-	m_dSigmaYY = measRecord->term3;
-
-	measrecordCount++;
-
-	// get data relating to Z, sigmaZZ, sigmaXZ, sigmaYZ
-	if (ifs_msrs->eof() || !ifs_msrs->good())
-		throw XMLInteropException("SetMeasurementRec(): Errors were encountered when reading from the binary measurement file.", 0);
-	ifs_msrs->read(reinterpret_cast<char *>(measRecord), sizeof(measurement_t));
-	
-	// check integrity of the binary file (see WriteBinaryMsr())
-	if (measRecord->measType != 'Y')
-		throw XMLInteropException("SetMeasurementRec(): Errors were encountered when attempting to read the next GpsPoint element (Z block).", 0);
-	
-	m_dZ = measRecord->term1;
-	m_dSigmaXZ = measRecord->term2;
-	m_dSigmaYZ = measRecord->term3;
-	m_dSigmaZZ = measRecord->term4;
-
-	measrecordCount++;
-
-	m_vPointCovariances.clear();
-	m_vPointCovariances.resize(measRecord->vectorCount2);
-
-	// now covariances
-	vector<CDnaCovariance>::iterator _it_cov = m_vPointCovariances.begin();
-	for (; _it_cov!=m_vPointCovariances.end(); ++_it_cov)
-		measrecordCount += _it_cov->SetMeasurementRec(ifs_stns, ifs_msrs, measRecord);
-
-	return measrecordCount;
-}
+//UINT32 CDnaGpsPoint::SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord)
+//{
+//	char stationName[STN_NAME_WIDTH];
+//
+//	// get first station name 
+//	m_lstn1Index = measRecord->station1;
+//	ifs_stns->seekg(sizeof(UINT32) + measRecord->station1 * sizeof(station_t), ios::beg);
+//	ifs_stns->read(reinterpret_cast<char *>(&stationName), sizeof(stationName));
+//	m_strFirst = stationName;
+//
+//	m_dPscale = measRecord->scale1;
+//	m_dLscale = measRecord->scale2;
+//	m_dHscale = measRecord->scale3;
+//	m_dVscale = measRecord->scale4;
+//
+//	m_epoch = measRecord->epoch;
+//	m_epsgCode = measRecord->epsgCode;
+//	m_referenceFrame = datumFromEpsgCode<string, UINT32>(LongFromString<UINT32>(measRecord->epsgCode));
+//
+//	m_lclusterID = measRecord->clusterID;
+//	m_MSmeasurementStations = (MEASUREMENT_STATIONS)measRecord->measurementStations;
+//	
+//	// X, sigmaXX
+//	m_bIgnore = measRecord->ignore;
+//	m_strType = measRecord->measType;
+//	m_dX = measRecord->term1;
+//	m_dSigmaXX = measRecord->term2;
+//	m_lRecordedTotal = measRecord->vectorCount1;
+//	SetCoordType(measRecord->coordType);
+//	
+//	UINT32 measrecordCount = 0;
+//	
+//	// get data relating to Y, sigmaYY, sigmaXY
+//	if (ifs_msrs->eof() || !ifs_msrs->good())
+//		throw XMLInteropException("SetMeasurementRec(): Errors were encountered when reading from the binary measurement file.", 0);
+//	ifs_msrs->read(reinterpret_cast<char *>(measRecord), sizeof(measurement_t));
+//	
+//	// check integrity of the binary file (see WriteBinaryMsr())
+//	if (measRecord->measType != 'Y')
+//		throw XMLInteropException("SetMeasurementRec(): Errors were encountered when attempting to read the next GpsPoint element (Y block).", 0);
+//	
+//	m_dY = measRecord->term1;
+//	m_dSigmaXY = measRecord->term2;
+//	m_dSigmaYY = measRecord->term3;
+//
+//	measrecordCount++;
+//
+//	// get data relating to Z, sigmaZZ, sigmaXZ, sigmaYZ
+//	if (ifs_msrs->eof() || !ifs_msrs->good())
+//		throw XMLInteropException("SetMeasurementRec(): Errors were encountered when reading from the binary measurement file.", 0);
+//	ifs_msrs->read(reinterpret_cast<char *>(measRecord), sizeof(measurement_t));
+//	
+//	// check integrity of the binary file (see WriteBinaryMsr())
+//	if (measRecord->measType != 'Y')
+//		throw XMLInteropException("SetMeasurementRec(): Errors were encountered when attempting to read the next GpsPoint element (Z block).", 0);
+//	
+//	m_dZ = measRecord->term1;
+//	m_dSigmaXZ = measRecord->term2;
+//	m_dSigmaYZ = measRecord->term3;
+//	m_dSigmaZZ = measRecord->term4;
+//
+//	measrecordCount++;
+//
+//	m_vPointCovariances.clear();
+//	m_vPointCovariances.resize(measRecord->vectorCount2);
+//
+//	// now covariances
+//	vector<CDnaCovariance>::iterator _it_cov = m_vPointCovariances.begin();
+//	for (; _it_cov!=m_vPointCovariances.end(); ++_it_cov)
+//		measrecordCount += _it_cov->SetMeasurementRec(ifs_stns, ifs_msrs, measRecord);
+//
+//	return measrecordCount;
+//}
 	
 
 UINT32 CDnaGpsPoint::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr)
@@ -1094,11 +1094,11 @@ CDnaGpsPointCluster& CDnaGpsPointCluster::operator= (CDnaGpsPointCluster&& rhs)
 //}
 
 
-CDnaGpsPointCluster::CDnaGpsPointCluster(const bool bIgnore, const string& strType, const string& strFirstStation)
-{
-	m_strType = strType;
-	m_bIgnore = bIgnore;
-}
+//CDnaGpsPointCluster::CDnaGpsPointCluster(const bool bIgnore, const string& strType, const string& strFirstStation)
+//{
+//	m_strType = strType;
+//	m_bIgnore = bIgnore;
+//}
 
 CDnaGpsPointCluster::CDnaGpsPointCluster(const UINT32 lclusterID, const string& referenceframe, const string& epoch)
 	: m_strTarget("")
@@ -1354,51 +1354,51 @@ void CDnaGpsPointCluster::PopulateMsr(pvstn_t bstRecords, uint32_uint32_map* blo
 	
 
 
-UINT32 CDnaGpsPointCluster::SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord)
-{
-	m_lclusterID = measRecord->clusterID;
-	m_MSmeasurementStations = (MEASUREMENT_STATIONS)measRecord->measurementStations;
-	m_lRecordedTotal = measRecord->vectorCount1;
-	m_vGpsPoints.clear();
-	m_vGpsPoints.resize(m_lRecordedTotal);
-
-	m_referenceFrame = datumFromEpsgCode<string, UINT32>(LongFromString<UINT32>(measRecord->epsgCode));
-	m_epoch = measRecord->epoch;
-	m_epsgCode = measRecord->epsgCode;
-
-	m_dPscale = measRecord->scale1;
-	m_dLscale = measRecord->scale2;
-	m_dHscale = measRecord->scale3;
-	m_dVscale = measRecord->scale4;
-
-	UINT32 measrecordCount = 0;
-
-	// read remaining GpsPoint data and all Covariances from file
-	for (UINT32 i=0; i<m_lRecordedTotal; i++)
-	{
-		if (i > 0)
-		{
-			// get data relating to Y, sigmaYY, sigmaXY
-			if (ifs_msrs->eof() || !ifs_msrs->good())
-				throw XMLInteropException("SetMeasurementRec(): Errors were encountered when reading from the binary measurement file.", 0);
-			ifs_msrs->read(reinterpret_cast<char *>(measRecord), sizeof(measurement_t));
-			
-			// check integrity of the binary file (see WriteBinaryMsr())
-			if (measRecord->measType != 'Y')
-				throw XMLInteropException("SetMeasurementRec(): Errors were encountered when attempting to read the next GpsPoint element (X block).", 0);
-		}
-
-		measrecordCount++;
-
-		m_strType = measRecord->measType;
-		m_bIgnore = measRecord->ignore;
-		SetCoordType(measRecord->coordType);
-	
-		measrecordCount += m_vGpsPoints.at(i).SetMeasurementRec(ifs_stns, ifs_msrs, measRecord);
-	}
-
-	return measrecordCount - 1;	
-}
+//UINT32 CDnaGpsPointCluster::SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord)
+//{
+//	m_lclusterID = measRecord->clusterID;
+//	m_MSmeasurementStations = (MEASUREMENT_STATIONS)measRecord->measurementStations;
+//	m_lRecordedTotal = measRecord->vectorCount1;
+//	m_vGpsPoints.clear();
+//	m_vGpsPoints.resize(m_lRecordedTotal);
+//
+//	m_referenceFrame = datumFromEpsgCode<string, UINT32>(LongFromString<UINT32>(measRecord->epsgCode));
+//	m_epoch = measRecord->epoch;
+//	m_epsgCode = measRecord->epsgCode;
+//
+//	m_dPscale = measRecord->scale1;
+//	m_dLscale = measRecord->scale2;
+//	m_dHscale = measRecord->scale3;
+//	m_dVscale = measRecord->scale4;
+//
+//	UINT32 measrecordCount = 0;
+//
+//	// read remaining GpsPoint data and all Covariances from file
+//	for (UINT32 i=0; i<m_lRecordedTotal; i++)
+//	{
+//		if (i > 0)
+//		{
+//			// get data relating to Y, sigmaYY, sigmaXY
+//			if (ifs_msrs->eof() || !ifs_msrs->good())
+//				throw XMLInteropException("SetMeasurementRec(): Errors were encountered when reading from the binary measurement file.", 0);
+//			ifs_msrs->read(reinterpret_cast<char *>(measRecord), sizeof(measurement_t));
+//			
+//			// check integrity of the binary file (see WriteBinaryMsr())
+//			if (measRecord->measType != 'Y')
+//				throw XMLInteropException("SetMeasurementRec(): Errors were encountered when attempting to read the next GpsPoint element (X block).", 0);
+//		}
+//
+//		measrecordCount++;
+//
+//		m_strType = measRecord->measType;
+//		m_bIgnore = measRecord->ignore;
+//		SetCoordType(measRecord->coordType);
+//	
+//		measrecordCount += m_vGpsPoints.at(i).SetMeasurementRec(ifs_stns, ifs_msrs, measRecord);
+//	}
+//
+//	return measrecordCount - 1;	
+//}
 	
 
 UINT32 CDnaGpsPointCluster::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr)
