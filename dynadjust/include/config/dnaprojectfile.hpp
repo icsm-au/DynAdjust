@@ -67,7 +67,7 @@ private:
 	
 public:
 	inline project_settings GetSettings() const { return settings_; }
-	inline CDnaProjectFile& operator[](int iIndex) { return this[iIndex]; }
+	//inline CDnaProjectFile& operator[](int iIndex) { return this[iIndex]; }
 
 	void LoadProjectFile(const string& projectFile);
 	void LoadProjectFile();

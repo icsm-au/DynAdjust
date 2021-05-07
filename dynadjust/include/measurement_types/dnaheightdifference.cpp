@@ -41,16 +41,17 @@ CDnaHeightDifference::~CDnaHeightDifference(void)
 }
 
 
-CDnaHeightDifference::CDnaHeightDifference(const CDnaHeightDifference& newHeightDifference)
-{
-	m_strFirst = newHeightDifference.m_strFirst;
-	m_strTarget = newHeightDifference.m_strTarget;
-	m_strType = newHeightDifference.m_strType;
-	m_bIgnore = newHeightDifference.m_bIgnore;
-	m_dValue = newHeightDifference.m_dValue;
-	m_dStdDev = newHeightDifference.m_dStdDev;
-	m_MSmeasurementStations = newHeightDifference.m_MSmeasurementStations;
-}
+// copy constructor (disallowed)
+//CDnaHeightDifference::CDnaHeightDifference(const CDnaHeightDifference& newHeightDifference)
+//{
+//	m_strFirst = newHeightDifference.m_strFirst;
+//	m_strTarget = newHeightDifference.m_strTarget;
+//	m_strType = newHeightDifference.m_strType;
+//	m_bIgnore = newHeightDifference.m_bIgnore;
+//	m_dValue = newHeightDifference.m_dValue;
+//	m_dStdDev = newHeightDifference.m_dStdDev;
+//	m_MSmeasurementStations = newHeightDifference.m_MSmeasurementStations;
+//}
 
 
 CDnaHeightDifference::CDnaHeightDifference(const bool bIgnore, const string& strType, const string& strFirst, const string& strTarget, const double& dValue, const double& dStdDev)
@@ -64,20 +65,20 @@ CDnaHeightDifference::CDnaHeightDifference(const bool bIgnore, const string& str
 }
 
 
-CDnaHeightDifference& CDnaHeightDifference::operator= (const CDnaHeightDifference& rhs)
-{
-	// check for assignment to self!
-	if (this == &rhs)
-		return *this;
-
-	CDnaMeasurement::operator=(rhs);
-	m_strTarget = rhs.m_strTarget;
-	m_dValue = rhs.m_dValue;
-	m_dStdDev = rhs.m_dStdDev;
-	m_MSmeasurementStations = rhs.m_MSmeasurementStations;
-
-	return *this;
-}
+//CDnaHeightDifference& CDnaHeightDifference::operator= (const CDnaHeightDifference& rhs)
+//{
+//	// check for assignment to self!
+//	if (this == &rhs)
+//		return *this;
+//
+//	CDnaMeasurement::operator=(rhs);
+//	m_strTarget = rhs.m_strTarget;
+//	m_dValue = rhs.m_dValue;
+//	m_dStdDev = rhs.m_dStdDev;
+//	m_MSmeasurementStations = rhs.m_MSmeasurementStations;
+//
+//	return *this;
+//}
 
 
 bool CDnaHeightDifference::operator== (const CDnaHeightDifference& rhs) const

@@ -40,17 +40,20 @@ class CDnaHeight : public CDnaMeasurement
 {
 public:
 	CDnaHeight(void);
-	CDnaHeight(const CDnaHeight&);
 	virtual ~CDnaHeight(void);
 
+private:
+	// disallowed in CDnaMeasurement
+	//CDnaHeight(const CDnaHeight&) {};
+	//CDnaHeight& operator=(const CDnaHeight& rhs);
+	
+public:
 	CDnaHeight(const bool bIgnore, const string& strType, const string& strFirst, const double& dValue, const double& dStdDev);
 
-	virtual inline CDnaHeight* clone() const { return new CDnaHeight(*this); }
-	CDnaHeight& operator=(const CDnaHeight& rhs);
 	bool operator==(const CDnaHeight& rhs) const;
 	virtual bool operator<(const CDnaHeight& rhs) const;
 
-	inline CDnaHeight& operator[](int iIndex) { return this[iIndex]; }
+	//inline CDnaHeight& operator[](int iIndex) { return this[iIndex]; }
 
 	inline double GetValue() const { return m_dValue; }
 	inline double GetStdDev() const { return m_dStdDev; }

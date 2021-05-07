@@ -43,19 +43,19 @@ CDnaDistance::~CDnaDistance(void)
 }
 
 
-CDnaDistance::CDnaDistance(const CDnaDistance& newDistance)
-{
-	m_strType = newDistance.m_strType;
-	m_strFirst = newDistance.m_strFirst;
-	m_bIgnore = newDistance.m_bIgnore;
-	m_strTarget = newDistance.m_strTarget;
-	m_dValue = newDistance.m_dValue;
-	m_dStdDev = newDistance.m_dStdDev;
-	m_fInstHeight = newDistance.m_fInstHeight;
-	m_fTargHeight = newDistance.m_fTargHeight;
-	m_MSmeasurementStations = newDistance.m_MSmeasurementStations;
-
-}
+//CDnaDistance::CDnaDistance(const CDnaDistance& newDistance)
+//{
+//	m_strType = newDistance.m_strType;
+//	m_strFirst = newDistance.m_strFirst;
+//	m_bIgnore = newDistance.m_bIgnore;
+//	m_strTarget = newDistance.m_strTarget;
+//	m_dValue = newDistance.m_dValue;
+//	m_dStdDev = newDistance.m_dStdDev;
+//	m_fInstHeight = newDistance.m_fInstHeight;
+//	m_fTargHeight = newDistance.m_fTargHeight;
+//	m_MSmeasurementStations = newDistance.m_MSmeasurementStations;
+//
+//}
 
 
 CDnaDistance::CDnaDistance(const bool bIgnore, const string& strType, const string& strFirst, const string& strTarget, const double& dValue, const double& dStdDev)
@@ -69,22 +69,22 @@ CDnaDistance::CDnaDistance(const bool bIgnore, const string& strType, const stri
 }
 
 
-CDnaDistance& CDnaDistance::operator= (const CDnaDistance& rhs)
-{
-	// check for assignment to self!
-	if (this == &rhs)
-		return *this;
-
-	CDnaMeasurement::operator=(rhs);
-	m_strTarget = rhs.m_strTarget;
-	m_dValue = rhs.m_dValue;
-	m_dStdDev = rhs.m_dStdDev;
-	m_fInstHeight = rhs.m_fInstHeight;
-	m_fTargHeight = rhs.m_fTargHeight;
-	m_MSmeasurementStations = rhs.m_MSmeasurementStations;
-
-	return *this;
-}
+//CDnaDistance& CDnaDistance::operator= (const CDnaDistance& rhs)
+//{
+//	// check for assignment to self!
+//	if (this == &rhs)
+//		return *this;
+//
+//	CDnaMeasurement::operator=(rhs);
+//	m_strTarget = rhs.m_strTarget;
+//	m_dValue = rhs.m_dValue;
+//	m_dStdDev = rhs.m_dStdDev;
+//	m_fInstHeight = rhs.m_fInstHeight;
+//	m_fTargHeight = rhs.m_fTargHeight;
+//	m_MSmeasurementStations = rhs.m_MSmeasurementStations;
+//
+//	return *this;
+//}
 
 
 bool CDnaDistance::operator== (const CDnaDistance& rhs) const

@@ -41,17 +41,17 @@ CDnaAngle::~CDnaAngle(void)
 }
 
 // copy constructors
-CDnaAngle::CDnaAngle(const CDnaAngle& newAngle)
-{
-	m_strType = newAngle.m_strType;
-	m_bIgnore = newAngle.m_bIgnore;
-	m_strFirst = newAngle.m_strFirst;
-	m_strTarget = newAngle.m_strTarget;
-	m_strTarget2 = newAngle.m_strTarget2;
-	m_drValue = newAngle.m_drValue;
-	m_dStdDev = newAngle.m_dStdDev;
-	m_MSmeasurementStations = newAngle.m_MSmeasurementStations;
-}
+//CDnaAngle::CDnaAngle(const CDnaAngle& newAngle)
+//{
+//	m_strType = newAngle.m_strType;
+//	m_bIgnore = newAngle.m_bIgnore;
+//	m_strFirst = newAngle.m_strFirst;
+//	m_strTarget = newAngle.m_strTarget;
+//	m_strTarget2 = newAngle.m_strTarget2;
+//	m_drValue = newAngle.m_drValue;
+//	m_dStdDev = newAngle.m_dStdDev;
+//	m_MSmeasurementStations = newAngle.m_MSmeasurementStations;
+//}
 
 
 CDnaAngle::CDnaAngle(const bool strIgnore, const string& strFirst, const string& strTarget, const string& strTarget2, const double& drValue, const double& dStdDev)
@@ -68,21 +68,21 @@ CDnaAngle::CDnaAngle(const bool strIgnore, const string& strFirst, const string&
 }
 
 
-CDnaAngle& CDnaAngle::operator= (const CDnaAngle& rhs)
-{
-	// check for assignment to self!
-	if (this == &rhs)
-		return *this;
-
-	CDnaMeasurement::operator=(rhs);
-	m_strTarget = rhs.m_strTarget;
-	m_strTarget2 = rhs.m_strTarget2;
-	m_drValue = rhs.m_drValue;
-	m_dStdDev = rhs.m_dStdDev;
-	m_MSmeasurementStations = rhs.m_MSmeasurementStations;
-
-	return *this;
-}
+//CDnaAngle& CDnaAngle::operator= (const CDnaAngle& rhs)
+//{
+//	// check for assignment to self!
+//	if (this == &rhs)
+//		return *this;
+//
+//	CDnaMeasurement::operator=(rhs);
+//	m_strTarget = rhs.m_strTarget;
+//	m_strTarget2 = rhs.m_strTarget2;
+//	m_drValue = rhs.m_drValue;
+//	m_dStdDev = rhs.m_dStdDev;
+//	m_MSmeasurementStations = rhs.m_MSmeasurementStations;
+//
+//	return *this;
+//}
 
 
 bool CDnaAngle::operator== (const CDnaAngle& rhs) const

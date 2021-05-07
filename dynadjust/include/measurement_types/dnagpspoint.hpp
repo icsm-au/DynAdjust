@@ -41,17 +41,25 @@ class CDnaGpsPoint : public CDnaMeasurement
 {
 public:
 	CDnaGpsPoint(void);
-	CDnaGpsPoint(const CDnaGpsPoint&);
 	virtual ~CDnaGpsPoint(void);
 
+	// move constructor and move assignment operator
+	CDnaGpsPoint(CDnaGpsPoint&& g);
+	CDnaGpsPoint& operator=(CDnaGpsPoint&& rhs);
+	
+private:
+	// disallowed in CDnaMeasurement
+	//CDnaGpsPoint(const CDnaGpsPoint&);
+	//CDnaGpsPoint& operator=(const CDnaGpsPoint& rhs);
+
+public:
 	CDnaGpsPoint(const bool bIgnore, const string& strType, const string& strFirstStation);
 
-	virtual inline CDnaGpsPoint* clone() const { return new CDnaGpsPoint(*this); }
-	CDnaGpsPoint& operator=(const CDnaGpsPoint& rhs);
+	//virtual inline CDnaGpsPoint* clone() const { return new CDnaGpsPoint(*this); }
 	bool operator==(const CDnaGpsPoint& rhs) const;
 	virtual bool operator<(const CDnaGpsPoint& rhs) const;
 
-	inline CDnaGpsPoint& operator[](int iIndex) { return this[iIndex]; }
+	//inline CDnaGpsPoint& operator[](int iIndex) { return this[iIndex]; }
 
 	void AddPointCovariance(const CDnaCovariance* pGpsCovariance);
 
@@ -169,19 +177,26 @@ class CDnaGpsPointCluster : public CDnaMeasurement
 {
 public:
 	CDnaGpsPointCluster(void);
-	CDnaGpsPointCluster(const CDnaGpsPointCluster&);
 	virtual ~CDnaGpsPointCluster(void);
 
-	CDnaGpsPointCluster(const bool bIgnore, const string& strType, const string& strFirstStation);
+	// move constructor and move assignment operator
+	CDnaGpsPointCluster(CDnaGpsPointCluster&& p);
+	CDnaGpsPointCluster& operator=(CDnaGpsPointCluster&& rhs);
 
+private:
+	// disallow copying
+	CDnaGpsPointCluster(const CDnaGpsPointCluster&);
+	CDnaGpsPointCluster& operator=(const CDnaGpsPointCluster& rhs);
+
+public:
+	CDnaGpsPointCluster(const bool bIgnore, const string& strType, const string& strFirstStation);
 	CDnaGpsPointCluster(const UINT32 lclusterID, const string& referenceframe, const string& epoch);
 
-	virtual inline CDnaGpsPointCluster* clone() const { return new CDnaGpsPointCluster(*this); }
-	CDnaGpsPointCluster& operator=(const CDnaGpsPointCluster& rhs);
+	//virtual inline CDnaGpsPointCluster* clone() const { return new CDnaGpsPointCluster(*this); }
 	bool operator==(const CDnaGpsPointCluster& rhs) const;
 	virtual bool operator<(const CDnaGpsPointCluster& rhs) const;
 
-	inline CDnaGpsPointCluster& operator[](int iIndex) { return this[iIndex]; }
+	//inline CDnaGpsPointCluster& operator[](int iIndex) { return this[iIndex]; }
 
 	//inline UINT32 GetNumPoints() { return m_vGpsPoints.size(); }
 	inline vector<CDnaGpsPoint>& GetPoints() { return m_vGpsPoints; }
@@ -207,7 +222,7 @@ public:
 	inline string GetReferenceFrame() const { return m_referenceFrame; }
 	inline string GetEpoch() const { return m_epoch; }
 	
-	inline void SetPoints(const vector<CDnaGpsPoint>& d) { m_vGpsPoints = d; }
+	//inline void SetPoints(const vector<CDnaGpsPoint>& d) { m_vGpsPoints = d; }
 	void SetTotal(const string& str);
 	void SetPscale(const string& str);
 	void SetLscale(const string& str);
@@ -225,7 +240,6 @@ public:
 	void ClearPoints();
 
 	virtual UINT32 CalcBinaryRecordCount() const;
-	//virtual UINT32 CalcDbidRecordCount() const;
 	virtual void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) const;
 	virtual UINT32 SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord);
 	virtual UINT32 SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr);

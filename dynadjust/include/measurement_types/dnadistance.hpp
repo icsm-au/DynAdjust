@@ -40,17 +40,20 @@ class CDnaDistance : public CDnaMeasurement
 {
 public:
 	CDnaDistance(void);
-	CDnaDistance(const CDnaDistance&);
 	virtual ~CDnaDistance(void);
 
+private:
+	// disallowed in CDnaMeasurement
+	//CDnaDistance(const CDnaDistance&);
+	//CDnaDistance& operator=(const CDnaDistance& rhs);
+
+public:
 	CDnaDistance(const bool bIgnore, const string& strType, const string& strFirst, const string& strTarget, const double& dValue, const double& dStdDev);
 
-	virtual inline CDnaDistance* clone() const { return new CDnaDistance(*this); }
-	CDnaDistance& operator=(const CDnaDistance& rhs);
 	bool operator==(const CDnaDistance& rhs) const;
 	virtual bool operator<(const CDnaDistance& rhs) const;
 
-	inline CDnaDistance& operator[](int iIndex) { return this[iIndex]; }
+	//inline CDnaDistance& operator[](int iIndex) { return this[iIndex]; }
 
 	inline string GetTarget() const { return m_strTarget; }
 	inline double GetValue() const { return m_dValue; }

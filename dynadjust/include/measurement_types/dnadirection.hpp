@@ -42,17 +42,25 @@ class CDnaDirection : public CDnaMeasurement
 {
 public:
 	CDnaDirection(void);
-	CDnaDirection(const CDnaDirection&);
 	virtual ~CDnaDirection(void);
 
+	// move constructor and move assignment operator
+	CDnaDirection(CDnaDirection&& d);
+	CDnaDirection& operator=(CDnaDirection&& rhs);
+
+private:
+	// disallowed in CDnaMeasurement
+	//CDnaDirection(const CDnaDirection&);
+	//CDnaDirection& operator=(const CDnaDirection& rhs);
+
+public:
 	CDnaDirection(const bool bIgnore, const string& strFirst, const string& strTarget, const double& dValue, const double& dStdDev);
 
-	virtual inline CDnaDirection* clone() const { return new CDnaDirection(*this); }
-	CDnaDirection& operator=(const CDnaDirection& rhs);
+	//virtual inline CDnaDirection* clone() const { return new CDnaDirection(*this); }
 	bool operator==(const CDnaDirection& rhs) const;
 	virtual bool operator<(const CDnaDirection& rhs) const;
 
-	inline CDnaDirection& operator[](int iIndex) { return this[iIndex]; }
+	//inline CDnaDirection& operator[](int iIndex) { return this[iIndex]; }
 
 	inline string GetTarget() const { return m_strTarget; }
 	inline double GetValue() const { return m_drValue; }
@@ -98,16 +106,20 @@ class CDnaAzimuth : public CDnaDirection
 {
 public:
 	CDnaAzimuth(void);
-	CDnaAzimuth(const CDnaAzimuth&);
 	virtual ~CDnaAzimuth(void);
+
+private:
+	// disallowed in CDnaMeasurement
+	//CDnaAzimuth(const CDnaAzimuth&);
+	//CDnaAzimuth& operator=(const CDnaAzimuth& rhs);
+
+public:
 
 	CDnaAzimuth(const bool bIgnore, const string& strFirst, const string& strTarget, const double& drValue, const double& dStdDev, bool bConvertAstroToGeodetic, bool bComputeDeflectionsFromAstro);
 
-	virtual inline CDnaAzimuth* clone() const { return new CDnaAzimuth(*this); }
-	CDnaAzimuth& operator=(const CDnaAzimuth& rhs);
 	bool operator==(const CDnaAzimuth& rhs) const;
 
-	inline CDnaAzimuth& operator[](int iIndex) { return this[iIndex]; }
+	//inline CDnaAzimuth& operator[](int iIndex) { return this[iIndex]; }
 
 protected:
 

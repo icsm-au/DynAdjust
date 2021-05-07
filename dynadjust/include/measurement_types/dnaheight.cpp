@@ -39,16 +39,16 @@ CDnaHeight::~CDnaHeight(void)
 
 }
 
-
-CDnaHeight::CDnaHeight(const CDnaHeight& newHeight)
-{
-	m_strFirst = newHeight.m_strFirst;
-	m_strType = newHeight.m_strType;
-	m_bIgnore = newHeight.m_bIgnore;
-	m_dValue = newHeight.m_dValue;
-	m_dStdDev = newHeight.m_dStdDev;
-	m_MSmeasurementStations = newHeight.m_MSmeasurementStations;
-}
+// copy constructor (disallowed)
+//CDnaHeight::CDnaHeight(const CDnaHeight& newHeight)
+//{
+//	m_strFirst = newHeight.m_strFirst;
+//	m_strType = newHeight.m_strType;
+//	m_bIgnore = newHeight.m_bIgnore;
+//	m_dValue = newHeight.m_dValue;
+//	m_dStdDev = newHeight.m_dStdDev;
+//	m_MSmeasurementStations = newHeight.m_MSmeasurementStations;
+//}
 
 
 CDnaHeight::CDnaHeight(const bool bIgnore, const string& strType, const string& strFirst, const double& dValue, const double& dStdDev)
@@ -61,19 +61,19 @@ CDnaHeight::CDnaHeight(const bool bIgnore, const string& strType, const string& 
 }
 
 
-CDnaHeight& CDnaHeight::operator= (const CDnaHeight& rhs)
-{
-	// check for assignment to self!
-	if (this == &rhs)
-		return *this;
-
-	CDnaMeasurement::operator=(rhs);
-	m_dValue = rhs.m_dValue;
-	m_dStdDev = rhs.m_dStdDev;
-	m_MSmeasurementStations = rhs.m_MSmeasurementStations;
-
-	return *this;
-}
+//CDnaHeight& CDnaHeight::operator= (const CDnaHeight& rhs)
+//{
+//	// check for assignment to self!
+//	if (this == &rhs)
+//		return *this;
+//
+//	CDnaMeasurement::operator=(rhs);
+//	m_dValue = rhs.m_dValue;
+//	m_dStdDev = rhs.m_dStdDev;
+//	m_MSmeasurementStations = rhs.m_MSmeasurementStations;
+//
+//	return *this;
+//}
 
 
 bool CDnaHeight::operator== (const CDnaHeight& rhs) const

@@ -39,15 +39,15 @@ CDnaCoordinate::~CDnaCoordinate(void)
 }
 
 
-CDnaCoordinate::CDnaCoordinate(const CDnaCoordinate& newDistance)
-{
-	m_strFirst = newDistance.m_strFirst;
-	m_drValue = newDistance.m_drValue;
-	m_dStdDev = newDistance.m_dStdDev;
-	m_bIgnore = newDistance.m_bIgnore;
-	m_MSmeasurementStations = newDistance.m_MSmeasurementStations;
-
-}
+//CDnaCoordinate::CDnaCoordinate(const CDnaCoordinate& newDistance)
+//{
+//	m_strFirst = newDistance.m_strFirst;
+//	m_drValue = newDistance.m_drValue;
+//	m_dStdDev = newDistance.m_dStdDev;
+//	m_bIgnore = newDistance.m_bIgnore;
+//	m_MSmeasurementStations = newDistance.m_MSmeasurementStations;
+//
+//}
 
 
 CDnaCoordinate::CDnaCoordinate(const bool bIgnore, const string& strFirst, const double& dValue, const double& dStdDev)
@@ -59,19 +59,19 @@ CDnaCoordinate::CDnaCoordinate(const bool bIgnore, const string& strFirst, const
 }
 
 
-CDnaCoordinate& CDnaCoordinate::operator= (const CDnaCoordinate& rhs)
-{
-	// check for assignment to self!
-	if (this == &rhs)
-		return *this;
-
-	CDnaMeasurement::operator=(rhs);
-	m_drValue = rhs.m_drValue;
-	m_dStdDev = rhs.m_dStdDev;
-	m_MSmeasurementStations = rhs.m_MSmeasurementStations;
-
-	return *this;
-}
+//CDnaCoordinate& CDnaCoordinate::operator= (const CDnaCoordinate& rhs)
+//{
+//	// check for assignment to self!
+//	if (this == &rhs)
+//		return *this;
+//
+//	CDnaMeasurement::operator=(rhs);
+//	m_drValue = rhs.m_drValue;
+//	m_dStdDev = rhs.m_dStdDev;
+//	m_MSmeasurementStations = rhs.m_MSmeasurementStations;
+//
+//	return *this;
+//}
 
 
 bool CDnaCoordinate::operator== (const CDnaCoordinate& rhs) const

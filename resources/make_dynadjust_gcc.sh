@@ -17,6 +17,12 @@ _debug=0 # default option is to build release variant
 _clone=0 # default option is to clone afresh
 _test=0 # default option is to skip cmake tests
 _install=0 # default option is to install binaries
+_binary="all" # default option is to build all binaries
+# _binaries is an array of binary names used to select which binary to build based
+# on user input. The "...wrapper" binaries are ordered first, so that if the user
+# enters part of a name (e.g. "imp"), the script will select the first occurrence
+# of the binary wrapper (e.g. "dnaimportwrapper") rather than the shared object.
+_binaries=(dnaimportwrapper dnaimport dnageoidwrapper dnageoid dnareftranwrapper dnareftran dnasegmentwrapper dnasegment dnaadjustwrapper dnaadjust dnaplotwrapper dnaplot dynadjust)
 
 #################################################################################
 # Common functions
@@ -38,11 +44,13 @@ function help {
     usage
     echo -e "options:"
     echo -e "  -a [ --auto ]          Run automatically with no user interaction."
-    echo -e "  -d [ --debug ]         Compile debug version."
+    echo -e "  -b [ --binary ] arg    Build a specific binary (e.g. \"dnaimport\" or \"dnaadjustwrapper\")."
+    echo -e "                         By default, \"all\" binaries are built."
     echo -e "  -c [ --do-not-clone ]  By default, the latest version will be cloned from GitHub."
-    echo -e "                         Set this option if a clone does not need to be made."
-    echo -e "  -t [ --test ]          Run cmake tests."
+    echo -e "                         Set this option if a clone should not be made."
+    echo -e "  -d [ --debug ]         Compile debug version."
     echo -e "  -n [ --no-install ]    Do not install binaries."
+    echo -e "  -t [ --test ]          Run cmake tests."
     echo -e "  -h [ --help ]          Prints this help message.\n"
     example
     echo ""
@@ -53,19 +61,21 @@ function help {
 while [[ "$1" != "" ]];
 do
    case $1 in
-   -a  | --auto ) 	shift
+   -a  | --auto ) 	
    				  	_auto=1 # run automatically (or silently)
 			    	;;
-   -d  | --debug )  shift
+   -b  | --binary ) shift&&_binary=$1 # get the name of the binary to be built
+			    	;;
+   -d  | --debug )  
    					_debug=1 # compile debug variant
 			        ;;
-   -c  | --do-not-clone )  shift
+   -c  | --do-not-clone )
    					_clone=1 # do not clone from GitHub
 			        ;;
-   -t  | --test )   shift
+   -t  | --test )   
    					_test=1 # run tests
 			        ;;
-   -n  | --no-install ) shift
+   -n  | --no-install )
    					_install=1 # do not install binaries
 			        ;;
    -h   | --help )  help
@@ -77,6 +87,7 @@ do
 					exit 1 # error
                     ;;
     esac
+	shift
 done
 
 echo -e "\n==========================================================================="
@@ -86,6 +97,29 @@ if [[ $_debug -eq 1 || $_test -eq 1 ]]; then
 	echo -e " - debug variant."
 else
 	echo -e " - release variant."
+fi
+
+if [[ $_binary = "all" ]]; then
+	echo -e " - building all binaries."
+else
+	# find equivalence of the whole word
+	#if echo "${_binaries[@]}" | fgrep --word-regexp "$_binary"; then	
+	
+	# find equivalence with any part of a word
+	# this allows dnaimportwrapper to be selected if imp is entered on 
+	# the command line
+	if [[ ${_binaries[@]} =~ ${_binary} ]]; then
+		for binary in ${_binaries[@]}; do
+			if [[ ${binary} =~ "$_binary" ]]; then
+				_binary=${binary}
+				echo -e " - building "$_binary" only."
+				break
+			fi
+		done
+	else
+		echo -e " - building all binaries (I don't know what "$_binary" is)."
+		_binary="all"
+	fi
 fi
 
 if [[ $_auto -eq 1 ]]; then
@@ -244,9 +278,15 @@ case ${_test} in
 esac
 
 echo -e "\n==========================================================================="
-echo -e "Building DynAdjust $_version...\n"
 
-make -j $(nproc) || exit 1
+# Make!
+if [[ $_binary = "all" ]]; then
+	echo -e "Building DynAdjust $_version...\n"
+	make -j $(nproc) || exit 1
+else
+	echo -e "Building DynAdjust (${_binary}) $_version...\n"
+	make -j $(nproc) ${_binary} || exit 1
+fi
 
 echo " "
 

@@ -96,7 +96,7 @@ public:
 
 	CAStationList& operator=(const CAStationList& rhs);
 	inline CAStationList* clone() const { return new CAStationList(*this); }
-	inline CAStationList& operator[](int iIndex) { return this[iIndex]; }
+	//inline CAStationList& operator[](int iIndex) { return this[iIndex]; }
 
 	inline CAStationList* handle() { return this; }
 
@@ -159,7 +159,7 @@ public:
 	CDnaStation& operator=(const CDnaStation& rhs);
 	inline CDnaStation* clone() const { return new CDnaStation(*this); }
 
-	inline CDnaStation& operator[](int iIndex) { return this[iIndex]; }
+	//inline CDnaStation& operator[](int iIndex) { return this[iIndex]; }
 
 	friend bool operator<(const CDnaStation& left, const CDnaStation& right);
 	friend bool operator<(const boost::shared_ptr<CDnaStation>& left, const boost::shared_ptr<CDnaStation>& right);

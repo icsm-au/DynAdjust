@@ -46,17 +46,20 @@ class CDnaCoordinate : public CDnaMeasurement
 {
 public:
 	CDnaCoordinate(void);
-	CDnaCoordinate(const CDnaCoordinate&);
 	virtual ~CDnaCoordinate(void);
 
+private:
+	// disallowed in CDnaMeasurement
+	//CDnaCoordinate(const CDnaCoordinate&);
+	//CDnaCoordinate& operator=(const CDnaCoordinate& rhs);
+
+public:
 	CDnaCoordinate(const bool, const string&, const double&, const double&);
 
-	virtual inline CDnaCoordinate* clone() const { return new CDnaCoordinate(*this); }
-	CDnaCoordinate& operator=(const CDnaCoordinate& rhs);
 	bool operator==(const CDnaCoordinate& rhs) const;
 	virtual bool operator<(const CDnaCoordinate& rhs) const;
 
-	inline CDnaCoordinate& operator[](int iIndex) { return this[iIndex]; }
+	//inline CDnaCoordinate& operator[](int iIndex) { return this[iIndex]; }
 
 	inline double GetValue() const { return m_drValue; }
 	inline double GetStdDev() const { return m_dStdDev; }

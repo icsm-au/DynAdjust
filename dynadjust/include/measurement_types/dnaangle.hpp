@@ -41,17 +41,20 @@ class CDnaAngle : public CDnaMeasurement
 {
 public:
 	CDnaAngle(void);
-	CDnaAngle(const CDnaAngle&);
 	virtual ~CDnaAngle(void);
 
+private:
+	// disallowed in CDnaMeasurement
+	//CDnaAngle(const CDnaAngle&);
+	//CDnaAngle& operator=(const CDnaAngle& rhs);
+
+public:
 	CDnaAngle(const bool strIgnore, const string& strFirst, const string& strTarget, const string& strTarget2, const double& drValue, const double& dStdDev);
 
-	virtual inline CDnaAngle* clone() const { return new CDnaAngle(*this); }
-	CDnaAngle& operator=(const CDnaAngle& rhs);
 	bool operator==(const CDnaAngle& rhs) const;
 	virtual bool operator<(const CDnaAngle& rhs) const;
 
-	inline CDnaAngle& operator[](int iIndex) { return this[iIndex]; }
+	//inline CDnaAngle& operator[](int iIndex) { return this[iIndex]; }
 
 	inline string GetTarget() const { return m_strTarget; }
 	inline string GetTarget2() const { return m_strTarget2; }

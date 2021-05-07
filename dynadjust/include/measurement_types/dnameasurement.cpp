@@ -53,27 +53,28 @@ CDnaCovariance::~CDnaCovariance(void)
 
 }
 
-
-CDnaCovariance::CDnaCovariance(const CDnaCovariance& newCovariance)
+// move constructor
+CDnaCovariance::CDnaCovariance(CDnaCovariance&& c)
 {
-	m_bIgnore = newCovariance.m_bIgnore;
-	m_lstn1Index = newCovariance.m_lstn1Index;
-	m_lstn2Index = newCovariance.m_lstn2Index;
-	m_strType = newCovariance.m_strType;
-	m_dM11 = newCovariance.m_dM11;
-	m_dM12 = newCovariance.m_dM12;
-	m_dM13 = newCovariance.m_dM13;
-	m_dM21 = newCovariance.m_dM21;
-	m_dM22 = newCovariance.m_dM22;
-	m_dM23 = newCovariance.m_dM23;
-	m_dM31 = newCovariance.m_dM31;
-	m_dM32 = newCovariance.m_dM32;
-	m_dM33 = newCovariance.m_dM33;
-	m_lclusterID = newCovariance.m_lclusterID;
+	m_bIgnore = c.m_bIgnore;
+	m_lstn1Index = c.m_lstn1Index;
+	m_lstn2Index = c.m_lstn2Index;
+	m_strType = c.m_strType;
+	m_dM11 = c.m_dM11;
+	m_dM12 = c.m_dM12;
+	m_dM13 = c.m_dM13;
+	m_dM21 = c.m_dM21;
+	m_dM22 = c.m_dM22;
+	m_dM23 = c.m_dM23;
+	m_dM31 = c.m_dM31;
+	m_dM32 = c.m_dM32;
+	m_dM33 = c.m_dM33;
+	m_lclusterID = c.m_lclusterID;
 }
 
 
-CDnaCovariance& CDnaCovariance::operator= (const CDnaCovariance& rhs)
+// move assignment operator
+CDnaCovariance& CDnaCovariance::operator= (CDnaCovariance&& rhs)
 {
 	// check for assignment to self!
 	if (this == &rhs)
@@ -97,6 +98,50 @@ CDnaCovariance& CDnaCovariance::operator= (const CDnaCovariance& rhs)
 	return *this;
 }
 
+//// copy constructor
+//CDnaCovariance::CDnaCovariance(const CDnaCovariance& newCovariance)
+//{
+//	m_bIgnore = newCovariance.m_bIgnore;
+//	m_lstn1Index = newCovariance.m_lstn1Index;
+//	m_lstn2Index = newCovariance.m_lstn2Index;
+//	m_strType = newCovariance.m_strType;
+//	m_dM11 = newCovariance.m_dM11;
+//	m_dM12 = newCovariance.m_dM12;
+//	m_dM13 = newCovariance.m_dM13;
+//	m_dM21 = newCovariance.m_dM21;
+//	m_dM22 = newCovariance.m_dM22;
+//	m_dM23 = newCovariance.m_dM23;
+//	m_dM31 = newCovariance.m_dM31;
+//	m_dM32 = newCovariance.m_dM32;
+//	m_dM33 = newCovariance.m_dM33;
+//	m_lclusterID = newCovariance.m_lclusterID;
+//}
+
+
+//// assignment operator
+//CDnaCovariance& CDnaCovariance::operator= (const CDnaCovariance& rhs)
+//{
+//	// check for assignment to self!
+//	if (this == &rhs)
+//		return *this;
+//
+//	m_bIgnore = rhs.m_bIgnore;
+//	m_lstn1Index = rhs.m_lstn1Index;
+//	m_lstn2Index = rhs.m_lstn2Index;
+//	m_strType = rhs.m_strType;
+//	m_dM11 = rhs.m_dM11;
+//	m_dM12 = rhs.m_dM12;
+//	m_dM13 = rhs.m_dM13;
+//	m_dM21 = rhs.m_dM21;
+//	m_dM22 = rhs.m_dM22;
+//	m_dM23 = rhs.m_dM23;
+//	m_dM31 = rhs.m_dM31;
+//	m_dM32 = rhs.m_dM32;
+//	m_dM33 = rhs.m_dM33;
+//	m_lclusterID = rhs.m_lclusterID;
+//
+//	return *this;
+//}
 
 bool CDnaCovariance::operator== (const CDnaCovariance& rhs) const
 {
@@ -440,33 +485,32 @@ CDnaMeasurement::~CDnaMeasurement()
 {
 }
 
-// copy constructors
-CDnaMeasurement::CDnaMeasurement(const CDnaMeasurement& newMeasurement)
+// move constructor
+CDnaMeasurement::CDnaMeasurement(CDnaMeasurement&& m)
 {
-	m_strType = newMeasurement.m_strType;
-	m_bIgnore = newMeasurement.m_bIgnore;
-	m_strFirst = newMeasurement.m_strFirst;
-	m_MSmeasurementStations = newMeasurement.m_MSmeasurementStations;
-	m_lmeasurementIndex = newMeasurement.m_lmeasurementIndex;
-	m_lstn1Index = newMeasurement.m_lstn1Index;
-	m_lstn2Index = newMeasurement.m_lstn2Index;
-	m_lstn3Index = newMeasurement.m_lstn3Index;
+	m_strType = m.m_strType;
+	m_bIgnore = m.m_bIgnore;
+	m_strFirst = m.m_strFirst;
+	m_MSmeasurementStations = m.m_MSmeasurementStations;
+	m_lmeasurementIndex = m.m_lmeasurementIndex;
+	m_lstn1Index = m.m_lstn1Index;
+	m_lstn2Index = m.m_lstn2Index;
+	m_lstn3Index = m.m_lstn3Index;
 
-	m_measAdj = newMeasurement.m_measAdj;
-	m_measCorr = newMeasurement.m_measCorr;
-	m_measAdjPrec = newMeasurement.m_measAdjPrec;
-	m_residualPrec = newMeasurement.m_residualPrec;
-	m_preAdjCorr = newMeasurement.m_preAdjCorr;
+	m_measAdj = m.m_measAdj;
+	m_measCorr = m.m_measCorr;
+	m_measAdjPrec = m.m_measAdjPrec;
+	m_residualPrec = m.m_residualPrec;
+	m_preAdjCorr = m.m_preAdjCorr;
 
-	m_epsgCode = newMeasurement.m_epsgCode;
+	m_epsgCode = m.m_epsgCode;
 
-	m_msr_db_map = newMeasurement.m_msr_db_map;
-	m_databaseIdSet = newMeasurement.m_databaseIdSet;
+	m_msr_db_map = m.m_msr_db_map;
+	m_databaseIdSet = m.m_databaseIdSet;
 }
 
-
-
-CDnaMeasurement& CDnaMeasurement::operator= (const CDnaMeasurement& rhs)
+// move assignment operator
+CDnaMeasurement& CDnaMeasurement::operator= (CDnaMeasurement&& rhs)
 {
 	// check for assignment to self!
 	if (this == &rhs)
@@ -494,6 +538,61 @@ CDnaMeasurement& CDnaMeasurement::operator= (const CDnaMeasurement& rhs)
 
 	return *this;
 }
+
+//// copy constructor
+//CDnaMeasurement::CDnaMeasurement(const CDnaMeasurement& newMeasurement)
+//{
+//	m_strType = newMeasurement.m_strType;
+//	m_bIgnore = newMeasurement.m_bIgnore;
+//	m_strFirst = newMeasurement.m_strFirst;
+//	m_MSmeasurementStations = newMeasurement.m_MSmeasurementStations;
+//	m_lmeasurementIndex = newMeasurement.m_lmeasurementIndex;
+//	m_lstn1Index = newMeasurement.m_lstn1Index;
+//	m_lstn2Index = newMeasurement.m_lstn2Index;
+//	m_lstn3Index = newMeasurement.m_lstn3Index;
+//
+//	m_measAdj = newMeasurement.m_measAdj;
+//	m_measCorr = newMeasurement.m_measCorr;
+//	m_measAdjPrec = newMeasurement.m_measAdjPrec;
+//	m_residualPrec = newMeasurement.m_residualPrec;
+//	m_preAdjCorr = newMeasurement.m_preAdjCorr;
+//
+//	m_epsgCode = newMeasurement.m_epsgCode;
+//
+//	m_msr_db_map = newMeasurement.m_msr_db_map;
+//	m_databaseIdSet = newMeasurement.m_databaseIdSet;
+//}
+
+
+// assignment operator
+//CDnaMeasurement& CDnaMeasurement::operator= (const CDnaMeasurement& rhs)
+//{
+//	// check for assignment to self!
+//	if (this == &rhs)
+//		return *this;
+//
+//	m_strFirst = rhs.m_strFirst;
+//	m_MSmeasurementStations = rhs.m_MSmeasurementStations;
+//	m_strType = rhs.m_strType;
+//	m_bIgnore = rhs.m_bIgnore;
+//	m_lmeasurementIndex = rhs.m_lmeasurementIndex;
+//	m_lstn1Index = rhs.m_lstn1Index;
+//	m_lstn2Index = rhs.m_lstn2Index;
+//	m_lstn3Index = rhs.m_lstn3Index;
+//
+//	m_measAdj = rhs.m_measAdj;
+//	m_measCorr = rhs.m_measCorr;
+//	m_measAdjPrec = rhs.m_measAdjPrec;
+//	m_residualPrec = rhs.m_residualPrec;
+//	m_preAdjCorr = rhs.m_preAdjCorr;
+//
+//	m_epsgCode = rhs.m_epsgCode;
+//
+//	m_msr_db_map = rhs.m_msr_db_map;
+//	m_databaseIdSet = rhs.m_databaseIdSet;
+//
+//	return *this;
+//}
 
 // virtual functions
 

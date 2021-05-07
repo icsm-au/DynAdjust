@@ -45,46 +45,34 @@ CDnaDirection::~CDnaDirection(void)
 {
 }
 
-// copy constructors
-CDnaDirection::CDnaDirection(const CDnaDirection& newDirection)
+// move constructor
+CDnaDirection::CDnaDirection(CDnaDirection&& d)
 {
-	m_strFirst = newDirection.m_strFirst;
-	m_bIgnore = newDirection.m_bIgnore;
-	m_strTarget = newDirection.m_strTarget;
-	m_drValue = newDirection.m_drValue;
-	m_dStdDev = newDirection.m_dStdDev;
-	m_fInstHeight = newDirection.m_fInstHeight;
-	m_fTargHeight = newDirection.m_fTargHeight;
-	m_lRecordedTotal = newDirection.m_lRecordedTotal;
-	m_lsetID = newDirection.m_lsetID;
-	m_MSmeasurementStations = newDirection.m_MSmeasurementStations;
+	m_strFirst = d.m_strFirst;
+	m_bIgnore = d.m_bIgnore;
+	m_strTarget = d.m_strTarget;
+	m_drValue = d.m_drValue;
+	m_dStdDev = d.m_dStdDev;
+	m_fInstHeight = d.m_fInstHeight;
+	m_fTargHeight = d.m_fTargHeight;
+	m_lRecordedTotal = d.m_lRecordedTotal;
+	m_lsetID = d.m_lsetID;
+	m_MSmeasurementStations = d.m_MSmeasurementStations;
 
 	m_strType = "D";
 
-	m_databaseIdSet = newDirection.m_databaseIdSet;
-	m_msr_db_map = newDirection.m_msr_db_map;
+	m_databaseIdSet = d.m_databaseIdSet;
+	m_msr_db_map = d.m_msr_db_map;
 }
 
-
-CDnaDirection::CDnaDirection(const bool bIgnore, const string& strFirst, const string& strTarget, const double& drValue, const double& dStdDev)
-{
-	m_strType = "D";
-	m_strFirst = strFirst;
-	m_bIgnore = bIgnore;
-	m_strTarget = strTarget;
-	m_drValue = drValue;
-	m_dStdDev = dStdDev;
-	m_lRecordedTotal = 0;
-	m_lsetID = 0;
-}
-
-CDnaDirection& CDnaDirection::operator= (const CDnaDirection& rhs)
+// move assignment operator 
+CDnaDirection& CDnaDirection::operator= (CDnaDirection&& rhs)
 {
 	// check for assignment to self!
 	if (this == &rhs)
 		return *this;
 
-	CDnaMeasurement::operator=(rhs);
+	CDnaMeasurement::operator=(std::move(rhs));
 	m_strTarget = rhs.m_strTarget;
 	m_drValue = rhs.m_drValue;
 	m_dStdDev = rhs.m_dStdDev;
@@ -99,6 +87,67 @@ CDnaDirection& CDnaDirection::operator= (const CDnaDirection& rhs)
 
 	return *this;
 }
+
+
+
+
+
+
+//// copy constructor (disabled)
+//CDnaDirection::CDnaDirection(const CDnaDirection& newDirection)
+//{
+//	m_strFirst = newDirection.m_strFirst;
+//	m_bIgnore = newDirection.m_bIgnore;
+//	m_strTarget = newDirection.m_strTarget;
+//	m_drValue = newDirection.m_drValue;
+//	m_dStdDev = newDirection.m_dStdDev;
+//	m_fInstHeight = newDirection.m_fInstHeight;
+//	m_fTargHeight = newDirection.m_fTargHeight;
+//	m_lRecordedTotal = newDirection.m_lRecordedTotal;
+//	m_lsetID = newDirection.m_lsetID;
+//	m_MSmeasurementStations = newDirection.m_MSmeasurementStations;
+//
+//	m_strType = "D";
+//
+//	m_databaseIdSet = newDirection.m_databaseIdSet;
+//	m_msr_db_map = newDirection.m_msr_db_map;
+//}
+
+
+CDnaDirection::CDnaDirection(const bool bIgnore, const string& strFirst, const string& strTarget, const double& drValue, const double& dStdDev)
+{
+	m_strType = "D";
+	m_strFirst = strFirst;
+	m_bIgnore = bIgnore;
+	m_strTarget = strTarget;
+	m_drValue = drValue;
+	m_dStdDev = dStdDev;
+	m_lRecordedTotal = 0;
+	m_lsetID = 0;
+}
+
+// assignment operator (disabled)
+//CDnaDirection& CDnaDirection::operator= (const CDnaDirection& rhs)
+//{
+//	// check for assignment to self!
+//	if (this == &rhs)
+//		return *this;
+//
+//	CDnaMeasurement::operator=(rhs);
+//	m_strTarget = rhs.m_strTarget;
+//	m_drValue = rhs.m_drValue;
+//	m_dStdDev = rhs.m_dStdDev;
+//	m_fInstHeight = rhs.m_fInstHeight;
+//	m_fTargHeight = rhs.m_fTargHeight;
+//	m_lRecordedTotal = rhs.m_lRecordedTotal;
+//	m_lsetID = rhs.m_lsetID;
+//	m_MSmeasurementStations = rhs.m_MSmeasurementStations;
+//
+//	m_databaseIdSet = rhs.m_databaseIdSet;
+//	m_msr_db_map = rhs.m_msr_db_map;
+//
+//	return *this;
+//}
 
 
 bool CDnaDirection::operator== (const CDnaDirection& rhs) const
@@ -632,17 +681,17 @@ CDnaAzimuth::~CDnaAzimuth(void)
 }
 
 // copy constructors
-CDnaAzimuth::CDnaAzimuth(const CDnaAzimuth& newAzimuth)
-{
-	m_strType = newAzimuth.m_strType;
-	m_strFirst = newAzimuth.m_strFirst;
-	m_bIgnore = newAzimuth.m_bIgnore;
-	m_strTarget = newAzimuth.m_strTarget;
-	m_drValue = newAzimuth.m_drValue;
-	m_dStdDev = newAzimuth.m_dStdDev;
-	m_MSmeasurementStations = newAzimuth.m_MSmeasurementStations;
-
-}
+//CDnaAzimuth::CDnaAzimuth(const CDnaAzimuth& newAzimuth)
+//{
+//	m_strType = newAzimuth.m_strType;
+//	m_strFirst = newAzimuth.m_strFirst;
+//	m_bIgnore = newAzimuth.m_bIgnore;
+//	m_strTarget = newAzimuth.m_strTarget;
+//	m_drValue = newAzimuth.m_drValue;
+//	m_dStdDev = newAzimuth.m_dStdDev;
+//	m_MSmeasurementStations = newAzimuth.m_MSmeasurementStations;
+//
+//}
 
 
 CDnaAzimuth::CDnaAzimuth(const bool bIgnore, const string& strFirst, const string& strTarget, const double& drValue, const double& dStdDev, bool bConvertAstroToGeodetic, bool bComputeDeflectionsFromAstro)
@@ -654,22 +703,22 @@ CDnaAzimuth::CDnaAzimuth(const bool bIgnore, const string& strFirst, const strin
 }
 
 
-CDnaAzimuth& CDnaAzimuth::operator= (const CDnaAzimuth& rhs)
-{
-	// check for assignment to self!
-	if (this == &rhs)
-		return *this;
-
-	CDnaMeasurement::operator=(rhs);
-	m_strTarget = rhs.m_strTarget;
-	m_drValue = rhs.m_drValue;
-	m_dStdDev = rhs.m_dStdDev;
-	m_lRecordedTotal = rhs.m_lRecordedTotal;
-	m_lsetID = rhs.m_lsetID;
-	m_MSmeasurementStations = rhs.m_MSmeasurementStations;
-
-	return *this;
-}
+//CDnaAzimuth& CDnaAzimuth::operator= (const CDnaAzimuth& rhs)
+//{
+//	// check for assignment to self!
+//	if (this == &rhs)
+//		return *this;
+//
+//	CDnaMeasurement::operator=(rhs);
+//	m_strTarget = rhs.m_strTarget;
+//	m_drValue = rhs.m_drValue;
+//	m_dStdDev = rhs.m_dStdDev;
+//	m_lRecordedTotal = rhs.m_lRecordedTotal;
+//	m_lsetID = rhs.m_lsetID;
+//	m_MSmeasurementStations = rhs.m_MSmeasurementStations;
+//
+//	return *this;
+//}
 
 
 bool CDnaAzimuth::operator== (const CDnaAzimuth& rhs) const

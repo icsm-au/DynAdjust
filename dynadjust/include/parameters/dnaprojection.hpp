@@ -59,7 +59,7 @@ private:
 	CDnaProjection& operator=(const CDnaProjection& rhs);
 	bool operator==(const CDnaProjection& rhs) const;
 	
-	inline CDnaProjection& operator[](int iIndex) { return this[iIndex]; }
+	//inline CDnaProjection& operator[](int iIndex) { return this[iIndex]; }
 
 public:
 

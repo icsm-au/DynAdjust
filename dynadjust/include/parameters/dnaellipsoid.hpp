@@ -55,14 +55,14 @@ public:
 	CDnaEllipsoid(const double& a, const double& inv_f);
 	
 	virtual inline ~CDnaEllipsoid(void) {}
-	virtual inline CDnaEllipsoid* clone() const { 
-		return new CDnaEllipsoid(*this); 
-	}
+//	virtual inline CDnaEllipsoid* clone() const { 
+//		return new CDnaEllipsoid(*this); 
+//	}
 
 	CDnaEllipsoid& operator=(const CDnaEllipsoid& rhs);
 	bool operator==(const CDnaEllipsoid& rhs) const;
 
-	inline CDnaEllipsoid& operator[](int iIndex) { return this[iIndex]; }
+	//inline CDnaEllipsoid& operator[](int iIndex) { return this[iIndex]; }
 
 	inline double GetE1() const { return m_dEccen1; }
 	inline double GetE2() const { return m_dEccen2; }
