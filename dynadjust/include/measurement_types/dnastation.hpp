@@ -247,22 +247,22 @@ public:
 	inline void SetStationUse(bool use) { m_unusedStation = use; }
 
 	void SetConstraints(const string& str);
-	void SetConstraints(const char&, const char&, const char&);
-	void SetConstraints(const double&, const double&, const double&);
-	void SetConstraints(const double&, const double&);
-	void SetConstraints(const double&);
-	void SetLatConstraint(const char&);
-	void SetLonConstraint(const char&);
-	void SetHtConstraint(const char&);
+	//void SetConstraints(const char&, const char&, const char&);
+	//void SetConstraints(const double&, const double&, const double&);
+	//void SetConstraints(const double&, const double&);
+	//void SetConstraints(const double&);
+	//void SetLatConstraint(const char&);
+	//void SetLonConstraint(const char&);
+	//void SetHtConstraint(const char&);
 
 	void SetXAxisStdDev(const string& str);
 	void SetYAxisStdDev(const string& str);
 	void SetHeightStdDev(const string& str);
 
-	void SetXAxis(const char&, string, string, string);
-	void SetYAxis(const char&, string, string, string);
+	//void SetXAxis(const char&, string, string, string);
+	//void SetYAxis(const char&, string, string, string);
 
-	void UpdateConstraintsString();
+	//void UpdateConstraintsString();
 
 	void PrepareStnData(double& lat_east_x,	double& lon_north_y, double& ht_zone_z,
 		string& hemisphereZone, string& coordinateType,

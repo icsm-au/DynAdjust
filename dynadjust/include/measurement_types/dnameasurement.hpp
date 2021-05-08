@@ -514,9 +514,9 @@ public:
 	void initialise();
 
 	MsrTally& operator+=(const MsrTally& rhs);
-	MsrTally& operator-=(const MsrTally& rhs);
+	//MsrTally& operator-=(const MsrTally& rhs);
 	MsrTally operator+(const MsrTally& rhs) const;
-	MsrTally operator-(const MsrTally& rhs) const;
+	//MsrTally operator-(const MsrTally& rhs) const;
 	UINT32 TotalCount();
 	void coutSummary(ostream &os, const string& title);
 	UINT32 MeasurementCount(const char& msrType);
@@ -527,7 +527,7 @@ public:
 	void coutSummaryMsrToStn(ostream &os, const string& station);
 	void coutSummaryMsrToStn_Compressed(ostream &os, const string& station);
 
-	bool GPSOnly();	
+	//bool GPSOnly();	
 	inline bool ContainsNonGPS() { return containsNonGPS; }
 
 	static _MEASUREMENT_STATIONS_ Stations(const char& measType);
