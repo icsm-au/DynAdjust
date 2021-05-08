@@ -353,13 +353,13 @@ if (BUILD_TESTING)
     add_test (NAME import-dbid COMMAND $<TARGET_FILE:dnaimportwrapper> -n dbid ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-ignored.msr) 
     add_test (NAME adjust-dbid-01 COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --output-adj-msr --output-database-ids --output-ignored-msrs --sort-adj-msr-field 6 --output-msr-to-stn --sort-msr-to-stn-field 1 --output-iter-adj-stn --output-iter-adj-stat --output-iter-adj-msr --output-iter-cmp-msr)
     add_test (NAME adjust-dbid-02 COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --scale-normals-to-unity)
-    add_test (NAME adjust-dbid-03 COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --report-results --output-adj-msr --output-pos-uncertainty --output-apu-vcv-units 1)
+    add_test (NAME adjust-dbid-03 COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --report-results --output-adj-msr --output-pos-uncertainty --output-apu-vcv-units 1 --constraints "236300210,CCC")
     add_test (NAME adjust-dbid-04 COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --comments "This is a comment that is quite lengthy in content and is relatively meaningless.  Feel free to delete this comment.")
     add_test (NAME adjust-dbid-05 COMMAND $<TARGET_FILE:dnaadjustwrapper> -p dbid.dnaproj)
 
     # 13. Renaming, no export of flagged stations, no network name, non-contiguous networks, import block, nearby stations
     add_test (NAME import-misc-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-ignored.msr --stn-renaming-file ${CMAKE_SOURCE_DIR}/../sampleData/dsg.renaming --export-xml)
-    add_test (NAME import-misc-02 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg-retained.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-retained.msr --search-similar-msr --export-dna --export-xml --single-xml-file)
+    add_test (NAME import-misc-02 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg-retained.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-retained.msr --search-similar-msr --export-dna --export-xml --single-xml-file --output-msr-to-stn)
     add_test (NAME import-misc-03 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-retained.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-retained.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-ignored.msr --search-similar-msr --ignore-similar-msr --flag-unused-stations)
     add_test (NAME import-misc-04 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-retained.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-ignored.msr --export-xml)
     add_test (NAME segment-misc-plt COMMAND $<TARGET_FILE:dnasegmentwrapper> misc --min 500 --max 500)
@@ -540,9 +540,12 @@ if (BUILD_TESTING)
     add_test (NAME segment-no-memmap COMMAND $<TARGET_FILE:dnasegmentwrapper> memmap --min 2 --max 3)
     add_test (NAME adjust-no-memmap-01 COMMAND $<TARGET_FILE:dnaadjustwrapper> memmap --staged --create --purge)
     add_test (NAME adjust-no-memmap-02 COMMAND $<TARGET_FILE:dnaadjustwrapper> memmap --staged)
+    add_test (NAME adjust-no-stn-exists COMMAND $<TARGET_FILE:dnaadjustwrapper> memmap --constraints "no-name,CCC")
+    add_test (NAME adjust-no-constraint COMMAND $<TARGET_FILE:dnaadjustwrapper> memmap --constraints "236300210,AAA")
     
     set_tests_properties(
-        adjust-no-option adjust-no-project adjust-no-name adjust-no-help adjust-no-bst-bms adjust-no-seg adjust-no-memmap-02
+        adjust-no-option adjust-no-project adjust-no-name adjust-no-help adjust-no-bst-bms adjust-no-seg 
+        adjust-no-memmap-02 adjust-no-stn-exists adjust-no-constraint
         PROPERTIES WILL_FAIL TRUE)
 
     ### PLOT ###
