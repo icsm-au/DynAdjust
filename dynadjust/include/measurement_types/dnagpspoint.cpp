@@ -32,8 +32,7 @@ namespace dynadjust {
 namespace measurements {
 
 CDnaGpsPoint::CDnaGpsPoint(void)
-	: m_strTarget("")
-	, m_lRecordedTotal(0)
+	: m_lRecordedTotal(0)
 	, m_dX(0.)
 	, m_dY(0.)
 	, m_dZ(0.)
@@ -72,7 +71,6 @@ CDnaGpsPoint::CDnaGpsPoint(CDnaGpsPoint&& p)
 {
 	m_strType = p.m_strType;
 	m_strFirst = p.m_strFirst;
-	m_strTarget = p.m_strTarget;
 	m_lRecordedTotal = p.m_lRecordedTotal;
 	m_bIgnore = p.m_bIgnore;
 
@@ -114,7 +112,6 @@ CDnaGpsPoint& CDnaGpsPoint::operator= (CDnaGpsPoint&& rhs)
 		return *this;
 
 	CDnaMeasurement::operator=(std::move(rhs));
-	m_strTarget = rhs.m_strTarget;
 	m_lRecordedTotal = rhs.m_lRecordedTotal;
 
 	m_referenceFrame = rhs.m_referenceFrame;
@@ -154,7 +151,6 @@ CDnaGpsPoint& CDnaGpsPoint::operator= (CDnaGpsPoint&& rhs)
 //{
 //	m_strType = newGpsPoint.m_strType;
 //	m_strFirst = newGpsPoint.m_strFirst;
-//	m_strTarget = newGpsPoint.m_strTarget;
 //	m_lRecordedTotal = newGpsPoint.m_lRecordedTotal;
 //	m_bIgnore = newGpsPoint.m_bIgnore;
 //
@@ -208,7 +204,6 @@ CDnaGpsPoint& CDnaGpsPoint::operator= (CDnaGpsPoint&& rhs)
 //		return *this;
 //
 //	CDnaMeasurement::operator=(rhs);
-//	m_strTarget = rhs.m_strTarget;
 //	m_lRecordedTotal = rhs.m_lRecordedTotal;
 //
 //	m_referenceFrame = rhs.m_referenceFrame;
@@ -248,7 +243,6 @@ bool CDnaGpsPoint::operator== (const CDnaGpsPoint& rhs) const
 {
 	return (
 		m_strFirst == rhs.m_strFirst &&
-		m_strTarget == rhs.m_strTarget &&
 		m_strType == rhs.m_strType &&
 		m_lRecordedTotal == rhs.m_lRecordedTotal &&
 		m_bIgnore == rhs.m_bIgnore &&
@@ -263,25 +257,22 @@ bool CDnaGpsPoint::operator== (const CDnaGpsPoint& rhs) const
 bool CDnaGpsPoint::operator< (const CDnaGpsPoint& rhs) const
 {
 	if (m_strFirst == rhs.m_strFirst) {
-		if (m_strTarget == rhs.m_strTarget) {
-			if (m_strType == rhs.m_strType) {
-				if (m_lRecordedTotal == rhs.m_lRecordedTotal) {
-					if (m_bIgnore == rhs.m_bIgnore) {
-						if (fabs(m_dX - rhs.m_dX) < PRECISION_1E4) {
-							if (fabs(m_dY - rhs.m_dY) < PRECISION_1E4) {
-								return m_dZ < rhs.m_dZ; }
-							else
-								return m_dY < rhs.m_dY; }
+		if (m_strType == rhs.m_strType) {
+			if (m_lRecordedTotal == rhs.m_lRecordedTotal) {
+				if (m_bIgnore == rhs.m_bIgnore) {
+					if (fabs(m_dX - rhs.m_dX) < PRECISION_1E4) {
+						if (fabs(m_dY - rhs.m_dY) < PRECISION_1E4) {
+							return m_dZ < rhs.m_dZ; }
 						else
-							return m_dX < rhs.m_dX; }
+							return m_dY < rhs.m_dY; }
 					else
-						return m_bIgnore < rhs.m_bIgnore; }
+						return m_dX < rhs.m_dX; }
 				else
-					return m_lRecordedTotal < rhs.m_lRecordedTotal;	}
+					return m_bIgnore < rhs.m_bIgnore; }
 			else
-				return m_strType < rhs.m_strType; }
+				return m_lRecordedTotal < rhs.m_lRecordedTotal;	}
 		else
-			return m_strTarget < rhs.m_strTarget; }
+			return m_strType < rhs.m_strType; }
 	else
 		return m_strFirst < rhs.m_strFirst;
 }
@@ -827,7 +818,7 @@ void CDnaGpsPoint::SerialiseDatabaseMap(std::ofstream* os)
 //void CDnaGpsPoint::coutPointData(ostream &os) const
 //{
 //	os << left << setw(4) << " " << setw(INST_WIDTH) << m_strFirst;
-//	os << setw(TARG_WIDTH) << (m_strTarget.empty() ? " " : m_strTarget);
+//	os << setw(TARG_WIDTH) << " ";
 //	string ignoreFlag = " ";
 //	if (m_bIgnore)
 //		ignoreFlag = "*";
@@ -882,25 +873,25 @@ void CDnaGpsPoint::SetReferenceFrame(const string& refFrame)
 }
 
 
-void CDnaGpsPoint::SetPscale(const string& str)
-{
-	DoubleFromString(m_dPscale, trimstr(str));
-}
+//void CDnaGpsPoint::SetPscale(const string& str)
+//{
+//	DoubleFromString(m_dPscale, trimstr(str));
+//}
 
-void CDnaGpsPoint::SetLscale(const string& str)
-{
-	DoubleFromString(m_dLscale, trimstr(str));
-}
+//void CDnaGpsPoint::SetLscale(const string& str)
+//{
+//	DoubleFromString(m_dLscale, trimstr(str));
+//}
 
-void CDnaGpsPoint::SetHscale(const string& str)
-{
-	DoubleFromString(m_dHscale, trimstr(str));
-}
+//void CDnaGpsPoint::SetHscale(const string& str)
+//{
+//	DoubleFromString(m_dHscale, trimstr(str));
+//}
 
-void CDnaGpsPoint::SetVscale(const string& str)
-{
-	DoubleFromString(m_dVscale, trimstr(str));
-}
+//void CDnaGpsPoint::SetVscale(const string& str)
+//{
+//	DoubleFromString(m_dVscale, trimstr(str));
+//}
 
 void CDnaGpsPoint::SetX(const string& str)
 {
@@ -985,8 +976,7 @@ void CDnaGpsPoint::SetSigmaZZ(const string& str)
 
 
 CDnaGpsPointCluster::CDnaGpsPointCluster(void)
-	: m_strTarget("")
-	, m_lRecordedTotal(0)
+	: m_lRecordedTotal(0)
 	, m_dPscale(1.)
 	, m_dLscale(1.)
 	, m_dHscale(1.)
@@ -1014,7 +1004,6 @@ CDnaGpsPointCluster::CDnaGpsPointCluster(CDnaGpsPointCluster&& p)
 {
 	m_strType = p.m_strType;
 	m_bIgnore = p.m_bIgnore;
-	m_strTarget = p.m_strTarget;
 	m_lRecordedTotal = p.m_lRecordedTotal;
 	SetCoordType(p.m_strCoordType);
 	m_vGpsPoints = std::move(p.m_vGpsPoints);
@@ -1043,7 +1032,6 @@ CDnaGpsPointCluster& CDnaGpsPointCluster::operator= (CDnaGpsPointCluster&& rhs)
 		return *this;
 
 	CDnaMeasurement::operator=(std::move(rhs));
-	m_strTarget = rhs.m_strTarget;
 	m_lRecordedTotal = rhs.m_lRecordedTotal;
 	SetCoordType(rhs.m_strCoordType);
 
@@ -1072,7 +1060,6 @@ CDnaGpsPointCluster& CDnaGpsPointCluster::operator= (CDnaGpsPointCluster&& rhs)
 //{
 //	m_strType = newGpsPointCluster.m_strType;
 //	m_bIgnore = newGpsPointCluster.m_bIgnore;
-//	m_strTarget = newGpsPointCluster.m_strTarget;
 //	m_lRecordedTotal = newGpsPointCluster.m_lRecordedTotal;
 //	SetCoordType(newGpsPointCluster.m_strCoordType);
 //	m_vGpsPoints = newGpsPointCluster.m_vGpsPoints;
@@ -1101,8 +1088,7 @@ CDnaGpsPointCluster& CDnaGpsPointCluster::operator= (CDnaGpsPointCluster&& rhs)
 //}
 
 CDnaGpsPointCluster::CDnaGpsPointCluster(const UINT32 lclusterID, const string& referenceframe, const string& epoch)
-	: m_strTarget("")
-	, m_lRecordedTotal(0)
+	: m_lRecordedTotal(0)
 	, m_dPscale(1.)
 	, m_dLscale(1.)
 	, m_dHscale(1.)
@@ -1128,7 +1114,6 @@ CDnaGpsPointCluster::CDnaGpsPointCluster(const UINT32 lclusterID, const string& 
 //		return *this;
 //
 //	CDnaMeasurement::operator=(rhs);
-//	m_strTarget = rhs.m_strTarget;
 //	m_lRecordedTotal = rhs.m_lRecordedTotal;
 //	SetCoordType(rhs.m_strCoordType);
 //
@@ -1159,7 +1144,6 @@ bool CDnaGpsPointCluster::operator== (const CDnaGpsPointCluster& rhs) const
 		m_strType == rhs.m_strType &&
 		m_strFirst == rhs.m_strFirst &&
 		m_bIgnore == rhs.m_bIgnore &&
-		m_strTarget == rhs.m_strTarget &&
 		m_lRecordedTotal == rhs.m_lRecordedTotal &&
 		m_strCoordType == rhs.m_strCoordType &&
 		m_dPscale == rhs.m_dPscale &&
@@ -1175,16 +1159,13 @@ bool CDnaGpsPointCluster::operator< (const CDnaGpsPointCluster& rhs) const
 	if (m_strFirst == rhs.m_strFirst) {
 		if (m_strType == rhs.m_strType) {
 			if (m_bIgnore == rhs.m_bIgnore) {
-				if (m_strTarget == rhs.m_strTarget) {
-					if (m_strCoordType == rhs.m_strCoordType) {
-						if (m_lRecordedTotal == rhs.m_lRecordedTotal) 
-							return m_vGpsPoints < rhs.m_vGpsPoints;
-						else
-							return m_lRecordedTotal < rhs.m_lRecordedTotal; }
+				if (m_strCoordType == rhs.m_strCoordType) {
+					if (m_lRecordedTotal == rhs.m_lRecordedTotal) 
+						return m_vGpsPoints < rhs.m_vGpsPoints;
 					else
-						return m_strCoordType < rhs.m_strCoordType; }
+						return m_lRecordedTotal < rhs.m_lRecordedTotal; }
 				else
-					return m_strTarget < rhs.m_strTarget; }
+					return m_strCoordType < rhs.m_strCoordType; }
 			else
 				return m_bIgnore < rhs.m_bIgnore; }
 		else

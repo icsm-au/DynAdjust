@@ -36,7 +36,6 @@ void Clusterpoint_pimpl::pre()
 	_dnaGpsPoint->SetType(_parent_dnaGpsPointCluster->GetType());
 	_dnaGpsPoint->SetCoordType(_parent_dnaGpsPointCluster->GetCoordType());
 	_dnaGpsPoint->SetFirst(_parent_dnaGpsPointCluster->GetFirst());
-	_dnaGpsPoint->SetTarget(_parent_dnaGpsPointCluster->GetTarget());
 	_dnaGpsPoint->SetClusterID(_parent_dnaGpsPointCluster->GetClusterID());
 	
 	_dnaGpsPoint->SetReferenceFrame(_parent_dnaGpsPointCluster->GetReferenceFrame());

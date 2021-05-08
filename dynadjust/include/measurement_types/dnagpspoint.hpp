@@ -65,12 +65,10 @@ public:
 
 	inline UINT32 GetClusterID() const { return m_lclusterID; }
 	inline string GetCoordType() const { return m_strCoordType; }
-	inline string GetTarget() const { return m_strTarget; }
-
+	
 	inline vector<CDnaCovariance>* GetCovariances_ptr() { return &m_vPointCovariances; }
 
 	inline void SetClusterID(const UINT32& id) { m_lclusterID = id; }
-	inline void SetTarget(const string& str) { m_strTarget = trimstr(str); }
 	void SetX(const string& str);
 	void SetY(const string& str);
 	void SetZ(const string& str);
@@ -87,10 +85,10 @@ public:
 	inline string GetReferenceFrame() const { return m_referenceFrame; }
 	inline string GetEpoch() const { return m_epoch; }
 		
-	void SetPscale(const string& str);
-	void SetLscale(const string& str);
-	void SetHscale(const string& str);
-	void SetVscale(const string& str);
+	//void SetPscale(const string& str);
+	//void SetLscale(const string& str);
+	//void SetHscale(const string& str);
+	//void SetVscale(const string& str);
 
 	inline void SetTotal(const UINT32& l) { m_lRecordedTotal = l; }
 
@@ -130,8 +128,6 @@ public:
 		const UINT32& stn, const CDnaDatum* datum, math::matrix_2d* estimates, math::matrix_2d* variances);
 
 	virtual void SerialiseDatabaseMap(std::ofstream* os);
-
-	string m_strTarget;
 
 	inline double GetVscale() const { return m_dVscale; }
 	inline double GetPscale() const { return m_dPscale; }
@@ -205,13 +201,11 @@ public:
 	inline UINT32 GetClusterID() const { return m_lclusterID; }
 	inline string GetCoordType() const { return m_strCoordType; }
 	inline UINT32 GetTotal() const { return m_lRecordedTotal; }
-	inline string GetTarget() const { return m_strTarget; }
 	inline double GetPscale() const { return m_dPscale; }
 	inline double GetLscale() const { return m_dLscale; }
 	inline double GetHscale() const { return m_dHscale; }
 	inline double GetVscale() const { return m_dVscale; }
 
-	inline void SetTarget(const string& str) { m_strTarget = trimstr(str); }
 	void SetCoordType(const string& str);
 
 	_COORD_TYPE_ GetMyCoordTypeC();
@@ -254,7 +248,6 @@ public:
 
 protected:
 
-	string m_strTarget;
 	UINT32 m_lRecordedTotal;
 	double m_dPscale;
 	double m_dLscale;
