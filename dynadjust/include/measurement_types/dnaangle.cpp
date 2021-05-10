@@ -41,48 +41,48 @@ CDnaAngle::~CDnaAngle(void)
 }
 
 // copy constructors
-CDnaAngle::CDnaAngle(const CDnaAngle& newAngle)
-{
-	m_strType = newAngle.m_strType;
-	m_bIgnore = newAngle.m_bIgnore;
-	m_strFirst = newAngle.m_strFirst;
-	m_strTarget = newAngle.m_strTarget;
-	m_strTarget2 = newAngle.m_strTarget2;
-	m_drValue = newAngle.m_drValue;
-	m_dStdDev = newAngle.m_dStdDev;
-	m_MSmeasurementStations = newAngle.m_MSmeasurementStations;
-}
+//CDnaAngle::CDnaAngle(const CDnaAngle& newAngle)
+//{
+//	m_strType = newAngle.m_strType;
+//	m_bIgnore = newAngle.m_bIgnore;
+//	m_strFirst = newAngle.m_strFirst;
+//	m_strTarget = newAngle.m_strTarget;
+//	m_strTarget2 = newAngle.m_strTarget2;
+//	m_drValue = newAngle.m_drValue;
+//	m_dStdDev = newAngle.m_dStdDev;
+//	m_MSmeasurementStations = newAngle.m_MSmeasurementStations;
+//}
 
 
-CDnaAngle::CDnaAngle(const bool strIgnore, const string& strFirst, const string& strTarget, const string& strTarget2, const double& drValue, const double& dStdDev)
-{
-	m_strType = "A";
-	m_bIgnore = strIgnore;
-	m_strFirst = strFirst;
-	m_strTarget = strTarget;
-	m_strTarget2 = strTarget2;
-	m_drValue = drValue;
-	m_dStdDev = dStdDev;
+//CDnaAngle::CDnaAngle(const bool strIgnore, const string& strFirst, const string& strTarget, const string& strTarget2, const double& drValue, const double& dStdDev)
+//{
+//	m_strType = "A";
+//	m_bIgnore = strIgnore;
+//	m_strFirst = strFirst;
+//	m_strTarget = strTarget;
+//	m_strTarget2 = strTarget2;
+//	m_drValue = drValue;
+//	m_dStdDev = dStdDev;
+//
+//
+//}
 
 
-}
-
-
-CDnaAngle& CDnaAngle::operator= (const CDnaAngle& rhs)
-{
-	// check for assignment to self!
-	if (this == &rhs)
-		return *this;
-
-	CDnaMeasurement::operator=(rhs);
-	m_strTarget = rhs.m_strTarget;
-	m_strTarget2 = rhs.m_strTarget2;
-	m_drValue = rhs.m_drValue;
-	m_dStdDev = rhs.m_dStdDev;
-	m_MSmeasurementStations = rhs.m_MSmeasurementStations;
-
-	return *this;
-}
+//CDnaAngle& CDnaAngle::operator= (const CDnaAngle& rhs)
+//{
+//	// check for assignment to self!
+//	if (this == &rhs)
+//		return *this;
+//
+//	CDnaMeasurement::operator=(rhs);
+//	m_strTarget = rhs.m_strTarget;
+//	m_strTarget2 = rhs.m_strTarget2;
+//	m_drValue = rhs.m_drValue;
+//	m_dStdDev = rhs.m_dStdDev;
+//	m_MSmeasurementStations = rhs.m_MSmeasurementStations;
+//
+//	return *this;
+//}
 
 
 bool CDnaAngle::operator== (const CDnaAngle& rhs) const
@@ -251,38 +251,38 @@ void CDnaAngle::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* ellipsoi
 }
 	
 
-UINT32 CDnaAngle::SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord)
-{
-	char stationName[STN_NAME_WIDTH];
-	m_strType = measRecord->measType;
-	m_bIgnore = measRecord->ignore;
-	m_MSmeasurementStations = (MEASUREMENT_STATIONS)measRecord->measurementStations;
-	
-	// first station
-	m_lstn1Index = measRecord->station1;
-	ifs_stns->seekg(sizeof(UINT32) + measRecord->station1 * sizeof(station_t), ios::beg);
-	ifs_stns->read(reinterpret_cast<char *>(&stationName), sizeof(stationName));
-	m_strFirst = stationName;
-	// target station
-	m_lstn2Index = measRecord->station2;
-	ifs_stns->seekg(sizeof(UINT32) + measRecord->station2 * sizeof(station_t), ios::beg);
-	ifs_stns->read(reinterpret_cast<char *>(&stationName), sizeof(stationName));
-	m_strTarget = stationName;
-	// target2 station
-	m_lstn3Index = measRecord->station3;
-	ifs_stns->seekg(sizeof(UINT32) + measRecord->station3 * sizeof(station_t), ios::beg);
-	ifs_stns->read(reinterpret_cast<char *>(&stationName), sizeof(stationName));
-	m_strTarget2 = stationName;
-	
-	m_measAdj = measRecord->measAdj;
-	m_measCorr = measRecord->measCorr;
-	m_measAdjPrec = measRecord->measAdjPrec;
-	m_residualPrec = measRecord->residualPrec;
-	m_preAdjCorr = measRecord->preAdjCorr;
-	m_drValue = measRecord->term1;
-	m_dStdDev = sqrt(measRecord->term2);
-	return 0;
-}
+//UINT32 CDnaAngle::SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord)
+//{
+//	char stationName[STN_NAME_WIDTH];
+//	m_strType = measRecord->measType;
+//	m_bIgnore = measRecord->ignore;
+//	m_MSmeasurementStations = (MEASUREMENT_STATIONS)measRecord->measurementStations;
+//	
+//	// first station
+//	m_lstn1Index = measRecord->station1;
+//	ifs_stns->seekg(sizeof(UINT32) + measRecord->station1 * sizeof(station_t), ios::beg);
+//	ifs_stns->read(reinterpret_cast<char *>(&stationName), sizeof(stationName));
+//	m_strFirst = stationName;
+//	// target station
+//	m_lstn2Index = measRecord->station2;
+//	ifs_stns->seekg(sizeof(UINT32) + measRecord->station2 * sizeof(station_t), ios::beg);
+//	ifs_stns->read(reinterpret_cast<char *>(&stationName), sizeof(stationName));
+//	m_strTarget = stationName;
+//	// target2 station
+//	m_lstn3Index = measRecord->station3;
+//	ifs_stns->seekg(sizeof(UINT32) + measRecord->station3 * sizeof(station_t), ios::beg);
+//	ifs_stns->read(reinterpret_cast<char *>(&stationName), sizeof(stationName));
+//	m_strTarget2 = stationName;
+//	
+//	m_measAdj = measRecord->measAdj;
+//	m_measCorr = measRecord->measCorr;
+//	m_measAdjPrec = measRecord->measAdjPrec;
+//	m_residualPrec = measRecord->residualPrec;
+//	m_preAdjCorr = measRecord->preAdjCorr;
+//	m_drValue = measRecord->term1;
+//	m_dStdDev = sqrt(measRecord->term2);
+//	return 0;
+//}
 	
 
 UINT32 CDnaAngle::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr)

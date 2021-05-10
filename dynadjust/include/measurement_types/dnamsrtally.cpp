@@ -101,52 +101,52 @@ MsrTally& MsrTally::operator+=(const MsrTally& rhs) {
 }
 	
 
-MsrTally& MsrTally::operator-=(const MsrTally& rhs) {
-	if (A >= rhs.A)
-		A -= rhs.A;
-	if (B >= rhs.B)
-		B -= rhs.B;
-	if (C >= rhs.C)
-		C -= rhs.C;
-	if (D >= rhs.D)
-		D -= rhs.D;
-	if (E >= rhs.E)
-		E -= rhs.E;
-	if (G >= rhs.G)
-		G -= rhs.G;
-	if (H >= rhs.H)
-		H -= rhs.H;
-	if (I >= rhs.I)
-		I -= rhs.I;
-	if (J >= rhs.J)
-		J -= rhs.J;
-	if (K >= rhs.K)
-		K -= rhs.K;
-	if (L >= rhs.L)
-		L -= rhs.L;
-	if (M >= rhs.M)
-		M -= rhs.M;
-	if (P >= rhs.P)
-		P -= rhs.P;
-	if (Q >= rhs.Q)
-		Q -= rhs.Q;
-	if (R >= rhs.R)
-		R -= rhs.R;
-	if (S >= rhs.S)
-		S -= rhs.S;
-	if (V >= rhs.V)
-		V -= rhs.V;
-	if (X >= rhs.X)
-		X -= rhs.X;
-	if (Y >= rhs.Y)
-		Y -= rhs.Y;
-	if (Z >= rhs.Z)
-		Z -= rhs.Z;
-	if (ignored >= rhs.ignored)
-		ignored -= rhs.ignored;
-	TotalCount();
-	return *this;
-}
+//MsrTally& MsrTally::operator-=(const MsrTally& rhs) {
+//	if (A >= rhs.A)
+//		A -= rhs.A;
+//	if (B >= rhs.B)
+//		B -= rhs.B;
+//	if (C >= rhs.C)
+//		C -= rhs.C;
+//	if (D >= rhs.D)
+//		D -= rhs.D;
+//	if (E >= rhs.E)
+//		E -= rhs.E;
+//	if (G >= rhs.G)
+//		G -= rhs.G;
+//	if (H >= rhs.H)
+//		H -= rhs.H;
+//	if (I >= rhs.I)
+//		I -= rhs.I;
+//	if (J >= rhs.J)
+//		J -= rhs.J;
+//	if (K >= rhs.K)
+//		K -= rhs.K;
+//	if (L >= rhs.L)
+//		L -= rhs.L;
+//	if (M >= rhs.M)
+//		M -= rhs.M;
+//	if (P >= rhs.P)
+//		P -= rhs.P;
+//	if (Q >= rhs.Q)
+//		Q -= rhs.Q;
+//	if (R >= rhs.R)
+//		R -= rhs.R;
+//	if (S >= rhs.S)
+//		S -= rhs.S;
+//	if (V >= rhs.V)
+//		V -= rhs.V;
+//	if (X >= rhs.X)
+//		X -= rhs.X;
+//	if (Y >= rhs.Y)
+//		Y -= rhs.Y;
+//	if (Z >= rhs.Z)
+//		Z -= rhs.Z;
+//	if (ignored >= rhs.ignored)
+//		ignored -= rhs.ignored;
+//	TotalCount();
+//	return *this;
+//}
 
 MsrTally MsrTally::operator+(const MsrTally& rhs) const {
 	MsrTally t = *this;
@@ -155,18 +155,18 @@ MsrTally MsrTally::operator+(const MsrTally& rhs) const {
 }
 	
 
-MsrTally MsrTally::operator-(const MsrTally& rhs) const {
-	MsrTally t = *this;
-	t -= rhs;
-	return t;
-}
+//MsrTally MsrTally::operator-(const MsrTally& rhs) const {
+//	MsrTally t = *this;
+//	t -= rhs;
+//	return t;
+//}
 
-bool MsrTally::GPSOnly()
-{
-	if (G+X+Y == totalCount)
-		return true;
-	return false;
-}
+//bool MsrTally::GPSOnly()
+//{
+//	if (G+X+Y == totalCount)
+//		return true;
+//	return false;
+//}
 
 UINT32 MsrTally::TotalCount() {
 	containsNonGPS = (A || B || C || D || E || H || I || J || K || L || M || P || Q || R || S || V || Z);

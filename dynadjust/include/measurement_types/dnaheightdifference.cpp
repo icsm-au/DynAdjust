@@ -41,43 +41,44 @@ CDnaHeightDifference::~CDnaHeightDifference(void)
 }
 
 
-CDnaHeightDifference::CDnaHeightDifference(const CDnaHeightDifference& newHeightDifference)
-{
-	m_strFirst = newHeightDifference.m_strFirst;
-	m_strTarget = newHeightDifference.m_strTarget;
-	m_strType = newHeightDifference.m_strType;
-	m_bIgnore = newHeightDifference.m_bIgnore;
-	m_dValue = newHeightDifference.m_dValue;
-	m_dStdDev = newHeightDifference.m_dStdDev;
-	m_MSmeasurementStations = newHeightDifference.m_MSmeasurementStations;
-}
+// copy constructor (disallowed)
+//CDnaHeightDifference::CDnaHeightDifference(const CDnaHeightDifference& newHeightDifference)
+//{
+//	m_strFirst = newHeightDifference.m_strFirst;
+//	m_strTarget = newHeightDifference.m_strTarget;
+//	m_strType = newHeightDifference.m_strType;
+//	m_bIgnore = newHeightDifference.m_bIgnore;
+//	m_dValue = newHeightDifference.m_dValue;
+//	m_dStdDev = newHeightDifference.m_dStdDev;
+//	m_MSmeasurementStations = newHeightDifference.m_MSmeasurementStations;
+//}
 
 
-CDnaHeightDifference::CDnaHeightDifference(const bool bIgnore, const string& strType, const string& strFirst, const string& strTarget, const double& dValue, const double& dStdDev)
-{
-	m_strFirst = strFirst;
-	m_strTarget = strTarget;
-	m_strType = strType;
-	m_bIgnore = bIgnore;
-	m_dValue = dValue;
-	m_dStdDev = dStdDev;
-}
+//CDnaHeightDifference::CDnaHeightDifference(const bool bIgnore, const string& strType, const string& strFirst, const string& strTarget, const double& dValue, const double& dStdDev)
+//{
+//	m_strFirst = strFirst;
+//	m_strTarget = strTarget;
+//	m_strType = strType;
+//	m_bIgnore = bIgnore;
+//	m_dValue = dValue;
+//	m_dStdDev = dStdDev;
+//}
 
 
-CDnaHeightDifference& CDnaHeightDifference::operator= (const CDnaHeightDifference& rhs)
-{
-	// check for assignment to self!
-	if (this == &rhs)
-		return *this;
-
-	CDnaMeasurement::operator=(rhs);
-	m_strTarget = rhs.m_strTarget;
-	m_dValue = rhs.m_dValue;
-	m_dStdDev = rhs.m_dStdDev;
-	m_MSmeasurementStations = rhs.m_MSmeasurementStations;
-
-	return *this;
-}
+//CDnaHeightDifference& CDnaHeightDifference::operator= (const CDnaHeightDifference& rhs)
+//{
+//	// check for assignment to self!
+//	if (this == &rhs)
+//		return *this;
+//
+//	CDnaMeasurement::operator=(rhs);
+//	m_strTarget = rhs.m_strTarget;
+//	m_dValue = rhs.m_dValue;
+//	m_dStdDev = rhs.m_dStdDev;
+//	m_MSmeasurementStations = rhs.m_MSmeasurementStations;
+//
+//	return *this;
+//}
 
 
 bool CDnaHeightDifference::operator== (const CDnaHeightDifference& rhs) const
@@ -201,33 +202,33 @@ void CDnaHeightDifference::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoi
 }
 	
 
-UINT32 CDnaHeightDifference::SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord)
-{
-	char stationName[STN_NAME_WIDTH];
-	m_strType = measRecord->measType;
-	m_bIgnore = measRecord->ignore;
-	m_MSmeasurementStations = (MEASUREMENT_STATIONS)measRecord->measurementStations;
-	
-	// first station
-	m_lstn1Index = measRecord->station1;
-	ifs_stns->seekg(sizeof(UINT32) + measRecord->station1 * sizeof(station_t), ios::beg);
-	ifs_stns->read(reinterpret_cast<char *>(&stationName), sizeof(stationName));
-	m_strFirst = stationName;
-	// target station
-	m_lstn2Index = measRecord->station2;
-	ifs_stns->seekg(sizeof(UINT32) + measRecord->station2 * sizeof(station_t), ios::beg);
-	ifs_stns->read(reinterpret_cast<char *>(&stationName), sizeof(stationName));
-	m_strTarget = stationName;
-
-	m_measAdj = measRecord->measAdj;
-	m_measCorr = measRecord->measCorr;
-	m_measAdjPrec = measRecord->measAdjPrec;
-	m_residualPrec = measRecord->residualPrec;
-	m_preAdjCorr = measRecord->preAdjCorr;
-	m_dValue = measRecord->term1;
-	m_dStdDev = sqrt(measRecord->term2);
-	return 0;
-}
+//UINT32 CDnaHeightDifference::SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord)
+//{
+//	char stationName[STN_NAME_WIDTH];
+//	m_strType = measRecord->measType;
+//	m_bIgnore = measRecord->ignore;
+//	m_MSmeasurementStations = (MEASUREMENT_STATIONS)measRecord->measurementStations;
+//	
+//	// first station
+//	m_lstn1Index = measRecord->station1;
+//	ifs_stns->seekg(sizeof(UINT32) + measRecord->station1 * sizeof(station_t), ios::beg);
+//	ifs_stns->read(reinterpret_cast<char *>(&stationName), sizeof(stationName));
+//	m_strFirst = stationName;
+//	// target station
+//	m_lstn2Index = measRecord->station2;
+//	ifs_stns->seekg(sizeof(UINT32) + measRecord->station2 * sizeof(station_t), ios::beg);
+//	ifs_stns->read(reinterpret_cast<char *>(&stationName), sizeof(stationName));
+//	m_strTarget = stationName;
+//
+//	m_measAdj = measRecord->measAdj;
+//	m_measCorr = measRecord->measCorr;
+//	m_measAdjPrec = measRecord->measAdjPrec;
+//	m_residualPrec = measRecord->residualPrec;
+//	m_preAdjCorr = measRecord->preAdjCorr;
+//	m_dValue = measRecord->term1;
+//	m_dStdDev = sqrt(measRecord->term2);
+//	return 0;
+//}
 
 
 UINT32 CDnaHeightDifference::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr)

@@ -73,7 +73,7 @@ public:
 	CDnaDatum& operator=(const CDnaDatum& rhs);
 	bool operator==(const CDnaDatum& rhs) const;
 	
-	inline CDnaDatum& operator[](int iIndex) { return this[iIndex]; }
+	//inline CDnaDatum& operator[](int iIndex) { return this[iIndex]; }
 
 	inline CDnaEllipsoid GetEllipsoid() const { return ellipsoid_; }
 	inline const CDnaEllipsoid* GetEllipsoidRef() const { return &ellipsoid_; }

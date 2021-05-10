@@ -46,17 +46,20 @@ class CDnaCoordinate : public CDnaMeasurement
 {
 public:
 	CDnaCoordinate(void);
-	CDnaCoordinate(const CDnaCoordinate&);
 	virtual ~CDnaCoordinate(void);
 
-	CDnaCoordinate(const bool, const string&, const double&, const double&);
+private:
+	// disallowed in CDnaMeasurement
+	//CDnaCoordinate(const CDnaCoordinate&);
+	//CDnaCoordinate& operator=(const CDnaCoordinate& rhs);
 
-	virtual inline CDnaCoordinate* clone() const { return new CDnaCoordinate(*this); }
-	CDnaCoordinate& operator=(const CDnaCoordinate& rhs);
+public:
+	//CDnaCoordinate(const bool, const string&, const double&, const double&);
+
 	bool operator==(const CDnaCoordinate& rhs) const;
 	virtual bool operator<(const CDnaCoordinate& rhs) const;
 
-	inline CDnaCoordinate& operator[](int iIndex) { return this[iIndex]; }
+	//inline CDnaCoordinate& operator[](int iIndex) { return this[iIndex]; }
 
 	inline double GetValue() const { return m_drValue; }
 	inline double GetStdDev() const { return m_dStdDev; }
@@ -66,7 +69,7 @@ public:
 
 	inline virtual UINT32 CalcBinaryRecordCount() const { return 1; }
 	virtual void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) const;
-	virtual UINT32 SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord);
+	//virtual UINT32 SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord);
 	virtual UINT32 SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr);
 	virtual void WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool bSubMeasurement = false) const;
 	virtual void WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool bSubMeasurement = false) const;

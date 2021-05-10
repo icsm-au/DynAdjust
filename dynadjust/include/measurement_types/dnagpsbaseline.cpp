@@ -63,63 +63,51 @@ CDnaGpsBaseline::~CDnaGpsBaseline(void)
 
 }
 
-
-CDnaGpsBaseline::CDnaGpsBaseline(const CDnaGpsBaseline& newGpsBaseline)
+// move constructor
+CDnaGpsBaseline::CDnaGpsBaseline(CDnaGpsBaseline&& g)
 {
-	m_strType = newGpsBaseline.m_strType;
-	m_strFirst = newGpsBaseline.m_strFirst;
-	m_strTarget = newGpsBaseline.m_strTarget;
-	m_bIgnore = newGpsBaseline.m_bIgnore;
-	m_lRecordedTotal = newGpsBaseline.m_lRecordedTotal;
-
-	m_referenceFrame = newGpsBaseline.m_referenceFrame;
-	m_epsgCode = newGpsBaseline.m_epsgCode;
-	m_epoch = newGpsBaseline.m_epoch;
-
-	m_dX = newGpsBaseline.m_dX;
-	m_dY = newGpsBaseline.m_dY;
-	m_dZ = newGpsBaseline.m_dZ;
-	m_dSigmaXX = newGpsBaseline.m_dSigmaXX;
-	m_dSigmaXY = newGpsBaseline.m_dSigmaXY;
-	m_dSigmaXZ = newGpsBaseline.m_dSigmaXZ;
-	m_dSigmaYY = newGpsBaseline.m_dSigmaYY;
-	m_dSigmaYZ = newGpsBaseline.m_dSigmaYZ;
-	m_dSigmaZZ = newGpsBaseline.m_dSigmaZZ;
-
-	m_dPscale = newGpsBaseline.m_dPscale;
-	m_dLscale = newGpsBaseline.m_dLscale;
-	m_dHscale = newGpsBaseline.m_dHscale;
-	m_dVscale = newGpsBaseline.m_dVscale;
-
-	m_lclusterID = newGpsBaseline.m_lclusterID;
-	m_MSmeasurementStations = newGpsBaseline.m_MSmeasurementStations;
-
-	m_vGpsCovariances = newGpsBaseline.m_vGpsCovariances;
-
-	m_databaseIdSet = newGpsBaseline.m_databaseIdSet;
-	m_msr_db_map = newGpsBaseline.m_msr_db_map;
+	m_strType = g.m_strType;
+	m_strFirst = g.m_strFirst;
+	m_strTarget = g.m_strTarget;
+	m_bIgnore = g.m_bIgnore;
+	m_lRecordedTotal = g.m_lRecordedTotal;
+	
+	m_referenceFrame = g.m_referenceFrame;
+	m_epsgCode = g.m_epsgCode;
+	m_epoch = g.m_epoch;
+	
+	m_dX = g.m_dX;
+	m_dY = g.m_dY;
+	m_dZ = g.m_dZ;
+	m_dSigmaXX = g.m_dSigmaXX;
+	m_dSigmaXY = g.m_dSigmaXY;
+	m_dSigmaXZ = g.m_dSigmaXZ;
+	m_dSigmaYY = g.m_dSigmaYY;
+	m_dSigmaYZ = g.m_dSigmaYZ;
+	m_dSigmaZZ = g.m_dSigmaZZ;
+	
+	m_dPscale = g.m_dPscale;
+	m_dLscale = g.m_dLscale;
+	m_dHscale = g.m_dHscale;
+	m_dVscale = g.m_dVscale;
+	
+	m_lclusterID = g.m_lclusterID;
+	m_MSmeasurementStations = g.m_MSmeasurementStations;
+	
+	m_vGpsCovariances = std::move(g.m_vGpsCovariances);
+	
+	m_databaseIdSet = g.m_databaseIdSet;
+	m_msr_db_map = g.m_msr_db_map;
 }
 
-
-CDnaGpsBaseline::CDnaGpsBaseline(const bool bIgnore, const string& strType, const string& strFirstStation, const string& strSecondStation)
-{
-	m_strFirst = strFirstStation;
-	m_strTarget = strSecondStation;
-	m_bIgnore = bIgnore;
-
-	m_referenceFrame = DEFAULT_DATUM;
-	m_epoch = DEFAULT_EPOCH;
-	SetEpsg(epsgStringFromName<string>(m_referenceFrame));
-}
-
-
-CDnaGpsBaseline& CDnaGpsBaseline::operator= (const CDnaGpsBaseline& rhs)
+// move assignment operator
+CDnaGpsBaseline& CDnaGpsBaseline::operator= (CDnaGpsBaseline&& rhs)
 {
 	// check for assignment to self!
 	if (this == &rhs)
 		return *this;
 
-	CDnaMeasurement::operator=(rhs);
+	CDnaMeasurement::operator=(std::move(rhs));
 	m_strTarget = rhs.m_strTarget;
 	m_lRecordedTotal = rhs.m_lRecordedTotal;
 
@@ -145,13 +133,103 @@ CDnaGpsBaseline& CDnaGpsBaseline::operator= (const CDnaGpsBaseline& rhs)
 	m_lclusterID = rhs.m_lclusterID;
 	m_MSmeasurementStations = rhs.m_MSmeasurementStations;
 
-	m_vGpsCovariances = rhs.m_vGpsCovariances;
+	m_vGpsCovariances = std::move(rhs.m_vGpsCovariances);
 
 	m_databaseIdSet = rhs.m_databaseIdSet;
 	m_msr_db_map = rhs.m_msr_db_map;
 
 	return *this;
 }
+
+
+//CDnaGpsBaseline::CDnaGpsBaseline(const CDnaGpsBaseline& newGpsBaseline)
+//{
+//	m_strType = newGpsBaseline.m_strType;
+//	m_strFirst = newGpsBaseline.m_strFirst;
+//	m_strTarget = newGpsBaseline.m_strTarget;
+//	m_bIgnore = newGpsBaseline.m_bIgnore;
+//	m_lRecordedTotal = newGpsBaseline.m_lRecordedTotal;
+//
+//	m_referenceFrame = newGpsBaseline.m_referenceFrame;
+//	m_epsgCode = newGpsBaseline.m_epsgCode;
+//	m_epoch = newGpsBaseline.m_epoch;
+//
+//	m_dX = newGpsBaseline.m_dX;
+//	m_dY = newGpsBaseline.m_dY;
+//	m_dZ = newGpsBaseline.m_dZ;
+//	m_dSigmaXX = newGpsBaseline.m_dSigmaXX;
+//	m_dSigmaXY = newGpsBaseline.m_dSigmaXY;
+//	m_dSigmaXZ = newGpsBaseline.m_dSigmaXZ;
+//	m_dSigmaYY = newGpsBaseline.m_dSigmaYY;
+//	m_dSigmaYZ = newGpsBaseline.m_dSigmaYZ;
+//	m_dSigmaZZ = newGpsBaseline.m_dSigmaZZ;
+//
+//	m_dPscale = newGpsBaseline.m_dPscale;
+//	m_dLscale = newGpsBaseline.m_dLscale;
+//	m_dHscale = newGpsBaseline.m_dHscale;
+//	m_dVscale = newGpsBaseline.m_dVscale;
+//
+//	m_lclusterID = newGpsBaseline.m_lclusterID;
+//	m_MSmeasurementStations = newGpsBaseline.m_MSmeasurementStations;
+//
+//	m_vGpsCovariances = newGpsBaseline.m_vGpsCovariances;
+//
+//	m_databaseIdSet = newGpsBaseline.m_databaseIdSet;
+//	m_msr_db_map = newGpsBaseline.m_msr_db_map;
+//}
+
+
+//CDnaGpsBaseline::CDnaGpsBaseline(const bool bIgnore, const string& strType, const string& strFirstStation, const string& strSecondStation)
+//{
+//	m_strFirst = strFirstStation;
+//	m_strTarget = strSecondStation;
+//	m_bIgnore = bIgnore;
+//
+//	m_referenceFrame = DEFAULT_DATUM;
+//	m_epoch = DEFAULT_EPOCH;
+//	SetEpsg(epsgStringFromName<string>(m_referenceFrame));
+//}
+
+
+//CDnaGpsBaseline& CDnaGpsBaseline::operator= (const CDnaGpsBaseline& rhs)
+//{
+//	// check for assignment to self!
+//	if (this == &rhs)
+//		return *this;
+//
+//	CDnaMeasurement::operator=(rhs);
+//	m_strTarget = rhs.m_strTarget;
+//	m_lRecordedTotal = rhs.m_lRecordedTotal;
+//
+//	m_referenceFrame = rhs.m_referenceFrame;
+//	m_epsgCode = rhs.m_epsgCode;
+//	m_epoch = rhs.m_epoch;
+//
+//	m_dX = rhs.m_dX;
+//	m_dY = rhs.m_dY;
+//	m_dZ = rhs.m_dZ;
+//	m_dSigmaXX = rhs.m_dSigmaXX;
+//	m_dSigmaXY = rhs.m_dSigmaXY;
+//	m_dSigmaXZ = rhs.m_dSigmaXZ;
+//	m_dSigmaYY = rhs.m_dSigmaYY;
+//	m_dSigmaYZ = rhs.m_dSigmaYZ;
+//	m_dSigmaZZ = rhs.m_dSigmaZZ;
+//
+//	m_dPscale = rhs.m_dPscale;
+//	m_dLscale = rhs.m_dLscale;
+//	m_dHscale = rhs.m_dHscale;
+//	m_dVscale = rhs.m_dVscale;
+//
+//	m_lclusterID = rhs.m_lclusterID;
+//	m_MSmeasurementStations = rhs.m_MSmeasurementStations;
+//
+//	m_vGpsCovariances = rhs.m_vGpsCovariances;
+//
+//	m_databaseIdSet = rhs.m_databaseIdSet;
+//	m_msr_db_map = rhs.m_msr_db_map;
+//
+//	return *this;
+//}
 
 
 bool CDnaGpsBaseline::operator== (const CDnaGpsBaseline& rhs) const
@@ -209,8 +287,9 @@ void CDnaGpsBaseline::ResizeGpsCovariancesCount(const UINT32& size)
 
 void CDnaGpsBaseline::AddGpsCovariance(const CDnaCovariance* pGpsCovariance)
 {
-	CDnaCovariance vcv = (CDnaCovariance&)*pGpsCovariance;
-	m_vGpsCovariances.push_back(vcv);
+	//CDnaCovariance vcv = (CDnaCovariance&)*pGpsCovariance;
+	//m_vGpsCovariances.push_back(vcv);
+	m_vGpsCovariances.push_back(std::move((CDnaCovariance&)*pGpsCovariance));
 }
 	
 
@@ -224,59 +303,59 @@ UINT32 CDnaGpsBaseline::CalcBinaryRecordCount() const
 }
 
 
-void CDnaGpsBaseline::coutBaselineData(ostream &os, const int& pad, const UINT16& uType) const
-{
-	size_t i, j;
-	string ignoreFlag;
-
-	switch (uType)
-	{
-	case DNA_COUT:
-	case GEOLAB_COUT:
-		// normal format
-		os << setw(pad) << left << m_strFirst;
-		os << setw(TARG_WIDTH) << m_strTarget;
-		ignoreFlag = " ";
-
-		if (m_bIgnore)
-			ignoreFlag = "*";
-		j = m_vGpsCovariances.size();
-		os << setw(2) << ignoreFlag << setw(8) << setprecision(3) << fixed << m_dPscale << setw(2) << "X" << setw(MSR2_WIDTH) << right << m_dX << setw(VAR_WIDTH) << scientific << m_dSigmaXX << setw(VAR_WIDTH) << m_dSigmaXY << setw(VAR_WIDTH) << m_dSigmaXZ;
-		for (i=0; i<j; i++)
-			os << setw(COV_WIDTH) << m_vGpsCovariances[i].GetM11() << setw(COV_WIDTH) << m_vGpsCovariances[i].GetM12() << setw(COV_WIDTH) << m_vGpsCovariances[i].GetM13();
-		os << endl;
-		os << setw(4) << " " << 
-			setw(pad) << " " << setw(TARG_WIDTH) << " " <<
-			setw(2) << left << ignoreFlag << setw(8) << setprecision(3) << fixed << m_dLscale << setw(2) << "Y" << setw(MSR2_WIDTH) << right << m_dY << setw(VAR_WIDTH) << " " << setw(VAR_WIDTH) << scientific << m_dSigmaYY << setw(VAR_WIDTH) << m_dSigmaYZ;
-		for (i=0; i<j; i++)
-			os << setw(COV_WIDTH) << m_vGpsCovariances[i].GetM21() << setw(COV_WIDTH) << m_vGpsCovariances[i].GetM22() << setw(COV_WIDTH) << m_vGpsCovariances[i].GetM23();
-		os << endl;
-		os << setw(4) << " " <<
-			setw(pad) << " " << setw(TARG_WIDTH) << " " <<
-			setw(2) << left << ignoreFlag << setw(8) << setprecision(3) << fixed << m_dHscale << setw(2) << "Z" << setw(MSR2_WIDTH) << right << m_dZ << setw(VAR_WIDTH) << " " << setw(VAR_WIDTH) << " " << setw(VAR_WIDTH) << scientific << m_dSigmaZZ;
-		for (i=0; i<j; i++)
-			os << setw(COV_WIDTH) << m_vGpsCovariances[i].GetM31() << setw(COV_WIDTH) << m_vGpsCovariances[i].GetM32() << setw(COV_WIDTH) << m_vGpsCovariances[i].GetM33();
-		os << endl;
-		break;
-	case NEWGAN_COUT:
-
-		// NEWGAN format (ignore correlations)
-		const float M2TOCM2 = 10000.;
-		os << endl << "115" << endl;
-		os << setw(3) << "116" << setw(3) << " " << setw(9) << m_strFirst << setw(3) << " " << setw(9) << m_strTarget;
-		ignoreFlag = " ";
-
-		if (m_bIgnore)
-			ignoreFlag = "*";
-		j = m_vGpsCovariances.size();
-		os << setw(23) << setprecision(4) << fixed << m_dX << setw(13) << m_dY << setw(13) << m_dZ << endl;
-		os << "117" << setw(8) << "UPPER" << endl;
-		os << setw(26) << setprecision(8) << scientific << m_dSigmaXX * M2TOCM2 << setw(20) << m_dSigmaXY * M2TOCM2 << setw(20) << m_dSigmaXZ * M2TOCM2 << endl;
-		os << setw(26) << setprecision(8) << scientific << m_dSigmaYY * M2TOCM2 << setw(20) << m_dSigmaYZ * M2TOCM2 << endl;
-		os << setw(26) << setprecision(8) << scientific << m_dSigmaZZ * M2TOCM2 << endl;
-		break;
-	}
-}
+//void CDnaGpsBaseline::coutBaselineData(ostream &os, const int& pad, const UINT16& uType) const
+//{
+//	size_t i, j;
+//	string ignoreFlag;
+//
+//	switch (uType)
+//	{
+//	case DNA_COUT:
+//	case GEOLAB_COUT:
+//		// normal format
+//		os << setw(pad) << left << m_strFirst;
+//		os << setw(TARG_WIDTH) << m_strTarget;
+//		ignoreFlag = " ";
+//
+//		if (m_bIgnore)
+//			ignoreFlag = "*";
+//		j = m_vGpsCovariances.size();
+//		os << setw(2) << ignoreFlag << setw(8) << setprecision(3) << fixed << m_dPscale << setw(2) << "X" << setw(MSR2_WIDTH) << right << m_dX << setw(VAR_WIDTH) << scientific << m_dSigmaXX << setw(VAR_WIDTH) << m_dSigmaXY << setw(VAR_WIDTH) << m_dSigmaXZ;
+//		for (i=0; i<j; i++)
+//			os << setw(COV_WIDTH) << m_vGpsCovariances[i].GetM11() << setw(COV_WIDTH) << m_vGpsCovariances[i].GetM12() << setw(COV_WIDTH) << m_vGpsCovariances[i].GetM13();
+//		os << endl;
+//		os << setw(4) << " " << 
+//			setw(pad) << " " << setw(TARG_WIDTH) << " " <<
+//			setw(2) << left << ignoreFlag << setw(8) << setprecision(3) << fixed << m_dLscale << setw(2) << "Y" << setw(MSR2_WIDTH) << right << m_dY << setw(VAR_WIDTH) << " " << setw(VAR_WIDTH) << scientific << m_dSigmaYY << setw(VAR_WIDTH) << m_dSigmaYZ;
+//		for (i=0; i<j; i++)
+//			os << setw(COV_WIDTH) << m_vGpsCovariances[i].GetM21() << setw(COV_WIDTH) << m_vGpsCovariances[i].GetM22() << setw(COV_WIDTH) << m_vGpsCovariances[i].GetM23();
+//		os << endl;
+//		os << setw(4) << " " <<
+//			setw(pad) << " " << setw(TARG_WIDTH) << " " <<
+//			setw(2) << left << ignoreFlag << setw(8) << setprecision(3) << fixed << m_dHscale << setw(2) << "Z" << setw(MSR2_WIDTH) << right << m_dZ << setw(VAR_WIDTH) << " " << setw(VAR_WIDTH) << " " << setw(VAR_WIDTH) << scientific << m_dSigmaZZ;
+//		for (i=0; i<j; i++)
+//			os << setw(COV_WIDTH) << m_vGpsCovariances[i].GetM31() << setw(COV_WIDTH) << m_vGpsCovariances[i].GetM32() << setw(COV_WIDTH) << m_vGpsCovariances[i].GetM33();
+//		os << endl;
+//		break;
+//	case NEWGAN_COUT:
+//
+//		// NEWGAN format (ignore correlations)
+//		const float M2TOCM2 = 10000.;
+//		os << endl << "115" << endl;
+//		os << setw(3) << "116" << setw(3) << " " << setw(9) << m_strFirst << setw(3) << " " << setw(9) << m_strTarget;
+//		ignoreFlag = " ";
+//
+//		if (m_bIgnore)
+//			ignoreFlag = "*";
+//		j = m_vGpsCovariances.size();
+//		os << setw(23) << setprecision(4) << fixed << m_dX << setw(13) << m_dY << setw(13) << m_dZ << endl;
+//		os << "117" << setw(8) << "UPPER" << endl;
+//		os << setw(26) << setprecision(8) << scientific << m_dSigmaXX * M2TOCM2 << setw(20) << m_dSigmaXY * M2TOCM2 << setw(20) << m_dSigmaXZ * M2TOCM2 << endl;
+//		os << setw(26) << setprecision(8) << scientific << m_dSigmaYY * M2TOCM2 << setw(20) << m_dSigmaYZ * M2TOCM2 << endl;
+//		os << setw(26) << setprecision(8) << scientific << m_dSigmaZZ * M2TOCM2 << endl;
+//		break;
+//	}
+//}
 
 
 void CDnaGpsBaseline::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool bSubMeasurement /*= false*/) const
@@ -448,84 +527,84 @@ void CDnaGpsBaseline::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* el
 }
 	
 
-UINT32 CDnaGpsBaseline::SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord)
-{
-	char stationName[STN_NAME_WIDTH];
-
-	// get first station name
-	m_lstn1Index = measRecord->station1;
-	ifs_stns->seekg(sizeof(UINT32) + measRecord->station1 * sizeof(station_t), ios::beg);
-	ifs_stns->read(reinterpret_cast<char *>(&stationName), sizeof(stationName));
-	m_strFirst = stationName;
-	// target station
-	m_lstn2Index = measRecord->station2;
-	ifs_stns->seekg(sizeof(UINT32) + measRecord->station2 * sizeof(station_t), ios::beg);
-	ifs_stns->read(reinterpret_cast<char *>(&stationName), sizeof(stationName));
-	m_strTarget = stationName;
-
-	m_dPscale = measRecord->scale1;
-	m_dLscale = measRecord->scale2;
-	m_dHscale = measRecord->scale3;
-	m_dVscale = measRecord->scale4;
-
-	m_epoch = measRecord->epoch;
-	m_epsgCode = measRecord->epsgCode;
-	m_referenceFrame = datumFromEpsgString<string>(measRecord->epsgCode);
-
-	m_lclusterID = measRecord->clusterID;
-	m_MSmeasurementStations = (MEASUREMENT_STATIONS)measRecord->measurementStations;
-
-	// X, sigmaXX
-	m_bIgnore = measRecord->ignore;
-	m_strType = measRecord->measType;
-	m_dX = measRecord->term1;
-	m_dSigmaXX = measRecord->term2;
-	m_lRecordedTotal = measRecord->vectorCount1;
-
-	UINT32 measrecordCount = 0;
-
-	// get data relating to Y, sigmaYY, sigmaXY
-	if (ifs_msrs->eof() || !ifs_msrs->good())
-		throw XMLInteropException("SetMeasurementRec(): Errors were encountered when reading from the binary measurement file.", 0);
-	ifs_msrs->read(reinterpret_cast<char *>(measRecord), sizeof(measurement_t));
-
-	// check integrity of the binary file (see WriteBinaryMsr())
-	if (measRecord->measType != 'X' && measRecord->measType != 'G')
-		throw XMLInteropException("SetMeasurementRec(): Errors were encountered when attempting to read the next GpsBaseline element (Y block).", 0);
-
-	m_dY = measRecord->term1;
-	m_dSigmaXY = measRecord->term2;
-	m_dSigmaYY = measRecord->term3;
-
-	measrecordCount++;
-
-	// get data relating to Z, sigmaZZ, sigmaXZ, sigmaYZ
-	if (ifs_msrs->eof() || !ifs_msrs->good())
-		throw XMLInteropException("SetMeasurementRec(): Errors were encountered when reading from the binary measurement file.", 0);
-	ifs_msrs->read(reinterpret_cast<char *>(measRecord), sizeof(measurement_t));
-
-	// check integrity of the binary file (see WriteBinaryMsr())
-	if (measRecord->measType != 'X' && measRecord->measType != 'G')
-		throw XMLInteropException("SetMeasurementRec(): Errors were encountered when attempting to read the next GpsBAseline element (Z block).", 0);
-
-	m_dZ = measRecord->term1;
-	m_dSigmaXZ = measRecord->term2;
-	m_dSigmaYZ = measRecord->term3;
-	m_dSigmaZZ = measRecord->term4;
-	m_lRecordedTotal = measRecord->vectorCount1;
-
-	measrecordCount++;
-
-	m_vGpsCovariances.clear();
-	m_vGpsCovariances.resize(measRecord->vectorCount2);
-
-	// now covariances
-	vector<CDnaCovariance>::iterator _it_cov = m_vGpsCovariances.begin();
-	for (; _it_cov!=m_vGpsCovariances.end(); ++_it_cov)
-		measrecordCount += _it_cov->SetMeasurementRec(ifs_stns, ifs_msrs, measRecord);
-
-	return measrecordCount;
-}
+//UINT32 CDnaGpsBaseline::SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord)
+//{
+//	char stationName[STN_NAME_WIDTH];
+//
+//	// get first station name
+//	m_lstn1Index = measRecord->station1;
+//	ifs_stns->seekg(sizeof(UINT32) + measRecord->station1 * sizeof(station_t), ios::beg);
+//	ifs_stns->read(reinterpret_cast<char *>(&stationName), sizeof(stationName));
+//	m_strFirst = stationName;
+//	// target station
+//	m_lstn2Index = measRecord->station2;
+//	ifs_stns->seekg(sizeof(UINT32) + measRecord->station2 * sizeof(station_t), ios::beg);
+//	ifs_stns->read(reinterpret_cast<char *>(&stationName), sizeof(stationName));
+//	m_strTarget = stationName;
+//
+//	m_dPscale = measRecord->scale1;
+//	m_dLscale = measRecord->scale2;
+//	m_dHscale = measRecord->scale3;
+//	m_dVscale = measRecord->scale4;
+//
+//	m_epoch = measRecord->epoch;
+//	m_epsgCode = measRecord->epsgCode;
+//	m_referenceFrame = datumFromEpsgString<string>(measRecord->epsgCode);
+//
+//	m_lclusterID = measRecord->clusterID;
+//	m_MSmeasurementStations = (MEASUREMENT_STATIONS)measRecord->measurementStations;
+//
+//	// X, sigmaXX
+//	m_bIgnore = measRecord->ignore;
+//	m_strType = measRecord->measType;
+//	m_dX = measRecord->term1;
+//	m_dSigmaXX = measRecord->term2;
+//	m_lRecordedTotal = measRecord->vectorCount1;
+//
+//	UINT32 measrecordCount = 0;
+//
+//	// get data relating to Y, sigmaYY, sigmaXY
+//	if (ifs_msrs->eof() || !ifs_msrs->good())
+//		throw XMLInteropException("SetMeasurementRec(): Errors were encountered when reading from the binary measurement file.", 0);
+//	ifs_msrs->read(reinterpret_cast<char *>(measRecord), sizeof(measurement_t));
+//
+//	// check integrity of the binary file (see WriteBinaryMsr())
+//	if (measRecord->measType != 'X' && measRecord->measType != 'G')
+//		throw XMLInteropException("SetMeasurementRec(): Errors were encountered when attempting to read the next GpsBaseline element (Y block).", 0);
+//
+//	m_dY = measRecord->term1;
+//	m_dSigmaXY = measRecord->term2;
+//	m_dSigmaYY = measRecord->term3;
+//
+//	measrecordCount++;
+//
+//	// get data relating to Z, sigmaZZ, sigmaXZ, sigmaYZ
+//	if (ifs_msrs->eof() || !ifs_msrs->good())
+//		throw XMLInteropException("SetMeasurementRec(): Errors were encountered when reading from the binary measurement file.", 0);
+//	ifs_msrs->read(reinterpret_cast<char *>(measRecord), sizeof(measurement_t));
+//
+//	// check integrity of the binary file (see WriteBinaryMsr())
+//	if (measRecord->measType != 'X' && measRecord->measType != 'G')
+//		throw XMLInteropException("SetMeasurementRec(): Errors were encountered when attempting to read the next GpsBAseline element (Z block).", 0);
+//
+//	m_dZ = measRecord->term1;
+//	m_dSigmaXZ = measRecord->term2;
+//	m_dSigmaYZ = measRecord->term3;
+//	m_dSigmaZZ = measRecord->term4;
+//	m_lRecordedTotal = measRecord->vectorCount1;
+//
+//	measrecordCount++;
+//
+//	m_vGpsCovariances.clear();
+//	m_vGpsCovariances.resize(measRecord->vectorCount2);
+//
+//	// now covariances
+//	vector<CDnaCovariance>::iterator _it_cov = m_vGpsCovariances.begin();
+//	for (; _it_cov!=m_vGpsCovariances.end(); ++_it_cov)
+//		measrecordCount += _it_cov->SetMeasurementRec(ifs_stns, ifs_msrs, measRecord);
+//
+//	return measrecordCount;
+//}
 
 
 UINT32 CDnaGpsBaseline::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr)
@@ -810,6 +889,63 @@ CDnaGpsBaselineCluster::~CDnaGpsBaselineCluster(void)
 
 }
 
+// move constructor
+CDnaGpsBaselineCluster::CDnaGpsBaselineCluster(CDnaGpsBaselineCluster&& g)
+{
+	m_strType = g.m_strType;
+	m_bIgnore = g.m_bIgnore;
+	m_strTarget = g.m_strTarget;
+	m_lRecordedTotal = g.m_lRecordedTotal;
+	m_vGpsBaselines = std::move(g.m_vGpsBaselines);
+
+	m_dPscale = g.m_dPscale;
+	m_dLscale = g.m_dLscale;
+	m_dHscale = g.m_dHscale;
+	m_dVscale = g.m_dVscale;
+	m_lclusterID = g.m_lclusterID;
+	m_MSmeasurementStations = g.m_MSmeasurementStations;
+	
+	m_referenceFrame = g.m_referenceFrame;
+	m_epsgCode = g.m_epsgCode;
+	m_epoch = g.m_epoch;
+
+	m_databaseIdSet = g.m_databaseIdSet;
+	m_msr_db_map = g.m_msr_db_map;
+}
+
+// move assignment operator 
+CDnaGpsBaselineCluster& CDnaGpsBaselineCluster::operator= (CDnaGpsBaselineCluster&& rhs)
+{
+	// check for assignment to self!
+	if (this == &rhs)
+		return *this;
+
+	CDnaMeasurement::operator=(std::move(rhs));
+	m_strTarget = rhs.m_strTarget;
+	m_lRecordedTotal = rhs.m_lRecordedTotal;
+
+	m_referenceFrame = rhs.m_referenceFrame;
+	m_epsgCode = rhs.m_epsgCode;
+	m_epoch = rhs.m_epoch;
+
+	m_dPscale = rhs.m_dPscale;
+	m_dLscale = rhs.m_dLscale;
+	m_dHscale = rhs.m_dHscale;
+	m_dVscale = rhs.m_dVscale;
+
+	m_lclusterID = rhs.m_lclusterID;
+	m_MSmeasurementStations = rhs.m_MSmeasurementStations;
+
+	m_vGpsBaselines = std::move(rhs.m_vGpsBaselines);
+
+	m_databaseIdSet = rhs.m_databaseIdSet;
+	m_msr_db_map = rhs.m_msr_db_map;
+
+	return *this;
+}
+
+
+
 
 CDnaGpsBaselineCluster::CDnaGpsBaselineCluster(const UINT32 lclusterID, const string& referenceframe, const string& epoch)
 	: m_strTarget("")
@@ -830,66 +966,68 @@ CDnaGpsBaselineCluster::CDnaGpsBaselineCluster(const UINT32 lclusterID, const st
 	m_MSmeasurementStations = TWO_STATION;
 }
 
-CDnaGpsBaselineCluster::CDnaGpsBaselineCluster(const CDnaGpsBaselineCluster& newGpsBaselineCluster)
-{
-	m_strType = newGpsBaselineCluster.m_strType;
-	m_bIgnore = newGpsBaselineCluster.m_bIgnore;
-	m_strTarget = newGpsBaselineCluster.m_strTarget;
-	m_lRecordedTotal = newGpsBaselineCluster.m_lRecordedTotal;
-	m_vGpsBaselines = newGpsBaselineCluster.m_vGpsBaselines;
-
-	m_dPscale = newGpsBaselineCluster.m_dPscale;
-	m_dLscale = newGpsBaselineCluster.m_dLscale;
-	m_dHscale = newGpsBaselineCluster.m_dHscale;
-	m_dVscale = newGpsBaselineCluster.m_dVscale;
-	m_lclusterID = newGpsBaselineCluster.m_lclusterID;
-	m_MSmeasurementStations = newGpsBaselineCluster.m_MSmeasurementStations;
-	
-	m_referenceFrame = newGpsBaselineCluster.m_referenceFrame;
-	m_epsgCode = newGpsBaselineCluster.m_epsgCode;
-	m_epoch = newGpsBaselineCluster.m_epoch;
-
-	m_databaseIdSet = newGpsBaselineCluster.m_databaseIdSet;
-	m_msr_db_map = newGpsBaselineCluster.m_msr_db_map;
-}
-
-
-CDnaGpsBaselineCluster::CDnaGpsBaselineCluster(const bool bIgnore, const string& strType, const string& strFirstStation)
-{
-	m_strType = strType;
-	m_bIgnore = bIgnore;
-}
+// copy constructor (disabled)
+//CDnaGpsBaselineCluster::CDnaGpsBaselineCluster(const CDnaGpsBaselineCluster& newGpsBaselineCluster)
+//{
+//	m_strType = newGpsBaselineCluster.m_strType;
+//	m_bIgnore = newGpsBaselineCluster.m_bIgnore;
+//	m_strTarget = newGpsBaselineCluster.m_strTarget;
+//	m_lRecordedTotal = newGpsBaselineCluster.m_lRecordedTotal;
+//	m_vGpsBaselines = newGpsBaselineCluster.m_vGpsBaselines;
+//
+//	m_dPscale = newGpsBaselineCluster.m_dPscale;
+//	m_dLscale = newGpsBaselineCluster.m_dLscale;
+//	m_dHscale = newGpsBaselineCluster.m_dHscale;
+//	m_dVscale = newGpsBaselineCluster.m_dVscale;
+//	m_lclusterID = newGpsBaselineCluster.m_lclusterID;
+//	m_MSmeasurementStations = newGpsBaselineCluster.m_MSmeasurementStations;
+//	
+//	m_referenceFrame = newGpsBaselineCluster.m_referenceFrame;
+//	m_epsgCode = newGpsBaselineCluster.m_epsgCode;
+//	m_epoch = newGpsBaselineCluster.m_epoch;
+//
+//	m_databaseIdSet = newGpsBaselineCluster.m_databaseIdSet;
+//	m_msr_db_map = newGpsBaselineCluster.m_msr_db_map;
+//}
 
 
-CDnaGpsBaselineCluster& CDnaGpsBaselineCluster::operator= (const CDnaGpsBaselineCluster& rhs)
-{
-	// check for assignment to self!
-	if (this == &rhs)
-		return *this;
+//CDnaGpsBaselineCluster::CDnaGpsBaselineCluster(const bool bIgnore, const string& strType, const string& strFirstStation)
+//{
+//	m_strType = strType;
+//	m_bIgnore = bIgnore;
+//}
 
-	CDnaMeasurement::operator=(rhs);
-	m_strTarget = rhs.m_strTarget;
-	m_lRecordedTotal = rhs.m_lRecordedTotal;
 
-	m_referenceFrame = rhs.m_referenceFrame;
-	m_epsgCode = rhs.m_epsgCode;
-	m_epoch = rhs.m_epoch;
-
-	m_dPscale = rhs.m_dPscale;
-	m_dLscale = rhs.m_dLscale;
-	m_dHscale = rhs.m_dHscale;
-	m_dVscale = rhs.m_dVscale;
-
-	m_lclusterID = rhs.m_lclusterID;
-	m_MSmeasurementStations = rhs.m_MSmeasurementStations;
-
-	m_vGpsBaselines = rhs.m_vGpsBaselines;
-
-	m_databaseIdSet = rhs.m_databaseIdSet;
-	m_msr_db_map = rhs.m_msr_db_map;
-
-	return *this;
-}
+// assignment operator (disabled)
+//CDnaGpsBaselineCluster& CDnaGpsBaselineCluster::operator= (const CDnaGpsBaselineCluster& rhs)
+//{
+//	// check for assignment to self!
+//	if (this == &rhs)
+//		return *this;
+//
+//	CDnaMeasurement::operator=(rhs);
+//	m_strTarget = rhs.m_strTarget;
+//	m_lRecordedTotal = rhs.m_lRecordedTotal;
+//
+//	m_referenceFrame = rhs.m_referenceFrame;
+//	m_epsgCode = rhs.m_epsgCode;
+//	m_epoch = rhs.m_epoch;
+//
+//	m_dPscale = rhs.m_dPscale;
+//	m_dLscale = rhs.m_dLscale;
+//	m_dHscale = rhs.m_dHscale;
+//	m_dVscale = rhs.m_dVscale;
+//
+//	m_lclusterID = rhs.m_lclusterID;
+//	m_MSmeasurementStations = rhs.m_MSmeasurementStations;
+//
+//	m_vGpsBaselines = rhs.m_vGpsBaselines;
+//
+//	m_databaseIdSet = rhs.m_databaseIdSet;
+//	m_msr_db_map = rhs.m_msr_db_map;
+//
+//	return *this;
+//}
 
 
 bool CDnaGpsBaselineCluster::operator== (const CDnaGpsBaselineCluster& rhs) const
@@ -937,8 +1075,9 @@ void CDnaGpsBaselineCluster::ReserveGpsBaselinesCount(const UINT32& size)
 
 void CDnaGpsBaselineCluster::AddGpsBaseline(const CDnaMeasurement* pGpsBaseline)
 {
-	CDnaGpsBaseline bsl = (CDnaGpsBaseline&)*pGpsBaseline;
-	m_vGpsBaselines.push_back(bsl);
+	//CDnaGpsBaseline bsl = (CDnaGpsBaseline&)*pGpsBaseline;
+	//m_vGpsBaselines.push_back(bsl);
+	m_vGpsBaselines.push_back(std::move((CDnaGpsBaseline&)*pGpsBaseline));
 }
 
 
@@ -968,16 +1107,6 @@ void CDnaGpsBaselineCluster::SerialiseDatabaseMap(std::ofstream* os)
 	
 }
 
-// UINT32 CDnaGpsBaselineCluster::CalcDbidRecordCount() const
-// {
-// 	UINT32 recordCount(0);
-// 	for_each(m_vGpsBaselines.begin(), m_vGpsBaselines.end(),
-// 		[&recordCount](const CDnaGpsBaseline& bsl) {
-// 			recordCount += bsl.CalcDbidRecordCount();
-// 	});
-// 	return recordCount;
-// }
-	
 UINT32 CDnaGpsBaselineCluster::CalcBinaryRecordCount() const
 {
 	UINT32 recordCount(0);
@@ -1062,49 +1191,49 @@ void CDnaGpsBaselineCluster::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllips
 }
 	
 
-UINT32 CDnaGpsBaselineCluster::SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord)
-{
-	m_lclusterID = measRecord->clusterID;
-	m_MSmeasurementStations = (MEASUREMENT_STATIONS)measRecord->measurementStations;
-	m_lRecordedTotal = measRecord->vectorCount1;
-	m_vGpsBaselines.clear();
-	m_vGpsBaselines.resize(m_lRecordedTotal);
-
-	m_referenceFrame = datumFromEpsgString<string>(measRecord->epsgCode);
-	m_epoch = measRecord->epoch;
-	m_epsgCode = measRecord->epsgCode;
-
-	m_dPscale = measRecord->scale1;
-	m_dLscale = measRecord->scale2;
-	m_dHscale = measRecord->scale3;
-	m_dVscale = measRecord->scale4;
-
-	UINT32 measrecordCount = 0;
-
-	// read remaining GpsPoint data and all Covariances from file
-	for (UINT32 i=0; i<m_lRecordedTotal; i++)
-	{
-		if (i > 0)
-		{
-			// get data relating to Y, sigmaYY, sigmaXY
-			if (ifs_msrs->eof() || !ifs_msrs->good())
-				throw XMLInteropException("SetMeasurementRec(): Errors were encountered when reading from the binary measurement file.", 0);
-			ifs_msrs->read(reinterpret_cast<char *>(measRecord), sizeof(measurement_t));
-
-			// check integrity of the binary file (see WriteBinaryMsr())
-			if (measRecord->measType != 'X' && measRecord->measType != 'G')
-				throw XMLInteropException("SetMeasurementRec(): Errors were encountered when attempting to read the next GpsPoint element (X block).", 0);
-		}
-
-		measrecordCount++;
-
-		m_strType = measRecord->measType;
-		m_bIgnore = measRecord->ignore;
-
-		measrecordCount += m_vGpsBaselines.at(i).SetMeasurementRec(ifs_stns, ifs_msrs, measRecord);
-	}
-	return measrecordCount - 1;
-}
+//UINT32 CDnaGpsBaselineCluster::SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord)
+//{
+//	m_lclusterID = measRecord->clusterID;
+//	m_MSmeasurementStations = (MEASUREMENT_STATIONS)measRecord->measurementStations;
+//	m_lRecordedTotal = measRecord->vectorCount1;
+//	m_vGpsBaselines.clear();
+//	m_vGpsBaselines.resize(m_lRecordedTotal);
+//
+//	m_referenceFrame = datumFromEpsgString<string>(measRecord->epsgCode);
+//	m_epoch = measRecord->epoch;
+//	m_epsgCode = measRecord->epsgCode;
+//
+//	m_dPscale = measRecord->scale1;
+//	m_dLscale = measRecord->scale2;
+//	m_dHscale = measRecord->scale3;
+//	m_dVscale = measRecord->scale4;
+//
+//	UINT32 measrecordCount = 0;
+//
+//	// read remaining GpsPoint data and all Covariances from file
+//	for (UINT32 i=0; i<m_lRecordedTotal; i++)
+//	{
+//		if (i > 0)
+//		{
+//			// get data relating to Y, sigmaYY, sigmaXY
+//			if (ifs_msrs->eof() || !ifs_msrs->good())
+//				throw XMLInteropException("SetMeasurementRec(): Errors were encountered when reading from the binary measurement file.", 0);
+//			ifs_msrs->read(reinterpret_cast<char *>(measRecord), sizeof(measurement_t));
+//
+//			// check integrity of the binary file (see WriteBinaryMsr())
+//			if (measRecord->measType != 'X' && measRecord->measType != 'G')
+//				throw XMLInteropException("SetMeasurementRec(): Errors were encountered when attempting to read the next GpsPoint element (X block).", 0);
+//		}
+//
+//		measrecordCount++;
+//
+//		m_strType = measRecord->measType;
+//		m_bIgnore = measRecord->ignore;
+//
+//		measrecordCount += m_vGpsBaselines.at(i).SetMeasurementRec(ifs_stns, ifs_msrs, measRecord);
+//	}
+//	return measrecordCount - 1;
+//}
 
 
 UINT32 CDnaGpsBaselineCluster::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr)

@@ -61,80 +61,80 @@ CDnaDirectionSet::CDnaDirectionSet(const UINT32 lsetID)
 }
 	
 // copy constructors
-CDnaDirectionSet::CDnaDirectionSet(const CDnaDirectionSet& newDirectionSet)
-{
-	m_bIgnore = newDirectionSet.m_bIgnore;
-	m_strFirst = newDirectionSet.m_strFirst;
-	m_strTarget = newDirectionSet.m_strTarget;
-	m_drValue = newDirectionSet.m_drValue;
-	m_dStdDev = newDirectionSet.m_dStdDev;
-	m_lRecordedTotal = newDirectionSet.m_lRecordedTotal;
-	m_MSmeasurementStations = newDirectionSet.m_MSmeasurementStations;
-
-	m_lsetID = newDirectionSet.m_lsetID;
-
-	m_strType = "D";
-	m_vTargetDirections = newDirectionSet.m_vTargetDirections;
-
-	m_databaseIdSet = newDirectionSet.m_databaseIdSet;
-}
-
-
-CDnaDirectionSet::CDnaDirectionSet(bool bIgnore, const string& strFirst, const string& strTarget,
-	const double& drValue, const double& dStdDev, const float& fInstrHeight, const float& fTargetHeight)
-{
-	m_strType = "D";
-	m_bIgnore = bIgnore;
-	m_strFirst = strFirst;
-	m_strTarget = strTarget;
-	m_drValue = drValue;
-	m_dStdDev = dStdDev;
-	m_lsetID = 0;
-	m_vTargetDirections.clear();
-}
+//CDnaDirectionSet::CDnaDirectionSet(const CDnaDirectionSet& newDirectionSet)
+//{
+//	m_bIgnore = newDirectionSet.m_bIgnore;
+//	m_strFirst = newDirectionSet.m_strFirst;
+//	m_strTarget = newDirectionSet.m_strTarget;
+//	m_drValue = newDirectionSet.m_drValue;
+//	m_dStdDev = newDirectionSet.m_dStdDev;
+//	m_lRecordedTotal = newDirectionSet.m_lRecordedTotal;
+//	m_MSmeasurementStations = newDirectionSet.m_MSmeasurementStations;
+//
+//	m_lsetID = newDirectionSet.m_lsetID;
+//
+//	m_strType = "D";
+//	m_vTargetDirections = newDirectionSet.m_vTargetDirections;
+//
+//	m_databaseIdSet = newDirectionSet.m_databaseIdSet;
+//}
 
 
-CDnaDirectionSet& CDnaDirectionSet::operator= (const CDnaDirectionSet& rhs)
-{
-	// check for assignment to self!
-	if (this == &rhs)
-		return *this;
-
-	CDnaMeasurement::operator=(rhs);
-	m_strTarget = rhs.m_strTarget;
-	m_drValue = rhs.m_drValue;
-	m_dStdDev = rhs.m_dStdDev;
-	m_lRecordedTotal = rhs.m_lRecordedTotal;
-	m_lsetID = rhs.m_lsetID;
-	m_MSmeasurementStations = rhs.m_MSmeasurementStations;
-	m_vTargetDirections = rhs.m_vTargetDirections;
-	
-	m_databaseIdSet = rhs.m_databaseIdSet;
-	m_msr_db_map = rhs.m_msr_db_map;
-
-	return *this;
-}
+//CDnaDirectionSet::CDnaDirectionSet(bool bIgnore, const string& strFirst, const string& strTarget,
+//	const double& drValue, const double& dStdDev, const float& fInstrHeight, const float& fTargetHeight)
+//{
+//	m_strType = "D";
+//	m_bIgnore = bIgnore;
+//	m_strFirst = strFirst;
+//	m_strTarget = strTarget;
+//	m_drValue = drValue;
+//	m_dStdDev = dStdDev;
+//	m_lsetID = 0;
+//	m_vTargetDirections.clear();
+//}
 
 
-CDnaDirectionSet* CDnaDirectionSet::operator= (const CDnaDirectionSet* rhs)
-{
-	// check for assignment to self!
-	if (this == rhs)
-		return this;
+//CDnaDirectionSet& CDnaDirectionSet::operator= (const CDnaDirectionSet& rhs)
+//{
+//	// check for assignment to self!
+//	if (this == &rhs)
+//		return *this;
+//
+//	CDnaMeasurement::operator=(rhs);
+//	m_strTarget = rhs.m_strTarget;
+//	m_drValue = rhs.m_drValue;
+//	m_dStdDev = rhs.m_dStdDev;
+//	m_lRecordedTotal = rhs.m_lRecordedTotal;
+//	m_lsetID = rhs.m_lsetID;
+//	m_MSmeasurementStations = rhs.m_MSmeasurementStations;
+//	m_vTargetDirections = rhs.m_vTargetDirections;
+//	
+//	m_databaseIdSet = rhs.m_databaseIdSet;
+//	m_msr_db_map = rhs.m_msr_db_map;
+//
+//	return *this;
+//}
 
-	CDnaMeasurement::operator=(*rhs);
-	m_strTarget = rhs->m_strTarget;
-	m_drValue = rhs->m_drValue;
-	m_dStdDev = rhs->m_dStdDev;
-	m_lRecordedTotal = rhs->m_lRecordedTotal;
-	m_lsetID = rhs->m_lsetID;
-	m_MSmeasurementStations = rhs->m_MSmeasurementStations;
-	m_vTargetDirections = rhs->m_vTargetDirections;
-	
-	m_databaseIdSet = rhs->m_databaseIdSet;
 
-	return this;
-}
+//CDnaDirectionSet* CDnaDirectionSet::operator= (const CDnaDirectionSet* rhs)
+//{
+//	// check for assignment to self!
+//	if (this == rhs)
+//		return this;
+//
+//	CDnaMeasurement::operator=(*rhs);
+//	m_strTarget = rhs->m_strTarget;
+//	m_drValue = rhs->m_drValue;
+//	m_dStdDev = rhs->m_dStdDev;
+//	m_lRecordedTotal = rhs->m_lRecordedTotal;
+//	m_lsetID = rhs->m_lsetID;
+//	m_MSmeasurementStations = rhs->m_MSmeasurementStations;
+//	m_vTargetDirections = rhs->m_vTargetDirections;
+//	
+//	m_databaseIdSet = rhs->m_databaseIdSet;
+//
+//	return this;
+//}
 
 
 bool CDnaDirectionSet::operator== (const CDnaDirectionSet& rhs) const
@@ -178,8 +178,9 @@ bool CDnaDirectionSet::operator< (const CDnaDirectionSet& rhs) const
 
 void CDnaDirectionSet::AddDirection(const CDnaMeasurement* pDirection)
 {
-	CDnaDirection d = (CDnaDirection&)*pDirection;
-	m_vTargetDirections.push_back(d);
+	//CDnaDirection d = (CDnaDirection&)*pDirection;
+	//m_vTargetDirections.push_back(d);
+	m_vTargetDirections.push_back(std::move((CDnaDirection&)*pDirection));
 }
 
 
@@ -224,17 +225,6 @@ void CDnaDirectionSet::SerialiseDatabaseMap(std::ofstream* os)
 	});
 }
 
-// UINT32 CDnaDirectionSet::CalcDbidRecordCount() const
-// {
-// 	// Direction set has 1 RO direction and n directions
-// 	UINT32 recordCount(1);
-// 	for_each(m_vTargetDirections.begin(), m_vTargetDirections.end(),
-// 		[&recordCount](const CDnaDirection& dir) {
-// 			recordCount += dir.CalcDbidRecordCount();
-// 	});
-// 	return recordCount;
-// }
-	
 UINT32 CDnaDirectionSet::CalcBinaryRecordCount() const
 {
 	// Direction set has 1 RO direction and n directions
@@ -379,54 +369,54 @@ void CDnaDirectionSet::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* e
 }
 	
 
-UINT32 CDnaDirectionSet::SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord)
-{
-	char stationName[STN_NAME_WIDTH];
-	m_strType = measRecord->measType;
-	m_bIgnore = measRecord->ignore;
-	m_MSmeasurementStations = (MEASUREMENT_STATIONS)measRecord->measurementStations;
-	
-	// first station
-	m_lstn1Index = measRecord->station1;
-	ifs_stns->seekg(sizeof(UINT32) + measRecord->station1 * sizeof(station_t), ios::beg);
-	ifs_stns->read(reinterpret_cast<char *>(&stationName), sizeof(stationName));
-	m_strFirst = stationName;
-	// target station
-	m_lstn2Index = measRecord->station2;
-	ifs_stns->seekg(sizeof(UINT32) + measRecord->station2 * sizeof(station_t), ios::beg);
-	ifs_stns->read(reinterpret_cast<char *>(&stationName), sizeof(stationName));
-	m_strTarget = stationName;
-	
-	m_measAdj = measRecord->measAdj;
-	m_measCorr = measRecord->measCorr;
-	m_measAdjPrec = measRecord->measAdjPrec;
-	m_residualPrec = measRecord->residualPrec;
-	m_preAdjCorr = measRecord->preAdjCorr;
-	m_drValue = measRecord->term1;
-	m_dStdDev = sqrt(measRecord->term2);
-	
-	// measRecord holds the full number of measurement blocks, which is 
-	// the number of directions in the vector plus one for the RO
-	m_lRecordedTotal = measRecord->vectorCount1 - 1;
-
-	m_lsetID = measRecord->clusterID;
-
-	m_vTargetDirections.clear();
-	m_vTargetDirections.resize(m_lRecordedTotal);
-
-	UINT32 measrecordCount = 0;	
-
-	// now covariances
-	vector<CDnaDirection>::iterator _it_dir = m_vTargetDirections.begin();
-	for (; _it_dir!=m_vTargetDirections.end(); _it_dir++)
-	{
-		_it_dir->SetType(m_strType);
-		_it_dir->SetFirst(m_strFirst);
-		measrecordCount += _it_dir->SetMeasurementRec(ifs_stns, ifs_msrs, measRecord);
-	}
-
-	return measrecordCount;
-}
+//UINT32 CDnaDirectionSet::SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord)
+//{
+//	char stationName[STN_NAME_WIDTH];
+//	m_strType = measRecord->measType;
+//	m_bIgnore = measRecord->ignore;
+//	m_MSmeasurementStations = (MEASUREMENT_STATIONS)measRecord->measurementStations;
+//	
+//	// first station
+//	m_lstn1Index = measRecord->station1;
+//	ifs_stns->seekg(sizeof(UINT32) + measRecord->station1 * sizeof(station_t), ios::beg);
+//	ifs_stns->read(reinterpret_cast<char *>(&stationName), sizeof(stationName));
+//	m_strFirst = stationName;
+//	// target station
+//	m_lstn2Index = measRecord->station2;
+//	ifs_stns->seekg(sizeof(UINT32) + measRecord->station2 * sizeof(station_t), ios::beg);
+//	ifs_stns->read(reinterpret_cast<char *>(&stationName), sizeof(stationName));
+//	m_strTarget = stationName;
+//	
+//	m_measAdj = measRecord->measAdj;
+//	m_measCorr = measRecord->measCorr;
+//	m_measAdjPrec = measRecord->measAdjPrec;
+//	m_residualPrec = measRecord->residualPrec;
+//	m_preAdjCorr = measRecord->preAdjCorr;
+//	m_drValue = measRecord->term1;
+//	m_dStdDev = sqrt(measRecord->term2);
+//	
+//	// measRecord holds the full number of measurement blocks, which is 
+//	// the number of directions in the vector plus one for the RO
+//	m_lRecordedTotal = measRecord->vectorCount1 - 1;
+//
+//	m_lsetID = measRecord->clusterID;
+//
+//	m_vTargetDirections.clear();
+//	m_vTargetDirections.resize(m_lRecordedTotal);
+//
+//	UINT32 measrecordCount = 0;	
+//
+//	// now covariances
+//	vector<CDnaDirection>::iterator _it_dir = m_vTargetDirections.begin();
+//	for (; _it_dir!=m_vTargetDirections.end(); _it_dir++)
+//	{
+//		_it_dir->SetType(m_strType);
+//		_it_dir->SetFirst(m_strFirst);
+//		measrecordCount += _it_dir->SetMeasurementRec(ifs_stns, ifs_msrs, measRecord);
+//	}
+//
+//	return measrecordCount;
+//}
 	
 
 UINT32 CDnaDirectionSet::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr)

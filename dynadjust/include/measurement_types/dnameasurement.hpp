@@ -212,14 +212,22 @@ class CDnaCovariance
 {
 public:
 	CDnaCovariance(void);
-	CDnaCovariance(const CDnaCovariance& newCovariance);
 	virtual ~CDnaCovariance();
 
-	virtual inline CDnaCovariance* clone() const { return new CDnaCovariance(*this); }
+	// move constructor and move assignment operator
+	CDnaCovariance(CDnaCovariance&& c);
+	CDnaCovariance& operator=(CDnaCovariance&& rhs);
+
+private:
+	// disallow copying
+	CDnaCovariance(const CDnaCovariance& newCovariance);
 	CDnaCovariance& operator=(const CDnaCovariance& rhs);
+	
+public:
+	//virtual inline CDnaCovariance* clone() const { return new CDnaCovariance(*this); }
 	bool operator==(const CDnaCovariance& rhs) const;
 
-	inline CDnaCovariance& operator[](int iIndex) { return this[iIndex]; }
+	//inline CDnaCovariance& operator[](int iIndex) { return this[iIndex]; }
 
 	inline void SetType(const string& str) { m_strType = trimstr(str); }
 	inline char GetTypeC() const { return (m_strType.c_str())[0]; }
@@ -228,10 +236,9 @@ public:
 	inline void SetIgnore(const bool bval) { m_bIgnore = bval; }
 	inline bool GetIgnore() const { return m_bIgnore; }
 
-	void coutCovarianceData(ostream &os) const;
 	inline virtual UINT32 CalcBinaryRecordCount() const { return 3; }
 	void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex, const string& epsgCode, const string& epoch) const;
-	virtual UINT32 SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord);
+	//virtual UINT32 SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord);
 	virtual UINT32 SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr);
 	virtual void WriteDynaMLMsr(std::ofstream* dynaml_stream) const;
 	virtual void WriteDNAMsr(std::ofstream* dna_stream, 
@@ -301,11 +308,19 @@ class CDnaMeasurement
 {
 public:
 	CDnaMeasurement();
-	CDnaMeasurement(const CDnaMeasurement&);
 	virtual ~CDnaMeasurement();
 
+	// move constructor and move assignment operator
+	CDnaMeasurement(CDnaMeasurement&& m);
+	CDnaMeasurement& operator=(CDnaMeasurement&& rhs);
+
+private:
+	// disallow copying
+	CDnaMeasurement(const CDnaMeasurement&);
 	CDnaMeasurement& operator=(const CDnaMeasurement& rhs);
-	virtual CDnaMeasurement* clone() const = 0;  // The Virtual (Copy) Constructor
+
+public:
+	//virtual CDnaMeasurement* clone() const = 0;  // The Virtual (Copy) Constructor
 
 	inline string GetType() const { return m_strType; }
 	inline char GetTypeC() const { return (m_strType.c_str())[0]; }
@@ -343,13 +358,15 @@ public:
 
 	// pure virtual functions overridden by specialised classes
 	virtual UINT32 CalcBinaryRecordCount() const = 0;
-	//virtual UINT32 CalcDbidRecordCount() const;
 	virtual void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) const = 0;
-	virtual UINT32 SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord) = 0;
+	//virtual UINT32 SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord) = 0;
 	virtual UINT32 SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr) = 0;
 	virtual void WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool bSubMeasurement = false) const = 0;
 	virtual void WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool bSubMeasurement = false) const = 0;
 	virtual void SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* ellipsoid) = 0;
+
+	// A function used by CDnaGpsPoint and CDnaGpsPointCluster only.
+	// Used to export latest station coordinate and variance estimates to Y measurement
 	virtual void PopulateMsr(pvstn_t bstRecords, uint32_uint32_map* blockStationsMap, vUINT32* blockStations,
 		const UINT32& block, const CDnaDatum* datum, math::matrix_2d* estimates, math::matrix_2d* variances) {}
 
@@ -433,7 +450,7 @@ public:
 	
 	virtual void PreferGMeasurements() {}
 
-	virtual void coutBaselineData(ostream &os, const int& pad, const UINT16& uType = 0) {}
+	//virtual void coutBaselineData(ostream &os, const int& pad, const UINT16& uType = 0) {}
 
 	void SetMeasurementDBID(const string& str);
 	void SetClusterDBID(const string& str);
@@ -497,9 +514,9 @@ public:
 	void initialise();
 
 	MsrTally& operator+=(const MsrTally& rhs);
-	MsrTally& operator-=(const MsrTally& rhs);
+	//MsrTally& operator-=(const MsrTally& rhs);
 	MsrTally operator+(const MsrTally& rhs) const;
-	MsrTally operator-(const MsrTally& rhs) const;
+	//MsrTally operator-(const MsrTally& rhs) const;
 	UINT32 TotalCount();
 	void coutSummary(ostream &os, const string& title);
 	UINT32 MeasurementCount(const char& msrType);
@@ -510,7 +527,7 @@ public:
 	void coutSummaryMsrToStn(ostream &os, const string& station);
 	void coutSummaryMsrToStn_Compressed(ostream &os, const string& station);
 
-	bool GPSOnly();	
+	//bool GPSOnly();	
 	inline bool ContainsNonGPS() { return containsNonGPS; }
 
 	static _MEASUREMENT_STATIONS_ Stations(const char& measType);

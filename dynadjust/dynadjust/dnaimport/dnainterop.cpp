@@ -877,6 +877,10 @@ void dna_import::ApplyDiscontinuitiesMeasurements(vdnaMsrPtr* vMeasurements, pro
 			continue;
 		}
 
+		// Check if an epoch been provided with this measurement
+		if (_it_msr->get()->GetEpoch().empty())
+			continue;
+
 		// Capture the epoch of the measurement
 		site_date = dateFromString<date>(_it_msr->get()->GetEpoch());
 

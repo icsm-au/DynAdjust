@@ -60,33 +60,23 @@ CAStationList::CAStationList(bool validStation)
 {
 }
 
-CAStationList::CAStationList(const CAStationList& newAStnList)
-{
-	availMsrCount_ = newAStnList.availMsrCount_;
-	assocMsrCount_ = newAStnList.assocMsrCount_;
-	amlStnIndex_ = newAStnList.amlStnIndex_;
-	validStation_ = newAStnList.validStation_;
-}
-
-CAStationList::CAStationList(const UINT32& assocMsrs, const UINT32& availMsrs, const UINT32& firstStnIndex, bool validStation)
-{
-	availMsrCount_ = availMsrs;
-	assocMsrCount_ = assocMsrs;
-	amlStnIndex_ = firstStnIndex;
-	validStation_ = (validStation ? VALID_STATION : INVALID_STATION);
-
-}
 CAStationList::~CAStationList()
 {
 
 }
 
-void CAStationList::coutStationListInfo()
+// move constructor
+CAStationList::CAStationList(const CAStationList&& s)
 {
-	cout << setw(4) << assocMsrCount_ << setw(4) << amlStnIndex_ << endl;
+	availMsrCount_ = s.availMsrCount_;
+	assocMsrCount_ = s.assocMsrCount_;
+	amlStnIndex_ = s.amlStnIndex_;
+	validStation_ = s.validStation_;
 }
 
-CAStationList& CAStationList::operator =(const CAStationList& rhs)
+
+// move assignment operator
+CAStationList& CAStationList::operator =(CAStationList&& rhs)
 {
 	// check for assignment to self!
 	if (this == &rhs)
@@ -99,6 +89,30 @@ CAStationList& CAStationList::operator =(const CAStationList& rhs)
 
 	return *this;
 }
+
+
+//CAStationList::CAStationList(const CAStationList& newAStnList)
+//{
+//	availMsrCount_ = newAStnList.availMsrCount_;
+//	assocMsrCount_ = newAStnList.assocMsrCount_;
+//	amlStnIndex_ = newAStnList.amlStnIndex_;
+//	validStation_ = newAStnList.validStation_;
+//}
+
+
+//CAStationList& CAStationList::operator =(const CAStationList& rhs)
+//{
+//	// check for assignment to self!
+//	if (this == &rhs)
+//		return *this;
+//
+//	availMsrCount_ = rhs.availMsrCount_;
+//	assocMsrCount_ = rhs.assocMsrCount_;
+//	amlStnIndex_ = rhs.amlStnIndex_;
+//	validStation_ = rhs.validStation_;
+//
+//	return *this;
+//}
 
 
 
@@ -273,257 +287,257 @@ void CDnaStation::SetConstraints(const string& sConstraints)
 
 }
 
-void CDnaStation::SetConstraints(const char& cLatConstraint, const char& cLonConstraint, const char& cHtConstraint)
-{
-	m_cLatConstraint = cLatConstraint;
-	m_cLonConstraint = cLonConstraint;
-	m_cHtConstraint = cHtConstraint;
-	UpdateConstraintsString();
-}
+//void CDnaStation::SetConstraints(const char& cLatConstraint, const char& cLonConstraint, const char& cHtConstraint)
+//{
+//	m_cLatConstraint = cLatConstraint;
+//	m_cLonConstraint = cLonConstraint;
+//	m_cHtConstraint = cHtConstraint;
+//	UpdateConstraintsString();
+//}
 
-void CDnaStation::SetLatConstraint(const char& cLatConstraint)
-{
-	m_cLatConstraint = cLatConstraint;
-	UpdateConstraintsString();
-}
+//void CDnaStation::SetLatConstraint(const char& cLatConstraint)
+//{
+//	m_cLatConstraint = cLatConstraint;
+//	UpdateConstraintsString();
+//}
 
-void CDnaStation::SetLonConstraint(const char& cLonConstraint)
-{
-	m_cLonConstraint = cLonConstraint;
-	UpdateConstraintsString();
-}
+//void CDnaStation::SetLonConstraint(const char& cLonConstraint)
+//{
+//	m_cLonConstraint = cLonConstraint;
+//	UpdateConstraintsString();
+//}
 
-void CDnaStation::SetHtConstraint(const char& cHtConstraint)
-{
-	m_cHtConstraint = cHtConstraint;
-	UpdateConstraintsString();
-}
+//void CDnaStation::SetHtConstraint(const char& cHtConstraint)
+//{
+//	m_cHtConstraint = cHtConstraint;
+//	UpdateConstraintsString();
+//}
 
-void CDnaStation::SetConstraints(const double& dLatConstraint, const double& dLonConstraint, const double& dHtConstraint)
-{
-	if (dLatConstraint <= 0.1)
-		m_cLatConstraint = 'C';
-	else
-		m_cLatConstraint = 'F';
+//void CDnaStation::SetConstraints(const double& dLatConstraint, const double& dLonConstraint, const double& dHtConstraint)
+//{
+//	if (dLatConstraint <= 0.1)
+//		m_cLatConstraint = 'C';
+//	else
+//		m_cLatConstraint = 'F';
+//
+//	if (dLonConstraint <= 0.1)
+//		m_cLonConstraint = 'C';
+//	else
+//		m_cLonConstraint = 'F';
+//
+//	if (dHtConstraint <= 0.1)
+//		m_cHtConstraint = 'C';
+//	else
+//		m_cHtConstraint = 'F';
+//
+//
+//	UpdateConstraintsString();
+//}
 
-	if (dLonConstraint <= 0.1)
-		m_cLonConstraint = 'C';
-	else
-		m_cLonConstraint = 'F';
+//void CDnaStation::SetConstraints(const double& dLatConstraint, const double& dLonConstraint)
+//{
+//	if (dLatConstraint <= 0.1)
+//		m_cLatConstraint = 'C';
+//	else
+//		m_cLatConstraint = 'F';
+//
+//	if (dLonConstraint <= 0.1)
+//		m_cLonConstraint = 'C';
+//	else
+//		m_cLonConstraint = 'F';
+//
+//	UpdateConstraintsString();
+//}
 
-	if (dHtConstraint <= 0.1)
-		m_cHtConstraint = 'C';
-	else
-		m_cHtConstraint = 'F';
-
-
-	UpdateConstraintsString();
-}
-
-void CDnaStation::SetConstraints(const double& dLatConstraint, const double& dLonConstraint)
-{
-	if (dLatConstraint <= 0.1)
-		m_cLatConstraint = 'C';
-	else
-		m_cLatConstraint = 'F';
-
-	if (dLonConstraint <= 0.1)
-		m_cLonConstraint = 'C';
-	else
-		m_cLonConstraint = 'F';
-
-	UpdateConstraintsString();
-}
-
-void CDnaStation::SetConstraints(const double& dHtConstraint)
-{
-	if (dHtConstraint <= 0.1)
-		m_cHtConstraint = 'C';
-	else
-		m_cHtConstraint = 'F';
-
-	UpdateConstraintsString();
-}
+//void CDnaStation::SetConstraints(const double& dHtConstraint)
+//{
+//	if (dHtConstraint <= 0.1)
+//		m_cHtConstraint = 'C';
+//	else
+//		m_cHtConstraint = 'F';
+//
+//	UpdateConstraintsString();
+//}
 
 
 
-void CDnaStation::UpdateConstraintsString()
-{
-	ostringstream stream;
-	stream << m_cLatConstraint << m_cLonConstraint << m_cHtConstraint;
-	m_strConstraints = stream.str();
-	//m_strConstraints.Format("%c%c%c", m_cLatConstraint, m_cLonConstraint, m_cHtConstraint);
-}
+//void CDnaStation::UpdateConstraintsString()
+//{
+//	ostringstream stream;
+//	stream << m_cLatConstraint << m_cLonConstraint << m_cHtConstraint;
+//	m_strConstraints = stream.str();
+//	//m_strConstraints.Format("%c%c%c", m_cLatConstraint, m_cLonConstraint, m_cHtConstraint);
+//}
 	
 
-void CDnaStation::SetXAxis(const char& cHemi, string strLat, string strMin, string strSec)
-{
-	string strString;
-	strLat = trimstrleft(strLat);
-	strMin = trimstrleft(strMin);
-	strSec = trimstrleft(strSec);
+//void CDnaStation::SetXAxis(const char& cHemi, string strLat, string strMin, string strSec)
+//{
+//	string strString;
+//	strLat = trimstrleft(strLat);
+//	strMin = trimstrleft(strMin);
+//	strSec = trimstrleft(strSec);
+//
+//	ostringstream s;
+//
+//	bool bNegative = false;
+//	int nDeg = LongFromString<UINT32>(strLat);
+//	int nMin = LongFromString<UINT32>(strMin);
+//	double dSec = DoubleFromString<double>(strSec);
+//
+//	// Hemisphere
+//	if (cHemi == ' ' || cHemi == 's' || cHemi == 'S')
+//		bNegative = true;
+//
+//	// Degrees
+//	if (nDeg == 0)
+//	{
+//		if (nMin < 10)
+//			s << "0.0" << nMin;		// strString.Format("0.0%1d", nMin);
+//		else
+//			s << "0." << nMin;		// strString.Format("0.%2d", nMin);
+//		strString = s.str();
+//	}
+//	else
+//	{
+//		if (nMin < 10)
+//			s << nDeg << ".0" << nMin;		// strString.Format("%2d.0%1d", nDeg, nMin);
+//		else
+//			s << nDeg << "." << nMin;		// strString.Format("%2d.%2d", nDeg, nMin);
+//		strString = s.str();
+//	}
+//
+//	strString = trimstr(strString);
+//
+//	if (bNegative)
+//		strString.insert(0, "-");
+//
+//	// Format seconds without decimal place
+//	// First, compute number of decimal places
+//	size_t nDecPlaces;
+//	size_t dp;
+//	s.precision(0);
+//
+//	if ((dp = strSec.find(".")) == string::npos)
+//	{
+//		if (dSec < 10.0)
+//			s << "0" << dSec;		// strSec.Format("0%1.0f�", dSec);
+//		else
+//			s << dSec;			// strSec.Format("%2.0f�", dSec);
+//	}
+//	else
+//	{
+//		nDecPlaces = dp;
+//		nDecPlaces = strSec.length() - nDecPlaces - 1;
+//
+//		// extract the decimal place
+//		double dFactor = pow(10., static_cast<int> (nDecPlaces));
+//		double dTemp = dFactor * dSec;
+//		double d1onFactor = 1.0 / dFactor;
+//
+//		if ((dSec + d1onFactor) < 1.0)
+//			s << "00" << dTemp;		// strSec.Format("00%.0f", dTemp);
+//		else if ((dSec + d1onFactor) < 10.0)
+//			s << "0" << dTemp;		// strSec.Format("0%.0f", dTemp);
+//		else
+//			s << dTemp;				// strSec.Format("%.0f", dTemp);
+//		strSec = s.str();
+//
+//		size_t nLength = strSec.length();
+//		if (nLength < nDecPlaces + 2)
+//		{
+//			string sPadding(2 + nDecPlaces - nLength, '0');
+//			strSec = sPadding + strSec;
+//		}
+//	}
+//
+//	strString += strSec;
+//	SetXAxis(strString);
+//}
 
-	ostringstream s;
 
-	bool bNegative = false;
-	int nDeg = LongFromString<UINT32>(strLat);
-	int nMin = LongFromString<UINT32>(strMin);
-	double dSec = DoubleFromString<double>(strSec);
-
-	// Hemisphere
-	if (cHemi == ' ' || cHemi == 's' || cHemi == 'S')
-		bNegative = true;
-
-	// Degrees
-	if (nDeg == 0)
-	{
-		if (nMin < 10)
-			s << "0.0" << nMin;		// strString.Format("0.0%1d", nMin);
-		else
-			s << "0." << nMin;		// strString.Format("0.%2d", nMin);
-		strString = s.str();
-	}
-	else
-	{
-		if (nMin < 10)
-			s << nDeg << ".0" << nMin;		// strString.Format("%2d.0%1d", nDeg, nMin);
-		else
-			s << nDeg << "." << nMin;		// strString.Format("%2d.%2d", nDeg, nMin);
-		strString = s.str();
-	}
-
-	strString = trimstr(strString);
-
-	if (bNegative)
-		strString.insert(0, "-");
-
-	// Format seconds without decimal place
-	// First, compute number of decimal places
-	size_t nDecPlaces;
-	size_t dp;
-	s.precision(0);
-
-	if ((dp = strSec.find(".")) == string::npos)
-	{
-		if (dSec < 10.0)
-			s << "0" << dSec;		// strSec.Format("0%1.0f�", dSec);
-		else
-			s << dSec;			// strSec.Format("%2.0f�", dSec);
-	}
-	else
-	{
-		nDecPlaces = dp;
-		nDecPlaces = strSec.length() - nDecPlaces - 1;
-
-		// extract the decimal place
-		double dFactor = pow(10., static_cast<int> (nDecPlaces));
-		double dTemp = dFactor * dSec;
-		double d1onFactor = 1.0 / dFactor;
-
-		if ((dSec + d1onFactor) < 1.0)
-			s << "00" << dTemp;		// strSec.Format("00%.0f", dTemp);
-		else if ((dSec + d1onFactor) < 10.0)
-			s << "0" << dTemp;		// strSec.Format("0%.0f", dTemp);
-		else
-			s << dTemp;				// strSec.Format("%.0f", dTemp);
-		strSec = s.str();
-
-		size_t nLength = strSec.length();
-		if (nLength < nDecPlaces + 2)
-		{
-			string sPadding(2 + nDecPlaces - nLength, '0');
-			strSec = sPadding + strSec;
-		}
-	}
-
-	strString += strSec;
-	SetXAxis(strString);
-}
-
-
-void CDnaStation::SetYAxis(const char& cHemi, string strLon, string strMin, string strSec)
-{
-	string strString;
-	strLon = trimstrleft(strLon);
-	strMin = trimstrleft(strMin);
-	strSec = trimstrleft(strSec);
-
-	ostringstream s;
-
-	bool bNegative = false;
-	int nDeg = LongFromString<UINT32>(strLon);
-	int nMin = LongFromString<UINT32>(strMin);
-	double dSec = DoubleFromString<double>(strSec);
-
-	// Hemisphere
-	if (cHemi == 'w' || cHemi == 'W')
-		bNegative = true;
-
-	// Degrees
-	if (nDeg == 0)
-	{
-		if (nMin < 10)
-			s << "0.0" << nMin;		// strString.Format("0.0%1d", nMin);
-		else
-			s << "0." << nMin;		// strString.Format("0.%2d", nMin);
-		strString = s.str();
-	}
-	else
-	{
-		if (nMin < 10)
-			s << nDeg << ".0" << nMin;		// strString.Format("%3d.0%1d", nDeg, nMin);
-		else
-			s << nDeg << "." << nMin;		// strString.Format("%3d.%2d", nDeg, nMin);
-		strString = s.str();
-	}
-
-	strString = trimstr(strString);
-
-	if (bNegative)
-		strString.insert(0, "-");
-
-	// Format seconds without decimal place
-	// First, compute number of decimal places
-	size_t nDecPlaces;
-	size_t dp;
-	s.precision(0);
-
-	if ((dp = strSec.find(".")) == string::npos)
-	{
-		if (dSec < 10.0)
-			s << "0" << dSec;		// strSec.Format("0%1.0f�", dSec);
-		else
-			s << dSec;			// strSec.Format("%2.0f�", dSec);
-	}
-	else
-	{
-		nDecPlaces = dp;
-		nDecPlaces = strSec.length() - nDecPlaces - 1;
-
-		// extract the decimal place
-		double dFactor = pow(10., static_cast<int> (nDecPlaces));
-		double dTemp = dFactor * dSec;
-		double d1onFactor = 1.0 / dFactor;
-
-		if ((dSec + d1onFactor) < 1.0)
-			s << "00" << dTemp;		// strSec.Format("00%.0f", dTemp);
-		else if ((dSec + d1onFactor) < 10.0)
-			s << "0" << dTemp;		// strSec.Format("0%.0f", dTemp);
-		else
-			s << dTemp;				// strSec.Format("%.0f", dTemp);
-		strSec = s.str();
-
-		size_t nLength = strSec.length();
-		if (nLength < nDecPlaces + 2)
-		{
-			string sPadding(2 + nDecPlaces - nLength, '0');
-			strSec = sPadding + strSec;
-		}
-	}
-
-	strString += strSec;
-	SetYAxis(strString);
-}
+//void CDnaStation::SetYAxis(const char& cHemi, string strLon, string strMin, string strSec)
+//{
+//	string strString;
+//	strLon = trimstrleft(strLon);
+//	strMin = trimstrleft(strMin);
+//	strSec = trimstrleft(strSec);
+//
+//	ostringstream s;
+//
+//	bool bNegative = false;
+//	int nDeg = LongFromString<UINT32>(strLon);
+//	int nMin = LongFromString<UINT32>(strMin);
+//	double dSec = DoubleFromString<double>(strSec);
+//
+//	// Hemisphere
+//	if (cHemi == 'w' || cHemi == 'W')
+//		bNegative = true;
+//
+//	// Degrees
+//	if (nDeg == 0)
+//	{
+//		if (nMin < 10)
+//			s << "0.0" << nMin;		// strString.Format("0.0%1d", nMin);
+//		else
+//			s << "0." << nMin;		// strString.Format("0.%2d", nMin);
+//		strString = s.str();
+//	}
+//	else
+//	{
+//		if (nMin < 10)
+//			s << nDeg << ".0" << nMin;		// strString.Format("%3d.0%1d", nDeg, nMin);
+//		else
+//			s << nDeg << "." << nMin;		// strString.Format("%3d.%2d", nDeg, nMin);
+//		strString = s.str();
+//	}
+//
+//	strString = trimstr(strString);
+//
+//	if (bNegative)
+//		strString.insert(0, "-");
+//
+//	// Format seconds without decimal place
+//	// First, compute number of decimal places
+//	size_t nDecPlaces;
+//	size_t dp;
+//	s.precision(0);
+//
+//	if ((dp = strSec.find(".")) == string::npos)
+//	{
+//		if (dSec < 10.0)
+//			s << "0" << dSec;		// strSec.Format("0%1.0f�", dSec);
+//		else
+//			s << dSec;			// strSec.Format("%2.0f�", dSec);
+//	}
+//	else
+//	{
+//		nDecPlaces = dp;
+//		nDecPlaces = strSec.length() - nDecPlaces - 1;
+//
+//		// extract the decimal place
+//		double dFactor = pow(10., static_cast<int> (nDecPlaces));
+//		double dTemp = dFactor * dSec;
+//		double d1onFactor = 1.0 / dFactor;
+//
+//		if ((dSec + d1onFactor) < 1.0)
+//			s << "00" << dTemp;		// strSec.Format("00%.0f", dTemp);
+//		else if ((dSec + d1onFactor) < 10.0)
+//			s << "0" << dTemp;		// strSec.Format("0%.0f", dTemp);
+//		else
+//			s << dTemp;				// strSec.Format("%.0f", dTemp);
+//		strSec = s.str();
+//
+//		size_t nLength = strSec.length();
+//		if (nLength < nDecPlaces + 2)
+//		{
+//			string sPadding(2 + nDecPlaces - nLength, '0');
+//			strSec = sPadding + strSec;
+//		}
+//	}
+//
+//	strString += strSec;
+//	SetYAxis(strString);
+//}
 
 
 void CDnaStation::SetCoordType(const string& sType) {
@@ -762,88 +776,88 @@ void CDnaStation::SetHeightSystem(const HEIGHT_SYSTEM& type_i)
 	}
 }
 
-void CDnaStation::coutStationData(ostream &os, ostream &os2, const UINT16& uType) const
-{
-	UINT32 precision = 3;
-	if (m_ctType == LLH_type_i)
-		precision = 10;
-	stringstream ss;
-	string str;
-	size_t dot;
-
-	switch (uType)
-	{
-	case DNA_COUT:
-	case GEOLAB_COUT:
-		
-		os << "+ " << setw(16) << m_strName;
-		os << setw(4) << m_strConstraints;
-		os << setw(4) << m_strType;
-		os << setw(20) << setprecision(precision) << fixed << (m_ctType == LLH_type_i ? RadtoDms(m_dXAxis): m_dXAxis);
-		os << setw(20) << setprecision(precision) << fixed << (m_ctType == LLH_type_i ? RadtoDmsL(m_dYAxis): m_dYAxis);
-		//os << setw(16) << vStations[s].GetZAxis();
-		os << setw(13) << setprecision(4) << fixed << m_dHeight;
-		//os << setw(10) << vStations[s].GetRedHeight();
-		os << setw(5) << m_strHemisphereZone;
-		os << setw(6) << m_lnameOrder;
-		os << setw(19) << m_strDescription;
-		//os << setw(10) << vStations[s].GetComment();
-		os << endl;
-		break;
-	case NEWGAN_COUT:
-		os << setw(3) << "4";
-		os << right << setw(12) << m_strName;
-		os << " ";
-		os << left << setw(23) << m_strDescription.substr(0, 23);
-		ss.str("");
-		ss << setprecision(precision) << fixed << (m_ctType == LLH_type_i ? RadtoDms(m_dXAxis): m_dXAxis);
-		str = trimstr(ss.str());
-		dot = str.find(".");
-		str.replace(dot, 1, " ");
-		str.insert(dot+5, ".");
-		if (m_dXAxis < 0)
-		{
-			str.replace(0, 1, " ");		// replace negative sign
-			str = trimstr(str);
-			os << left << "S" << setw(precision + 4) << right << str;
-		}
-		else
-			os << left << "N" << setw(precision + 4) << right << str;
-		
-		ss.str("");
-		ss << setprecision(precision) << fixed << (m_ctType == LLH_type_i ? RadtoDmsL(m_dYAxis): m_dYAxis);
-		str = trimstr(ss.str());
-		dot = str.find(".");
-		str.replace(dot, 1, " ");
-		str.insert(dot+5, ".");
-		if (m_dYAxis < 0)
-		{
-			str.replace(0, 1, " ");		// replace negative sign
-			str = trimstr(str);
-			os << left << "W" << setw(precision + 5) << right << str;
-		}
-		else
-			os << left << "E" << setw(precision + 5) << right << str;
-		
-		
-		os << right << setw(9) << setprecision(3) << fixed << m_dHeight;
-		os << endl;
-		break;
-	case GMT_OUT:
-		os << setprecision(precision) << fixed << (m_ctType == LLH_type_i ? DegreesL(m_dYAxis): m_dYAxis);
-		os << "  ";
-		os << setprecision(precision) << fixed << (m_ctType == LLH_type_i ? Degrees(m_dXAxis): m_dXAxis);
-		os << endl;
-
-		os2 << setprecision(precision) << fixed << (m_ctType == LLH_type_i ? DegreesL(m_dYAxis): m_dYAxis);
-		os2 << "  ";
-		os2 << setprecision(precision) << fixed << (m_ctType == LLH_type_i ? Degrees(m_dXAxis): m_dXAxis);
-		os2 << "  6 0 0 LM " << m_strName << endl;		
-		break;
-	}
-	
-
-}
+//void CDnaStation::coutStationData(ostream &os, ostream &os2, const UINT16& uType) const
+//{
+//	UINT32 precision = 3;
+//	if (m_ctType == LLH_type_i)
+//		precision = 10;
+//	stringstream ss;
+//	string str;
+//	size_t dot;
+//
+//	switch (uType)
+//	{
+//	case DNA_COUT:
+//	case GEOLAB_COUT:
+//		
+//		os << "+ " << setw(16) << m_strName;
+//		os << setw(4) << m_strConstraints;
+//		os << setw(4) << m_strType;
+//		os << setw(20) << setprecision(precision) << fixed << (m_ctType == LLH_type_i ? RadtoDms(m_dXAxis): m_dXAxis);
+//		os << setw(20) << setprecision(precision) << fixed << (m_ctType == LLH_type_i ? RadtoDmsL(m_dYAxis): m_dYAxis);
+//		//os << setw(16) << vStations[s].GetZAxis();
+//		os << setw(13) << setprecision(4) << fixed << m_dHeight;
+//		//os << setw(10) << vStations[s].GetRedHeight();
+//		os << setw(5) << m_strHemisphereZone;
+//		os << setw(6) << m_lnameOrder;
+//		os << setw(19) << m_strDescription;
+//		//os << setw(10) << vStations[s].GetComment();
+//		os << endl;
+//		break;
+//	case NEWGAN_COUT:
+//		os << setw(3) << "4";
+//		os << right << setw(12) << m_strName;
+//		os << " ";
+//		os << left << setw(23) << m_strDescription.substr(0, 23);
+//		ss.str("");
+//		ss << setprecision(precision) << fixed << (m_ctType == LLH_type_i ? RadtoDms(m_dXAxis): m_dXAxis);
+//		str = trimstr(ss.str());
+//		dot = str.find(".");
+//		str.replace(dot, 1, " ");
+//		str.insert(dot+5, ".");
+//		if (m_dXAxis < 0)
+//		{
+//			str.replace(0, 1, " ");		// replace negative sign
+//			str = trimstr(str);
+//			os << left << "S" << setw(precision + 4) << right << str;
+//		}
+//		else
+//			os << left << "N" << setw(precision + 4) << right << str;
+//		
+//		ss.str("");
+//		ss << setprecision(precision) << fixed << (m_ctType == LLH_type_i ? RadtoDmsL(m_dYAxis): m_dYAxis);
+//		str = trimstr(ss.str());
+//		dot = str.find(".");
+//		str.replace(dot, 1, " ");
+//		str.insert(dot+5, ".");
+//		if (m_dYAxis < 0)
+//		{
+//			str.replace(0, 1, " ");		// replace negative sign
+//			str = trimstr(str);
+//			os << left << "W" << setw(precision + 5) << right << str;
+//		}
+//		else
+//			os << left << "E" << setw(precision + 5) << right << str;
+//		
+//		
+//		os << right << setw(9) << setprecision(3) << fixed << m_dHeight;
+//		os << endl;
+//		break;
+//	case GMT_OUT:
+//		os << setprecision(precision) << fixed << (m_ctType == LLH_type_i ? DegreesL(m_dYAxis): m_dYAxis);
+//		os << "  ";
+//		os << setprecision(precision) << fixed << (m_ctType == LLH_type_i ? Degrees(m_dXAxis): m_dXAxis);
+//		os << endl;
+//
+//		os2 << setprecision(precision) << fixed << (m_ctType == LLH_type_i ? DegreesL(m_dYAxis): m_dYAxis);
+//		os2 << "  ";
+//		os2 << setprecision(precision) << fixed << (m_ctType == LLH_type_i ? Degrees(m_dXAxis): m_dXAxis);
+//		os2 << "  6 0 0 LM " << m_strName << endl;		
+//		break;
+//	}
+//	
+//
+//}
 
 
 void CDnaStation::WriteBinaryStn(std::ofstream* binary_stream, const UINT16 bUnused)
