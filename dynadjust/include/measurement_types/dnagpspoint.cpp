@@ -844,30 +844,18 @@ void CDnaGpsPoint::SerialiseDatabaseMap(std::ofstream* os)
 
 void CDnaGpsPoint::SetEpoch(const string& epoch) 
 {
-	//for_each(m_vGpsBaselines.begin(), m_vGpsBaselines.end(),
-	//	[this, &epoch] (CDnaGpsBaseline &b) {
-	//		b.SetEpoch(epoch); 
-	//});
 	m_epoch = epoch;
 }
 
 
 void CDnaGpsPoint::SetEpsg(const string& epsg) 
 {
-	//for_each(m_vGpsBaselines.begin(), m_vGpsBaselines.end(),
-	//	[this, &epsg] (CDnaGpsBaseline &b) {
-	//		b.SetEpsg(epsg); 
-	//});
 	m_epsgCode = epsg;
 }
 
 
 void CDnaGpsPoint::SetReferenceFrame(const string& refFrame) 
 {
-	//for_each(m_vGpsBaselines.begin(), m_vGpsBaselines.end(),
-	//	[this, &refFrame] (CDnaGpsBaseline &b) {
-	//		b.SetReferenceFrame(refFrame); 
-	//});
 	m_referenceFrame = refFrame;
 	SetEpsg(epsgStringFromName<string>(refFrame));
 }
