@@ -29,46 +29,6 @@ using namespace dynadjust::measurements;
 namespace dynadjust { 
 namespace iostreams {
 
-void dna_io_adj::print_msr_to_stn_header(ostream& os)
-{
-	os << endl << "Measurements to Station " << endl;
-	os << "------------------------------------------" << endl << endl;
-
-	os << setw(STATION) << left << "Station" <<
-		setw(NUMERIC_WIDTH) << right <<	"A" <<
-		setw(NUMERIC_WIDTH) << right <<	"B" <<
-		setw(NUMERIC_WIDTH) << right <<	"C" <<
-		setw(NUMERIC_WIDTH) << right <<	"D" <<
-		setw(NUMERIC_WIDTH) << right <<	"E" <<
-		setw(NUMERIC_WIDTH) << right << "G" <<
-		setw(NUMERIC_WIDTH) << right <<	"H" <<
-		setw(NUMERIC_WIDTH) << right <<	"I" <<
-		setw(NUMERIC_WIDTH) << right <<	"J" <<
-		setw(NUMERIC_WIDTH) << right <<	"K" <<
-		setw(NUMERIC_WIDTH) << right <<	"L" <<
-		setw(NUMERIC_WIDTH) << right <<	"M" <<
-		setw(NUMERIC_WIDTH) << right <<	"P" <<
-		setw(NUMERIC_WIDTH) << right <<	"Q" <<
-		setw(NUMERIC_WIDTH) << right <<	"R" <<
-		setw(NUMERIC_WIDTH) << right <<	"S" <<
-		setw(NUMERIC_WIDTH) << right <<	"V" <<
-		setw(NUMERIC_WIDTH) << right <<	"X" <<
-		setw(NUMERIC_WIDTH) << right <<	"Y" <<
-		setw(NUMERIC_WIDTH) << right <<	"Z" <<
-		// Total
-		setw(STAT) << right <<	"Total" <<
-		endl;
-
-	UINT32 i, j(STATION + (NUMERIC_WIDTH * 20) + STAT);
-	for (i=0; i<j; ++i)
-		os << "-";
-
-	os << endl;
-
-	
-}
-
-
 void dna_io_adj::print_adj_stn_header(ostream& os)
 {
 	os << endl << "Adjusted Coordinates" << endl <<
