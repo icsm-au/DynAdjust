@@ -566,13 +566,14 @@ _PLOT_STATUS_ dna_plot::CreateGMTPlot(plot_settings* plotCriteria, const string&
 	else if (plotCriteria_._plot_area_radius > 0. && !plotCriteria_._plot_station_centre.empty())
 		default_limits_ = false;
 
-	UINT32 block(plotCriteria_._plot_block_number - 1);
+	UINT32 block(0);
+	bool oneBlockOnly(plotCriteria_._plot_block_number > 0);
+	if (oneBlockOnly)
+		block = plotCriteria_._plot_block_number - 1;
 
 	if (plotBlocks_)
-	{
-		bool oneBlockOnly(plotCriteria_._plot_block_number > 0);
-		
-		for (block=0; block<blockCount_; ++block)
+	{		
+		for (block; block<blockCount_; ++block)
 		{
 			PrintStationsDataFileBlock(block);
 			if (!plotCriteria_._omit_measurements)
@@ -617,8 +618,8 @@ _PLOT_STATUS_ dna_plot::CreateGMTPlot(plot_settings* plotCriteria, const string&
 	{
 		if (plotBlocks_)
 		{
-			if (plotCriteria_._plot_block_number > 0)
-				PrintStationLabelsBlock(plotCriteria_._plot_block_number-1);
+			if (oneBlockOnly)
+				PrintStationLabelsBlock(block);
 			else
 				for (block=0; block<blockCount_; ++block)
 					PrintStationLabelsBlock(block);
@@ -629,8 +630,8 @@ _PLOT_STATUS_ dna_plot::CreateGMTPlot(plot_settings* plotCriteria, const string&
 
 	if (plotCriteria_._plot_positional_uncertainty)
 	{
-		if (plotCriteria_._plot_block_number > 0)
-			PrintPositionalUncertainty(plotCriteria_._plot_block_number-1);
+		if (oneBlockOnly)
+			PrintPositionalUncertainty(block);
 		else
 			for (block=0; block<blockCount_; ++block)
 				PrintPositionalUncertainty(block);
@@ -638,8 +639,8 @@ _PLOT_STATUS_ dna_plot::CreateGMTPlot(plot_settings* plotCriteria, const string&
 
 	if (plotCriteria_._plot_error_ellipses)
 	{
-		if (plotCriteria_._plot_block_number > 0)
-			PrintErrorEllipses(plotCriteria_._plot_block_number-1);
+		if (oneBlockOnly)
+			PrintErrorEllipses(block);
 		else
 			for (block=0; block<blockCount_; ++block)
 				PrintErrorEllipses(block);
@@ -647,8 +648,8 @@ _PLOT_STATUS_ dna_plot::CreateGMTPlot(plot_settings* plotCriteria, const string&
 
 	if (plotCriteria_._plot_correction_arrows)
 	{
-		if (plotCriteria_._plot_block_number > 0)
-			PrintCorrectionArrows(plotCriteria_._plot_block_number-1);
+		if (oneBlockOnly)
+			PrintCorrectionArrows(block);
 		else
 			for (block=0; block<blockCount_; ++block)
 				PrintCorrectionArrows(block);
@@ -957,7 +958,7 @@ void dna_plot::PrintGMTBatfile(const string& epsname, plot_settings* plotCriteri
 	double error_ellipse_scale(uncertainty_legend_length_/largest_uncertainty_);
 	UINT32 uncertainty_legend_precision(4);
 
-	for (; block<blockCount_; block++)
+	for (block; block<blockCount_; block++)
 	{
 		colours = 0;
 		if (plotBlocks_ && plotCriteria_._plot_block_number > 0)
