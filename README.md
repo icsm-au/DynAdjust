@@ -124,4 +124,4 @@ DynAdjust also makes use of Intel's performance libraries - Math Kernel Library 
 
 - <https://software.seek.intel.com/performance-libraries>
 
-As stated on this website, Intel's performance libraries are *free to use for personal and commercial applications.*
+As stated on this website, Intel's performance libraries are _free to use for personal and commercial applications_.
