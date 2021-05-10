@@ -67,7 +67,7 @@ int CloseLogandReturn(std::ofstream& os, const int status, const string& output_
 	return status;
 }
 
-void PrintAppStartTimeMessage(std::ofstream& os, string app)
+void PrintAppStartTimeMessage(std::ofstream& os, string&& app)
 {
 	// App start time
 	os << setw(15) << left << string("+ " + app) << setw(25) << 

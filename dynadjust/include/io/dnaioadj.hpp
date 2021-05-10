@@ -48,9 +48,6 @@ public:
 	void print_adj_stn_header(ostream& os);
 	void print_adj_stn_block_header(ostream& os, const UINT32& block);
 
-	void print_msr_to_stn_header(ostream& os);
-	void print_msr_to_stn(ostream& os);
-
 protected:
 
 };
