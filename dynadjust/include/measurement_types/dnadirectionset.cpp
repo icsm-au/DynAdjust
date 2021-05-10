@@ -195,8 +195,6 @@ bool CDnaDirectionSet::IsRepeatedDirection(string strTarget)
 	if (m_vTargetDirections.empty())
 		return false;
 
-	vector<CDnaDirection>::const_iterator _it_dirn;
-
 	if (find_if(m_vTargetDirections.begin(), m_vTargetDirections.end(),
 		bind2nd(operator_on_mem(&CDnaDirection::m_strTarget, std::equal_to<string>()), strTarget)) != m_vTargetDirections.end())
 		return true;
@@ -274,7 +272,7 @@ void CDnaDirectionSet::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string
 	
 	// write directions
 	vector<CDnaDirection>::const_iterator _it_dir = m_vTargetDirections.begin();
-	for (_it_dir = m_vTargetDirections.begin(); _it_dir!=m_vTargetDirections.end(); _it_dir++)
+	for (_it_dir = m_vTargetDirections.begin(); _it_dir!=m_vTargetDirections.end(); ++_it_dir)
 		_it_dir->WriteDynaMLMsr(dynaml_stream, comment, true);
 	
 	*dynaml_stream << "  </DnaMeasurement>" << endl;
@@ -310,7 +308,7 @@ void CDnaDirectionSet::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fiel
 	
 	// write directions
 	vector<CDnaDirection>::const_iterator _it_dir = m_vTargetDirections.begin();
-	for (_it_dir = m_vTargetDirections.begin(); _it_dir!=m_vTargetDirections.end(); _it_dir++)
+	for (_it_dir = m_vTargetDirections.begin(); _it_dir!=m_vTargetDirections.end(); ++_it_dir)
 		_it_dir->WriteDNAMsr(dna_stream, dmw, dml, true);
 }
 	
@@ -364,7 +362,7 @@ void CDnaDirectionSet::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* e
 	m_dStdDev = SecondstoRadians(0.01);
 	
 	vector<CDnaDirection>::iterator _it_dir = m_vTargetDirections.begin();
-	for (_it_dir = m_vTargetDirections.begin(); _it_dir!=m_vTargetDirections.end(); _it_dir++)
+	for (_it_dir = m_vTargetDirections.begin(); _it_dir!=m_vTargetDirections.end(); ++_it_dir)
 		_it_dir->SimulateMsr(vStations, ellipsoid);
 }
 	
@@ -408,7 +406,7 @@ void CDnaDirectionSet::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* e
 //
 //	// now covariances
 //	vector<CDnaDirection>::iterator _it_dir = m_vTargetDirections.begin();
-//	for (; _it_dir!=m_vTargetDirections.end(); _it_dir++)
+//	for (; _it_dir!=m_vTargetDirections.end(); ++_it_dir)
 //	{
 //		_it_dir->SetType(m_strType);
 //		_it_dir->SetFirst(m_strFirst);
@@ -454,7 +452,7 @@ UINT32 CDnaDirectionSet::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& i
 
 	// now covariances
 	vector<CDnaDirection>::iterator _it_dir = m_vTargetDirections.begin();
-	for (; _it_dir!=m_vTargetDirections.end(); _it_dir++)
+	for (; _it_dir!=m_vTargetDirections.end(); ++_it_dir)
 	{
 		it_msr++;
 		_it_dir->SetType(m_strType);
@@ -493,7 +491,7 @@ void CDnaDirectionSet::WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrI
 	binary_stream->write(reinterpret_cast<char *>(&measRecord), sizeof(measurement_t));
 
 	vector<CDnaDirection>::const_iterator _it_dir;
-	for (_it_dir = m_vTargetDirections.begin(); _it_dir!=m_vTargetDirections.end(); _it_dir++)
+	for (_it_dir = m_vTargetDirections.begin(); _it_dir!=m_vTargetDirections.end(); ++_it_dir)
 		_it_dir->WriteBinaryMsr(binary_stream, msrIndex);
 }
 

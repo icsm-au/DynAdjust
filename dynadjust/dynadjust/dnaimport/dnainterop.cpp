@@ -5786,10 +5786,6 @@ UINT32 dna_import::ComputeMeasurementCount(vdnaMsrPtr* vMeasurements, const vUIN
 	it_vUINT32_const it_ignmsr;
 	_it_vdnamsrptr _it_msr;
 
-	vector<CDnaDirection>::iterator _it_dirns;
-	vector<CDnaGpsBaseline>::iterator _it_gpsbsls;
-	vector<CDnaGpsPoint>::iterator _it_gpspts;
-
 	for (it_ignmsr=vIgnoredMsrs.begin(); it_ignmsr!=vIgnoredMsrs.end(); ++it_ignmsr)
 	{
 		_it_msr = vMeasurements->begin() + *it_ignmsr;
@@ -6433,7 +6429,7 @@ void dna_import::CompleteASLDirections(_it_vdnamsrptr _it_msr, vector<CDnaDirect
 	(*currentBmsFileIndex)++;
 
 	// Calc AML index for Station - Target directions
-	for (_it_dir=vDirections->begin(); _it_dir != vDirections->end(); _it_dir++)
+	for (_it_dir=vDirections->begin(); _it_dir != vDirections->end(); ++_it_dir)
 	{
 		// Calc AML index for <Second>
 		stn_indexAML = _it_dir->GetStn2Index();

@@ -112,12 +112,12 @@ else
 		for binary in ${_binaries[@]}; do
 			if [[ ${binary} =~ "$_binary" ]]; then
 				_binary=${binary}
-				echo -e " - building "$_binary" only."
+				echo -e " - building $_binary only."
 				break
 			fi
 		done
 	else
-		echo -e " - building all binaries (I don't know what "$_binary" is)."
+		echo -e " - building all binaries (I don't know what $_binary is)."
 		_binary="all"
 	fi
 fi
