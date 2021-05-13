@@ -6,7 +6,9 @@
 [![Codecov status](https://codecov.io/gh/icsm-au/DynAdjust/branch/master/graph/badge.svg)](https://codecov.io/gh/icsm-au/DynAdjust)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/a3944cda0c72445f8a13b1f82b64f714)](https://www.codacy.com/gh/icsm-au/DynAdjust/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=icsm-au/DynAdjust&amp;utm_campaign=Badge_Grade)
 [![GitHub Releases](https://img.shields.io/github/v/release/icsm-au/DynAdjust.svg)](https://github.com/icsm-au/DynAdjust/releases)
+[![Documentation (User's Guide)](https://img.shields.io/badge/docs-usersguide-red.svg)](https://github.com/icsm-au/DynAdjust/raw/master/resources/DynAdjust%20Users%20Guide.pdf)
 [![GitHub Issues](https://img.shields.io/github/issues/icsm-au/DynAdjust.svg)](https://github.com/icsm-au/DynAdjust/issues)
+
 [![DynAdjust](resources/img/dynadjust-banner.png)](https://raw.githubusercontent.com/icsm-au/DynAdjust/master/resources/img/dynadjust-banner.png)
 
 ## Contents
