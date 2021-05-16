@@ -121,16 +121,6 @@ const double MAX_DBL_VALUE(+1.7e308);
 
 const UINT32 MAX_UINT32_VALUE(0xffffffff);
 
-// Define commands for dnaplot
-#if defined(_WIN32) || defined(__WIN32__)
-	const string FOLDER_SLASH("/");
-	//const string FOLDER_SLASH("\\");
-	const string DELETE_CMD("del /Q /F");
-	const string COPY_CMD("copy /Y");
-#elif defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
-	const string FOLDER_SLASH("/");
-	const string DELETE_CMD("rm -f");
-	const string COPY_CMD("cp");
-#endif
+const string FOLDER_SLASH("/");
 
 #endif  // DNACONSTS_HPP

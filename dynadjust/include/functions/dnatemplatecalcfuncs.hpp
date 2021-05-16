@@ -74,6 +74,12 @@ T removeNegativeZero(const T& t, const U& precision)
 	return t;	
 }
 
+template <typename T>
+bool are_floats_equal(const T& lhs, const T& rhs, const T epsilon=PRECISION_1E6)
+{
+	return (fabs(lhs - rhs) < epsilon);
+}
+
 template <typename T, typename U, typename iterator>
 T average(const iterator begin, const iterator end, U& sum)
 {

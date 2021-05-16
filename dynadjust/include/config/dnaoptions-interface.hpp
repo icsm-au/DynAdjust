@@ -220,6 +220,7 @@ const char* const REMOVE_IGNORED_MSRS = "remove-ignored-msr";
 const char* const FLAG_UNUSED_STNS = "flag-unused-stations";
 const char* const IMPORT_SEG_BLOCK = "import-block-stn-msr";
 
+const char* const GMT_VERSION = "gmt-version";
 const char* const PLOT_MSRS = "plot-msr-types";
 const char* const PLOT_MSRS_IGNORED = "plot-ignored-msrs";
 const char* const PLOT_STN_LABELS = "label-stations";

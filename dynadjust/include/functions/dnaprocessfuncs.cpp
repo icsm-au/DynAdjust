@@ -169,9 +169,9 @@ bool run_command(const string& exec_path_name, bool validateReturnCode)
 	
 #elif defined(__APPLE__)
 	// Apple Mac code here to launch command
-	
-	throw runtime_error("Function not defined yet.");
-	
+	std::system(exec_path_name.c_str());
+	return true;
+		
 #elif defined(__OS2__)
 	// OS/2 code here to launch command
 	
@@ -180,115 +180,8 @@ bool run_command(const string& exec_path_name, bool validateReturnCode)
 #elif defined(__linux) || defined(sun) || defined(__unix__)
 #define WR_MAX_ARG 100
 	// Linux
-	
-	/*
 	std::system(exec_path_name.c_str());
-	// see wifexited and wifesignaled and wifexitstatus
 	return true;
-	
-	// Split the input command up into an array of words stored
-	// in a contiguous block of memory. The array contains pointers
-	// to each word.
-	// Don't forget the terminating `\0' character.
-	char const * const c_str = exec_path_name.c_str();
-	vector<char> vec(c_str, c_str + exec_path_name.size() + 1);
-
-	// Splitting the command up into an array of words means replacing
-	// the whitespace between words with '\0'. Life is complicated
-	// however, because words protected by quotes can contain whitespace.
-	//
-	// The strategy we adopt is:
-	// 1. If we're not inside quotes, then replace white space with '\0'.
-	// 2. If we are inside quotes, then don't replace the white space
-	//    but do remove the quotes themselves. We do this naively by
-	//    replacing the quote with '\0' which is fine if quotes
-	//    delimit the entire word. However, if quotes do not delimit the
-	//    entire word (i.e., open quote is inside word), simply discard
-	//    them such as not to break the current word.
-	char inside_quote = 0;
-	char c_before_open_quote = ' ';
-	vector<char>::iterator it = vec.begin();
-	vector<char>::iterator itc = vec.begin();
-	vector<char>::iterator const end = vec.end();
-	for (; it != end; ++it, ++itc) {
-		char const c = *it;
-		if (!inside_quote) {
-			if (c == '\'' || c == '"') {
-				if (c_before_open_quote == ' ')
-					*itc = '\0';
-				else
-					--itc;
-				inside_quote = c;
-			} else {
-				if (c == ' ')
-					*itc = '\0';
-				else
-					*itc = c;
-				c_before_open_quote = c;
-			}
-		} else if (c == inside_quote) {
-			if (c_before_open_quote == ' ')
-				*itc = '\0';
-			else
-				--itc;
-			inside_quote = 0;
-		} else
-			*itc = c;
-	}
-
-	// Clear what remains.
-	for (; itc != end; ++itc)
-		*itc = '\0';
-
-	// Build an array of pointers to each word.
-	it = vec.begin();
-	vector<char *> argv;
-	char prev = '\0';
-	for (; it != end; ++it) {
-		if (*it != '\0' && prev == '\0')
-			argv.push_back(&*it);
-		prev = *it;
-	}
-	argv.push_back(0);
-
-	pid_t const cpid = ::fork();
-	
-	if (cpid == 0) {
-		// Child
-		execvp(argv[0], &*argv.begin());
-
-		// If something goes wrong, we end up here
-		cout << "execvp of " << path(exec_path_name).string() << " failed: "
-			  << strerror(errno) << endl;
-		_exit(1);
-		return false;
-	}
-
-	*/
-
-	char  line[1024];
-	char *argv[64];
-	strcpy(line, exec_path_name.c_str());
-	parse(line, argv);
-	
-	char  environment_vars[2048];
-	char *env[64];
-	sprintf(environment_vars, "%s %s %s", 
-		"PATH=/usr/bin/:$PATH",
-		"LD_LIBRARY_PATH=/usr/lib64:/usr/lib:$LD_LIBRARY_PATH",
-		"MALLOC_CHECK_=0");
-	parse(environment_vars, env);
-		
-	bool b=execute(argv, env);
-
-	//delme.close();
-	
-	if (!b)
-	{
-		// If something goes wrong, we end up here
-		//cout << "execvp of " << exec_path_name << " failed: " << strerror(errno) << endl;
-		return false;
-	}
 
 #endif
 	return true;
