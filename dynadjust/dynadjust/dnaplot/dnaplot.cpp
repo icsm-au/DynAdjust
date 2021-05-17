@@ -88,7 +88,7 @@ void dna_plot::InitialiseAppsandCommands(const UINT16& version)
 		break;
 	}
 
-	_MAKEDIR_CMD_ = "mkdir";
+	_MAKEDIR_CMD_ = "mkdir ";
 	_ECHO_CMD_ = "echo ";
 	_CHMOD_CMD_ = "chmod +x ";
 	_GMT_TMP_DIR_ = "GMT_TMPDIR";
@@ -97,13 +97,15 @@ void dna_plot::InitialiseAppsandCommands(const UINT16& version)
 	_LEGEND_ECHO_ = _ECHO_CMD_;
 	_LEGEND_CMD_1_ = " > ";
 	_LEGEND_CMD_2_ = " >> ";
-	_COMMENT_PREFIX_ = "rem ";
+	_COMMENT_PREFIX_ = ":: ";
 	_CMD_EXT_ = ".bat";
 	_CMD_HEADER_ = "@echo off";
 	_PDF_AGGREGATE_ = "pdftk ";
-	_DELETE_CMD("del /Q /F");
-	_COPY_CMD("copy /Y");
-	_ENV_GMT_TMP_DIR_ = "%" + _GMT_TMP_ DIR + "%";
+	_DELETE_CMD_ = "del /Q /F ";
+	_COPY_CMD_ = "copy /Y ";
+	_MOVE_CMD_ = "move ";
+	_ENV_GMT_TMP_DIR_ = "%" + _GMT_TMP_DIR_ + "%";
+	_MAKEENV_CMD_ = "set ";
 
 #elif defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
 	_LEGEND_ECHO_ = "";
@@ -113,10 +115,12 @@ void dna_plot::InitialiseAppsandCommands(const UINT16& version)
 	_CMD_EXT_ = ".sh";
 	_CMD_HEADER_ = "#!/bin/bash";
 	_PDF_AGGREGATE_ = "pdfunite ";
-	_DELETE_CMD_ = "rm -rf";
-	_COPY_CMD_ = "cp";
-	_MAKETEMP_CMD_ = "mktemp";
+	_DELETE_CMD_ = "rm -rf ";
+	_COPY_CMD_ = "cp ";
+	_MOVE_CMD_ = "mv ";
+	_MAKETEMP_CMD_ = "mktemp ";
 	_ENV_GMT_TMP_DIR_ = "$" + _GMT_TMP_DIR_;
+	_MAKEENV_CMD_ = "export ";
 
 #endif
 
@@ -155,13 +159,7 @@ _PLOT_STATUS_ dna_plot::CreateSegmentationGraph(project_settings* pprj, const pl
 		break;
 	}
 
-	gnuplot_cmd_filename.append("_eps");
-
-#if defined(_WIN32) || defined(__WIN32__)
-	gnuplot_cmd_filename.append(".bat");
-#elif defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
-	gnuplot_cmd_filename.append(".sh");
-#endif
+	gnuplot_cmd_filename.append("_eps").append(_CMD_EXT_);
 
 	string gnuplot_cmd_file(output_folder_ + FOLDER_SLASH + gnuplot_cmd_filename);
 	
@@ -203,13 +201,7 @@ _PLOT_STATUS_ dna_plot::CreateSegmentationGraph(project_settings* pprj, const pl
 		break;
 	}
 
-	pdf_cmd_filename.append("_pdf");
-
-#if defined(_WIN32) || defined(__WIN32__)
-	pdf_cmd_filename.append(".bat");
-#elif defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
-	pdf_cmd_filename.append(".sh");
-#endif
+	pdf_cmd_filename.append("_pdf").append(_CMD_EXT_);
 
 	string pdf_cmd_file(output_folder_ + FOLDER_SLASH + pdf_cmd_filename);
 	
@@ -1113,7 +1105,7 @@ void dna_plot::CreateGMTCommandFiles()
 		
 		// GMT bat file is printed last to reflect the options and dimensions as determined
 		// by PrintStationsDataFile and PrintMeasurementsDatFiles
-		PrintGMTCommandFile(block);
+		CreateGMTCommandFile(block);
 
 		// close the file
 		gmtbat_file_.close();
@@ -1131,7 +1123,7 @@ void dna_plot::CreateGMTCommandFiles()
 }
 
 
-void dna_plot::PrintGMTCommandFile(const UINT32& block)
+void dna_plot::CreateGMTCommandFile(const UINT32& block)
 {
 	it_pair_string _it_colour;
 	string_string_pair this_msr;
@@ -1150,31 +1142,33 @@ void dna_plot::PrintGMTCommandFile(const UINT32& block)
 	string legendTempFile("map-block");
 	legendTempFile.append(StringFromT(block)).append(".legend");
 
+	// make temporary directory for gmt.conf gmt.history to prevent corruption of
+	// gmt.conf and gmt.history during parallel processing
+	gmtbat_file_ << endl << _COMMENT_PREFIX_ << "Create temporary folder for gmt.conf and gmt.history" << endl;
+	
 #if defined(_WIN32) || defined(__WIN32__)
 	// temporary legend files
 	_LEGEND_CMD_1_.append(legendTempFile);
 	_LEGEND_CMD_2_.append(legendTempFile);
-	string legendTempFile1("script1-");
-	legendTempFile1.append(StringFromT(block)).append(".bat");
-	string legendTempFile2("script2-");
-	legendTempFile2.append(StringFromT(block)).append(".bat");
-#elif defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
 	
+	// set, create and provide access to temporary folder for gmt.conf file
+	gmtbat_file_ << _MAKEDIR_CMD_ << "\".\\gmt.block-" << block << "\"" << endl;
+	gmtbat_file_ << _MAKEENV_CMD_ << _GMT_TMP_DIR_ << "=\".\\gmt.block-" << block << "\"" << endl;
+	gmtbat_file_ << "icacls " << _ENV_GMT_TMP_DIR_ << " /grant Everyone:(f)" << endl;
+
+#elif defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
+	// temporary gmt.conf file location
+	gmtbat_file_ << _MAKEENV_CMD_ << _GMT_TMP_DIR_ << "=$(" << _MAKETEMP_CMD_ << "-d ${TMPDIR:-/tmp}/gmt.XXXXXX)" << endl << endl;
 #endif
 
 	UINT32 colours(0), columns(5);
 	
 	if (plotBlocks_)
-	{
 		gmtbat_file_ << endl << 
 			_COMMENT_PREFIX_ << "GMT command file for segmented network block " << (block + 1) << endl;		
-	}
 	else
-		gmtbat_file_ << _COMMENT_PREFIX_ << "GMT command file for simultaneous network" << endl << endl;
-
-	// make temporary directory for gmt.conf gmt.history to prevent corruption of
-	// gmt.conf and gmt.history during parallel processing
-	gmtbat_file_ << "export " << _GMT_TMP_DIR_ << "=$(mktemp -d ${TMPDIR:-/tmp}/gmt.XXXXXX)" << endl << endl;
+		gmtbat_file_ << endl << 
+			_COMMENT_PREFIX_ << "GMT command file for simultaneous network" << endl << endl;
 
 	// write GMT parameters
 	PrintGMTParameters();
@@ -1931,13 +1925,9 @@ void dna_plot::PrintGMTCommandFile(const UINT32& block)
 		gmtbat_file_ << _LEGEND_ECHO_ << "S 0.01 c 0.01 white 1p,white 1 Scale 1:" << static_cast<UINT32>(scale_) << " (A3)" << _LEGEND_CMD_2_ << endl;
 
 #if defined(_WIN32) || defined(__WIN32__)
-		gmtbat_file_ << _LEGEND_ECHO_ << _APP_PSLEGEND_ << " -R0/" << fixed << setprecision(1) << page_width << 
-			"/0/1.5 -Jx1/1 -O -Dx0/0/" <<
-			fixed << setprecision(1) << page_width << "/" << setprecision(1) << title_block_height << 
-			"/TL -Y-1.2 -F " << legendTempFile << " -S" << 
-			legendTempFile2 << " > " << legendTempFile1 << endl;
-		gmtbat_file_ << "call " << legendTempFile1 << endl;
-		gmtbat_file_ << "call " << legendTempFile2 << " >> " << psTempFile << endl;
+		gmtbat_file_ << _APP_PSLEGEND_ << " -R -J -DJTL+w" << fixed << setprecision(1) << page_width_ <<
+			"c+jBL+l1.5+o0/1.5c -C0.3/0.3 -O -F+p+gwhite " <<
+			legendTempFile << " -P >> " << psTempFile << endl;
 #elif defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
 		gmtbat_file_ << "END" << endl << endl;
 
@@ -1953,30 +1943,31 @@ void dna_plot::PrintGMTCommandFile(const UINT32& block)
 	//
 	gmtbat_file_ << endl << _COMMENT_PREFIX_ << "convert ps to pdf" << endl;
 	gmtbat_file_ << _APP_PSCONVERT_ << " -A0.2c+white -Tf " << psTempFile << endl;
-	gmtbat_file_ << "mv " << pdfTempFile << " " << v_gmt_pdf_filenames_.at(block) << endl << endl;	
+	gmtbat_file_ << _MOVE_CMD_ << pdfTempFile << " " << v_gmt_pdf_filenames_.at(block) << endl << endl;	
 	////////////////////////////////////////////////
 	
 	////////////////////////////////////////////////
 	// clean up legend files
 	gmtbat_file_ << _COMMENT_PREFIX_ << "cleanup" << endl;
-	gmtbat_file_ << _DELETE_CMD_ << " " << psTempFile;
+	gmtbat_file_ << _DELETE_CMD_ << psTempFile;
 
 	if (!pprj_->p._omit_title_block)
-	{
-#if defined(_WIN32) || defined(__WIN32__)
-		gmtbat_file_ << " " << legendTempFile << " " << legendTempFile1 << " " << legendTempFile2 << endl;
-#elif defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)	
 		gmtbat_file_ << " " << legendTempFile << endl;
-#endif		
-	}
 	else
 		gmtbat_file_ << endl;
 
 	////////////////////////////////////////////////
 
-	// use temporary directory for gmt.conf and gmt.history
-	gmtbat_file_ << endl << _DELETE_CMD_ << " " <<  _ENV_GMT_TMP_DIR_ << endl;
+	// remove temporary directory for gmt.conf and gmt.history
+#if defined(_WIN32) || defined(__WIN32__)
+	gmtbat_file_ << _DELETE_CMD_ << _ENV_GMT_TMP_DIR_ << endl;
+
+#elif defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)	
+	gmtbat_file_ << endl << _DELETE_CMD_ << _ENV_GMT_TMP_DIR_ << endl;
 	gmtbat_file_ << "unset " << _GMT_TMP_DIR_ << endl;
+
+#endif		
+
 		
 	gmtbat_file_ << endl;
 		
@@ -2026,10 +2017,6 @@ void dna_plot::PrintGMTCommandFile(const UINT32& block)
 	else
 		gmtbat_file_ << endl;
 	//////////////////////////////////////////////////////////////////////////////////////////
-
-#if defined(_WIN32) || defined(__WIN32__)
-	gmtbat_file_ << "exit /b 0" << endl;
-#endif
 
 	gmtbat_file_ << endl;
 
@@ -2119,9 +2106,9 @@ void dna_plot::CreateGMTPlot_()
 	stringstream ss;
 	string clean_up_gmt_config_files;
 #if defined(_WIN32) || defined(__WIN32__)
-	ss << _DELETE_CMD_ << " .gmtdefaults4 .gmtcommands4";
+	ss << _DELETE_CMD_ << ".gmtdefaults4 .gmtcommands4";
 #elif defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)	
-	ss << _DELETE_CMD_ << " gmt.conf gmt.history";
+	ss << _DELETE_CMD_ << "gmt.conf gmt.history";
 #endif
 
 	if (!pprj_->p._keep_gen_files)
@@ -2168,13 +2155,8 @@ _PLOT_STATUS_ dna_plot::CreateGMTPlot(plot_settings* plotCriteria, const string&
 		gmt_cmd_filename.append("_phased");
 	else
 		gmt_cmd_filename.append("_simult");
-	gmt_cmd_filename.append("_eps");
 
-#if defined(_WIN32) || defined(__WIN32__)
-	gmt_cmd_filename.append(".bat");
-#elif defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
-	gmt_cmd_filename.append(".sh");
-#endif
+	gmt_cmd_filename.append("_eps").append(_CMD_EXT_);
 
 	string gmt_cmd_file(output_folder_ + FOLDER_SLASH + gmt_cmd_filename);
 	string gmt_eps_name(network_name + "_plot");
@@ -2315,13 +2297,8 @@ _PLOT_STATUS_ dna_plot::CreateGMTPlot(plot_settings* plotCriteria, const string&
 		pdf_cmd_filename.append("_phased");
 	else
 		pdf_cmd_filename.append("_simult");
-	pdf_cmd_filename.append("_pdf");
 
-#if defined(_WIN32) || defined(__WIN32__)
-	pdf_cmd_filename.append(".bat");
-#elif defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
-	pdf_cmd_filename.append(".sh");
-#endif
+	pdf_cmd_filename.append("_pdf").append(_CMD_EXT_);
 
 	string pdf_cmd_file(output_folder_ + FOLDER_SLASH + pdf_cmd_filename);
 	string pdf_plot_name;
@@ -3482,7 +3459,7 @@ void dna_plot::PrintGMTBatfile(const string& gmt_eps_file, plot_settings* plotCr
 
 				gmtbat_file_ << endl << _COMMENT_PREFIX_ << "convert ps to pdf" << endl;
 				gmtbat_file_ << _APP_PSCONVERT_ << " -A0.2c+white -Tf " << postscriptTempFile << endl;
-				gmtbat_file_ << "mv tmp.pdf " << pdf_plot_name << endl << endl;
+				gmtbat_file_ << _MOVE_CMD_ << "tmp.pdf " << pdf_plot_name << endl << endl;
 				plotCriteria->_pdf_file_name = pdf_plot_name;
 				break;
 			}
@@ -3506,7 +3483,7 @@ void dna_plot::PrintGMTBatfile(const string& gmt_eps_file, plot_settings* plotCr
 				
 				gmtbat_file_ << endl << _COMMENT_PREFIX_ << "convert ps to pdf" << endl;
 				gmtbat_file_ << _APP_PSCONVERT_ << " -A0.2c+white -Tf " << postscriptTempFile << endl;
-				gmtbat_file_ << "mv tmp.pdf " << pdf_plot_name << endl << endl;
+				gmtbat_file_ << _MOVE_CMD_ << "tmp.pdf " << pdf_plot_name << endl << endl;
 				plotCriteria->_pdf_file_name = pdf_plot_name;
 				break;
 			}
@@ -3514,7 +3491,7 @@ void dna_plot::PrintGMTBatfile(const string& gmt_eps_file, plot_settings* plotCr
 
 		// clean up
 		gmtbat_file_ << _COMMENT_PREFIX_ << "cleanup" << endl;
-		gmtbat_file_ << _DELETE_CMD_ << " " << postscriptTempFile;
+		gmtbat_file_ << _DELETE_CMD_ << postscriptTempFile;
 
 		if (!pprj_->p._omit_title_block)
 		{
@@ -3722,11 +3699,11 @@ string dna_plot::PrintPdfCmdfile(const string& pdf_cmd_file, const string& gmt_t
 		if (projectSettings_.g.verbose == 0 && projectSettings_.g.quiet == 0)
 			cmd_file << "-q ";
 		cmd_file << picname + ".eps " << pdfname_tmp << endl;
-		cmd_file << _DELETE_CMD_ << " " << picname + ".eps" << endl;
-		cmd_file << _DELETE_CMD_ << " " << gmt_tex_filename << endl;
-		cmd_file << _DELETE_CMD_ << " *.dvi" << endl;
-		cmd_file << _DELETE_CMD_ << " *.log" << endl;
-		cmd_file << _DELETE_CMD_ << " *.aux" << endl;
+		cmd_file << _DELETE_CMD_ << picname + ".eps" << endl;
+		cmd_file << _DELETE_CMD_ << gmt_tex_filename << endl;
+		cmd_file << _DELETE_CMD_ << "*.dvi" << endl;
+		cmd_file << _DELETE_CMD_ << "*.log" << endl;
+		cmd_file << _DELETE_CMD_ << "*.aux" << endl;
 		
 		if (blockCount_ > 1)
 		{	
@@ -3740,14 +3717,14 @@ string dna_plot::PrintPdfCmdfile(const string& pdf_cmd_file, const string& gmt_t
 				ss << "_block" << block + 1;
 				epsname = pprj_->p._eps_file_name;
 				epsname = epsname.replace(epsname.find("."), 1, ss.str() + ".");
-				cmd_file << _DELETE_CMD_ << " " << epsname << endl;
+				cmd_file << _DELETE_CMD_ << epsname << endl;
 
 				if (plotBlocks_ && pprj_->p._plot_block_number > 0)
 					break;
 			}
 		}
 		else
-			cmd_file << _DELETE_CMD_ << " " << epsname << endl;
+			cmd_file << _DELETE_CMD_ << epsname << endl;
 	}
 	else
 	{
@@ -3773,7 +3750,7 @@ string dna_plot::PrintPdfCmdfile(const string& pdf_cmd_file, const string& gmt_t
 #endif
 					cmd_file << "ps2pdf -dEPSCrop " << epsname <<
 						" " << picname << ss.str() << ".pdf" << endl;
-					cmd_file << _DELETE_CMD_ << " " << epsname << endl;					
+					cmd_file << _DELETE_CMD_ << epsname << endl;					
 
 					break;
 				case gmt_version_5:
@@ -3821,7 +3798,7 @@ string dna_plot::PrintPdfCmdfile(const string& pdf_cmd_file, const string& gmt_t
 			cmd_file << pdfname_tmp << endl;
 #endif
 
-			cmd_file << _DELETE_CMD_ << " ";
+			cmd_file << _DELETE_CMD_;
 			
 			if (plotBlocks_ && pprj_->p._plot_block_number > 0)
 				block = pprj_->p._plot_block_number - 1;
@@ -3849,7 +3826,7 @@ string dna_plot::PrintPdfCmdfile(const string& pdf_cmd_file, const string& gmt_t
 				cmd_file << "call ";
 #endif
 				cmd_file << "ps2pdf -dEPSCrop " << pprj_->p._eps_file_name.c_str() << " " << pdfname_tmp << endl;
-				cmd_file << _DELETE_CMD_ << " " << pprj_->p._eps_file_name.c_str() << endl;
+				cmd_file << _DELETE_CMD_ << pprj_->p._eps_file_name.c_str() << endl;
 
 				break;
 			case gmt_version_5:
@@ -3873,13 +3850,13 @@ string dna_plot::PrintPdfCmdfile(const string& pdf_cmd_file, const string& gmt_t
 	{
 		// Force output to file instead of stdout
 		cmd_file << " > tmp.tmp" << endl;
-		cmd_file << _DELETE_CMD_ << " tmp.tmp" << endl;
+		cmd_file << _DELETE_CMD_ << "tmp.tmp" << endl;
 	}
 	else
 		cmd_file << endl;
 
 	// delete temp file
-	cmd_file << _DELETE_CMD_ << " " << pdfname_tmp << endl;
+	cmd_file << _DELETE_CMD_ << pdfname_tmp << endl;
 
 #if defined(_WIN32) || defined(__WIN32__)
 	// open in Acrobat
@@ -3923,14 +3900,14 @@ void dna_plot::PrintPdfCmdfile_Graph(const string& pdf_cmd_file, const string& p
 #endif
 	
 	cmd_file << "ps2pdf -dEPSCrop " << pprj_->p._eps_file_name.c_str() << " " << pdfname_tmp << endl;
-	cmd_file << _DELETE_CMD_ << " " << pprj_->p._eps_file_name.c_str() << endl;
+	cmd_file << _DELETE_CMD_ << pprj_->p._eps_file_name.c_str() << endl;
 	
 	if (!pprj_->p._keep_gen_files)
 	{
 		if (exists(seg_msr_graph_file_))
-			cmd_file << _DELETE_CMD_ << " " << seg_msr_graph_file_ << endl;
+			cmd_file << _DELETE_CMD_ << seg_msr_graph_file_ << endl;
 		if (exists(seg_stn_graph_file_))
-			cmd_file << _DELETE_CMD_ << " " << seg_stn_graph_file_ << endl;
+			cmd_file << _DELETE_CMD_ << seg_stn_graph_file_ << endl;
 	}
 
 #if defined(_WIN32) || defined(__WIN32__)
@@ -3949,13 +3926,13 @@ void dna_plot::PrintPdfCmdfile_Graph(const string& pdf_cmd_file, const string& p
 	{
 		// Force output to file instead of stdout
 		cmd_file << " > tmp.tmp" << endl;
-		cmd_file << _DELETE_CMD_ << " tmp.tmp" << endl;
+		cmd_file << _DELETE_CMD_ << "tmp.tmp" << endl;
 	}
 	else
 		cmd_file << endl;
 
 	// delete temp file
-	cmd_file << _DELETE_CMD_ << " " << pdfname_tmp << endl;
+	cmd_file << _DELETE_CMD_ << pdfname_tmp << endl;
 
 #if defined(_WIN32) || defined(__WIN32__)
 	// open in Acrobat

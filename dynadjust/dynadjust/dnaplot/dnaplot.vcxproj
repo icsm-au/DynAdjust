@@ -190,6 +190,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\include\functions\dnaprocessfuncs.hpp" />
     <ClInclude Include="..\..\include\functions\dnastringfuncs.hpp" />
     <ClInclude Include="..\..\include\ide\trace.hpp" />
     <ClInclude Include="..\..\include\io\dnaiobase.hpp" />
@@ -207,6 +208,7 @@
     <ClInclude Include="precompile.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\include\functions\dnaprocessfuncs.cpp" />
     <ClCompile Include="..\..\include\functions\dnastringfuncs.cpp" />
     <ClCompile Include="..\..\include\ide\trace.cpp" />
     <ClCompile Include="..\..\include\io\dnaiobase.cpp" />

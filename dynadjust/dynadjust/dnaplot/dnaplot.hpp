@@ -164,7 +164,7 @@ private:
 	void CreateGMTInputFiles();
 	void CreateExtraInputFiles();
 	void CreateGMTCommandFiles();
-	void PrintGMTCommandFile(const UINT32& block);
+	void CreateGMTCommandFile(const UINT32& block);
 	bool InitialiseandValidateStartingBlock(UINT32& block);
 
 	void InvokeGMT();
@@ -333,7 +333,9 @@ private:
 	string 					_DELETE_CMD_;
 	string 					_CHMOD_CMD_;
 	string 					_COPY_CMD_;
+	string 					_MOVE_CMD_;
 	string 					_MAKEDIR_CMD_;
+	string 					_MAKEENV_CMD_;
 	string 					_MAKETEMP_CMD_;
 	string 					_ENV_GMT_TMP_DIR_;
 	string 					_GMT_TMP_DIR_;
