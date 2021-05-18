@@ -419,6 +419,7 @@ if (BUILD_TESTING)
     add_test (NAME plot-all-12 COMMAND $<TARGET_FILE:dnaplotwrapper> all --supress-pdf --centre-latitude "-36.0101" --centre-longitude "145.0202")
     add_test (NAME plot-all-13 COMMAND $<TARGET_FILE:dnaplotwrapper> all --supress-pdf --centre-latitude "-66.0101" --centre-longitude "145.0202")
     add_test (NAME plot-all-14 COMMAND $<TARGET_FILE:dnaplotwrapper> all --supress-pdf --centre-latitude "-86.0101" --centre-longitude "145.0202")
+    add_test (NAME plot-all-15 COMMAND $<TARGET_FILE:dnaplotwrapper> all --supress-pdf --org-unit "Geoscience Australia" --org-subunit "National Geodesy")
     
     # 14. Exceptions
     ### IMPORT ###
