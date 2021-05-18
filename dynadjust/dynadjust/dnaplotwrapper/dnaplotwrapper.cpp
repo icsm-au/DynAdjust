@@ -793,7 +793,7 @@ int main(int argc, char* argv[])
 		p.p._msr_colours.push_back(string_string_pair("R", "#DBCBD8"));		// languid lavender, #DBCBD8
 		p.p._msr_colours.push_back(string_string_pair("S", "#60492C"));		// dark broan, #60492C
 		p.p._msr_colours.push_back(string_string_pair("V", "#235789"));		// bdazzled blue, #235789
-		p.p._msr_colours.push_back(string_string_pair("X", "#9A348E"));		// vioet crayola, #9A348E
+		p.p._msr_colours.push_back(string_string_pair("X", "#6622CC"));		// french violet, #6622CC
 		p.p._msr_colours.push_back(string_string_pair("Y", "#F7A1C4"));		// carnation pink, #F7A1C4
 		p.p._msr_colours.push_back(string_string_pair("Z", "#56A3A6"));		// cadet blue, #56A3A6
 		p.p._msr_colours.push_back(string_string_pair("x", "#FF0000"));		// red, #FF0000 (destroyed marks)	
