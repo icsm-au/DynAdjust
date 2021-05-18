@@ -54,7 +54,7 @@ const char* const GEOID_MODULE_FILE = "File interpolation options";
 const char* const REFTRAN_MODULE_TRANSFORM = "Transformation options";
 
 const char* const PLOT_MODULE_CONFIG = "Data configuration options";
-const char* const PLOT_MODULE_PDFVIEWER = "PDF viewer options";
+const char* const PLOT_MODULE_TITLEBLOCK = "Title block options";
 const char* const PLOT_MODULE_MAP = "Mapping options";
 
 const char* const IMPORT_FILE = "stn-msr-file";
@@ -243,12 +243,11 @@ const char* const PLOT_CENTRE_STATION = "centre-station";
 const char* const PLOT_AREA_RADIUS = "area-radius";
 const char* const OMIT_TITLE_BLOCK = "omit-title-block";
 const char* const DONT_CREATE_PDF = "supress-pdf-creation";
-const char* const USE_PDFLATEX = "pdflatex";
 const char* const GRAPH_SEGMENTATION_STNS = "graph-stn-blocks";
 const char* const GRAPH_SEGMENTATION_MSRS = "graph-msr-blocks";
 const char* const BLOCK_NUMBER = "block-number";
-const char* const PDF_VIEWER = "pdf-viewer";
-const char* const ACROBAT_DDENAME = "acrobat-ddename";
+const char* const TITLEBLOCK_NAME = "org-unit-name";
+const char* const TITLEBLOCK_SUBNAME = "org-subunit-name";
 const char* const KEEP_FILES = "keep-gen-files";
 
 const char* const INTERACTIVE = "interactive";

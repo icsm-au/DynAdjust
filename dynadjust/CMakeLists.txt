@@ -195,7 +195,7 @@ if (BUILD_TESTING)
     add_test (NAME adjust-urban-network-verbose COMMAND $<TARGET_FILE:dnaadjustwrapper> urban --verbose 3)
     add_test (NAME adjust-urban-network COMMAND $<TARGET_FILE:dnaadjustwrapper> urban --output-adj-msr --phased --stn-corrections --export-sinex-file --export-xml-stn-file --export-dna-stn-file --output-pos-uncertainty --export-dna-msr --export-xml-msr)
     add_test (NAME plot-urban-network-01 COMMAND $<TARGET_FILE:dnaplotwrapper> urban --supress-pdf --phased --label-sta --correction-arrows --label-corr --compute-corrections --scale-arrows 10.5 --error-ellipse --positional-uncertainty --scale-ellipse-c 10.5)
-    add_test (NAME plot-urban-network-02 COMMAND $<TARGET_FILE:dnaplotwrapper> urban --supress-pdf --phased --label-sta --correction-arrows --label-corr --compute-corrections --scale-arrows 10.5 --error-ellipse --positional-uncertainty --scale-ellipse-c 10.5 --block-number 2)
+    add_test (NAME plot-urban-network-02 COMMAND $<TARGET_FILE:dnaplotwrapper> urban --supress-pdf --phased --label-sta --label-constraints --correction-arrows --label-corr --compute-corrections --scale-arrows 10.5 --error-ellipse --positional-uncertainty --scale-ellipse-c 10.5 --block-number 2 --alternate-name)
     add_test (NAME plot-urban-seg-stn COMMAND $<TARGET_FILE:dnaplotwrapper> urban --supress-pdf --graph-stn)
     add_test (NAME plot-urban-seg-msr COMMAND $<TARGET_FILE:dnaplotwrapper> urban --supress-pdf --graph-msr)
     
@@ -346,7 +346,7 @@ if (BUILD_TESTING)
     add_test (NAME plt-help-01 COMMAND $<TARGET_FILE:dnaplotwrapper> --help-module standard)
     add_test (NAME plt-help-02 COMMAND $<TARGET_FILE:dnaplotwrapper> --help-module data)
     add_test (NAME plt-help-03 COMMAND $<TARGET_FILE:dnaplotwrapper> --help-module mapping)
-    add_test (NAME plt-help-04 COMMAND $<TARGET_FILE:dnaplotwrapper> --help-module pdf)
+    add_test (NAME plt-help-04 COMMAND $<TARGET_FILE:dnaplotwrapper> --help-module title)
     add_test (NAME plt-help-05 COMMAND $<TARGET_FILE:dnaplotwrapper> --help-module generic)
     add_test (NAME plt-version-01 COMMAND $<TARGET_FILE:dnaplotwrapper> --version)
 
@@ -419,7 +419,6 @@ if (BUILD_TESTING)
     add_test (NAME plot-all-12 COMMAND $<TARGET_FILE:dnaplotwrapper> all --supress-pdf --centre-latitude "-36.0101" --centre-longitude "145.0202")
     add_test (NAME plot-all-13 COMMAND $<TARGET_FILE:dnaplotwrapper> all --supress-pdf --centre-latitude "-66.0101" --centre-longitude "145.0202")
     add_test (NAME plot-all-14 COMMAND $<TARGET_FILE:dnaplotwrapper> all --supress-pdf --centre-latitude "-86.0101" --centre-longitude "145.0202")
-    add_test (NAME plot-all-15 COMMAND $<TARGET_FILE:dnaplotwrapper> all --supress-pdf --pdflatex)
     
     # 14. Exceptions
     ### IMPORT ###
@@ -569,10 +568,15 @@ if (BUILD_TESTING)
     # bounding box error
     add_test (NAME plot-box-ew COMMAND $<TARGET_FILE:dnaplotwrapper> all --supress-pdf --bounding "-36.3000,146.4500,-36.4500,145.4500")
     add_test (NAME plot-box-ns COMMAND $<TARGET_FILE:dnaplotwrapper> all --supress-pdf --bounding "-36.4500,145.4500,-36.3000,146.4500")
+    # no seg file, no apu file, no cor file
+    add_test (NAME import-no-seg-apu-cor COMMAND $<TARGET_FILE:dnaimportwrapper> -n nosegapucor ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr)
+    add_test (NAME plot-no-seg COMMAND $<TARGET_FILE:dnaplotwrapper> nosegapucor --phased)
+    add_test (NAME plot-no-cor COMMAND $<TARGET_FILE:dnaplotwrapper> nosegapucor --correction-arrows)
+    add_test (NAME plot-no-apu COMMAND $<TARGET_FILE:dnaplotwrapper> nosegapucor --error-ellipses)
     
     set_tests_properties(
         plot-no-option plot-no-project plot-no-std-options plot-no-network plot-no-name plot-no-help 
-        plot-box-ew plot-box-ns 
+        plot-box-ew plot-box-ns plot-no-seg plot-no-cor plot-no-apu
         PROPERTIES WILL_FAIL TRUE)
 
     # set execution dependencies (the execution of tests must be sequential)

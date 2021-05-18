@@ -279,7 +279,7 @@ int main(int argc, char* argv[])
 	
 	options_description standard_options("+ " + string(ALL_MODULE_STDOPT), PROGRAM_OPTIONS_LINE_LENGTH);
 	options_description config_options("+ " + string(PLOT_MODULE_CONFIG), PROGRAM_OPTIONS_LINE_LENGTH);
-	options_description pdfviewer_options("+ " + string(PLOT_MODULE_PDFVIEWER), PROGRAM_OPTIONS_LINE_LENGTH);
+	options_description titleblock_options("+ " + string(PLOT_MODULE_TITLEBLOCK), PROGRAM_OPTIONS_LINE_LENGTH);
 	options_description map_options("+ " + string(PLOT_MODULE_MAP), PROGRAM_OPTIONS_LINE_LENGTH);
 	options_description generic_options("+ " + string(ALL_MODULE_GENERIC), PROGRAM_OPTIONS_LINE_LENGTH);
 
@@ -372,13 +372,15 @@ int main(int argc, char* argv[])
 				"Don't delete command and data files used to generate EPS and PDF plots.")
 			;
 
-		pdfviewer_options.add_options()
-			(PDF_VIEWER, value<string>(&p.p._pdf_viewer),
-				(string("The application to use when displaying PDF files.  Default is ")+
-				StringFromT(p.p._pdf_viewer)+string(".")).c_str())
-			(ACROBAT_DDENAME, value<string>(&p.p._acrobat_ddename),
-				(string("When using Adobe Acrobat Reader, use this DDE message.  Default is ")+
-				StringFromT(p.p._acrobat_ddename)+string(".")).c_str())
+		titleblock_options.add_options()
+			(OMIT_TITLE_BLOCK,
+				"Do not print a title block and measurements legend.")
+			(TITLEBLOCK_NAME, value<string>(&p.p._title_block_name),
+				(string("The name of the organisational unit name.  Default is ")+
+				string(p.p._title_block_name)+string(".")).c_str())
+			(TITLEBLOCK_SUBNAME, value<string>(&p.p._title_block_subname),
+				(string("The name of the organisational sub-unit unit name.  Default is ")+
+				string(p.p._title_block_subname)+string(".")).c_str())
 			;
 
 		// mapping options
@@ -407,15 +409,11 @@ int main(int argc, char* argv[])
 			(MSR_LINE_WIDTH, value<double>(&p.p._msr_line_width),
 				(string("Measurement line width.  Default is ")+
 				StringFromT(p.p._msr_line_width)+string(".")).c_str())
-			(OMIT_TITLE_BLOCK,
-				"Do not print a title block and measurements legend.")
-			(USE_PDFLATEX,
-				"Use PdfLaTeX to create the PDF (available only if a suitable TeX implementation is installed). Default pdf creation uses ps2pdf (invokes Ghostscript).  PdfLaTeX may help resolve problems associated with creating large landscape plots.")
 			(DONT_CREATE_PDF,
 				"Don't create a pdf, just the command files.")
 			;
 
-		allowable_options.add(standard_options).add(config_options).add(map_options).add(pdfviewer_options).add(generic_options);
+		allowable_options.add(standard_options).add(config_options).add(map_options).add(titleblock_options).add(generic_options);
 
 		// add "positional options" to handle command line tokens which have no option name
 		positional_options.add(NETWORK_NAME, -1);
@@ -467,8 +465,8 @@ int main(int argc, char* argv[])
 		else if (str_upper<string, char>(PLOT_MODULE_CONFIG).find(help_text) != string::npos) {
 			cout << config_options << endl;
 		}
-		else if (str_upper<string, char>(PLOT_MODULE_PDFVIEWER).find(help_text) != string::npos) {
-			cout << pdfviewer_options << endl;
+		else if (str_upper<string, char>(PLOT_MODULE_TITLEBLOCK).find(help_text) != string::npos) {
+			cout << titleblock_options << endl;
 		}
 		else if (str_upper<string, char>(PLOT_MODULE_MAP).find(help_text) != string::npos) {
 			cout << map_options << endl;
@@ -506,10 +504,6 @@ int main(int argc, char* argv[])
 	// the network name
 	if (vm.count(NETWORK_NAME))
 		p.g.network_name = p.g.network_name;
-
-	// use pdflatex tool (discard???)
-	if (vm.count(USE_PDFLATEX))
-		p.p._use_pdflatex = true;
 
 	// plot ignored measurements?
 	if (vm.count(PLOT_MSRS_IGNORED))
@@ -775,14 +769,19 @@ int main(int argc, char* argv[])
 		// see http://www.december.com/html/spec/colorhex.html
 		// or http://www.yellowpipe.com/yis/tools/hex-to-rgb/color-converter.php
 		// or http://www.easycalculation.com/color-coder.php
-		// see U:\vs9\projects\geodesy\doc\colorhex.pdf
+		// for converting rgb colours in hex to decimal, see:
+		// http://www.yellowpipe.com/yis/tools/hex-to-rgb/color-converter.php
+	
+		//
+		// All colours based on a palette:
+		//   https://coolors.co/ffd275-235789-da5552-43aa8b-39a9db
 		
 		p.p._msr_colours.push_back(string_string_pair("A", "#FFC07F"));		// mellow apricot, #FFC07F
 		p.p._msr_colours.push_back(string_string_pair("B", "#FE5F55"));		// orange red crayola, #FE5F55
 		p.p._msr_colours.push_back(string_string_pair("C", "#A393BF"));		// glossy grape, #A393BF
 		p.p._msr_colours.push_back(string_string_pair("D", "#DA5552"));		// indian red, #DA5552
 		p.p._msr_colours.push_back(string_string_pair("E", "#717568"));		// nickel, #717568
-		p.p._msr_colours.push_back(string_string_pair("G", "#5AA9E6"));		// blue jeans, #5AA9E6
+		p.p._msr_colours.push_back(string_string_pair("G", "#35A7FF"));		// blue jeans, #35A7FF
 		p.p._msr_colours.push_back(string_string_pair("H", "#DA627D"));		// blush, #DA627D
 		p.p._msr_colours.push_back(string_string_pair("I", "#A9F0D1"));		// magic mint, #A9F0D1
 		p.p._msr_colours.push_back(string_string_pair("J", "#9AD4D6"));		// powder blue, #9AD4D6

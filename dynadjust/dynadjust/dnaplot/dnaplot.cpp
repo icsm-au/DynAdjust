@@ -138,15 +138,15 @@ void dna_plot::CreategnuplotGraphEnvironment(project_settings* pprj, const plotG
 	// Set up the environment
 	pprj_ = pprj;
 
-	if (!exists(pprj->g.output_folder))
+	if (!exists(pprj_->g.output_folder))
 	{
-		stringstream ss("CreateSegmentationGraph(): Output path does not exist... \n\n    ");
-		ss << pprj->g.output_folder << ".";
+		stringstream ss("CreategnuplotGraphEnvironment(): Output path does not exist... \n\n    ");
+		ss << pprj_->g.output_folder << ".";
 		SignalExceptionPlot(ss.str(), 0, NULL);
 	}
 
-	output_folder_ = pprj->g.output_folder;
-	network_name_ = pprj->g.network_name;
+	output_folder_ = pprj_->g.output_folder;
+	network_name_ = pprj_->g.network_name;
 
 	/////////////////////////////////////////////////////////
 	// create gnuplot command file and set gnuplot parameters 
@@ -173,11 +173,11 @@ void dna_plot::CreategnuplotGraphEnvironment(project_settings* pprj, const plotG
 	gnuplot_cmd_file = absolute(gnuplot_cmd_file).c_str();
 #endif
 
-	pprj->p._gnuplot_cmd_file = gnuplot_cmd_file;
+	pprj_->p._gnuplot_cmd_file = gnuplot_cmd_file;
 	
 	// create pdf filename
 	string gnuplot_pdf_file(gnuplot_pic_name + ".pdf");
-	pprj->p._pdf_file_name = gnuplot_pdf_file;
+	pprj_->p._pdf_file_name = gnuplot_pdf_file;
 	
 	switch (graphMode)
 	{
@@ -502,14 +502,13 @@ void dna_plot::PrintGnuplotCommandFileStns(const UINT32& fontSize)
 	ss << "Station Count (Total " << fixed << setprecision(0) << stationCount_ << ")";
 	gnuplotbat_file_ << "set ylabel '" << ss.str() << "' font \"Calibri,10\"" << endl << endl;
 
-	// http://w3schools.com/tags/ref_colorpicker.asp
-	// for converting rgb colours in hex to decimal, see:
-	// http://www.yellowpipe.com/yis/tools/hex-to-rgb/color-converter.php
-	gnuplotbat_file_ << "set style line 1 lw 0.75 lt 1 pt 7 ps 0.25 lc rgb \"#5AA9E6\"         # total block size" << endl;	// royalblue
-	gnuplotbat_file_ << "set style line 2 lw 2 lt 5 pt 7 ps 0.25 lc rgb \"#43AA8B\"            # threshold" << endl;			// green
-	gnuplotbat_file_ << "set style line 3 lw 2 lt 5 pt 7 ps 0.25 lc rgb \"#FFD275\"            # minimum inner size" << endl;			// orange
-	gnuplotbat_file_ << "set style line 4 lw 2 lt 1 pt 7 ps 0.25 lc rgb \"#235789\"            # inners" << endl;			// blue
-	gnuplotbat_file_ << "set style line 5 lw 2 lt 1 pt 7 ps 0.25 lc rgb \"#DA5552\"            # junctions" << endl << endl;		// red
+	// All colours based on a palette:
+	//   https://coolors.co/ffd275-235789-da5552-43aa8b-39a9db
+	gnuplotbat_file_ << "set style line 1 lw 0.75 lt 1 pt 7 ps 0.25 lc rgb \"#35A7FF\"         # total block size" << endl;		// royalblue
+	gnuplotbat_file_ << "set style line 2 lw 2 lt 5 pt 7 ps 0.25 lc rgb \"#43AA8B\"            # threshold" << endl;			// zomp (green)
+	gnuplotbat_file_ << "set style line 3 lw 2 lt 5 pt 7 ps 0.25 lc rgb \"#FFD275\"            # minimum inner size" << endl;	// orange yellow crayola
+	gnuplotbat_file_ << "set style line 4 lw 2 lt 1 pt 7 ps 0.25 lc rgb \"#235789\"            # inners" << endl;				// bdazzled blue
+	gnuplotbat_file_ << "set style line 5 lw 2 lt 1 pt 7 ps 0.25 lc rgb \"#DA5552\"            # junctions" << endl << endl;	// indian red
 
 	gnuplotbat_file_ << "plot '" << seg_stn_graph_file_ << "' using 1:4 with boxes ls 1 title columnheader(4), \\" << endl;
 	gnuplotbat_file_ << "     '" << seg_stn_graph_file_ << "' using 1:4:(sprintf(\"%.0f\",$4)) with labels font \"Calibri," << 
@@ -531,11 +530,8 @@ void dna_plot::PrintGnuplotCommandFileMsrs(const UINT32& fontSize)
 	ss << "Measurement Count (Total " << fixed << setprecision(0) << measurementCount_ << ")";
 	gnuplotbat_file_ << "set ylabel '" << ss.str() << "' font \"Calibri,10\"" << endl << endl;
 
-	// http://w3schools.com/tags/ref_colorpicker.asp
-	// for converting rgb colours in hex to decimal, see:
-	// http://www.yellowpipe.com/yis/tools/hex-to-rgb/color-converter.php
-	// for seeing colours, see:
-	// http://www.drpeterjones.com/colorcalc/
+	// All colours based on a palette:
+	//   https://coolors.co/ffd275-235789-da5552-43aa8b-39a9db
 
 	UINT32 line(1);
 	ss.str("");
@@ -600,7 +596,7 @@ void dna_plot::InitialiseGMTParameters()
 	// Set initial parameters
 	if (!exists(pprj_->g.output_folder))
 	{
-		stringstream ss("CreateGMTPlot(): Output path does not exist... \n\n    ");
+		stringstream ss("InitialiseGMTParameters(): Output path does not exist... \n\n    ");
 		ss << pprj_->g.output_folder << ".";
 		SignalExceptionPlot(ss.str(), 0, NULL);
 	}
@@ -884,7 +880,7 @@ void dna_plot::FinaliseGMTParameters()
 		scale_precision_ = 4;
 
 	line_width_ = projectSettings_.p._msr_line_width;
-	circle_radius_ = 0.25;
+	circle_radius_ = 0.2;
 	circle_radius_2_ = circle_radius_;
 	circle_line_width_ = (projectSettings_.p._msr_line_width * 1.5);
 
@@ -1432,23 +1428,23 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 	// print stations first to enable measurements to be seen
 	gmtbat_file_ << _APP_PSXY_ << " -R -J -Skcircle/" << fixed << setprecision(2) << circle_radius_ << " " << 
 		v_isl_pts_file_.at(block) << " -W" << setprecision(2) << circle_line_width_ << 
-		"p,blue -Gwhite -O -K >> " << psTempFile << endl;
+		"p,#235789 -Gwhite -O -K >> " << psTempFile << endl;
 
 	if (plotConstraints_)
 		// don't plot line, just fill
 		gmtbat_file_ << _APP_PSXY_ << " -R -J -Skcircle/" << fixed << setprecision(2) << circle_radius_ << " " << 
-			v_isl_const_file_.at(block) << " -Gblue -O -K >> " << psTempFile << endl;
+			v_isl_const_file_.at(block) << " -G#235789 -O -K >> " << psTempFile << endl;
 
 	if (plotBlocks_)
 	{
 		gmtbat_file_ << _APP_PSXY_ << " -R -J -Skcircle/" << fixed << setprecision(2) << circle_radius_ << " " << 
 			v_jsl_pts_file_.at(block) << " -W" << setprecision(2) << circle_line_width_ * 2.0 << 
-			"p,red -Gwhite -O -K >> " << psTempFile << endl;
+			"p,#DA5552 -Gwhite -O -K >> " << psTempFile << endl;
 
 		if (plotConstraints_)
 			// don't plot line, just fill
 			gmtbat_file_ << _APP_PSXY_ << " -R -J -Skcircle/" << fixed << setprecision(2) << circle_radius_ << " " << 
-				v_jsl_const_file_.at(block) << " -Gred -O -K >> " << psTempFile << endl;
+				v_jsl_const_file_.at(block) << " -G#DA5552 -O -K >> " << psTempFile << endl;
 	}
 
 	// Does the user want to print measurements?
@@ -1616,7 +1612,7 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 
 		// print arrows (without black outline!)
 		gmtbat_file_ << _APP_PSVELO_ << " -R -J " << v_stn_cor_file_.at(block) << 
-			" -Se" << correction_arrow_scale << "/0.95/0c -L -A" << line_width_ / 2.0 * CM_TO_INCH << "/0.5/0.1c -Gred -W0.0p,red -O -K >> " << psTempFile << endl;
+			" -Se" << correction_arrow_scale << "/0.95/0c -L -A" << line_width_ / 2.0 * CM_TO_INCH << "/0.5/0.1c -Gred -W0.0p,#DA5552 -O -K >> " << psTempFile << endl;
 
 		// Add text below the corrections arrow legend 
 		gmtbat_file_ << _ECHO_CMD_ <<
@@ -1761,7 +1757,7 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 		gmtbat_file_ << _LEGEND_ECHO_ <<
 			"S " << fixed << setprecision(1) << symbol_offset << " c " << 
 			circle_radius_2_ << " white " << 
-			circle_line_width_ * 2 << "p,blue " <<
+			circle_line_width_ * 2 << "p,#235789 " <<
 			fixed << setprecision(1) << label_offset;
 		if (plotBlocks_)
 			gmtbat_file_ << " Free Inner stations ";
@@ -1775,7 +1771,7 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 			gmtbat_file_ << _LEGEND_ECHO_ <<
 				"S " << fixed << setprecision(1) << symbol_offset << " c " << 
 				circle_radius_2_ << " white " << 
-				circle_line_width_ * 2 << "p,red " <<
+				circle_line_width_ * 2 << "p,#DA5552 " <<
 				fixed << setprecision(1) << label_offset <<
 				" Free Junction stations" << _LEGEND_CMD_2_ << endl;
 		}
@@ -1786,22 +1782,22 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 			{
 				gmtbat_file_ << _LEGEND_ECHO_ <<
 					"S " << fixed << setprecision(1) << symbol_offset << " c " << 
-					circle_radius_2_ << " blue " << 
-					circle_line_width_ * 2 << "p,blue " <<
+					circle_radius_2_ << " #235789 " << 
+					circle_line_width_ * 2 << "p,#235789 " <<
 					fixed << setprecision(1) << label_offset <<
 					" Constrained inner stations" << _LEGEND_CMD_2_ << endl;
 				gmtbat_file_ << _LEGEND_ECHO_ <<
 					"S " << fixed << setprecision(1) << symbol_offset << " c " << 
-					circle_radius_2_ << " red " << 
-					circle_line_width_ * 2 << "p,red " <<
+					circle_radius_2_ << " #DA5552 " << 
+					circle_line_width_ * 2 << "p,#DA5552 " <<
 					fixed << setprecision(1) << label_offset <<
 					" Constrained junction stations" << _LEGEND_CMD_2_ << endl;
 			}
 			else
 				gmtbat_file_ << _LEGEND_ECHO_ <<
 					"S " << fixed << setprecision(1) << symbol_offset << " c " << 
-					circle_radius_2_ << " blue " << 
-					circle_line_width_ * 2 << "p,blue " <<
+					circle_radius_2_ << " #235789 " << 
+					circle_line_width_ * 2 << "p,#235789 " <<
 					fixed << setprecision(1) << label_offset <<
 					" Constraint stations" << _LEGEND_CMD_2_ << endl;
 		}			
@@ -1814,7 +1810,7 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 		//	gmtbat_file_ << _LEGEND_ECHO_ <<
 		//		"S " << fixed << setprecision(1) << symbol_offset << 
 		//		" v 1.5c/0.04/0.5/0.1 red " <<			// arrowlength/linewidth/arrowheadwidth/arrowheadlength
-		//		line_width * 2 << "p,red " 
+		//		line_width * 2 << "p,#DA5552 " 
 		//		<< fixed << setprecision(1) << label_offset * 1.5 << " Corrections to stations" << _LEGEND_CMD_2_ << endl;
 		}
 		// If corrections are not being printed, then print measurements legend
@@ -1893,23 +1889,20 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 		gmtbat_file_ << _LEGEND_ECHO_ << "D 0 1p" << _LEGEND_CMD_2_ << endl;		// horizontal line
 		gmtbat_file_ << _LEGEND_ECHO_ << "G 0.25" << _LEGEND_CMD_2_ << endl;		// space
 		gmtbat_file_ << _LEGEND_ECHO_ << "N 5" << _LEGEND_CMD_2_ << endl;
-		gmtbat_file_ << _LEGEND_ECHO_ << "S 0.01 c 0.01 white 1p,white 1 Geodesy" << _LEGEND_CMD_2_ << endl;
-		gmtbat_file_ << _LEGEND_ECHO_ << "S 0.01 c 0.01 white 1p,white 0 Surveyor-General Victoria" << _LEGEND_CMD_2_ << endl;
+		gmtbat_file_ << _LEGEND_ECHO_ << "S 0.01 c 0.01 white 1p,white 1 " << pprj_->p._title_block_subname << _LEGEND_CMD_2_ << endl;
+		gmtbat_file_ << _LEGEND_ECHO_ << "S 0.01 c 0.01 white 1p,white 0 " << pprj_->p._title_block_name << _LEGEND_CMD_2_ << endl;
 		gmtbat_file_ << _LEGEND_ECHO_ << "S 0.01 c 0.01 white 1p,white 3 " << reference_frame_ << _LEGEND_CMD_2_ << endl;
 		gmtbat_file_ << _LEGEND_ECHO_ << "S 0.01 c 0.01 white 1p,white 0 " << projectionTypes[pprj_->p._projection] << " projection" << _LEGEND_CMD_2_ << endl;
 		gmtbat_file_ << _LEGEND_ECHO_ << "S 0.01 c 0.01 white 1p,white 1 Scale 1:" << static_cast<UINT32>(scale_) << " (A3)" << _LEGEND_CMD_2_ << endl;
 
-#if defined(_WIN32) || defined(__WIN32__)
-		gmtbat_file_ << _APP_PSLEGEND_ << " -R -J -DJTL+w" << fixed << setprecision(1) << page_width_ <<
-			"c+jBL+l1.5+o0/1.5c -C0.3/0.3 -O -F+p+gwhite " <<
-			legendTempFile << " -P >> " << psTempFile << endl;
-#elif defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
+#if defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
 		gmtbat_file_ << "END" << endl << endl;
+#endif
 
 		gmtbat_file_ << _APP_PSLEGEND_ << " -R -J -DJTL+w" << fixed << setprecision(1) << page_width_ << 
 			"c+jBL+l1.5+o0/1.5c -C0.3/0.3 -O -F+p+gwhite " <<
 			legendTempFile << " -P >> " << psTempFile << endl;
-#endif			
+
 	}
 
 
