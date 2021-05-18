@@ -731,13 +731,8 @@ void dna_plot::FinaliseGMTParameters()
 	if (pprj_->p._plot_correction_arrows)
 	{
 		// set the position of the correction arrow legend
-		// if error ellipses AND corrections are plotted, then put
-		// the corrections legend on the right hand side
-		if (pprj_->p._plot_error_ellipses || 
-			pprj_->p._plot_positional_uncertainty)
-			arrow_legend_long_ = rightDeg_ - dBuffer_ * 2.0;
-		else
-			arrow_legend_long_ = leftDeg_ + dBuffer_ / 2.0;
+		// put the corrections legend on the right hand side
+		arrow_legend_long_ = rightDeg_ - dBuffer_ * 2.0;
 		arrow_legend_lat_ = dScaleLat_;
 	}
 
@@ -1608,11 +1603,11 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 		// print text in black (no arrows)
 		if (pprj_->p._plot_correction_labels)
 			gmtbat_file_ << _APP_PSVELO_ << " -R -J " << v_stn_cor_file_.at(block) << 
-				" -Se0.0001/0.95/" << pprj_->p._label_font_size << "c -L -A0.0001/0.0001/0.0001c -O -K >> " << psTempFile << endl;
+				" -Se0.0001/0.95+f" << setprecision(0) << pprj_->p._label_font_size << "p,Helvetica,black -L -A0.0001/0.0001/0.0001c -O -K >> " << psTempFile << endl;
 
 		// print arrows (without black outline!)
 		gmtbat_file_ << _APP_PSVELO_ << " -R -J " << v_stn_cor_file_.at(block) << 
-			" -Se" << correction_arrow_scale << "/0.95/0c -L -A" << line_width_ / 2.0 * CM_TO_INCH << "/0.5/0.1c -Gred -W0.0p,#DA5552 -O -K >> " << psTempFile << endl;
+			" -Se" << correction_arrow_scale << "/0.95/0c -L -A" << line_width_ / 2.0 * CM_TO_INCH << "/0.5/0.1c -G#DA5552 -W0.0p,#DA5552 -O -K >> " << psTempFile << endl;
 
 		// Add text below the corrections arrow legend 
 		gmtbat_file_ << _ECHO_CMD_ <<
@@ -2018,7 +2013,7 @@ void dna_plot::CreateGMTPlotEnvironment(project_settings* pprj)
 
 void dna_plot::InvokeGMT()
 {
-	// set up a thred group to execute the GMT scripts in parallel
+	// set up a thread group to execute the GMT scripts in parallel
 	thread_group gmt_plot_threads;
 	
 	for (UINT32 plot=0; plot<v_gmt_cmd_filenames_.size(); ++plot)
