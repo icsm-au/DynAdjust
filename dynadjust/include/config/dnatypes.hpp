@@ -335,13 +335,6 @@ typedef enum _TIMER_TYPE_
 	total_time = 1
 } TIMER_TYPE;
 
-typedef enum _GMT_VERSION_NUMBER_
-{
-	gmt_version_4 = 4,
-	gmt_version_5 = 5,
-	gmt_version_6 = 6
-} GMT_VERSION_NUMBER;
-
 typedef enum _ANGULAR_TYPE_
 {
 	DMS = 0,

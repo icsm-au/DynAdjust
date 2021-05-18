@@ -132,11 +132,14 @@ private:
 
 public:
 	void LoadNetworkFiles(const project_settings& projectSettings);
+	
+	// GMT maps
 	void CreateGMTPlotEnvironment(project_settings* pprj);
-	void CreateGMTPlot_();
+	void CreateGMTPlot();
 
-	_PLOT_STATUS_ CreateGMTPlot(plot_settings* plotCriteria, const string& network_name, const string& output_folder);
-	_PLOT_STATUS_ CreateSegmentationGraph(project_settings* pprj, const plotGraphMode& graphMode);
+	// gnuplot graphs
+	void CreategnuplotGraphEnvironment(project_settings* pprj, const plotGraphMode& graphMode);
+	void CreateSegmentationGraph();
 
 	
 private:
@@ -147,7 +150,7 @@ private:
 	// Gnuplot plotting methods
 	void PlotGnuplotDatFileStns();
 	void PlotGnuplotDatFileMsrs();
-	void PrintGnuplotCommandFile(const string& gnuplot_cmd_file, const string& epsname, const plotGraphMode& graphMode);
+	void PrintGnuplotCommandFile(const string& gnuplot_cmd_file, const plotGraphMode& graphMode);
 	void PrintGnuplotCommandFileStns(const UINT32& fontSize);
 	void PrintGnuplotCommandFileMsrs(const UINT32& fontSize);
 
@@ -156,7 +159,7 @@ private:
 	void LoadSegmentationFile();
 	void LoadPosUncertaintyFile();
 
-	void InitialiseAppsandCommands(const UINT16& version);
+	void InitialiseAppsandCommands();	
 
 	void InitialiseGMTParameters();
 	void FinaliseGMTParameters();
@@ -200,11 +203,6 @@ private:
 	void PrintMeasurementsDatFile(const string& msr_file_name, char msrType, std::ofstream* msr_file_stream);
 	void PrintMeasurementsDatFileBlock(const UINT32& block, const string& msr_file_name, char msrType, std::ofstream* msr_file_stream);
 	
-	void PrintGMTBatfile(const string& epsname, plot_settings* plotCriteria); 
-	void PrintLaTeXPlotfile(const string& gmt_tex_file, const string& epsname);
-	string PrintPdfCmdfile(const string& pdf_cmd_file, const string& gmt_tex_filename, const string& pic_name);
-	void PrintPdfCmdfile_Graph(const string& pdf_cmd_file, const string& pic_name);
-
 	//void PrintGMTPlotCoords(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, ostream& osStn, ostream& osStn2, ostream& osMsr); 
 	//void PrintGMTPlotCoords_D(vdnaStnPtr* vStations, vector<CDnaDirection>* vDirections, ostream& osMsr); 
 	//void PrintGMTPlotCoords_GX(vdnaStnPtr* vStations, vector<CDnaGpsBaseline>* vBaselines, ostream& osMsr); 

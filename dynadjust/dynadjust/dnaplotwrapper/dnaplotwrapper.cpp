@@ -36,11 +36,11 @@ void ProcessGnuPlot(dna_plot* plotDynaML, project_settings& p, plotGraphMode mod
 			cout << "measurements";
 			break;
 		}
-		cout << " histogram files in gnuplot format... ";
+		cout << " histogram via gnuplot... ";
 		cout.flush();
 	}
 	
-	plotDynaML->CreateSegmentationGraph(&p, mode);
+	plotDynaML->CreategnuplotGraphEnvironment(&p, mode);
 
 	if (p.g.verbose > 0 || p.g.quiet != 1)
 		cout << "done." << endl;
@@ -72,120 +72,22 @@ void ProcessGnuPlot(dna_plot* plotDynaML, project_settings& p, plotGraphMode mod
 		return;
 	}
 
-	string command_path;
-	stringstream sf;
-	string eps_maker(""), pdf_maker("");
-
-	/////////////////////////////////////////////////////////////////////
-	// create gnuplot eps
-	
-	// gnuplot graphs
-	eps_maker = p.g.output_folder + FOLDER_SLASH + p.p._gnuplot_cmd_file;
-
-#if defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
-	// POSIX
-	// Create absolute path				
-	sf << absolute(eps_maker.c_str());
-	eps_maker = sf.str();
-#endif
-	command_path = "gnuplot " + eps_maker;
-
-#if defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
-	// POSIX
-	// Change file permission
-	string system_file_cmd("chmod +x " + eps_maker);
-	std::system(system_file_cmd.c_str());
-#endif
-
 	if (p.g.verbose > 0 || p.g.quiet != 1)
 	{
-		cout << "+ Creating the EPS via gnuplot... ";
+		cout << "+ Creating the PDF... ";
 		cout.flush();		
 	}
-	if (!run_command(command_path, false))
-		return;
 
-	if (p.g.verbose > 0 || p.g.quiet != 1)
-	{
-		cout << "done." << endl;
-		cout.flush();
-	}
-	// create eps
-	/////////////////////////////////////////////////////////////////////
-
-	/////////////////////////////////////////////////////////////////////
-	// create pdf
-
-	
-	pdf_maker = p.g.output_folder + FOLDER_SLASH + p.p._pdf_cmd_file;
-
-#if defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
-	// Create absolute path
-	sf.str("");
-	sf << absolute(pdf_maker.c_str());
-	pdf_maker = sf.str();			
-#endif
-	command_path = pdf_maker;
-
-#if defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
-	// Change file permission
-	system_file_cmd = "chmod +x " + pdf_maker;
-	std::system(system_file_cmd.c_str());
-#endif
-
-	if (p.g.verbose > 0 || p.g.quiet != 1)
-	{
-		cout << "+ Converting to PDF... ";
-		cout.flush();
-	}
-
-	if (!run_command(command_path, false))
-		return;
-	
-	if (p.g.verbose > 0 || p.g.quiet != 1)
-	{	cout << "done.  " << endl;
-		cout.flush();
-	}
-
-	if (p.g.verbose > 0 || p.g.quiet != 1)
-	{
-		cout << "+ Cleaning up files... ";
-		cout.flush();				
-	}
-
-	if (!p.p._keep_gen_files)
-	{
-
-#if defined(_WIN32) || defined(__WIN32__)
-		// remove gmt/gnuplot command file
-		if (exists(eps_maker))
-			remove(eps_maker);
-		// remove pdf command file (if user doesn't want them)
-		if (exists(pdf_maker))
-			remove(pdf_maker);
-
-#elif defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
-		// remove gmt/gnuplot command file
-		if (!eps_maker.empty())
-		{
-			system_file_cmd = "rm -f " + eps_maker;
-			std::system(system_file_cmd.c_str());
-		}
-		// remove pdf command file (if user doesn't want them)
-		if (!pdf_maker.empty())
-		{
-			system_file_cmd = "rm -f " + pdf_maker;
-			std::system(system_file_cmd.c_str());
-		}
-#endif
-	}
+	// Invoke gnuplot to create the PDF plot.
+	// if option --supress-pdf-creation is provided to dnaplotwrapper, then don't
+	// execute the bat/shell scripts to call gnuplot.
+	plotDynaML->CreateSegmentationGraph();
 
 	if (p.g.verbose > 0 || p.g.quiet != 1)
 	{
 		cout << "done." << endl << endl;
 		cout.flush();
 	}
-
 }
 
 void ProcessGMTPlot(dna_plot* plotDynaML, project_settings& p, string& measurement_types)
@@ -196,63 +98,11 @@ void ProcessGMTPlot(dna_plot* plotDynaML, project_settings& p, string& measureme
 		cout.flush();
 	}	
 
-#if defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
-
-	// Whilst GMT can handle either R/G/B or #rrggbb, problems have been experienced
-	// in linux with specifying pen colours in legend symbols using #rrggbb.
-	// So change to R/G/B for linux only
-	UINT32 lc(0);
-	p.p._msr_colours.at(lc++).second = "255/230/0";			// yolk, #FFE600
-	p.p._msr_colours.at(lc++).second = "255/102/0";			// orange, #FF6600
-	p.p._msr_colours.at(lc++).second = "255/110/199";		// neonpink, #FF6EC7
-	p.p._msr_colours.at(lc++).second = "255/0/0";			// red, #FF0000
-	p.p._msr_colours.at(lc++).second = "94/38/5";			// vandykebrown, #5E2605
-	p.p._msr_colours.at(lc++).second = "28/134/238";		// dodgerblue2, #1C86EE
-	p.p._msr_colours.at(lc++).second = "238/106/80";		// coral2, #EE6A50
-	p.p._msr_colours.at(lc++).second = "223/255/165";		// melonrindgreen, #DFFFA5
-	p.p._msr_colours.at(lc++).second = "219/230/224";		// moon, #DBE6E0
-	p.p._msr_colours.at(lc++).second = "255/160/122";		// lightsalmon, #FFA07A
-	p.p._msr_colours.at(lc++).second = "0/238/0";			// green2, #00EE00
-	p.p._msr_colours.at(lc++).second = "170/83/3";			// coffee, #AA5303
-	p.p._msr_colours.at(lc++).second = "251/236/93";		// corn, #FBEC5D
-	p.p._msr_colours.at(lc++).second = "255/165/79";		// tan1, #FFA54F
-	p.p._msr_colours.at(lc++).second = "221/160/221";		// plum(SVG), #DDA0DD
-	p.p._msr_colours.at(lc++).second = "199/120/38";		// goldochre, #C77826
-	p.p._msr_colours.at(lc++).second = "0/0/128";			// navy, #000080
-	p.p._msr_colours.at(lc++).second = "125/38/205";		// purple3, #7D26CD
-	p.p._msr_colours.at(lc++).second = "255/192/203";		// pink(SVG), #FFC0CB
-	p.p._msr_colours.at(lc++).second = "48/43/84";			// presidential blue, #302B54
-#endif
-
 	p.p._gmt_params.clear();
-
-	// set parameters based on GMT version
-	switch (p.p._gmt_version)
-	{
-	case gmt_version_4:
-	case gmt_version_5:
-		p.p._gmt_params.push_back(string_string_pair("GRID_PEN_PRIMARY", "0.5p,128/128/128"));
-		p.p._gmt_params.push_back(string_string_pair("BASEMAP_TYPE", "fancy"));
-		p.p._gmt_params.push_back(string_string_pair("PAPER_MEDIA", "a3+"));
-		p.p._gmt_params.push_back(string_string_pair("FRAME_PEN", "1p"));
-		//p.p._gmt_params.push_back(string_string_pair("ANNOT_FONT_SIZE_PRIMARY", "8p"));
-		//p.p._gmt_params.push_back(string_string_pair("ANNOT_OFFSET_PRIMARY", "20p"));
-		//p.p._gmt_params.push_back(string_string_pair("ANNOT_FONT_SIZE_PRIMARY", "8p"));
-		//p.p._gmt_params.push_back(string_string_pair("PLOT_DEGREE_FORMAT", "ddd:mmF"));
-		//p.p._gmt_params.push_back(string_string_pair("TICK_PEN", "1p"));
-		//p.p._gmt_params.push_back(string_string_pair("TICK_LENGTH", "0.5"));
-		//p.p._gmt_params.push_back(string_string_pair("HEADER_FONT_SIZE", "10p"));
-		//p.p._gmt_params.push_back(string_string_pair("LABEL_FONT_SIZE", "8p"));
-		//p.p._gmt_params.push_back(string_string_pair("FRAME_WIDTH", "5p"));
-		break;
-	case gmt_version_6:
-	default:
-		p.p._gmt_params.push_back(string_string_pair("MAP_GRID_PEN_PRIMARY", "0.5p,128/128/128"));
-		p.p._gmt_params.push_back(string_string_pair("MAP_FRAME_TYPE", "fancy"));
-		p.p._gmt_params.push_back(string_string_pair("PS_MEDIA", "A0"));
-		p.p._gmt_params.push_back(string_string_pair("MAP_FRAME_PEN", "1p"));
-		break;
-	}
+	p.p._gmt_params.push_back(string_string_pair("MAP_GRID_PEN_PRIMARY", "0.5p,128/128/128"));
+	p.p._gmt_params.push_back(string_string_pair("MAP_FRAME_TYPE", "fancy"));
+	p.p._gmt_params.push_back(string_string_pair("PS_MEDIA", "A0"));
+	p.p._gmt_params.push_back(string_string_pair("MAP_FRAME_PEN", "1p"));
 	
 	p.p._separate_msrs.clear();
 
@@ -304,7 +154,7 @@ void ProcessGMTPlot(dna_plot* plotDynaML, project_settings& p, string& measureme
 		p.p._separate_msrs.push_back('X');
 	}
 
-	// go!
+	// prepare the schell scripts and data files
 	plotDynaML->CreateGMTPlotEnvironment(&p);
 	if (p.g.verbose > 0 || p.g.quiet != 1)
 	{
@@ -402,8 +252,8 @@ void ProcessGMTPlot(dna_plot* plotDynaML, project_settings& p, string& measureme
 	// plot.
 	//
 	// if option --supress-pdf-creation is provided to dnaplotwrapper, then don't
-	// execute the bat/shell scripts to call GMT or gnuplot.
-	plotDynaML->CreateGMTPlot_();
+	// execute the bat/shell scripts to call GMT.
+	plotDynaML->CreateGMTPlot();
 
 	if (p.g.verbose > 0 || p.g.quiet != 1)
 	{
@@ -533,10 +383,6 @@ int main(int argc, char* argv[])
 
 		// mapping options
 		map_options.add_options()
-			(GMT_VERSION, value<UINT16>(&p.p._gmt_version),
-				(string("Major version number of GMT to be used to generate the plot. The default version is GMT ")+
-				StringFromT(p.p._gmt_version)+string(". ")+
-				string("See\nhttps://www.generic-mapping-tools.org/download/ for the latest versions.")).c_str())
 			//	0 Allow plot to determine the projection from the data spatial extents
 			//	1 World plot
 			//	2 Orthographic (globe plot)
@@ -931,28 +777,29 @@ int main(int argc, char* argv[])
 		// or http://www.easycalculation.com/color-coder.php
 		// see U:\vs9\projects\geodesy\doc\colorhex.pdf
 		
-		p.p._msr_colours.push_back(string_string_pair("A", "#FFE600"));		// yolk, #FFE600
-		p.p._msr_colours.push_back(string_string_pair("B", "#FF6600"));		// orange, #FF6600
-		p.p._msr_colours.push_back(string_string_pair("C", "#FF6EC7"));		// neonpink, #FF6EC7
-		p.p._msr_colours.push_back(string_string_pair("D", "#FF0000"));		// red, #FF0000
-		p.p._msr_colours.push_back(string_string_pair("E", "#5E2605"));		// vandykebrown, #5E2605
-		p.p._msr_colours.push_back(string_string_pair("G", "#1C86EE"));		// dodgerblue2, #1C86EE
-		p.p._msr_colours.push_back(string_string_pair("H", "#EE6A50"));		// coral2, #EE6A50
-		p.p._msr_colours.push_back(string_string_pair("I", "#DFFFA5"));		// melonrindgreen, #DFFFA5
-		p.p._msr_colours.push_back(string_string_pair("J", "#DBE6E0"));		// moon, #DBE6E0
+		p.p._msr_colours.push_back(string_string_pair("A", "#FFC07F"));		// mellow apricot, #FFC07F
+		p.p._msr_colours.push_back(string_string_pair("B", "#FE5F55"));		// orange red crayola, #FE5F55
+		p.p._msr_colours.push_back(string_string_pair("C", "#A393BF"));		// glossy grape, #A393BF
+		p.p._msr_colours.push_back(string_string_pair("D", "#DA5552"));		// indian red, #DA5552
+		p.p._msr_colours.push_back(string_string_pair("E", "#717568"));		// nickel, #717568
+		p.p._msr_colours.push_back(string_string_pair("G", "#5AA9E6"));		// blue jeans, #5AA9E6
+		p.p._msr_colours.push_back(string_string_pair("H", "#DA627D"));		// blush, #DA627D
+		p.p._msr_colours.push_back(string_string_pair("I", "#A9F0D1"));		// magic mint, #A9F0D1
+		p.p._msr_colours.push_back(string_string_pair("J", "#9AD4D6"));		// powder blue, #9AD4D6
 		p.p._msr_colours.push_back(string_string_pair("K", "#FFA07A"));		// lightsalmon, #FFA07A
-		p.p._msr_colours.push_back(string_string_pair("L", "#00EE00"));		// green2, #00EE00
-		p.p._msr_colours.push_back(string_string_pair("M", "#AA5303"));		// coffee, #AA5303
-		p.p._msr_colours.push_back(string_string_pair("P", "#FBEC5D"));		// corn, #FBEC5D
-		p.p._msr_colours.push_back(string_string_pair("Q", "#FFA54F"));		// tan1, #FFA54F
-		p.p._msr_colours.push_back(string_string_pair("R", "#DDA0DD"));		// plum(SVG), #DDA0DD
-		p.p._msr_colours.push_back(string_string_pair("S", "#C77826"));		// goldochre, #C77826
-		p.p._msr_colours.push_back(string_string_pair("V", "#000080"));		// navy, #000080
-		p.p._msr_colours.push_back(string_string_pair("X", "#7D26CD"));		// purple3, #7D26CD
-		p.p._msr_colours.push_back(string_string_pair("Y", "#FFC0CB"));		// pink(SVG), #FFC0CB
-		p.p._msr_colours.push_back(string_string_pair("Z", "#302B54"));		// presidential blue, #302B54
-		p.p._msr_colours.push_back(string_string_pair("x", "#FF0000"));		// red, #FF0000 (destroyed)
-
+		p.p._msr_colours.push_back(string_string_pair("L", "#43AA8B"));		// zomp, #43AA8B
+		p.p._msr_colours.push_back(string_string_pair("M", "#4C1C00"));		// seal brown, #4C1C00
+		p.p._msr_colours.push_back(string_string_pair("P", "#FFD275"));		// orange yellow crayola, #FFD275
+		p.p._msr_colours.push_back(string_string_pair("Q", "#FF6B6B"));		// bittersweet, #FF6B6B
+		p.p._msr_colours.push_back(string_string_pair("R", "#DBCBD8"));		// languid lavender, #DBCBD8
+		p.p._msr_colours.push_back(string_string_pair("S", "#60492C"));		// dark broan, #60492C
+		p.p._msr_colours.push_back(string_string_pair("V", "#235789"));		// bdazzled blue, #235789
+		p.p._msr_colours.push_back(string_string_pair("X", "#9A348E"));		// vioet crayola, #9A348E
+		p.p._msr_colours.push_back(string_string_pair("Y", "#F7A1C4"));		// carnation pink, #F7A1C4
+		p.p._msr_colours.push_back(string_string_pair("Z", "#56A3A6"));		// cadet blue, #56A3A6
+		p.p._msr_colours.push_back(string_string_pair("x", "#FF0000"));		// red, #FF0000 (destroyed marks)	
+		
+		
 		if (graph_mode)
 		{
 			if (graph_mode_stns)
@@ -973,27 +820,29 @@ int main(int argc, char* argv[])
 					cout.flush();
 				}
 			}
+
+			return EXIT_SUCCESS;
 		}
-		else
-		{
-			if (!vm.count(LABEL_FONT_SIZE))
-				p.p._label_font_size = -1.0;		// determine best font according to plot size and map projection
 
-			if (vm.count(PLOT_CENTRE_LAT))
-				p.p._plot_centre_latitude = DmstoDeg(p.p._plot_centre_latitude);
-			if (vm.count(PLOT_CENTRE_LON))
-				p.p._plot_centre_longitude = DmstoDeg(p.p._plot_centre_longitude);
+		// If not in graph mode, then generate GMT plot		
+		if (!vm.count(LABEL_FONT_SIZE))
+			p.p._label_font_size = -1.0;		// determine best font according to plot size and map projection
 
-			if (vm.count(PLOT_STN_LABELS))
-				p.p._plot_station_labels = true;
-			if (vm.count(PLOT_ALT_NAME))
-				p.p._plot_alt_name = true;
-			if (vm.count(PLOT_CONSTRAINT_LABELS))
-				p.p._plot_station_constraints = true;
+		if (vm.count(PLOT_CENTRE_LAT))
+			p.p._plot_centre_latitude = DmstoDeg(p.p._plot_centre_latitude);
+		if (vm.count(PLOT_CENTRE_LON))
+			p.p._plot_centre_longitude = DmstoDeg(p.p._plot_centre_longitude);
 
-			// Create the GMT plot, or just the shell script(s) and data files
-			ProcessGMTPlot(&plotDynaML, p, measurement_types);			
-		}
+		if (vm.count(PLOT_STN_LABELS))
+			p.p._plot_station_labels = true;
+		if (vm.count(PLOT_ALT_NAME))
+			p.p._plot_alt_name = true;
+		if (vm.count(PLOT_CONSTRAINT_LABELS))
+			p.p._plot_station_constraints = true;
+
+		// Create the GMT plot, or just the shell script(s) and data files
+		ProcessGMTPlot(&plotDynaML, p, measurement_types);			
+	
 
 	} 
 	catch (const NetPlotException& e) {

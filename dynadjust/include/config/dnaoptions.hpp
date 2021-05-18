@@ -574,7 +574,7 @@ public:
 struct plot_settings : private boost::equality_comparable<plot_settings> {
 public:
 	plot_settings()
-		: _projection(bestProjection), _gmt_cmd_file(""), _gnuplot_cmd_file(""), _pdf_cmd_file(""), _eps_file_name(""), _pdf_file_name("")
+		: _projection(bestProjection), _gmt_cmd_file(""), _gnuplot_cmd_file(""), _eps_file_name(""), _pdf_file_name("")
 		, _plot_phased_blocks(false), _plot_station_labels(false), _plot_ignored_msrs(false)
 		, _plot_alt_name(false), _plot_station_constraints(false)
 		, _plot_correction_arrows(false), _plot_correction_labels(false), _compute_corrections(false)
@@ -586,7 +586,6 @@ public:
 		, _plot_area_radius(5000.), _plot_centre_latitude(-999.), _plot_centre_longitude(-999.)
 		, _plot_scale(0.), _page_width(0.), _ground_width(0.)
 		, _plot_block_number(0), _coasline_resolution(low)
-		, _gmt_version(gmt_version_6)
 		, _pdf_viewer("Acrobat"), _acrobat_ddename("AcroViewR15")
 		, command_line_arguments("")
 	{
@@ -601,7 +600,7 @@ private:
 	//
 	//bool operator==(const plot_settings& p) const {
 	//	return _projection == p._projection && _gmt_params == p._gmt_params && _separate_msrs == p._separate_msrs && _msr_colours == p._msr_colours &&
-	//		_gmt_cmd_file == p._gmt_cmd_file && _gnuplot_cmd_file == p._gnuplot_cmd_file && _pdf_cmd_file == p._pdf_cmd_file && _eps_file_name == p._eps_file_name &&
+	//		_gmt_cmd_file == p._gmt_cmd_file && _gnuplot_cmd_file == p._gnuplot_cmd_file && _eps_file_name == p._eps_file_name &&
 	//		_pdf_file_name == p._pdf_file_name && _plot_phased_blocks == p._plot_phased_blocks && _use_pdflatex == p._use_pdflatex && 
 	//		_plot_station_labels == p._plot_station_labels && _plot_ignored_msrs == p._plot_ignored_msrs &&
 	//		_plot_alt_name ==p._plot_alt_name && _plot_station_constraints == p._plot_station_constraints &&
@@ -628,7 +627,6 @@ public:
 															//	6 Lambert conformal
 	string					_gmt_cmd_file;					// GMT command file to create the eps
 	string					_gnuplot_cmd_file;				// Gnuplot command file to create the eps
-	string					_pdf_cmd_file;					// PDF command file to create PDF
 	string					_eps_file_name;					// The GMT-created eps file
 	string					_pdf_file_name;					// The PDF file generated either by ps2pdf or LaTeX
 	bool					_plot_phased_blocks;			// Plot the blocks of a segmented network.  Requires a corresponding segmentation file.
@@ -661,7 +659,6 @@ public:
 	double					_ground_width;					// ground width in metres
 	UINT32					_plot_block_number;				// Plots this block only
 	UINT16					_coasline_resolution;			// ncdf resolution
-	UINT16					_gmt_version;					// Generic Mapping Tools (GMT) major version number (e.g. 4, 5 or 6)
 	string					_pdf_viewer;					// PDF viewer
 	string					_acrobat_ddename;				// If viewer is Acrobat, supply necessary dde arguments
 	string					command_line_arguments;
