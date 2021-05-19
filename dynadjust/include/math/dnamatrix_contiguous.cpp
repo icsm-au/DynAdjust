@@ -2279,7 +2279,7 @@ void matrix_2d::trace(const string& comment, const string& submat_comment, const
 		return;
 	}
 	
-	if (comment.empty()))
+	if (comment.empty())
 		TRACE("%d %d, %s submatrix (%d, %d, %d*%d)\n", _rows, _cols, submat_comment.c_str(), row_begin, col_begin, rows, columns);
 	else
 		TRACE("%s (%d, %d), %s submatrix (%d, %d, %d*%d)\n", comment, _rows, _cols, submat_comment.c_str(), row_begin, col_begin, rows, columns);
