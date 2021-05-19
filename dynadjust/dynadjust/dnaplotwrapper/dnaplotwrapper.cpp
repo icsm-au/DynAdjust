@@ -581,6 +581,15 @@ int main(int argc, char* argv[])
 
 	//////////////////////////////////////////////////////
 	// Form paths
+	size_t lastindex;
+	if ((lastindex = p.g.output_folder.find_last_of("/")) != string::npos)
+		p.g.output_folder.pop_back();
+	if ((lastindex = p.g.output_folder.find_last_of("\\")) != string::npos)
+		p.g.output_folder.pop_back();
+	if (equals(p.g.output_folder.substr(0, 2), "./"))
+		p.g.output_folder = p.g.output_folder.substr(2);
+	if (equals(p.g.output_folder.substr(0, 2), ".\\"))
+		p.g.output_folder = p.g.output_folder.substr(2);
 
 	// binary station file
 	if (!p.i.bst_file.empty())
@@ -610,18 +619,18 @@ int main(int argc, char* argv[])
 	if (p.p._plot_correction_arrows)
 	{
 		if (p.p._plot_phased_blocks)
-			p.o._cor_file = formPath<string>(p.g.output_folder, p.g.network_name, "phased.cor");
+			p.o._cor_file = formPath<string>(p.g.input_folder, p.g.network_name, "phased.cor");
 		else
-			p.o._cor_file = formPath<string>(p.g.output_folder, p.g.network_name, "simult.cor");
+			p.o._cor_file = formPath<string>(p.g.input_folder, p.g.network_name, "simult.cor");
 	}
 
 	// adjusted positional uncertainty file
 	if (p.p._plot_error_ellipses || p.p._plot_positional_uncertainty)
 	{
 		if (p.p._plot_phased_blocks)
-			p.o._apu_file = formPath<string>(p.g.output_folder, p.g.network_name, "phased.apu");
+			p.o._apu_file = formPath<string>(p.g.input_folder, p.g.network_name, "phased.apu");
 		else
-			p.o._apu_file = formPath<string>(p.g.output_folder, p.g.network_name, "simult.apu");
+			p.o._apu_file = formPath<string>(p.g.input_folder, p.g.network_name, "simult.apu");
 	}
 	//
 	//////////////////////////////////////////////////////

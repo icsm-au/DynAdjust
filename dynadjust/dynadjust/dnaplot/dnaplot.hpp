@@ -332,7 +332,9 @@ private:
 	string 					_CHMOD_CMD_;
 	string 					_COPY_CMD_;
 	string 					_MOVE_CMD_;
+	string					_NULL_OUTPUT_;
 	string 					_MAKEDIR_CMD_;
+	string 					_RMDIR_CMD_;
 	string 					_MAKEENV_CMD_;
 	string 					_MAKETEMP_CMD_;
 	string 					_ENV_GMT_TMP_DIR_;

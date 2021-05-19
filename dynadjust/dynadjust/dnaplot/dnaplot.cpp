@@ -88,9 +88,11 @@ void dna_plot::InitialiseAppsandCommands()
 	_PDF_AGGREGATE_ = "pdftk ";
 	_DELETE_CMD_ = "del /Q /F ";
 	_COPY_CMD_ = "copy /Y ";
-	_MOVE_CMD_ = "move ";
+	_MOVE_CMD_ = "move /Y ";
+	_NULL_OUTPUT_ = " > NUL";
 	_ENV_GMT_TMP_DIR_ = "%" + _GMT_TMP_DIR_ + "%";
 	_MAKEENV_CMD_ = "set ";
+	_RMDIR_CMD_ = "rmdir /Q /S ";
 
 #elif defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
 	_LEGEND_ECHO_ = "";
@@ -103,9 +105,11 @@ void dna_plot::InitialiseAppsandCommands()
 	_DELETE_CMD_ = "rm -rf ";
 	_COPY_CMD_ = "cp ";
 	_MOVE_CMD_ = "mv ";
+	_NULL_OUTPUT_ = " > /dev/null";
 	_MAKETEMP_CMD_ = "mktemp ";
 	_ENV_GMT_TMP_DIR_ = "$" + _GMT_TMP_DIR_;
 	_MAKEENV_CMD_ = "export ";
+	_RMDIR_CMD_ = "rm -rf ";
 
 #endif
 
@@ -201,7 +205,7 @@ void dna_plot::PlotGnuplotDatFileStns()
 	std::ofstream seg_data;
 	try {
 		// Create gnuplot station segment data file.  Throws runtime_error on failure.
-		file_opener(seg_data, formPath<string>(output_folder_, seg_stn_graph_file_));
+		file_opener(seg_data, seg_stn_graph_file_);
 	}
 	catch (const runtime_error& e) {
 		SignalExceptionPlot(e.what(), 0, NULL);
@@ -236,7 +240,7 @@ void dna_plot::PlotGnuplotDatFileMsrs()
 	std::ofstream seg_data;
 	try {
 		// Create gnuplot measurement segment data file.  Throws runtime_error on failure.
-		file_opener(seg_data, formPath<string>(output_folder_, seg_msr_graph_file_));
+		file_opener(seg_data, seg_msr_graph_file_);
 	}
 	catch (const runtime_error& e) {
 		SignalExceptionPlot(e.what(), 0, NULL);
@@ -1001,7 +1005,7 @@ void dna_plot::InitialiseGMTFilenames()
 		
 	UINT32 block;
 	bool oneBlockOnly = InitialiseandValidateStartingBlock(block);
-		
+
 	for (; block<blockCount_; ++block)
 	{
 		// gmt command filename
@@ -1011,24 +1015,24 @@ void dna_plot::InitialiseGMTFilenames()
 		// Add folder path
 		gmt_filename = pprj_->g.output_folder + FOLDER_SLASH + gmt_filename;
 
-#if defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
 		// Create absolute path				
-		gmt_filename = absolute(gmt_filename).c_str();
-#endif
+		gmt_filename = absolute(gmt_filename).string();
+
 		// Add to the list
 		v_gmt_cmd_filenames_.push_back(gmt_filename);
 	
 		// generated pdf filename
 		gmt_filename = network_name_;
 		gmt_filename.append("_block_").append(StringFromT(block)).append(".pdf");
-		v_gmt_pdf_filenames_.push_back(gmt_filename);
+		v_gmt_pdf_filenames_.push_back(output_folder_ + FOLDER_SLASH + gmt_filename);
 
 		// break out for specific block (n) plots
 		if (oneBlockOnly)
 			break;
 	}
 
-	pprj_->p._pdf_file_name = network_name_;
+	pprj_->p._pdf_file_name = output_folder_ + FOLDER_SLASH + network_name_;
+
 	if (plotBlocks_)
 		pprj_->p._pdf_file_name.append("-phased");
 	else
@@ -1113,14 +1117,10 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 	gmtbat_file_ << endl << _COMMENT_PREFIX_ << "Create temporary folder for gmt.conf and gmt.history" << endl;
 	
 #if defined(_WIN32) || defined(__WIN32__)
-	// temporary legend files
-	_LEGEND_CMD_1_.append(legendTempFile);
-	_LEGEND_CMD_2_.append(legendTempFile);
-	
 	// set, create and provide access to temporary folder for gmt.conf file
-	gmtbat_file_ << _MAKEDIR_CMD_ << "\".\\gmt.block-" << block << "\"" << endl;
-	gmtbat_file_ << _MAKEENV_CMD_ << _GMT_TMP_DIR_ << "=\".\\gmt.block-" << block << "\"" << endl;
-	gmtbat_file_ << "icacls " << _ENV_GMT_TMP_DIR_ << " /grant Everyone:(f)" << endl;
+	gmtbat_file_ << _MAKEENV_CMD_ << _GMT_TMP_DIR_ << "=%TEMP%\\gmt.block-" << block << endl;
+	gmtbat_file_ << _MAKEDIR_CMD_ << _ENV_GMT_TMP_DIR_ << endl;
+	//gmtbat_file_ << "icacls " << _ENV_GMT_TMP_DIR_ << " /grant Everyone:(f)" << endl;
 
 #elif defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
 	// temporary gmt.conf file location
@@ -1387,16 +1387,16 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 
 			if (_it_colour.first == _it_colour.second)
 			{
-				gmtbat_file_ << _APP_PSXY_ << " -R -J -Skcircle/" << fixed << setprecision(2) << circle_radius_2_ << " " << 
-					v_msr_file_.at(block).at(i).first << " -W" << setprecision(2) << circle_line_width_ << 
+				gmtbat_file_ << _APP_PSXY_ << " -R -J -Skcircle/" << fixed << setprecision(2) << circle_radius_2_ << 
+					" \"" << v_msr_file_.at(block).at(i).first << "\" -W" << setprecision(2) << circle_line_width_ << 
 					"p,darkgray -Glightgray";
 				gmtbat_file_ << " -O -K >> " << psTempFile << endl;
 			}
 			else
 			{
 				colours++;
-				gmtbat_file_ << _APP_PSXY_ << " -R -J -Skcircle/" << fixed << setprecision(2) << circle_radius_2_ << " " << 
-					v_msr_file_.at(block).at(i).first << " -W" << setprecision(2) << circle_line_width_ << 
+				gmtbat_file_ << _APP_PSXY_ << " -R -J -Skcircle/" << fixed << setprecision(2) << circle_radius_2_ << 
+					" \"" << v_msr_file_.at(block).at(i).first << "\" -W" << setprecision(2) << circle_line_width_ << 
 					"p,";
 
 				// Line colour
@@ -1421,25 +1421,25 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 	}
 
 	// print stations first to enable measurements to be seen
-	gmtbat_file_ << _APP_PSXY_ << " -R -J -Skcircle/" << fixed << setprecision(2) << circle_radius_ << " " << 
-		v_isl_pts_file_.at(block) << " -W" << setprecision(2) << circle_line_width_ << 
+	gmtbat_file_ << _APP_PSXY_ << " -R -J -Skcircle/" << fixed << setprecision(2) << circle_radius_ << 
+		" \"" << v_isl_pts_file_.at(block) << "\" -W" << setprecision(2) << circle_line_width_ << 
 		"p,#235789 -Gwhite -O -K >> " << psTempFile << endl;
 
 	if (plotConstraints_)
 		// don't plot line, just fill
-		gmtbat_file_ << _APP_PSXY_ << " -R -J -Skcircle/" << fixed << setprecision(2) << circle_radius_ << " " << 
-			v_isl_const_file_.at(block) << " -G#235789 -O -K >> " << psTempFile << endl;
+		gmtbat_file_ << _APP_PSXY_ << "\" -R -J -Skcircle/" << fixed << setprecision(2) << circle_radius_ << 
+			" \"" << v_isl_const_file_.at(block) << " -G#235789 -O -K >> " << psTempFile << endl;
 
 	if (plotBlocks_)
 	{
-		gmtbat_file_ << _APP_PSXY_ << " -R -J -Skcircle/" << fixed << setprecision(2) << circle_radius_ << " " << 
-			v_jsl_pts_file_.at(block) << " -W" << setprecision(2) << circle_line_width_ * 2.0 << 
+		gmtbat_file_ << _APP_PSXY_ << " -R -J -Skcircle/" << fixed << setprecision(2) << circle_radius_ << 
+			" \"" << v_jsl_pts_file_.at(block) << "\" -W" << setprecision(2) << circle_line_width_ * 2.0 << 
 			"p,#DA5552 -Gwhite -O -K >> " << psTempFile << endl;
 
 		if (plotConstraints_)
 			// don't plot line, just fill
-			gmtbat_file_ << _APP_PSXY_ << " -R -J -Skcircle/" << fixed << setprecision(2) << circle_radius_ << " " << 
-				v_jsl_const_file_.at(block) << " -G#DA5552 -O -K >> " << psTempFile << endl;
+			gmtbat_file_ << _APP_PSXY_ << " -R -J -Skcircle/" << fixed << setprecision(2) << circle_radius_ << 
+				" \"" << v_jsl_const_file_.at(block) << "\" -G#DA5552 -O -K >> " << psTempFile << endl;
 	}
 
 	// Does the user want to print measurements?
@@ -1468,8 +1468,8 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 
 			if (_it_colour.first == _it_colour.second)
 			{
-				gmtbat_file_ << _APP_PSXY_ << " -R -J " << v_msr_file_.at(block).at(i).first << 
-					" " << "-W" << setprecision(2) << line_width_ << 
+				gmtbat_file_ << _APP_PSXY_ << " -R -J \"" << v_msr_file_.at(block).at(i).first << 
+					" \"" << "-W" << setprecision(2) << line_width_ << 
 					"p,lightgray";
 				//if (v_msr_file_.at(block).at(i).second == "Y")		// not a vector measurement, so represent as dashed
 				//	gmtbat_file_ << ",6_8:1p";
@@ -1478,8 +1478,8 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 			else
 			{
 				colours++;
-				gmtbat_file_ << _APP_PSXY_ << " -R -J " << v_msr_file_.at(block).at(i).first << 
-					" " << "-W" << setprecision(2) << line_width_ << 
+				gmtbat_file_ << _APP_PSXY_ << " -R -J \"" << v_msr_file_.at(block).at(i).first << 
+					"\" " << "-W" << setprecision(2) << line_width_ << 
 					"p," << _it_colour.first->second;
 				//if (v_msr_file_.at(block).at(i).second == "Y")		// not a vector measurement, so represent as dashed
 				//	gmtbat_file_ << ",6_8:1p";
@@ -1510,8 +1510,8 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 	if (pprj_->p._plot_positional_uncertainty)
 	{
 		// print positional uncertainty
-		gmtbat_file_ << _APP_PSVELO_ << " -R -J " << v_stn_apu_file_.at(block) << 
-			" -Sr" << error_ellipse_scale << "/0.95/0c -L -W1.25p,#FFD275 -O -K >> " << psTempFile << endl;
+		gmtbat_file_ << _APP_PSVELO_ << " -R -J \"" << v_stn_apu_file_.at(block) << 
+			"\" -Sr" << error_ellipse_scale << "/0.95/0c -L -W1.25p,#FFD275 -O -K >> " << psTempFile << endl;
 
 		// Shift plot north to account for error ellipse legend
 		if (pprj_->p._plot_error_ellipses)
@@ -1555,8 +1555,8 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 			ellipse_scale = 2.;
 
 		// print error ellipses in indian red
-		gmtbat_file_ << _APP_PSVELO_ << " -R -J " << v_stn_err_file_.at(block) << 
-			" -Sr" << error_ellipse_scale << "/0.95/0c -L -W0.75p,#DA5552 -O -K >> " << psTempFile << endl;
+		gmtbat_file_ << _APP_PSVELO_ << " -R -J \"" << v_stn_err_file_.at(block) << 
+			"\" -Sr" << error_ellipse_scale << "/0.95/0c -L -W0.75p,#DA5552 -O -K >> " << psTempFile << endl;
 
 		// Add text for error ellipse legend 
 		gmtbat_file_ << _ECHO_CMD_ <<
@@ -1602,12 +1602,14 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 
 		// print text in black (no arrows)
 		if (pprj_->p._plot_correction_labels)
-			gmtbat_file_ << _APP_PSVELO_ << " -R -J " << v_stn_cor_file_.at(block) << 
-				" -Se0.0001/0.95+f" << setprecision(0) << pprj_->p._label_font_size << "p,Helvetica,black -L -A0.0001/0.0001/0.0001c -O -K >> " << psTempFile << endl;
+			gmtbat_file_ << _APP_PSVELO_ << " -R -J \"" << v_stn_cor_file_.at(block) << 
+				"\" -Se0.0001/0.95+f" << setprecision(0) << pprj_->p._label_font_size << 
+				"p,Helvetica,black -L -A0.0001/0.0001/0.0001c -O -K >> " << psTempFile << endl;
 
 		// print arrows (without black outline!)
-		gmtbat_file_ << _APP_PSVELO_ << " -R -J " << v_stn_cor_file_.at(block) << 
-			" -Se" << correction_arrow_scale << "/0.95/0c -L -A" << line_width_ / 2.0 * CM_TO_INCH << "/0.5/0.1c -G#DA5552 -W0.0p,#DA5552 -O -K >> " << psTempFile << endl;
+		gmtbat_file_ << _APP_PSVELO_ << " -R -J \"" << v_stn_cor_file_.at(block) << 
+			"\" -Se" << correction_arrow_scale << "/0.95/0c -L -A" << line_width_ / 2.0 * CM_TO_INCH << 
+			"/0.5/0.1c -G#DA5552 -W0.0p,#DA5552 -O -K >> " << psTempFile << endl;
 
 		// Add text below the corrections arrow legend 
 		gmtbat_file_ << _ECHO_CMD_ <<
@@ -1651,7 +1653,7 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 
 	if (pprj_->p._plot_station_labels)
 	{
-		gmtbat_file_ << _APP_PSTEXT_ << " -R -J " << v_isl_lbl_file_.at(block);
+		gmtbat_file_ << _APP_PSTEXT_ << " -R -J \"" << v_isl_lbl_file_.at(block) << "\"";
 		
 		// print shadow
 		gmtbat_file_ << " -F+f" << 
@@ -1666,7 +1668,7 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 
 		if (plotBlocks_)
 		{
-			gmtbat_file_ << _APP_PSTEXT_ << " -R -J " << v_jsl_lbl_file_.at(block);
+			gmtbat_file_ << _APP_PSTEXT_ << " -R -J \"" << v_jsl_lbl_file_.at(block) << "\"";
 			
 			// print shadow
 			gmtbat_file_ << " -F+f" << 
@@ -1684,6 +1686,14 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 	// Prepare to terminate a sequence of GMT plotting commands without producing 
 	// any plotting output (depending on whether a title block is required)
 	gmtbat_file_ << _APP_PSXY_ << " -R -J -T -O";
+
+	string legendCommand1(_LEGEND_CMD_1_), legendCommand2(_LEGEND_CMD_2_);
+
+#if defined(_WIN32) || defined(__WIN32__)
+	// temporary legend files
+	legendCommand1.append(legendTempFile);
+	legendCommand2.append(legendTempFile);
+#endif
 	
 	// No title block?
 	if (pprj_->p._omit_title_block)
@@ -1707,8 +1717,8 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 
 		bool isnameaNumber(is_number<string>(network_name_));
 
-		gmtbat_file_ << _LEGEND_ECHO_ << "G 0.25" << _LEGEND_CMD_1_ << endl;
-		gmtbat_file_ << _LEGEND_ECHO_ << "N 1" << _LEGEND_CMD_2_ << endl;
+		gmtbat_file_ << _LEGEND_ECHO_ << "G 0.25" << legendCommand1 << endl;
+		gmtbat_file_ << _LEGEND_ECHO_ << "N 1" << legendCommand2 << endl;
 		gmtbat_file_ << _LEGEND_ECHO_ << "H " << fixed << setprecision(0) << label_font_size * 2.0 << "p,Helvetica-Bold ";
 		if (isnameaNumber) 
 			gmtbat_file_ << "'" << network_name_ << "'";
@@ -1721,12 +1731,12 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 		if (!pprj_->p._plot_station_centre.empty())
 			gmtbat_file_ << " centred on " << pprj_->p._plot_station_centre;
 
-		gmtbat_file_ << _LEGEND_CMD_2_ << endl;
-		gmtbat_file_ << _LEGEND_ECHO_ << "G 0.25" << _LEGEND_CMD_2_ << endl;
+		gmtbat_file_ << legendCommand2 << endl;
+		gmtbat_file_ << _LEGEND_ECHO_ << "G 0.25" << legendCommand2 << endl;
 
 		// Print stations legend
-		gmtbat_file_ << _LEGEND_ECHO_ << "D 0 1p" << _LEGEND_CMD_2_ << endl;		// horizontal line
-		gmtbat_file_ << _LEGEND_ECHO_ << "G 0.25" << _LEGEND_CMD_2_ << endl;		// space	
+		gmtbat_file_ << _LEGEND_ECHO_ << "D 0 1p" << legendCommand2 << endl;		// horizontal line
+		gmtbat_file_ << _LEGEND_ECHO_ << "G 0.25" << legendCommand2 << endl;		// space	
 
 		UINT32 station_count(1);		// Simultaneous or ISL
 
@@ -1743,8 +1753,8 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 		//if (pprj_->p._plot_correction_arrows)
 		//	station_count++;			// Corrections to station coordinates
 
-		gmtbat_file_ << _LEGEND_ECHO_ << "N " << station_count << _LEGEND_CMD_2_ << endl;
-		gmtbat_file_ << _LEGEND_ECHO_ << "V 0 1p" << _LEGEND_CMD_2_ << endl;		// vertical line
+		gmtbat_file_ << _LEGEND_ECHO_ << "N " << station_count << legendCommand2 << endl;
+		gmtbat_file_ << _LEGEND_ECHO_ << "V 0 1p" << legendCommand2 << endl;		// vertical line
 		
 		circle_radius_2_ = circle_radius_ * 1.75;
 
@@ -1758,7 +1768,7 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 			gmtbat_file_ << " Free Inner stations ";
 		else 
 			gmtbat_file_ << " Free Stations";
-		gmtbat_file_ << _LEGEND_CMD_2_ << endl;
+		gmtbat_file_ << legendCommand2 << endl;
 
 		// Simultaneous stations or Phased inner stations
 		if (plotBlocks_)
@@ -1768,7 +1778,7 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 				circle_radius_2_ << " white " << 
 				circle_line_width_ * 2 << "p,#DA5552 " <<
 				fixed << setprecision(1) << label_offset <<
-				" Free Junction stations" << _LEGEND_CMD_2_ << endl;
+				" Free Junction stations" << legendCommand2 << endl;
 		}
 
 		if (plotConstraints_)
@@ -1780,13 +1790,13 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 					circle_radius_2_ << " #235789 " << 
 					circle_line_width_ * 2 << "p,#235789 " <<
 					fixed << setprecision(1) << label_offset <<
-					" Constrained inner stations" << _LEGEND_CMD_2_ << endl;
+					" Constrained inner stations" << legendCommand2 << endl;
 				gmtbat_file_ << _LEGEND_ECHO_ <<
 					"S " << fixed << setprecision(1) << symbol_offset << " c " << 
 					circle_radius_2_ << " #DA5552 " << 
 					circle_line_width_ * 2 << "p,#DA5552 " <<
 					fixed << setprecision(1) << label_offset <<
-					" Constrained junction stations" << _LEGEND_CMD_2_ << endl;
+					" Constrained junction stations" << legendCommand2 << endl;
 			}
 			else
 				gmtbat_file_ << _LEGEND_ECHO_ <<
@@ -1794,7 +1804,7 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 					circle_radius_2_ << " #235789 " << 
 					circle_line_width_ * 2 << "p,#235789 " <<
 					fixed << setprecision(1) << label_offset <<
-					" Constraint stations" << _LEGEND_CMD_2_ << endl;
+					" Constraint stations" << legendCommand2 << endl;
 		}			
 		
 		title_block_height_ = 5;
@@ -1806,19 +1816,19 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 		//		"S " << fixed << setprecision(1) << symbol_offset << 
 		//		" v 1.5c/0.04/0.5/0.1 red " <<			// arrowlength/linewidth/arrowheadwidth/arrowheadlength
 		//		line_width * 2 << "p,#DA5552 " 
-		//		<< fixed << setprecision(1) << label_offset * 1.5 << " Corrections to stations" << _LEGEND_CMD_2_ << endl;
+		//		<< fixed << setprecision(1) << label_offset * 1.5 << " Corrections to stations" << legendCommand2 << endl;
 		}
 		// If corrections are not being printed, then print measurements legend
 		else
 		{
-			gmtbat_file_ << _LEGEND_ECHO_ << "G 0.25" << _LEGEND_CMD_2_ << endl;		// space
-			gmtbat_file_ << _LEGEND_ECHO_ << "D 0 1p" << _LEGEND_CMD_2_ << endl;		// horizontal line
-			gmtbat_file_ << _LEGEND_ECHO_ << "G 0.25" << _LEGEND_CMD_2_ << endl;		// space	
+			gmtbat_file_ << _LEGEND_ECHO_ << "G 0.25" << legendCommand2 << endl;		// space
+			gmtbat_file_ << _LEGEND_ECHO_ << "D 0 1p" << legendCommand2 << endl;		// horizontal line
+			gmtbat_file_ << _LEGEND_ECHO_ << "G 0.25" << legendCommand2 << endl;		// space	
 
 			if (v_msr_file_.at(block).size() > columns)
-				gmtbat_file_ << _LEGEND_ECHO_ << "N " << columns << _LEGEND_CMD_2_ << endl;
+				gmtbat_file_ << _LEGEND_ECHO_ << "N " << columns << legendCommand2 << endl;
 			else
-				gmtbat_file_ << _LEGEND_ECHO_ << "N " << v_msr_file_.at(block).size() << _LEGEND_CMD_2_ << endl;
+				gmtbat_file_ << _LEGEND_ECHO_ << "N " << v_msr_file_.at(block).size() << legendCommand2 << endl;
 
 			bool bOtherTypes(false);
 			
@@ -1865,7 +1875,7 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 						gmtbat_file_ << _it_colour.first->second;
 
 					gmtbat_file_ << " " << fixed << setprecision(1) << label_offset << " " << 
-						measurement_name<char, string>(static_cast<char>(_it_colour.first->first.at(0))) << _LEGEND_CMD_2_ << endl;
+						measurement_name<char, string>(static_cast<char>(_it_colour.first->first.at(0))) << legendCommand2 << endl;
 				}
 				else
 					bOtherTypes = true;
@@ -1874,21 +1884,21 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 			if (bOtherTypes)
 				gmtbat_file_ << _LEGEND_ECHO_ <<
 					"S " << fixed << setprecision(1) << symbol_offset << " - 0.5 lightgray " << line_width_ * 2.5 << "p,lightgray " 
-					<< fixed << setprecision(1) << label_offset << "  All other types" << _LEGEND_CMD_2_ << endl;			
+					<< fixed << setprecision(1) << label_offset << "  All other types" << legendCommand2 << endl;			
 
 			title_block_height_ += floor(((double)colours)/columns) * 0.25;
 		
 		}
 
-		gmtbat_file_ << _LEGEND_ECHO_ << "G 0.25" << _LEGEND_CMD_2_ << endl;		// space
-		gmtbat_file_ << _LEGEND_ECHO_ << "D 0 1p" << _LEGEND_CMD_2_ << endl;		// horizontal line
-		gmtbat_file_ << _LEGEND_ECHO_ << "G 0.25" << _LEGEND_CMD_2_ << endl;		// space
-		gmtbat_file_ << _LEGEND_ECHO_ << "N 5" << _LEGEND_CMD_2_ << endl;
-		gmtbat_file_ << _LEGEND_ECHO_ << "S 0.01 c 0.01 white 1p,white 1 " << pprj_->p._title_block_subname << _LEGEND_CMD_2_ << endl;
-		gmtbat_file_ << _LEGEND_ECHO_ << "S 0.01 c 0.01 white 1p,white 0 " << pprj_->p._title_block_name << _LEGEND_CMD_2_ << endl;
-		gmtbat_file_ << _LEGEND_ECHO_ << "S 0.01 c 0.01 white 1p,white 3 " << reference_frame_ << _LEGEND_CMD_2_ << endl;
-		gmtbat_file_ << _LEGEND_ECHO_ << "S 0.01 c 0.01 white 1p,white 0 " << projectionTypes[pprj_->p._projection] << " projection" << _LEGEND_CMD_2_ << endl;
-		gmtbat_file_ << _LEGEND_ECHO_ << "S 0.01 c 0.01 white 1p,white 1 Scale 1:" << static_cast<UINT32>(scale_) << " (A3)" << _LEGEND_CMD_2_ << endl;
+		gmtbat_file_ << _LEGEND_ECHO_ << "G 0.25" << legendCommand2 << endl;		// space
+		gmtbat_file_ << _LEGEND_ECHO_ << "D 0 1p" << legendCommand2 << endl;		// horizontal line
+		gmtbat_file_ << _LEGEND_ECHO_ << "G 0.25" << legendCommand2 << endl;		// space
+		gmtbat_file_ << _LEGEND_ECHO_ << "N 5" << legendCommand2 << endl;
+		gmtbat_file_ << _LEGEND_ECHO_ << "S 0.01 c 0.01 white 1p,white 1 " << pprj_->p._title_block_subname << legendCommand2 << endl;
+		gmtbat_file_ << _LEGEND_ECHO_ << "S 0.01 c 0.01 white 1p,white 0 " << pprj_->p._title_block_name << legendCommand2 << endl;
+		gmtbat_file_ << _LEGEND_ECHO_ << "S 0.01 c 0.01 white 1p,white 3 " << reference_frame_ << legendCommand2 << endl;
+		gmtbat_file_ << _LEGEND_ECHO_ << "S 0.01 c 0.01 white 1p,white 0 " << projectionTypes[pprj_->p._projection] << " projection" << legendCommand2 << endl;
+		gmtbat_file_ << _LEGEND_ECHO_ << "S 0.01 c 0.01 white 1p,white 1 Scale 1:" << static_cast<UINT32>(scale_) << " (A3)" << legendCommand2 << endl;
 
 #if defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
 		gmtbat_file_ << "END" << endl << endl;
@@ -1904,9 +1914,13 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 	////////////////////////////////////////////////
 	// conversion to PDF 
 	//
+	
 	gmtbat_file_ << endl << _COMMENT_PREFIX_ << "convert ps to pdf" << endl;
-	gmtbat_file_ << _APP_PSCONVERT_ << " -A0.2c+white -Tf " << psTempFile << endl;
-	gmtbat_file_ << _MOVE_CMD_ << pdfTempFile << " " << v_gmt_pdf_filenames_.at(block) << endl << endl;	
+
+	size_t lastindex = v_gmt_pdf_filenames_.at(block).find_last_of("."); 
+	string pdf_filename = v_gmt_pdf_filenames_.at(block).substr(0, lastindex); 	
+	gmtbat_file_ << _APP_PSCONVERT_ << " -A0.2c+white -Tf -F\"" << pdf_filename << "\" " << psTempFile << endl << endl;
+	
 	////////////////////////////////////////////////
 	
 	////////////////////////////////////////////////
@@ -1922,11 +1936,9 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 	////////////////////////////////////////////////
 
 	// remove temporary directory for gmt.conf and gmt.history
-#if defined(_WIN32) || defined(__WIN32__)
-	gmtbat_file_ << _DELETE_CMD_ << _ENV_GMT_TMP_DIR_ << endl;
+	gmtbat_file_ << _RMDIR_CMD_ << _ENV_GMT_TMP_DIR_ << endl;
 
-#elif defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)	
-	gmtbat_file_ << endl << _DELETE_CMD_ << _ENV_GMT_TMP_DIR_ << endl;
+#if defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)	
 	gmtbat_file_ << "unset " << _GMT_TMP_DIR_ << endl;
 
 #endif		
@@ -1942,38 +1954,38 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 
 		// stations
 		gmtbat_file_ << 
-			" " << v_isl_pts_file_.at(block) << 
-			" " << v_isl_const_file_.at(block);
+			" \"" << v_isl_pts_file_.at(block) << "\"" <<
+			" \"" << v_isl_const_file_.at(block) << "\"";
 
 		if (plotBlocks_)
 		{
 			// junction stations5
 			gmtbat_file_ << 
-				" " << v_jsl_const_file_.at(block) <<
-				" " << v_jsl_pts_file_.at(block);
+				" \"" << v_jsl_const_file_.at(block) << "\"" <<
+				" \"" << v_jsl_pts_file_.at(block) << "\"";
 		}
 
 		// measurements
 		for (UINT32 i=0; i<v_msr_file_.at(block).size(); i++)
-			gmtbat_file_ << " " << v_msr_file_.at(block).at(i).first;
+			gmtbat_file_ << " \"" << v_msr_file_.at(block).at(i).first << "\"";
 	
 		// station labels
 		if (pprj_->p._plot_station_labels)
 		{
-			gmtbat_file_ << " " << v_isl_lbl_file_.at(block);
+			gmtbat_file_ << " \"" << v_isl_lbl_file_.at(block) << "\"";
 		
 			if (plotBlocks_)
-				gmtbat_file_ << " " << v_jsl_lbl_file_.at(block);
+				gmtbat_file_ << " \"" << v_jsl_lbl_file_.at(block) << "\"";
 		}
 
 		if (pprj_->p._plot_positional_uncertainty)
-			gmtbat_file_ << " " << v_stn_apu_file_.at(block);
+			gmtbat_file_ << " \"" << v_stn_apu_file_.at(block) << "\"";
 
 		if (pprj_->p._plot_error_ellipses)
-			gmtbat_file_ << " " << v_stn_err_file_.at(block);
+			gmtbat_file_ << " \"" << v_stn_err_file_.at(block) << "\"";
 
 		if (pprj_->p._plot_correction_arrows)
-			gmtbat_file_ << " " << v_stn_cor_file_.at(block);
+			gmtbat_file_ << " \"" << v_stn_cor_file_.at(block) << "\"";
 
 		gmtbat_file_ << endl;
 	}
@@ -2052,6 +2064,7 @@ void dna_plot::AggregatePDFs()
 
 	// aggregate!
 	system_file_cmd = ss.str();
+
 	std::system(system_file_cmd.c_str());
 }
 
@@ -2066,20 +2079,16 @@ void dna_plot::CreateGMTPlot()
 
 	////////////////////////////////////////////////
 	// clean up config and PDF files
-	stringstream ss;
-	string clean_up_gmt_config_files;
-#if defined(_WIN32) || defined(__WIN32__)
-	ss << _DELETE_CMD_ << ".gmtdefaults4 .gmtcommands4";
-#elif defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)	
-	ss << _DELETE_CMD_ << "gmt.conf gmt.history";
-#endif
-
 	if (!pprj_->p._keep_gen_files)
 	{
+		stringstream ss;
+		string clean_up_gmt_config_files;
+		ss << _DELETE_CMD_;
+
 		// shell scripts
 		for_each(v_gmt_cmd_filenames_.begin(), v_gmt_cmd_filenames_.end(),
 			[&ss](const string& gmt_cmd_file) {
-				ss << " " << gmt_cmd_file;
+				ss << " \"" << gmt_cmd_file << "\"";
 			});
 
 		if (plotBlocks_)
@@ -2087,7 +2096,7 @@ void dna_plot::CreateGMTPlot()
 			// PDF files for each block (except simultaneous)
 			for_each(v_gmt_pdf_filenames_.begin(), v_gmt_pdf_filenames_.end(),
 				[&ss](const string& gmt_pdf_file) {
-					ss << " " << gmt_pdf_file;
+					ss << " \"" << gmt_pdf_file << "\"";
 				});
 		}
 
@@ -2165,7 +2174,9 @@ void dna_plot::CalculateLimitsFromPoint()
 
 void dna_plot::FormGMTDataFileNames(const UINT32& block)
 {
-	string firstPartISL(network_name_), firstPartSTN(network_name_);
+	string firstPartISL = pprj_->g.output_folder + FOLDER_SLASH + network_name_;
+	string firstPartSTN = pprj_->g.output_folder + FOLDER_SLASH + network_name_;
+
 	firstPartSTN.append("_stn");
 
 	if (plotBlocks_)
@@ -2215,11 +2226,11 @@ void dna_plot::PrintStationsDataFileBlock(const UINT32& block)
 
 	try {
 		// Create stations data files for ISL/JSL.  Throws runtime_error on failure.
-		file_opener(isl_pts, formPath<string>(output_folder_, v_isl_pts_file_.at(block_index)));
-		file_opener(jsl_pts, formPath<string>(output_folder_, v_jsl_pts_file_.at(block_index)));
+		file_opener(isl_pts, v_isl_pts_file_.at(block_index));
+		file_opener(jsl_pts, v_jsl_pts_file_.at(block_index));
 		// Create constraint stations data files for ISL/JSL.  Throws runtime_error on failure.
-		file_opener(isl_const, formPath<string>(output_folder_, v_isl_const_file_.at(block_index)));
-		file_opener(jsl_const, formPath<string>(output_folder_, v_jsl_const_file_.at(block_index)));
+		file_opener(isl_const, v_isl_const_file_.at(block_index));
+		file_opener(jsl_const, v_jsl_const_file_.at(block_index));
 	}
 	catch (const runtime_error& e) {
 		SignalExceptionPlot(e.what(), 0, NULL);
@@ -2286,9 +2297,9 @@ void dna_plot::PrintStationsDataFile()
 	std::ofstream stn_pts, stn_const;
 	try {
 		// Create stations data file.  Throws runtime_error on failure.
-		file_opener(stn_pts, formPath<string>(output_folder_, v_isl_pts_file_.at(0)));
+		file_opener(stn_pts, v_isl_pts_file_.at(0));
 		// Create constraint stations data file.  Throws runtime_error on failure.
-		file_opener(stn_const, formPath<string>(output_folder_, v_isl_const_file_.at(0)));
+		file_opener(stn_const, v_isl_const_file_.at(0));
 	}
 	catch (const runtime_error& e) {
 		SignalExceptionPlot(e.what(), 0, NULL);
@@ -2388,7 +2399,7 @@ void dna_plot::PrintStationLabels()
 	std::ofstream stn_lbl;
 	try {
 		// Create stations data file.  Throws runtime_error on failure.
-		file_opener(stn_lbl, formPath<string>(output_folder_, v_isl_lbl_file_.at(0)));
+		file_opener(stn_lbl, v_isl_lbl_file_.at(0));
 	}
 	catch (const runtime_error& e) {
 		SignalExceptionPlot(e.what(), 0, NULL);
@@ -2428,7 +2439,7 @@ void dna_plot::PrintStationLabelsBlock(const UINT32& block)
 	std::ofstream isl_lbl;
 	try {
 		// Create stations data file.  Throws runtime_error on failure.
-		file_opener(isl_lbl, formPath<string>(output_folder_, v_isl_lbl_file_.at(block_index)));
+		file_opener(isl_lbl, v_isl_lbl_file_.at(block_index));
 	}
 	catch (const runtime_error& e) {
 		SignalExceptionPlot(e.what(), 0, NULL);
@@ -2459,7 +2470,7 @@ void dna_plot::PrintStationLabelsBlock(const UINT32& block)
 	std::ofstream jsl_lbl;
 	try {
 		// Create stations data file.  Throws runtime_error on failure.
-		file_opener(jsl_lbl, formPath<string>(output_folder_, v_jsl_lbl_file_.at(block_index)));
+		file_opener(jsl_lbl, v_jsl_lbl_file_.at(block_index));
 	}
 	catch (const runtime_error& e) {
 		SignalExceptionPlot(e.what(), 0, NULL);
@@ -2729,13 +2740,13 @@ void dna_plot::PrintMeasurementsDatFilesBlock(const UINT32& block)
 		ss << pprj_->p._separate_msrs.at(c);
 		type = ss.str();
 		filename.str("");
-		filename << network_name_ << "_msr_block" << block + 1 << "_" << pprj_->p._separate_msrs.at(c) << ".d";
+		filename << output_folder_ + FOLDER_SLASH + network_name_ << "_msr_block" << block + 1 << "_" << pprj_->p._separate_msrs.at(c) << ".d";
 		v_msr_def_file_.push_back(filename.str());
 		v_msr_file_.at(block).push_back(string_string_pair(v_msr_def_file_.back(), type));
 
 		try {
 			// Create msr data file.  Throws runtime_error on failure.
-			file_opener(msr_file_stream, formPath<string>(output_folder_, v_msr_def_file_.back()));
+			file_opener(msr_file_stream, v_msr_def_file_.back());
 		}
 		catch (const runtime_error& e) {
 			SignalExceptionPlot(e.what(), 0, NULL);
@@ -2773,7 +2784,7 @@ void dna_plot::PrintMeasurementsDatFilesBlock(const UINT32& block)
 
 	// now print remaining measurement types to a single file
 	filename.str("");
-	filename << network_name_ << "_msr_block" << block + 1 << "_";
+	filename << output_folder_ + FOLDER_SLASH + network_name_ << "_msr_block" << block + 1 << "_";
 	ss.str("");
 	for (_it_type=_combined_msr_list.begin(); _it_type!=_combined_msr_list.end(); _it_type++)
 		ss << *_it_type;
@@ -2783,7 +2794,7 @@ void dna_plot::PrintMeasurementsDatFilesBlock(const UINT32& block)
 
 	try {
 		// Create msr data file.  Throws runtime_error on failure.
-		file_opener(msr_file_stream, formPath<string>(output_folder_, v_msr_all_file_.back()));
+		file_opener(msr_file_stream, v_msr_all_file_.back());
 	}
 	catch (const runtime_error& e) {
 		SignalExceptionPlot(e.what(), 0, NULL);
@@ -2835,7 +2846,7 @@ void dna_plot::PrintMeasurementsDatFiles()
 	stringstream ss;
 
 	std::ofstream msr_file_stream;
-	
+
 	for (UINT16 c=0; c<pprj_->p._separate_msrs.size(); c++)
 	{
 		// no measurement for this type?
@@ -2845,12 +2856,12 @@ void dna_plot::PrintMeasurementsDatFiles()
 		ss.str("");
 		ss << pprj_->p._separate_msrs.at(c);
 		type = ss.str();
-		msr_file_name = network_name_ + "_msr_" + pprj_->p._separate_msrs.at(c) + ".d";
+		msr_file_name = output_folder_ + FOLDER_SLASH + network_name_ + "_msr_" + pprj_->p._separate_msrs.at(c) + ".d";
 		v_msr_file_.at(0).push_back(string_string_pair(msr_file_name, type));
 
 		try {
 			// Create msr data file.  Throws runtime_error on failure.
-			file_opener(msr_file_stream, formPath<string>(output_folder_, msr_file_name));
+			file_opener(msr_file_stream, msr_file_name);
 		}
 		catch (const runtime_error& e) {
 			SignalExceptionPlot(e.what(), 0, NULL);
@@ -2897,7 +2908,7 @@ void dna_plot::PrintMeasurementsDatFiles()
 
 	try {
 		// Create msr data file.  Throws runtime_error on failure.
-		file_opener(msr_file_stream, formPath<string>(output_folder_, msr_file_name));
+		file_opener(msr_file_stream, msr_file_name);
 	}
 	catch (const runtime_error& e) {
 		SignalExceptionPlot(e.what(), 0, NULL);
