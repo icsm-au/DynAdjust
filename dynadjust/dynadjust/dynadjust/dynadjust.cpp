@@ -243,15 +243,17 @@ int main(int argc, char* argv[])
 
 	ss << "- Error: Could not open dynadjust.log for writing." << endl;
 	try {
-		// Create dynadjust log file.  Throws runtime_error on failure.
+		// Create dynadjust log file.  Exit failure.
 		file_opener(dynadjust_log, dynadjustLogFilePath);
 	}
 	catch (const runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		cout << endl << ss.str() << endl << endl;
+		return EXIT_FAILURE;
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		cout << endl << ss.str() << endl << endl;
+		return EXIT_FAILURE;
 	}
 
 	dynadjust_log << cmd_line_banner << endl;
