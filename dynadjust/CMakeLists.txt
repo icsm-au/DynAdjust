@@ -218,6 +218,7 @@ if (BUILD_TESTING)
     file (COPY ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr DESTINATION ./)
     add_test (NAME dynadjust-proj-01 COMMAND $<TARGET_FILE:dynadjust> -p ${CMAKE_SOURCE_DIR}/../sampleData/sample.dnaproj --import --geoid --reftran --segment --adjust)
     add_test (NAME dynadjust-proj-02 COMMAND $<TARGET_FILE:dynadjust> -p ${CMAKE_SOURCE_DIR}/../sampleData/sample.dnaproj --import --geoid --reftran --segment --adjust --quiet)
+    add_test (NAME dynadjust-name-01 COMMAND $<TARGET_FILE:dynadjust> -n sample --import --geoid --reftran --segment --adjust)
 
     # 6. urban data manipulation
     file (COPY ${CMAKE_SOURCE_DIR}/../sampleData/DynaML.xsd DESTINATION ./)
@@ -303,6 +304,7 @@ if (BUILD_TESTING)
     add_test (NAME imp-m2s-sort-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n gnss ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/gnss-network.msr --output-msr-to-stn --sort-msr-to-stn-field 1 -r GDA94) 
 
     # 12. help modules and version
+    add_test (NAME imp-help-00 COMMAND $<TARGET_FILE:dnaimportwrapper> -h)
     add_test (NAME imp-help-01 COMMAND $<TARGET_FILE:dnaimportwrapper> --help-module standard)
     add_test (NAME imp-help-02 COMMAND $<TARGET_FILE:dnaimportwrapper> --help-module reference)
     add_test (NAME imp-help-03 COMMAND $<TARGET_FILE:dnaimportwrapper> --help-module screening)
@@ -313,6 +315,7 @@ if (BUILD_TESTING)
     add_test (NAME imp-help-08 COMMAND $<TARGET_FILE:dnaimportwrapper> --help-module generic)
     add_test (NAME imp-version-01 COMMAND $<TARGET_FILE:dnaimportwrapper> --version)
 
+    add_test (NAME geo-help-00 COMMAND $<TARGET_FILE:dnageoidwrapper> -h)
     add_test (NAME geo-help-01 COMMAND $<TARGET_FILE:dnageoidwrapper> --help-module standard)
     add_test (NAME geo-help-02 COMMAND $<TARGET_FILE:dnageoidwrapper> --help-module interpolation)
     add_test (NAME geo-help-03 COMMAND $<TARGET_FILE:dnageoidwrapper> --help-module ntv2)
@@ -322,17 +325,20 @@ if (BUILD_TESTING)
     add_test (NAME geo-help-07 COMMAND $<TARGET_FILE:dnageoidwrapper> --help-module generic)
     add_test (NAME geo-version-01 COMMAND $<TARGET_FILE:dnageoidwrapper> --version)
 
+    add_test (NAME seg-help-00 COMMAND $<TARGET_FILE:dnasegmentwrapper> -h)
     add_test (NAME seg-help-01 COMMAND $<TARGET_FILE:dnasegmentwrapper> --help-module standard)
     add_test (NAME seg-help-02 COMMAND $<TARGET_FILE:dnasegmentwrapper> --help-module configuration)
     add_test (NAME seg-help-03 COMMAND $<TARGET_FILE:dnasegmentwrapper> --help-module generic)
     add_test (NAME seg-version-01 COMMAND $<TARGET_FILE:dnasegmentwrapper> --version)
 
+    add_test (NAME ref-help-00 COMMAND $<TARGET_FILE:dnareftranwrapper> -h)
     add_test (NAME ref-help-01 COMMAND $<TARGET_FILE:dnareftranwrapper> --help-module standard)
     add_test (NAME ref-help-02 COMMAND $<TARGET_FILE:dnareftranwrapper> --help-module transformation)
     add_test (NAME ref-help-03 COMMAND $<TARGET_FILE:dnareftranwrapper> --help-module export)
     add_test (NAME ref-help-04 COMMAND $<TARGET_FILE:dnareftranwrapper> --help-module generic)
     add_test (NAME ref-version-01 COMMAND $<TARGET_FILE:dnareftranwrapper> --version)
 
+    add_test (NAME adj-help-00 COMMAND $<TARGET_FILE:dnaadjustwrapper> -h)
     add_test (NAME adj-help-01 COMMAND $<TARGET_FILE:dnaadjustwrapper> --help-module standard)
     add_test (NAME adj-help-02 COMMAND $<TARGET_FILE:dnaadjustwrapper> --help-module adjustment)
     add_test (NAME adj-help-03 COMMAND $<TARGET_FILE:dnaadjustwrapper> --help-module phased)
@@ -343,6 +349,7 @@ if (BUILD_TESTING)
     add_test (NAME adj-help-08 COMMAND $<TARGET_FILE:dnaadjustwrapper> --help-module generic)
     add_test (NAME adj-version-01 COMMAND $<TARGET_FILE:dnaadjustwrapper> --version)
 
+    add_test (NAME plt-help-00 COMMAND $<TARGET_FILE:dnaplotwrapper> -h)
     add_test (NAME plt-help-01 COMMAND $<TARGET_FILE:dnaplotwrapper> --help-module standard)
     add_test (NAME plt-help-02 COMMAND $<TARGET_FILE:dnaplotwrapper> --help-module data)
     add_test (NAME plt-help-03 COMMAND $<TARGET_FILE:dnaplotwrapper> --help-module mapping)
@@ -350,6 +357,7 @@ if (BUILD_TESTING)
     add_test (NAME plt-help-05 COMMAND $<TARGET_FILE:dnaplotwrapper> --help-module generic)
     add_test (NAME plt-version-01 COMMAND $<TARGET_FILE:dnaplotwrapper> --version)
 
+    add_test (NAME dyn-help-00 COMMAND $<TARGET_FILE:dynadjust> -h)
     add_test (NAME dyn-help-01 COMMAND $<TARGET_FILE:dynadjust> --help-module standard)
     add_test (NAME dyn-help-02 COMMAND $<TARGET_FILE:dynadjust> --help-module generic)
     add_test (NAME dyn-version-01 COMMAND $<TARGET_FILE:dynadjust> --version)
@@ -423,8 +431,10 @@ if (BUILD_TESTING)
     
     # 14. Exceptions
     ### IMPORT ###
+    # no options
+    add_test (NAME import-no-option COMMAND $<TARGET_FILE:dnaimportwrapper>)
     # invalid options
-    add_test (NAME import-no-option COMMAND $<TARGET_FILE:dnaimportwrapper> -x)
+    add_test (NAME import-invalid-option COMMAND $<TARGET_FILE:dnaimportwrapper> -x)
     # invalid input file
     add_test (NAME import-invalid-file COMMAND $<TARGET_FILE:dnaimportwrapper> -n invalid invalidfile.txt)
     # the --search-nearby-stn option in import will return a failure if nearby stations are found.  In this case, check it is non-zero (i.e. it will fail!)
@@ -447,13 +457,15 @@ if (BUILD_TESTING)
     # no help module
     add_test (NAME import-no-help COMMAND $<TARGET_FILE:dnaimportwrapper> --help-module cplusplus)
 
-    set_tests_properties(import-no-option import-invalid-file import-nearby import-no-files import-no-frame 
+    set_tests_properties(import-no-option import-invalid-option import-invalid-file import-nearby import-no-files import-no-frame 
         import-no-data import-no-xsd-file import-no-geoid import-no-project import-no-stns import-no-help
         PROPERTIES WILL_FAIL TRUE)
 
     ### REFTRAN ###
+    # no options
+    add_test (NAME reftran-no-option COMMAND $<TARGET_FILE:dnareftranwrapper>)
     # invalid options
-    add_test (NAME reftran-no-option COMMAND $<TARGET_FILE:dnareftranwrapper> -x)
+    add_test (NAME reftran-invalid-option COMMAND $<TARGET_FILE:dnareftranwrapper> -x)
     # no project file
     add_test (NAME reftran-no-project COMMAND $<TARGET_FILE:dnareftranwrapper> -p ./nofile.dnaproj)
     # no name
@@ -477,14 +489,16 @@ if (BUILD_TESTING)
     
     
     set_tests_properties(
-        reftran-no-option reftran-no-project reftran-no-name reftran-no-frame reftran-no-bst-bms 
+        reftran-no-option reftran-invalid-option reftran-no-project reftran-no-name reftran-no-frame reftran-no-bst-bms 
         reftran-bad-frame reftran-bad-epoch reftran-no-discont-file reftran-no-euler-file
         reftran-no-model-option reftran-no-help
         PROPERTIES WILL_FAIL TRUE)
 
     ### GEOID ###
+    # no options
+    add_test (NAME geoid-no-option COMMAND $<TARGET_FILE:dnageoidwrapper>)
     # invalid options
-    add_test (NAME geoid-no-option COMMAND $<TARGET_FILE:dnageoidwrapper> -x)
+    add_test (NAME geoid-invalid-option COMMAND $<TARGET_FILE:dnageoidwrapper> -x)
     # no project file
     add_test (NAME geoid-no-project COMMAND $<TARGET_FILE:dnageoidwrapper> -p ./nofile.dnaproj)
     # no standard options
@@ -499,12 +513,14 @@ if (BUILD_TESTING)
     add_test (NAME geoid-no-gsb COMMAND $<TARGET_FILE:dnageoidwrapper> gnss -g nogridfile.gsb)
     
     set_tests_properties(
-        geoid-no-option geoid-no-project geoid-no-std-options geoid-no-input-file geoid-no-bst geoid-no-help geoid-no-gsb
+        geoid-no-option geoid-invalid-option geoid-no-project geoid-no-std-options geoid-no-input-file geoid-no-bst geoid-no-help geoid-no-gsb
         PROPERTIES WILL_FAIL TRUE)
 
     ### SEGMENT ###
+    # no options
+    add_test (NAME segment-no-option COMMAND $<TARGET_FILE:dnasegmentwrapper>)
     # invalid options
-    add_test (NAME segment-no-option COMMAND $<TARGET_FILE:dnasegmentwrapper> -x)
+    add_test (NAME segment-invalid-option COMMAND $<TARGET_FILE:dnasegmentwrapper> -x)
     # no project file
     add_test (NAME segment-no-project COMMAND $<TARGET_FILE:dnasegmentwrapper> -p ./nofile.dnaproj)
     # no binary files
@@ -522,13 +538,15 @@ if (BUILD_TESTING)
     add_test (NAME segment-no-help COMMAND $<TARGET_FILE:dnasegmentwrapper> --help-module cplusplus)
     
     set_tests_properties(
-        segment-no-option segment-no-project segment-no-bst-bms segment-no-net-02 segment-no-help
+        segment-no-option segment-invalid-option segment-no-project segment-no-bst-bms segment-no-net-02 segment-no-help
         segment-no-opt-arg-01 segment-no-opt-arg-02 segment-no-opt-arg-03 segment-no-opt-arg-04 segment-no-opt-arg-05
         PROPERTIES WILL_FAIL TRUE)
 
     ### ADJUST ###
+    # no options
+    add_test (NAME adjust-no-option COMMAND $<TARGET_FILE:dnaadjustwrapper>)
     # invalid options
-    add_test (NAME adjust-no-option COMMAND $<TARGET_FILE:dnaadjustwrapper> -x)
+    add_test (NAME adjust-invalid-option COMMAND $<TARGET_FILE:dnaadjustwrapper> -x)
     # no project file
     add_test (NAME adjust-no-project COMMAND $<TARGET_FILE:dnaadjustwrapper> -p ./nofile.dnaproj)
     # no network name
@@ -549,13 +567,15 @@ if (BUILD_TESTING)
     add_test (NAME adjust-no-constraint COMMAND $<TARGET_FILE:dnaadjustwrapper> memmap --constraints "236300210,AAA")
     
     set_tests_properties(
-        adjust-no-option adjust-no-project adjust-no-name adjust-no-help adjust-no-bst-bms adjust-no-seg 
+        adjust-no-option adjust-invalid-option adjust-no-project adjust-no-name adjust-no-help adjust-no-bst-bms adjust-no-seg 
         adjust-no-memmap-02 adjust-no-stn-exists adjust-no-constraint
         PROPERTIES WILL_FAIL TRUE)
 
     ### PLOT ###
+    # no options
+    add_test (NAME plot-no-option COMMAND $<TARGET_FILE:dnaplotwrapper>)
     # invalid options
-    add_test (NAME plot-no-option COMMAND $<TARGET_FILE:dnaplotwrapper> -x)
+    add_test (NAME plot-invalid-option COMMAND $<TARGET_FILE:dnaplotwrapper> -x)
     # no project file
     add_test (NAME plot-no-project COMMAND $<TARGET_FILE:dnaplotwrapper> -p ./nofile.dnaproj)
     # no standard options
@@ -576,10 +596,33 @@ if (BUILD_TESTING)
     add_test (NAME plot-no-apu COMMAND $<TARGET_FILE:dnaplotwrapper> nosegapucor --error-ellipses)
     
     set_tests_properties(
-        plot-no-option plot-no-project plot-no-std-options plot-no-network plot-no-name plot-no-help 
+        plot-no-option plot-invalid-option plot-no-project plot-no-std-options plot-no-network plot-no-name plot-no-help 
         plot-box-ew plot-box-ns plot-no-seg plot-no-cor plot-no-apu
         PROPERTIES WILL_FAIL TRUE)
 
+    ### DYNADJUST ###
+    # no options
+    add_test (NAME dyna-no-option COMMAND $<TARGET_FILE:dynadjust>)
+    # invalid option
+    add_test (NAME dyna-invalid-option COMMAND $<TARGET_FILE:dynadjust> -x)
+    # no help module
+    add_test (NAME dyna-no-help COMMAND $<TARGET_FILE:dynadjust> --help-module cplusplus)
+    # no project file and network name
+    add_test (NAME dyna-no-proj-no-name COMMAND $<TARGET_FILE:dynadjust> --import)
+    # no programs
+    add_test (NAME dyna-no-programs COMMAND $<TARGET_FILE:dynadjust>  -p ${CMAKE_SOURCE_DIR}/../sampleData/sample.dnaproj)
+    # no project file
+    add_test (NAME dyna-no-project COMMAND $<TARGET_FILE:dynadjust> -p ./nofile.dnaproj)
+    # name doesn't match project file
+    add_test (NAME dyna-name-proj-mismatch COMMAND $<TARGET_FILE:dynadjust> -p ./nofile.dnaproj -n noname)
+
+    set_tests_properties(
+        dyna-no-option dyna-invalid-option dyna-no-help dyna-no-proj-no-name dyna-no-programs
+        dyna-no-project dyna-name-proj-mismatch
+        PROPERTIES WILL_FAIL TRUE)
+
+    
+    
     # set execution dependencies (the execution of tests must be sequential)
     set_tests_properties(
         import-gnss-network geoid-gnss-network adjust-gnss-network
