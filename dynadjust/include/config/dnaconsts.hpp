@@ -121,6 +121,10 @@ const double MAX_DBL_VALUE(+1.7e308);
 
 const UINT32 MAX_UINT32_VALUE(0xffffffff);
 
+#if defined(_WIN32) || defined(__WIN32__)
+const string FOLDER_SLASH("\\");
+#elif defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
 const string FOLDER_SLASH("/");
+#endif
 
 #endif  // DNACONSTS_HPP
