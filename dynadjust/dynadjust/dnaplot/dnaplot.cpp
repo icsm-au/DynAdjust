@@ -122,7 +122,7 @@ void dna_plot::CreateSegmentationGraph()
 	{
 #if defined(_WIN32) || defined(__WIN32__)
 		// remove gmt/gnuplot command file
-		remove(pprj->p._gnuplot_cmd_file);
+		remove(pprj_->p._gnuplot_cmd_file);
 
 #elif defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
 		// remove gmt/gnuplot command file
