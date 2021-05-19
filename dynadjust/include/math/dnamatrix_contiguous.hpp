@@ -324,8 +324,8 @@ public:
 	void WriteMappedFileRegion(void* addr);
 
 	// debug
-	void trace(const char* comment, const char* format) const;
-	void trace(const char* comment, const char *submat_comment, const char* format,
+	void trace(const string& comment, const string& format) const;
+	void trace(const string& comment, const string& submat_comment, const string& format,
 		const UINT32& row_begin, const UINT32& col_begin, 
 		const UINT32& rows, const UINT32& columns) const;
 

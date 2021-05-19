@@ -606,10 +606,10 @@ void dna_reftran::TransformEpochs_PlateMotionModel(it_vstn_t& stn_it, const matr
 #ifdef _MSDEBUG
 	stringstream ss;
 	ss << "coords, " << datumFrom.GetName() << " @ " << referenceEpoch<double>(datumFrom.GetEpoch());
-	coordinates.trace(ss.str().c_str(), "%.4f ");
+	coordinates.trace(ss.str(), "%.4f ");
 	ss.str("");
 	ss << "coords_mod, " << datumTo.GetName() << " @ " << transformParameters.reference_epoch_;
-	coordinates_mod.trace(ss.str().c_str(), "%.4f ");
+	coordinates_mod.trace(ss.str(), "%.4f ");
 #endif
 }
 	
@@ -765,10 +765,10 @@ void dna_reftran::TransformFrames_WithoutPlateMotionModel(it_vstn_t& stn_it, con
 #ifdef _MSDEBUG
 		ss.str("");
 		ss << "coords, " << datumFrom.GetName() << " @ " << referenceEpoch<double>(datumFrom.GetEpoch());
-		coordinates.trace(ss.str().c_str(), "%.4f ");
+		coordinates.trace(ss.str(), "%.4f ");
 		ss.str("");
 		ss << "coords_mod, " << datumTo.GetName() << " @ " << transformParameters.reference_epoch_;
-		coordinates_mod.trace(ss.str().c_str(), "%.4f ");
+		coordinates_mod.trace(ss.str(), "%.4f ");
 #endif
 
 	}
