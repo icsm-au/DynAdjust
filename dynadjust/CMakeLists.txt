@@ -204,8 +204,9 @@ if (BUILD_TESTING)
     add_test (NAME reftran-urban-network-thread COMMAND $<TARGET_FILE:dnareftranwrapper> urban_mt -r gda2020)
     add_test (NAME geoid-urban-network-thread COMMAND $<TARGET_FILE:dnageoidwrapper> urban_mt -g ${CMAKE_SOURCE_DIR}/../sampleData/urban-network-geoid.gsb --convert-stn-hts)
     add_test (NAME segment-urban-network-thread COMMAND $<TARGET_FILE:dnasegmentwrapper> urban_mt --min 50 --max 85 --verb 3)
-    add_test (NAME adjust-urban-network-thread COMMAND $<TARGET_FILE:dnaadjustwrapper> urban_mt --output-adj-msr --multi  --free-stn-sd 4.0 --fixed-stn-sd 0.000001 --max-iterations 20 --output-tstat-adj-msr --sort-adj-msr-field 2 --sort-stn-orig-order --stn-coord-types PLHhENz --angular-stn-type 1 --angular-msr-type 1 --precision-stn-linear 3 --precision-msr-linear 3 --precision-stn-angular 4 --precision-msr-angular 4 --output-pos-uncertainty --output-all-covariances --output-corrections-file)
+    add_test (NAME adjust-urban-network-thread-01 COMMAND $<TARGET_FILE:dnaadjustwrapper> urban_mt --output-adj-msr --multi  --free-stn-sd 4.0 --fixed-stn-sd 0.000001 --max-iterations 20 --output-tstat-adj-msr --sort-adj-msr-field 2 --sort-stn-orig-order --stn-coord-types PLHhENz --angular-stn-type 1 --angular-msr-type 1 --precision-stn-linear 3 --precision-msr-linear 3 --precision-stn-angular 4 --precision-msr-angular 4 --output-pos-uncertainty --output-all-covariances --output-corrections-file)
     add_test (NAME plot-urban-network-thread COMMAND $<TARGET_FILE:dnaplotwrapper> urban_mt --supress-pdf --phased --label-sta --label-font 16 --msr-line-w 0.5 --map-projection 3)
+    add_test (NAME adjust-urban-network-thread-02 COMMAND $<TARGET_FILE:dnaadjustwrapper> urban_mt --output-adj-msr --multi --verb 5)
 
     # 4. urban network (phased-staged)
     add_test (NAME import-urban-network-stage COMMAND $<TARGET_FILE:dnaimportwrapper> -n urban_st ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr)
@@ -631,7 +632,7 @@ if (BUILD_TESTING)
         import-urban-network geoid-urban-network segment-urban-network adjust-urban-network
         PROPERTIES RUN_SERIAL TRUE)
     set_tests_properties(
-        import-urban-network-thread reftran-urban-network-thread geoid-urban-network-thread segment-urban-network-thread adjust-urban-network-thread
+        import-urban-network-thread reftran-urban-network-thread geoid-urban-network-thread segment-urban-network-thread adjust-urban-network-thread-01
         PROPERTIES RUN_SERIAL TRUE)
     set_tests_properties(test-gnss-network PROPERTIES DEPENDS adjust-gnss-network)
     set_tests_properties(ref-itrf-pmm-06 PROPERTIES DEPENDS ref-itrf-pmm-05)
