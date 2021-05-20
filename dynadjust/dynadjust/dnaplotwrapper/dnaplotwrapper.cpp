@@ -120,7 +120,7 @@ void ProcessGMTPlot(dna_plot* plotDynaML, project_settings& p, string& measureme
 	p.p._gmt_params.clear();
 	p.p._gmt_params.push_back(string_string_pair("MAP_GRID_PEN_PRIMARY", "0.5p,128/128/128"));
 	p.p._gmt_params.push_back(string_string_pair("MAP_FRAME_TYPE", "fancy"));
-	p.p._gmt_params.push_back(string_string_pair("PS_MEDIA", "A0"));
+	p.p._gmt_params.push_back(string_string_pair("PS_MEDIA", "A1"));
 	p.p._gmt_params.push_back(string_string_pair("MAP_FRAME_PEN", "1p"));
 	
 	p.p._separate_msrs.clear();
@@ -137,7 +137,8 @@ void ProcessGMTPlot(dna_plot* plotDynaML, project_settings& p, string& measureme
 		// last is on top
 
 		// GPS point clusters
-		p.p._separate_msrs.push_back('Y');		// Large circles (larger than P, R, Q)
+		p.p._separate_msrs.push_back('Y');		// Circle diameter is 3.0 * station circle diameter
+												// Largest circles (larger than P, R, Q)
 
 		// astronomic azimuth
 		p.p._separate_msrs.push_back('K');
@@ -145,7 +146,7 @@ void ProcessGMTPlot(dna_plot* plotDynaML, project_settings& p, string& measureme
 		// position and height measurements
 		// These measurements are printed as circles, the diameter of which is 
 		// a multiple of the station circle diameter (as follows)
-		p.p._separate_msrs.push_back('I');		// Circle diameter is 3.0 * station circle diameter
+		p.p._separate_msrs.push_back('I');		// Circle diameter is 2.75 * station circle diameter
 		p.p._separate_msrs.push_back('P');		// ''
 		p.p._separate_msrs.push_back('J');		// Circle diameter is 2.4 * station circle diameter
 		p.p._separate_msrs.push_back('Q');		// ''
@@ -169,8 +170,8 @@ void ProcessGMTPlot(dna_plot* plotDynaML, project_settings& p, string& measureme
 		p.p._separate_msrs.push_back('C');
 		
 		// GPS baselines
-		p.p._separate_msrs.push_back('G');
 		p.p._separate_msrs.push_back('X');
+		p.p._separate_msrs.push_back('G');
 	}
 
 	// prepare the schell scripts and data files
@@ -824,6 +825,7 @@ int main(int argc, char* argv[])
 		//
 		// All colours based on a palette:
 		//   https://coolors.co/ffd275-235789-da5552-43aa8b-39a9db
+		//
 		
 		p.p._msr_colours.push_back(string_string_pair("A", "#FFC07F"));		// mellow apricot, #FFC07F
 		p.p._msr_colours.push_back(string_string_pair("B", "#FE5F55"));		// orange red crayola, #FE5F55
@@ -831,19 +833,19 @@ int main(int argc, char* argv[])
 		p.p._msr_colours.push_back(string_string_pair("D", "#DA5552"));		// indian red, #DA5552
 		p.p._msr_colours.push_back(string_string_pair("E", "#717568"));		// nickel, #717568
 		p.p._msr_colours.push_back(string_string_pair("G", "#35A7FF"));		// blue jeans, #35A7FF
-		p.p._msr_colours.push_back(string_string_pair("H", "#DA627D"));		// blush, #DA627D
-		p.p._msr_colours.push_back(string_string_pair("I", "#A9F0D1"));		// magic mint, #A9F0D1
+		p.p._msr_colours.push_back(string_string_pair("H", "#FF6B6B"));		// bittersweet, #FF6B6B
+		p.p._msr_colours.push_back(string_string_pair("I", "#F7A1C4"));		// carnation pink, #F7A1C4
 		p.p._msr_colours.push_back(string_string_pair("J", "#9AD4D6"));		// powder blue, #9AD4D6
 		p.p._msr_colours.push_back(string_string_pair("K", "#FFA07A"));		// lightsalmon, #FFA07A
 		p.p._msr_colours.push_back(string_string_pair("L", "#43AA8B"));		// zomp, #43AA8B
 		p.p._msr_colours.push_back(string_string_pair("M", "#4C1C00"));		// seal brown, #4C1C00
 		p.p._msr_colours.push_back(string_string_pair("P", "#FFD275"));		// orange yellow crayola, #FFD275
-		p.p._msr_colours.push_back(string_string_pair("Q", "#FF6B6B"));		// bittersweet, #FF6B6B
+		p.p._msr_colours.push_back(string_string_pair("Q", "#DA627D"));		// blush, #DA627D
 		p.p._msr_colours.push_back(string_string_pair("R", "#DBCBD8"));		// languid lavender, #DBCBD8
 		p.p._msr_colours.push_back(string_string_pair("S", "#60492C"));		// dark broan, #60492C
 		p.p._msr_colours.push_back(string_string_pair("V", "#235789"));		// bdazzled blue, #235789
 		p.p._msr_colours.push_back(string_string_pair("X", "#6622CC"));		// french violet, #6622CC
-		p.p._msr_colours.push_back(string_string_pair("Y", "#F7A1C4"));		// carnation pink, #F7A1C4
+		p.p._msr_colours.push_back(string_string_pair("Y", "#A9F0D1"));		// magic mint, #A9F0D1
 		p.p._msr_colours.push_back(string_string_pair("Z", "#56A3A6"));		// cadet blue, #56A3A6
 		p.p._msr_colours.push_back(string_string_pair("x", "#FF0000"));		// red, #FF0000 (destroyed marks)	
 		

@@ -777,17 +777,17 @@ void dna_plot::FinaliseGMTParameters()
 	// of 40cm L or 27.7cm P
 	//
 	title_block_height_ = 6;
-	page_width_ = 40.0;		// centimetres
+	page_width_ = 59.4;		// centimetres
 
 	if (dWidth_ > dHeight_)
-		avg_data_scale_ = dHeight_ / 27.7;
+		avg_data_scale_ = dHeight_ / 42.0;
 	else
-		avg_data_scale_ = dHeight_ / 40.0;
+		avg_data_scale_ = dHeight_ / 59.4;
 	
 	isLandscape = true;
 	if (dWidth_ < (dHeight_ + (title_block_height_ * avg_data_scale_)) || !default_limits_)
 	{
-		page_width_ = 27.7;			// centimetres
+		page_width_ = 42.0;			// centimetres
 		isLandscape = false;
 	}	
 
@@ -1413,7 +1413,7 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 				v_msr_file_.at(block).at(i).second == "R")			// ellipsoidal height
 				circle_radius_2_ = circle_radius_ * 1.7;
 			else if (v_msr_file_.at(block).at(i).second == "Y")		// GPS point cluster
-				circle_radius_2_ = circle_radius_ * 3.5;
+				circle_radius_2_ = circle_radius_ * 3.0;
 
 			_it_colour = equal_range(pprj_->p._msr_colours.begin(), pprj_->p._msr_colours.end(), 
 				v_msr_file_.at(block).at(i).second, ComparePairFirst<string>());
@@ -1433,17 +1433,17 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 					"p,";
 
 				// Line colour
-				if (v_msr_file_.at(block).at(i).second == "Y")
-					gmtbat_file_ << "255/0/255";								// magenta, #FF00FF
-				else if (v_msr_file_.at(block).at(i).second == "I" ||			// astronomic latitude
-					v_msr_file_.at(block).at(i).second == "P")				//   geodetic latitude
-					gmtbat_file_ << "252/181/20";							// packer gold, #FCB514
-				else if (v_msr_file_.at(block).at(i).second == "J" ||			// astronomic longitude
-					v_msr_file_.at(block).at(i).second == "Q")				//   geodetic longitude
-					gmtbat_file_ << "255/128/0";								// orange, #FF8000
-				else if (v_msr_file_.at(block).at(i).second == "H" ||			// orthometric height
-					v_msr_file_.at(block).at(i).second == "R")				// ellipsoidal height
-					gmtbat_file_ << "227/54/56";								// rosemadder, #E33638
+				if (v_msr_file_.at(block).at(i).second == "Y")						// GNSS Point Cluster
+					gmtbat_file_ << "#235789";									// bdazzled blue
+				else if (v_msr_file_.at(block).at(i).second == "I" ||				// astronomic latitude
+					v_msr_file_.at(block).at(i).second == "P")						// geodetic latitude
+					gmtbat_file_ << "#A393BF";									// glossy grape
+				else if (v_msr_file_.at(block).at(i).second == "J" ||				// astronomic longitude
+					v_msr_file_.at(block).at(i).second == "Q")						// geodetic longitude
+					gmtbat_file_ << "#4C1C00";									// seal brown
+				else if (v_msr_file_.at(block).at(i).second == "H" ||				// orthometric height
+					v_msr_file_.at(block).at(i).second == "R")						// ellipsoidal height
+					gmtbat_file_ << "#6622CC";									// french violet
 				else
 					gmtbat_file_ << _it_colour.first->second;
 
@@ -1460,8 +1460,8 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 
 	if (plotConstraints_)
 		// don't plot line, just fill
-		gmtbat_file_ << _APP_PSXY_ << "\" -R -J -Skcircle/" << fixed << setprecision(2) << circle_radius_ << 
-			" \"" << v_isl_const_file_.at(block) << " -G#235789 -O -K >> " << psTempFile << endl;
+		gmtbat_file_ << _APP_PSXY_ << " -R -J -Skcircle/" << fixed << setprecision(2) << circle_radius_ << 
+			" \"" << v_isl_const_file_.at(block) << "\" -G#235789 -O -K >> " << psTempFile << endl;
 
 	if (plotBlocks_)
 	{
@@ -1502,7 +1502,7 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 			if (_it_colour.first == _it_colour.second)
 			{
 				gmtbat_file_ << _APP_PSXY_ << " -R -J \"" << v_msr_file_.at(block).at(i).first << 
-					" \"" << "-W" << setprecision(2) << line_width_ << 
+					"\" " << "-W" << setprecision(2) << line_width_ << 
 					"p,lightgray";
 				//if (v_msr_file_.at(block).at(i).second == "Y")		// not a vector measurement, so represent as dashed
 				//	gmtbat_file_ << ",6_8:1p";
@@ -2783,7 +2783,7 @@ void dna_plot::PrintMeasurementsDatFilesBlock(const UINT32& block)
 		ss << pprj_->p._separate_msrs.at(c);
 		type = ss.str();
 		filename.str("");
-		filename << output_folder_ + FOLDER_SLASH + network_name_ << "_msr_block" << block + 1 << "_" << pprj_->p._separate_msrs.at(c) << ".d";
+		filename << output_folder_ << FOLDER_SLASH << network_name_ << "_msr_block" << block + 1 << "_" << pprj_->p._separate_msrs.at(c) << ".d";
 		v_msr_def_file_.push_back(filename.str());
 		v_msr_file_.at(block).push_back(string_string_pair(v_msr_def_file_.back(), type));
 
@@ -2827,7 +2827,7 @@ void dna_plot::PrintMeasurementsDatFilesBlock(const UINT32& block)
 
 	// now print remaining measurement types to a single file
 	filename.str("");
-	filename << output_folder_ + FOLDER_SLASH + network_name_ << "_msr_block" << block + 1 << "_";
+	filename << output_folder_ << FOLDER_SLASH << network_name_ << "_msr_block" << block + 1 << "_";
 	ss.str("");
 	for (_it_type=_combined_msr_list.begin(); _it_type!=_combined_msr_list.end(); _it_type++)
 		ss << *_it_type;
@@ -2941,7 +2941,7 @@ void dna_plot::PrintMeasurementsDatFiles()
 		return;
 
 	// now print remaining measurement types to a single file
-	msr_file_name = network_name_ + "_msr_";
+	msr_file_name = output_folder_ + FOLDER_SLASH + network_name_ + "_msr_";
 	ss.str("");
 	for (_it_type=_combined_msr_list.begin(); _it_type!=_combined_msr_list.end(); ++_it_type)
 		ss << *_it_type;
@@ -3018,9 +3018,15 @@ void dna_plot::PrintMeasurementsDatFileBlock(const UINT32& block, const string& 
 			if (!default_limits_)
 				ThirdisWithinLimits = WithinLimits(bstBinaryRecords_.at(_it_msr->station3).initialLatitude, bstBinaryRecords_.at(_it_msr->station3).initialLongitude);
 
+		case 'G': // GPS Baseline
+		case 'X': // GPS Baseline cluster
+		
+			// The following prevents GPS measurements from printing three times (i.e. once per X, Y, Z)
+			if (_it_msr->measStart > xMeas)
+				continue;
+			
 		case 'B': // Geodetic azimuth
 		case 'D': // Direction set
-		case 'G': // GPS Baseline
 		case 'K': // Astronomic azimuth
 		case 'C': // Chord dist
 		case 'E': // Ellipsoid arc
@@ -3028,14 +3034,13 @@ void dna_plot::PrintMeasurementsDatFileBlock(const UINT32& block, const string& 
 		case 'S': // Slope distance
 		case 'L': // Level difference
 		case 'V': // Zenith angle
-		case 'X': // GPS Baseline cluster
 		case 'Z': // Vertical angle
 			// Get the measurement indices involved in this measurement
 			GetMsrIndices<UINT32>(bmsBinaryRecords_, *_it_block_msr, msrIndices);
 
 			for (it_vUINT32 msr=msrIndices.begin(); msr!=msrIndices.end(); ++msr)
 			{
-				if (bmsBinaryRecords_.at(*msr).measStart > zMeas)
+				if (bmsBinaryRecords_.at(*msr).measStart > xMeas)
 					continue;
 
 				if (!default_limits_)
@@ -3075,9 +3080,6 @@ void dna_plot::PrintMeasurementsDatFileBlock(const UINT32& block, const string& 
 		case 'P': // Geodetic latitude
 		case 'Q': // Geodetic longitude
 		case 'R': // Ellipsoidal height
-			if (_it_msr->measStart > zMeas)
-				continue;
-
 			if (!default_limits_)
 				if (!WithinLimits(
 					bstBinaryRecords_.at(_it_msr->station1).initialLatitude, 
@@ -3088,7 +3090,7 @@ void dna_plot::PrintMeasurementsDatFileBlock(const UINT32& block, const string& 
 			(*msr_file_stream) << setprecision(precision) << fixed << bstBinaryRecords_.at(_it_msr->station1).initialLongitude;
 			(*msr_file_stream) << "  ";
 			(*msr_file_stream) << setprecision(precision) << fixed << bstBinaryRecords_.at(_it_msr->station1).initialLatitude;
-			(*msr_file_stream) << endl;
+			(*msr_file_stream) << endl << ">" << endl;
 			
 			break;
 
@@ -3099,7 +3101,7 @@ void dna_plot::PrintMeasurementsDatFileBlock(const UINT32& block, const string& 
 
 			for (it_vUINT32 msr=msrIndices.begin(); msr!=msrIndices.end(); ++msr)
 			{
-				if (bmsBinaryRecords_.at(*msr).measStart > zMeas)
+				if (bmsBinaryRecords_.at(*msr).measStart > xMeas)
 					continue;
 
 				if (!default_limits_)
@@ -3222,8 +3224,7 @@ void dna_plot::PrintMeasurementsDatFile(const string& msr_file_name, char msrTyp
 			(*msr_file_stream) << setprecision(precision) << fixed << bstBinaryRecords_.at(_it_msr->station1).initialLongitude;
 			(*msr_file_stream) << "  ";
 			(*msr_file_stream) << setprecision(precision) << fixed << bstBinaryRecords_.at(_it_msr->station1).initialLatitude;
-			(*msr_file_stream) << endl;
-			
+			(*msr_file_stream) << endl << ">" << endl;			
 			break;
 
 		case 'Y': // GPS point cluster
