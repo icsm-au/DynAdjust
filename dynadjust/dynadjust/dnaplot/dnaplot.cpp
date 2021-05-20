@@ -192,14 +192,10 @@ void dna_plot::CreategnuplotGraphEnvironment(project_settings* pprj, const plotG
 	gnuplot_cmd_filename.append(_CMD_EXT_);
 	string gnuplot_cmd_file(output_folder_ + FOLDER_SLASH + gnuplot_cmd_filename);
 
-	// create absolute path				
-	gnuplot_cmd_file = absolute(gnuplot_cmd_file).string();
-
 	pprj_->p._gnuplot_cmd_file = gnuplot_cmd_file;
 	
 	// create pdf filename
-	string gnuplot_pdf_file(output_folder_ + FOLDER_SLASH + gnuplot_pic_name + ".pdf");
-	pprj_->p._pdf_file_name = absolute(gnuplot_pdf_file).string();
+	pprj_->p._pdf_file_name = output_folder_ + FOLDER_SLASH + gnuplot_pic_name + ".pdf";
 	
 	switch (graphMode)
 	{
@@ -217,8 +213,8 @@ void dna_plot::CreategnuplotGraphEnvironment(project_settings* pprj, const plotG
 
 void dna_plot::InvokeGnuplot()
 {
-	// Invoke gnuplot!
-	string system_file_cmd = "gnuplot " + pprj_->p._gnuplot_cmd_file;
+	// Invoke gnuplot using absolute path				
+	string system_file_cmd = "gnuplot " + absolute(pprj_->p._gnuplot_cmd_file).string();
 
 	// set up a thread group to execute the GMT scripts in parallel
 	thread gnuplot_thread{dna_generate_plot_thread(system_file_cmd)};
@@ -579,7 +575,7 @@ void dna_plot::PrintGnuplotCommandFileMsrs(const UINT32& fontSize)
 	UINT32 c;
 	string colour;
 	it_pair_string _it_colour;
-	
+
 	sort(pprj_->p._msr_colours.begin(), pprj_->p._msr_colours.end(), ComparePairFirst<string>());
 
 	for (c=0; c<_combined_msr_list.size(); c++)
@@ -611,6 +607,7 @@ void dna_plot::PrintGnuplotCommandFileMsrs(const UINT32& fontSize)
 	line = 3;
 	UINT32 linestyle(line-1), msrs(0);
 	gnuplotbat_file_ << "plot '";
+	measurementCategories_ = 0;
 	
 	for (c=0; c<_combined_msr_list.size(); c++)
 	{
@@ -619,6 +616,7 @@ void dna_plot::PrintGnuplotCommandFileMsrs(const UINT32& fontSize)
 		if (msrs++ > 0)
 			gnuplotbat_file_ << ", \\" << endl << "     '";
 		gnuplotbat_file_ << seg_msr_graph_file_ << "' using " << line++ << ":xtic(1) ls " << linestyle++;
+		measurementCategories_++;
 	}
 
 	gnuplotbat_file_ << ", \\" << endl << "     '" << seg_msr_graph_file_ << 
@@ -1053,7 +1051,7 @@ void dna_plot::InitialiseGMTFilenames()
 
 		// Add to the list
 		v_gmt_cmd_filenames_.push_back(gmt_filename);
-	
+
 		// generated pdf filename
 		gmt_filename = network_name_;
 		gmt_filename.append("_block_").append(StringFromT(block)).append(".pdf");
@@ -1063,6 +1061,8 @@ void dna_plot::InitialiseGMTFilenames()
 		if (oneBlockOnly)
 			break;
 	}
+
+	pprj_->p._gmt_cmd_file = output_folder_ + FOLDER_SLASH + leafStr(v_gmt_cmd_filenames_.at(0));
 
 	pprj_->p._pdf_file_name = output_folder_ + FOLDER_SLASH + network_name_;
 

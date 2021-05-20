@@ -24,26 +24,43 @@
 
 void ProcessGnuPlot(dna_plot* plotDynaML, project_settings& p, plotGraphMode mode)
 {
+	string str_mode;
+	switch (mode)
+	{
+	case StationsMode:
+		str_mode = "stations";
+		break;
+	case MeasurementsMode:
+		str_mode = "measurements";
+		break;
+	}
+	
 	if (p.g.verbose > 0 || p.g.quiet != 1)
 	{
-		cout << "+ Preparing the "; 
-		switch (mode)
-		{
-		case StationsMode:
-			cout << "stations";
-			break;
-		case MeasurementsMode:
-			cout << "measurements";
-			break;
-		}
-		cout << " histogram via gnuplot... ";
+		cout << "+ Preparing the " << str_mode << " histogram via gnuplot... ";
 		cout.flush();
 	}
 	
 	plotDynaML->CreategnuplotGraphEnvironment(&p, mode);
 
 	if (p.g.verbose > 0 || p.g.quiet != 1)
-		cout << "done." << endl;
+	{
+		cout << "done." << endl << endl;
+
+		cout << setw(PRINT_VAR_PAD) << "+ Plot details:" << endl;
+		cout << setw(PRINT_VAR_PAD) << "  PDF file name:" << p.p._pdf_file_name << endl;
+		if (p.p._supress_pdf_creation)
+			cout << setw(PRINT_VAR_PAD) << "  Command file name:" << p.p._gnuplot_cmd_file << endl;
+		cout << setw(PRINT_VAR_PAD) << "  Block threshold:" << plotDynaML->blockThreshold() << endl;
+		cout << setw(PRINT_VAR_PAD) << "  Min inner stns:" << plotDynaML->minInnerStns() << endl;
+		cout << setw(PRINT_VAR_PAD) << "  Block count:" << plotDynaML->blockCount() << endl;
+		cout << setw(PRINT_VAR_PAD) << "  Station count:" << plotDynaML->stationCount() << endl;
+		cout << setw(PRINT_VAR_PAD) << "  Measurement count:" << plotDynaML->measurementCount() << endl;
+		cout << setw(PRINT_VAR_PAD) << "  Measurement categories:" << plotDynaML->measurementCategories() << endl;
+		
+		cout << endl;
+
+	}
 
 	// if option --supress-pdf-creation is provided to dnaplotwrapper, then don't
 	// execute the bat/shell scripts to call GMT or gnuplot.
@@ -86,6 +103,8 @@ void ProcessGnuPlot(dna_plot* plotDynaML, project_settings& p, plotGraphMode mod
 	if (p.g.verbose > 0 || p.g.quiet != 1)
 	{
 		cout << "done." << endl << endl;
+		cout << "+ Open " << p.p._pdf_file_name << " to view the PDF " <<
+			str_mode << " histogram." << endl << endl;
 		cout.flush();
 	}
 }
@@ -162,6 +181,20 @@ void ProcessGMTPlot(dna_plot* plotDynaML, project_settings& p, string& measureme
 
 		cout << setw(PRINT_VAR_PAD) << "+ Plot details:" << endl;
 		cout << setw(PRINT_VAR_PAD) << "  PDF file name:" << p.p._pdf_file_name << endl;
+		if (p.p._supress_pdf_creation)
+		{
+#if defined(_WIN32) || defined(__WIN32__)
+			if (p.p._plot_phased_blocks && p.p._plot_block_number < 1)
+				cout << setw(PRINT_VAR_PAD) << "  Batch files:" << p.p._gmt_cmd_file << "..." << endl;
+			else
+				cout << setw(PRINT_VAR_PAD) << "  Batch file:" << p.p._gmt_cmd_file << endl;
+#elif defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
+			if (p.p._plot_phased_blocks && p.p._plot_block_number < 1)
+				cout << setw(PRINT_VAR_PAD) << "  Shell scripts:" << p.p._gmt_cmd_file << "..." << endl;
+			else
+				cout << setw(PRINT_VAR_PAD) << "  Shell script:" << p.p._gmt_cmd_file << endl;
+#endif	
+		}		
 		if (!measurement_types.empty())
 			cout << setw(PRINT_VAR_PAD) << left << "  Measurement types: " << measurement_types << endl;
 		if (p.p._plot_station_labels)
@@ -811,24 +844,11 @@ int main(int argc, char* argv[])
 		if (graph_mode)
 		{
 			if (graph_mode_stns)
-			{
 				ProcessGnuPlot(&plotDynaML, p, StationsMode);
-				if (p.g.verbose > 0 || p.g.quiet != 1)
-				{
-					cout << "+ Open " << p.p._pdf_file_name << " to view the PDF stations histogram." << endl << endl;
-					cout.flush();
-				}
-			}
+				
 			if (graph_mode_msrs)
-			{
 				ProcessGnuPlot(&plotDynaML, p, MeasurementsMode);
-				if (p.g.verbose > 0 || p.g.quiet != 1)
-				{
-					cout << "+ Open " << p.p._pdf_file_name << " to view the PDF measurements histogram." << endl << endl;
-					cout.flush();
-				}
-			}
-
+			
 			return EXIT_SUCCESS;
 		}
 

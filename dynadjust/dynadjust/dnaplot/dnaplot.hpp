@@ -141,7 +141,13 @@ public:
 	void CreategnuplotGraphEnvironment(project_settings* pprj, const plotGraphMode& graphMode);
 	void CreateSegmentationGraph(const plotGraphMode& graphMode);
 
-	
+	const inline UINT32 blockCount() const { return blockCount_; }
+	const inline UINT32 stationCount() const { return stationCount_; }
+	const inline UINT32 measurementCount() const { return measurementCount_; }
+	const inline UINT32 measurementCategories() const { return measurementCategories_; }
+	const inline UINT32 blockThreshold() const { return blockThreshold_; }
+	const inline UINT32 minInnerStns() const { return minInnerStns_; }
+
 private:
 
 	CDnaDatum			datum_;
@@ -304,6 +310,7 @@ private:
 	bool					plotBlocks_;
 	UINT32					stationCount_;
 	UINT32					measurementCount_;
+	UINT32					measurementCategories_;
 	UINT32					blockCount_;
 	UINT32					blockThreshold_;
 	UINT32					minInnerStns_;
