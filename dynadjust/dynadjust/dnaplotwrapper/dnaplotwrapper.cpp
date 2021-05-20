@@ -81,7 +81,7 @@ void ProcessGnuPlot(dna_plot* plotDynaML, project_settings& p, plotGraphMode mod
 	// Invoke gnuplot to create the PDF plot.
 	// if option --supress-pdf-creation is provided to dnaplotwrapper, then don't
 	// execute the bat/shell scripts to call gnuplot.
-	plotDynaML->CreateSegmentationGraph();
+	plotDynaML->CreateSegmentationGraph(mode);
 
 	if (p.g.verbose > 0 || p.g.quiet != 1)
 	{

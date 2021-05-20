@@ -41,7 +41,7 @@ dna_plot::dna_plot()
 
 	v_parameterStationList_.clear();
 
-	InitialiseAppsandCommands();
+	InitialiseAppsandSystemCommands();
 
 #ifdef _MSC_VER
 #if (_MSC_VER < 1900)
@@ -60,7 +60,7 @@ dna_plot::~dna_plot()
 	
 }
 
-void dna_plot::InitialiseAppsandCommands()
+void dna_plot::InitialiseAppsandSystemCommands()
 {
 	_APP_GMTSET_ = "gmt gmtset";
 	_APP_PSCOAST_ = "gmt pscoast";
@@ -116,29 +116,49 @@ void dna_plot::InitialiseAppsandCommands()
 }
 	
 
-void dna_plot::CreateSegmentationGraph()
+void dna_plot::CreateSegmentationGraph(const plotGraphMode& graphMode)
 {
 
-	string system_file_cmd = "gnuplot " + pprj_->p._gnuplot_cmd_file;
-	std::system(system_file_cmd.c_str());
+	// Execute gnuplot in a separate process
+	InvokeGnuplot();
 
-	if (!pprj_->p._keep_gen_files)
+	// clean up gnuplot command file and input data file
+	CleanupGnuplotFiles(graphMode);
+}
+
+void dna_plot::CleanupGnuplotFiles(const plotGraphMode& graphMode)
+{
+	if (pprj_->p._keep_gen_files)
+		return;
+	
+	stringstream ss;
+	ss << _DELETE_CMD_;
+
+	// remove gnuplot command file
+	ss << pprj_->p._gnuplot_cmd_file << " ";
+
+	// remove gnuplot input file
+	switch (graphMode)
 	{
-#if defined(_WIN32) || defined(__WIN32__)
-		// remove gmt/gnuplot command file
-		remove(pprj_->p._gnuplot_cmd_file);
-
-#elif defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
-		// remove gmt/gnuplot command file
-		system_file_cmd = "rm -f " + pprj_->p._gnuplot_cmd_file;
-		std::system(system_file_cmd.c_str());
-#endif
+	case StationsMode:
+		ss << seg_stn_graph_file_;
+		break;
+	case MeasurementsMode:
+		ss << seg_msr_graph_file_;
+		break;
+	default:
+		break;
 	}
 
+	// delete
+	string system_file_cmd = ss.str();
+	std::system(system_file_cmd.c_str());
 }
 
 void dna_plot::CreategnuplotGraphEnvironment(project_settings* pprj, const plotGraphMode& graphMode)
 {
+	InitialiseAppsandSystemCommands();
+
 	// Set up the environment
 	pprj_ = pprj;
 
@@ -172,16 +192,14 @@ void dna_plot::CreategnuplotGraphEnvironment(project_settings* pprj, const plotG
 	gnuplot_cmd_filename.append(_CMD_EXT_);
 	string gnuplot_cmd_file(output_folder_ + FOLDER_SLASH + gnuplot_cmd_filename);
 
-#if defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
 	// create absolute path				
-	gnuplot_cmd_file = absolute(gnuplot_cmd_file).c_str();
-#endif
+	gnuplot_cmd_file = absolute(gnuplot_cmd_file).string();
 
 	pprj_->p._gnuplot_cmd_file = gnuplot_cmd_file;
 	
 	// create pdf filename
-	string gnuplot_pdf_file(gnuplot_pic_name + ".pdf");
-	pprj_->p._pdf_file_name = gnuplot_pdf_file;
+	string gnuplot_pdf_file(output_folder_ + FOLDER_SLASH + gnuplot_pic_name + ".pdf");
+	pprj_->p._pdf_file_name = absolute(gnuplot_pdf_file).string();
 	
 	switch (graphMode)
 	{
@@ -196,11 +214,25 @@ void dna_plot::CreategnuplotGraphEnvironment(project_settings* pprj, const plotG
 	PrintGnuplotCommandFile(gnuplot_cmd_file, graphMode);
 
 }
+
+void dna_plot::InvokeGnuplot()
+{
+	// Invoke gnuplot!
+	string system_file_cmd = "gnuplot " + pprj_->p._gnuplot_cmd_file;
+
+	// set up a thread group to execute the GMT scripts in parallel
+	thread gnuplot_thread{dna_generate_plot_thread(system_file_cmd)};
+	
+	// go!
+	gnuplot_thread.join();
+}
+
+
 	
 
 void dna_plot::PlotGnuplotDatFileStns()
 {
-	seg_stn_graph_file_ = network_name_ + "-stn.seg.data";
+	seg_stn_graph_file_ = output_folder_ + FOLDER_SLASH + network_name_ + "-stn.seg.data";
 	
 	std::ofstream seg_data;
 	try {
@@ -235,7 +267,7 @@ void dna_plot::PlotGnuplotDatFileStns()
 
 void dna_plot::PlotGnuplotDatFileMsrs()
 {
-	seg_msr_graph_file_ = network_name_ + "-msr.seg.data";
+	seg_msr_graph_file_ = output_folder_ + FOLDER_SLASH + network_name_ + "-msr.seg.data";
 	
 	std::ofstream seg_data;
 	try {
@@ -397,12 +429,13 @@ void dna_plot::PrintGnuplotCommandFile(const string& gnuplot_cmd_file, const plo
 		SignalExceptionPlot(e.what(), 0, NULL);
 	}
 
-	if (output_folder_ != ".")
-		gnuplotbat_file_ << "cd '" << output_folder_ << "'" << endl << endl;
+	//if (output_folder_ != ".")
+	//	gnuplotbat_file_ << "cd '" << output_folder_ << "'" << endl << endl;
 
 	//gnuplotbat_file_ << "set terminal postscript eps enhanced color solid colortext" << endl << endl;
 	gnuplotbat_file_ << "set terminal pdf enhanced color solid linewidth 0.75" << endl << endl;
-	gnuplotbat_file_ << "set output \"" << pprj_->p._pdf_file_name << "\"" << endl;
+	// gnuplot requires single quotes for filenames
+	gnuplotbat_file_ << "set output '" << pprj_->p._pdf_file_name << "'" << endl;
 
 	// histogram style
 	gnuplotbat_file_ << "set style fill transparent solid 0.4" << endl;
@@ -605,7 +638,7 @@ void dna_plot::InitialiseGMTParameters()
 		SignalExceptionPlot(ss.str(), 0, NULL);
 	}
 
-	InitialiseAppsandCommands();
+	InitialiseAppsandSystemCommands();
 
 	output_folder_ = pprj_->g.output_folder;
 	network_name_ = pprj_->g.network_name;
@@ -2030,7 +2063,7 @@ void dna_plot::InvokeGMT()
 	
 	for (UINT32 plot=0; plot<v_gmt_cmd_filenames_.size(); ++plot)
 	{
-		gmt_plot_threads.create_thread(dna_gmt_plot_thread(v_gmt_cmd_filenames_.at(plot)));
+		gmt_plot_threads.create_thread(dna_generate_plot_thread(v_gmt_cmd_filenames_.at(plot)));
 	}
 
 	// go!
@@ -2039,7 +2072,7 @@ void dna_plot::InvokeGMT()
 
 // Aggregare individual PDFs created for each block (for
 // phased adjustments only).
-void dna_plot::AggregatePDFs()
+void dna_plot::AggregateGMTPDFs()
 {
 	if (!plotBlocks_)
 		return;
@@ -2075,35 +2108,39 @@ void dna_plot::CreateGMTPlot()
 	InvokeGMT();
 
 	// Combine all multi-page PDFs in one
-	AggregatePDFs();
+	AggregateGMTPDFs();
 
-	////////////////////////////////////////////////
 	// clean up config and PDF files
-	if (!pprj_->p._keep_gen_files)
+	CleanupGMTFiles();
+}
+
+void dna_plot::CleanupGMTFiles()
+{
+	if (pprj_->p._keep_gen_files)
+		return;
+	
+	stringstream ss;
+	ss << _DELETE_CMD_;
+
+	// shell scripts
+	for_each(v_gmt_cmd_filenames_.begin(), v_gmt_cmd_filenames_.end(),
+		[&ss](const string& gmt_cmd_file) {
+			ss << " \"" << gmt_cmd_file << "\"";
+		});
+
+	if (plotBlocks_)
 	{
-		stringstream ss;
-		string clean_up_gmt_config_files;
-		ss << _DELETE_CMD_;
-
-		// shell scripts
-		for_each(v_gmt_cmd_filenames_.begin(), v_gmt_cmd_filenames_.end(),
-			[&ss](const string& gmt_cmd_file) {
-				ss << " \"" << gmt_cmd_file << "\"";
+		// PDF files for each block (except simultaneous)
+		for_each(v_gmt_pdf_filenames_.begin(), v_gmt_pdf_filenames_.end(),
+			[&ss](const string& gmt_pdf_file) {
+				ss << " \"" << gmt_pdf_file << "\"";
 			});
-
-		if (plotBlocks_)
-		{
-			// PDF files for each block (except simultaneous)
-			for_each(v_gmt_pdf_filenames_.begin(), v_gmt_pdf_filenames_.end(),
-				[&ss](const string& gmt_pdf_file) {
-					ss << " \"" << gmt_pdf_file << "\"";
-				});
-		}
-
-		// delete
-		clean_up_gmt_config_files = ss.str();
-		std::system(clean_up_gmt_config_files.c_str());
 	}
+
+	// delete
+	string clean_up_gmt_config_files = ss.str();
+	std::system(clean_up_gmt_config_files.c_str());
+
 }
 	
 

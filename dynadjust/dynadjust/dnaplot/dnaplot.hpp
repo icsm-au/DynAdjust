@@ -98,10 +98,10 @@ using namespace dynadjust::math;
 namespace dynadjust {
 namespace networkplot {
 
-class dna_gmt_plot_thread
+class dna_generate_plot_thread
 {
 public:
-	dna_gmt_plot_thread(const string& path)
+	dna_generate_plot_thread(const string& path)
 		: _command_path(path) {};
 	void operator()()
 	{
@@ -139,7 +139,7 @@ public:
 
 	// gnuplot graphs
 	void CreategnuplotGraphEnvironment(project_settings* pprj, const plotGraphMode& graphMode);
-	void CreateSegmentationGraph();
+	void CreateSegmentationGraph(const plotGraphMode& graphMode);
 
 	
 private:
@@ -159,7 +159,7 @@ private:
 	void LoadSegmentationFile();
 	void LoadPosUncertaintyFile();
 
-	void InitialiseAppsandCommands();	
+	void InitialiseAppsandSystemCommands();	
 
 	void InitialiseGMTParameters();
 	void FinaliseGMTParameters();
@@ -170,8 +170,12 @@ private:
 	void CreateGMTCommandFile(const UINT32& block);
 	bool InitialiseandValidateStartingBlock(UINT32& block);
 
+	void InvokeGnuplot();
+	void CleanupGnuplotFiles(const plotGraphMode& graphMode);
+
 	void InvokeGMT();
-	void AggregatePDFs();
+	void AggregateGMTPDFs();
+	void CleanupGMTFiles();
 
 	void ComputeStationCorrections();
 	void ComputeStationCorrection(it_vstn_t_const _it_stn, stationCorrections_t& stnCor,
