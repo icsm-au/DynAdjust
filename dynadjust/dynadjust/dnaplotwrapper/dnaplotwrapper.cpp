@@ -411,6 +411,8 @@ int main(int argc, char* argv[])
 		titleblock_options.add_options()
 			(OMIT_TITLE_BLOCK,
 				"Do not print a title block and measurements legend.")
+			(TITLEBLOCK_TITLE, value<string>(&p.p._title),
+				"The title of the plot. Supply quotation marks if spaces are required. Default is the network name.")
 			(TITLEBLOCK_NAME, value<string>(&p.p._title_block_name),
 				(string("The name of the organisational unit name.  Default is ")+
 				string(p.p._title_block_name)+string(".")).c_str())
@@ -539,9 +541,9 @@ int main(int argc, char* argv[])
 		 p.p.command_line_arguments += " ";
 	}
 
-	// the network name
-	if (vm.count(NETWORK_NAME))
-		p.g.network_name = p.g.network_name;
+	// plot title
+	if (!vm.count(TITLEBLOCK_TITLE))
+		p.p._title = p.g.network_name;
 
 	// plot ignored measurements?
 	if (vm.count(PLOT_MSRS_IGNORED))
@@ -837,7 +839,7 @@ int main(int argc, char* argv[])
 		p.p._msr_colours.push_back(string_string_pair("I", "#F7A1C4"));		// carnation pink, #F7A1C4
 		p.p._msr_colours.push_back(string_string_pair("J", "#9AD4D6"));		// powder blue, #9AD4D6
 		p.p._msr_colours.push_back(string_string_pair("K", "#FFA07A"));		// lightsalmon, #FFA07A
-		p.p._msr_colours.push_back(string_string_pair("L", "#43AA8B"));		// zomp, #43AA8B
+		p.p._msr_colours.push_back(string_string_pair("L", "#16DB93"));		// medium aquamarine, #16DB93
 		p.p._msr_colours.push_back(string_string_pair("M", "#4C1C00"));		// seal brown, #4C1C00
 		p.p._msr_colours.push_back(string_string_pair("P", "#FFD275"));		// orange yellow crayola, #FFD275
 		p.p._msr_colours.push_back(string_string_pair("Q", "#DA627D"));		// blush, #DA627D

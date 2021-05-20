@@ -586,7 +586,7 @@ public:
 		, _plot_area_radius(5000.), _plot_centre_latitude(-999.), _plot_centre_longitude(-999.)
 		, _plot_scale(0.), _page_width(0.), _ground_width(0.)
 		, _plot_block_number(0), _coasline_resolution(low)
-		, _title_block_name("Surveyor-General Victoria"), _title_block_subname("Geodesy")
+		, _title(""), _title_block_name("Surveyor-General Victoria"), _title_block_subname("Geodesy")
 		, command_line_arguments("")
 	{
 		_gmt_params.clear();
@@ -659,6 +659,7 @@ public:
 	double					_ground_width;					// ground width in metres
 	UINT32					_plot_block_number;				// Plots this block only
 	UINT16					_coasline_resolution;			// ncdf resolution
+	string					_title;							// Title of the plot
 	string					_title_block_name;				// Name of the unit to display in the title block
 	string					_title_block_subname;			// Name of the cub-unit to display in the title block
 	string					command_line_arguments;

@@ -246,6 +246,7 @@ const char* const DONT_CREATE_PDF = "supress-pdf-creation";
 const char* const GRAPH_SEGMENTATION_STNS = "graph-stn-blocks";
 const char* const GRAPH_SEGMENTATION_MSRS = "graph-msr-blocks";
 const char* const BLOCK_NUMBER = "block-number";
+const char* const TITLEBLOCK_TITLE = "title";
 const char* const TITLEBLOCK_NAME = "org-unit-name";
 const char* const TITLEBLOCK_SUBNAME = "org-subunit-name";
 const char* const KEEP_FILES = "keep-gen-files";

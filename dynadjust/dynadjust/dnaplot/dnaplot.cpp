@@ -1411,7 +1411,7 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 				circle_radius_2_ = circle_radius_ * 2.4;
 			else if (v_msr_file_.at(block).at(i).second == "H" ||	// orthometric height
 				v_msr_file_.at(block).at(i).second == "R")			// ellipsoidal height
-				circle_radius_2_ = circle_radius_ * 1.7;
+				circle_radius_2_ = circle_radius_ * 1.95;
 			else if (v_msr_file_.at(block).at(i).second == "Y")		// GPS point cluster
 				circle_radius_2_ = circle_radius_ * 3.0;
 
@@ -1511,8 +1511,15 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 			else
 			{
 				colours++;
+				
+
 				gmtbat_file_ << _APP_PSXY_ << " -R -J \"" << v_msr_file_.at(block).at(i).first << 
-					"\" " << "-W" << setprecision(2) << line_width_ << 
+					"\" " << "-W" << setprecision(2);
+				if (equals(_it_colour.first->first, "L"))
+					gmtbat_file_ << line_width_ * 2.0;
+				else
+					gmtbat_file_ << line_width_;
+				gmtbat_file_ << 
 					"p," << _it_colour.first->second;
 				//if (v_msr_file_.at(block).at(i).second == "Y")		// not a vector measurement, so represent as dashed
 				//	gmtbat_file_ << ",6_8:1p";
@@ -1748,15 +1755,15 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 		gmtbat_file_ << "cat > " << legendTempFile << " << END" << endl;
 #endif
 
-		bool isnameaNumber(is_number<string>(network_name_));
+		bool isnameaNumber(is_number<string>(pprj_->p._title));
 
 		gmtbat_file_ << _LEGEND_ECHO_ << "G 0.25" << legendCommand1 << endl;
 		gmtbat_file_ << _LEGEND_ECHO_ << "N 1" << legendCommand2 << endl;
 		gmtbat_file_ << _LEGEND_ECHO_ << "H " << fixed << setprecision(0) << label_font_size * 2.0 << "p,Helvetica-Bold ";
 		if (isnameaNumber) 
-			gmtbat_file_ << "'" << network_name_ << "'";
+			gmtbat_file_ << "'" << pprj_->p._title << "'";
 		else
-			gmtbat_file_ << network_name_;
+			gmtbat_file_ << pprj_->p._title;
 
 		if (blockCount_ > 1)
 			gmtbat_file_ << "  (Block " << block + 1 << " of " << blockCount_ << ") ";
