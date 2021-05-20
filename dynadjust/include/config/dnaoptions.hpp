@@ -580,7 +580,7 @@ public:
 		, _plot_correction_arrows(false), _plot_correction_labels(false), _compute_corrections(false)
 		, _plot_positional_uncertainty(false), _plot_error_ellipses(false)
 		, _user_defined_projection(false), _omit_title_block(false), _omit_measurements(false)
-		, _keep_gen_files(false), _supress_pdf_creation(false)
+		, _keep_gen_files(false), _supress_pdf_creation(false), _export_png(false)
 		, _label_font_size(7.0), _msr_line_width(0.15), _correction_scale(1.), _pu_ellipse_scale(1.)
 		, _plot_station_centre(""), _bounding_box("")
 		, _plot_area_radius(5000.), _plot_centre_latitude(-999.), _plot_centre_longitude(-999.)
@@ -644,6 +644,7 @@ public:
 	bool					_omit_measurements;				// Don't print measurements
 	bool					_keep_gen_files;				// Don't delete command and data files used to generate EPS and PDF plots
 	bool 					_supress_pdf_creation;			// Don't create a pdf, just the command files
+	bool					_export_png;					// Export the GMT plot to png at 300 dpi
 	double					_label_font_size;				// Plot font size for labels
 	double					_msr_line_width;				// Measurement line width
 	double					_correction_scale;				// The amount by which to scale the size of correction arrows

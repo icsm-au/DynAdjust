@@ -181,6 +181,8 @@ void ProcessGMTPlot(dna_plot* plotDynaML, project_settings& p, string& measureme
 
 		cout << setw(PRINT_VAR_PAD) << "+ Plot details:" << endl;
 		cout << setw(PRINT_VAR_PAD) << "  PDF file name:" << p.p._pdf_file_name << endl;
+		if (p.p._export_png)
+			cout << setw(PRINT_VAR_PAD) << "  Export to png:" << "Yes" << endl;
 		if (p.p._supress_pdf_creation)
 		{
 #if defined(_WIN32) || defined(__WIN32__)
@@ -444,6 +446,8 @@ int main(int argc, char* argv[])
 				StringFromT(p.p._msr_line_width)+string(".")).c_str())
 			(DONT_CREATE_PDF,
 				"Don't create a pdf, just the command files.")
+			(EXPORT_PNG,
+				"Export the GMT plot to png at 300 dpi.")
 			;
 
 		allowable_options.add(standard_options).add(config_options).add(map_options).add(titleblock_options).add(generic_options);
@@ -611,6 +615,9 @@ int main(int argc, char* argv[])
 		// files to generate the plot manually
 		p.p._keep_gen_files = true;
 	}
+
+	if (vm.count(EXPORT_PNG))
+		p.p._export_png = true;
 
 	//////////////////////////////////////////////////////
 	// Form paths

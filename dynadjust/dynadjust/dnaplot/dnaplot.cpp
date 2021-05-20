@@ -1953,7 +1953,13 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 	size_t lastindex = v_gmt_pdf_filenames_.at(block).find_last_of("."); 
 	string pdf_filename = v_gmt_pdf_filenames_.at(block).substr(0, lastindex); 	
 	gmtbat_file_ << _APP_PSCONVERT_ << " -A0.2c+white -Tf -F\"" << pdf_filename << "\" " << psTempFile << endl << endl;
-	
+
+	if (pprj_->p._export_png)
+	{
+		gmtbat_file_ << endl << _COMMENT_PREFIX_ << "convert ps to png" << endl;
+		gmtbat_file_ << _APP_PSCONVERT_ << " -A0.2c+white -Tg -F\"" << pdf_filename << "\" " << psTempFile << endl << endl;
+	}
+
 	////////////////////////////////////////////////
 	
 	////////////////////////////////////////////////

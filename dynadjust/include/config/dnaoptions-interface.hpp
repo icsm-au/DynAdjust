@@ -249,6 +249,7 @@ const char* const BLOCK_NUMBER = "block-number";
 const char* const TITLEBLOCK_NAME = "org-unit-name";
 const char* const TITLEBLOCK_SUBNAME = "org-subunit-name";
 const char* const KEEP_FILES = "keep-gen-files";
+const char* const EXPORT_PNG = "export-png";
 
 const char* const INTERACTIVE = "interactive";
 const char* const INTERACTIVE_E = "interactive,e";
