@@ -49,8 +49,14 @@ void ProcessGnuPlot(dna_plot* plotDynaML, project_settings& p, plotGraphMode mod
 
 		cout << setw(PRINT_VAR_PAD) << "+ Plot details:" << endl;
 		cout << setw(PRINT_VAR_PAD) << "  PDF file name:" << p.p._pdf_file_name << endl;
-		if (p.p._supress_pdf_creation)
-			cout << setw(PRINT_VAR_PAD) << "  Command file name:" << p.p._gnuplot_cmd_file << endl;
+		if (p.p._supress_pdf_creation || p.p._keep_gen_files)
+		{
+#if defined(_WIN32) || defined(__WIN32__)
+			cout << setw(PRINT_VAR_PAD) << "  Batch file:" << p.p._gnuplot_cmd_file << endl;
+#elif defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
+			cout << setw(PRINT_VAR_PAD) << "  Shell script:" << p.p._gnuplot_cmd_file << endl;
+#endif	
+		}
 		cout << setw(PRINT_VAR_PAD) << "  Block threshold:" << plotDynaML->blockThreshold() << endl;
 		cout << setw(PRINT_VAR_PAD) << "  Min inner stns:" << plotDynaML->minInnerStns() << endl;
 		cout << setw(PRINT_VAR_PAD) << "  Block count:" << plotDynaML->blockCount() << endl;
@@ -120,7 +126,7 @@ void ProcessGMTPlot(dna_plot* plotDynaML, project_settings& p, string& measureme
 	p.p._gmt_params.clear();
 	p.p._gmt_params.push_back(string_string_pair("MAP_GRID_PEN_PRIMARY", "0.5p,128/128/128"));
 	p.p._gmt_params.push_back(string_string_pair("MAP_FRAME_TYPE", "fancy"));
-	p.p._gmt_params.push_back(string_string_pair("PS_MEDIA", "A1"));
+	p.p._gmt_params.push_back(string_string_pair("PS_MEDIA", "A0"));
 	p.p._gmt_params.push_back(string_string_pair("MAP_FRAME_PEN", "1p"));
 	
 	p.p._separate_msrs.clear();
@@ -184,7 +190,7 @@ void ProcessGMTPlot(dna_plot* plotDynaML, project_settings& p, string& measureme
 		cout << setw(PRINT_VAR_PAD) << "  PDF file name:" << p.p._pdf_file_name << endl;
 		if (p.p._export_png)
 			cout << setw(PRINT_VAR_PAD) << "  Export to png:" << "Yes" << endl;
-		if (p.p._supress_pdf_creation)
+		if (p.p._supress_pdf_creation || p.p._keep_gen_files)
 		{
 #if defined(_WIN32) || defined(__WIN32__)
 			if (p.p._plot_phased_blocks && p.p._plot_block_number < 1)
