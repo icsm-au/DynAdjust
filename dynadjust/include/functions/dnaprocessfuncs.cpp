@@ -22,167 +22,58 @@
 
 #include <include/functions/dnaprocessfuncs.hpp>
 
-using namespace boost::filesystem;
+#include <boost/process.hpp>
 
-#if defined(__linux) || defined(sun) || defined(__unix__)
-void  parse(char *line, char **argv)
-{
-	 while (*line != '\0') {       /* if not the end of line ....... */ 
-		  while (*line == ' ' || *line == '\t' || *line == '\n')
-			   *line++ = '\0';     /* replace white spaces with 0    */
-		  *argv++ = line;          /* save the argument position     */
-		  while (*line != '\0' && *line != ' ' && 
-				 *line != '\t' && *line != '\n') 
-			   line++;             /* skip the argument until ...    */
-	 }
-	 *argv = NULL;                 /* mark the end of argument list  */
-}
+using namespace boost::process;
 
-bool execute(char **argv, char **env)
-{
-	pid_t const cpid = fork();
-	
-	if (cpid < 0)
-		return false;
-	else if (cpid == 0) {
-		// Child process
-		//int success;
-		execvpe(*argv, argv, env);
-
-		return true;
-	
-	}
-	else {
-		// Parent process
-		int status;
-		
-		// Wait for child to complete...
-		wait(&status);
-		
-		//return true;
-
-		if(WEXITSTATUS(status) == 0)
-		{
-			// Program succeeded
-			//delme << " Program succeeded" << endl;
-			return true;
-		}
-		else
-		{
-			// Program failed but exited normally
-			//delme << " Program failed but exited normally: " << WEXITSTATUS(status) << endl;
-			return false;
-		}
-	
-	}
-}
-#elif defined(__APPLE__)
-void  parse(char *line, char **argv)
-{
-	 while (*line != '\0') {       /* if not the end of line ....... */
-		  while (*line == ' ' || *line == '\t' || *line == '\n')
-			   *line++ = '\0';     /* replace white spaces with 0    */
-		  *argv++ = line;          /* save the argument position     */
-		  while (*line != '\0' && *line != ' ' &&
-				 *line != '\t' && *line != '\n')
-			   line++;             /* skip the argument until ...    */
-	 }
-	 *argv = NULL;                 /* mark the end of argument list  */
-}
-
-bool execute(char **argv, char **env)
-{
-	pid_t const cpid = fork();
-	int status(0);
-
-	if (cpid < 0)
-		return false;
-	else if (cpid == 0) {
-		// Child process
-		//int success;
-		execve(*argv, argv, env);
-
-		return true;
-
-	}
-	else {
-		// Parent process
-		int status;
-
-		// Wait for child to complete...
-		wait(&status);
-
-		//return true;
-
-		if(WEXITSTATUS(status) == 0)
-		{
-			// Program succeeded
-			//delme << " Program succeeded" << endl;
-			return true;
-		}
-		else
-		{
-			// Program failed but exited normally
-			//delme << " Program failed but exited normally: " << WEXITSTATUS(status) << endl;
-			return false;
-		}
-
-	}
-}
-
-#endif
-
-bool run_command(const string& exec_path_name, bool validateReturnCode)
+bool run_command(const string& executable_path, const UINT16& quiet)
 {	
+	// use boost's platform independent code to invoke a process
+	// see https://www.boost.org/doc/libs/develop/doc/html/process.html
+	//
+	// An exit code of zero means the process was successful, 
+	// while one different than zero indicates an error.
+
+	
+	// For windows batch files, add cmd to execute the batch file.
 #if defined(_WIN32) || defined(__WIN32__)
-	// Windows
-	
-	//pid_t cpid = -1;
-	
+
 	STARTUPINFO startup;
 	PROCESS_INFORMATION process;
-	
+
 	memset(&startup, 0, sizeof(STARTUPINFO));
 	memset(&process, 0, sizeof(PROCESS_INFORMATION));
-	
+
 	startup.cb = sizeof(STARTUPINFO);
 
-	DWORD returnCode;
-	if (CreateProcess(0, (LPSTR)exec_path_name.c_str(), 0, 0, FALSE,
+	DWORD return_code(EXIT_SUCCESS);
+	if (CreateProcess(0, (LPSTR)executable_path.c_str(), 0, 0, FALSE,
 		0, 0, 0, &startup, &process))
 	{
 		WaitForSingleObject(process.hProcess, INFINITE);
 		// Capture the return code
-		GetExitCodeProcess(process.hProcess, &returnCode);
+		GetExitCodeProcess(process.hProcess, &return_code);
 		CloseHandle(process.hThread);
 		CloseHandle(process.hProcess);
-		if (validateReturnCode)
-		{
-			if (returnCode == EXIT_SUCCESS)
-				return true;
-			else
-				return false;
-		}
-		return true;
+
+		return (return_code == EXIT_SUCCESS);
 	}
-	return false;
-	
-#elif defined(__APPLE__)
-	// Apple Mac code here to launch command
-	std::system(exec_path_name.c_str());
-	return true;
+	return EXIT_SUCCESS;
+
+#elif defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)		
+
+	int return_value(0);
 		
-#elif defined(__OS2__)
-	// OS/2 code here to launch command
-	
-	throw runtime_error("Function not defined yet.");
-	
-#elif defined(__linux) || defined(sun) || defined(__unix__)
-#define WR_MAX_ARG 100
-	// Linux
-	std::system(exec_path_name.c_str());
-	return true;
+	if (quiet)
+		return_value = boost::process::system(executable_path, boost::process::std_out > boost::process::null);
+	else
+		return_value = boost::process::system(executable_path, boost::process::std_out > stdout);
+		
+	return (return_value == EXIT_SUCCESS);
 
 #endif
-	return true;
+
+	return EXIT_SUCCESS;
 }
+
+
