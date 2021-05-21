@@ -60,6 +60,9 @@
     <ClInclude Include="..\..\include\math\dnamatrix_contiguous.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\functions\dnaprocessfuncs.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dnaplot.cpp">
@@ -108,6 +111,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\include\math\dnamatrix_contiguous.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\include\functions\dnaprocessfuncs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -74,7 +74,7 @@ S measurement_name(const C& type)
 	case 'K':
 		return "(K) Astronomic azimuth";
 	case 'C':
-		return "(C) Chord dist";
+		return "(C) Chord distance";
 	case 'E':
 		return "(E) Ellipsoid arc";
 	case 'M':
@@ -82,7 +82,7 @@ S measurement_name(const C& type)
 	case 'S':
 		return "(S) Slope distance";
 	case 'D':
-		return "(D) Directions";
+		return "(D) Direction set";
 	case 'G':
 		return "(G) GPS baseline";
 	case 'X':

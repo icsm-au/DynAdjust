@@ -243,15 +243,17 @@ int main(int argc, char* argv[])
 
 	ss << "- Error: Could not open dynadjust.log for writing." << endl;
 	try {
-		// Create dynadjust log file.  Throws runtime_error on failure.
+		// Create dynadjust log file.  Exit failure.
 		file_opener(dynadjust_log, dynadjustLogFilePath);
 	}
 	catch (const runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		cout << endl << ss.str() << endl << endl;
+		return EXIT_FAILURE;
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		cout << endl << ss.str() << endl << endl;
+		return EXIT_FAILURE;
 	}
 
 	dynadjust_log << cmd_line_banner << endl;
@@ -271,13 +273,13 @@ int main(int argc, char* argv[])
 		stringstream cmd;
 		cmd << __import_app_name__ << " -p " << p.g.project_file;
 		
-		if (vm.count(QUIET))
+		if (p.g.quiet)
 			cmd << " --quiet";
 		
 		// start time
 		PrintAppStartTimeMessage(dynadjust_log, __import_app_name__);
 		
-		if (!run_command(cmd.str().c_str()))
+		if (!run_command(cmd.str().c_str()), p.g.quiet)
 		{
 			p.i.imp_file = formPath<string>(p.g.output_folder, p.g.network_name, "imp");
 			return CloseLogandReturn(dynadjust_log, EXIT_FAILURE, p.i.imp_file);
@@ -295,13 +297,13 @@ int main(int argc, char* argv[])
 		stringstream cmd;
 		cmd << __reftran_app_name__ << " -p " << p.g.project_file;
 		
-		if (vm.count(QUIET))
+		if (p.g.quiet)
 			cmd << " --quiet";
 		
 		// start time
 		PrintAppStartTimeMessage(dynadjust_log, __reftran_app_name__);
 		
-		if (!run_command(cmd.str().c_str()))
+		if (!run_command(cmd.str().c_str()), p.g.quiet)
 			return CloseLogandReturn(dynadjust_log, EXIT_FAILURE);
 		
 		// end time
@@ -316,13 +318,13 @@ int main(int argc, char* argv[])
 		stringstream cmd;
 		cmd << __geoid_app_name__ << " -p " << p.g.project_file;
 		
-		if (vm.count(QUIET))
+		if (p.g.quiet)
 			cmd << " --quiet";
 		
 		// start time
 		PrintAppStartTimeMessage(dynadjust_log, __geoid_app_name__);
 		
-		if (!run_command(cmd.str().c_str()))
+		if (!run_command(cmd.str().c_str()), p.g.quiet)
 			return CloseLogandReturn(dynadjust_log, EXIT_FAILURE);
 	
 		// end time
@@ -337,13 +339,13 @@ int main(int argc, char* argv[])
 		stringstream cmd;
 		cmd << __segment_app_name__ << " -p " << p.g.project_file;
 		
-		if (vm.count(QUIET))
+		if (p.g.quiet)
 			cmd << " --quiet";
 		
 		// start time
 		PrintAppStartTimeMessage(dynadjust_log, __segment_app_name__);
 		
-		if (!run_command(cmd.str().c_str()))
+		if (!run_command(cmd.str().c_str()), p.g.quiet)
 			return CloseLogandReturn(dynadjust_log, EXIT_FAILURE);
 	
 		// end time
@@ -358,13 +360,13 @@ int main(int argc, char* argv[])
 		stringstream cmd;
 		cmd << __adjust_app_name__ << " -p " << p.g.project_file;
 		
-		if (vm.count(QUIET))
+		if (p.g.quiet)
 			cmd << " --quiet";
 		
 		// start time
 		PrintAppStartTimeMessage(dynadjust_log, __adjust_app_name__);
 		
-		if (!run_command(cmd.str().c_str()))
+		if (!run_command(cmd.str().c_str()), p.g.quiet)
 			return CloseLogandReturn(dynadjust_log, EXIT_FAILURE);
 
 		// end time

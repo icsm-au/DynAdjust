@@ -29,31 +29,38 @@
 	#endif
 #endif
 
-#include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
 #include <string>
-#include <vector>
 
-#include <boost/filesystem.hpp>
+#include <boost/thread.hpp>
+#include <boost/process.hpp>
 
-// The following must come after <boost/filesystem.hpp> otherwise the following compilation error occurs:
-//		U:/Boost/include/boost_1_44_0/boost/filesystem/v2/operations.hpp:1191: 
-//		error: 'boost::filesystem2::create_hard_link' has not been declared
-// Why?  I have no idea!
 #if defined(_WIN32) || defined(__WIN32__)
-	#include <windows.h>			// for CreateProcess(...) called by run_command(...)
-#elif defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
-	#include <unistd.h>
-	#include <sys/wait.h>
+#include <windows.h>
 #endif
 
-#include <include/config/dnaversion.hpp>
 #include <include/config/dnaconsts.hpp>
 
-using namespace std;
+bool run_command(const string& executable_path, const UINT16& quiet = 0);
 
-bool run_command(const string& exec_path_name, bool validateReturnCode=true);
+class dna_create_threaded_process
+{
+public:
+	dna_create_threaded_process(const string& command_path, const UINT16& quiet = 0)
+		: _command_path(command_path), _quiet(quiet)
+	{};
+
+	void operator()()
+	{
+		// create a synchronous process
+		boost::this_thread::sleep(boost::posix_time::milliseconds(10));
+		run_command(_command_path, _quiet);
+	}
+private:
+	string		_command_path;
+	UINT16		_quiet;
+};
+
+
+
 
 #endif // DNAPROCESSFUNCS_HPP_

@@ -574,19 +574,19 @@ public:
 struct plot_settings : private boost::equality_comparable<plot_settings> {
 public:
 	plot_settings()
-		: _projection(bestProjection), _gmt_cmd_file(""), _gnuplot_cmd_file(""), _pdf_cmd_file(""), _eps_file_name(""), _pdf_file_name("")
+		: _projection(bestProjection), _gmt_cmd_file(""), _gnuplot_cmd_file(""), _eps_file_name(""), _pdf_file_name("")
 		, _plot_phased_blocks(false), _plot_station_labels(false), _plot_ignored_msrs(false)
 		, _plot_alt_name(false), _plot_station_constraints(false)
 		, _plot_correction_arrows(false), _plot_correction_labels(false), _compute_corrections(false)
 		, _plot_positional_uncertainty(false), _plot_error_ellipses(false)
 		, _user_defined_projection(false), _omit_title_block(false), _omit_measurements(false)
-		, _use_pdflatex(false), _keep_gen_files(false)
-		, _label_font_size(5.0), _msr_line_width(0.15), _correction_scale(1.), _pu_ellipse_scale(1.)
+		, _keep_gen_files(false), _supress_pdf_creation(false), _export_png(false)
+		, _label_font_size(7.0), _msr_line_width(0.15), _correction_scale(1.), _pu_ellipse_scale(1.)
 		, _plot_station_centre(""), _bounding_box("")
-		, _plot_area_radius(5000.000), _plot_centre_latitude(-999.), _plot_centre_longitude(-999.)
+		, _plot_area_radius(5000.), _plot_centre_latitude(-999.), _plot_centre_longitude(-999.)
 		, _plot_scale(0.), _page_width(0.), _ground_width(0.)
 		, _plot_block_number(0), _coasline_resolution(low)
-		, _pdf_viewer("Acrobat"), _acrobat_ddename("AcroViewR15")
+		, _title(""), _title_block_name("Surveyor-General Victoria"), _title_block_subname("Geodesy")
 		, command_line_arguments("")
 	{
 		_gmt_params.clear();
@@ -600,8 +600,8 @@ private:
 	//
 	//bool operator==(const plot_settings& p) const {
 	//	return _projection == p._projection && _gmt_params == p._gmt_params && _separate_msrs == p._separate_msrs && _msr_colours == p._msr_colours &&
-	//		_gmt_cmd_file == p._gmt_cmd_file && _gnuplot_cmd_file == p._gnuplot_cmd_file && _pdf_cmd_file == p._pdf_cmd_file && _eps_file_name == p._eps_file_name &&
-	//		_pdf_file_name == p._pdf_file_name && _plot_phased_blocks == p._plot_phased_blocks && _use_pdflatex == p._use_pdflatex && 
+	//		_gmt_cmd_file == p._gmt_cmd_file && _gnuplot_cmd_file == p._gnuplot_cmd_file && _eps_file_name == p._eps_file_name &&
+	//		_pdf_file_name == p._pdf_file_name && _plot_phased_blocks == p._plot_phased_blocks && 
 	//		_plot_station_labels == p._plot_station_labels && _plot_ignored_msrs == p._plot_ignored_msrs &&
 	//		_plot_alt_name ==p._plot_alt_name && _plot_station_constraints == p._plot_station_constraints &&
 	//		_plot_correction_arrows == p._plot_correction_arrows && _plot_correction_labels == p._plot_correction_labels && 
@@ -613,7 +613,7 @@ private:
 	//		_correction_scale == p._correction_scale && _pu_ellipse_scale == p._pu_ellipse_scale &&
 	//		_bounding_box == p._bounding_box && _plot_station_centre == p._plot_station_centre && _plot_area_radius == p._plot_area_radius && 
 	//		_plot_centre_latitude == p._plot_centre_latitude && _plot_centre_longitude == p._plot_centre_longitude && _plot_scale == p._plot_scale &&
-	//		_plot_block_number == p._plot_block_number && _keep_gen_files == p._keep_gen_files;
+	//		_plot_block_number == p._plot_block_number && _keep_gen_files == p._keep_gen_files && _supress_pdf_creation == p._supress_pdf_creation;
 	//}
 
 public:
@@ -627,9 +627,8 @@ public:
 															//	6 Lambert conformal
 	string					_gmt_cmd_file;					// GMT command file to create the eps
 	string					_gnuplot_cmd_file;				// Gnuplot command file to create the eps
-	string					_pdf_cmd_file;					// PDF command file to create PDF
-	string					_eps_file_name;					// The GMT-created eps file
-	string					_pdf_file_name;					// The PDF file generated either by ps2pdf or LaTeX
+	string					_eps_file_name;					// The eps file generated either by gmt or gnuplot
+	string					_pdf_file_name;					// The PDF file generated either by gmt or gnuplot
 	bool					_plot_phased_blocks;			// Plot the blocks of a segmented network.  Requires a corresponding segmentation file.
 	bool					_plot_station_labels;			// Plots the station labels
 	bool					_plot_ignored_msrs;				// Plot ignored measurements
@@ -643,12 +642,13 @@ public:
 	bool					_user_defined_projection;		// If true, the user has specified a projection for the output
 	bool					_omit_title_block;				// Don't print a title block and measurements legend
 	bool					_omit_measurements;				// Don't print measurements
-	bool					_use_pdflatex;					// Uses PdfLaTeX to create the pdf (Good for font substitution, although not implemented yet)
 	bool					_keep_gen_files;				// Don't delete command and data files used to generate EPS and PDF plots
+	bool 					_supress_pdf_creation;			// Don't create a pdf, just the command files
+	bool					_export_png;					// Export the GMT plot to png at 300 dpi
 	double					_label_font_size;				// Plot font size for labels
 	double					_msr_line_width;				// Measurement line width
 	double					_correction_scale;				// The amount by which to scale the size of correction arrows
-	double					_pu_ellipse_scale;				// The amount by which to scale the size of error ellipses positional uncertainty cirlces
+	double					_pu_ellipse_scale;				// The amount by which to scale the size of error ellipses and positional uncertainty cirlces
 	string					_plot_station_centre;			// Centre the map according to this station
 	string					_bounding_box;					// user defined bounding box for plot
 	double					_plot_area_radius;				// Set the limits of the plot according to a radius
@@ -659,12 +659,15 @@ public:
 	double					_ground_width;					// ground width in metres
 	UINT32					_plot_block_number;				// Plots this block only
 	UINT16					_coasline_resolution;			// ncdf resolution
-	string					_pdf_viewer;					// PDF viewer
-	string					_acrobat_ddename;				// If viewer is Acrobat, supply necessary dde arguments
+	string					_title;							// Title of the plot
+	string					_title_block_name;				// Name of the unit to display in the title block
+	string					_title_block_subname;			// Name of the cub-unit to display in the title block
 	string					command_line_arguments;
 	v_string_string_pair	_gmt_params;					// GMT parameters
 	vchar					_separate_msrs;					// A char vector of measurement types to be created individually	
 	v_string_string_pair	_msr_colours;					// A vector of measurement types and corresponding colours
+	vstring					_gmt_cmd_filenames;				// A vector of filenames for the shell command scripts to create GMT plots
+	vstring					_gmt_pdf_filenames;				// A vector of filenames for the generated GMT pdf plots for each block
 };
 
 // project settings

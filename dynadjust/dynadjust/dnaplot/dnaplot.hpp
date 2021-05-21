@@ -44,6 +44,9 @@
 #include <boost/timer/timer.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/thread.hpp>
+#include <boost/thread/mutex.hpp>
+
 
 #include <include/config/dnaexports.hpp>
 #include <include/config/dnaversion.hpp>
@@ -59,6 +62,8 @@
 #include <include/functions/dnafilepathfuncs.hpp>
 #include <include/functions/dnatemplategeodesyfuncs.hpp>
 #include <include/functions/dnatemplatematrixfuncs.hpp>
+#include <include/functions/dnastrmanipfuncs.hpp>
+#include <include/functions/dnaprocessfuncs.hpp>
 
 #include <include/config/dnaconsts.hpp>
 #include <include/config/dnatypes.hpp>
@@ -84,6 +89,7 @@ using namespace boost::posix_time;
 using namespace boost::filesystem;
 
 using namespace dynadjust::measurements;
+using namespace dynadjust::epsg;
 using namespace dynadjust::exception;
 using namespace dynadjust::datum_parameters;
 using namespace dynadjust::iostreams;
@@ -91,6 +97,7 @@ using namespace dynadjust::math;
 
 namespace dynadjust {
 namespace networkplot {
+
 
 #ifdef _MSC_VER
 class DNAPLOT_API dna_plot {
@@ -108,12 +115,23 @@ private:
 	dna_plot& operator=(const dna_plot&);	
 
 public:
-	_PLOT_STATUS_ CreateGMTPlot(plot_settings* plotCriteria, const string& network_name, const string& output_folder);
-	_PLOT_STATUS_ CreateSegmentationGraph(plot_settings* plotCriteria, const string& network_name, 
-		const string& output_folder, const plotGraphMode& graphMode);
-
 	void LoadNetworkFiles(const project_settings& projectSettings);
 	
+	// GMT maps
+	void CreateGMTPlotEnvironment(project_settings* pprj);
+	void CreateGMTPlot();
+
+	// gnuplot graphs
+	void CreategnuplotGraphEnvironment(project_settings* pprj, const plotGraphMode& graphMode);
+	void CreateSegmentationGraph(const plotGraphMode& graphMode);
+
+	const inline UINT32 blockCount() const { return blockCount_; }
+	const inline UINT32 stationCount() const { return stationCount_; }
+	const inline UINT32 measurementCount() const { return measurementCount_; }
+	const inline UINT32 measurementCategories() const { return measurementCategories_; }
+	const inline UINT32 blockThreshold() const { return blockThreshold_; }
+	const inline UINT32 minInnerStns() const { return minInnerStns_; }
+
 private:
 
 	CDnaDatum			datum_;
@@ -122,14 +140,32 @@ private:
 	// Gnuplot plotting methods
 	void PlotGnuplotDatFileStns();
 	void PlotGnuplotDatFileMsrs();
-	void PrintGnuplotBatFile(const string& gnuplot_bat_file, const string& epsname, const plotGraphMode& graphMode);
-	void PrintGnuplotBatFileStns(const UINT32& fontSize);
-	void PrintGnuplotBatFileMsrs(const UINT32& fontSize);
+	void PrintGnuplotCommandFile(const string& gnuplot_cmd_file, const plotGraphMode& graphMode);
+	void PrintGnuplotCommandFileStns(const UINT32& fontSize);
+	void PrintGnuplotCommandFileMsrs(const UINT32& fontSize);
 
 	void LoadBinaryFiles();
 	void LoadStationMap();
 	void LoadSegmentationFile();
 	void LoadPosUncertaintyFile();
+
+	void InitialiseAppsandSystemCommands();	
+
+	void InitialiseGMTParameters();
+	void FinaliseGMTParameters();
+	void InitialiseGMTFilenames();
+	void CreateGMTInputFiles();
+	void CreateExtraInputFiles();
+	void CreateGMTCommandFiles();
+	void CreateGMTCommandFile(const UINT32& block);
+	bool InitialiseandValidateStartingBlock(UINT32& block);
+
+	void InvokeGnuplot();
+	void CleanupGnuplotFiles(const plotGraphMode& graphMode);
+
+	void InvokeGMT();
+	void AggregateGMTPDFs();
+	void CleanupGMTFiles();
 
 	void ComputeStationCorrections();
 	void ComputeStationCorrection(it_vstn_t_const _it_stn, stationCorrections_t& stnCor,
@@ -141,7 +177,7 @@ private:
 
 	// GMT plotting methods
 	void FormGMTDataFileNames(const UINT32& block=0);
-	void SetGMTParameters();
+	void PrintGMTParameters();
 	
 	void PrintStationDataFile(ostream& os, it_vstn_t_const _it_stn);
 	void PrintStationsDataFile();
@@ -161,11 +197,6 @@ private:
 	void PrintMeasurementsDatFile(const string& msr_file_name, char msrType, std::ofstream* msr_file_stream);
 	void PrintMeasurementsDatFileBlock(const UINT32& block, const string& msr_file_name, char msrType, std::ofstream* msr_file_stream);
 	
-	void PrintGMTBatfile(const string& epsname, plot_settings* plotCriteria); 
-	void PrintLaTeXPlotfile(const string& gmt_tex_file, const string& epsname);
-	string PrintPdfCmdfile(const string& pdf_cmd_file, const string& gmt_tex_filename, const string& pic_name);
-	void PrintPdfCmdfile_Graph(const string& pdf_cmd_file, const string& pic_name);
-
 	//void PrintGMTPlotCoords(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, ostream& osStn, ostream& osStn2, ostream& osMsr); 
 	//void PrintGMTPlotCoords_D(vdnaStnPtr* vStations, vector<CDnaDirection>* vDirections, ostream& osMsr); 
 	//void PrintGMTPlotCoords_GX(vdnaStnPtr* vStations, vector<CDnaGpsBaseline>* vBaselines, ostream& osMsr); 
@@ -197,12 +228,15 @@ private:
 
 	vstn_t					bstBinaryRecords_;
 	vmsr_t					bmsBinaryRecords_;
+	binary_file_meta_t		bst_meta_;
+	binary_file_meta_t		bms_meta_;
 	string					output_folder_;
 	string					network_name_;
 	v_string_uint32_pair	stnsMap_;		// Station Name Map sorted on name (string)
 	_PLOT_STATUS_			plotStatus_;
-	plot_settings			plotCriteria_;
 	project_settings		projectSettings_;
+	project_settings*		pprj_;
+	string					reference_frame_;
 	
 	double					lowerDeg_;
 	double					leftDeg_;
@@ -221,6 +255,9 @@ private:
 	double					uncertainty_legend_lat_;
 	double					largest_uncertainty_;
 	double					uncertainty_legend_length_;
+
+	double 					graticule_width_;
+	UINT32 					graticule_width_precision_;
 	
 	_it_pair_vchar			it_vchar_range;
 	it_pair_string_vUINT32	it_stnmap_range;
@@ -240,6 +277,9 @@ private:
 	vstring					v_jsl_lbl_file_;
 	vstring					v_msr_def_file_;
 	vstring					v_msr_all_file_;
+
+	vstring					v_gmt_cmd_filenames_;
+	vstring					v_gmt_pdf_filenames_;
 	
 	vv_string_string_pair	v_msr_file_;
 
@@ -254,6 +294,7 @@ private:
 	bool					plotBlocks_;
 	UINT32					stationCount_;
 	UINT32					measurementCount_;
+	UINT32					measurementCategories_;
 	UINT32					blockCount_;
 	UINT32					blockThreshold_;
 	UINT32					minInnerStns_;
@@ -262,8 +303,57 @@ private:
 	vvUINT32				v_JSL_;				// Junction stations
 	vvUINT32				v_CML_;				// Measurements
 
-	vUINT32				v_measurementCount_;		// number of raw measurements and constrained stations
-	vUINT32				v_unknownsCount_;			// number of all stations (constrained and free)
+	vUINT32					v_measurementCount_;		// number of raw measurements and constrained stations
+	vUINT32					v_unknownsCount_;			// number of all stations (constrained and free)
+
+	string					_APP_GMTSET_;
+	string					_APP_PSCOAST_;
+	string					_APP_PSCONVERT_;
+	string					_APP_PSTEXT_;
+	string					_APP_PSVELO_;
+	string					_APP_PSXY_;
+	string					_APP_PSLEGEND_;
+	string					_PDF_AGGREGATE_;
+	string					_CMD_EXT_;
+	string 					_ECHO_CMD_;
+	string 					_LEGEND_ECHO_;
+	string 					_LEGEND_CMD_1_;
+	string 					_LEGEND_CMD_2_;
+
+	string 					_COMMENT_PREFIX_;
+
+	string					_CMD_HEADER_;
+	string 					_DELETE_CMD_;
+	string 					_CHMOD_CMD_;
+	string 					_COPY_CMD_;
+	string 					_MOVE_CMD_;
+	string					_NULL_OUTPUT_;
+	string 					_MAKEDIR_CMD_;
+	string 					_RMDIR_CMD_;
+	string 					_MAKEENV_CMD_;
+	string 					_MAKETEMP_CMD_;
+	string 					_ENV_GMT_TMP_DIR_;
+	string 					_GMT_TMP_DIR_;
+
+	double					dWidth_;
+	double					dHeight_;
+	double 					dDimension_;
+	double 					dBuffer_;
+	double 					dScaleLat_;
+	double 					title_block_height_;
+	double 					page_width_;
+	double 					avg_data_scale_;
+	double 					scale_;
+	double 					scale_bar_width_;
+	int 					scale_precision_;
+
+	double 					line_width_;
+	double 					circle_radius_;
+	double 					circle_radius_2_;
+	double 					circle_line_width_;
+
+	string 					coastResolution_;
+	
 };
 
 

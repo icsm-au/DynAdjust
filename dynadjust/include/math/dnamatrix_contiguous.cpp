@@ -2240,23 +2240,23 @@ double matrix_2d::compute_maximum_value()
 //			put(i, j, fabs(lhs.get(i, j) - rhs->get(i, j)));
 //}
 
-void matrix_2d::trace(const char* comment, const char* format) const
+void matrix_2d::trace(const string& comment, const string& format) const
 {
 #ifdef _MSDEBUG
 	UINT32 i, j;
-	if (strlen(comment) == 0)
+	if (comment.empty())
 		TRACE("%d %d\n", _rows, _cols);
 	else
-		TRACE("%s (%d, %d):\n", comment, _rows, _cols);
+		TRACE("%s (%d, %d):\n", comment.c_str(), _rows, _cols);
 	for (i=0; i<_rows; ++i) {
 		for (j=0; j<_cols; ++j)
-			TRACE(format, get(i, j));
+			TRACE(format.c_str(), get(i, j));
 		TRACE("\n");
 	} TRACE("\n");
 #endif
 }
 
-void matrix_2d::trace(const char *comment, const char *submat_comment, const char* format, 
+void matrix_2d::trace(const string& comment, const string& submat_comment, const string& format, 
 					  const UINT32& row_begin, const UINT32& col_begin, const UINT32& rows, const UINT32& columns) const
 {
 #ifdef _MSDEBUG
@@ -2279,16 +2279,16 @@ void matrix_2d::trace(const char *comment, const char *submat_comment, const cha
 		return;
 	}
 	
-	if (strlen(comment) == 0)
-		TRACE("%d %d, %s submatrix (%d, %d, %d*%d)\n", _rows, _cols, submat_comment, row_begin, col_begin, rows, columns);
+	if (comment.empty())
+		TRACE("%d %d, %s submatrix (%d, %d, %d*%d)\n", _rows, _cols, submat_comment.c_str(), row_begin, col_begin, rows, columns);
 	else
-		TRACE("%s (%d, %d), %s submatrix (%d, %d, %d*%d)\n", comment, _rows, _cols, submat_comment, row_begin, col_begin, rows, columns);
+		TRACE("%s (%d, %d), %s submatrix (%d, %d, %d*%d)\n", comment, _rows, _cols, submat_comment.c_str(), row_begin, col_begin, rows, columns);
 
 	UINT32 i, j, row_end(row_begin+rows), col_end(col_begin+columns);
 
 	for (i=row_begin; i<row_end; ++i) {
 		for (j=col_begin; j<col_end; ++j) 
-			TRACE(format, get(i, j));
+			TRACE(format.c_str(), get(i, j));
 		TRACE("\n");
 	} TRACE("\n");
 #endif

@@ -54,6 +54,7 @@
 #include <include/functions/dnaprocessfuncs.hpp>
 #include <include/functions/dnafilepathfuncs.hpp>
 #include <include/functions/dnastrmanipfuncs.hpp>
+#include <include/functions/dnatemplatecalcfuncs.hpp>
 
 #include <dynadjust/dnaplot/dnaplot.hpp>
 

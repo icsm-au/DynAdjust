@@ -41,6 +41,8 @@ dna_plot::dna_plot()
 
 	v_parameterStationList_.clear();
 
+	InitialiseAppsandSystemCommands();
+
 #ifdef _MSC_VER
 #if (_MSC_VER < 1900)
 	{
@@ -57,41 +59,144 @@ dna_plot::~dna_plot()
 {
 	
 }
+
+void dna_plot::InitialiseAppsandSystemCommands()
+{
+	_APP_GMTSET_ = "gmt gmtset";
+	_APP_PSCOAST_ = "gmt pscoast";
+	_APP_PSCONVERT_ = "gmt psconvert";
+	_APP_PSTEXT_ = "gmt pstext";
+	_APP_PSVELO_ = "gmt psvelo";
+	_APP_PSXY_ = "gmt psxy";
+	_APP_PSLEGEND_ = "gmt pslegend";
+	
+	// common commands across Windows / Linux / Apple, or 
+	// unique to one particular system
+	_MAKEDIR_CMD_ = "mkdir ";
+	_ECHO_CMD_ = "echo ";
+	_CHMOD_CMD_ = "chmod +x ";
+	_GMT_TMP_DIR_ = "GMT_TMPDIR";
+
+	// system-specific variables
+#if defined(_WIN32) || defined(__WIN32__)
+	_LEGEND_ECHO_ = _ECHO_CMD_;
+	_LEGEND_CMD_1_ = " > ";
+	_LEGEND_CMD_2_ = " >> ";
+	_COMMENT_PREFIX_ = ":: ";
+	_CMD_EXT_ = ".bat";
+	_CMD_HEADER_ = "@echo off";
+	_PDF_AGGREGATE_ = "pdftk ";
+	_DELETE_CMD_ = "del /Q /F ";
+	_COPY_CMD_ = "copy /Y ";
+	_MOVE_CMD_ = "move /Y ";
+	_NULL_OUTPUT_ = " > NUL";
+	_ENV_GMT_TMP_DIR_ = "%" + _GMT_TMP_DIR_ + "%";
+	_MAKEENV_CMD_ = "set ";
+	_RMDIR_CMD_ = "rmdir /Q /S ";
+
+#elif defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
+	_LEGEND_ECHO_ = "";
+	_LEGEND_CMD_1_ = "";
+	_LEGEND_CMD_2_ = "";
+	_COMMENT_PREFIX_ = "# ";
+	_CMD_EXT_ = ".sh";
+	_CMD_HEADER_ = "#!/bin/bash";
+	_PDF_AGGREGATE_ = "pdfunite ";
+	_DELETE_CMD_ = "rm -rf ";
+	_COPY_CMD_ = "cp ";
+	_MOVE_CMD_ = "mv ";
+	_NULL_OUTPUT_ = " > /dev/null";
+	_MAKETEMP_CMD_ = "mktemp ";
+	_ENV_GMT_TMP_DIR_ = "$" + _GMT_TMP_DIR_;
+	_MAKEENV_CMD_ = "export ";
+	_RMDIR_CMD_ = "rm -rf ";
+
+#endif
+
+}
 	
 
-_PLOT_STATUS_ dna_plot::CreateSegmentationGraph(plot_settings* plotCriteria, const string& network_name, 
-				const string& output_folder, const plotGraphMode& graphMode)
+void dna_plot::CreateSegmentationGraph(const plotGraphMode& graphMode)
 {
-	if (!exists(output_folder))
+
+	// Execute gnuplot in a separate process
+	InvokeGnuplot();
+
+	// clean up gnuplot command file and input data file
+	CleanupGnuplotFiles(graphMode);
+}
+
+void dna_plot::CleanupGnuplotFiles(const plotGraphMode& graphMode)
+{
+	if (pprj_->p._keep_gen_files)
+		return;
+	
+	stringstream ss;
+	ss << _DELETE_CMD_;
+
+	// remove gnuplot command file
+	ss << pprj_->p._gnuplot_cmd_file << " ";
+
+	// remove gnuplot input file
+	switch (graphMode)
 	{
-		stringstream ss("CreateSegmentationGraph(): Output path does not exist... \n\n    ");
-		ss << output_folder << ".";
+	case StationsMode:
+		ss << seg_stn_graph_file_;
+		break;
+	case MeasurementsMode:
+		ss << seg_msr_graph_file_;
+		break;
+	default:
+		break;
+	}
+
+	// delete
+	string system_file_cmd = ss.str();
+	std::system(system_file_cmd.c_str());
+}
+
+void dna_plot::CreategnuplotGraphEnvironment(project_settings* pprj, const plotGraphMode& graphMode)
+{
+	InitialiseAppsandSystemCommands();
+
+	// Set up the environment
+	pprj_ = pprj;
+
+	if (!exists(pprj_->g.output_folder))
+	{
+		stringstream ss("CreategnuplotGraphEnvironment(): Output path does not exist... \n\n    ");
+		ss << pprj_->g.output_folder << ".";
 		SignalExceptionPlot(ss.str(), 0, NULL);
 	}
 
-	output_folder_ = output_folder;
-	network_name_ = network_name;
+	output_folder_ = pprj_->g.output_folder;
+	network_name_ = pprj_->g.network_name;
 
-	// create bat file and set gnuplot parameters 
-	string gnuplot_cmd_filename("graph_" + network_name + "_eps.bat");
-	string gnuplot_cmd_file(output_folder_ + FOLDER_SLASH + gnuplot_cmd_filename);
+	/////////////////////////////////////////////////////////
+	// create gnuplot command file and set gnuplot parameters 
+	string gnuplot_cmd_filename("graph_" + network_name_);
 
 	string gnuplot_pic_name;
 	switch (graphMode)
 	{
 	case StationsMode:
-		gnuplot_pic_name = (network_name + "_graph_stn");
+		gnuplot_pic_name = (network_name_ + "_graph_stn");
+		gnuplot_cmd_filename.append("_stns");
 		break;
 	case MeasurementsMode:
-		gnuplot_pic_name = (network_name + "_graph_msr");
+		gnuplot_pic_name = (network_name_ + "_graph_msr");
+		gnuplot_cmd_filename.append("_msrs");
 		break;
 	}
-	
-	string gnuplot_eps_file(gnuplot_pic_name + ".eps");
-	plotCriteria->_eps_file_name = gnuplot_eps_file;
-	
-	plotCriteria_ = *plotCriteria;
 
+	gnuplot_cmd_filename.append(_CMD_EXT_);
+	string gnuplot_cmd_file(output_folder_ + FOLDER_SLASH + gnuplot_cmd_filename);
+
+	pprj_->p._gnuplot_cmd_file = gnuplot_cmd_file;
+	
+	// create pdf filename
+	pprj_->p._pdf_file_name = output_folder_ + FOLDER_SLASH + gnuplot_pic_name + ".pdf";
+	
 	switch (graphMode)
 	{
 	case StationsMode:
@@ -102,45 +207,40 @@ _PLOT_STATUS_ dna_plot::CreateSegmentationGraph(plot_settings* plotCriteria, con
 		break;
 	}
 
-	try {
-		// Create gnuplot batch file.  Throws runtime_error on failure.
-		file_opener(gnuplotbat_file_, gnuplot_cmd_file);
-	}
-	catch (const runtime_error& e) {
-		SignalExceptionPlot(e.what(), 0, NULL);
-	}
+	PrintGnuplotCommandFile(gnuplot_cmd_file, graphMode);
 
-	PrintGnuplotBatFile(gnuplot_cmd_file, gnuplot_eps_file, graphMode);
-	gnuplotbat_file_.close();
-
-	string pdf_cmd_filename("graph_" + network_name + "_pdf.bat");
-	string pdf_cmd_file(output_folder_ + FOLDER_SLASH + pdf_cmd_filename);
-	
-	PrintPdfCmdfile_Graph(pdf_cmd_file, gnuplot_pic_name);
-
-	plotCriteria->_gnuplot_cmd_file = gnuplot_cmd_filename;
-	plotCriteria->_pdf_cmd_file = pdf_cmd_filename;
-	
-
-	return PLOT_SUCCESS;
 }
+
+void dna_plot::InvokeGnuplot()
+{
+	// Invoke gnuplot using absolute path				
+	string system_file_cmd = "gnuplot " + absolute(pprj_->p._gnuplot_cmd_file).string();
+
+	// set up a thread group to execute the gnuplot in parallel
+	boost::thread gnuplot_thread{dna_create_threaded_process(system_file_cmd)};
+	
+	// go!
+	gnuplot_thread.join();
+}
+
+
 	
 
 void dna_plot::PlotGnuplotDatFileStns()
 {
-	seg_stn_graph_file_ = network_name_ + "-stn.seg.data";
+	seg_stn_graph_file_ = output_folder_ + FOLDER_SLASH + network_name_ + "-stn.seg.data";
 	
 	std::ofstream seg_data;
 	try {
 		// Create gnuplot station segment data file.  Throws runtime_error on failure.
-		file_opener(seg_data, formPath<string>(output_folder_, seg_stn_graph_file_));
+		file_opener(seg_data, seg_stn_graph_file_);
 	}
 	catch (const runtime_error& e) {
 		SignalExceptionPlot(e.what(), 0, NULL);
 	}
 
 	stringstream ss(""), st("");
-	ss << "\"Max station limit (" << setprecision(0) << blockThreshold_ << ")\" ";
+	ss << "\"Max block size (" << setprecision(0) << blockThreshold_ << ")\" ";
 	st << "\"Min inner stns (" << minInnerStns_ << ")\" ";
 	seg_data << setw(HEADER_18) << left << "Block" <<
 		setw(HEADER_32) << left << ss.str() <<
@@ -163,12 +263,12 @@ void dna_plot::PlotGnuplotDatFileStns()
 
 void dna_plot::PlotGnuplotDatFileMsrs()
 {
-	seg_msr_graph_file_ = network_name_ + "-msr.seg.data";
+	seg_msr_graph_file_ = output_folder_ + FOLDER_SLASH + network_name_ + "-msr.seg.data";
 	
 	std::ofstream seg_data;
 	try {
 		// Create gnuplot measurement segment data file.  Throws runtime_error on failure.
-		file_opener(seg_data, formPath<string>(output_folder_, seg_msr_graph_file_));
+		file_opener(seg_data, seg_msr_graph_file_);
 	}
 	catch (const runtime_error& e) {
 		SignalExceptionPlot(e.what(), 0, NULL);
@@ -315,13 +415,23 @@ void dna_plot::ComputeMeasurementCount()
 }
 
 
-void dna_plot::PrintGnuplotBatFile(const string& gnuplot_bat_file, const string& epsname, const plotGraphMode& graphMode)
+void dna_plot::PrintGnuplotCommandFile(const string& gnuplot_cmd_file, const plotGraphMode& graphMode)
 {
-	if (output_folder_ != ".")
-		gnuplotbat_file_ << "cd '" << output_folder_ << "'" << endl << endl;
+	try {
+		// Create gnuplot batch file.  Throws runtime_error on failure.
+		file_opener(gnuplotbat_file_, gnuplot_cmd_file);
+	}
+	catch (const runtime_error& e) {
+		SignalExceptionPlot(e.what(), 0, NULL);
+	}
 
-	gnuplotbat_file_ << "set terminal postscript eps enhanced color solid colortext" << endl << endl;
-	gnuplotbat_file_ << "set output \"" << plotCriteria_._eps_file_name.c_str() << "\"" << endl;
+	//if (output_folder_ != ".")
+	//	gnuplotbat_file_ << "cd '" << output_folder_ << "'" << endl << endl;
+
+	//gnuplotbat_file_ << "set terminal postscript eps enhanced color solid colortext" << endl << endl;
+	gnuplotbat_file_ << "set terminal pdf enhanced color solid linewidth 0.75" << endl << endl;
+	// gnuplot requires single quotes for filenames
+	gnuplotbat_file_ << "set output '" << pprj_->p._pdf_file_name << "'" << endl;
 
 	// histogram style
 	gnuplotbat_file_ << "set style fill transparent solid 0.4" << endl;
@@ -338,9 +448,9 @@ void dna_plot::PrintGnuplotBatFile(const string& gnuplot_bat_file, const string&
 		
 		upperLimit = max(blockThreshold_, upperLimit);
 
-		gnuplotbat_file_ << "set title \"" << "Station segmentation summary for " << network_name_ << "\" font \"Helvetica,20\" noenhanced" << endl << endl;
-		gnuplotbat_file_ << "set key outside center bottom horizontal Left reverse enhanced autotitles samplen 2.5 font \"Helvetica,8\"" << endl;
-		gnuplotbat_file_ << "set key width -12 height 0.5" << endl << endl;
+		gnuplotbat_file_ << "set title \"" << "Station segmentation summary for " << network_name_ << "\" font \"Calibri,16\" noenhanced" << endl << endl;
+		gnuplotbat_file_ << "set key outside center bottom horizontal Left reverse enhanced autotitles samplen 2.5 font \"Calibri,8\"" << endl;
+		gnuplotbat_file_ << "set key width -2 height 2.5" << endl << endl;
 
 		break;
 	case MeasurementsMode:
@@ -348,16 +458,16 @@ void dna_plot::PrintGnuplotBatFile(const string& gnuplot_bat_file, const string&
 			if (upperLimit < v_msr_tally_.at(block).TotalCount())
 				upperLimit = v_msr_tally_.at(block).TotalCount();
 	
-		gnuplotbat_file_ << "set title \"" << "Measurement segmentation summary for " << network_name_ << "\" font \"Helvetica,20\" noenhanced" << endl << endl;
-		//gnuplotbat_file_ << "set key outside right top vertical Left reverse enhanced autotitles columnhead box samplen 2.5 font \"Helvetica,8\"" << endl;
-		gnuplotbat_file_ << "set key outside center bottom horizontal Left reverse enhanced autotitles columnhead samplen 2.5 font \"Helvetica,8\"" << endl;
+		gnuplotbat_file_ << "set title \"" << "Measurement segmentation summary for " << network_name_ << "\" font \"Calibri,20\" noenhanced" << endl << endl;
+		//gnuplotbat_file_ << "set key outside right top vertical Left reverse enhanced autotitles columnhead box samplen 2.5 font \"Calibri,8\"" << endl;
+		gnuplotbat_file_ << "set key outside center bottom horizontal Left reverse enhanced autotitles columnhead samplen 2.5 font \"Calibri,8\"" << endl;
 		//gnuplotbat_file_ << "set key width -15 height 0" << endl << endl;
-		gnuplotbat_file_ << "set key width -15 height 0.5" << endl << endl;
+		gnuplotbat_file_ << "set key width -2 height 2.5" << endl << endl;
 
 		gnuplotbat_file_ << "set style histogram rowstacked title offset character 0, 0, 0" << endl;
 		gnuplotbat_file_ << "set style data histograms" << endl;
 		gnuplotbat_file_ << "set datafile missing '-'" << endl;
-		gnuplotbat_file_ << "" << endl;
+		gnuplotbat_file_ << endl;
 		break;
 	}
 
@@ -367,7 +477,7 @@ void dna_plot::PrintGnuplotBatFile(const string& gnuplot_bat_file, const string&
 	gnuplotbat_file_ << "set format y '%.0f'" << endl;
 	gnuplotbat_file_ << "set yrange[0:" << upperLimit << "]" << endl;
 	gnuplotbat_file_ << "set auto x" << endl;
-	gnuplotbat_file_ << "set ytics scale 0.25 font \"Helvetica,10\"" << endl;
+	gnuplotbat_file_ << "set ytics scale 0.25 font \"Calibri,8\"" << endl;
 
 	gnuplotbat_file_ << "set xtics scale 0.25 nomirror" << endl;
 
@@ -375,88 +485,86 @@ void dna_plot::PrintGnuplotBatFile(const string& gnuplot_bat_file, const string&
 	if (blockCount_ > 5000)
 	{
 		fontSize = 5;
-		gnuplotbat_file_ << "set xtics 0,500 font \"Helvetica,6\"" << endl << endl;
+		gnuplotbat_file_ << "set xtics 0,500 font \"Calibri,6\"" << endl << endl;
 	}
 	else if (blockCount_ > 1000)
 	{
 		fontSize = 5;
-		gnuplotbat_file_ << "set xtics 0,100 font \"Helvetica,6\"" << endl << endl;
+		gnuplotbat_file_ << "set xtics 0,100 font \"Calibri,6\"" << endl << endl;
 	}
 	else if (blockCount_ > 500)
 	{
 		fontSize = 5;
-		gnuplotbat_file_ << "set xtics 0,50 font \"Helvetica,5\"" << endl << endl;
+		gnuplotbat_file_ << "set xtics 0,50 font \"Calibri,5\"" << endl << endl;
 	}
 	else if (blockCount_ > 100)
 	{
 		fontSize = 5;
-		gnuplotbat_file_ << "set xtics 0,10 font \"Helvetica,6\"" << endl << endl;
+		gnuplotbat_file_ << "set xtics 0,10 font \"Calibri,6\"" << endl << endl;
 	}
 	else if (blockCount_ > 50)
 	{
 		fontSize = 6;
-		gnuplotbat_file_ << "set xtics 0,5 font \"Helvetica,8\"" << endl << endl;
+		gnuplotbat_file_ << "set xtics 0,5 font \"Calibri,8\"" << endl << endl;
 	}
 	else
-		gnuplotbat_file_ << "set xtics 0,1 font \"Helvetica,10\"" << endl << endl;
+		gnuplotbat_file_ << "set xtics 0,1 font \"Calibri,8\"" << endl << endl;
 	
 
 	// x-axis label
 	stringstream ss("");
 	ss << "Segmented Network Blocks (Total " << fixed << setprecision(0) << blockCount_ << ")";
-	gnuplotbat_file_ << "set xlabel '" << ss.str() << "' font \"Helvetica,11\"" << endl;
+	gnuplotbat_file_ << "set xlabel '" << ss.str() << "' font \"Calibri,10\"" << endl;
 
 	switch (graphMode)
 	{
 	case StationsMode:
-		PrintGnuplotBatFileStns(fontSize);
+		PrintGnuplotCommandFileStns(fontSize);
 		break;
 	case MeasurementsMode:
-		PrintGnuplotBatFileMsrs(fontSize);
+		PrintGnuplotCommandFileMsrs(fontSize);
 		break;
-	}	
+	}
+
+	gnuplotbat_file_.close();
 }
 	
-void dna_plot::PrintGnuplotBatFileStns(const UINT32& fontSize)
+void dna_plot::PrintGnuplotCommandFileStns(const UINT32& fontSize)
 {
 	stringstream ss("");
 	ss << "Station Count (Total " << fixed << setprecision(0) << stationCount_ << ")";
-	gnuplotbat_file_ << "set ylabel '" << ss.str() << "' font \"Helvetica,11\"" << endl << endl;
+	gnuplotbat_file_ << "set ylabel '" << ss.str() << "' font \"Calibri,10\"" << endl << endl;
 
-	// http://w3schools.com/tags/ref_colorpicker.asp
-	// for converting rgb colours in hex to decimal, see:
-	// http://www.yellowpipe.com/yis/tools/hex-to-rgb/color-converter.php
-	gnuplotbat_file_ << "set style line 1 lw 0.75 lt 1 pt 7 ps 0.5 lc rgb \"#4169e1\"          # total block size" << endl;	// royalblue
-	gnuplotbat_file_ << "set style line 2 lw 2 lt 5 pt 7 ps 0.5 lc rgb \"green\"            # threshold" << endl;			// green
-	gnuplotbat_file_ << "set style line 3 lw 2 lt 5 pt 7 ps 0.5 lc rgb \"orange\"            # minimum inner size" << endl;			// orange
-	gnuplotbat_file_ << "set style line 4 lw 2 lt 1 pt 7 ps 0.5 lc rgb \"blue\"             # inners" << endl;			// blue
-	gnuplotbat_file_ << "set style line 5 lw 2 lt 1 pt 7 ps 0.5 lc rgb \"red\"              # junctions" << endl << endl;		// red
+	// All colours based on a palette:
+	//   https://coolors.co/ffd275-235789-da5552-43aa8b-39a9db
+	gnuplotbat_file_ << "set style line 1 lw 0.75 lt 1 pt 7 ps 0.25 lc rgb \"#35A7FF\"         # total block size" << endl;		// royalblue
+	gnuplotbat_file_ << "set style line 2 lw 2 lt 5 pt 7 ps 0.25 lc rgb \"#43AA8B\"            # threshold" << endl;			// zomp (green)
+	gnuplotbat_file_ << "set style line 3 lw 2 lt 5 pt 7 ps 0.25 lc rgb \"#FFD275\"            # minimum inner size" << endl;	// orange yellow crayola
+	gnuplotbat_file_ << "set style line 4 lw 2 lt 1 pt 7 ps 0.25 lc rgb \"#235789\"            # inners" << endl;				// bdazzled blue
+	gnuplotbat_file_ << "set style line 5 lw 2 lt 1 pt 7 ps 0.25 lc rgb \"#DA5552\"            # junctions" << endl << endl;	// indian red
 
 	gnuplotbat_file_ << "plot '" << seg_stn_graph_file_ << "' using 1:4 with boxes ls 1 title columnheader(4), \\" << endl;
-	gnuplotbat_file_ << "     '" << seg_stn_graph_file_ << "' using 1:4:(sprintf(\"%.0f\",$4)) with labels font \"Helvetica," << 
+	gnuplotbat_file_ << "     '" << seg_stn_graph_file_ << "' using 1:4:(sprintf(\"%.0f\",$4)) with labels font \"Calibri," << 
 		fontSize << "\" center offset 0,0.5 notitle, \\" << endl;
 	gnuplotbat_file_ << "     '" << seg_stn_graph_file_ << "' using 1:2 with lines ls 2 title columnheader(2), \\" << endl;
 	gnuplotbat_file_ << "     '" << seg_stn_graph_file_ << "' using 1:3 with lines ls 3 title columnheader(3), \\" << endl;
 	gnuplotbat_file_ << "     '" << seg_stn_graph_file_ << "' using 1:5 with linespoints ls 4 title columnheader(5), \\" << endl;
-	gnuplotbat_file_ << "     '" << seg_stn_graph_file_ << "' using 1:5:(sprintf(\"%.0f\",$5)) with labels tc ls 4 font \"Helvetica," << 
+	gnuplotbat_file_ << "     '" << seg_stn_graph_file_ << "' using 1:5:(sprintf(\"%.0f\",$5)) with labels tc ls 4 font \"Calibri," << 
 		fontSize << "\" center offset 1,0 notitle, \\" << endl;
 	gnuplotbat_file_ << "     '" << seg_stn_graph_file_ << "' using 1:6 with linespoints ls 5 title columnheader(6), \\" << endl;
-	gnuplotbat_file_ << "     '" << seg_stn_graph_file_ << "' using 1:6:(sprintf(\"%.0f\",$6)) with labels tc ls 5 font \"Helvetica," << 
+	gnuplotbat_file_ << "     '" << seg_stn_graph_file_ << "' using 1:6:(sprintf(\"%.0f\",$6)) with labels tc ls 5 font \"Calibri," << 
 		fontSize << "\" center offset 1,0 notitle" << endl << endl;
 }
 	
 
-void dna_plot::PrintGnuplotBatFileMsrs(const UINT32& fontSize)
+void dna_plot::PrintGnuplotCommandFileMsrs(const UINT32& fontSize)
 {
 	stringstream ss("");
 	ss << "Measurement Count (Total " << fixed << setprecision(0) << measurementCount_ << ")";
-	gnuplotbat_file_ << "set ylabel '" << ss.str() << "' font \"Helvetica,11\"" << endl << endl;
+	gnuplotbat_file_ << "set ylabel '" << ss.str() << "' font \"Calibri,10\"" << endl << endl;
 
-	// http://w3schools.com/tags/ref_colorpicker.asp
-	// for converting rgb colours in hex to decimal, see:
-	// http://www.yellowpipe.com/yis/tools/hex-to-rgb/color-converter.php
-	// for seeing colours, see:
-	// http://www.drpeterjones.com/colorcalc/
+	// All colours based on a palette:
+	//   https://coolors.co/ffd275-235789-da5552-43aa8b-39a9db
 
 	UINT32 line(1);
 	ss.str("");
@@ -467,15 +575,15 @@ void dna_plot::PrintGnuplotBatFileMsrs(const UINT32& fontSize)
 	UINT32 c;
 	string colour;
 	it_pair_string _it_colour;
-	
-	sort(plotCriteria_._msr_colours.begin(), plotCriteria_._msr_colours.end(), ComparePairFirst<string>());
+
+	sort(pprj_->p._msr_colours.begin(), pprj_->p._msr_colours.end(), ComparePairFirst<string>());
 
 	for (c=0; c<_combined_msr_list.size(); c++)
 	{
 		if (parsemsrTally_.MeasurementCount(_combined_msr_list.at(c)) < 1)
 			continue;
 		colour = _combined_msr_list.at(c);
-		_it_colour = equal_range(plotCriteria_._msr_colours.begin(), plotCriteria_._msr_colours.end(), 
+		_it_colour = equal_range(pprj_->p._msr_colours.begin(), pprj_->p._msr_colours.end(), 
 			colour, ComparePairFirst<string>());
 
 		if (_it_colour.first == _it_colour.second)
@@ -499,6 +607,7 @@ void dna_plot::PrintGnuplotBatFileMsrs(const UINT32& fontSize)
 	line = 3;
 	UINT32 linestyle(line-1), msrs(0);
 	gnuplotbat_file_ << "plot '";
+	measurementCategories_ = 0;
 	
 	for (c=0; c<_combined_msr_list.size(); c++)
 	{
@@ -507,36 +616,31 @@ void dna_plot::PrintGnuplotBatFileMsrs(const UINT32& fontSize)
 		if (msrs++ > 0)
 			gnuplotbat_file_ << ", \\" << endl << "     '";
 		gnuplotbat_file_ << seg_msr_graph_file_ << "' using " << line++ << ":xtic(1) ls " << linestyle++;
+		measurementCategories_++;
 	}
 
 	gnuplotbat_file_ << ", \\" << endl << "     '" << seg_msr_graph_file_ << 
-		"' using 0:2:(sprintf(\"%d\",$2)) with labels font \"Helvetica," << 
+		"' using 0:2:(sprintf(\"%d\",$2)) with labels font \"Calibri," << 
 			fontSize << "\" center offset 0,0.5 notitle" << endl;
 	
 }
-	
 
-_PLOT_STATUS_ dna_plot::CreateGMTPlot(plot_settings* plotCriteria, const string& network_name, const string& output_folder)
+
+void dna_plot::InitialiseGMTParameters()
 {
-	if (!exists(output_folder))
+	// Set initial parameters
+	if (!exists(pprj_->g.output_folder))
 	{
-		stringstream ss("CreateGMTPlot(): Output path does not exist... \n\n    ");
-		ss << output_folder << ".";
+		stringstream ss("InitialiseGMTParameters(): Output path does not exist... \n\n    ");
+		ss << pprj_->g.output_folder << ".";
 		SignalExceptionPlot(ss.str(), 0, NULL);
 	}
 
-	output_folder_ = output_folder;
-	network_name_ = network_name;
-	
-	// create bat file and set GMT parameters 
-	string gmt_cmd_filename("create_" + network_name + "_eps.bat");
-	string gmt_cmd_file(output_folder_ + FOLDER_SLASH + gmt_cmd_filename);
-	string gmt_eps_name(network_name + "_plot");
-	string gmt_eps_file(gmt_eps_name + ".eps");
-	plotCriteria->_eps_file_name = gmt_eps_file;
-	
-	plotCriteria_ = *plotCriteria;
-	
+	InitialiseAppsandSystemCommands();
+
+	output_folder_ = pprj_->g.output_folder;
+	network_name_ = pprj_->g.network_name;
+
 	v_isl_const_file_.clear();
 	v_jsl_const_file_.clear();
 	v_isl_pts_file_.clear();
@@ -557,132 +661,21 @@ _PLOT_STATUS_ dna_plot::CreateGMTPlot(plot_settings* plotCriteria, const string&
 	default_limits_ = true;
 	
 	// check for valid plot limits
-	if (!plotCriteria_._bounding_box.empty())
+	if (!pprj_->p._bounding_box.empty())
 		default_limits_ = false;
-	else if (plotCriteria_._plot_area_radius > 0. && 
-		plotCriteria_._plot_centre_latitude > -90.00000001 && plotCriteria_._plot_centre_latitude < 90.00000001 && 
-		plotCriteria_._plot_centre_longitude > -180.00000001 && plotCriteria_._plot_centre_longitude < 180.00000001)
-		default_limits_ = false;
-	else if (plotCriteria_._plot_area_radius > 0. && !plotCriteria_._plot_station_centre.empty())
-		default_limits_ = false;
-
-	UINT32 block(0);
-	bool oneBlockOnly(plotCriteria_._plot_block_number > 0);
-	if (oneBlockOnly)
-		block = plotCriteria_._plot_block_number - 1;
-
-	if (plotBlocks_)
-	{		
-		for (block; block<blockCount_; ++block)
-		{
-			PrintStationsDataFileBlock(block);
-			if (!plotCriteria_._omit_measurements)
-				PrintMeasurementsDatFilesBlock(block);
-			if (oneBlockOnly)
-				break;
-		}		
-	}
-	else
-	{
-		v_msr_file_.resize(1);
-		// PrintStationsDataFile calculates plot limits if user has 
-		// specified centre station or lat/long, or bounding box
-		PrintStationsDataFile();
-		if (!plotCriteria_._omit_measurements)
-			PrintMeasurementsDatFiles();
-	}
-
-	try {
-		// Create GMT batch file.  Throws runtime_error on failure.
-		file_opener(gmtbat_file_, gmt_cmd_file);
-	}
-	catch (const runtime_error& e) {
-		SignalExceptionPlot(e.what(), 0, NULL);
-	}
-
-#if defined(_WIN32) || defined(__WIN32__)
-	gmtbat_file_ << "@echo off" << endl;
-#elif defined(__linux) || defined(sun) || defined(__unix__)
-	gmtbat_file_ << "#!/bin/bash" << endl;
-#endif
-	
-	SetGMTParameters();
-
-	// GMT bat file is printed last to reflect the options and dimensions as determined
-	// by PrintStationsDataFile and PrintMeasurementsDatFiles
-	PrintGMTBatfile(gmt_eps_file, plotCriteria);
-	gmtbat_file_.close();
-
-	// Now print stations labels (based on font size determined by PrintGMTPlotBatfile)
-	if (plotCriteria_._plot_station_labels)
-	{
-		if (plotBlocks_)
-		{
-			if (oneBlockOnly)
-				PrintStationLabelsBlock(block);
-			else
-				for (block=0; block<blockCount_; ++block)
-					PrintStationLabelsBlock(block);
-		}
-		else
-			PrintStationLabels();
-	}
-
-	if (plotCriteria_._plot_positional_uncertainty)
-	{
-		if (oneBlockOnly)
-			PrintPositionalUncertainty(block);
-		else
-			for (block=0; block<blockCount_; ++block)
-				PrintPositionalUncertainty(block);
-	}
-
-	if (plotCriteria_._plot_error_ellipses)
-	{
-		if (oneBlockOnly)
-			PrintErrorEllipses(block);
-		else
-			for (block=0; block<blockCount_; ++block)
-				PrintErrorEllipses(block);
-	}
-
-	if (plotCriteria_._plot_correction_arrows)
-	{
-		if (oneBlockOnly)
-			PrintCorrectionArrows(block);
-		else
-			for (block=0; block<blockCount_; ++block)
-				PrintCorrectionArrows(block);
-	}
-
-	plotCriteria->_plot_scale = mapScale_;
-
-	string gmt_tex_filename;
-	if (plotCriteria_._use_pdflatex)
-	{
-		gmt_tex_filename = network_name + ".tex";
-		string gmt_tex_file(output_folder_ + FOLDER_SLASH + gmt_tex_filename);
-		PrintLaTeXPlotfile(gmt_tex_file, gmt_eps_name);
-	}
-
-	string pdf_cmd_filename("create_" + network_name + "_pdf.bat");
-	string pdf_cmd_file(output_folder_ + FOLDER_SLASH + pdf_cmd_filename);
-	string pdf_plot_name;
-	if (plotBlocks_)
-		pdf_plot_name = network_name + "-phased";
-	else
-		pdf_plot_name = network_name + "-simult";
-
-	plotCriteria->_gmt_cmd_file = gmt_cmd_filename;
-	plotCriteria->_pdf_cmd_file = pdf_cmd_filename;
-	
-	plotCriteria->_pdf_file_name = PrintPdfCmdfile(pdf_cmd_file, gmt_tex_filename, pdf_plot_name);
-
-	return PLOT_SUCCESS;
+	else if (pprj_->p._plot_area_radius > 0. && 
+		pprj_->p._plot_centre_latitude > -90.00000001 && 
+		pprj_->p._plot_centre_latitude < 90.00000001 && 
+		pprj_->p._plot_centre_longitude > -180.00000001 && 
+		pprj_->p._plot_centre_longitude < 180.00000001)
+			default_limits_ = false;
+	else if (pprj_->p._plot_area_radius > 0. && 
+		!pprj_->p._plot_station_centre.empty())
+			default_limits_ = false;
 }
 
 
-void dna_plot::PrintGMTBatfile(const string& epsname, plot_settings* plotCriteria)
+void dna_plot::FinaliseGMTParameters()
 {
 	//
 	// At this point, all limit values are in decimal degrees
@@ -703,24 +696,24 @@ void dna_plot::PrintGMTBatfile(const string& epsname, plot_settings* plotCriteri
 	}
 
 	// calculate dimensions of data extents
-	double dWidth(rightDeg_ - leftDeg_);
-	double dHeight(upperDeg_ - lowerDeg_);
+	dWidth_ = (rightDeg_ - leftDeg_);
+	dHeight_ = (upperDeg_ - lowerDeg_);
 	
 	// if data is a single point (or a very small area)
-	if (dHeight < 0.00005)
-		dHeight += seconds15;
-	if (dWidth < 0.00005)
-		dWidth += seconds15;	
+	if (dHeight_ < 0.00005)
+		dHeight_ += seconds15;
+	if (dWidth_ < 0.00005)
+		dWidth_ += seconds15;	
 	
 	// capture smallest dimension
-	double dDimension(min(dWidth, dHeight));
+	dDimension_ = (min(dWidth_, dHeight_));
 	
 	// Determine a buffer to envelope the entire plot, set to
 	// 10% of the width/height (whichever is smaller)
-	double dBuffer(dDimension * (0.1));
+	dBuffer_ = (dDimension_ * (0.1));
 
 	// calculate latitude at which to place the scale bar
-	double dScaleLat(lowerDeg_ - dBuffer / 2.0);
+	dScaleLat_ = (lowerDeg_ - dBuffer_ / 2.0);
 
 	// calculate centre point of data
 	centre_width_ = (rightDeg_ + leftDeg_) / 2.0;
@@ -732,12 +725,12 @@ void dna_plot::PrintGMTBatfile(const string& epsname, plot_settings* plotCriteri
 	{
 		// OK, the spatial extent of the data sets the limits, so
 		// add a buffer accordingly
-		upperDeg_ += dBuffer;
-		lowerDeg_ -= dBuffer;
-		leftDeg_ -= dBuffer;
-		rightDeg_ += dBuffer;
+		upperDeg_ += dBuffer_;
+		lowerDeg_ -= dBuffer_;
+		leftDeg_ -= dBuffer_;
+		rightDeg_ += dBuffer_;
 
-		if (dDimension > seconds60)
+		if (dDimension_ > seconds60)
 		{
 			// round down to nearest 5"
 			leftDeg_ = leftDeg_ - fmod(leftDeg_, seconds05);
@@ -751,10 +744,10 @@ void dna_plot::PrintGMTBatfile(const string& epsname, plot_settings* plotCriteri
 		// Limits have been calculated via user input, so simply calculate
 		// calculate latitude at which the scale bar
 		// will be placed
-		centre_width_ = plotCriteria_._plot_centre_longitude;
-		centre_height_ = plotCriteria_._plot_centre_latitude;
+		centre_width_ = pprj_->p._plot_centre_longitude;
+		centre_height_ = pprj_->p._plot_centre_latitude;
 
-		dScaleLat = lowerDeg_ + dBuffer / 2.0;
+		dScaleLat_ = lowerDeg_ + dBuffer_ / 2.0;
 	}
 
 	// prevent limit values from exceeding 'normal' limits
@@ -767,20 +760,15 @@ void dna_plot::PrintGMTBatfile(const string& epsname, plot_settings* plotCriteri
 	}
 
 	// set the position of the error ellipse legend
-	uncertainty_legend_long_ = leftDeg_ + dBuffer;
-	uncertainty_legend_lat_ = dScaleLat;
+	uncertainty_legend_long_ = leftDeg_ + dBuffer_;
+	uncertainty_legend_lat_ = dScaleLat_;
 
-	if (plotCriteria_._plot_correction_arrows)
+	if (pprj_->p._plot_correction_arrows)
 	{
 		// set the position of the correction arrow legend
-		// if error ellipses AND corrections are plotted, then put
-		// the corrections legend on the right hand side
-		if (plotCriteria_._plot_error_ellipses || 
-			plotCriteria_._plot_positional_uncertainty)
-			arrow_legend_long_ = rightDeg_ - dBuffer * 2.0;
-		else
-			arrow_legend_long_ = leftDeg_ + dBuffer / 2.0;
-		arrow_legend_lat_ = dScaleLat;
+		// put the corrections legend on the right hand side
+		arrow_legend_long_ = rightDeg_ - dBuffer_ * 2.0;
+		arrow_legend_lat_ = dScaleLat_;
 	}
 
 	// Portrait or Landscape?
@@ -788,44 +776,37 @@ void dna_plot::PrintGMTBatfile(const string& epsname, plot_settings* plotCriteri
 	// nomenclature (~2 cm), this leaves an available width for plotting 
 	// of 40cm L or 27.7cm P
 	//
-	// title block height
-	double title_block_height(6);
-	double page_width(40.0);		// centimetres
+	title_block_height_ = 6;
+	page_width_ = 59.4;		// centimetres
 
-	double avg_data_scale;
-	if (dWidth > dHeight)
-		avg_data_scale = dHeight / 27.7;
+	if (dWidth_ > dHeight_)
+		avg_data_scale_ = dHeight_ / 42.0;
 	else
-		avg_data_scale = dHeight / 40.;
+		avg_data_scale_ = dHeight_ / 59.4;
 	
 	isLandscape = true;
-	if (dWidth < (dHeight + (title_block_height * avg_data_scale)) || !default_limits_)
+	if (dWidth_ < (dHeight_ + (title_block_height_ * avg_data_scale_)) || !default_limits_)
 	{
-		page_width = 27.7;			// centimetres
+		page_width_ = 42.0;			// centimetres
 		isLandscape = false;
 	}	
 
-	plotCriteria->_page_width = page_width + 2;
+	pprj_->p._page_width = page_width_ + 2;
 
 	// Scale (for A3 page width)
-	double scale;
-
-	// Define fonts
-	float annot_font_size_primary(9), label_font_size(11.);
-	
 	if ((rightDeg_ - leftDeg_) > Degrees(PI) ||			// wider than 180 degrees?
 		(upperDeg_ - lowerDeg_) > Degrees(PI_135))		// taller than 135 degrees?
 	{
 		// Set the appropriate map projection
-		if(!plotCriteria_._user_defined_projection)
+		if(!pprj_->p._user_defined_projection)
 		{
 			if ((upperDeg_ - lowerDeg_) > Degrees(PI_135))		// taller than 135 degrees?
 			{
 				// Print the entire world on a flat sheet
-				plotCriteria_._projection = world;
+				pprj_->p._projection = world;
 
 				// Calculate ground width, which in this case is the circumference of the world
-				dDimension = TWO_PI * datum_.GetEllipsoid().GetSemiMajor();		// set distance circumference of a circle
+				dDimension_ = TWO_PI * datum_.GetEllipsoid().GetSemiMajor();		// set distance circumference of a circle
 				
 				// Centre world map according to data centre
 				leftDeg_ = centre_width_ - 180.0;
@@ -844,94 +825,94 @@ void dna_plot::PrintGMTBatfile(const string& epsname, plot_settings* plotCriteri
 			else
 			{
 				// Print a globe plot.  Limits are not required
-				plotCriteria_._projection = orthographic;
+				pprj_->p._projection = orthographic;
 				
 				// Calculate ground width between west and east limits (including buffer)
-				dDimension = Radians(rightDeg_ - leftDeg_) / TWO_PI * datum_.GetEllipsoid().GetSemiMajor();
+				dDimension_ = Radians(rightDeg_ - leftDeg_) / TWO_PI * datum_.GetEllipsoid().GetSemiMajor();
 			}
 		}
 		else
 			// Calculate ground width between west and east limits (including buffer)
-			dDimension = Radians(rightDeg_ - leftDeg_) / TWO_PI * datum_.GetEllipsoid().GetSemiMajor();
+			dDimension_ = Radians(rightDeg_ - leftDeg_) / TWO_PI * datum_.GetEllipsoid().GetSemiMajor();
 
 		// Calculate scale
-		scale = dDimension / page_width * 100;		// metres
+		scale_ = dDimension_ / page_width_ * 100;		// metres
 	}
 	else
 	{
 		double azimuth;
 
 		// Calculate accurate map width from limits
-		dDimension = RobbinsReverse<double>(		// calculate distance (in metres) of map width
+		dDimension_ = RobbinsReverse<double>(		// calculate distance (in metres) of map width
 			Radians(centre_height_), Radians(leftDeg_), Radians(centre_height_), Radians(rightDeg_),
 			&azimuth, datum_.GetEllipsoidRef());
 
 		// Calculate scale
-		scale = dDimension / page_width * 100;		// metres
+		scale_ = dDimension_ / page_width_ * 100;		// metres
 
-		if (!plotCriteria_._user_defined_projection)
+		if (!pprj_->p._user_defined_projection)
 		{
 			// default (large regions)
-			plotCriteria_._projection = mercator;
+			pprj_->p._projection = mercator;
 
 			// very high latitudes
 			if (fabs(centre_height_) > 80.)
-				plotCriteria_._projection = orthographic;
+				pprj_->p._projection = orthographic;
 			//
 			// high latitudes
 			else if (fabs(centre_height_) > 60.)
-				plotCriteria_._projection = albersConic;
+				pprj_->p._projection = albersConic;
 			// sparse latitude coverage
 			else if ((upperDeg_ - lowerDeg_) > Degrees(QUART_PI))	// taller than 45 degrees?
 			{
 				// tall, narrow plots
 				if ((rightDeg_ - leftDeg_) < Degrees(QUART_PI))		// not more than 45 degrees wide?
-					plotCriteria_._projection = orthographic;
+					pprj_->p._projection = orthographic;
 				// reasonably large area
 				else
-					plotCriteria_._projection = mercator;
+					pprj_->p._projection = mercator;
 			}
 			//
 			// Smallish areas
-			else if (scale < 750000 && scale > 5000)
-				plotCriteria_._projection = transverseMercator;
+			else if (scale_ < 750000 && scale_ > 5000)
+				pprj_->p._projection = transverseMercator;
 			//
 			// wider than 20 degrees and taller than 20 degrees?
 			else if ((rightDeg_ - leftDeg_) > Degrees(PI_20) && (upperDeg_ - lowerDeg_) > Degrees(PI_20))
-				plotCriteria_._projection = stereographicConformal;
+				pprj_->p._projection = stereographicConformal;
 			// 
 			// wide plots
 			else if ((rightDeg_ - leftDeg_) > Degrees(THIRD_PI))	// wider than 90 degrees?
 				
-				plotCriteria_._projection = lambertEqualArea;
+				pprj_->p._projection = lambertEqualArea;
 		}
 	}
 
 	// Update calling app's parameters
-	plotCriteria->_projection = plotCriteria_._projection;
-	plotCriteria->_ground_width = dDimension;
+	pprj_->p._projection = pprj_->p._projection;
+	pprj_->p._ground_width = dDimension_;
 
 	// Normalise scale
-	NormaliseScale(scale);
-	mapScale_ = scale;
+	NormaliseScale(scale_);
+	mapScale_ = scale_;
 
 	// Calculate scale bar, then round
-	double scale_bar_width = dDimension / 3000.;		// convert to kilometres
-	NormaliseScaleBar(scale_bar_width);
+	scale_bar_width_ = dDimension_ / 3000.;		// convert to kilometres
+	NormaliseScaleBar(scale_bar_width_);
 
 	// Calculate best graticule width, then round to the best integer
-	double graticule_width((rightDeg_ - leftDeg_) / 4.);
-	UINT32 graticule_width_precision(12);
-	NormaliseGraticule(graticule_width, graticule_width_precision);
+	graticule_width_ = ((rightDeg_ - leftDeg_) / 4.);
+	graticule_width_precision_ = 12;
+	NormaliseGraticule(graticule_width_, graticule_width_precision_);
 
-	int scale_precision = 0;
-	if (scale_bar_width < 1.0)
-		scale_precision = 4;
+	scale_precision_ = 0;
+	if (scale_bar_width_ < 1.0)
+		scale_precision_ = 4;
 
-	double line_width(projectSettings_.p._msr_line_width);
-	double circle_radius(0.15);
-	double circle_radius_2(circle_radius);
-	double circle_line_width(0.1);
+	line_width_ = projectSettings_.p._msr_line_width;
+	circle_radius_ = 0.2;
+	circle_radius_2_ = circle_radius_;
+	circle_line_width_ = (projectSettings_.p._msr_line_width * 1.5);
 
 	//if (scale >= 900000)
 	//{
@@ -941,1186 +922,1240 @@ void dna_plot::PrintGMTBatfile(const string& epsname, plot_settings* plotCriteri
 	//}
 
 	// Determine coastline resolution
-	string coastResolution("l");
-	SelectCoastlineResolution(dDimension, coastResolution, plotCriteria);
+	coastResolution_ = "l";
+	SelectCoastlineResolution(dDimension_, coastResolution_, &pprj_->p);
+}
 
-	UINT32 block(0), block_index, i, colours(0), precision(10);
 
-	if (plotBlocks_ && plotCriteria_._plot_block_number > 0)
-		block = plotCriteria_._plot_block_number - 1;
-	
-	it_pair_string _it_colour;
-	string_string_pair this_msr;
-
-	UINT32 columns(5);
-	double symbol_offset(0.5);
-	double label_offset(1.0);
-	double error_ellipse_scale(uncertainty_legend_length_/largest_uncertainty_);
-	UINT32 uncertainty_legend_precision(4);
-
-	for (block; block<blockCount_; block++)
+bool dna_plot::InitialiseandValidateStartingBlock(UINT32& block)
+{
+	block = 0;
+	if (pprj_->p._plot_block_number > 0)
 	{
-		colours = 0;
-		if (plotBlocks_ && plotCriteria_._plot_block_number > 0)
-			block_index = 0;
-		else
-			block_index = block;
+		block = pprj_->p._plot_block_number - 1;
+		return true;
+	}
+	return false;
+}
 
-		if (isLandscape)
-			gmtbat_file_ << "gmtset PAGE_ORIENTATION landscape" << endl << endl;
-		else
-			gmtbat_file_ << "gmtset PAGE_ORIENTATION portrait" << endl << endl;
+void dna_plot::CreateExtraInputFiles()
+{
+	UINT32 block(0);
+	bool oneBlockOnly(true);
 		
-		gmtbat_file_ << "gmtset ANNOT_FONT 0" << endl;	
-		gmtbat_file_ << "gmtset ANNOT_FONT_SIZE_PRIMARY " << fixed << setprecision(1) << annot_font_size_primary << "p" << endl;
-		gmtbat_file_ << "gmtset LABEL_FONT_SIZE " << fixed << setprecision(1) << label_font_size << "p" << endl;
-		if (graticule_width < 60./3600.)
-			gmtbat_file_ << "gmtset PLOT_DEGREE_FORMAT ddd:mm:ss.x" << endl;
-		else
-			gmtbat_file_ << "gmtset PLOT_DEGREE_FORMAT ddd:mm" << endl;
-		gmtbat_file_ << endl;
+	// one and only block?
+	oneBlockOnly = InitialiseandValidateStartingBlock(block);
 
-		page_width = plotCriteria->_page_width;
-
-		switch (plotCriteria_._projection)
-		{
-		case world:
-			// World map centered on the dateline
-			// pscoast -Rg -JQ4.5i -B60f30g30 -Dc -A5000 -Gblack -P > tmp.ps
-			
-			// Override coastline resolution
-			coastResolution = "i";
-			plotCriteria->_coasline_resolution = intermediate;
-			circle_radius = 0.02;
-			circle_line_width = 0.02;
-			if (plotCriteria_._label_font_size < 0.)
-				plotCriteria_._label_font_size = 5;
-
-			gmtbat_file_ << "pscoast -Rg" << 
-				// Carree Cylindrical equidistant projection, which looks the nicest
-				" -JQ" << page_width  << "c -B60g30 -D" << coastResolution << " -A10000 -W0.75p,16/169/243 -G245/245/245 -K > tmp.eps" << endl;
-				//
-				// Miller's Cylindrical projection, which is neither equal nor conformal. All meridians and parallels are straight lines.
-				// " -JJ" << page_width  << "c -B60g30 -D" << coastResolution << " -A10000 -W0.75p,16/169/243 -G245/245/245 -P -K > tmp.eps" << endl;
-				//
-				// Cylindrical equal-area projection
-				//" -JY" << page_width  << "c -B60g30 -D" << coastResolution << " -A10000 -W0.75p,16/169/243 -G245/245/245 -P -K > tmp.eps" << endl;
-			break;
-		//
-		// Orthographic projection
-		case orthographic:
-				
-			// Override coastline resolution
-			coastResolution = "h";
-			plotCriteria->_coasline_resolution = high;
-			circle_radius = 0.05;
-			circle_line_width = 0.05;
-			if (plotCriteria_._label_font_size < 0.)
-				plotCriteria_._label_font_size = 5;
-
-			gmtbat_file_ << "pscoast -Rg -JG" << 
-				fixed << setprecision(7) << centre_width_ << "/" <<		// longitude
-				fixed << setprecision(7) << centre_height_ << "/" <<		// latitude
-				fixed << setprecision(0) << page_width << "c -B30g15 -D" << coastResolution << " -A10000 -W0.75p,16/169/243 -G245/245/245 -P -K > tmp.eps" << endl;
-			break;
-		//
-		// Mercator projection
-		case mercator:
-			if (plotCriteria_._label_font_size < 0.)
-				plotCriteria_._label_font_size = 6;
-
-			gmtbat_file_ << "pscoast -R" << 
-			fixed << setprecision(7) << leftDeg_ << "/" <<
-			fixed << setprecision(7) << lowerDeg_ << "/" <<
-			fixed << setprecision(7) << rightDeg_ << "/" <<
-			fixed << setprecision(7) << upperDeg_;
-
-			// example: -Jm1.2e-2i
-			gmtbat_file_ << "r -JM" << fixed << setprecision(0) << page_width << "c";
-			gmtbat_file_ << " -D" << coastResolution << " -N2/0.25tap -W0.75p,16/169/243 -G255/255/255 -S233/246/255 -Lf" <<
-				fixed << setprecision(5) << centre_width_ << "/" << fixed << setprecision(5) << dScaleLat << "/" << 
-				fixed << setprecision(5) << centre_height_ << "/" << fixed << setprecision(scale_precision) << scale_bar_width << "k+lKilometres+jt " <<
-				"-B" <<
-				fixed << setprecision(graticule_width_precision) << graticule_width << "g" << fixed << setprecision(graticule_width_precision) << graticule_width << "/" << 
-				fixed << setprecision(graticule_width_precision) << graticule_width << "g" << fixed << setprecision(graticule_width_precision) << graticule_width;
-
-			if (!isLandscape)
-				gmtbat_file_ << " -P";
-			gmtbat_file_ << " -K > tmp.eps" << endl;
-			
-			break;
-		//
-		// Transverse Mercator projection
-		case transverseMercator:
-			if (plotCriteria_._label_font_size < 0.)
-				plotCriteria_._label_font_size = 6;
-
-			gmtbat_file_ << "pscoast -R" << 
-			fixed << setprecision(7) << leftDeg_ << "/" <<
-			fixed << setprecision(7) << lowerDeg_ << "/" <<
-			fixed << setprecision(7) << rightDeg_ << "/" <<
-			fixed << setprecision(7) << upperDeg_;
-
-			// example: -Jt139.9944444/-24.1486111/1:1000000
-			//gmtbat_file_ << "r -Jt" << fixed << setprecision(7) << centre_width_ << "/" <<
-			//	fixed << setprecision(7) << centre_height_ << "/1:" << fixed << setprecision(0) << scale;
-			gmtbat_file_ << "r -JT" << fixed << setprecision(7) << centre_width_ << "/" <<
-				fixed << setprecision(0) << page_width << "c";
-
-			gmtbat_file_ << " -D" << coastResolution << " -N2/0.25tap -W0.75p,16/169/243 -G255/255/255 -S233/246/255 -Lf" <<
-				fixed << setprecision(5) << centre_width_ << "/" << fixed << setprecision(5) << dScaleLat << "/" << 
-				fixed << setprecision(5) << centre_height_ << "/" << fixed << setprecision(scale_precision) << scale_bar_width << "k+lKilometres+jt " <<
-				"-B" <<
-				fixed << setprecision(graticule_width_precision) << graticule_width << "g" << fixed << setprecision(graticule_width_precision) << graticule_width << "/" << 
-				fixed << setprecision(graticule_width_precision) << graticule_width << "g" << fixed << setprecision(graticule_width_precision) << graticule_width;
-
-			if (!isLandscape)
-				gmtbat_file_ << " -P";
-			gmtbat_file_ << " -K > tmp.eps" << endl;
-			
-			break;
-		//
-		// Albers conic equal-area projection
-		case albersConic:
-			if (plotCriteria_._label_font_size < 0.)
-				plotCriteria_._label_font_size = 6;
-
-			gmtbat_file_ << "pscoast -R" << 
-				fixed << setprecision(7) << leftDeg_ << "/" <<
-				fixed << setprecision(7) << lowerDeg_ << "/" <<
-				fixed << setprecision(7) << rightDeg_ << "/" <<
-				fixed << setprecision(7) << upperDeg_;
-
-			// example: -Jb136.5/-36/-18/-36/1:45000000
-			//gmtbat_file_ << "r -Jb" << fixed << setprecision(7) << centre_width_ << "/" <<
-			//	fixed << setprecision(7) << centre_height_ << "/" <<
-			//	fixed << setprecision(7) << upperDeg_ - fabs(dHeight/3.) << "/" <<
-			//	fixed << setprecision(7) << lowerDeg_ + fabs(dHeight/3.) << "/" <<				
-			//	"1:" << fixed << setprecision(0) << scale;
-			gmtbat_file_ << "r -JB" << fixed << setprecision(7) << centre_width_ << "/" <<
-				fixed << setprecision(7) << centre_height_ << "/" <<
-				fixed << setprecision(7) << upperDeg_ - fabs(dHeight/3.) << "/" <<
-				fixed << setprecision(7) << lowerDeg_ + fabs(dHeight/3.) << "/" <<				
-				fixed << setprecision(0) << page_width << "c";
-
-			gmtbat_file_ << " -D" << coastResolution << " -N2/0.25tap -W0.75p,16/169/243 -G255/255/255 -S233/246/255 -Lf" <<
-				fixed << setprecision(5) << centre_width_ << "/" << fixed << setprecision(5) << dScaleLat << "/" << 
-				fixed << setprecision(5) << centre_height_ << "/" << fixed << setprecision(scale_precision) << scale_bar_width << "k+lKilometres+jt " <<
-				"-B" <<
-				//fixed << setprecision(7) << DmstoDeg(0.3) << "g" << fixed << setprecision(7) << DmstoDeg(0.3) << " -K > tmp.eps" << endl;
-				fixed << setprecision(graticule_width_precision) << graticule_width << "g" << fixed << setprecision(graticule_width_precision) << graticule_width << "/" << 
-				fixed << setprecision(graticule_width_precision) << graticule_width << "g" << fixed << setprecision(graticule_width_precision) << graticule_width;
-
-			if (!isLandscape)
-				gmtbat_file_ << " -P";
-			gmtbat_file_ << " -K > tmp.eps" << endl;
-			break;
-		//
-		// Lambert Azimuthal Equal-Area		
-		case lambertEqualArea:		
-			if (plotCriteria_._label_font_size < 0.)
-				plotCriteria_._label_font_size = 6;
-
-			gmtbat_file_ << "pscoast -R" << 
-			fixed << setprecision(7) << leftDeg_ << "/" <<
-			fixed << setprecision(7) << lowerDeg_ << "/" <<
-			fixed << setprecision(7) << rightDeg_ << "/" <<
-			fixed << setprecision(7) << upperDeg_;
-
-			// example: -JA30/-30/4.5i
-			gmtbat_file_ << "r -JA" << fixed << setprecision(7) << centre_width_ << "/" <<
-				fixed << setprecision(7) << centre_height_ << "/" <<
-				fixed << setprecision(0) << page_width << "c";
-
-			gmtbat_file_ << " -D" << coastResolution << " -N2/0.25tap -W0.75p,16/169/243 -G255/255/255 -S233/246/255 -Lf" <<
-				fixed << setprecision(5) << centre_width_ << "/" << fixed << setprecision(5) << dScaleLat << "/" << 
-				fixed << setprecision(5) << centre_height_ << "/" << fixed << setprecision(scale_precision) << scale_bar_width << "k+lKilometres+jt " <<
-				"-B" <<
-				fixed << setprecision(graticule_width_precision) << graticule_width << "g" << fixed << setprecision(graticule_width_precision) << graticule_width << "/" << 
-				fixed << setprecision(graticule_width_precision) << graticule_width << "g" << fixed << setprecision(graticule_width_precision) << graticule_width;
-
-			if (!isLandscape)
-				gmtbat_file_ << " -P";
-			gmtbat_file_ << " -K > tmp.eps" << endl;
-			
-			break;
-		//
-		// General stereographic map
-		case stereographicConformal:
-		default:
-			if (plotCriteria_._label_font_size < 0.)
-				plotCriteria_._label_font_size = 6;
-
-			gmtbat_file_ << "pscoast -R" << 
-			fixed << setprecision(7) << leftDeg_ << "/" <<
-			fixed << setprecision(7) << lowerDeg_ << "/" <<
-			fixed << setprecision(7) << rightDeg_ << "/" <<
-			fixed << setprecision(7) << upperDeg_;
-
-			// example: -R100/-40/160/-10r -JS130/-30/4i
-			gmtbat_file_ << "r -JS" << fixed << setprecision(7) << centre_width_ << "/" <<
-				fixed << setprecision(7) << centre_height_ << "/" <<
-				fixed << setprecision(0) << page_width << "c";
-
-			gmtbat_file_ << " -D" << coastResolution << " -N2/0.25tap -W0.75p,16/169/243 -G255/255/255 -S233/246/255 -Lf" <<
-				fixed << setprecision(5) << centre_width_ << "/" << fixed << setprecision(5) << dScaleLat << "/" << 
-				fixed << setprecision(5) << centre_height_ << "/" << fixed << setprecision(scale_precision) << scale_bar_width << "k+lKilometres+jt " <<
-				"-B" <<
-				fixed << setprecision(graticule_width_precision) << graticule_width << "g" << fixed << setprecision(graticule_width_precision) << graticule_width << "/" << 
-				fixed << setprecision(graticule_width_precision) << graticule_width << "g" << fixed << setprecision(graticule_width_precision) << graticule_width;
-
-			if (!isLandscape)
-				gmtbat_file_ << " -P";
-			gmtbat_file_ << " -K > tmp.eps" << endl;
-			
-			break;
-		}
-
-			
-		sort(plotCriteria_._msr_colours.begin(), plotCriteria_._msr_colours.end(), ComparePairFirst<string>());		
-
-		// Does the user want to print measurements?
-		if (!plotCriteria_._omit_measurements)
-		{
-			// print latitude, longitude and height measurements (large circles) before stations
-			for (i=0; i<v_msr_file_.at(block).size(); i++)
-			{
-				if (v_msr_file_.at(block).at(i).second != "H" &&
-					v_msr_file_.at(block).at(i).second != "I" &&
-					v_msr_file_.at(block).at(i).second != "J" &&
-					v_msr_file_.at(block).at(i).second != "P" &&
-					v_msr_file_.at(block).at(i).second != "Q" &&
-					v_msr_file_.at(block).at(i).second != "R" &&
-					v_msr_file_.at(block).at(i).second != "Y")
-					continue;
-
-				circle_radius_2 = circle_radius;
-
-				if (v_msr_file_.at(block).at(i).second == "I" ||		// astronomic latitude
-					v_msr_file_.at(block).at(i).second == "P")			//   geodetic latitude
-					circle_radius_2 = circle_radius * 3;
-				else if (v_msr_file_.at(block).at(i).second == "J" ||	// astronomic longitude
-					v_msr_file_.at(block).at(i).second == "Q")			//   geodetic longitude
-					circle_radius_2 = circle_radius * 2.4;
-				else if (v_msr_file_.at(block).at(i).second == "H" ||	// orthometric height
-					v_msr_file_.at(block).at(i).second == "R")			// ellipsoidal height
-					circle_radius_2 = circle_radius * 1.7;
-				else if (v_msr_file_.at(block).at(i).second == "Y")		// GPS point cluster
-					circle_radius_2 = circle_radius * 4;
-
-				_it_colour = equal_range(plotCriteria_._msr_colours.begin(), plotCriteria_._msr_colours.end(), 
-					v_msr_file_.at(block).at(i).second, ComparePairFirst<string>());
-
-				if (_it_colour.first == _it_colour.second)
-				{
-					gmtbat_file_ << "psxy -R -J -Skcircle/" << fixed << setprecision(2) << circle_radius_2 << " \"" << 
-						v_msr_file_.at(block).at(i).first << "\" -W" << setprecision(2) << circle_line_width << 
-						"p,darkgray -Glightgray";
-					gmtbat_file_ << " -O -K >> tmp.eps" << endl;
-				}
-				else
-				{
-					colours++;
-					gmtbat_file_ << "psxy -R -J -Skcircle/" << fixed << setprecision(2) << circle_radius_2 << " \"" << 
-						v_msr_file_.at(block).at(i).first << "\" -W" << setprecision(2) << circle_line_width << 
-						"p,";
-
-					// Line colour
-					if (v_msr_file_.at(block).at(i).second == "Y")
-						gmtbat_file_ << "255/0/255";								// magenta, #FF00FF
-					else if (v_msr_file_.at(block).at(i).second == "I" ||			// astronomic latitude
-						v_msr_file_.at(block).at(i).second == "P")				//   geodetic latitude
-						gmtbat_file_ << "252/181/20";							// packer gold, #FCB514
-					else if (v_msr_file_.at(block).at(i).second == "J" ||			// astronomic longitude
-						v_msr_file_.at(block).at(i).second == "Q")				//   geodetic longitude
-						gmtbat_file_ << "255/128/0";								// orange, #FF8000
-					else if (v_msr_file_.at(block).at(i).second == "H" ||			// orthometric height
-						v_msr_file_.at(block).at(i).second == "R")				// ellipsoidal height
-						gmtbat_file_ << "227/54/56";								// rosemadder, #E33638
-					else
-						gmtbat_file_ << _it_colour.first->second;
-
-					// Fill colour
-					gmtbat_file_ << " -G" << _it_colour.first->second  << " -O -K >> tmp.eps" << endl;
-				}
-			}
-		}
-
-		// print stations first to enable measurements to be seen
-		gmtbat_file_ << "psxy -R -J -Skcircle/" << fixed << setprecision(2) << circle_radius << " \"" << 
-			v_isl_pts_file_.at(block_index) << "\" -W" << setprecision(2) << circle_line_width << 
-			"p,blue -Gwhite -O -K >> tmp.eps" << endl;
-
-		if (plotConstraints_)
-			// don't plot line, just fill
-			gmtbat_file_ << "psxy -R -J -Skcircle/" << fixed << setprecision(2) << circle_radius << " \"" << 
-				v_isl_const_file_.at(block_index) << "\" -Gblue -O -K >> tmp.eps" << endl;
-
+	// Now print stations labels (based on font size determined by PrintGMTPlotBatfile)
+	if (pprj_->p._plot_station_labels)
+	{
 		if (plotBlocks_)
 		{
-			gmtbat_file_ << "psxy -R -J -Skcircle/" << fixed << setprecision(2) << circle_radius << " \"" << 
-				v_jsl_pts_file_.at(block_index) << "\" -W" << setprecision(2) << circle_line_width * 2.0 << 
-				"p,red -Gwhite -O -K >> tmp.eps" << endl;
-
-			if (plotConstraints_)
-				// don't plot line, just fill
-				gmtbat_file_ << "psxy -R -J -Skcircle/" << fixed << setprecision(2) << circle_radius << " \"" << 
-					v_jsl_const_file_.at(block_index) << "\" -Gred -O -K >> tmp.eps" << endl;
-		}
-
-		// Does the user want to print measurements?
-		if (!plotCriteria_._omit_measurements)
-		{
-			// now print lines
-			for (i=0; i<v_msr_file_.at(block).size(); i++)
-			{
-				if (v_msr_file_.at(block).at(i).second == "H")		// already printed
-					continue;
-				if (v_msr_file_.at(block).at(i).second == "I")		// ''
-					continue;
-				if (v_msr_file_.at(block).at(i).second == "J")		// ''
-					continue;
-				if (v_msr_file_.at(block).at(i).second == "P")		// ''
-					continue;
-				if (v_msr_file_.at(block).at(i).second == "Q")		// ''
-					continue;			
-				if (v_msr_file_.at(block).at(i).second == "R")		// ''
-					continue;
-				if (v_msr_file_.at(block).at(i).second == "Y")		// ''
-					continue;
-					
-				_it_colour = equal_range(plotCriteria_._msr_colours.begin(), plotCriteria_._msr_colours.end(), 
-					v_msr_file_.at(block).at(i).second, ComparePairFirst<string>());
-
-				if (_it_colour.first == _it_colour.second)
-				{
-					gmtbat_file_ << "psxy -R -J \"" << v_msr_file_.at(block).at(i).first << 
-						"\" -m# -W" << setprecision(2) << line_width << 
-						"p,lightgray";
-					//if (v_msr_file_.at(block).at(i).second == "Y")		// not a vector measurement, so represent as dashed
-					//	gmtbat_file_ << ",6_8:1p";
-					gmtbat_file_ << " -O -K >> tmp.eps" << endl;
-				}
-				else
-				{
-					colours++;
-					gmtbat_file_ << "psxy -R -J \"" << v_msr_file_.at(block).at(i).first << 
-						"\" -m# -W" << setprecision(2) << line_width << 
-						"p," << _it_colour.first->second;
-					//if (v_msr_file_.at(block).at(i).second == "Y")		// not a vector measurement, so represent as dashed
-					//	gmtbat_file_ << ",6_8:1p";
-					gmtbat_file_ << " -O -K >> tmp.eps" << endl;
-				}
-			}
-		}
-
-		if (plotCriteria_._plot_positional_uncertainty || 
-			plotCriteria_._plot_error_ellipses)
-		{
-			// calculate scale for uncertainty circles, to the end that 
-			// largest_uncertainty_ is uncertainty_legend_length_ cm on the A3 page
-			//if (largest_uncertainty_ >= 1.0)
-			//	uncertainty_legend_precision = 0;
-			/*else*/ if ((largest_uncertainty_ / plotCriteria_._pu_ellipse_scale) >= 0.1)
-				uncertainty_legend_precision = 1;
-			else if ((largest_uncertainty_ / plotCriteria_._pu_ellipse_scale) >= 0.01)
-				uncertainty_legend_precision = 2;
-			else if ((largest_uncertainty_ / plotCriteria_._pu_ellipse_scale) >= 0.001)
-				uncertainty_legend_precision = 3;
+			if (oneBlockOnly)
+				PrintStationLabelsBlock(block);
 			else
-				uncertainty_legend_precision = 4;
-		}
-
-		if (plotCriteria_._plot_positional_uncertainty)
-		{
-			// print positional uncertainty
-			gmtbat_file_ << "psvelo -R -J \"" << v_stn_apu_file_.at(block_index) << 
-				"\" -Sr" << error_ellipse_scale << "/0.95/0c -L -W0.75p,orange -O -K >> tmp.eps" << endl;
-
-			// Add text for error ellipse legend 
-			gmtbat_file_ << "echo " << 
-				setprecision(precision) << fixed << left << uncertainty_legend_long_ << " " << 
-				setprecision(precision) << fixed << left << uncertainty_legend_lat_ << " " << 
-				 plotCriteria_._label_font_size <<						// font size
-				" 0 0 LM " <<											// font angle, font number, justification
-				" 95%% positional uncertainty " <<						// the label
-				setprecision(uncertainty_legend_precision) <<			// ''
-				fixed << largest_uncertainty_ / plotCriteria_._pu_ellipse_scale << " radius (m)" <<					// radius
-				" | ";													// Push to pstext
-			gmtbat_file_ << 
-				"pstext -R -J -X" << label_font_size * 3. << "p ";		// label offset from centre point
-			
-			// is positional uncertainty being printed? If so, shift text up
-			if (plotCriteria_._plot_error_ellipses)
-				gmtbat_file_ << "-Y" << label_font_size * 0.6 << "p ";
-			
-			gmtbat_file_ << " -O -K >> tmp.eps" << endl;
-			
-			// Terminate a sequence of GMT plotting commands without producing any plotting output
-			gmtbat_file_ << "psxy -R -J -T -X-" << label_font_size * 3. << "p ";
-
-			if (plotCriteria_._plot_error_ellipses)
-				gmtbat_file_ << "-Y-" << label_font_size * 0.6 << "p ";
-			gmtbat_file_ << " -O -K >> tmp.eps" << endl;
-		}
-		
-		if (plotCriteria_._plot_error_ellipses)
-		{
-			double ellipse_scale(1.);
-
-			// The error ellipse legend is printed using the largest uncertainty (semi-major) found, unless
-			// positional uncertainty is being printed, in which case the error ellipse is printed using
-			// half the size.  This is purely to give the impression that error ellipses are 1 sigma (68%) and
-			// positional uncertainty is 95%, or close to 2 sigma.
-			if (plotCriteria_._plot_positional_uncertainty)
-				ellipse_scale = 2.;
-
-			// print error ellipses in red
-			gmtbat_file_ << "psvelo -R -J \"" << v_stn_err_file_.at(block_index) << 
-				"\" -Sr" << error_ellipse_scale << "/0.95/0c -L -W0.75p,red -O -K >> tmp.eps" << endl;
-
-			// Add text for error ellipse legend 
-			gmtbat_file_ << "echo " << 
-				setprecision(precision) << fixed << left << uncertainty_legend_long_ << " " << 
-				setprecision(precision) << fixed << left << uncertainty_legend_lat_ << " " << 
-				 plotCriteria_._label_font_size <<						// font size
-				" 0 0 LM " <<											// font angle, font number, justification
-				" 1 sigma error ellipse " <<							// the label
-				setprecision(uncertainty_legend_precision) <<			// ''
-				fixed << largest_uncertainty_ / ellipse_scale / plotCriteria_._pu_ellipse_scale <<		// semi-major
-				", " <<				
-				fixed << largest_uncertainty_ / 3.0 / ellipse_scale / plotCriteria_._pu_ellipse_scale <<	// semi-minor (make it third the height)
-				" (m)" <<
-				" | ";													// Push to pstext
-			gmtbat_file_ << 
-				"pstext -R -J -X" << label_font_size * 3. << "p ";		// label offset from centre point
-			
-			// is positional uncertainty being printed? If so, shift text down
-			if (plotCriteria_._plot_positional_uncertainty)
-				gmtbat_file_ << "-Y-" << label_font_size * 0.6 << "p ";
-			
-			gmtbat_file_ << "-O -K >> tmp.eps" << endl;
-			
-			// Terminate a sequence of GMT plotting commands without producing any plotting output
-			gmtbat_file_ << "psxy -R -J -T -X-" << label_font_size * 3. << "p ";
-			if (plotCriteria_._plot_positional_uncertainty)
-				gmtbat_file_ << "-Y" << label_font_size * 0.6 << "p ";
-			gmtbat_file_ << " -O -K >> tmp.eps" << endl;
-		}
-		
-		if (plotCriteria_._plot_correction_arrows)
-		{
-			// calculate scale for arrows, to the end that 
-			// average_correction_ is 3cm on the A3 page
-			if (average_correction_ < PRECISION_1E4)
-				average_correction_ = PRECISION_1E4;
-			double correction_arrow_scale(arrow_legend_length_/average_correction_);
-			UINT32 correction_legend_precision(4);
-
-			//if (average_correction_ >= 1.0)
-			//	correction_legend_precision = 0;
-			/*else*/ if (average_correction_ >= 0.1)
-				correction_legend_precision = 1;
-			else if (average_correction_ >= 0.01)
-				correction_legend_precision = 2;
-			else if (average_correction_ >= 0.001)
-				correction_legend_precision = 3;
-			else
-				correction_legend_precision = 4;
-
-
-			// print text in black (no arrows)
-			if (plotCriteria_._plot_correction_labels)
-				gmtbat_file_ << "psvelo -R -J \"" << v_stn_cor_file_.at(block_index) << 
-					"\" -Se0.0001/0.95/" << plotCriteria_._label_font_size << "c -L -A0.0001/0.0001/0.0001c -O -K >> tmp.eps" << endl;
-
-			// print arrows (without black outline!)
-			gmtbat_file_ << "psvelo -R -J \"" << v_stn_cor_file_.at(block_index) << 
-				"\" -Se" << correction_arrow_scale << "/0.95/0c -L -A" << line_width / 2.0 * CM_TO_INCH << "/0.5/0.1c -Gred -W0.0p,red -O -K >> tmp.eps" << endl;
-
-			// Add text below the corrections arrow legend 
-			gmtbat_file_ << "echo " << 
-				setprecision(precision) << fixed << left << arrow_legend_long_ << " " << 
-				setprecision(precision) << fixed << left << arrow_legend_lat_ << " " << 
-				plotCriteria_._label_font_size <<						// font size
-				" 0 0 LM " <<											// font angle, font number, justification
-				setprecision(correction_legend_precision) <<			// the label
-				fixed << average_correction_ / plotCriteria_._correction_scale <<	" (m)" <<				// ''
-				" | ";													// Push to pstext
-			gmtbat_file_ << 
-				"pstext -R -J -Y-" << label_font_size << "p ";			// label (vertical) offset below arrow
-			gmtbat_file_ << "-O -K >> tmp.eps" << endl;
-			
-			// Add text above for corrections legend 
-			gmtbat_file_ << "echo " << 
-				setprecision(precision) << fixed << left << arrow_legend_long_ << " " << 
-				setprecision(precision) << fixed << left << arrow_legend_lat_ << " " << 
-				plotCriteria_._label_font_size <<						// font size
-				" 0 0 LM " <<											// font angle, font number, justification
-				"Corrections scale" <<									// the label
-				" | ";													// Push to pstext
-			gmtbat_file_ << 
-				"pstext -R -J -Y" << 2. * label_font_size << "p ";		// label (vertical) offset above arrow
-			gmtbat_file_ << "-O -K >> tmp.eps" << endl;
-			
-			// Terminate a sequence of GMT plotting commands without producing any plotting output
-			gmtbat_file_ << "psxy -R -J -T -Y-" << label_font_size << "p -O -K >> tmp.eps" << endl;
-		}
-
-		if (plotCriteria_._plot_station_labels)
-		{
-			gmtbat_file_ << "pstext -R -J \"" << v_isl_lbl_file_.at(block_index);
-			//// print white box
-			//gmtbat_file_ << "\" -Wwhiteo0.5p,white";
-			// print shadow
-			gmtbat_file_ << "\" -S" << plotCriteria_._label_font_size/3.0 << "p,white";
-			// shift
-			gmtbat_file_ << " -X" << plotCriteria_._label_font_size/2.0 + sqrt(plotCriteria_._label_font_size) << "p -O -K >> tmp.eps" << endl;
-			if (plotBlocks_)
-			{
-				gmtbat_file_ << "pstext -R -J \"" << v_jsl_lbl_file_.at(block_index);
-				//// print white box
-				//gmtbat_file_ << "\" -Wwhiteo0.5p,white";
-				// print shadow
-				gmtbat_file_ << "\" -S" << plotCriteria_._label_font_size/3.0 << "p,white";
-				// finish
-				gmtbat_file_ << " -O -K >> tmp.eps" << endl;			
-			}
-		}
-
-		// Prepare to terminate a sequence of GMT plotting commands without producing 
-		// any plotting output (depending on whether station labels were required)
-		gmtbat_file_ << "psxy -R -J -T -O";
-		
-
-		// Put image back, so that the scale is centred beneath the plot
-		if (plotCriteria_._plot_station_labels)
-			gmtbat_file_ << " -X-" << plotCriteria_._label_font_size/2.0 + sqrt(plotCriteria_._label_font_size) << "p";
-
-		// No title block?
-		if (plotCriteria_._omit_title_block)
-		{
-			// Terminate a sequence of GMT plotting commands without producing any plotting output
-			gmtbat_file_ << " >> tmp.eps" << endl;
+				for (block=0; block<blockCount_; ++block)
+					PrintStationLabelsBlock(block);
 		}
 		else
-		{
-			gmtbat_file_ << " -K >> tmp.eps" << endl << endl;
-			
-			// legend
-			gmtbat_file_ << "gmtset HEADER_FONT 1" << endl;
-			
-			gmtbat_file_ << " " << endl;
-			gmtbat_file_ << "echo G 0.25 > legend" << endl;
-			gmtbat_file_ << "echo N 1 >> legend" << endl;
-			gmtbat_file_ << "echo H " << fixed << setprecision(0) << label_font_size * 1.5 << " - " << network_name_;
-			if (blockCount_ > 1)
-				gmtbat_file_ << "  (Block " << block + 1 << " of " << blockCount_ << ") ";
-
-			if (!plotCriteria_._plot_station_centre.empty())
-				gmtbat_file_ << " centred on " << plotCriteria_._plot_station_centre;
-
-			gmtbat_file_ << " >> legend" << endl;
-			gmtbat_file_ << "echo G 0.25 >> legend" << endl;
-
-			// Print stations legend
-			gmtbat_file_ << "echo D 0 1p >> legend" << endl;		// horizontal line
-			gmtbat_file_ << "echo G 0.25 >> legend" << endl;		// space	
-
-			UINT32 station_count(1);		// Simultaneous or ISL
-
-			if (plotBlocks_)
-				station_count++;			// JSL
-			
-			if (plotConstraints_)
-			{
-				station_count++;			// Simultaneous or ISL constraint stations
-				if (plotBlocks_)
-					station_count++;		// JSL constraint stations				
-			}
-			
-			//if (plotCriteria_._plot_correction_arrows)
-			//	station_count++;			// Corrections to station coordinates
-
-			gmtbat_file_ << "echo N " << station_count << " >> legend" << endl;
-			gmtbat_file_ << "echo V 0 1p >> legend" << endl;		// vertical line
-			
-			// Simultaneous stations or Phased inner stations
-			gmtbat_file_ << 
-				"echo S " << fixed << setprecision(1) << symbol_offset << 
-				" c 0.2 white " << circle_line_width * 2 << "p,blue " <<
-				fixed << setprecision(1) << label_offset;
-			if (plotBlocks_)
-				gmtbat_file_ << " Free Inner stations ";
-			else 
-				gmtbat_file_ << " Free Stations";
-			gmtbat_file_ << " >> legend" << endl;
-
-			// Simultaneous stations or Phased inner stations
-			if (plotBlocks_)
-			{
-				gmtbat_file_ << 
-					"echo S " << fixed << setprecision(1) << symbol_offset << 
-					" c 0.2 white " << circle_line_width * 2 << "p,red " <<
-					fixed << setprecision(1) << label_offset <<
-					" Free Junction stations >> legend" << endl;
-			}
-
-			if (plotConstraints_)
-			{
-				if (plotBlocks_)
-				{
-					gmtbat_file_ << 
-						"echo S " << fixed << setprecision(1) << symbol_offset << 
-						" c 0.2 blue " << circle_line_width * 2 << "p,blue " <<
-						fixed << setprecision(1) << label_offset <<
-						" Constrained inner stations >> legend" << endl;
-					gmtbat_file_ << 
-						"echo S " << fixed << setprecision(1) << symbol_offset << 
-						" c 0.2 red " << circle_line_width * 2 << "p,red " <<
-						fixed << setprecision(1) << label_offset <<
-						" Constrained junction stations >> legend" << endl;
-				}
-				else
-					gmtbat_file_ << 
-						"echo S " << fixed << setprecision(1) << symbol_offset << 
-						" c 0.2 blue " << circle_line_width * 2 << "p,blue " <<
-						fixed << setprecision(1) << label_offset <<
-						" Constraint stations >> legend" << endl;
-			}			
-			
-			title_block_height = 5;
-
-			if (plotCriteria_._plot_correction_arrows)
-			{
-			//	// Add corrections to end of stations legend
-			//	gmtbat_file_ << 
-			//		"echo S " << fixed << setprecision(1) << symbol_offset << 
-			//		" v 1.5c/0.04/0.5/0.1 red " <<			// arrowlength/linewidth/arrowheadwidth/arrowheadlength
-			//		line_width * 2 << "p,red " 
-			//		<< fixed << setprecision(1) << label_offset * 1.5 << " Corrections to stations" << " >> legend" << endl;
-			}
-			// If corrections are not being printed, then print measurements legend
-			else
-			{
-				gmtbat_file_ << "echo G 0.25 >> legend" << endl;		// space
-				gmtbat_file_ << "echo D 0 1p >> legend" << endl;		// horizontal line
-				gmtbat_file_ << "echo G 0.25 >> legend" << endl;		// space	
-
-				if (v_msr_file_.at(block).size() > columns)
-					gmtbat_file_ << "echo N " << columns << " >> legend" << endl;
-				else
-					gmtbat_file_ << "echo N " << v_msr_file_.at(block).size() << " >> legend" << endl;
-
-				bool bOtherTypes(false);
-				
-				if (colours < columns)
-				{
-					symbol_offset = 1.0;
-					label_offset = 1.5;
-				}
-
-				for (i=0; i<v_msr_file_.at(block).size(); i++)
-				{
-					_it_colour = equal_range(plotCriteria_._msr_colours.begin(), plotCriteria_._msr_colours.end(), 
-						v_msr_file_.at(block).at(i).second, ComparePairFirst<string>());
-
-					if (_it_colour.first != _it_colour.second)
-					{
-						gmtbat_file_ << "echo S " << fixed << setprecision(1) << symbol_offset;
-
-						circle_radius_2 = circle_radius;
-
-						if (v_msr_file_.at(block).at(i).second == "I" ||		// astronomic latitude
-							v_msr_file_.at(block).at(i).second == "P")			//   geodetic latitude
-							circle_radius_2 = circle_radius * 2.25;
-						else if (v_msr_file_.at(block).at(i).second == "J" ||	// astronomic longitude
-							v_msr_file_.at(block).at(i).second == "Q")			//   geodetic longitude
-							circle_radius_2 = circle_radius * 2.0;
-						else if (v_msr_file_.at(block).at(i).second == "H" ||	// orthometric height
-							v_msr_file_.at(block).at(i).second == "R")			// ellipsoidal height
-							circle_radius_2 = circle_radius * 1.75;
-						else if (v_msr_file_.at(block).at(i).second == "Y")		// GPS point cluster
-							circle_radius_2 = circle_radius * 2.5;
-
-						// print a circle or line?
-						if (v_msr_file_.at(block).at(i).second == "I" ||		// astronomic latitude
-							v_msr_file_.at(block).at(i).second == "P" ||		//   geodetic latitude
-							v_msr_file_.at(block).at(i).second == "J" ||		// astronomic longitude
-							v_msr_file_.at(block).at(i).second == "Q" ||		//   geodetic longitude
-							v_msr_file_.at(block).at(i).second == "H" ||		// orthometric height
-							v_msr_file_.at(block).at(i).second == "R" ||		// ellipsoidal height
-							v_msr_file_.at(block).at(i).second == "Y")			// GPS point cluster
-							gmtbat_file_ << " c " << circle_radius_2 << " " << _it_colour.first->second << " " << circle_line_width * 2;	// circle
-						else
-							gmtbat_file_ << " - 0.5 " << _it_colour.first->second << " " << line_width * 5;			// line
-
-						gmtbat_file_ << "p,";
-
-						if (v_msr_file_.at(block).at(i).second == "Y")
-							gmtbat_file_ << "#FF00FF";								// magenta, #FF00FF
-						else if (v_msr_file_.at(block).at(i).second == "I" ||		// astronomic latitude
-							v_msr_file_.at(block).at(i).second == "P")				// geodetic latitude
-							gmtbat_file_ << "#FCB514";								// packer gold, #FCB514
-						else if (v_msr_file_.at(block).at(i).second == "J" ||		// astronomic longitude
-							v_msr_file_.at(block).at(i).second == "Q")				// geodetic longitude
-							gmtbat_file_ << "#FF8000";								// orange, #FF8000
-						else if (v_msr_file_.at(block).at(i).second == "H" ||		// orthometric height
-							v_msr_file_.at(block).at(i).second == "R")				// ellipsoidal height
-							gmtbat_file_ << "#E33638";								// rosemadder, #E33638
-						else
-							gmtbat_file_ << _it_colour.first->second;
-
-						gmtbat_file_ << " " << fixed << setprecision(1) << label_offset << " " << 
-							measurement_name<char, string>(static_cast<char>(_it_colour.first->first.at(0))) << " >> legend" << endl;
-					}
-					else
-						bOtherTypes = true;
-				}
-
-				if (bOtherTypes)
-					gmtbat_file_ << 
-						"echo S " << fixed << setprecision(1) << symbol_offset << " - 0.5 lightgray " << line_width * 2 << "p,lightgray " 
-						<< fixed << setprecision(1) << label_offset << "  All other types" << " >> legend" << endl;			
-
-				title_block_height += floor(((double)colours)/columns) * 0.25;
-			
-			}
-
-			gmtbat_file_ << "echo G 0.25 >> legend" << endl;		// space
-			gmtbat_file_ << "echo D 0 1p >> legend" << endl;		// horizontal line
-			gmtbat_file_ << "echo G 0.25 >> legend" << endl;		// space
-			gmtbat_file_ << "echo N 5 >> legend" << endl;
-
-			gmtbat_file_ << "echo S 0.01 c 0.01 white 1p,white 1 Geodesy >> legend" << endl;
-			gmtbat_file_ << "echo S 0.01 c 0.01 white 1p,white 0 Surveyor-General Victoria >> legend" << endl;
-			gmtbat_file_ << "echo S 0.01 c 0.01 white 1p,white 3 GDA2020 >> legend" << endl;
-			gmtbat_file_ << "echo S 0.01 c 0.01 white 1p,white 0 " << projectionTypes[plotCriteria_._projection] << " projection >> legend" << endl;
-			gmtbat_file_ << "echo S 0.01 c 0.01 white 1p,white 1 Scale 1:" << static_cast<UINT32>(scale) << " \"(A3)\" >> legend" << endl;
-
-			gmtbat_file_ << "echo pslegend -R0/" << fixed << setprecision(1) << page_width << "/0/1.5 -Jx1/1 -O -Dx0/0/" <<
-				fixed << setprecision(1) << page_width << "/" << setprecision(1) << title_block_height << "/TL -Y-1.2 -F legend -Sscript2.bat > script1.bat" << endl;
-#if defined(_WIN32) || defined(__WIN32__)
-			gmtbat_file_ << "call script1.bat" << endl;
-			gmtbat_file_ << "call script2.bat >> tmp.eps" << endl;
-#elif defined(__linux) || defined(sun) || defined(__unix__)
-			gmtbat_file_ << "sh script1.bat" << endl;
-			gmtbat_file_ << "sh script2.bat >> tmp.eps" << endl;
-#endif
-			
-			
-		}
-
-		if (blockCount_ > 1)
-		{
-			stringstream ss("");
-			string s_epsname(epsname);
-			ss << "_block" << block + 1;
-			s_epsname = s_epsname.replace(s_epsname.find("."), 1, ss.str() + "."); 
-			gmtbat_file_ << "epstool";
-			if (projectSettings_.g.verbose == 0 && projectSettings_.g.quiet == 0)
-				gmtbat_file_ << " --quiet";
-			gmtbat_file_ << " --copy --bbox tmp.eps " << s_epsname << endl;
-		}
-		else
-		{
-			gmtbat_file_ << "epstool";
-			if (projectSettings_.g.verbose == 0 && projectSettings_.g.quiet == 0)
-				gmtbat_file_ << " --quiet";
-			gmtbat_file_ << " --copy --bbox tmp.eps " << epsname << endl;
-		}
-
-		// clean up
-		gmtbat_file_ << DELETE_CMD << " tmp.eps";
-		if (!plotCriteria_._omit_title_block)
-			gmtbat_file_ << " legend script1.bat script2.bat";
-		gmtbat_file_ << endl << endl;
-
-		//////////////////////////////////////////////////////////////////////////////////////////
-		// delete data files
-		if (!plotCriteria_._keep_gen_files)
-		{
-			gmtbat_file_ << DELETE_CMD;
-
-			// stations
-			gmtbat_file_ << " \"" << v_isl_pts_file_.at(block_index) << "\"";
-			gmtbat_file_ << " \"" << v_isl_const_file_.at(block_index) << "\"";
-
-			if (plotBlocks_)
-			{
-				// junction stations5
-				gmtbat_file_ << " \"" << v_jsl_const_file_.at(block_index) << "\"";
-				gmtbat_file_ << " \"" << v_jsl_pts_file_.at(block_index) <<  "\"";
-			}
-
-			// measurements
-			for (i=0; i<v_msr_file_.at(block).size(); i++)
-				gmtbat_file_ << " \"" << v_msr_file_.at(block).at(i).first << "\"";
-		
-			// station labels
-			if (plotCriteria_._plot_station_labels)
-			{
-				gmtbat_file_ << " \"" << v_isl_lbl_file_.at(block_index) << "\"";
-			
-				if (plotBlocks_)
-					gmtbat_file_ << " \"" << v_jsl_lbl_file_.at(block_index) << "\"";
-			}
-
-			if (plotCriteria_._plot_positional_uncertainty)
-				gmtbat_file_ << " \"" << v_stn_apu_file_.at(block_index) << "\"";
-
-			if (plotCriteria_._plot_error_ellipses)
-				gmtbat_file_ << " \"" << v_stn_err_file_.at(block_index) << "\"";
-
-			if (plotCriteria_._plot_correction_arrows)
-				gmtbat_file_ << " \"" << v_stn_cor_file_.at(block_index) << "\"";
-
-			gmtbat_file_ << endl;
-		}
-		//////////////////////////////////////////////////////////////////////////////////////////
-		
-		gmtbat_file_ << endl;
-		
-		if (plotBlocks_ && plotCriteria_._plot_block_number > 0)
-			break;
+			PrintStationLabels();
 	}
 
-	gmtbat_file_ << DELETE_CMD << " .gmtdefaults4 .gmtcommands4" << endl << endl << endl;
-	
-	gmtbat_file_ << endl << "exit /b 0" << endl;
-	
-}
-	
-void dna_plot::PrintLaTeXPlotfile(const string& gmt_tex_file, const string& gmt_eps_name)
-{
-	std::ofstream tex_file;
-	try {
-		// Create latex file.  Throws runtime_error on failure.
-		file_opener(tex_file, gmt_tex_file);
-	}
-	catch (const runtime_error& e) {
-		SignalExceptionPlot(e.what(), 0, NULL);
-	}
-
-	tex_file << "\\documentclass[12pt]{article} " << endl;
-	tex_file << "\\pagestyle{empty} " << endl;
-	tex_file << "\\usepackage{ps4pdf} " << endl;
-	if (isLandscape)
-		tex_file << "\\usepackage[landscape,a3paper]{geometry}" << endl;
-	else
-		tex_file << "\\usepackage[portrait,a3paper]{geometry}" << endl;
-	tex_file << "\\PSforPDF{\\usepackage{graphicx,psfrag}} " << endl;
-	tex_file << "% " << endl;
-	tex_file << "\\begin{document} " << endl;
-
-	stringstream ss;
-	string epsname;
-
-	if (blockCount_ > 1)
+	if (pprj_->p._plot_positional_uncertainty)
 	{
-		UINT32 block = 0;
-		if (plotBlocks_ && plotCriteria_._plot_block_number > 0)
-			block = plotCriteria_._plot_block_number - 1;
+		if (oneBlockOnly)
+			PrintPositionalUncertainty(block);
+		else
+			for (block=0; block<blockCount_; ++block)
+				PrintPositionalUncertainty(block);
+	}
+
+	if (pprj_->p._plot_error_ellipses)
+	{
+		if (oneBlockOnly)
+			PrintErrorEllipses(block);
+		else
+			for (block=0; block<blockCount_; ++block)
+				PrintErrorEllipses(block);
+	}
+
+	if (pprj_->p._plot_correction_arrows)
+	{
+		if (oneBlockOnly)
+			PrintCorrectionArrows(block);
+		else
+			for (block=0; block<blockCount_; ++block)
+				PrintCorrectionArrows(block);
+	}
+}
+
+void dna_plot::CreateGMTInputFiles()
+{	
+	if (plotBlocks_)
+	{
+		UINT32 block(0);
+		bool oneBlockOnly(true);
 		
+		// one and only block?
+		if ((oneBlockOnly = InitialiseandValidateStartingBlock(block)))
+			block = 0;
+			
 		for (; block<blockCount_; ++block)
 		{
-			tex_file << "% Block " << block+1 << endl;
-			tex_file << "\\PSforPDF[trim=0mm 0mm 0mm 0mm]{ " << endl;
-
-			ss.str("");
-			ss << "_block" << block + 1;
-			epsname = plotCriteria_._eps_file_name;
-			epsname = epsname.replace(epsname.find(".eps"), 4, ss.str());
-
-			tex_file << "\\includegraphics[scale=0.75]{" << epsname << "} " << endl;
-			tex_file << "} " << endl;
-			tex_file << "% " << endl;
-
-			if (plotBlocks_ && plotCriteria_._plot_block_number > 0)
+			PrintStationsDataFileBlock(block);
+			if (!pprj_->p._omit_measurements)
+				PrintMeasurementsDatFilesBlock(block);
+			if (oneBlockOnly)
 				break;
 		}
 	}
 	else
 	{
-		tex_file << "% " << endl;
-		tex_file << "\\PSforPDF[trim=0mm 0mm 0mm 0mm]{ " << endl;
-		tex_file << "\\includegraphics[scale=0.75]{" << plotCriteria_._eps_file_name.c_str() << "} " << endl;
-		tex_file << "} " << endl;
-		tex_file << "% " << endl;
+		v_msr_file_.resize(1);
+		// PrintStationsDataFile calculates plot limits if user has 
+		// specified centre station or lat/long, or bounding box
+		PrintStationsDataFile();
+		if (!pprj_->p._omit_measurements)
+			PrintMeasurementsDatFiles();
 	}
-	tex_file << "\\end{document} " << endl;
-
-	tex_file.close();
 }
 
-string dna_plot::PrintPdfCmdfile(const string& pdf_cmd_file, const string& gmt_tex_filename, const string& picname)
+void dna_plot::InitialiseGMTFilenames()
 {
-	std::ofstream cmd_file;
-	try {
-		// open PDF batch file.  Throws runtime_error on failure.
-		file_opener(cmd_file, pdf_cmd_file);
-	}
-	catch (const runtime_error& e) {
-		SignalExceptionPlot(e.what(), 0, NULL);
-	}
+	// create bat file name(s), one per block, as:
+	//   create_<network_name>_block_#.[bat|sh]
+	//
+	// Simultaneous plot cmd files are created as:
+	//   create_<network_name>_block_0.[bat|sh]
+	//
+	// Specific block (n) plot cmd files are created as:
+	//   create_<network_name>_block_n.[bat|sh]
+	v_gmt_cmd_filenames_.empty();
+	v_gmt_pdf_filenames_.empty();
+	string gmt_filename, gmt_cmd_basename("create_" + network_name_ + "_block_");
+		
+	UINT32 block;
+	bool oneBlockOnly = InitialiseandValidateStartingBlock(block);
 
-	string pdfname(picname + ".pdf");
-	string pdfname_tmp(picname + ".tmp.pdf");
-	
-	if (plotCriteria_._plot_block_number > 0)
+	for (; block<blockCount_; ++block)
 	{
-		stringstream ss_pdf;
-		ss_pdf << picname << "-block-" << plotCriteria_._plot_block_number << ".pdf";
-		pdfname = ss_pdf.str();
-		ss_pdf.str("");
-		ss_pdf << picname << "-block-" << plotCriteria_._plot_block_number << ".tmp.pdf";
-		pdfname_tmp = ss_pdf.str();
+		// gmt command filename
+		gmt_filename = gmt_cmd_basename;
+		gmt_filename.append(StringFromT(block)).append(_CMD_EXT_);
+
+		// Add folder path
+		gmt_filename = pprj_->g.output_folder + FOLDER_SLASH + gmt_filename;
+
+		// Create absolute path				
+		gmt_filename = absolute(gmt_filename).string();
+
+		// Add to the list
+		v_gmt_cmd_filenames_.push_back(gmt_filename);
+
+		// generated pdf filename
+		gmt_filename = network_name_;
+		gmt_filename.append("_block_").append(StringFromT(block)).append(".pdf");
+		v_gmt_pdf_filenames_.push_back(output_folder_ + FOLDER_SLASH + gmt_filename);
+
+		// break out for specific block (n) plots
+		if (oneBlockOnly)
+			break;
 	}
 
-#if defined(_WIN32) || defined(__WIN32__)
-	cmd_file << "@echo off" << endl;
-#elif defined(__linux) || defined(sun) || defined(__unix__)
-	cmd_file << "#!/bin/bash" << endl;
-#endif
+	pprj_->p._gmt_cmd_file = output_folder_ + FOLDER_SLASH + leafStr(v_gmt_cmd_filenames_.at(0));
 
+	pprj_->p._pdf_file_name = output_folder_ + FOLDER_SLASH + network_name_;
+
+	if (plotBlocks_)
+		pprj_->p._pdf_file_name.append("-phased");
+	else
+		pprj_->p._pdf_file_name.append("-simult");
+
+	if (plotBlocks_ && oneBlockOnly)
+		pprj_->p._pdf_file_name.append("-block-").append(StringFromT(block));
+
+	pprj_->p._pdf_file_name.append(".pdf");
+	
+	// simultaneous
+	if (!plotBlocks_)
+		v_gmt_pdf_filenames_.at(0) = pprj_->p._pdf_file_name;
+}
+
+void dna_plot::CreateGMTCommandFiles()
+{
 	UINT32 block(0);
-	stringstream ss("");
-	string epsname(plotCriteria_._eps_file_name);
-
-	if (plotCriteria_._use_pdflatex)
-	{	
-		cmd_file << "latex " << gmt_tex_filename;
-		if (projectSettings_.g.verbose == 0 && projectSettings_.g.quiet == 0)
-			cmd_file << " -interaction=batchmode";
-		cmd_file << endl;
-		cmd_file << "dvips -Ppdf -R0";
-		if (projectSettings_.g.verbose == 0 && projectSettings_.g.quiet == 0)
-			cmd_file << " -q*";
-		cmd_file << " -o " << picname + ".eps " << findandreplace(gmt_tex_filename, string("tex"), string("dvi")) << endl;
-
-#if defined(_WIN32) || defined(__WIN32__)
-		cmd_file << "call ";
-#endif
-		cmd_file << "ps2pdf ";
-		
-		if (projectSettings_.g.verbose == 0 && projectSettings_.g.quiet == 0)
-			cmd_file << "-q ";
-		cmd_file << picname + ".eps " << pdfname_tmp << endl;
-		cmd_file << DELETE_CMD << " " << picname + ".eps" << endl;
-		cmd_file << DELETE_CMD << " " << gmt_tex_filename << endl;
-		cmd_file << DELETE_CMD << " *.dvi" << endl;
-		cmd_file << DELETE_CMD << " *.log" << endl;
-		cmd_file << DELETE_CMD << " *.aux" << endl;
-		
-		if (blockCount_ > 1)
-		{	
+	bool oneBlockOnly(true);
+	
+	if (plotBlocks_)
+	{
+		// one and only block?
+		if ((oneBlockOnly = InitialiseandValidateStartingBlock(block)))
 			block = 0;
-			if (plotBlocks_ && plotCriteria_._plot_block_number > 0)
-				block = plotCriteria_._plot_block_number - 1;
-			
-			for (; block<blockCount_; ++block)
-			{
-				ss.str("");
-				ss << "_block" << block + 1;
-				epsname = plotCriteria_._eps_file_name;
-				epsname = epsname.replace(epsname.find("."), 1, ss.str() + ".");
-				cmd_file << DELETE_CMD << " " << epsname << endl;
+	}
 
-				if (plotBlocks_ && plotCriteria_._plot_block_number > 0)
-					break;
+	for (; block<blockCount_; ++block)
+	{
+		try {
+			// Create GMT batch file.  Throws runtime_error on failure.
+			file_opener(gmtbat_file_, v_gmt_cmd_filenames_.at(block));
+		}
+		catch (const runtime_error& e) {
+			SignalExceptionPlot(e.what(), 0, NULL);
+		}
+
+		// set header
+		gmtbat_file_ << _CMD_HEADER_ << endl;
+		
+		// GMT bat file is printed last to reflect the options and dimensions as determined
+		// by PrintStationsDataFile and PrintMeasurementsDatFiles
+		CreateGMTCommandFile(block);
+
+		// close the file
+		gmtbat_file_.close();
+
+		// change file permission to executable
+#if defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)		
+		string system_file_cmd = _CHMOD_CMD_ + v_gmt_cmd_filenames_.at(block);
+		std::system(system_file_cmd.c_str());
+#endif
+
+		// break out for specific block (n) plots
+		if (oneBlockOnly)
+			break;
+	}
+}
+
+
+void dna_plot::CreateGMTCommandFile(const UINT32& block)
+{
+	it_pair_string _it_colour;
+	string_string_pair this_msr;
+
+	float annot_font_size_primary(9), label_font_size(11.);
+	double symbol_offset(1.0);
+	double label_offset(1.5);
+	double error_ellipse_scale(uncertainty_legend_length_/largest_uncertainty_);
+	UINT32 uncertainty_legend_precision(4);
+
+	string psTempFile("tmp-");
+	psTempFile.append(StringFromT(block)).append(".ps");
+	string pdfTempFile("tmp-");
+	pdfTempFile.append(StringFromT(block)).append(".pdf");
+
+	string legendTempFile("map-block");
+	legendTempFile.append(StringFromT(block)).append(".legend");
+
+	// make temporary directory for gmt.conf gmt.history to prevent corruption of
+	// gmt.conf and gmt.history during parallel processing
+	gmtbat_file_ << endl << _COMMENT_PREFIX_ << "Create temporary folder for gmt.conf and gmt.history" << endl;
+	
+#if defined(_WIN32) || defined(__WIN32__)
+	// set, create and provide access to temporary folder for gmt.conf file
+	gmtbat_file_ << _MAKEENV_CMD_ << _GMT_TMP_DIR_ << "=%TEMP%\\gmt.block-" << block << endl;
+	gmtbat_file_ << _MAKEDIR_CMD_ << _ENV_GMT_TMP_DIR_ << endl;
+	//gmtbat_file_ << "icacls " << _ENV_GMT_TMP_DIR_ << " /grant Everyone:(f)" << endl;
+
+#elif defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
+	// temporary gmt.conf file location
+	gmtbat_file_ << _MAKEENV_CMD_ << _GMT_TMP_DIR_ << "=$(" << _MAKETEMP_CMD_ << "-d ${TMPDIR:-/tmp}/gmt.XXXXXX)" << endl << endl;
+#endif
+
+	UINT32 colours(0), columns(5);
+	
+	if (plotBlocks_)
+		gmtbat_file_ << endl << 
+			_COMMENT_PREFIX_ << "GMT command file for segmented network block " << (block + 1) << endl;		
+	else
+		gmtbat_file_ << endl << 
+			_COMMENT_PREFIX_ << "GMT command file for simultaneous network" << endl << endl;
+
+	// write GMT parameters
+	PrintGMTParameters();
+
+	if (isLandscape)
+		gmtbat_file_ << _APP_GMTSET_ << " PS_PAGE_ORIENTATION landscape" << endl << endl;
+	else
+		gmtbat_file_ << _APP_GMTSET_ << " PS_PAGE_ORIENTATION portrait" << endl << endl;
+	
+	gmtbat_file_ << _APP_GMTSET_ << " FONT_ANNOT " << fixed << setprecision(1) << annot_font_size_primary << "p" << endl;
+	gmtbat_file_ << _APP_GMTSET_ << " FONT_ANNOT_PRIMARY " << fixed << setprecision(1) << annot_font_size_primary << "p" << endl;
+	gmtbat_file_ << _APP_GMTSET_ << " FONT_LABEL " << fixed << setprecision(1) << label_font_size << "p" << endl;
+	if (graticule_width_ < 60./3600.)
+		gmtbat_file_ << _APP_GMTSET_ << " FORMAT_GEO_MAP ddd:mm:ss.x" << endl << endl;
+	else
+		gmtbat_file_ << _APP_GMTSET_ << " FORMAT_GEO_MAP ddd:mm" << endl << endl;
+
+	page_width_ = pprj_->p._page_width;
+
+	switch (pprj_->p._projection)
+	{
+	case world:
+		// World map centered on the dateline
+		// pscoast -Rg -JQ4.5i -B60f30g30 -Dc -A5000 -Gblack -P > tmp.ps
+		
+		// Override coastline resolution
+		coastResolution_ = "i";
+		pprj_->p._coasline_resolution = intermediate;
+		circle_radius_ = 0.02;
+		circle_line_width_ = 0.02;
+		if (pprj_->p._label_font_size < 0.)
+			pprj_->p._label_font_size = 5;
+
+		gmtbat_file_ << _APP_PSCOAST_ << " -Rg" << 
+			// Carree Cylindrical equidistant projection, which looks the nicest
+			" -JQ" << page_width_  << "c -B60g30 -D" << coastResolution_ << 
+			" -A10000 -W0.75p,16/169/243 -G245/245/245 -K > " << psTempFile << endl;
+			//
+			// Miller's Cylindrical projection, which is neither equal nor conformal. All meridians and parallels are straight lines.
+			// " -JJ" << page_width  << "c -B60g30 -D" << coastResolution << " -A10000 -W0.75p,16/169/243 -G245/245/245 -P -K > " << psTempFile << endl;
+			//
+			// Cylindrical equal-area projection
+			//" -JY" << page_width  << "c -B60g30 -D" << coastResolution << " -A10000 -W0.75p,16/169/243 -G245/245/245 -P -K > " << psTempFile << endl;
+		break;
+	//
+	// Orthographic projection
+	case orthographic:
+			
+		// Override coastline resolution
+		coastResolution_ = "h";
+		pprj_->p._coasline_resolution = high;
+		circle_radius_ = 0.05;
+		circle_line_width_ = 0.05;
+		if (pprj_->p._label_font_size < 0.)
+			pprj_->p._label_font_size = 5;
+
+		gmtbat_file_ << _APP_PSCOAST_ << " -Rg -JG" << 
+			fixed << setprecision(7) << centre_width_ << "/" <<		// longitude
+			fixed << setprecision(7) << centre_height_ << "/" <<		// latitude
+			fixed << setprecision(1) << page_width_ << "c -B30g15 -D" << coastResolution_ << 
+			" -A10000 -W0.75p,16/169/243 -G245/245/245 -P -K > " << psTempFile << endl;
+		break;
+	//
+	// Mercator projection
+	case mercator:
+		if (pprj_->p._label_font_size < 0.)
+			pprj_->p._label_font_size = 6;
+
+		gmtbat_file_ << _APP_PSCOAST_ << " -R" << 
+		fixed << setprecision(7) << leftDeg_ << "/" <<
+		fixed << setprecision(7) << lowerDeg_ << "/" <<
+		fixed << setprecision(7) << rightDeg_ << "/" <<
+		fixed << setprecision(7) << upperDeg_;
+
+		// example: -Jm1.2e-2i
+		gmtbat_file_ << "r -JM" << fixed << setprecision(1) << page_width_ << "c";
+		gmtbat_file_ << " -D" << coastResolution_ << " -N2/0.25p -W0.75p,16/169/243 -G255/255/255 -S233/246/255 -Lf" <<
+			fixed << setprecision(5) << centre_width_ << "/" << fixed << setprecision(5) << dScaleLat_ << "/" << 
+			fixed << setprecision(5) << centre_height_ << "/" << fixed << setprecision(scale_precision_) << scale_bar_width_ << "k+lKilometres+jt " <<
+			"-B" <<
+			fixed << setprecision(graticule_width_precision_) << graticule_width_ << "g" << fixed << setprecision(graticule_width_precision_) << graticule_width_ << "/" << 
+			fixed << setprecision(graticule_width_precision_) << graticule_width_ << "g" << fixed << setprecision(graticule_width_precision_) << graticule_width_;
+
+		if (!isLandscape)
+			gmtbat_file_ << " -P";
+		gmtbat_file_ << " -K > " << psTempFile << endl;
+		
+		break;
+	//
+	// Transverse Mercator projection
+	case transverseMercator:
+		if (pprj_->p._label_font_size < 0.)
+			pprj_->p._label_font_size = 6;
+
+		gmtbat_file_ << _APP_PSCOAST_ << " -R" << 
+		fixed << setprecision(7) << leftDeg_ << "/" <<
+		fixed << setprecision(7) << lowerDeg_ << "/" <<
+		fixed << setprecision(7) << rightDeg_ << "/" <<
+		fixed << setprecision(7) << upperDeg_;
+
+		// example: -Jt139.9944444/-24.1486111/1:1000000
+		//gmtbat_file_ << "r -Jt" << fixed << setprecision(7) << centre_width_ << "/" <<
+		//	fixed << setprecision(7) << centre_height_ << "/1:" << fixed << setprecision(0) << scale;
+		gmtbat_file_ << "r -JT" << fixed << setprecision(7) << centre_width_ << "/" <<
+			fixed << setprecision(1) << page_width_ << "c";
+
+		gmtbat_file_ << " -D" << coastResolution_ << " -N2/0.25p -W0.75p,16/169/243 -G255/255/255 -S233/246/255 -Lf" <<
+			fixed << setprecision(5) << centre_width_ << "/" << fixed << setprecision(5) << dScaleLat_ << "/" << 
+			fixed << setprecision(5) << centre_height_ << "/" << fixed << setprecision(scale_precision_) << scale_bar_width_ << "k+lKilometres+jt " <<
+			"-B" <<
+			fixed << setprecision(graticule_width_precision_) << graticule_width_ << "g" << fixed << setprecision(graticule_width_precision_) << graticule_width_ << "/" << 
+			fixed << setprecision(graticule_width_precision_) << graticule_width_ << "g" << fixed << setprecision(graticule_width_precision_) << graticule_width_;
+
+		if (!isLandscape)
+			gmtbat_file_ << " -P";
+		gmtbat_file_ << " -K > " << psTempFile << endl;
+		
+		break;
+	//
+	// Albers conic equal-area projection
+	case albersConic:
+		if (pprj_->p._label_font_size < 0.)
+			pprj_->p._label_font_size = 6;
+
+		gmtbat_file_ << _APP_PSCOAST_ << " -R" << 
+			fixed << setprecision(7) << leftDeg_ << "/" <<
+			fixed << setprecision(7) << lowerDeg_ << "/" <<
+			fixed << setprecision(7) << rightDeg_ << "/" <<
+			fixed << setprecision(7) << upperDeg_;
+
+		// example: -Jb136.5/-36/-18/-36/1:45000000
+		//gmtbat_file_ << "r -Jb" << fixed << setprecision(7) << centre_width_ << "/" <<
+		//	fixed << setprecision(7) << centre_height_ << "/" <<
+		//	fixed << setprecision(7) << upperDeg_ - fabs(dHeight/3.) << "/" <<
+		//	fixed << setprecision(7) << lowerDeg_ + fabs(dHeight/3.) << "/" <<				
+		//	"1:" << fixed << setprecision(0) << scale;
+		gmtbat_file_ << "r -JB" << fixed << setprecision(7) << centre_width_ << "/" <<
+			fixed << setprecision(7) << centre_height_ << "/" <<
+			fixed << setprecision(7) << upperDeg_ - fabs(dHeight_/3.) << "/" <<
+			fixed << setprecision(7) << lowerDeg_ + fabs(dHeight_/3.) << "/" <<				
+			fixed << setprecision(1) << page_width_ << "c";
+
+		gmtbat_file_ << " -D" << coastResolution_ << " -N2/0.25p -W0.75p,16/169/243 -G255/255/255 -S233/246/255 -Lf" <<
+			fixed << setprecision(5) << centre_width_ << "/" << fixed << setprecision(5) << dScaleLat_ << "/" << 
+			fixed << setprecision(5) << centre_height_ << "/" << fixed << setprecision(scale_precision_) << scale_bar_width_ << "k+lKilometres+jt " <<
+			"-B" <<
+			//fixed << setprecision(7) << DmstoDeg(0.3) << "g" << fixed << setprecision(7) << DmstoDeg(0.3) << " -K > " << psTempFile << endl;
+			fixed << setprecision(graticule_width_precision_) << graticule_width_ << "g" << fixed << setprecision(graticule_width_precision_) << graticule_width_ << "/" << 
+			fixed << setprecision(graticule_width_precision_) << graticule_width_ << "g" << fixed << setprecision(graticule_width_precision_) << graticule_width_;
+
+		if (!isLandscape)
+			gmtbat_file_ << " -P";
+		gmtbat_file_ << " -K > " << psTempFile << endl;
+		break;
+	//
+	// Lambert Azimuthal Equal-Area		
+	case lambertEqualArea:		
+		if (pprj_->p._label_font_size < 0.)
+			pprj_->p._label_font_size = 6;
+
+		gmtbat_file_ << _APP_PSCOAST_ << " -R" << 
+		fixed << setprecision(7) << leftDeg_ << "/" <<
+		fixed << setprecision(7) << lowerDeg_ << "/" <<
+		fixed << setprecision(7) << rightDeg_ << "/" <<
+		fixed << setprecision(7) << upperDeg_;
+
+		// example: -JA30/-30/4.5i
+		gmtbat_file_ << "r -JA" << fixed << setprecision(7) << centre_width_ << "/" <<
+			fixed << setprecision(7) << centre_height_ << "/" <<
+			fixed << setprecision(1) << page_width_ << "c";
+
+		gmtbat_file_ << " -D" << coastResolution_ << " -N2/0.25p -W0.75p,16/169/243 -G255/255/255 -S233/246/255 -Lf" <<
+			fixed << setprecision(5) << centre_width_ << "/" << fixed << setprecision(5) << dScaleLat_ << "/" << 
+			fixed << setprecision(5) << centre_height_ << "/" << fixed << setprecision(scale_precision_) << scale_bar_width_ << "k+lKilometres+jt " <<
+			"-B" <<
+			fixed << setprecision(graticule_width_precision_) << graticule_width_ << "g" << fixed << setprecision(graticule_width_precision_) << graticule_width_ << "/" << 
+			fixed << setprecision(graticule_width_precision_) << graticule_width_ << "g" << fixed << setprecision(graticule_width_precision_) << graticule_width_;
+
+		if (!isLandscape)
+			gmtbat_file_ << " -P";
+		gmtbat_file_ << " -K > " << psTempFile << endl;
+		
+		break;
+	//
+	// General stereographic map
+	case stereographicConformal:
+	default:
+		if (pprj_->p._label_font_size < 0.)
+			pprj_->p._label_font_size = 6;
+
+		gmtbat_file_ << _APP_PSCOAST_ << " -R" << 
+		fixed << setprecision(7) << leftDeg_ << "/" <<
+		fixed << setprecision(7) << lowerDeg_ << "/" <<
+		fixed << setprecision(7) << rightDeg_ << "/" <<
+		fixed << setprecision(7) << upperDeg_;
+
+		// example: -R100/-40/160/-10r -JS130/-30/4i
+		gmtbat_file_ << "r -JS" << fixed << setprecision(7) << centre_width_ << "/" <<
+			fixed << setprecision(7) << centre_height_ << "/" <<
+			fixed << setprecision(1) << page_width_ << "c";
+
+		gmtbat_file_ << " -D" << coastResolution_ << " -N2/0.25p -W0.75p,16/169/243 -G255/255/255 -S233/246/255 -Lf" <<
+			fixed << setprecision(5) << centre_width_ << "/" << fixed << setprecision(5) << dScaleLat_ << "/" << 
+			fixed << setprecision(5) << centre_height_ << "/" << fixed << setprecision(scale_precision_) << scale_bar_width_ << "k+lKilometres+jt " <<
+			"-B" <<
+			fixed << setprecision(graticule_width_precision_) << graticule_width_ << "g" << fixed << setprecision(graticule_width_precision_) << graticule_width_ << "/" << 
+			fixed << setprecision(graticule_width_precision_) << graticule_width_ << "g" << fixed << setprecision(graticule_width_precision_) << graticule_width_;
+
+		if (!isLandscape)
+			gmtbat_file_ << " -P";
+		gmtbat_file_ << " -K > " << psTempFile << endl;
+		
+		break;
+	}
+
+	
+	sort(pprj_->p._msr_colours.begin(), pprj_->p._msr_colours.end(), ComparePairFirst<string>());		
+
+	// Does the user want to print measurements?
+	if (!pprj_->p._omit_measurements)
+	{
+		// print latitude, longitude and height measurements (large circles) before stations
+		for (UINT32 i=0; i<v_msr_file_.at(block).size(); i++)
+		{
+			if (v_msr_file_.at(block).at(i).second != "H" &&
+				v_msr_file_.at(block).at(i).second != "I" &&
+				v_msr_file_.at(block).at(i).second != "J" &&
+				v_msr_file_.at(block).at(i).second != "P" &&
+				v_msr_file_.at(block).at(i).second != "Q" &&
+				v_msr_file_.at(block).at(i).second != "R" &&
+				v_msr_file_.at(block).at(i).second != "Y")
+				continue;
+
+			circle_radius_2_ = circle_radius_;
+
+			if (v_msr_file_.at(block).at(i).second == "I" ||		// astronomic latitude
+				v_msr_file_.at(block).at(i).second == "P")			//   geodetic latitude
+				circle_radius_2_ = circle_radius_ * 2.75;
+			else if (v_msr_file_.at(block).at(i).second == "J" ||	// astronomic longitude
+				v_msr_file_.at(block).at(i).second == "Q")			//   geodetic longitude
+				circle_radius_2_ = circle_radius_ * 2.4;
+			else if (v_msr_file_.at(block).at(i).second == "H" ||	// orthometric height
+				v_msr_file_.at(block).at(i).second == "R")			// ellipsoidal height
+				circle_radius_2_ = circle_radius_ * 1.95;
+			else if (v_msr_file_.at(block).at(i).second == "Y")		// GPS point cluster
+				circle_radius_2_ = circle_radius_ * 3.0;
+
+			_it_colour = equal_range(pprj_->p._msr_colours.begin(), pprj_->p._msr_colours.end(), 
+				v_msr_file_.at(block).at(i).second, ComparePairFirst<string>());
+
+			if (_it_colour.first == _it_colour.second)
+			{
+				gmtbat_file_ << _APP_PSXY_ << " -R -J -Skcircle/" << fixed << setprecision(2) << circle_radius_2_ << 
+					" \"" << v_msr_file_.at(block).at(i).first << "\" -W" << setprecision(2) << circle_line_width_ << 
+					"p,darkgray -Glightgray";
+				gmtbat_file_ << " -O -K >> " << psTempFile << endl;
+			}
+			else
+			{
+				colours++;
+				gmtbat_file_ << _APP_PSXY_ << " -R -J -Skcircle/" << fixed << setprecision(2) << circle_radius_2_ << 
+					" \"" << v_msr_file_.at(block).at(i).first << "\" -W" << setprecision(2) << circle_line_width_ << 
+					"p,";
+
+				// Line colour
+				if (v_msr_file_.at(block).at(i).second == "Y")						// GNSS Point Cluster
+					gmtbat_file_ << "#235789";									// bdazzled blue
+				else if (v_msr_file_.at(block).at(i).second == "I" ||				// astronomic latitude
+					v_msr_file_.at(block).at(i).second == "P")						// geodetic latitude
+					gmtbat_file_ << "#A393BF";									// glossy grape
+				else if (v_msr_file_.at(block).at(i).second == "J" ||				// astronomic longitude
+					v_msr_file_.at(block).at(i).second == "Q")						// geodetic longitude
+					gmtbat_file_ << "#4C1C00";									// seal brown
+				else if (v_msr_file_.at(block).at(i).second == "H" ||				// orthometric height
+					v_msr_file_.at(block).at(i).second == "R")						// ellipsoidal height
+					gmtbat_file_ << "#6622CC";									// french violet
+				else
+					gmtbat_file_ << _it_colour.first->second;
+
+				// Fill colour
+				gmtbat_file_ << " -G" << _it_colour.first->second  << " -O -K >> " << psTempFile << endl;
 			}
 		}
+	}
+
+	// print stations first to enable measurements to be seen
+	gmtbat_file_ << _APP_PSXY_ << " -R -J -Skcircle/" << fixed << setprecision(2) << circle_radius_ << 
+		" \"" << v_isl_pts_file_.at(block) << "\" -W" << setprecision(2) << circle_line_width_ << 
+		"p,#235789 -Gwhite -O -K >> " << psTempFile << endl;
+
+	if (plotConstraints_)
+		// don't plot line, just fill
+		gmtbat_file_ << _APP_PSXY_ << " -R -J -Skcircle/" << fixed << setprecision(2) << circle_radius_ << 
+			" \"" << v_isl_const_file_.at(block) << "\" -G#235789 -O -K >> " << psTempFile << endl;
+
+	if (plotBlocks_)
+	{
+		gmtbat_file_ << _APP_PSXY_ << " -R -J -Skcircle/" << fixed << setprecision(2) << circle_radius_ << 
+			" \"" << v_jsl_pts_file_.at(block) << "\" -W" << setprecision(2) << circle_line_width_ * 2.0 << 
+			"p,#DA5552 -Gwhite -O -K >> " << psTempFile << endl;
+
+		if (plotConstraints_)
+			// don't plot line, just fill
+			gmtbat_file_ << _APP_PSXY_ << " -R -J -Skcircle/" << fixed << setprecision(2) << circle_radius_ << 
+				" \"" << v_jsl_const_file_.at(block) << "\" -G#DA5552 -O -K >> " << psTempFile << endl;
+	}
+
+	// Does the user want to print measurements?
+	if (!pprj_->p._omit_measurements)
+	{
+		// now print lines
+		for (UINT32 i=0; i<v_msr_file_.at(block).size(); i++)
+		{
+			if (v_msr_file_.at(block).at(i).second == "H")		// already printed
+				continue;
+			if (v_msr_file_.at(block).at(i).second == "I")		// ''
+				continue;
+			if (v_msr_file_.at(block).at(i).second == "J")		// ''
+				continue;
+			if (v_msr_file_.at(block).at(i).second == "P")		// ''
+				continue;
+			if (v_msr_file_.at(block).at(i).second == "Q")		// ''
+				continue;			
+			if (v_msr_file_.at(block).at(i).second == "R")		// ''
+				continue;
+			if (v_msr_file_.at(block).at(i).second == "Y")		// ''
+				continue;
+				
+			_it_colour = equal_range(pprj_->p._msr_colours.begin(), pprj_->p._msr_colours.end(), 
+				v_msr_file_.at(block).at(i).second, ComparePairFirst<string>());
+
+			if (_it_colour.first == _it_colour.second)
+			{
+				gmtbat_file_ << _APP_PSXY_ << " -R -J \"" << v_msr_file_.at(block).at(i).first << 
+					"\" " << "-W" << setprecision(2) << line_width_ << 
+					"p,lightgray";
+				//if (v_msr_file_.at(block).at(i).second == "Y")		// not a vector measurement, so represent as dashed
+				//	gmtbat_file_ << ",6_8:1p";
+				gmtbat_file_ << " -O -K >> " << psTempFile << endl;
+			}
+			else
+			{
+				colours++;
+				gmtbat_file_ << _APP_PSXY_ << " -R -J \"" << v_msr_file_.at(block).at(i).first << 
+					"\" " << "-W" << setprecision(2) << line_width_ << 
+					"p," << _it_colour.first->second;
+				//if (v_msr_file_.at(block).at(i).second == "Y")		// not a vector measurement, so represent as dashed
+				//	gmtbat_file_ << ",6_8:1p";
+				gmtbat_file_ << " -O -K >> " << psTempFile << endl;
+			}
+		}
+	}
+
+	if (pprj_->p._plot_positional_uncertainty || 
+		pprj_->p._plot_error_ellipses)
+	{
+		// calculate scale for uncertainty circles, to the end that 
+		// largest_uncertainty_ is uncertainty_legend_length_ cm on the A3 page
+		//if (largest_uncertainty_ >= 1.0)
+		//	uncertainty_legend_precision = 0;
+		/*else*/ if ((largest_uncertainty_ / pprj_->p._pu_ellipse_scale) >= 0.1)
+			uncertainty_legend_precision = 1;
+		else if ((largest_uncertainty_ / pprj_->p._pu_ellipse_scale) >= 0.01)
+			uncertainty_legend_precision = 2;
+		else if ((largest_uncertainty_ / pprj_->p._pu_ellipse_scale) >= 0.001)
+			uncertainty_legend_precision = 3;
 		else
-			cmd_file << DELETE_CMD << " " << epsname << endl;
+			uncertainty_legend_precision = 4;
+	}
+
+	UINT32 precision(10);
+
+	if (pprj_->p._plot_positional_uncertainty)
+	{
+		// print positional uncertainty
+		gmtbat_file_ << _APP_PSVELO_ << " -R -J \"" << v_stn_apu_file_.at(block) << 
+			"\" -Sr" << error_ellipse_scale << "/0.95/0c -L -W1.25p,#FFD275 -O -K >> " << psTempFile << endl;
+
+		// Shift plot north to account for error ellipse legend
+		if (pprj_->p._plot_error_ellipses)
+			gmtbat_file_ << _APP_PSXY_ << " -R -J -T -Y" << 
+				label_font_size * 1.5 << "p " << 
+				" -O -K >> " << psTempFile << endl;
+		
+		// Add text for positional uncertainty legend 
+		gmtbat_file_ << _ECHO_CMD_ << 
+			setprecision(precision) << fixed << left << uncertainty_legend_long_ << " " << 
+			setprecision(precision) << fixed << left << uncertainty_legend_lat_ << " " << 
+			" 95% positional uncertainty " <<						// the label
+			setprecision(uncertainty_legend_precision) <<			// ''
+			fixed << largest_uncertainty_ / pprj_->p._pu_ellipse_scale << " radius \\(m\\)" <<					// radius
+			" | ";													// Push to pstext
+		gmtbat_file_ << 
+			_APP_PSTEXT_ << " -R -J -F+f" << 
+			fixed << setprecision(0) << 
+			pprj_->p._label_font_size * 2.0 << "p,Helvetica" <<		// font size and face
+			"=~" << pprj_->p._label_font_size/2.0 << "p,white" << 		// outline (or glow)
+			"+jLM " <<														// justification
+			"-Dj" << pprj_->p._label_font_size * 2.0 <<				// x shift
+			"p/0p -O -K >> " << psTempFile << endl;					// y shift
+	}
+	
+	if (pprj_->p._plot_error_ellipses)
+	{
+		// Terminate a sequence of GMT plotting commands without producing any plotting output
+		if (pprj_->p._plot_positional_uncertainty)
+			gmtbat_file_ << _APP_PSXY_ << " -R -J -T -Y-" << 
+				label_font_size * 1.5 << "p " << 
+				" -O -K >> " << psTempFile << endl;
+
+		double ellipse_scale(1.);
+
+		// The error ellipse legend is printed using the largest uncertainty (semi-major) found, unless
+		// positional uncertainty is being printed, in which case the error ellipse is printed using
+		// half the size.  This is purely to give the impression that error ellipses are 1 sigma (68%) and
+		// positional uncertainty is 95%, or close to 2 sigma.
+		if (pprj_->p._plot_positional_uncertainty)
+			ellipse_scale = 2.;
+
+		// print error ellipses in indian red
+		gmtbat_file_ << _APP_PSVELO_ << " -R -J \"" << v_stn_err_file_.at(block) << 
+			"\" -Sr" << error_ellipse_scale << "/0.95/0c -L -W0.75p,#DA5552 -O -K >> " << psTempFile << endl;
+
+		// Add text for error ellipse legend 
+		gmtbat_file_ << _ECHO_CMD_ <<
+			setprecision(precision) << fixed << left << uncertainty_legend_long_ << " " << 
+			setprecision(precision) << fixed << left << uncertainty_legend_lat_ << " " << 
+			" 1 sigma error ellipse " <<							// the label
+			setprecision(uncertainty_legend_precision) <<			// ''
+			fixed << largest_uncertainty_ / ellipse_scale / pprj_->p._pu_ellipse_scale <<			// semi-major
+			", " <<				
+			fixed << largest_uncertainty_ / 3.0 / ellipse_scale / pprj_->p._pu_ellipse_scale <<	// semi-minor (make it third the height)
+			" \\(m\\)" <<
+			" | ";													// Push to pstext
+		gmtbat_file_ << 
+			_APP_PSTEXT_ << " -R -J -F+f" << 
+			fixed << setprecision(0) << 
+			pprj_->p._label_font_size * 2.0 << "p,Helvetica" <<				// font size and face
+			"=~" << pprj_->p._label_font_size/2.0 << "p,white" << 		// outline (or glow)
+			"+jLM " <<														// justification
+			"-Dj" << pprj_->p._label_font_size * 2.0 <<				// x shift
+			"p/0p -O -K >> " << psTempFile << endl;					// y shift
+	}
+	
+	if (pprj_->p._plot_correction_arrows)
+	{
+		// calculate scale for arrows, to the end that 
+		// average_correction_ is 3cm on the A3 page
+		if (average_correction_ < PRECISION_1E4)
+			average_correction_ = PRECISION_1E4;
+		double correction_arrow_scale(arrow_legend_length_/average_correction_);
+		UINT32 correction_legend_precision(4);
+
+		//if (average_correction_ >= 1.0)
+		//	correction_legend_precision = 0;
+		/*else*/ if (average_correction_ >= 0.1)
+			correction_legend_precision = 1;
+		else if (average_correction_ >= 0.01)
+			correction_legend_precision = 2;
+		else if (average_correction_ >= 0.001)
+			correction_legend_precision = 3;
+		else
+			correction_legend_precision = 4;
+
+
+		// print text in black (no arrows)
+		if (pprj_->p._plot_correction_labels)
+			gmtbat_file_ << _APP_PSVELO_ << " -R -J \"" << v_stn_cor_file_.at(block) << 
+				"\" -Se0.0001/0.95+f" << setprecision(0) << pprj_->p._label_font_size << 
+				"p,Helvetica,black -L -A0.0001/0.0001/0.0001c -O -K >> " << psTempFile << endl;
+
+		// print arrows (without black outline!)
+		gmtbat_file_ << _APP_PSVELO_ << " -R -J \"" << v_stn_cor_file_.at(block) << 
+			"\" -Se" << correction_arrow_scale << "/0.95/0c -L -A" << line_width_ / 2.0 * CM_TO_INCH << 
+			"/0.5/0.1c -G#DA5552 -W0.0p,#DA5552 -O -K >> " << psTempFile << endl;
+
+		// Add text below the corrections arrow legend 
+		gmtbat_file_ << _ECHO_CMD_ <<
+			setprecision(precision) << fixed << left << arrow_legend_long_ << " " << 
+			setprecision(precision) << fixed << left << arrow_legend_lat_ << " " << 
+			setprecision(correction_legend_precision) <<			// the label
+			fixed << average_correction_ / pprj_->p._correction_scale <<	" \\(m\\)" <<				// ''
+			" | ";													// Push to pstext
+		gmtbat_file_ << 
+			_APP_PSTEXT_ << " -R -J -F+f" << 
+			fixed << setprecision(0) << 
+			pprj_->p._label_font_size * 2.0 << "p,Helvetica" <<		// font size and face
+			"=~" << pprj_->p._label_font_size/2.0 << "p,white" << 		// outline (or glow)
+			"+jRM " <<														// justification
+			"-Dj" << pprj_->p._label_font_size * 2.0 << 		 		// x shift
+			"p/0p -O -K >> " << psTempFile << endl;					// y shift
+		
+		gmtbat_file_ << _APP_PSXY_ << " -R -J -T -Y-" << 
+			label_font_size * 1.5 << "p " << 
+			" -O -K >> " << psTempFile << endl;
+
+		// Add text above for corrections legend 
+		gmtbat_file_ << _ECHO_CMD_ <<
+			setprecision(precision) << fixed << left << arrow_legend_long_ << " " << 
+			setprecision(precision) << fixed << left << arrow_legend_lat_ << " " << 
+			"Corrections scale" <<									// the label
+			" | ";													// Push to pstext
+		gmtbat_file_ << 
+			_APP_PSTEXT_ << " -R -J -F+f" << 
+			fixed << setprecision(0) << 
+			pprj_->p._label_font_size * 2.0 << "p,Helvetica" <<		// font size and face
+			"=~" << pprj_->p._label_font_size/2.0 << "p,white" << 		// outline (or glow)
+			"+jCM " <<														// justification
+			"-Dj-" << pprj_->p._label_font_size * 2.0 <<				// x shift
+			"p/0p -O -K >> " << psTempFile << endl;					// y shift
+		
+		gmtbat_file_ << _APP_PSXY_ << " -R -J -T -Y" << 
+			label_font_size * 1.5 << "p " << 
+			" -O -K >> " << psTempFile << endl;
+	}
+
+	if (pprj_->p._plot_station_labels)
+	{
+		gmtbat_file_ << _APP_PSTEXT_ << " -R -J \"" << v_isl_lbl_file_.at(block) << "\"";
+		
+		// print shadow
+		gmtbat_file_ << " -F+f" << 
+			fixed << setprecision(0) << 
+			pprj_->p._label_font_size << "p,Helvetica" <<				// font size and face
+			"=~" << pprj_->p._label_font_size/3.0 << "p,white" << 		// outline (or glow)
+			"+jLM " <<														// justification
+			"-Dj" << pprj_->p._label_font_size + 						
+				sqrt(pprj_->p._label_font_size) << 					// x shift
+			"p/" << pprj_->p._label_font_size/2.0 <<					// y shift
+			"p -O -K >> " << psTempFile << endl;
+
+		if (plotBlocks_)
+		{
+			gmtbat_file_ << _APP_PSTEXT_ << " -R -J \"" << v_jsl_lbl_file_.at(block) << "\"";
+			
+			// print shadow
+			gmtbat_file_ << " -F+f" << 
+				fixed << setprecision(0) << 
+				pprj_->p._label_font_size << "p,Helvetica" <<				// font size and face
+				"=~" << pprj_->p._label_font_size/3.0 << "p,white" << 		// outline (or glow)
+				"+jLM " <<														// justification
+				"-Dj" << pprj_->p._label_font_size + 						
+					sqrt(pprj_->p._label_font_size) << 					// x shift
+				"p/" << pprj_->p._label_font_size/2.0 <<					// y shift
+				"p -O -K >> " << psTempFile << endl;
+		}
+	}
+
+	// Prepare to terminate a sequence of GMT plotting commands without producing 
+	// any plotting output (depending on whether a title block is required)
+	gmtbat_file_ << _APP_PSXY_ << " -R -J -T -O";
+
+	string legendCommand1(_LEGEND_CMD_1_), legendCommand2(_LEGEND_CMD_2_);
+
+#if defined(_WIN32) || defined(__WIN32__)
+	// temporary legend files
+	legendCommand1.append(legendTempFile);
+	legendCommand2.append(legendTempFile);
+#endif
+	
+	// No title block?
+	if (pprj_->p._omit_title_block)
+	{
+		// Terminate a sequence of GMT plotting commands without producing any plotting output
+		gmtbat_file_ << " >> " << psTempFile << endl << endl;
 	}
 	else
 	{
-		if (blockCount_ > 1)
-		{	
-			block = 0;
-			if (plotBlocks_ && plotCriteria_._plot_block_number > 0)
-				block = plotCriteria_._plot_block_number - 1;
+		gmtbat_file_ << " -K >> " << psTempFile << endl << endl;
+		
+		// legend
+		gmtbat_file_ << _APP_GMTSET_ << " FONT_TITLE 1" << endl;
+		gmtbat_file_ << _APP_GMTSET_ << " FONT_ANNOT_PRIMARY " << label_font_size * 1.1 << "p";
 
-			for (; block<blockCount_; block++)
-			{
-				ss.str("");
-				ss << "_block" << block + 1;
-				epsname = plotCriteria_._eps_file_name;
-				epsname = epsname.replace(epsname.find("."), 1, ss.str() + ".");
+		gmtbat_file_ << endl;
 
-#if defined(_WIN32) || defined(__WIN32__)
-				cmd_file << "call ";
+#if defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
+		gmtbat_file_ << "cat > " << legendTempFile << " << END" << endl;
 #endif
-				cmd_file << "ps2pdf -dEPSCrop " << epsname <<
-					" " << picname << ss.str() << ".pdf" << endl;
-				cmd_file << DELETE_CMD << " " << epsname << endl;
 
-				if (plotBlocks_ && plotCriteria_._plot_block_number > 0)
-					break;
-			}
+		bool isnameaNumber(is_number<string>(pprj_->p._title));
 
-			cmd_file << "pdftk ";
+		gmtbat_file_ << _LEGEND_ECHO_ << "G 0.25" << legendCommand1 << endl;
+		gmtbat_file_ << _LEGEND_ECHO_ << "N 1" << legendCommand2 << endl;
+		gmtbat_file_ << _LEGEND_ECHO_ << "H " << fixed << setprecision(0) << label_font_size * 2.0 << "p,Helvetica-Bold ";
+		if (isnameaNumber) 
+			gmtbat_file_ << "'" << pprj_->p._title << "'";
+		else
+			gmtbat_file_ << pprj_->p._title;
 
-			if (plotBlocks_ && plotCriteria_._plot_block_number > 0)
-				block = plotCriteria_._plot_block_number - 1;
-			else
-				block = 0;
+		if (blockCount_ > 1)
+			gmtbat_file_ << "  (Block " << block + 1 << " of " << blockCount_ << ") ";
 
-			for (; block<blockCount_; block++)
-			{
-				ss.str("");
-				ss << "_block" << block + 1;
-				cmd_file << picname << ss.str() << ".pdf ";
+		if (!pprj_->p._plot_station_centre.empty())
+			gmtbat_file_ << " centred on " << pprj_->p._plot_station_centre;
 
-				if (plotBlocks_ && plotCriteria_._plot_block_number > 0)
-					break;
-			}
+		gmtbat_file_ << legendCommand2 << endl;
+		gmtbat_file_ << _LEGEND_ECHO_ << "G 0.25" << legendCommand2 << endl;
 
-			cmd_file << "cat output " << pdfname_tmp << " dont_ask" << endl;
-			cmd_file << DELETE_CMD << " ";
-			
-			if (plotBlocks_ && plotCriteria_._plot_block_number > 0)
-				block = plotCriteria_._plot_block_number - 1;
-			else
-				block = 0;
+		// Print stations legend
+		gmtbat_file_ << _LEGEND_ECHO_ << "D 0 1p" << legendCommand2 << endl;		// horizontal line
+		gmtbat_file_ << _LEGEND_ECHO_ << "G 0.25" << legendCommand2 << endl;		// space	
 
-			for (; block<blockCount_; block++)
-			{
-				ss.str("");
-				ss << "_block" << block + 1;
-				cmd_file << "*" << ss.str() << ".pdf ";
-				//cmd_file << "*" << ss.str() << "*.d ";
+		UINT32 station_count(1);		// Simultaneous or ISL
 
-				if (plotBlocks_ && plotCriteria_._plot_block_number > 0)
-					break;
-			}			
-			cmd_file << endl;
+		if (plotBlocks_)
+			station_count++;			// JSL
+		
+		if (plotConstraints_)
+		{
+			station_count++;			// Simultaneous or ISL constraint stations
+			if (plotBlocks_)
+				station_count++;		// JSL constraint stations				
 		}
+		
+		//if (pprj_->p._plot_correction_arrows)
+		//	station_count++;			// Corrections to station coordinates
+
+		gmtbat_file_ << _LEGEND_ECHO_ << "N " << station_count << legendCommand2 << endl;
+		gmtbat_file_ << _LEGEND_ECHO_ << "V 0 1p" << legendCommand2 << endl;		// vertical line
+		
+		circle_radius_2_ = circle_radius_ * 1.75;
+
+		// Simultaneous stations or Phased inner stations
+		gmtbat_file_ << _LEGEND_ECHO_ <<
+			"S " << fixed << setprecision(1) << symbol_offset << " c " << 
+			circle_radius_2_ << " white " << 
+			circle_line_width_ * 2 << "p,#235789 " <<
+			fixed << setprecision(1) << label_offset;
+		if (plotBlocks_)
+			gmtbat_file_ << " Free Inner stations ";
+		else 
+			gmtbat_file_ << " Free Stations";
+		gmtbat_file_ << legendCommand2 << endl;
+
+		// Simultaneous stations or Phased inner stations
+		if (plotBlocks_)
+		{
+			gmtbat_file_ << _LEGEND_ECHO_ <<
+				"S " << fixed << setprecision(1) << symbol_offset << " c " << 
+				circle_radius_2_ << " white " << 
+				circle_line_width_ * 2 << "p,#DA5552 " <<
+				fixed << setprecision(1) << label_offset <<
+				" Free Junction stations" << legendCommand2 << endl;
+		}
+
+		if (plotConstraints_)
+		{
+			if (plotBlocks_)
+			{
+				gmtbat_file_ << _LEGEND_ECHO_ <<
+					"S " << fixed << setprecision(1) << symbol_offset << " c " << 
+					circle_radius_2_ << " #235789 " << 
+					circle_line_width_ * 2 << "p,#235789 " <<
+					fixed << setprecision(1) << label_offset <<
+					" Constrained inner stations" << legendCommand2 << endl;
+				gmtbat_file_ << _LEGEND_ECHO_ <<
+					"S " << fixed << setprecision(1) << symbol_offset << " c " << 
+					circle_radius_2_ << " #DA5552 " << 
+					circle_line_width_ * 2 << "p,#DA5552 " <<
+					fixed << setprecision(1) << label_offset <<
+					" Constrained junction stations" << legendCommand2 << endl;
+			}
+			else
+				gmtbat_file_ << _LEGEND_ECHO_ <<
+					"S " << fixed << setprecision(1) << symbol_offset << " c " << 
+					circle_radius_2_ << " #235789 " << 
+					circle_line_width_ * 2 << "p,#235789 " <<
+					fixed << setprecision(1) << label_offset <<
+					" Constraint stations" << legendCommand2 << endl;
+		}			
+		
+		title_block_height_ = 5;
+
+		if (pprj_->p._plot_correction_arrows)
+		{
+		//	// Add corrections to end of stations legend
+		//	gmtbat_file_ << _LEGEND_ECHO_ <<
+		//		"S " << fixed << setprecision(1) << symbol_offset << 
+		//		" v 1.5c/0.04/0.5/0.1 red " <<			// arrowlength/linewidth/arrowheadwidth/arrowheadlength
+		//		line_width * 2 << "p,#DA5552 " 
+		//		<< fixed << setprecision(1) << label_offset * 1.5 << " Corrections to stations" << legendCommand2 << endl;
+		}
+		// If corrections are not being printed, then print measurements legend
 		else
 		{
-#if defined(_WIN32) || defined(__WIN32__)
-			cmd_file << "call ";
-#endif
-			cmd_file << "ps2pdf -dEPSCrop " << plotCriteria_._eps_file_name.c_str() << " " << pdfname_tmp << endl;
-			cmd_file << DELETE_CMD << " " << plotCriteria_._eps_file_name.c_str() << endl;
+			gmtbat_file_ << _LEGEND_ECHO_ << "G 0.25" << legendCommand2 << endl;		// space
+			gmtbat_file_ << _LEGEND_ECHO_ << "D 0 1p" << legendCommand2 << endl;		// horizontal line
+			gmtbat_file_ << _LEGEND_ECHO_ << "G 0.25" << legendCommand2 << endl;		// space	
+
+			if (v_msr_file_.at(block).size() > columns)
+				gmtbat_file_ << _LEGEND_ECHO_ << "N " << columns << legendCommand2 << endl;
+			else
+				gmtbat_file_ << _LEGEND_ECHO_ << "N " << v_msr_file_.at(block).size() << legendCommand2 << endl;
+
+			bool bOtherTypes(false);
+			
+			for (UINT32 i=0; i<v_msr_file_.at(block).size(); i++)
+			{
+				_it_colour = equal_range(pprj_->p._msr_colours.begin(), pprj_->p._msr_colours.end(), 
+					v_msr_file_.at(block).at(i).second, ComparePairFirst<string>());
+
+				if (_it_colour.first != _it_colour.second)
+				{
+					gmtbat_file_ << _LEGEND_ECHO_ << "S " << fixed << setprecision(1) << symbol_offset;
+
+					circle_radius_2_ = circle_radius_ * 1.75;
+
+					// print a circle or line?
+					if (v_msr_file_.at(block).at(i).second == "I" ||			// astronomic latitude
+						v_msr_file_.at(block).at(i).second == "P" ||			//   geodetic latitude
+						v_msr_file_.at(block).at(i).second == "J" ||			// astronomic longitude
+						v_msr_file_.at(block).at(i).second == "Q" ||			//   geodetic longitude
+						v_msr_file_.at(block).at(i).second == "H" ||			// orthometric height
+						v_msr_file_.at(block).at(i).second == "R" ||			// ellipsoidal height
+						v_msr_file_.at(block).at(i).second == "Y")				// GPS point cluster
+						gmtbat_file_ << " c " << circle_radius_2_ << " " <<
+								_it_colour.first->second << " " << 
+								circle_line_width_ * 2;								// circle
+					else
+						gmtbat_file_ << " - " << line_width_ * 3 << " " << 
+						_it_colour.first->second <<	" " << line_width_ * 7.5;	// line
+
+					gmtbat_file_ << "p,";
+
+					if (v_msr_file_.at(block).at(i).second == "Y")
+						gmtbat_file_ << "255/0/255";							// magenta, #FF00FF
+					else if (v_msr_file_.at(block).at(i).second == "I" ||		// astronomic latitude
+						v_msr_file_.at(block).at(i).second == "P")				// geodetic latitude
+						gmtbat_file_ << "252/181/20";							// packer gold, #FCB514
+					else if (v_msr_file_.at(block).at(i).second == "J" ||		// astronomic longitude
+						v_msr_file_.at(block).at(i).second == "Q")				// geodetic longitude
+						gmtbat_file_ << "255/128/0";							// orange, #FF8000
+					else if (v_msr_file_.at(block).at(i).second == "H" ||		// orthometric height
+						v_msr_file_.at(block).at(i).second == "R")				// ellipsoidal height
+						gmtbat_file_ << "227/54/56";							// rosemadder, #E33638
+					else
+						gmtbat_file_ << _it_colour.first->second;
+
+					gmtbat_file_ << " " << fixed << setprecision(1) << label_offset << " " << 
+						measurement_name<char, string>(static_cast<char>(_it_colour.first->first.at(0))) << legendCommand2 << endl;
+				}
+				else
+					bOtherTypes = true;
+			}
+
+			if (bOtherTypes)
+				gmtbat_file_ << _LEGEND_ECHO_ <<
+					"S " << fixed << setprecision(1) << symbol_offset << " - 0.5 lightgray " << line_width_ * 2.5 << "p,lightgray " 
+					<< fixed << setprecision(1) << label_offset << "  All other types" << legendCommand2 << endl;			
+
+			title_block_height_ += floor(((double)colours)/columns) * 0.25;
+		
 		}
-	}
-	
-	// close PDF file
-	dna_io_pdf pdf;
-	string close_cmd(pdf.form_pdf_close_string(pdfname, projectSettings_.p._acrobat_ddename));
-	if (close_cmd != "")
-		cmd_file << close_cmd << endl;
 
-	// copy temp PDF file to final PDF file
-	cmd_file << COPY_CMD << " " << pdfname_tmp << " " << pdfname;
-	if (projectSettings_.g.verbose == 0 && projectSettings_.g.quiet == 0)
-	{
-		// Force output to file instead of stdout
-		cmd_file << " > tmp.tmp" << endl;
-		cmd_file << DELETE_CMD << " tmp.tmp" << endl;
-	}
-	else
-		cmd_file << endl;
+		gmtbat_file_ << _LEGEND_ECHO_ << "G 0.25" << legendCommand2 << endl;		// space
+		gmtbat_file_ << _LEGEND_ECHO_ << "D 0 1p" << legendCommand2 << endl;		// horizontal line
+		gmtbat_file_ << _LEGEND_ECHO_ << "G 0.25" << legendCommand2 << endl;		// space
+		gmtbat_file_ << _LEGEND_ECHO_ << "N 5" << legendCommand2 << endl;
+		gmtbat_file_ << _LEGEND_ECHO_ << "S 0.01 c 0.01 white 1p,white 1 " << pprj_->p._title_block_subname << legendCommand2 << endl;
+		gmtbat_file_ << _LEGEND_ECHO_ << "S 0.01 c 0.01 white 1p,white 0 " << pprj_->p._title_block_name << legendCommand2 << endl;
+		gmtbat_file_ << _LEGEND_ECHO_ << "S 0.01 c 0.01 white 1p,white 3 " << reference_frame_ << legendCommand2 << endl;
+		gmtbat_file_ << _LEGEND_ECHO_ << "S 0.01 c 0.01 white 1p,white 0 " << projectionTypes[pprj_->p._projection] << " projection" << legendCommand2 << endl;
+		gmtbat_file_ << _LEGEND_ECHO_ << "S 0.01 c 0.01 white 1p,white 1 Scale 1:" << static_cast<UINT32>(scale_) << " (A3)" << legendCommand2 << endl;
 
-	// delete temp file
-	cmd_file << DELETE_CMD << " " << pdfname_tmp << endl;
-
-#if defined(_WIN32) || defined(__WIN32__)
-	// open in Acrobat
-	string open_cmd(pdf.form_pdf_open_string(pdfname, projectSettings_.p._acrobat_ddename));
-	
-	if (open_cmd != "")
-		cmd_file << open_cmd << endl;
-	else
-		cmd_file << "start " << pdfname << endl;
+#if defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
+		gmtbat_file_ << "END" << endl << endl;
 #endif
+
+		gmtbat_file_ << _APP_PSLEGEND_ << " -R -J -DJTL+w" << fixed << setprecision(1) << page_width_ << 
+			"c+jBL+l1.5+o0/1.5c -C0.3/0.3 -O -F+p+gwhite " <<
+			legendTempFile << " -P >> " << psTempFile << endl;
+
+	}
+
+
+	////////////////////////////////////////////////
+	// conversion to PDF 
+	//
 	
-	cmd_file << endl << "exit /b 0" << endl;
+	gmtbat_file_ << endl << _COMMENT_PREFIX_ << "convert ps to pdf" << endl;
 
-	cmd_file.close();
+	size_t lastindex = v_gmt_pdf_filenames_.at(block).find_last_of("."); 
+	string pdf_filename = v_gmt_pdf_filenames_.at(block).substr(0, lastindex); 	
+	gmtbat_file_ << _APP_PSCONVERT_ << " -A0.2c+white -Tf -F\"" << pdf_filename << "\" " << psTempFile << endl << endl;
 
-	return pdfname;
+	if (pprj_->p._export_png)
+	{
+		gmtbat_file_ << endl << _COMMENT_PREFIX_ << "convert ps to png" << endl;
+		gmtbat_file_ << _APP_PSCONVERT_ << " -A0.2c+white -Tg -F\"" << pdf_filename << "\" " << psTempFile << endl << endl;
+	}
+
+	////////////////////////////////////////////////
+	
+	////////////////////////////////////////////////
+	// clean up legend files
+	gmtbat_file_ << _COMMENT_PREFIX_ << "cleanup" << endl;
+	gmtbat_file_ << _DELETE_CMD_ << psTempFile;
+
+	if (!pprj_->p._omit_title_block)
+		gmtbat_file_ << " " << legendTempFile << endl;
+	else
+		gmtbat_file_ << endl;
+
+	////////////////////////////////////////////////
+
+	// remove temporary directory for gmt.conf and gmt.history
+	gmtbat_file_ << _RMDIR_CMD_ << _ENV_GMT_TMP_DIR_ << endl;
+
+#if defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)	
+	gmtbat_file_ << "unset " << _GMT_TMP_DIR_ << endl;
+
+#endif		
+
+		
+	gmtbat_file_ << endl;
+		
+	//////////////////////////////////////////////////////////////////////////////////////////
+	// delete data files
+	if (!pprj_->p._keep_gen_files)
+	{
+		gmtbat_file_ << _DELETE_CMD_;
+
+		// stations
+		gmtbat_file_ << 
+			" \"" << v_isl_pts_file_.at(block) << "\"" <<
+			" \"" << v_isl_const_file_.at(block) << "\"";
+
+		if (plotBlocks_)
+		{
+			// junction stations5
+			gmtbat_file_ << 
+				" \"" << v_jsl_const_file_.at(block) << "\"" <<
+				" \"" << v_jsl_pts_file_.at(block) << "\"";
+		}
+
+		// measurements
+		for (UINT32 i=0; i<v_msr_file_.at(block).size(); i++)
+			gmtbat_file_ << " \"" << v_msr_file_.at(block).at(i).first << "\"";
+	
+		// station labels
+		if (pprj_->p._plot_station_labels)
+		{
+			gmtbat_file_ << " \"" << v_isl_lbl_file_.at(block) << "\"";
+		
+			if (plotBlocks_)
+				gmtbat_file_ << " \"" << v_jsl_lbl_file_.at(block) << "\"";
+		}
+
+		if (pprj_->p._plot_positional_uncertainty)
+			gmtbat_file_ << " \"" << v_stn_apu_file_.at(block) << "\"";
+
+		if (pprj_->p._plot_error_ellipses)
+			gmtbat_file_ << " \"" << v_stn_err_file_.at(block) << "\"";
+
+		if (pprj_->p._plot_correction_arrows)
+			gmtbat_file_ << " \"" << v_stn_cor_file_.at(block) << "\"";
+
+		gmtbat_file_ << endl;
+	}
+	else
+		gmtbat_file_ << endl;
+	//////////////////////////////////////////////////////////////////////////////////////////
+
+	gmtbat_file_ << endl;
+
 }
-	
 
-void dna_plot::PrintPdfCmdfile_Graph(const string& pdf_cmd_file, const string& picname)
+void dna_plot::CreateGMTPlotEnvironment(project_settings* pprj)
 {
-	std::ofstream cmd_file;
-	try {
-		// open PDF batch file.  Throws runtime_error on failure.
-		file_opener(cmd_file, pdf_cmd_file);
-	}
-	catch (const runtime_error& e) {
-		SignalExceptionPlot(e.what(), 0, NULL);
+	// Set up the environment
+	pprj_ = pprj;
+
+	InitialiseGMTParameters();
+
+	InitialiseGMTFilenames();
+	CreateGMTInputFiles();
+
+	FinaliseGMTParameters();
+
+	// for 1..n blocks, create a shell script that generates a PDF for 
+	// a single block.  dnaplotwrapper can then execute each shell
+	// script in parallel.
+	CreateGMTCommandFiles();
+	
+	// Now, based on font size determined by CreateGMTCommandFiles,
+	// Print:
+	//  - stations labels, 
+	//  - positional uncertainty, 
+	//  - error ellipses, and 
+	//  - correction arrows
+	CreateExtraInputFiles();
+}
+
+void dna_plot::InvokeGMT()
+{
+	// set up a thread group to execute the GMT scripts in parallel
+	thread_group gmt_plot_threads;
+	
+	for (UINT32 plot=0; plot<v_gmt_cmd_filenames_.size(); ++plot)
+	{
+		gmt_plot_threads.create_thread(dna_create_threaded_process(v_gmt_cmd_filenames_.at(plot)));
 	}
 
-	string pdfname(picname + ".pdf");
-	string pdfname_tmp(picname + ".tmp.pdf");
+	// go!
+	gmt_plot_threads.join_all();
+}
+
+// Aggregare individual PDFs created for each block (for
+// phased adjustments only).
+void dna_plot::AggregateGMTPDFs()
+{
+	if (!plotBlocks_)
+		return;
+
+	string system_file_cmd;
+	stringstream ss;
+
+	ss << _PDF_AGGREGATE_;
+
+	for_each(v_gmt_pdf_filenames_.begin(), v_gmt_pdf_filenames_.end(),
+		[&ss](const string& gmt_pdf_file) {
+			ss << " " << gmt_pdf_file;
+		});
 
 #if defined(_WIN32) || defined(__WIN32__)
-	cmd_file << "@echo off" << endl;
-	cmd_file << "call ";
-#elif defined(__linux) || defined(sun) || defined(__unix__)
-	cmd_file << "#!/bin/bash" << endl;
+	// assumes pdftk is used.  add extra options
+	ss << " cat output " << pprj_->p._pdf_file_name << " dont_ask";
+#elif defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
+	// assumes pdfunite is used (nothing to do here)
+	ss << " " << pprj_->p._pdf_file_name;
 #endif
+
+	// aggregate!
+	system_file_cmd = ss.str();
+
+	std::system(system_file_cmd.c_str());
+}
+
+
+void dna_plot::CreateGMTPlot()
+{	
+	// Execute GMT in parallel
+	InvokeGMT();
+
+	// Combine all multi-page PDFs in one
+	AggregateGMTPDFs();
+
+	// clean up config and PDF files
+	CleanupGMTFiles();
+}
+
+void dna_plot::CleanupGMTFiles()
+{
+	if (pprj_->p._keep_gen_files)
+		return;
 	
-	cmd_file << "ps2pdf -dEPSCrop " << plotCriteria_._eps_file_name.c_str() << " " << pdfname_tmp << endl;
-	cmd_file << DELETE_CMD << " " << plotCriteria_._eps_file_name.c_str() << endl;
-	
-	if (!plotCriteria_._keep_gen_files)
+	stringstream ss;
+	ss << _DELETE_CMD_;
+
+	// shell scripts
+	for_each(v_gmt_cmd_filenames_.begin(), v_gmt_cmd_filenames_.end(),
+		[&ss](const string& gmt_cmd_file) {
+			ss << " \"" << gmt_cmd_file << "\"";
+		});
+
+	if (plotBlocks_)
 	{
-		if (exists(seg_msr_graph_file_))
-			cmd_file << DELETE_CMD << " " << seg_msr_graph_file_ << endl;
-		if (exists(seg_stn_graph_file_))
-			cmd_file << DELETE_CMD << " " << seg_stn_graph_file_ << endl;
+		// PDF files for each block (except simultaneous)
+		for_each(v_gmt_pdf_filenames_.begin(), v_gmt_pdf_filenames_.end(),
+			[&ss](const string& gmt_pdf_file) {
+				ss << " \"" << gmt_pdf_file << "\"";
+			});
 	}
 
-#if defined(_WIN32) || defined(__WIN32__)
-	cmd_file << "call ";
-#endif
-	
-	// close PDF file
-	dna_io_pdf pdf;
-	string close_cmd(pdf.form_pdf_close_string(pdfname, projectSettings_.p._acrobat_ddename));
-	if (close_cmd != "")
-		cmd_file << close_cmd << endl;
+	// delete
+	string clean_up_gmt_config_files = ss.str();
+	std::system(clean_up_gmt_config_files.c_str());
 
-	// copy temp PDF file to final PDF file
-	cmd_file << COPY_CMD << " " << pdfname_tmp << " " << pdfname;
-	if (projectSettings_.g.verbose == 0 && projectSettings_.g.quiet == 0)
-	{
-		// Force output to file instead of stdout
-		cmd_file << " > tmp.tmp" << endl;
-		cmd_file << DELETE_CMD << " tmp.tmp" << endl;
-	}
-	else
-		cmd_file << endl;
-
-	// delete temp file
-	cmd_file << DELETE_CMD << " " << pdfname_tmp << endl;
-
-	#if defined(_WIN32) || defined(__WIN32__)
-	// open in Acrobat
-	string open_cmd(pdf.form_pdf_open_string(pdfname, projectSettings_.p._acrobat_ddename));
-	if (open_cmd != "")
-		cmd_file << open_cmd << endl;
-	else
-		cmd_file << "start " << pdfname << endl;
-#endif
-	
-	cmd_file << endl << "exit /b 0" << endl;
-
-	cmd_file.close();
 }
 	
 
 void dna_plot::DetermineBoundingBox()
 {
-	if (plotCriteria_._bounding_box.empty())
+	if (pprj_->p._bounding_box.empty())
 		return;
 	
-	if (GetFields(const_cast<char*>(plotCriteria_._bounding_box.c_str()), ',', false, "ffff", 
+	if (GetFields(const_cast<char*>(pprj_->p._bounding_box.c_str()), ',', false, "ffff", 
 		&upperDeg_, &leftDeg_, &lowerDeg_, &rightDeg_ ) < 4)
 		return;
 	
@@ -2129,8 +2164,8 @@ void dna_plot::DetermineBoundingBox()
 	lowerDeg_ = DmstoDeg(lowerDeg_);
 	leftDeg_ = DmstoDeg(leftDeg_);
 
-	plotCriteria_._plot_centre_longitude = (rightDeg_ + leftDeg_) / 2.0;
-	plotCriteria_._plot_centre_latitude = (upperDeg_ + lowerDeg_) / 2.0;
+	pprj_->p._plot_centre_longitude = (rightDeg_ + leftDeg_) / 2.0;
+	pprj_->p._plot_centre_latitude = (upperDeg_ + lowerDeg_) / 2.0;
 
 	default_limits_ = false;
 }
@@ -2139,18 +2174,18 @@ void dna_plot::DetermineBoundingBox()
 void dna_plot::CalculateLimitsFromStation()
 {
 	it_pair_string_vUINT32 _it_stnmap;
-	_it_stnmap = equal_range(stnsMap_.begin(), stnsMap_.end(), plotCriteria_._plot_station_centre, StationNameIDCompareName());
+	_it_stnmap = equal_range(stnsMap_.begin(), stnsMap_.end(), pprj_->p._plot_station_centre, StationNameIDCompareName());
 
 	if (_it_stnmap.first == _it_stnmap.second)
 	{
 		stringstream ss;
 		ss.str("");
-		ss << plotCriteria_._plot_station_centre << " is not in the list of network stations.";
+		ss << pprj_->p._plot_station_centre << " is not in the list of network stations.";
 		SignalExceptionPlot(ss.str(), 0, NULL);
 	}
 
-	plotCriteria_._plot_centre_latitude = bstBinaryRecords_.at(_it_stnmap.first->second).initialLatitude;
-	plotCriteria_._plot_centre_longitude = bstBinaryRecords_.at(_it_stnmap.first->second).initialLongitude;
+	pprj_->p._plot_centre_latitude = bstBinaryRecords_.at(_it_stnmap.first->second).initialLatitude;
+	pprj_->p._plot_centre_longitude = bstBinaryRecords_.at(_it_stnmap.first->second).initialLongitude;
 	
 	CalculateLimitsFromPoint();
 }
@@ -2162,59 +2197,62 @@ void dna_plot::CalculateLimitsFromPoint()
 	
 	CDnaEllipsoid e(DEFAULT_EPSG_U);
 
-	VincentyDirect<double>(Radians<double>(plotCriteria_._plot_centre_latitude), Radians<double>(plotCriteria_._plot_centre_longitude),
-		Radians<double>(0.), plotCriteria_._plot_area_radius, &upperDeg_, &temp, &e);
+	VincentyDirect<double>(Radians<double>(pprj_->p._plot_centre_latitude), Radians<double>(pprj_->p._plot_centre_longitude),
+		Radians<double>(0.), pprj_->p._plot_area_radius, &upperDeg_, &temp, &e);
 	upperDeg_ = Degrees(upperDeg_);
 	
-	VincentyDirect<double>(Radians<double>(plotCriteria_._plot_centre_latitude), Radians<double>(plotCriteria_._plot_centre_longitude),
-		Radians<double>(90.), plotCriteria_._plot_area_radius, &temp, &rightDeg_, &e);
+	VincentyDirect<double>(Radians<double>(pprj_->p._plot_centre_latitude), Radians<double>(pprj_->p._plot_centre_longitude),
+		Radians<double>(90.), pprj_->p._plot_area_radius, &temp, &rightDeg_, &e);
 	rightDeg_ = Degrees(rightDeg_);
 	
-	VincentyDirect<double>(Radians<double>(plotCriteria_._plot_centre_latitude), Radians<double>(plotCriteria_._plot_centre_longitude), 
-		Radians<double>(180.), plotCriteria_._plot_area_radius, &lowerDeg_, &temp, &e);
+	VincentyDirect<double>(Radians<double>(pprj_->p._plot_centre_latitude), Radians<double>(pprj_->p._plot_centre_longitude), 
+		Radians<double>(180.), pprj_->p._plot_area_radius, &lowerDeg_, &temp, &e);
 	lowerDeg_ = Degrees(lowerDeg_);
 	
-	VincentyDirect<double>(Radians<double>(plotCriteria_._plot_centre_latitude), Radians<double>(plotCriteria_._plot_centre_longitude),
-		Radians<double>(270.), plotCriteria_._plot_area_radius, &temp, &leftDeg_, &e);
+	VincentyDirect<double>(Radians<double>(pprj_->p._plot_centre_latitude), Radians<double>(pprj_->p._plot_centre_longitude),
+		Radians<double>(270.), pprj_->p._plot_area_radius, &temp, &leftDeg_, &e);
 	leftDeg_ = Degrees(leftDeg_);
 }
 	
 
 void dna_plot::FormGMTDataFileNames(const UINT32& block)
 {
-	string firstPartISL(network_name_), firstPartSTN(network_name_);
+	string firstPartISL = pprj_->g.output_folder + FOLDER_SLASH + network_name_;
+	string firstPartSTN = pprj_->g.output_folder + FOLDER_SLASH + network_name_;
+
+	firstPartSTN.append("_stn");
 
 	if (plotBlocks_)
 	{
-		stringstream firstPart(network_name_);
+		stringstream firstPart;
 		string firstPartJSL;
 		
 		// add isl and jsl filenames for this block
-		firstPart << "_block" << block + 1;
-		firstPartISL = firstPart.str() + "_isl_";
-		firstPartJSL = firstPart.str() + "_jsl_";
-		firstPartSTN = firstPart.str() + "_stn_";
+		firstPart << firstPartSTN << "_block" << block + 1;
+		firstPartISL = firstPart.str() + "_isl";
+		firstPartJSL = firstPart.str() + "_jsl";
+		firstPartSTN = firstPart.str();
 
 		v_jsl_pts_file_.push_back(firstPartJSL + ".stn.d");
 		v_jsl_const_file_.push_back(firstPartJSL + ".const.d");
 
-		if (plotCriteria_._plot_station_labels)
+		if (pprj_->p._plot_station_labels)
 			v_jsl_lbl_file_.push_back(firstPartJSL + ".stn.lbl");
 	}
 
 	v_isl_pts_file_.push_back(firstPartISL + ".stn.d");
 	v_isl_const_file_.push_back(firstPartISL + ".const.d");
 	
-	if (plotCriteria_._plot_station_labels)
+	if (pprj_->p._plot_station_labels)
 		v_isl_lbl_file_.push_back(firstPartISL + ".stn.lbl");
 
-	if (plotCriteria_._plot_positional_uncertainty)
+	if (pprj_->p._plot_positional_uncertainty)
 		v_stn_apu_file_.push_back(firstPartSTN + ".apu.d");
 	
-	if (plotCriteria_._plot_error_ellipses)
+	if (pprj_->p._plot_error_ellipses)
 		v_stn_err_file_.push_back(firstPartSTN + ".err.d");
 	
-	if (plotCriteria_._plot_correction_arrows)
+	if (pprj_->p._plot_correction_arrows)
 		v_stn_cor_file_.push_back(firstPartSTN + ".cor.d");
 }
 
@@ -2226,16 +2264,16 @@ void dna_plot::PrintStationsDataFileBlock(const UINT32& block)
 	std::ofstream isl_pts, isl_const, jsl_pts, jsl_const;
 
 	UINT32 block_index(block);
-	if (plotBlocks_ && plotCriteria_._plot_block_number > 0)
+	if (plotBlocks_ && pprj_->p._plot_block_number > 0)
 		block_index = 0;	// one and only block
 
 	try {
 		// Create stations data files for ISL/JSL.  Throws runtime_error on failure.
-		file_opener(isl_pts, formPath<string>(output_folder_, v_isl_pts_file_.at(block_index)));
-		file_opener(jsl_pts, formPath<string>(output_folder_, v_jsl_pts_file_.at(block_index)));
+		file_opener(isl_pts, v_isl_pts_file_.at(block_index));
+		file_opener(jsl_pts, v_jsl_pts_file_.at(block_index));
 		// Create constraint stations data files for ISL/JSL.  Throws runtime_error on failure.
-		file_opener(isl_const, formPath<string>(output_folder_, v_isl_const_file_.at(block_index)));
-		file_opener(jsl_const, formPath<string>(output_folder_, v_jsl_const_file_.at(block_index)));
+		file_opener(isl_const, v_isl_const_file_.at(block_index));
+		file_opener(jsl_const, v_jsl_const_file_.at(block_index));
 	}
 	catch (const runtime_error& e) {
 		SignalExceptionPlot(e.what(), 0, NULL);
@@ -2302,9 +2340,9 @@ void dna_plot::PrintStationsDataFile()
 	std::ofstream stn_pts, stn_const;
 	try {
 		// Create stations data file.  Throws runtime_error on failure.
-		file_opener(stn_pts, formPath<string>(output_folder_, v_isl_pts_file_.at(0)));
+		file_opener(stn_pts, v_isl_pts_file_.at(0));
 		// Create constraint stations data file.  Throws runtime_error on failure.
-		file_opener(stn_const, formPath<string>(output_folder_, v_isl_const_file_.at(0)));
+		file_opener(stn_const, v_isl_const_file_.at(0));
 	}
 	catch (const runtime_error& e) {
 		SignalExceptionPlot(e.what(), 0, NULL);
@@ -2339,9 +2377,9 @@ void dna_plot::PrintStationsDataFile()
 
 	if (!default_limits_)
 	{
-		if (!plotCriteria_._bounding_box.empty())
+		if (!pprj_->p._bounding_box.empty())
 			DetermineBoundingBox();
-		else if (plotCriteria_._plot_station_centre.empty())
+		else if (pprj_->p._plot_station_centre.empty())
 			CalculateLimitsFromPoint();
 		else
 			CalculateLimitsFromStation();
@@ -2374,16 +2412,15 @@ void dna_plot::PrintStationLabel(ostream& os, it_vstn_t_const _it_stn)
 		return;
 
 	// Print longitude, latitude and label
-	os << setprecision(10) << fixed << _it_stn->initialLongitude << "  " <<
-		_it_stn->initialLatitude;
-	os << "  " << plotCriteria_._label_font_size <<		// font size
-		" 0 0 LM ";										// font angle, font number, justification
+	os << setprecision(10) << fixed << 
+		_it_stn->initialLongitude << "  " <<			// E/W
+		_it_stn->initialLatitude << "   ";				// N/S
 
 	// Print the label, default is station name (i.e. 200100350)
 	string label(_it_stn->stationName);
 	
 	// plot alternate name?
-	if (plotCriteria_._plot_alt_name)
+	if (pprj_->p._plot_alt_name)
 	{
 		label = _it_stn->description;		// description (i.e. Acheron PM 35)
 		if (trimstr(label).empty())
@@ -2392,7 +2429,7 @@ void dna_plot::PrintStationLabel(ostream& os, it_vstn_t_const _it_stn)
 	os << label;			
 
 	// Plot constraints?
-	if (plotCriteria_._plot_station_constraints)
+	if (pprj_->p._plot_station_constraints)
 		if (_it_stn->stationConst[0] == 'C' || 
 			_it_stn->stationConst[1] == 'C' || 
 			_it_stn->stationConst[2] == 'C')
@@ -2405,7 +2442,7 @@ void dna_plot::PrintStationLabels()
 	std::ofstream stn_lbl;
 	try {
 		// Create stations data file.  Throws runtime_error on failure.
-		file_opener(stn_lbl, formPath<string>(output_folder_, v_isl_lbl_file_.at(0)));
+		file_opener(stn_lbl, v_isl_lbl_file_.at(0));
 	}
 	catch (const runtime_error& e) {
 		SignalExceptionPlot(e.what(), 0, NULL);
@@ -2439,13 +2476,13 @@ void dna_plot::PrintStationLabels()
 void dna_plot::PrintStationLabelsBlock(const UINT32& block)
 {	
 	UINT32 block_index(block);
-	if (plotBlocks_ && plotCriteria_._plot_block_number > 0)
+	if (plotBlocks_ && pprj_->p._plot_block_number > 0)
 		block_index = 0;
 	
 	std::ofstream isl_lbl;
 	try {
 		// Create stations data file.  Throws runtime_error on failure.
-		file_opener(isl_lbl, formPath<string>(output_folder_, v_isl_lbl_file_.at(block_index)));
+		file_opener(isl_lbl, v_isl_lbl_file_.at(block_index));
 	}
 	catch (const runtime_error& e) {
 		SignalExceptionPlot(e.what(), 0, NULL);
@@ -2476,7 +2513,7 @@ void dna_plot::PrintStationLabelsBlock(const UINT32& block)
 	std::ofstream jsl_lbl;
 	try {
 		// Create stations data file.  Throws runtime_error on failure.
-		file_opener(jsl_lbl, formPath<string>(output_folder_, v_jsl_lbl_file_.at(block_index)));
+		file_opener(jsl_lbl, v_jsl_lbl_file_.at(block_index));
 	}
 	catch (const runtime_error& e) {
 		SignalExceptionPlot(e.what(), 0, NULL);
@@ -2505,7 +2542,7 @@ void dna_plot::PrintStationLabelsBlock(const UINT32& block)
 void dna_plot::PrintPositionalUncertainty(const UINT32& block)
 {
 	UINT32 block_index(block);
-	if (plotBlocks_ && plotCriteria_._plot_block_number > 0)
+	if (plotBlocks_ && pprj_->p._plot_block_number > 0)
 		block_index = 0;
 	
 	std::ofstream stn_apu;
@@ -2558,8 +2595,8 @@ void dna_plot::PrintPositionalUncertainty(const UINT32& block)
 			setw(MSR) << setprecision(precision) << fixed << left << _it_pu->_longitude << "  " <<
 			setw(MSR) << setprecision(precision) << fixed << left << _it_pu->_latitude << "  " << 
 			" 0 0 " <<
-			setw(MSR) << setprecision(4) << scientific << right << _it_pu->_hzPosU * plotCriteria_._pu_ellipse_scale <<
-			setw(MSR) << setprecision(4) << scientific << right << _it_pu->_hzPosU * plotCriteria_._pu_ellipse_scale <<
+			setw(MSR) << setprecision(4) << scientific << right << _it_pu->_hzPosU * pprj_->p._pu_ellipse_scale <<
+			setw(MSR) << setprecision(4) << scientific << right << _it_pu->_hzPosU * pprj_->p._pu_ellipse_scale <<
 			setw(MSR) << setprecision(1) << fixed << right << "0." << endl;	
 	}
 	
@@ -2570,7 +2607,7 @@ void dna_plot::PrintPositionalUncertainty(const UINT32& block)
 void dna_plot::PrintErrorEllipses(const UINT32& block)
 {	
 	UINT32 block_index(block);
-	if (plotBlocks_ && plotCriteria_._plot_block_number > 0)
+	if (plotBlocks_ && pprj_->p._plot_block_number > 0)
 		block_index = 0;
 	
 	std::ofstream stn_err;
@@ -2594,7 +2631,7 @@ void dna_plot::PrintErrorEllipses(const UINT32& block)
 	// positional uncertainty is being printed, in which case the error ellipse is printed using
 	// half the size.  This is purely to give the impression that error ellipses are 1 sigma (68%) and
 	// positional uncertainty is 95%, or close to 2 sigma.
-	if (plotCriteria_._plot_positional_uncertainty)
+	if (pprj_->p._plot_positional_uncertainty)
 		ellipse_scale = 2.;
 
 	// Print uncertainty legend, using average xx length.  See LoadPosUncertaintyFile().
@@ -2644,8 +2681,8 @@ void dna_plot::PrintErrorEllipses(const UINT32& block)
 			setw(MSR) << setprecision(precision) << fixed << left << _it_pu->_longitude << "  " <<
 			setw(MSR) << setprecision(precision) << fixed << left << _it_pu->_latitude << "  " << 
 			" 0 0 " <<
-			setw(MSR) << setprecision(4) << scientific << right << _it_pu->_semimMajor * plotCriteria_._pu_ellipse_scale <<
-			setw(MSR) << setprecision(4) << scientific << right << _it_pu->_semimMinor * plotCriteria_._pu_ellipse_scale <<
+			setw(MSR) << setprecision(4) << scientific << right << _it_pu->_semimMajor * pprj_->p._pu_ellipse_scale <<
+			setw(MSR) << setprecision(4) << scientific << right << _it_pu->_semimMinor * pprj_->p._pu_ellipse_scale <<
 			setw(MSR) << setprecision(4) << fixed << right << angle << endl;	
 	}
 	
@@ -2656,7 +2693,7 @@ void dna_plot::PrintErrorEllipses(const UINT32& block)
 void dna_plot::PrintCorrectionArrows(const UINT32& block)
 {
 	UINT32 block_index(block);
-	if (plotBlocks_ && plotCriteria_._plot_block_number > 0)
+	if (plotBlocks_ && pprj_->p._plot_block_number > 0)
 		block_index = 0;
 	
 	std::ofstream stn_cor;
@@ -2709,11 +2746,11 @@ void dna_plot::PrintCorrectionArrows(const UINT32& block)
 		stn_cor << 
 			setw(MSR) << setprecision(precision) << fixed << left << bstBinaryRecords_.at(_it_stnmap.first->second).initialLongitude << "  " <<
 			setw(MSR) << setprecision(precision) << fixed << left << bstBinaryRecords_.at(_it_stnmap.first->second).initialLatitude << "  " << 
-			setw(MSR) << setprecision(4) << scientific << right << _it_cor->_east * plotCriteria_._correction_scale <<
-			setw(MSR) << setprecision(4) << scientific << right << _it_cor->_north * plotCriteria_._correction_scale <<
+			setw(MSR) << setprecision(4) << scientific << right << _it_cor->_east * pprj_->p._correction_scale <<
+			setw(MSR) << setprecision(4) << scientific << right << _it_cor->_north * pprj_->p._correction_scale <<
 			" 0 0 0 ";
 
-		if (plotCriteria_._plot_correction_labels)
+		if (pprj_->p._plot_correction_labels)
 			stn_cor << 
 				setw(HEIGHT) << setprecision(3) << fixed << right << _it_cor->_east << "e," <<
 				setprecision(3) << fixed << _it_cor->_north << "n   ";
@@ -2736,35 +2773,35 @@ void dna_plot::PrintMeasurementsDatFilesBlock(const UINT32& block)
 
 	std::ofstream msr_file_stream;
 	
-	for (UINT16 c=0; c<plotCriteria_._separate_msrs.size(); c++)
+	for (UINT16 c=0; c<pprj_->p._separate_msrs.size(); c++)
 	{
 		// no measurement for this type?
-		if (parsemsrTally_.MeasurementCount(plotCriteria_._separate_msrs.at(c)) == 0)
+		if (parsemsrTally_.MeasurementCount(pprj_->p._separate_msrs.at(c)) == 0)
 			continue;
 
 		ss.str("");
-		ss << plotCriteria_._separate_msrs.at(c);
+		ss << pprj_->p._separate_msrs.at(c);
 		type = ss.str();
 		filename.str("");
-		filename << network_name_ << "_msr_block" << block + 1 << "_" << plotCriteria_._separate_msrs.at(c) << ".d";
+		filename << output_folder_ << FOLDER_SLASH << network_name_ << "_msr_block" << block + 1 << "_" << pprj_->p._separate_msrs.at(c) << ".d";
 		v_msr_def_file_.push_back(filename.str());
 		v_msr_file_.at(block).push_back(string_string_pair(v_msr_def_file_.back(), type));
 
 		try {
 			// Create msr data file.  Throws runtime_error on failure.
-			file_opener(msr_file_stream, formPath<string>(output_folder_, v_msr_def_file_.back()));
+			file_opener(msr_file_stream, v_msr_def_file_.back());
 		}
 		catch (const runtime_error& e) {
 			SignalExceptionPlot(e.what(), 0, NULL);
 		}
 
-		PrintMeasurementsDatFileBlock(block, v_msr_def_file_.back(), plotCriteria_._separate_msrs.at(c), &msr_file_stream);
+		PrintMeasurementsDatFileBlock(block, v_msr_def_file_.back(), pprj_->p._separate_msrs.at(c), &msr_file_stream);
 
 		msr_file_stream.close();
 
 		// remove this measurement type from the global list
 		it_vchar_range = equal_range(_combined_msr_list.begin(), _combined_msr_list.end(), 
-			plotCriteria_._separate_msrs.at(c));
+			pprj_->p._separate_msrs.at(c));
 
 		if (it_vchar_range.first != it_vchar_range.second)
 		{
@@ -2790,7 +2827,7 @@ void dna_plot::PrintMeasurementsDatFilesBlock(const UINT32& block)
 
 	// now print remaining measurement types to a single file
 	filename.str("");
-	filename << network_name_ << "_msr_block" << block + 1 << "_";
+	filename << output_folder_ << FOLDER_SLASH << network_name_ << "_msr_block" << block + 1 << "_";
 	ss.str("");
 	for (_it_type=_combined_msr_list.begin(); _it_type!=_combined_msr_list.end(); _it_type++)
 		ss << *_it_type;
@@ -2800,7 +2837,7 @@ void dna_plot::PrintMeasurementsDatFilesBlock(const UINT32& block)
 
 	try {
 		// Create msr data file.  Throws runtime_error on failure.
-		file_opener(msr_file_stream, formPath<string>(output_folder_, v_msr_all_file_.back()));
+		file_opener(msr_file_stream, v_msr_all_file_.back());
 	}
 	catch (const runtime_error& e) {
 		SignalExceptionPlot(e.what(), 0, NULL);
@@ -2852,34 +2889,34 @@ void dna_plot::PrintMeasurementsDatFiles()
 	stringstream ss;
 
 	std::ofstream msr_file_stream;
-	
-	for (UINT16 c=0; c<plotCriteria_._separate_msrs.size(); c++)
+
+	for (UINT16 c=0; c<pprj_->p._separate_msrs.size(); c++)
 	{
 		// no measurement for this type?
-		if (parsemsrTally_.MeasurementCount(plotCriteria_._separate_msrs.at(c)) == 0)
+		if (parsemsrTally_.MeasurementCount(pprj_->p._separate_msrs.at(c)) == 0)
 			continue;
 
 		ss.str("");
-		ss << plotCriteria_._separate_msrs.at(c);
+		ss << pprj_->p._separate_msrs.at(c);
 		type = ss.str();
-		msr_file_name = network_name_ + "_msr_" + plotCriteria_._separate_msrs.at(c) + ".d";
+		msr_file_name = output_folder_ + FOLDER_SLASH + network_name_ + "_msr_" + pprj_->p._separate_msrs.at(c) + ".d";
 		v_msr_file_.at(0).push_back(string_string_pair(msr_file_name, type));
 
 		try {
 			// Create msr data file.  Throws runtime_error on failure.
-			file_opener(msr_file_stream, formPath<string>(output_folder_, msr_file_name));
+			file_opener(msr_file_stream, msr_file_name);
 		}
 		catch (const runtime_error& e) {
 			SignalExceptionPlot(e.what(), 0, NULL);
 		}
 
-		PrintMeasurementsDatFile(msr_file_name, plotCriteria_._separate_msrs.at(c), &msr_file_stream);
+		PrintMeasurementsDatFile(msr_file_name, pprj_->p._separate_msrs.at(c), &msr_file_stream);
 
 		msr_file_stream.close();
 
 		// remove this measurement type from the global list
 		it_vchar_range = equal_range(_combined_msr_list.begin(), _combined_msr_list.end(), 
-			plotCriteria_._separate_msrs.at(c));
+			pprj_->p._separate_msrs.at(c));
 
 		if (it_vchar_range.first != it_vchar_range.second)
 		{
@@ -2904,7 +2941,7 @@ void dna_plot::PrintMeasurementsDatFiles()
 		return;
 
 	// now print remaining measurement types to a single file
-	msr_file_name = network_name_ + "_msr_";
+	msr_file_name = output_folder_ + FOLDER_SLASH + network_name_ + "_msr_";
 	ss.str("");
 	for (_it_type=_combined_msr_list.begin(); _it_type!=_combined_msr_list.end(); ++_it_type)
 		ss << *_it_type;
@@ -2914,7 +2951,7 @@ void dna_plot::PrintMeasurementsDatFiles()
 
 	try {
 		// Create msr data file.  Throws runtime_error on failure.
-		file_opener(msr_file_stream, formPath<string>(output_folder_, msr_file_name));
+		file_opener(msr_file_stream, msr_file_name);
 	}
 	catch (const runtime_error& e) {
 		SignalExceptionPlot(e.what(), 0, NULL);
@@ -2951,6 +2988,8 @@ void dna_plot::PrintMeasurementsDatFileBlock(const UINT32& block, const string& 
 	vUINT32 msrIndices;
 	it_vmsr_t _it_msr;
 
+	(*msr_file_stream) << ">" << endl;
+
 	for (_it_block_msr=v_CML_.at(block).begin(); _it_block_msr<v_CML_.at(block).end(); _it_block_msr++)
 	{
 		_it_msr = bmsBinaryRecords_.begin() + (*_it_block_msr);
@@ -2958,7 +2997,7 @@ void dna_plot::PrintMeasurementsDatFileBlock(const UINT32& block, const string& 
 		if (msrType != _it_msr->measType)
 			continue;
 
-		if (_it_msr->ignore && !plotCriteria_._plot_ignored_msrs)
+		if (_it_msr->ignore && !pprj_->p._plot_ignored_msrs)
 			continue;
 
 		ss.str("");
@@ -2979,9 +3018,15 @@ void dna_plot::PrintMeasurementsDatFileBlock(const UINT32& block, const string& 
 			if (!default_limits_)
 				ThirdisWithinLimits = WithinLimits(bstBinaryRecords_.at(_it_msr->station3).initialLatitude, bstBinaryRecords_.at(_it_msr->station3).initialLongitude);
 
+		case 'G': // GPS Baseline
+		case 'X': // GPS Baseline cluster
+		
+			// The following prevents GPS measurements from printing three times (i.e. once per X, Y, Z)
+			if (_it_msr->measStart > xMeas)
+				continue;
+			
 		case 'B': // Geodetic azimuth
 		case 'D': // Direction set
-		case 'G': // GPS Baseline
 		case 'K': // Astronomic azimuth
 		case 'C': // Chord dist
 		case 'E': // Ellipsoid arc
@@ -2989,14 +3034,13 @@ void dna_plot::PrintMeasurementsDatFileBlock(const UINT32& block, const string& 
 		case 'S': // Slope distance
 		case 'L': // Level difference
 		case 'V': // Zenith angle
-		case 'X': // GPS Baseline cluster
 		case 'Z': // Vertical angle
 			// Get the measurement indices involved in this measurement
 			GetMsrIndices<UINT32>(bmsBinaryRecords_, *_it_block_msr, msrIndices);
 
 			for (it_vUINT32 msr=msrIndices.begin(); msr!=msrIndices.end(); ++msr)
 			{
-				if (bmsBinaryRecords_.at(*msr).measStart > zMeas)
+				if (bmsBinaryRecords_.at(*msr).measStart > xMeas)
 					continue;
 
 				if (!default_limits_)
@@ -3025,7 +3069,7 @@ void dna_plot::PrintMeasurementsDatFileBlock(const UINT32& block, const string& 
 				(*msr_file_stream) << setprecision(precision) << fixed << bstBinaryRecords_.at(bmsBinaryRecords_.at(*msr).station2).initialLongitude;
 				(*msr_file_stream) << "  ";
 				(*msr_file_stream) << setprecision(precision) << fixed << bstBinaryRecords_.at(bmsBinaryRecords_.at(*msr).station2).initialLatitude;
-				(*msr_file_stream) << endl << "#" << endl;
+				(*msr_file_stream) << endl << ">" << endl;
 			}
 			break;
 		
@@ -3036,9 +3080,6 @@ void dna_plot::PrintMeasurementsDatFileBlock(const UINT32& block, const string& 
 		case 'P': // Geodetic latitude
 		case 'Q': // Geodetic longitude
 		case 'R': // Ellipsoidal height
-			if (_it_msr->measStart > zMeas)
-				continue;
-
 			if (!default_limits_)
 				if (!WithinLimits(
 					bstBinaryRecords_.at(_it_msr->station1).initialLatitude, 
@@ -3049,7 +3090,7 @@ void dna_plot::PrintMeasurementsDatFileBlock(const UINT32& block, const string& 
 			(*msr_file_stream) << setprecision(precision) << fixed << bstBinaryRecords_.at(_it_msr->station1).initialLongitude;
 			(*msr_file_stream) << "  ";
 			(*msr_file_stream) << setprecision(precision) << fixed << bstBinaryRecords_.at(_it_msr->station1).initialLatitude;
-			(*msr_file_stream) << endl;
+			(*msr_file_stream) << endl << ">" << endl;
 			
 			break;
 
@@ -3060,7 +3101,7 @@ void dna_plot::PrintMeasurementsDatFileBlock(const UINT32& block, const string& 
 
 			for (it_vUINT32 msr=msrIndices.begin(); msr!=msrIndices.end(); ++msr)
 			{
-				if (bmsBinaryRecords_.at(*msr).measStart > zMeas)
+				if (bmsBinaryRecords_.at(*msr).measStart > xMeas)
 					continue;
 
 				if (!default_limits_)
@@ -3073,7 +3114,7 @@ void dna_plot::PrintMeasurementsDatFileBlock(const UINT32& block, const string& 
 				(*msr_file_stream) << setprecision(precision) << fixed << bstBinaryRecords_.at(bmsBinaryRecords_.at(*msr).station1).initialLongitude;
 				(*msr_file_stream) << "  ";
 				(*msr_file_stream) << setprecision(precision) << fixed << bstBinaryRecords_.at(bmsBinaryRecords_.at(*msr).station1).initialLatitude;
-				(*msr_file_stream) << endl << "#" << endl;
+				(*msr_file_stream) << endl << ">" << endl;
 			}
 		}
 	}
@@ -3090,13 +3131,15 @@ void dna_plot::PrintMeasurementsDatFile(const string& msr_file_name, char msrTyp
 	bool FirstisWithinLimits, SecondisWithinLimits, ThirdisWithinLimits;
 
 	stringstream ss;
+
+	(*msr_file_stream) << ">" << endl;
 	
 	for (_it_msr=bmsBinaryRecords_.begin(); _it_msr!=bmsBinaryRecords_.end(); _it_msr++)
 	{
 		if (msrType != _it_msr->measType)
 			continue;
 		
-		if (_it_msr->ignore && !plotCriteria_._plot_ignored_msrs)
+		if (_it_msr->ignore && !pprj_->p._plot_ignored_msrs)
 			continue;
 		
 		ss.str("");
@@ -3159,7 +3202,7 @@ void dna_plot::PrintMeasurementsDatFile(const string& msr_file_name, char msrTyp
 			(*msr_file_stream) << setprecision(precision) << fixed << bstBinaryRecords_.at(_it_msr->station2).initialLongitude;
 			(*msr_file_stream) << "  ";
 			(*msr_file_stream) << setprecision(precision) << fixed << bstBinaryRecords_.at(_it_msr->station2).initialLatitude;
-			(*msr_file_stream) << endl << "#" << endl;
+			(*msr_file_stream) << endl << ">" << endl;
 			break;
 		
 		// single station
@@ -3181,8 +3224,7 @@ void dna_plot::PrintMeasurementsDatFile(const string& msr_file_name, char msrTyp
 			(*msr_file_stream) << setprecision(precision) << fixed << bstBinaryRecords_.at(_it_msr->station1).initialLongitude;
 			(*msr_file_stream) << "  ";
 			(*msr_file_stream) << setprecision(precision) << fixed << bstBinaryRecords_.at(_it_msr->station1).initialLatitude;
-			(*msr_file_stream) << endl;
-			
+			(*msr_file_stream) << endl << ">" << endl;			
 			break;
 
 		case 'Y': // GPS point cluster
@@ -3216,7 +3258,7 @@ void dna_plot::PrintMeasurementsDatFile(const string& msr_file_name, char msrTyp
 			(*msr_file_stream) << setprecision(precision) << fixed << bstBinaryRecords_.at(_it_msr->station1).initialLongitude;
 			(*msr_file_stream) << "  ";
 			(*msr_file_stream) << setprecision(precision) << fixed << bstBinaryRecords_.at(_it_msr->station1).initialLatitude;
-			(*msr_file_stream) << endl << "#" << endl;
+			(*msr_file_stream) << endl << ">" << endl;
 
 		}
 	}
@@ -3224,13 +3266,13 @@ void dna_plot::PrintMeasurementsDatFile(const string& msr_file_name, char msrTyp
 }
 	
 
-void dna_plot::SetGMTParameters()
+void dna_plot::PrintGMTParameters()
 {
-	it_string_pair _it_vpstr(plotCriteria_._gmt_params.begin());
+	it_string_pair _it_vpstr(pprj_->p._gmt_params.begin());
 
 	try {
-		for (; _it_vpstr!=plotCriteria_._gmt_params.end(); _it_vpstr++)
-			gmtbat_file_ << "gmtset " << _it_vpstr->first << " " << _it_vpstr->second << endl;
+		for (; _it_vpstr!=pprj_->p._gmt_params.end(); _it_vpstr++)
+			gmtbat_file_ << _APP_GMTSET_ << " " << _it_vpstr->first << " " << _it_vpstr->second << endl;
 		gmtbat_file_ << endl;
 	}
 	catch (const ios_base::failure& f) {
@@ -3280,7 +3322,6 @@ void dna_plot::LoadNetworkFiles(const project_settings& projectSettings)
 
 void dna_plot::LoadBinaryFiles()
 {
-	binary_file_meta_t	bst_meta_, bms_meta_;
 	try {
 		// Load binary stations data.  Throws runtime_error on failure.
 		dna_io_bst bst;
@@ -3292,6 +3333,15 @@ void dna_plot::LoadBinaryFiles()
 	}
 	catch (const runtime_error& e) {
 		SignalExceptionPlot(e.what(), 0, NULL);
+	}
+
+	reference_frame_ = projectSettings_.i.reference_frame;
+	
+	try {
+		reference_frame_ = datumFromEpsgString<string>(bst_meta_.epsgCode);
+	}
+	catch (...) {
+		// do nothing
 	}
 	
 	for_each(
@@ -4344,9 +4394,9 @@ void dna_plot::NormaliseScaleBar(double& scale_bar_width)
 }
 
 
-void dna_plot::NormaliseGraticule(double& graticule_width, UINT32& graticule_width_precision)
+void dna_plot::NormaliseGraticule(double& graticule_width_, UINT32& graticule_width_precision)
 {
-	double graticule = graticule_width * 3600.0;	// convert to seconds
+	double graticule = graticule_width_ * 3600.0;	// convert to seconds
 	if (graticule > 1.)
 		graticule = floor(graticule);
 	else
@@ -4383,7 +4433,7 @@ void dna_plot::NormaliseGraticule(double& graticule_width, UINT32& graticule_wid
 
 
 	// convert to degrees
-	graticule_width = graticule / 3600.;
+	graticule_width_ = graticule / 3600.;
 }
 
 void dna_plot::SelectCoastlineResolution(const double& dDimension, string& coastResolution, plot_settings* plotCriteria)

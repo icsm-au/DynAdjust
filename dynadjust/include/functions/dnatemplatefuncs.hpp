@@ -57,6 +57,22 @@ bool isOdd(T integer)
 	return (integer %2 == 0);
 }
 
+template <typename T>
+bool is_digit(const T& s)
+{
+    return (!s.empty() && 
+		std::find_if(s.begin(), s.end(), [](unsigned char c) { 
+			return !std::isdigit(c); 
+		}) == s.end());
+}
+
+template <typename T>
+bool is_number(const T& s)
+{
+    return (
+		s.find_first_not_of("0123456789") == std::string::npos);
+}
+
 #if defined(_WIN32) || defined(__WIN32__)
 #if (_MSC_VER < 1600)
 // copy_if is not in the C++ standaard!!!
