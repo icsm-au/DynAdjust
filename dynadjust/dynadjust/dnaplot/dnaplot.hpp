@@ -98,22 +98,6 @@ using namespace dynadjust::math;
 namespace dynadjust {
 namespace networkplot {
 
-class dna_generate_plot_thread
-{
-public:
-	dna_generate_plot_thread(const string& path)
-		: _command_path(path) {};
-	void operator()()
-	{
-		// create gmt plot
-		boost::this_thread::sleep(milliseconds(10));
-		run_command(_command_path, false);		
-	}
-private:
-	string	_command_path;
-};
-
-
 
 #ifdef _MSC_VER
 class DNAPLOT_API dna_plot {
