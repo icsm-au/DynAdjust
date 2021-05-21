@@ -5,7 +5,12 @@
 
 #pragma once
 
-#include <windows.h>
+// See https://github.com/boostorg/process/issues/161
+#include <boost/process.hpp>
+
+#if defined(_WIN32) || defined(__WIN32__)
+#define BOOST_USE_WINDOWS_H
+#endif
 
 #include <include/config/dnaversion.hpp>
 #include <include/config/dnaconsts.hpp>
