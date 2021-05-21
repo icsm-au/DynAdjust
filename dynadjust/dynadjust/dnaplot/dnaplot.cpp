@@ -216,8 +216,8 @@ void dna_plot::InvokeGnuplot()
 	// Invoke gnuplot using absolute path				
 	string system_file_cmd = "gnuplot " + absolute(pprj_->p._gnuplot_cmd_file).string();
 
-	// set up a thread group to execute the GMT scripts in parallel
-	thread gnuplot_thread{dna_generate_plot_thread(system_file_cmd)};
+	// set up a thread group to execute the gnuplot in parallel
+	boost::thread gnuplot_thread{dna_create_threaded_process(system_file_cmd)};
 	
 	// go!
 	gnuplot_thread.join();
@@ -1511,15 +1511,8 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 			else
 			{
 				colours++;
-				
-
 				gmtbat_file_ << _APP_PSXY_ << " -R -J \"" << v_msr_file_.at(block).at(i).first << 
-					"\" " << "-W" << setprecision(2);
-				if (equals(_it_colour.first->first, "L"))
-					gmtbat_file_ << line_width_ * 2.0;
-				else
-					gmtbat_file_ << line_width_;
-				gmtbat_file_ << 
+					"\" " << "-W" << setprecision(2) << line_width_ << 
 					"p," << _it_colour.first->second;
 				//if (v_msr_file_.at(block).at(i).second == "Y")		// not a vector measurement, so represent as dashed
 				//	gmtbat_file_ << ",6_8:1p";
@@ -2076,7 +2069,7 @@ void dna_plot::InvokeGMT()
 	
 	for (UINT32 plot=0; plot<v_gmt_cmd_filenames_.size(); ++plot)
 	{
-		gmt_plot_threads.create_thread(dna_generate_plot_thread(v_gmt_cmd_filenames_.at(plot)));
+		gmt_plot_threads.create_thread(dna_create_threaded_process(v_gmt_cmd_filenames_.at(plot)));
 	}
 
 	// go!
