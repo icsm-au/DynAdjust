@@ -108,7 +108,7 @@ DynAdjust provides a capability to generate publication-quality images of raw st
 
 [![DynAdjust plot examples](https://raw.githubusercontent.com/icsm-au/DynAdjust/master/resources/img/dynadjust-plot-images.png)](https://github.com/icsm-au/dynadjust/releases)
   
-DynAdjust uses the **Generic Mapping Tools (GMT)**, available from the [GMT website](https://www.generic-mapping-tools.org/download/), and **gnuplot**, available from the [gnuplot homepage](http://www.gnuplot.info/). The current version of DynAdjust supports GMT version 6 and gnuplot version 5.4. For GMT, please refer to the [install instructions](https://github.com/GenericMappingTools/gmt/blob/master/INSTALL.md) to install GMT, or the [build instructions](https://github.com/GenericMappingTools/gmt/blob/master/BUILDING.md) to build GMT from source. For gnuplot, please refer to the [gnuplot download](http://www.gnuplot.info/download.html) page.
+DynAdjust uses the **Generic Mapping Tools (GMT)**, available from the [GMT website](https://www.generic-mapping-tools.org/download/), and **gnuplot**, available from the [gnuplot homepage](http://www.gnuplot.info/). The current version of DynAdjust supports GMT version 6 and gnuplot version 5.4. To install GMT, please refer to the [install instructions](https://github.com/GenericMappingTools/gmt/blob/master/INSTALL.md), or the [build instructions](https://github.com/GenericMappingTools/gmt/blob/master/BUILDING.md) to build GMT from source. To install gnuplot, please refer to the [gnuplot download](http://www.gnuplot.info/download.html) page.
 
 ## License details
 
