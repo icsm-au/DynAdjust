@@ -406,6 +406,8 @@ int main(int argc, char* argv[])
 			(PLOT_AREA_RADIUS, value<double>(&p.p._plot_area_radius),
 				(string("The radius (in metres) of an area to bound the plot.  Default is ")+
 				StringFromT(p.p._plot_area_radius)+string("m")).c_str())
+			(TECTONIC_PLATE_BDY_FILE, value<string>(&p.r.tpb_file),
+				string("Plot global tectonic plate boundaries.").c_str())
 			(GRAPH_SEGMENTATION_STNS, 
 				"Plot a graph of the block stations resulting from network segmentation.")
 			(GRAPH_SEGMENTATION_MSRS, 
@@ -437,6 +439,7 @@ int main(int argc, char* argv[])
 			//	5 Albers conic equal-area
 			//	6 Lambert conformal
 			//  7 General stereographic
+			//  8 Robinson Projection
 			(PROJECTION, value<UINT16>(&p.p._projection),
 				string("Map projection type.\n").
 				append("  0: Let ").append(__BINARY_NAME__).append(" choose best projection (default)\n").
@@ -446,7 +449,8 @@ int main(int argc, char* argv[])
 				append("  4: ").append(projectionTypes[4]).append("\n").
 				append("  5: ").append(projectionTypes[5]).append("\n").
 				append("  6: ").append(projectionTypes[6]).append("\n").
-				append("  7: ").append(projectionTypes[7]).c_str())
+				append("  7: ").append(projectionTypes[7]).append("\n").
+				append("  8: ").append(projectionTypes[8]).c_str())
 			(LABEL_FONT_SIZE, value<double>(&p.p._label_font_size),
 				(string("Label font size for station names and constraints.  Default is ")+
 				StringFromT(p.p._label_font_size)+string(".")).c_str())
@@ -604,9 +608,12 @@ int main(int argc, char* argv[])
 	if (vm.count(PROJECTION) && p.p._projection > 0)
 	{
 		p.p._user_defined_projection = true;
-		if (p.p._projection > 7)
+		if (p.p._projection > 8)
 			p.p._projection = bestProjection;			
 	}
+
+	if (vm.count(TECTONIC_PLATE_BDY_FILE))
+		p.p._plot_plate_boundaries = true;
 
 	if (vm.count(OMIT_TITLE_BLOCK))
 		p.p._omit_title_block = true;

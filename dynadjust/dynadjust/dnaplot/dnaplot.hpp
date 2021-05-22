@@ -81,7 +81,7 @@
 #include <include/io/dnaiobms.hpp>
 #include <include/io/dnaiomap.hpp>
 #include <include/io/dnaioseg.hpp>
-#include <include/io/dnaiopdf.hpp>
+#include <include/io/dnaiotpb.hpp>
 
 using namespace std;
 using namespace boost;
@@ -187,6 +187,7 @@ private:
 	void PrintStationLabels();
 	void PrintStationLabelsBlock(const UINT32& block);
 	
+	void PrintPlateBoundaries(const UINT32& block);
 	void PrintCorrectionArrows(const UINT32& block);
 	void PrintPositionalUncertainty(const UINT32& block);
 	void PrintErrorEllipses(const UINT32& block);
@@ -263,12 +264,16 @@ private:
 	it_pair_string_vUINT32	it_stnmap_range;
 	vchar					_combined_msr_list;
 
+	double					default_paper_width_;
+	double					default_paper_height_;
+
 	string					seg_stn_graph_file_;
 	string					seg_msr_graph_file_;
 
 	vstring					v_isl_pts_file_;
 	vstring					v_isl_const_file_;
 	vstring					v_isl_lbl_file_;
+	vstring					v_tectonic_plate_file_;
 	vstring					v_stn_cor_file_;
 	vstring					v_stn_apu_file_;
 	vstring					v_stn_err_file_;

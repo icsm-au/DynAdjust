@@ -109,7 +109,8 @@ const char* const projectionTypes[] = {
 	"Transverse Mercator" , 
 	"Albers equal-area conic" , 
 	"Lambert conformal conic" , 
-	"General stereographic" 
+	"General stereographic" ,
+	"Robinson"
 };
 
 enum plotProjection
@@ -121,7 +122,8 @@ enum plotProjection
 	transverseMercator = 4,
 	albersConic = 5,
 	lambertEqualArea = 6,
-	stereographicConformal = 7
+	stereographicConformal = 7,
+	robinson = 8
 };
 
 const char* const coastResolutionTypes[] = { 
@@ -579,7 +581,7 @@ public:
 		, _plot_alt_name(false), _plot_station_constraints(false)
 		, _plot_correction_arrows(false), _plot_correction_labels(false), _compute_corrections(false)
 		, _plot_positional_uncertainty(false), _plot_error_ellipses(false)
-		, _user_defined_projection(false), _omit_title_block(false), _omit_measurements(false)
+		, _user_defined_projection(false), _omit_title_block(false), _omit_measurements(false), _plot_plate_boundaries(false)
 		, _keep_gen_files(false), _supress_pdf_creation(false), _export_png(false)
 		, _label_font_size(7.0), _msr_line_width(0.15), _correction_scale(1.), _pu_ellipse_scale(1.)
 		, _plot_station_centre(""), _bounding_box("")
@@ -608,7 +610,7 @@ private:
 	//		_compute_corrections == p._compute_corrections &&
 	//		_plot_positional_uncertainty == p._plot_positional_uncertainty && _plot_error_ellipses == p._plot_error_ellipses && 
 	//		_user_defined_projection == p._user_defined_projection && _omit_title_block == p._omit_title_block &&
-	//		_omit_measurements == p._omit_measurements &&
+	//		_omit_measurements == p._omit_measurements && _plot_plate_boundaries == p._plot_plate_boundaries
 	//		_label_font_size == p._label_font_size && _msr_line_width == p._msr_line_width &&
 	//		_correction_scale == p._correction_scale && _pu_ellipse_scale == p._pu_ellipse_scale &&
 	//		_bounding_box == p._bounding_box && _plot_station_centre == p._plot_station_centre && _plot_area_radius == p._plot_area_radius && 
@@ -642,6 +644,7 @@ public:
 	bool					_user_defined_projection;		// If true, the user has specified a projection for the output
 	bool					_omit_title_block;				// Don't print a title block and measurements legend
 	bool					_omit_measurements;				// Don't print measurements
+	bool					_plot_plate_boundaries;			// Plot tectonic plates
 	bool					_keep_gen_files;				// Don't delete command and data files used to generate EPS and PDF plots
 	bool 					_supress_pdf_creation;			// Don't create a pdf, just the command files
 	bool					_export_png;					// Export the GMT plot to png at 300 dpi
