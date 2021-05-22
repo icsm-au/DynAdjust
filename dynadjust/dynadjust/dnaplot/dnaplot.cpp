@@ -38,6 +38,7 @@ dna_plot::dna_plot()
 	v_jsl_const_file_.clear();
 	v_isl_lbl_file_.clear();
 	v_stn_cor_file_.clear();
+	v_tectonic_plate_file_.clear();
 
 	v_parameterStationList_.clear();
 
@@ -646,10 +647,14 @@ void dna_plot::InitialiseGMTParameters()
 	v_isl_pts_file_.clear();
 	v_isl_lbl_file_.clear();
 	v_stn_cor_file_.clear();
+	v_tectonic_plate_file_.clear();
 	v_stn_err_file_.clear();
 	v_stn_apu_file_.clear();
 	v_jsl_pts_file_.clear();
 	v_jsl_lbl_file_.clear();
+
+	default_paper_width_ = 59.4;
+	default_paper_height_ = 42.0;
 
 	plotConstraints_ = false;
 
@@ -771,23 +776,35 @@ void dna_plot::FinaliseGMTParameters()
 		arrow_legend_lat_ = dScaleLat_;
 	}
 
+	switch (pprj_->p._projection)
+	{
+	case world:
+	case orthographic:
+	case robinson:
+		default_paper_width_ = 27.7;
+		default_paper_height_ = 20.1;
+	default:
+		default_paper_width_ = 59.4;
+		default_paper_height_ = 42.0;
+	}	
+
 	// Portrait or Landscape?
 	// A3 paper width (landscape) is 42cm, and (portrait) is 29.7cm.  Less 
 	// nomenclature (~2 cm), this leaves an available width for plotting 
 	// of 40cm L or 27.7cm P
 	//
 	title_block_height_ = 6;
-	page_width_ = 59.4;		// centimetres
+	page_width_ = default_paper_width_;		// centimetres
 
 	if (dWidth_ > dHeight_)
-		avg_data_scale_ = dHeight_ / 42.0;
+		avg_data_scale_ = dHeight_ / default_paper_height_;
 	else
-		avg_data_scale_ = dHeight_ / 59.4;
+		avg_data_scale_ = dHeight_ / default_paper_width_;
 	
 	isLandscape = true;
 	if (dWidth_ < (dHeight_ + (title_block_height_ * avg_data_scale_)) || !default_limits_)
 	{
-		page_width_ = 42.0;			// centimetres
+		page_width_ = default_paper_height_;			// centimetres
 		isLandscape = false;
 	}	
 
@@ -986,6 +1003,15 @@ void dna_plot::CreateExtraInputFiles()
 		else
 			for (block=0; block<blockCount_; ++block)
 				PrintCorrectionArrows(block);
+	}
+
+	if (pprj_->p._plot_plate_boundaries)
+	{
+		if (oneBlockOnly)
+			PrintPlateBoundaries(block);
+		else
+			for (block=0; block<blockCount_; ++block)
+				PrintPlateBoundaries(block);
 	}
 }
 
@@ -1354,7 +1380,6 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 	//
 	// General stereographic map
 	case stereographicConformal:
-	default:
 		if (pprj_->p._label_font_size < 0.)
 			pprj_->p._label_font_size = 6;
 
@@ -1381,10 +1406,36 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 		gmtbat_file_ << " -K > " << psTempFile << endl;
 		
 		break;
+	// Robinson projection
+	case robinson:
+	default:
+
+		// Robinson map centered on the dateline
+		// pscoast -Rwest/east/south/north -JN7.5i -B60f30g30 -Dc -A5000 -Gblack -P > tmp.ps
+		// pscoast -R(centre_width_-180)/(centre_width_+180)/-90/90
+
+		// Override coastline resolution
+		coastResolution_ = "i";
+		pprj_->p._coasline_resolution = intermediate;
+		circle_radius_ = 0.02;
+		circle_line_width_ = 0.02;
+		if (pprj_->p._label_font_size < 0.)
+			pprj_->p._label_font_size = 5;
+
+		gmtbat_file_ << _APP_PSCOAST_ << " -R" << 
+			(centre_width_-180) << "/" << (centre_width_+180) << "/-90/90"
+			" -JN" << page_width_  << "c -B60g30 -D" << coastResolution_ << 
+			" -A10000 -W0.75p,16/169/243 -G245/245/245 -K > " << psTempFile << endl;
 	}
 
-	
 	sort(pprj_->p._msr_colours.begin(), pprj_->p._msr_colours.end(), ComparePairFirst<string>());		
+
+	if (pprj_->p._plot_plate_boundaries)
+	{
+		// print plate boundaries first
+		gmtbat_file_ << _APP_PSXY_ << " -R -J \"" << v_tectonic_plate_file_.at(block) << 
+			"\" -W0.75p,#DA5552 -O -K >> " << psTempFile << endl;
+	}
 
 	// Does the user want to print measurements?
 	if (!pprj_->p._omit_measurements)
@@ -1894,16 +1945,16 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 					gmtbat_file_ << "p,";
 
 					if (v_msr_file_.at(block).at(i).second == "Y")
-						gmtbat_file_ << "255/0/255";							// magenta, #FF00FF
+						gmtbat_file_ << "#235789";							// bdazzled blue
 					else if (v_msr_file_.at(block).at(i).second == "I" ||		// astronomic latitude
 						v_msr_file_.at(block).at(i).second == "P")				// geodetic latitude
-						gmtbat_file_ << "252/181/20";							// packer gold, #FCB514
+						gmtbat_file_ << "#A393BF";							// glossy grape
 					else if (v_msr_file_.at(block).at(i).second == "J" ||		// astronomic longitude
 						v_msr_file_.at(block).at(i).second == "Q")				// geodetic longitude
-						gmtbat_file_ << "255/128/0";							// orange, #FF8000
+						gmtbat_file_ << "#4C1C00";							// seal brown
 					else if (v_msr_file_.at(block).at(i).second == "H" ||		// orthometric height
 						v_msr_file_.at(block).at(i).second == "R")				// ellipsoidal height
-						gmtbat_file_ << "227/54/56";							// rosemadder, #E33638
+						gmtbat_file_ << "#6622CC";							// french violet
 					else
 						gmtbat_file_ << _it_colour.first->second;
 
@@ -2025,6 +2076,9 @@ void dna_plot::CreateGMTCommandFile(const UINT32& block)
 
 		if (pprj_->p._plot_correction_arrows)
 			gmtbat_file_ << " \"" << v_stn_cor_file_.at(block) << "\"";
+
+		if (pprj_->p._plot_plate_boundaries)
+			gmtbat_file_ << " \"" << v_tectonic_plate_file_.at(block) << "\"";
 
 		gmtbat_file_ << endl;
 	}
@@ -2254,6 +2308,9 @@ void dna_plot::FormGMTDataFileNames(const UINT32& block)
 	
 	if (pprj_->p._plot_correction_arrows)
 		v_stn_cor_file_.push_back(firstPartSTN + ".cor.d");
+
+	if (pprj_->p._plot_plate_boundaries)
+		v_tectonic_plate_file_.push_back(firstPartSTN + ".plt.d");
 }
 
 void dna_plot::PrintStationsDataFileBlock(const UINT32& block)
@@ -2760,6 +2817,54 @@ void dna_plot::PrintCorrectionArrows(const UINT32& block)
 	stn_cor.close();
 }
 	
+void dna_plot::PrintPlateBoundaries(const UINT32& block)
+{
+	// Load tectonic plate boundaries file and export
+	dna_io_tpb tpb;
+
+	// Tectonic plate boundaries
+	v_string_v_doubledouble_pair global_plates;				
+
+	stringstream ss;
+	ss << "PrintPlateBoundaries(): An error was encountered when loading tectonic plate information." << endl;
+
+	try {
+		// Load tectonic plate polygons.  Throws runtime_error on failure.
+		tpb.load_tpb_file(pprj_->r.tpb_file, global_plates);
+		sort(global_plates.begin(), global_plates.end());
+	}
+	catch (const runtime_error& e) {
+		ss << e.what();
+		throw boost::enable_current_exception(runtime_error(ss.str()));
+	}
+
+	UINT32 block_index(block);
+	if (plotBlocks_ && pprj_->p._plot_block_number > 0)
+		block_index = 0;
+	
+	std::ofstream tectonic_plate;
+	try {
+		// Create corrections file.  Throws runtime_error on failure.
+		file_opener(tectonic_plate, v_tectonic_plate_file_.at(block_index));
+	}
+	catch (const runtime_error& e) {
+		SignalExceptionPlot(e.what(), 0, NULL);
+	}
+
+	for_each(global_plates.begin(), global_plates.end(),
+		[&tectonic_plate](const string_v_doubledouble_pair& plate){
+			tectonic_plate << ">" << endl;
+
+			for_each(plate.second.begin(), plate.second.end(),
+			[&tectonic_plate](const doubledouble_pair& coordinate){
+				tectonic_plate << fixed << setprecision(3) <<
+					setw(10) << right << coordinate.first << "," <<
+					setw(10) << right << coordinate.second << endl;
+			});
+		});	
+
+	tectonic_plate.close();
+}
 
 // Plots the specified measurement types to individual files
 // All other measurement types (_combined_msr_list) are printed to a single file
