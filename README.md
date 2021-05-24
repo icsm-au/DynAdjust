@@ -8,6 +8,7 @@
 [![GitHub Releases](https://img.shields.io/github/v/release/icsm-au/DynAdjust.svg)](https://github.com/icsm-au/DynAdjust/releases)
 [![Documentation (User's Guide)](https://img.shields.io/badge/docs-usersguide-red.svg)](https://github.com/icsm-au/DynAdjust/raw/master/resources/DynAdjust%20Users%20Guide.pdf)
 [![GitHub Issues](https://img.shields.io/github/issues/icsm-au/DynAdjust.svg)](https://github.com/icsm-au/DynAdjust/issues)
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/4894/badge)](https://bestpractices.coreinfrastructure.org/projects/4894)
 
 [![DynAdjust](resources/img/dynadjust-banner.png)](https://raw.githubusercontent.com/icsm-au/DynAdjust/master/resources/img/dynadjust-banner.png)
 
