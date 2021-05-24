@@ -21,6 +21,7 @@
     - [General requirements and prerequisites](#general-requirements-and-prerequisites)
     - [Linux / Mac OS X build requirements](#linux--mac-os-x-build-requirements)
     - [Windows build requirements](#windows-build-requirements)
+- [Contributing to DynAdjust](#contributing-to-dynadjust)
 - [Feedback](#feedback)
 - [User's guide](#users-guide)
 - [Creating images](#creating-images)
@@ -94,9 +95,13 @@ Executing `make_dynadjust_gcc.sh` will clone the latest version of DynAdjust, bu
 
 Please refer to the Windows compilation [instructions](https://github.com/icsm-au/DynAdjust/blob/master/resources/dynadjust-compilation-in-windows.pdf) for the steps to compile DynAdjust on Windows using Microsoft's freely available Visual Studio 2017 Community Edition.
 
+## Contributing to DynAdjust
+
+Pleae refer to the [Contributing guidelines](https://github.com/icsm-au/DynAdjust/blob/master/CONTRIBUTING.md) for information on how to contribute to DynAdjust.
+
 ## Feedback
 
-To suggest an enhancement to the functionality of DynAdjust, or to report a defect or unexpected behaviour, please submit your query via [our issue tracker](https://github.com/icsm-au/dynadjust/issues).
+To suggest an enhancement to the functionality of DynAdjust, or to report a defect or unexpected behaviour, please submit your query via the [issue tracker](https://github.com/icsm-au/dynadjust/issues).
 
 ## User's guide
 
