@@ -253,7 +253,7 @@ private:
 	binary_file_meta_t	bst_meta_;
 	
 	vstn_t				bstBinaryRecords_;
-	vstn_t				bstBadPoints_;
+	v_stn_string		bstBadPoints_;
 
 	UINT32				m_pointsInterpolated;
 	UINT32				m_pointsNotInterpolated;

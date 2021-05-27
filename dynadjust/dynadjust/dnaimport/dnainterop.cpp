@@ -3880,7 +3880,7 @@ void dna_import::SignalExceptionParseDNA(const string& message, const string& sB
 	
 
 // Name:				SignalExceptionInterop
-// Purpose:				Closes all files (if file pointers are passed in) and throws NetSegmentException
+// Purpose:				Closes all files (if file pointers are passed in) and throws XMLInteropException
 // Called by:			Any
 // Calls:				XMLInteropException()
 void dna_import::SignalExceptionInterop(string msg, int i, const char *streamType, ...)
