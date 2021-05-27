@@ -155,9 +155,9 @@ void ReturnBadStationRecords(dna_geoid_interpolation* g, project_settings& p)
 	badpoints_log << setw(PRINT_VAR_PAD) << left << "Network name:" <<  p.g.network_name << endl;
 	badpoints_log << setw(PRINT_VAR_PAD) << left << "Stations file:" << system_complete(p.n.bst_file).string() << endl;
 	badpoints_log << setw(PRINT_VAR_PAD) << left << "Geoid model: " << system_complete(p.n.ntv2_geoid_file).string() << endl << endl;
-
-	badpoints_log << setw(PRINT_VAR_PAD) << left << "Stations not interpolated:" << g->PointsNotInterpolated() << endl << endl;
-
+	badpoints_log << setw(PRINT_VAR_PAD) << left << "Stations not interpolated:" << g->PointsNotInterpolated() << endl;
+	badpoints_log << OUTPUTLINE << endl << endl;
+	
 	records = g->ReturnBadStationRecords();
 
 	badpoints_log << records << endl;

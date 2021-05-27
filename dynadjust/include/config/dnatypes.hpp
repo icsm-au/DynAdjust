@@ -578,6 +578,10 @@ typedef vstn_t::iterator it_vstn_t;
 typedef vstn_t::const_iterator it_vstn_t_const;
 typedef vector<statSummary_t> vsummary_t, *pvsummary_t;
 
+typedef pair <station_t, string> stn_t_string_pair;
+typedef vector<stn_t_string_pair> v_stn_string;
+typedef v_stn_string::iterator it_stn_string;
+
 const UINT32 MOD_NAME_WIDTH(20);
 const UINT32 FILE_NAME_WIDTH(256);
 

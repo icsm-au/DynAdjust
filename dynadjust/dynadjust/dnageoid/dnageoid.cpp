@@ -84,15 +84,27 @@ string dna_geoid_interpolation::ReturnBadStationRecords()
 {
 	stringstream ssPoints;
 
-	it_vstn_t stn_it;
+	ssPoints << setw(STATION) << left << "Station" <<
+		setw(PAD2) << " " << 
+		right << setw(LAT_EAST) << "Latitude" << 
+		right << setw(LON_NORTH) << "Longitude" << 
+		right << setw(LON_NORTH) << "Error code" << endl;
 
-	for (stn_it=bstBadPoints_.begin(); stn_it!=bstBadPoints_.end(); ++stn_it)
+	UINT32 i, j = STATION+PAD2+LAT_EAST+LON_NORTH+LON_NORTH;
+
+	for (i=0; i<j; ++i)
+		ssPoints << "-";
+	ssPoints << endl;
+
+	for (it_stn_string stn_it = bstBadPoints_.begin(); 
+		stn_it!=bstBadPoints_.end(); 
+		++stn_it)
 	{
-		ssPoints << fixed << setprecision(9) <<
-			"   " <<
-			stn_it->stationName << ", " <<
-			setw(14) << FormatDmsString(RadtoDms(stn_it->currentLatitude), 7, true, false) << ", " <<
-			setw(14) << FormatDmsString(RadtoDms(stn_it->currentLongitude), 7, true, false) << endl;
+		ssPoints << setw(STATION) << left << stn_it->first.stationName <<
+			setw(PAD2) << " " <<			
+			right << setw(LAT_EAST) << FormatDmsString(RadtoDms(stn_it->first.currentLatitude), 7, true, false) << 
+			right << setw(LON_NORTH) << FormatDmsString(RadtoDms(stn_it->first.currentLongitude), 7, true, false) << 
+			right << setw(LON_NORTH) << stn_it->second << endl;
 	}
 
 	return ssPoints.str();
@@ -107,6 +119,8 @@ void dna_geoid_interpolation::PopulateStationRecords(const int& method, bool con
 	m_pointsInterpolated = m_pointsNotInterpolated = 0;
 	bstBadPoints_.clear();
 
+	stn_t_string_pair bad_point;
+
 	for (stn_it=bstBinaryRecords_.begin(); stn_it!=bstBinaryRecords_.end(); ++stn_it)
 	{
 		dlat = m_pGridfile->dLat = stn_it->currentLatitude * RAD_TO_SEC;
@@ -118,7 +132,9 @@ void dna_geoid_interpolation::PopulateStationRecords(const int& method, bool con
 		case ERR_PT_OUTSIDE_GRID:		// 13
 		case ERR_FINDSUBGRID_OUTSIDE:	// -1
 			++m_pointsNotInterpolated;
-			bstBadPoints_.push_back(*stn_it);
+			bad_point.first = *stn_it;
+			bad_point.second = StringFromT(agCoord.cVar.IO_Status);
+			bstBadPoints_.push_back(bad_point);
 			continue;					// this point is outside the grid file extents
 		case ERR_TRANS_SUCCESS:
 			break;						// success
