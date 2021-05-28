@@ -1,4 +1,4 @@
-[![GitHub Releases](https://img.shields.io/github/v/release/icsm-au/DynAdjust.svg)](https://github.com/icsm-au/DynAdjust/releases)
+[![GitHub Releases](https://img.shields.io/github/v/release/icsm-au/DynAdjust)](https://github.com/icsm-au/DynAdjust/releases)
 [![GitHub license](https://img.shields.io/badge/license-Apache-blue.svg)](https://raw.githubusercontent.com/icsm-au/DynAdjust/master/LICENSE)
 [![Documentation (User's Guide)](https://img.shields.io/badge/docs-usersguide-red.svg)](https://github.com/icsm-au/DynAdjust/raw/master/resources/DynAdjust%20Users%20Guide.pdf)
 [![GitHub Downloads](https://img.shields.io/github/downloads/icsm-au/DynAdjust/total)](https://github.com/icsm-au/DynAdjust/releases)
