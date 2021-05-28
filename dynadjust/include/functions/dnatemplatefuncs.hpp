@@ -1040,6 +1040,34 @@ public:
 };
 
 
+// T = station_t, S = string
+template<typename T>
+class CompareStnName
+{
+public:
+	bool operator()(const T& lhs, const T& rhs) {
+		return string(lhs.stationName) < string(rhs.stationName);
+	}
+};
+
+
+// T = station_t, S = string
+template<typename T, typename S>
+class CompareStnOriginalName
+{
+public:
+	bool operator()(const T& lhs, const T& rhs) {
+		return string(lhs.stationNameOrig) < string(rhs.stationNameOrig);
+	}
+	bool operator()(const T& lhs, const S& rhs) {
+		return string(lhs.stationNameOrig) < rhs;
+	}
+	bool operator()(const S& lhs, const T& rhs) {
+		return lhs < string(rhs.stationNameOrig);
+	}
+};
+
+
 // S = station_t, U = UINT32
 template<typename S, typename U>
 class CompareStnLongitude

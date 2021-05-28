@@ -408,18 +408,18 @@ void dna_io_snx::format_station_names(v_discontinuity_tuple* stn_discontinuities
 				if (year == DISCONT_TIME_IMMEMORIAL)
 				{
 					// format using the start epoch
-					// year
+					// year (4 chars)
 					ss << siteOccurrence_.at(site).formatted_date.substr(4, 4);
-					// doy
+					// doy (3 chars)
 					ss << siteOccurrence_.at(site).formatted_date.substr(0, 3);
 				}
 				else
 				{
 					// format using the discontinuity date
 					ss << year;
-					if (doy < 10)
-						ss << "0";
 					if  (doy < 100)
+						ss << "0";
+					if (doy < 10)
 						ss << "0";
 					ss << doy;
 				}
@@ -450,7 +450,10 @@ void dna_io_snx::format_station_names(v_discontinuity_tuple* stn_discontinuities
 	for_each(vStations->begin(), vStations->end(),
 		[&_it_site](const dnaStnPtr& stn) {
 			if (!equals(_it_site->site_name, _it_site->formatted_name))
+			{
+				stn->SetOriginalName();
 				stn->SetName(_it_site->formatted_name);
+			}
 			_it_site++;
 	});
 

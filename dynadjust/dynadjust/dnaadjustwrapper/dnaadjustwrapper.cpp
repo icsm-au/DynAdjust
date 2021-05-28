@@ -1085,8 +1085,12 @@ int main(int argc, char* argv[])
 		if (p.a.scale_normals_to_unity)
 			cout << setw(PRINT_VAR_PAD) << left << "  Scale normals to unity: " << "yes" << endl;
 		if (!p.a.station_constraints.empty())
+		{
 			cout << setw(PRINT_VAR_PAD) << left << "  Station constraints: " << p.a.station_constraints << endl;
-		
+			if (p.i.apply_discontinuities)
+				cout << setw(PRINT_VAR_PAD) << left << "  Apply discontinuities: " << "yes" << endl;
+		}
+
 		switch (p.a.adjust_mode)
 		{
 		case Phased_Block_1Mode:

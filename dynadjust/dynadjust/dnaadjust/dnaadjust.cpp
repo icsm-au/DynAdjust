@@ -14189,7 +14189,45 @@ void dna_adjust::LoadNetworkFiles()
 
 	v_measurementParams_ = v_measurementCount_;
 }
+
+void dna_adjust::AddDiscontinuitySites(vstring& constraintStns)
+{
+	// sort on original name
+	sort(bstBinaryRecords_.begin(), bstBinaryRecords_.end(), CompareStnOriginalName<station_t, string>());
 	
+	pair<it_vstn_t, it_vstn_t> it_stn_range;
+	string constraint;
+
+	_it_vstr const_it;
+
+	vstring constraintDiscontStns;
+
+	// for every constraint (note every second value will be the constraint code)
+	for (const_it=constraintStns.begin(); const_it!=constraintStns.end(); ++const_it) 
+	{
+		// find this constraint station in the station map
+		it_stn_range = equal_range(bstBinaryRecords_.begin(), bstBinaryRecords_.end(), (*const_it), CompareStnOriginalName<station_t, string>());
+		if (it_stn_range.first == it_stn_range.second)
+		{
+			// Not in the map.  Get the next one
+			continue;
+		}
+
+		// this constraint station is one of the discontinuity sites.
+		// Add the "discontinuity name"
+		constraintDiscontStns.push_back(it_stn_range.first->stationName);
+		// Add the constraint
+		if (++const_it == constraintStns.end())
+			break;
+		constraintDiscontStns.push_back(*const_it);
+	}
+
+	// add the constraint discontinuity sites
+	constraintStns.insert(constraintStns.end(), constraintDiscontStns.begin(), constraintDiscontStns.end());
+
+	// restore original sort order
+	sort(bstBinaryRecords_.begin(), bstBinaryRecords_.end(), CompareStnName<station_t>());
+}
 
 // Take any additional user-supplied constraints (CCC,CCF,etc) and 
 // apply to binary station records
@@ -14197,8 +14235,6 @@ void dna_adjust::ApplyAdditionalConstraints()
 {
 	if (projectSettings_.a.station_constraints.empty())
 		return;
-
-	it_pair_string_vUINT32 it_stnmap_range;
 
 	// load station map
 	v_string_uint32_pair vStnsMap;
@@ -14221,21 +14257,39 @@ void dna_adjust::ApplyAdditionalConstraints()
 		return;
 	}
 
+	if (projectSettings_.i.apply_discontinuities)
+	{
+		// Test for whether stations have been renamed, in which case, the
+		// look for non empty values in stn.stationNameOrig
+		AddDiscontinuitySites(constraintStns);
+	}
+
+	it_pair_string_vUINT32 it_stnmap_range;
+
 	for (const_it=constraintStns.begin(); const_it!=constraintStns.end(); ++const_it) 
 	{
 		// find this station in the station map
 		it_stnmap_range = equal_range(vStnsMap.begin(), vStnsMap.end(), (*const_it), StationNameIDCompareName());
 		if (it_stnmap_range.first == it_stnmap_range.second)
 		{
+			if (projectSettings_.i.apply_discontinuities)
+			{
+				// It is likely that these stations were renamed during 
+				// discontinuity processing, so continue 
+				if (++const_it == constraintStns.end())
+					break;
+				continue;
+			}
+
 			stringstream ss;
 			ss << "The supplied constraint station " << (*const_it) << " is not in the stations map.  Please ensure that " << 
 				(*const_it) << " is included in the list of stations." << endl;
+
 			SignalExceptionAdjustment(ss.str(), 0);
 		}
 
 		// get constraint
-		++const_it;
-		if (const_it == constraintStns.end())
+		if (++const_it == constraintStns.end())
 			break;
 
 		constraint = *const_it;

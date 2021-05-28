@@ -128,7 +128,7 @@ CAStationList& CAStationList::operator =(CAStationList&& rhs)
 
 //<CDnaStation>//
 CDnaStation::CDnaStation(const string& referenceframe, const string& epoch)
-	: m_strName("")
+	: m_strName(""), m_strOriginalName("")
 	, m_dXAxis(0.), m_dYAxis(0.), m_dZAxis(0.), m_dHeight(0.)
 	, m_dStdDevX(0.), m_dStdDevY(0.), m_dStdDevZ(0.), m_dStdDevHt(0.)
 	, m_strConstraints("FFF"), m_strType(""), m_strHemisphereZone(""), m_strDescription(""), m_strComment("")
@@ -151,6 +151,7 @@ CDnaStation::~CDnaStation()
 CDnaStation::CDnaStation(const CDnaStation& newStation)
 {
 	m_strName = newStation.m_strName;
+	m_strOriginalName = newStation.m_strOriginalName;
 	m_strConstraints = newStation.m_strConstraints;
 	m_strType = newStation.m_strType;
 	m_dXAxis = newStation.m_dXAxis;
@@ -194,6 +195,8 @@ CDnaStation::CDnaStation(const string& strName, const string& strConstraints,
 	const string& strComment)
 {
 	m_strName = strName;
+
+	m_strOriginalName = "";
 	
 	SetConstraints(strConstraints);
 	SetCoordType(strType);
@@ -864,6 +867,7 @@ void CDnaStation::WriteBinaryStn(std::ofstream* binary_stream, const UINT16 bUnu
 {
 	station_t stationRecord;
 	strcpy(stationRecord.stationName, m_strName.substr(0, STN_NAME_WIDTH).c_str());
+	strcpy(stationRecord.stationNameOrig, m_strOriginalName.substr(0, STN_NAME_WIDTH).c_str());
 	strcpy(stationRecord.stationConst, m_strConstraints.substr(0, STN_CONST_WIDTH).c_str());
 	strcpy(stationRecord.stationType, m_strType.substr(0, STN_TYPE_WIDTH).c_str());
 
@@ -1133,6 +1137,7 @@ void CDnaStation::WriteGeoidfile(std::ofstream* geo_ofstream)
 void CDnaStation::SetStationRec(const station_t& stationRecord)
 {
 	SetName(stationRecord.stationName);
+	SetOriginalName(stationRecord.stationNameOrig);
 	SetConstraints(stationRecord.stationConst);
 	SetCoordType(stationRecord.stationType);
 	
