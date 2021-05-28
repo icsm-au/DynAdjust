@@ -298,6 +298,7 @@ if (BUILD_TESTING)
     add_test (NAME imp-discont-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n discont -r itrf2005 ${CMAKE_SOURCE_DIR}/../sampleData/TEST_ITRF05.SNX --discontinuity-file ${CMAKE_SOURCE_DIR}/../sampleData/disconts20201205.snx --export-discont-file)
     add_test (NAME imp-discont-02 COMMAND $<TARGET_FILE:dnaimportwrapper> -n discont -r itrf2005 ${CMAKE_SOURCE_DIR}/../sampleData/TEST_ITRF05.SNX --discontinuity-file ${CMAKE_SOURCE_DIR}/../sampleData/disconts20201205.snx --split-gnss --include-stn "ALIC" --export-dna)
     add_test (NAME imp-discont-03 COMMAND $<TARGET_FILE:dnaimportwrapper> -n discont -r itrf2014 --override-input-ref-frame ${CMAKE_SOURCE_DIR}/../sampleData/TEST_ITRF05.SNX ${CMAKE_SOURCE_DIR}/../sampleData/sa-gnss-stn.xml ${CMAKE_SOURCE_DIR}/../sampleData/sa-gnss-msr.xml --prefer-single-x-as-g --flag-unused --discontinuity-file ${CMAKE_SOURCE_DIR}/../sampleData/disconts20201205.snx --remove-ignored-msr --split-gnss --include-stns-assoc-msrs "ALIC" --export-dna --export-xml)
+    add_test (NAME adj-discont-01 COMMAND $<TARGET_FILE:dnaadjustwrapper> discont --constraint "ALIC,CCC")
     add_test (NAME imp-discont-04 COMMAND $<TARGET_FILE:dnaimportwrapper> -n discont -r itrf2005 ${CMAKE_SOURCE_DIR}/../sampleData/TEST_ITRF05.SNX --export-xml)
     add_test (NAME imp-discont-05 COMMAND $<TARGET_FILE:dnaimportwrapper> -n discont -r itrf2000 --override-input-ref-frame ./discontstn.xml ./discontmsr.xml --discontinuity-file ${CMAKE_SOURCE_DIR}/../sampleData/disconts20201205.snx)
     

@@ -924,6 +924,7 @@ void CDnaProjectFile::LoadSettingImport(const settingMode mSetting, const string
 		if (val.empty())
 			return;
 		settings_.i.stn_discontinuityfile = formPath<string>(settings_.g.input_folder, val);
+		settings_.i.apply_discontinuities = true;
 	}
 	else if (iequals(var, TEST_NEARBY_STNS))
 	{

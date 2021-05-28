@@ -787,6 +787,7 @@ void dna_import::AddDiscontinuityStations(vdnaStnPtr* vStations)
 			// the duplicate having a larger file order, via SetfileOrder(++station_index) below.
 			
 			stn_ptr.reset(vStations->at(i)->clone());
+			stn_ptr->SetOriginalName();
 			stn_ptr->SetName(stn_renames_it->second);
 			stn_ptr->SetfileOrder(++station_index);
 			vStations->push_back(stn_ptr);

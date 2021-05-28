@@ -177,20 +177,18 @@ bool rename_discont_station(T& begin, S& site_name, D& site_date, S& site_rename
 			{
 				// format using the start epoch
 				// year
-				ss << dateYear<UINT32>(site_date);
+				year << dateYear<UINT32>(site_date);
 				// doy
-				ss << dateDOY<UINT32>(site_date);
+				doy = dateDOY<UINT32>(site_date);
+					
 			}
-			else
-			{
-				// format using the discontinuity date
-				ss << year;
-				if (doy < 10)
-					ss << "0";
-				if (doy < 100)
-					ss << "0";
-				ss << doy;
-			}
+
+			ss << year;
+			if (doy < 100)
+				ss << "0";
+			if (doy < 10)
+				ss << "0";
+			ss << doy;
 
 			site_renamed = ss.str();
 

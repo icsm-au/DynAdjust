@@ -460,6 +460,7 @@ private:
 	
 	// Adjustment helps
 	void ApplyAdditionalConstraints();
+	void AddDiscontinuitySites(vstring& constraintStns);
 	void LoadStationMap(pv_string_uint32_pair stnsMap, const string& stnmap_file);
 	void ResizeMatrixVectors();
 	void LoadPhasedBlocks();

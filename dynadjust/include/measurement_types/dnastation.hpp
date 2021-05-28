@@ -171,6 +171,7 @@ public:
 	
 	inline int CompareStationName(const string& s) { return m_strName.compare(s); }
 	inline string GetName() const { return m_strName; }
+	inline string GetOriginalName() const { return m_strOriginalName; }
 	inline string GetConstraints() const { return m_strConstraints; }
 	inline string GetCoordType() const { return m_strType; }
 
@@ -232,6 +233,8 @@ public:
 	inline void SetcurrentHeight_d(const double& dHeight) { m_dcurrentHeight = dHeight; }
 	
 	inline void SetName(const string& sName) { m_strName = trimstr(sName); }
+	inline void SetOriginalName(const string& sName) { m_strOriginalName = trimstr(sName); }
+	inline void SetOriginalName() { m_strOriginalName = m_strName; }
 	void SetHemisphereZone(const string& sHemisphereZone);
 	inline void SetDescription(const string& sDescription) { m_strDescription = trimstr(sDescription); }
 	inline void SetComment(const string& sComment) { m_strComment = trimstr(sComment); }
@@ -307,6 +310,8 @@ public:
 	string m_strName;
 
 protected:
+
+	string m_strOriginalName;
 
 	double m_dXAxis;
 	double m_dYAxis;

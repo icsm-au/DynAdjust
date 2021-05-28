@@ -517,6 +517,7 @@ typedef struct block_meta {
 } blockMeta_t;
 
 const UINT16 STN_NAME_WIDTH(31);
+const UINT16 STN_NAME_ORIG_WIDTH(40);
 const UINT16 STN_DESC_WIDTH(129);
 const UINT16 STN_CONST_WIDTH(4);
 const UINT16 STN_TYPE_WIDTH(4);
@@ -533,6 +534,7 @@ typedef struct stn_t {
 		, fileOrder(0), nameOrder(0), clusterID(0), unusedStation(FALSE) 
 	{
 		memset(stationName, '\0', sizeof(stationName));
+		memset(stationNameOrig, '\0', sizeof(stationNameOrig));
 		memset(stationConst, '\0', sizeof(stationConst));
 		memset(stationType, '\0', sizeof(stationType));
 		memset(description, '\0', sizeof(description));
@@ -543,12 +545,13 @@ typedef struct stn_t {
 		memset(plate, '\0', sizeof(plate));
 	}
 
-	char	stationName[STN_NAME_WIDTH];	// 30 characters
-	char	stationConst[STN_CONST_WIDTH];	// constraint: lat, long, height
-	char	stationType[STN_TYPE_WIDTH];	// type: LLH, UTM, XYZ
-	UINT16	suppliedStationType;			// type supplied by the user (required for adjust)
-	double	initialLatitude;				// initial estimate
-	double	currentLatitude;				// current estimate
+	char	stationName[STN_NAME_WIDTH];			// 30 characters
+	char    stationNameOrig[STN_NAME_ORIG_WIDTH];	// 39 characters: 30 (name) + 1 (_) + 8 (date)
+	char	stationConst[STN_CONST_WIDTH];			// constraint: lat, long, height
+	char	stationType[STN_TYPE_WIDTH];			// type: LLH, UTM, XYZ
+	UINT16	suppliedStationType;					// type supplied by the user (required for adjust)
+	double	initialLatitude;						// initial estimate
+	double	currentLatitude;						// current estimate
 	double	initialLongitude;
 	double	currentLongitude;
 	double	initialHeight;					// initialHeight and currentHeight are always assumed to be
