@@ -520,10 +520,13 @@ public:
 	UINT32 TotalCount();
 	void coutSummary(ostream &os, const string& title);
 	UINT32 MeasurementCount(const char& msrType);
+	
 	void CreateTally(const vdnaMsrPtr& vMeasurements);
 	void CreateTally(const vmsr_t& vMeasurements, const vUINT32& CML);
+	UINT32 CreateTally(const vmsr_t& vMeasurements, bool countValidOnly=false);
+	
 	void IncrementMsrType(const char& msrType, const UINT32& count=1);
-
+	
 	void coutSummaryMsrToStn(ostream &os, const string& station);
 	void coutSummaryMsrToStn_Compressed(ostream &os, const string& station);
 

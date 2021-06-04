@@ -339,7 +339,6 @@ int main(int argc, char* argv[])
 		{
 		case SEGMENT_EXCEPTION_RAISED:
 			running = false;
-			cout << status_msg << endl << endl;
 			return EXIT_FAILURE;
 		default:
 			break;

@@ -1120,6 +1120,19 @@ void dna_segment::LoadBinaryFiles(const string& bstrfileName, const string& bmsr
 	
 	// Update the Cluster comparison functor with the AML binary vector
 	clusteridCompareFunc_.SetAMLPointer(const_cast<pvmsr_t>(&bmsBinaryRecords_));
+
+	// count the number of measurements not ignored
+	MsrTally msrTally;
+	UINT32 m = msrTally.CreateTally(bmsBinaryRecords_, true);
+
+	// throw an exception if no measurements are available	
+	if (m == 0)
+	{
+		stringstream ss;
+		ss << "No measurements were found." << endl << 
+			"  If measurements were successfully loaded on import, ensure that\n  all measurements have not been ignored." << endl;
+		SignalExceptionSerialise(ss.str(), 0, NULL);
+	}
 }
 	
 
