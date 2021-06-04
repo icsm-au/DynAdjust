@@ -539,12 +539,16 @@ if (BUILD_TESTING)
     add_test (NAME segment-no-opt-arg-03 COMMAND $<TARGET_FILE:dnasegmentwrapper> nonetfile --max)
     add_test (NAME segment-no-opt-arg-04 COMMAND $<TARGET_FILE:dnasegmentwrapper> nonetfile --contiguous)
     add_test (NAME segment-no-opt-arg-05 COMMAND $<TARGET_FILE:dnasegmentwrapper> nonetfile --search)
+    # all measurements ignored
+    add_test (NAME segment-all-ignored-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n allignored ${CMAKE_SOURCE_DIR}/../sampleData/stn_allignored.xml ${CMAKE_SOURCE_DIR}/../sampleData/msr_allignored.xml)
+    add_test (NAME segment-all-ignored-02 COMMAND $<TARGET_FILE:dnasegmentwrapper> allignored)
     # no help module
     add_test (NAME segment-no-help COMMAND $<TARGET_FILE:dnasegmentwrapper> --help-module cplusplus)
     
     set_tests_properties(
         segment-no-option segment-invalid-option segment-no-project segment-no-bst-bms segment-no-net-02 segment-no-help
         segment-no-opt-arg-01 segment-no-opt-arg-02 segment-no-opt-arg-03 segment-no-opt-arg-04 segment-no-opt-arg-05
+        segment-all-ignored-02
         PROPERTIES WILL_FAIL TRUE)
 
     ### ADJUST ###
@@ -570,10 +574,12 @@ if (BUILD_TESTING)
     add_test (NAME adjust-no-memmap-02 COMMAND $<TARGET_FILE:dnaadjustwrapper> memmap --staged)
     add_test (NAME adjust-no-stn-exists COMMAND $<TARGET_FILE:dnaadjustwrapper> memmap --constraints "no-name,CCC")
     add_test (NAME adjust-no-constraint COMMAND $<TARGET_FILE:dnaadjustwrapper> memmap --constraints "236300210,AAA")
+    # all measurements ignored
+    add_test (NAME adjust-all-ignored-01 COMMAND $<TARGET_FILE:dnaadjustwrapper> allignored)
     
     set_tests_properties(
         adjust-no-option adjust-invalid-option adjust-no-project adjust-no-name adjust-no-help adjust-no-bst-bms adjust-no-seg 
-        adjust-no-memmap-02 adjust-no-stn-exists adjust-no-constraint
+        adjust-no-memmap-02 adjust-no-stn-exists adjust-no-constraint adjust-all-ignored-01
         PROPERTIES WILL_FAIL TRUE)
 
     ### PLOT ###
