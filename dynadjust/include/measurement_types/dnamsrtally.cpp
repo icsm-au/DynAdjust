@@ -656,6 +656,95 @@ void MsrTally::CreateTally(const vmsr_t& vMeasurements, const vUINT32& CML)
 	TotalCount();
 }
 
+// vector<measurement_t>
+UINT32 MsrTally::CreateTally(const vmsr_t& vMeasurements, bool countValidOnly)
+{
+	initialise();
+	it_vmsr_t_const _it_msr;
+	for (_it_msr=vMeasurements.begin(); 
+		_it_msr!=vMeasurements.end();
+		++_it_msr)
+	{
+		// Don't include ignored measurements in the measurement count.
+		if (countValidOnly)
+			if (_it_msr->ignore)
+				continue;
+
+		// Don't include X and Y elements or covariance terms in the measurement count.
+		if (_it_msr->measStart > xMeas)
+			continue;
+
+		// Increment single station measurement counters...
+		switch (_it_msr->measType)
+		{
+		case 'A': // Horizontal angle
+			A++;
+			break;
+		case 'B': // Geodetic azimuth
+			B++; 
+			break;
+		case 'C': // Chord dist
+			C++;
+			break;
+		case 'D': // Direction set
+			if (_it_msr->measStart == xMeas)
+				D += _it_msr->vectorCount1 - 1;
+			break;
+		case 'E': // Ellipsoid arc
+			E++;
+			break;
+		case 'G': // GPS Baseline (treat as single-baseline cluster)
+			G ++;
+			break;
+		case 'X': // GPS Baseline cluster
+			if (_it_msr->measStart == xMeas)
+				X += _it_msr->vectorCount1;
+			break;
+		case 'H': // Orthometric height
+			H++;
+			break;
+		case 'I': // Astronomic latitude
+			I++;
+			break;
+		case 'J': // Astronomic longitude
+			J++;
+			break;
+		case 'K': // Astronomic azimuth
+			K++;
+			break;
+		case 'L': // Level difference
+			L++;
+			break;
+		case 'M': // MSL arc
+			M++;
+			break;
+		case 'P': // Geodetic latitude
+			P++;
+			break;
+		case 'Q': // Geodetic longitude
+			Q++;
+			break;
+		case 'R': // Ellipsoidal height
+			R++;
+			break;
+		case 'S': // Slope distance
+			S++;
+			break;
+		case 'V': // Zenith angle
+			V++;
+			break;
+		case 'Y': // GPS point cluster
+			if (_it_msr->measStart == xMeas)
+				Y += _it_msr->vectorCount1;
+			break;
+		case 'Z': // Vertical angle
+			Z++;
+			break;
+		}
+	}
+	return TotalCount();
+}
+
 _MEASUREMENT_STATIONS_ MsrTally::Stations(const char& measType)
 {
 	switch(measType)
