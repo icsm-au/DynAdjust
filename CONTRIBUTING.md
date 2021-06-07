@@ -51,10 +51,10 @@ The general process for addressing issues in DynAdjust is as follows.
    1. If it is closely related to an existing open issue, please add a comment to the open issue rather than to create a new issue.
    2. By default, the issue tracker displays open issues. Perhaps your issue relates to a defect previously marked as fixed, but remains unresolved. In this case, remove the `is:open` switch to search through [all issues](https://github.com/icsm-au/DynAdjust/issues?q=is%3Aissue).  If you feel the issue persists, reopen the issue and provide comments (as described in the next step).
    3. If the issue has not been raised before, continue to the next step.
-2. Create a new issue, or reopen an closed issue.
+2. Create a new issue, or reopen a closed issue.
    1. **Defects**. If it is a defect, please describe how to reproduce it and, if possible, provide sample command line arguments and snippets of the output which demonstrate the defect. Please select an appropriate [label](https://github.com/icsm-au/DynAdjust/issues/labels) that characterises the issue.
-   2. **Enhancements**. If it is an enhancement, please provide the desired or expected behaviour not presently delivered by DynAdjust. Please cite any relevant technical documents (e.g. journal articles, reference texts or other publications) that may help the developers address the issue. Where ever possible, provide some test cases demonstrating expected behaviour.
-   3. **Compilation**. If your issue relates to a compiler errors or warnings, please provide full details of the operating system and compiler version, and provide a snippet of the error or warning produced.
+   2. **Enhancements**. If it is an enhancement, please provide the desired or expected behaviour not presently delivered by DynAdjust. Please cite any relevant technical documents (e.g. journal articles, reference texts or other publications) that may help the developers address the issue. Wherever possible, provide some test cases demonstrating expected behaviour.
+   3. **Compilation**. If your issue relates to compiler errors or warnings, please provide full details of the operating system and compiler version, and provide a snippet of the compiler error or warning produced.
    4. **Feedback**. Perhaps you'd like to share your thoughts on how DynAdjust can be improved. In this context, you can:
       - Contribute code you already have. If it is not ready for production, we'd be glad to hear from you and to help you get it ready for the next release.
       - Propose a new function or suggest an alternative formula/algorithm.
