@@ -10,7 +10,7 @@
 [![Coveralls status](https://coveralls.io/repos/github/icsm-au/DynAdjust/badge.svg)](https://coveralls.io/github/icsm-au/DynAdjust)
 [![Codecov status](https://codecov.io/gh/icsm-au/DynAdjust/branch/master/graph/badge.svg)](https://codecov.io/gh/icsm-au/DynAdjust)
 
-[![DynAdjust](https://raw.githubusercontent.com/icsm-au/DynAdjust/master/resources/img/dynadjust-banner.png)](https://raw.githubusercontent.com/icsm-au/DynAdjust/master/resources/img/dynadjust-banner.png)
+[![DynAdjust](https://github.com/icsm-au/DynAdjust/raw/master/resources/img/dynadjust-banner-sml.png)](https://github.com/icsm-au/dynadjust/releases)
 
 ## Contents
 
