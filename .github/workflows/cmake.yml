@@ -39,8 +39,8 @@ jobs:
       shell: bash
       working-directory: ${{runner.workspace}}
       run: |
-        pwd
+        cd ..
         cp ./DynAdjust/resources/make_dynadjust_gcc.sh ./
-      #  ./make_dynadjust_gcc.sh --no-install --auto --do-not-clone --test
+        ./make_dynadjust_gcc.sh --no-install --auto --do-not-clone --test
 
     
