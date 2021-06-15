@@ -31,8 +31,8 @@ jobs:
     
     - name: Prerequisites
       # Instal dynadjust build prerequisites
-      #shell: bash
-      #run: ./resources/install_dynadjust_prerequisites.sh -m 1
+      shell: bash
+      run: ./resources/install_dynadjust_prerequisites.sh -m 1
 
     - name: Build and test
       # Build and test using shell script
