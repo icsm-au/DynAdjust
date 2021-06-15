@@ -283,7 +283,7 @@ echo -e "\n=====================================================================
 if [[ $_binary = "all" ]]; then
 	echo -e "Building DynAdjust $_version...\n"
 	#make -j $(nproc) || exit 1
-	make -j 4 || exit 1
+	make -j 2 || exit 1
 else
 	echo -e "Building DynAdjust (${_binary}) $_version...\n"
 	make -j $(nproc) ${_binary} || exit 1
