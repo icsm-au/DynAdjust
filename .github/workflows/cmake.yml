@@ -31,15 +31,16 @@ jobs:
     
     - name: Prerequisites
       # Instal dynadjust build prerequisites
-      shell: bash
-      run: ./resources/install_dynadjust_prerequisites.sh -m 1
+      #shell: bash
+      #run: ./resources/install_dynadjust_prerequisites.sh -m 1
 
     - name: Build and test
       # Build and test using shell script
       shell: bash
-      working-directory: ${{runner.workspace}}/..
+      working-directory: ${{runner.workspace}}
       run: |
+        pwd
         cp ./DynAdjust/resources/make_dynadjust_gcc.sh ./
-        ./make_dynadjust_gcc.sh --no-install --auto --do-not-clone --test
+      #  ./make_dynadjust_gcc.sh --no-install --auto --do-not-clone --test
 
     
