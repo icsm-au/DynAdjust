@@ -27,7 +27,7 @@ jobs:
       run: |
         pip install --user cpp-coveralls codecov
         sudo apt-get update
-        sudo apt-get -y install lcov bzip2 wget cmake make gcc libboost-system-dev libboost-filesystem-dev libboost-timer-dev libboost-thread-dev libboost-program-options-dev
+        sudo apt-get -y install lcov bzip2 wget cmake make g++ libboost-system-dev libboost-filesystem-dev libboost-timer-dev libboost-thread-dev libboost-program-options-dev
     
     - name: Prerequisites
       # Instal dynadjust build prerequisites
