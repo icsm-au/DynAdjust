@@ -23,26 +23,27 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
       
-    - name: System dependencies
+    - name: System dependencies and prerequisites
       # Instal system dependencies using apt
       run: |
         pip install --user cpp-coveralls codecov
         sudo apt-get update
-        sudo apt-get -y install lcov bzip2 wget cmake make g++ libboost-system-dev libboost-filesystem-dev libboost-timer-dev libboost-thread-dev libboost-program-options-dev
+        sudo apt-get install -y --no-install-recommends lcov bzip2 wget cmake make g++ xsdcxx libxerces-c-dev
+        sudo apt-get install -y --no-install-recommends libboost-system-dev libboost-filesystem-dev libboost-timer-dev libboost-thread-dev libboost-program-options-dev
+        wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB
+        sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB
+        sudo sh -c 'echo deb https://apt.repos.intel.com/mkl all main > /etc/apt/sources.list.d/intel-mkl.list'
+        sudo apt-get update
+        sudo apt-get install -y intel-mkl-64bit-2018.3-051
     
-    - name: Prerequisites
-      # Instal dynadjust build prerequisites
-      shell: bash
-      run: ./resources/install_dynadjust_prerequisites.sh -m 1
-
     - name: Build and test
       # Build and test using shell script
       shell: bash
       run: |
-        cp ./resources/make_dynadjust_gcc.sh ../
-        pwd
+      #  cp ./resources/make_dynadjust_gcc.sh ../
+      #  pwd
         cd ..
         pwd
-        ./make_dynadjust_gcc.sh --no-install --auto --do-not-clone --test
+        bash ./DynAdjust/resources/make_dynadjust_gcc.sh --no-install --auto --do-not-clone --test
 
     
