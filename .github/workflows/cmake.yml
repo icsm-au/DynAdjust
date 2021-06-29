@@ -16,15 +16,15 @@ jobs:
     # well on Windows or Mac.  You can convert this to a matrix build if you need
     # cross-platform coverage.
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-    #runs-on: ubuntu-latest
-    runs-on: ubuntu-18.04 # bionic
-
+    #runs-on: ubuntu-18.04 # bionic
+    runs-on: ubuntu-latest
+    
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-      
+    
+    # Instal system dependencies using apt
     - name: System dependencies and prerequisites
-      # Instal system dependencies using apt
       run: |
         pip install --user cpp-coveralls codecov
         sudo apt-get update
@@ -36,12 +36,12 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y intel-mkl-64bit-2018.3-051
     
-    - name: Build and test
-      # Build and test using shell script
-      shell: bash
+    # Build and test using shell script
+    - name: Build
       run: |
         cd ..
-        pwd
-        bash ./DynAdjust/resources/make_dynadjust_gcc.sh --no-install --auto --do-not-clone --test
+        cp ./DynAdjust/resources/make_dynadjust_gcc.sh ./
+        chmod +x ./make_dynadjust_gcc.sh
+        ./make_dynadjust_gcc.sh --no-install --auto --do-not-clone
 
     
