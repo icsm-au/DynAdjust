@@ -1,0 +1,63 @@
+name: Build, test and generate code coverage
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Debug
+
+jobs:
+  build:
+    # The CMake configure and build commands are platform agnostic and should work equally
+    # well on Windows or Mac.  You can convert this to a matrix build if you need
+    # cross-platform coverage.
+    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+    #runs-on: ubuntu-18.04 # bionic
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    
+    # Instal system dependencies using apt
+    - name: System dependencies and prerequisites
+      run: |
+        pip install --user cpp-coveralls codecov
+        sudo apt-get update
+        sudo apt-get install -y --no-install-recommends lcov bzip2 wget cmake make g++ xsdcxx libxerces-c-dev
+        sudo apt-get install -y --no-install-recommends libboost-system-dev libboost-filesystem-dev libboost-timer-dev libboost-thread-dev libboost-program-options-dev
+        wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB
+        sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB
+        sudo sh -c 'echo deb https://apt.repos.intel.com/mkl all main > /etc/apt/sources.list.d/intel-mkl.list'
+        sudo apt-get update
+        sudo apt-get install -y intel-mkl-64bit-2018.3-051
+    
+    # Downgrade cmake (the build has a problem with most recent cmake 3.20.5)
+    - name: Remove cmake 3.20.5
+      run: |
+        CMAKE=$(which cmake)
+        sudo rm $CMAKE
+    
+    - name: install cmake 3.16
+      run: |
+        sudo apt-get install cmake
+        hash -r
+    
+    # Build and test using shell script
+    - name: Build and test
+      run: |
+        cd ..
+        cp ./DynAdjust/resources/make_dynadjust_gcc.sh ./
+        chmod +x ./make_dynadjust_gcc.sh
+        ./make_dynadjust_gcc.sh --no-install --auto --do-not-clone --test
+        
+    - name: Generate code coverage
+      run: |
+        - cd ./DynAdjust/dynadjust/
+        - coveralls --gcov /usr/bin/gcov --exclude-pattern ".*feature_tests.*" --exclude-pattern ".*CompilerId.*" --exclude-pattern ".*/resources/.*" --gcov-options '\-lp' >/dev/null 2>&1
+        - bash <(curl -s https://codecov.io/bash) >/dev/null 2>&1
+        
