@@ -26,7 +26,6 @@ jobs:
     # Instal system dependencies using apt
     - name: System dependencies and prerequisites
       run: |
-        pip install --user cpp-coveralls codecov
         sudo apt-get update
         sudo apt-get install -y --no-install-recommends lcov bzip2 wget cmake make g++ xsdcxx libxerces-c-dev
         sudo apt-get install -y --no-install-recommends libboost-system-dev libboost-filesystem-dev libboost-timer-dev libboost-thread-dev libboost-program-options-dev
