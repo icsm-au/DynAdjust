@@ -420,6 +420,9 @@ else
 
 fi
 
+# return to the original "current directory"
+cd "$_cwd"
+
 echo "Done."
 echo " "
 
