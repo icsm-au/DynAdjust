@@ -54,4 +54,10 @@ jobs:
         cp ./DynAdjust/resources/make_dynadjust_gcc.sh ./
         chmod +x ./make_dynadjust_gcc.sh
         ./make_dynadjust_gcc.sh --no-install --auto --do-not-clone --test
+    
+    # Submit to coveralls
+    - name: Coveralls
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
 
