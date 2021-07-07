@@ -1,4 +1,4 @@
-name: Build, test and generate code coverage
+name: Build and run tests
 
 on:
   push:
@@ -54,10 +54,4 @@ jobs:
         cp ./DynAdjust/resources/make_dynadjust_gcc.sh ./
         chmod +x ./make_dynadjust_gcc.sh
         ./make_dynadjust_gcc.sh --no-install --auto --do-not-clone --test
-        
-    - name: Generate code coverage
-      run: |
-        - cd ./DynAdjust/dynadjust/
-        - coveralls --gcov /usr/bin/gcov --exclude-pattern ".*feature_tests.*" --exclude-pattern ".*CompilerId.*" --exclude-pattern ".*/resources/.*" --gcov-options '\-lp' >/dev/null 2>&1
-        - bash <(curl -s https://codecov.io/bash) >/dev/null 2>&1
-        
+
