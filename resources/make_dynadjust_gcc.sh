@@ -292,9 +292,18 @@ echo " "
 
 case ${_test} in
     1) # run cmake tests
-		echo -e "==========================================================================="
-		echo -e "Testing DynAdjust $_version...\n"
-        make CTEST_OUTPUT_ON_FAILURE=1 test;;
+        echo -e "==========================================================================="
+        echo -e "Testing DynAdjust $_version...\n"
+        make CTEST_OUTPUT_ON_FAILURE=1 test
+        # get current directory
+        pwd
+	# capture coverage info
+	lcov --directory . --capture --output-file lcov.info
+	# filter out system and test code
+	lcov --remove lcov.info 'tests/*' '/usr/*' --output-file lcov.info
+	# list before upload
+	lcov --list lcov.info 
+	;;
 esac
 
 #
@@ -410,6 +419,9 @@ else
 	sudo ln -sf "$DYNADJUST_INSTALL_PATH/dynadjust" /opt/dynadjust/dynadjust
 
 fi
+
+# return to the original "current directory"
+cd "$_cwd"
 
 echo "Done."
 echo " "
