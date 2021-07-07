@@ -295,6 +295,8 @@ case ${_test} in
         echo -e "==========================================================================="
         echo -e "Testing DynAdjust $_version...\n"
         make CTEST_OUTPUT_ON_FAILURE=1 test
+        # get current directory
+        pwd
 	# capture coverage info
 	lcov --directory . --capture --output-file lcov.info
 	# filter out system and test code
