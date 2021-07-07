@@ -1,4 +1,4 @@
-name: Build and run tests
+name: Build, test and code coverage
 
 on:
   push:
@@ -24,7 +24,7 @@ jobs:
       uses: actions/checkout@v2
     
     # Instal system dependencies using apt
-    - name: System dependencies and prerequisites
+    - name: Install system dependencies and prerequisites
       run: |
         pip install --user cpp-coveralls codecov
         sudo apt-get update
@@ -42,7 +42,7 @@ jobs:
         CMAKE=$(which cmake)
         sudo rm $CMAKE
     
-    - name: install cmake 3.16
+    - name: Install cmake 3.16
       run: |
         sudo apt-get install cmake
         hash -r
@@ -50,11 +50,13 @@ jobs:
     # Build and test using shell script
     - name: Build and test
       run: |
-        chmod +x ./resources/make_dynadjust_gcc.sh
-        ./resources/make_dynadjust_gcc.sh --no-install --auto --do-not-clone --test
+        cd ..
+        cp ./DynAdjust/resources/make_dynadjust_gcc.sh ./
+        chmod +x ./make_dynadjust_gcc.sh
+        ./make_dynadjust_gcc.sh --no-install --auto --do-not-clone --test
     
     # Submit to coveralls
-    - name: Coveralls
+    - name: Submit coverage to Coveralls
       uses: coverallsapp/github-action@master
       with:
         path-to-lcov: ./dynadjust/build_gcc/lcov.info
