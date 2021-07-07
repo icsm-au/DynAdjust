@@ -59,5 +59,6 @@ jobs:
     - name: Coveralls
       uses: coverallsapp/github-action@master
       with:
+        path-to-lcov: ./DynAdjust/dynadjust
         github-token: ${{ secrets.GITHUB_TOKEN }}
 
