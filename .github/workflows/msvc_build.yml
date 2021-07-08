@@ -17,7 +17,7 @@ env:
   # Platform to build.
   ARCH: x64
   
-  XSD_INSTALL_FOLDER: 'C:/Program Files (x86)/CodeSynthesis XSD 4.0/include/'
+  XSD_INSTALL_FOLDER: ".xsd/include/xsd-4.0.0-i686-windows/libxsd"
 
 jobs:
   build:
@@ -39,8 +39,8 @@ jobs:
       if: steps.cache.outputs.cache-hit != 'true'
       run: |
         vcpkg install 7zip:${{env.ARCH}}-windows
-    #    vcpkg install boost-system:${{env.ARCH}}-windows boost-filesystem:${{env.ARCH}}-windows boost-timer:${{env.ARCH}}-windows boost-thread:${{env.ARCH}}-windows boost-program-options:${{env.ARCH}}-windows
-    #    vcpkg install xerces-c:${{env.ARCH}}-windows
+        vcpkg install boost-system:${{env.ARCH}}-windows boost-filesystem:${{env.ARCH}}-windows boost-timer:${{env.ARCH}}-windows boost-thread:${{env.ARCH}}-windows boost-program-options:${{env.ARCH}}-windows
+        vcpkg install xerces-c:${{env.ARCH}}-windows
     
     # Install prerequisites not available from vcpkg
     - name: Download xsd
@@ -55,15 +55,13 @@ jobs:
       shell: cmd
       run: |
         cd ./xsd
-        7z e xsd-4.0.0-i686-windows.zip -y 
-        mkdir "${{env.XSD_INSTALL_FOLDER}}"
-        cd ./xsd/xsd-4.0.0-i686-windows/libxsd
-        move xsd "${{env.XSD_INSTALL_FOLDER}}"
-        dir "${{env.XSD_INSTALL_FOLDER}}"
+        7z e xsd-4.0.0-i686-windows.zip -y
         cd ..
-
-    #- name: Build
-    #  working-directory: ${{env.GITHUB_WORKSPACE}}
+        
+    - name: Build
+      working-directory: ${{env.GITHUB_WORKSPACE}}
       # Add additional options to the MSBuild command line here (like platform or verbosity level).
       # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
-    #  run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.ARCH}} ${{env.SOLUTION_FILE_PATH}}
+      run: |
+        set XSD_INSTALL_FOLDER="${{env.XSD_INSTALL_FOLDER}}"
+        msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.ARCH}} /p:"VCBuildAdditionalOptions= /useenv" ${{env.SOLUTION_FILE_PATH}}
