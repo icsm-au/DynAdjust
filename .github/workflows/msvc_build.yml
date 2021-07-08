@@ -17,8 +17,8 @@ env:
   # Platform to build.
   ARCH: x64
   
-  VCPKG_INSTALL_FOLDER: "c:/vcpkg/installed"
-  XSD_INSTALL_FOLDER: "xsd/xsd-4.0.0-i686-windows/libxsd"
+  VCPKG_INSTALL_FOLDER: c:/vcpkg/installed
+  CS_XSD_INSTALL_FOLDER: ${{env.GITHUB_WORKSPACE}}/xsd/xsd-4.0.0-i686-windows/libxsd
 
 jobs:
   build:
@@ -72,7 +72,9 @@ jobs:
       # Add additional options to the MSBuild command line here (like platform or verbosity level).
       # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
       run: |
-        set VCPKG_INSTALL_FOLDER_ARCH="${{env.VCPKG_INSTALL_FOLDER}}${{env.ARCH}}-windows"
-        set XSD_PATH=%GITHUB_WORKSPACE%/${{env.XSD_INSTALL_FOLDER}}
-        set PATH=%VCPKG_INSTALL_FOLDER_ARCH%;%XSD_PATH%;%PATH%
+        set VCPKG_INSTALL_FOLDER_ARCH=${{env.VCPKG_INSTALL_FOLDER}}/${{env.ARCH}}-windows
+        dir %VCPKG_INSTALL_FOLDER_ARCH%
+        set PATH=%VCPKG_INSTALL_FOLDER_ARCH%;%PATH%
+        dir ${{env.CS_XSD_INSTALL_FOLDER}}
+        set PATH=${{env.CS_XSD_INSTALL_FOLDER}};%PATH%
         msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.ARCH}} /p:"VCBuildAdditionalOptions= /useenv" ${{env.SOLUTION_FILE_PATH}}
