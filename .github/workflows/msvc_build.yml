@@ -18,7 +18,7 @@ env:
   ARCH: x64
   
   VCPKG_INSTALL_FOLDER: c:/vcpkg/installed
-  CS_XSD_INSTALL_FOLDER: ${{env.GITHUB_WORKSPACE}}/xsd/xsd-4.0.0-i686-windows/libxsd
+  CS_XSD_INSTALL_FOLDER: %GITHUB_WORKSPACE%/xsd/xsd-4.0.0-i686-windows/libxsd
 
 jobs:
   build:
@@ -46,6 +46,8 @@ jobs:
       shell: cmd
       if: steps.cache.outputs.cache-hit != 'true'
       run: |
+        echo ${{env.CS_XSD_INSTALL_FOLDER}}
+        echo ${{env.VCPKG_INSTALL_FOLDER}}/${{env.ARCH}}-windows
         vcpkg install 7zip:${{env.ARCH}}-windows
         vcpkg install boost-system:${{env.ARCH}}-windows boost-filesystem:${{env.ARCH}}-windows boost-timer:${{env.ARCH}}-windows boost-thread:${{env.ARCH}}-windows boost-program-options:${{env.ARCH}}-windows
         vcpkg install xerces-c:${{env.ARCH}}-windows
