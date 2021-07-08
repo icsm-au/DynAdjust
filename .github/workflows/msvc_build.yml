@@ -19,7 +19,7 @@ env:
   
   VCPKG_INSTALL_FOLDER: "c:/vcpkg/installed"
   XSD_INSTALL_FOLDER: ".xsd/include/xsd-4.0.0-i686-windows/libxsd"
-  BOOST_INSTALL_FOLDER: "${{env.VCPKG_INSTALL_FOLDER}}/x64-windows"
+  BOOST_INSTALL_FOLDER: "c:/vcpkg/installed/x64-windows"
 
 jobs:
   build:
