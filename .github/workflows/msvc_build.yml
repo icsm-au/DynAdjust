@@ -18,7 +18,7 @@ env:
   ARCH: x64
   
   VCPKG_INSTALL_FOLDER: "c:/vcpkg/installed"
-  XSD_INSTALL_FOLDER: ".xsd/include/xsd-4.0.0-i686-windows/libxsd"
+  XSD_INSTALL_FOLDER: "./xsd/include/xsd-4.0.0-i686-windows/libxsd"
 
 jobs:
   build:
