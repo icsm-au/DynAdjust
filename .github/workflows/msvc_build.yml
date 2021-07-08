@@ -73,5 +73,5 @@ jobs:
       # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
       run: |
         set VCPKG_INSTALL_FOLDER_ARCH="${{env.VCPKG_INSTALL_FOLDER}}${{env.ARCH}}-windows"
-        set PATH=%VCPKG_INSTALL_FOLDER_ARCH%;%${{env.XSD_INSTALL_FOLDER}}%;%PATH%
+        set PATH=%VCPKG_INSTALL_FOLDER_ARCH%;${{env.XSD_INSTALL_FOLDER}};%PATH%
         msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.ARCH}} /p:"VCBuildAdditionalOptions= /useenv" ${{env.SOLUTION_FILE_PATH}}
