@@ -31,13 +31,20 @@ jobs:
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: nuget restore ${{env.SOLUTION_FILE_PATH}}
     
-    - name: Install prerequisites
+    # Install prerequisites available from vcpkg
+    - name: Install vcpkg prerequisites
       shell: cmd
       if: steps.cache.outputs.cache-hit != 'true'
       run: |
         vcpkg install boost-system:${{ env.ARCH }}-windows boost-filesystem:${{ env.ARCH }}-windows boost-timer:${{ env.ARCH }}-windows boost-thread:${{ env.ARCH }}-windows boost-program-options:${{ env.ARCH }}-windows
         vcpkg install xerces-c:${{ env.ARCH }}-windows
-        
+    
+    # Install prerequisites available from vcpkg
+    - name: Install non-vcpkg prerequisites
+      uses: teddyking/dependency-action@v2.0.0
+      with:
+        deps: https://www.codesynthesis.com/download/xsd/4.0/windows/i686/xsd-4.0.0-i686-windows.zip
+  
 
     #- name: Build
     #  working-directory: ${{env.GITHUB_WORKSPACE}}
