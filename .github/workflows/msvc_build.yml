@@ -41,9 +41,12 @@ jobs:
     
     # Install prerequisites available from vcpkg
     - name: Install non-vcpkg prerequisites
-      uses: teddyking/dependency-action@v2.0.0
+      shell: cmd
+      uses: carlosperate/download-file-action@v1.0.3
       with:
-        deps: https://www.codesynthesis.com/download/xsd/4.0/windows/i686/xsd-4.0.0-i686-windows.zip
+        file-url: https://www.codesynthesis.com/download/xsd/4.0/windows/i686/xsd-4.0.0-i686-windows.zip
+        file-name: 'xsd-4.0.0-i686-windows.zip'
+        location: './xsd'
   
 
     #- name: Build
