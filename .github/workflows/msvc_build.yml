@@ -49,9 +49,9 @@ jobs:
         echo ${{env.GITHUB_WORKSPACE}}/${{env.CS_XSD_INSTALL_FOLDER}}
         echo ${{env.VCPKG_INSTALL_FOLDER}}/${{env.ARCH}}-windows
         vcpkg install 7zip:${{env.ARCH}}-windows
-        vcpkg install boost-system:${{env.ARCH}}-windows boost-filesystem:${{env.ARCH}}-windows boost-timer:${{env.ARCH}}-windows boost-thread:${{env.ARCH}}-windows boost-program-options:${{env.ARCH}}-windows
-        vcpkg install xerces-c:${{env.ARCH}}-windows
-        vcpkg list
+    #    vcpkg install boost-system:${{env.ARCH}}-windows boost-filesystem:${{env.ARCH}}-windows boost-timer:${{env.ARCH}}-windows boost-thread:${{env.ARCH}}-windows boost-program-options:${{env.ARCH}}-windows
+    #    vcpkg install xerces-c:${{env.ARCH}}-windows
+    #    vcpkg list
     
     # Install Codesynthesis xsd (not available from vcpkg)
     - name: Download xsd
@@ -79,4 +79,5 @@ jobs:
         set PATH=%VCPKG_INSTALL_FOLDER_ARCH%;%PATH%
         dir ${{env.GITHUB_WORKSPACE}}/${{env.CS_XSD_INSTALL_FOLDER}}
         set PATH=${{env.GITHUB_WORKSPACE}}/${{env.CS_XSD_INSTALL_FOLDER}};%PATH%
-        msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.ARCH}} /p:"VCBuildAdditionalOptions= /useenv" ${{env.SOLUTION_FILE_PATH}}
+        echo PATH
+      #  msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.ARCH}} /p:"VCBuildAdditionalOptions= /useenv" ${{env.SOLUTION_FILE_PATH}}
