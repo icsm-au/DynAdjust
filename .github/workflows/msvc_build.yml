@@ -16,6 +16,8 @@ env:
   BUILD_CONFIGURATION: Release  
   # Platform to build.
   ARCH: x64
+  
+  XSD_INSTALL_FOLDER: 'C:/Program Files (x86)/CodeSynthesis XSD 4.0/include/'
 
 jobs:
   build:
@@ -36,18 +38,28 @@ jobs:
       shell: cmd
       if: steps.cache.outputs.cache-hit != 'true'
       run: |
-        vcpkg install boost-system:${{ env.ARCH }}-windows boost-filesystem:${{ env.ARCH }}-windows boost-timer:${{ env.ARCH }}-windows boost-thread:${{ env.ARCH }}-windows boost-program-options:${{ env.ARCH }}-windows
-        vcpkg install xerces-c:${{ env.ARCH }}-windows
+        vcpkg install 7zip:${{env.ARCH}}-windows
+    #    vcpkg install boost-system:${{env.ARCH}}-windows boost-filesystem:${{env.ARCH}}-windows boost-timer:${{env.ARCH}}-windows boost-thread:${{env.ARCH}}-windows boost-program-options:${{env.ARCH}}-windows
+    #    vcpkg install xerces-c:${{env.ARCH}}-windows
     
-    # Install prerequisites available from vcpkg
-    - name: Install non-vcpkg prerequisites
+    # Install prerequisites not available from vcpkg
+    - name: Download xsd
       uses: carlosperate/download-file-action@v1.0.3
       id: download-xsd
       with:
         file-url: 'https://www.codesynthesis.com/download/xsd/4.0/windows/i686/xsd-4.0.0-i686-windows.zip'
         file-name: 'xsd-4.0.0-i686-windows.zip'
         location: './xsd'
-  
+    
+    - name: Install xsd
+      shell: cmd
+      run: |
+        cd ./xsd
+        7z e xsd-4.0.0-i686-windows.zip -y 
+        mkdir ${{env.XSD_INSTALL_FOLDER}}
+        move ./xsd/xsd-4.0.0-i686-windows/libxsd/xsd ${{env.XSD_INSTALL_FOLDER}}
+        dir ${{env.XSD_INSTALL_FOLDER}}
+        cd ..
 
     #- name: Build
     #  working-directory: ${{env.GITHUB_WORKSPACE}}
