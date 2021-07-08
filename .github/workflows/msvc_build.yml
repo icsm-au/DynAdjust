@@ -56,9 +56,10 @@ jobs:
       run: |
         cd ./xsd
         7z e xsd-4.0.0-i686-windows.zip -y 
-        mkdir ${{env.XSD_INSTALL_FOLDER}}
-        move ./xsd/xsd-4.0.0-i686-windows/libxsd/xsd ${{env.XSD_INSTALL_FOLDER}}
-        dir ${{env.XSD_INSTALL_FOLDER}}
+        mkdir "${{env.XSD_INSTALL_FOLDER}}"
+        cd ./xsd/xsd-4.0.0-i686-windows/libxsd
+        move xsd "${{env.XSD_INSTALL_FOLDER}}"
+        dir "${{env.XSD_INSTALL_FOLDER}}"
         cd ..
 
     #- name: Build
