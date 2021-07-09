@@ -50,6 +50,7 @@ jobs:
         vcpkg install boost-system:${{env.ARCH}}-windows boost-filesystem:${{env.ARCH}}-windows boost-timer:${{env.ARCH}}-windows boost-thread:${{env.ARCH}}-windows boost-program-options:${{env.ARCH}}-windows
         vcpkg install xerces-c:${{env.ARCH}}-windows
         vcpkg list
+        dir ${{env.VCPKG_INSTALL_FOLDER}}
     
     # Install Codesynthesis xsd (not available from vcpkg)
     - name: Download xsd
@@ -76,4 +77,4 @@ jobs:
         set SLN_DIR=%GITHUB_WORKSPACE%/dynadjust
         set PATH=%DEPS_DIR%;%XSD_DIR%;%SLN_DIR%;%PATH%
         echo %PATH%
-        msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.ARCH}} /p:"VCBuildAdditionalOptions= /useenv" ${{env.SOLUTION_FILE_PATH}}
+    #    msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.ARCH}} /p:"VCBuildAdditionalOptions= /useenv" ${{env.SOLUTION_FILE_PATH}}
