@@ -69,8 +69,8 @@ jobs:
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
       env:
-        SOURCE_DIR: ./
-        SOLUTION_DIR: ./dynadjust        
+        SOURCE_DIR: ${{env.GITHUB_WORKSPACE}}
+        SOLUTION_DIR: ${{env.GITHUB_WORKSPACE}}/dynadjust        
       # Add additional options to the MSBuild command line here (like platform or verbosity level).
       # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
       run: |
