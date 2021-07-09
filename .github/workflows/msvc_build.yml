@@ -73,6 +73,6 @@ jobs:
       run: |
         dir ${{env.GITHUB_WORKSPACE}}
         dir ${{env.CS_XSD_INSTALL_FOLDER}} 
-        set PATH=${{env.GITHUB_WORKSPACE}};${{env.GITHUB_WORKSPACE}}/dynadjust;${{env.CS_XSD_INSTALL_FOLDER}};%PATH%
+        set PATH=./;./dynadjust;${{env.CS_XSD_INSTALL_FOLDER}};%PATH%
         echo %PATH%
       #  msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.ARCH}} /p:"VCBuildAdditionalOptions= /useenv" ${{env.SOLUTION_FILE_PATH}}
