@@ -64,9 +64,7 @@ jobs:
     - name: Install xsd
       shell: cmd
       run: |
-        cd ./xsd
-        7z e xsd-4.0.0-i686-windows.zip -y
-        cd ..
+        7z x xsd-4.0.0-i686-windows.zip -y -o./xsd
         
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
@@ -74,7 +72,7 @@ jobs:
       # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
       run: |
         dir ${{env.GITHUB_WORKSPACE}}
-        dir ./xsd
+        dir ${{env.CS_XSD_INSTALL_FOLDER}}
         echo $GITHUB_ENV
         
       #  set PATH=${{env.GITHUB_WORKSPACE}}/${{env.CS_XSD_INSTALL_FOLDER}};%PATH%
