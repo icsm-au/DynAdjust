@@ -68,11 +68,14 @@ jobs:
         
     - name: Build
       working-directory: ${{env.GITHUB_WORKSPACE}}
+      env:
+        SOURCE_DIR: ./
+        SOLUTION_DIR: ./dynadjust        
       # Add additional options to the MSBuild command line here (like platform or verbosity level).
       # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
       run: |
         dir ${{env.GITHUB_WORKSPACE}}
         dir ${{env.CS_XSD_INSTALL_FOLDER}} 
-        set PATH=./;./dynadjust;${{env.CS_XSD_INSTALL_FOLDER}};%PATH%
+        set PATH=${{env.SOURCE_DIR}};${{env.SOLUTION_DIR}};${{env.CS_XSD_INSTALL_FOLDER}};%PATH%
         echo %PATH%
       #  msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.ARCH}} /p:"VCBuildAdditionalOptions= /useenv" ${{env.SOLUTION_FILE_PATH}}
