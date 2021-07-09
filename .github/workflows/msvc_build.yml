@@ -18,7 +18,7 @@ env:
   ARCH: x64
   
   VCPKG_INSTALL_FOLDER: c:/vcpkg/installed
-  CS_XSD_INSTALL_FOLDER: xsd/xsd-4.0.0-i686-windows/libxsd
+  CS_XSD_INSTALL_FOLDER: ./xsd/xsd-4.0.0-i686-windows/libxsd
 
 jobs:
   build:
@@ -46,9 +46,10 @@ jobs:
       shell: cmd
       if: steps.cache.outputs.cache-hit != 'true'
       run: |
-        echo ${{env.GITHUB_WORKSPACE}}/${{env.CS_XSD_INSTALL_FOLDER}}
-        echo ${{env.VCPKG_INSTALL_FOLDER}}/${{env.ARCH}}-windows
-        vcpkg install 7zip:${{env.ARCH}}-windows
+        echo "Working directory =    "${{env.GITHUB_WORKSPACE}}
+        echo "XSD install folder =   "${{env.CS_XSD_INSTALL_FOLDER}}
+        echo "vcpkg install folder = "${{env.VCPKG_INSTALL_FOLDER}}/${{env.ARCH}}-windows
+    #    vcpkg install 7zip:${{env.ARCH}}-windows
     #    vcpkg install boost-system:${{env.ARCH}}-windows boost-filesystem:${{env.ARCH}}-windows boost-timer:${{env.ARCH}}-windows boost-thread:${{env.ARCH}}-windows boost-program-options:${{env.ARCH}}-windows
     #    vcpkg install xerces-c:${{env.ARCH}}-windows
     #    vcpkg list
@@ -74,10 +75,12 @@ jobs:
       # Add additional options to the MSBuild command line here (like platform or verbosity level).
       # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
       run: |
+        echo "Working directory =    "${{env.GITHUB_WORKSPACE}}
+        dir ${{env.GITHUB_WORKSPACE}}
         set VCPKG_INSTALL_FOLDER_ARCH=${{env.VCPKG_INSTALL_FOLDER}}/${{env.ARCH}}-windows
         dir %VCPKG_INSTALL_FOLDER_ARCH%
-        set PATH=%VCPKG_INSTALL_FOLDER_ARCH%;%PATH%
-        dir ${{env.GITHUB_WORKSPACE}}/${{env.CS_XSD_INSTALL_FOLDER}}
-        set PATH=${{env.GITHUB_WORKSPACE}}/${{env.CS_XSD_INSTALL_FOLDER}};%PATH%
-        echo PATH
+      #  set PATH=%VCPKG_INSTALL_FOLDER_ARCH%;%PATH%
+      #  dir ${{env.GITHUB_WORKSPACE}}/${{env.CS_XSD_INSTALL_FOLDER}}
+      #  set PATH=${{env.GITHUB_WORKSPACE}}/${{env.CS_XSD_INSTALL_FOLDER}};%PATH%
+      #  echo PATH
       #  msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.ARCH}} /p:"VCBuildAdditionalOptions= /useenv" ${{env.SOLUTION_FILE_PATH}}
