@@ -49,6 +49,7 @@ jobs:
         vcpkg install 7zip:${{env.ARCH}}-windows
         vcpkg install boost-system:${{env.ARCH}}-windows boost-filesystem:${{env.ARCH}}-windows boost-timer:${{env.ARCH}}-windows boost-thread:${{env.ARCH}}-windows boost-program-options:${{env.ARCH}}-windows
         vcpkg install xerces-c:${{env.ARCH}}-windows
+        vcpkg integrate install
         vcpkg list
     
     # Install Codesynthesis xsd (not available from vcpkg)
@@ -71,7 +72,6 @@ jobs:
       # Add additional options to the MSBuild command line here (like platform or verbosity level).
       # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
       run: |
-        echo Boost_INCLUDE_DIRS: ${{Boost_INCLUDE_DIRS}}
         set DEPS_DIR=${{env.VCPKG_INSTALL_FOLDER}}/${{env.ARCH}}-windows/include
         set XSD_DIR=%GITHUB_WORKSPACE%/${{env.CS_XSD_INSTALL_FOLDER}}
         set SLN_DIR=%GITHUB_WORKSPACE%/dynadjust
