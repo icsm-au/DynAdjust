@@ -75,5 +75,5 @@ jobs:
         set SLN_DIR=./dynadjust/
         set DNA_DIR=%GITHUB_WORKSPACE%/dynadjust
         set PATH=%DEPS_DIR%;%XSD_DIR%;%SLN_DIR%;%DNA_DIR%;%PATH%
-        echo %PATH
+        echo %PATH%
     #    msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.ARCH}} /p:"VCBuildAdditionalOptions= /useenv" ${{env.SOLUTION_FILE_PATH}}
