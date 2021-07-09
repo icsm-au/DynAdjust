@@ -47,10 +47,10 @@ jobs:
       if: steps.cache.outputs.cache-hit != 'true'
       run: |
         echo "VCPKG_INSTALL_FOLDER_ARCH=${{env.VCPKG_INSTALL_FOLDER}}/${{env.ARCH}}-windows" >> $GITHUB_ENV
-    #    vcpkg install 7zip:${{env.ARCH}}-windows
-    #    vcpkg install boost-system:${{env.ARCH}}-windows boost-filesystem:${{env.ARCH}}-windows boost-timer:${{env.ARCH}}-windows boost-thread:${{env.ARCH}}-windows boost-program-options:${{env.ARCH}}-windows
-    #    vcpkg install xerces-c:${{env.ARCH}}-windows
-    #    vcpkg list
+        vcpkg install 7zip:${{env.ARCH}}-windows
+        vcpkg install boost-system:${{env.ARCH}}-windows boost-filesystem:${{env.ARCH}}-windows boost-timer:${{env.ARCH}}-windows boost-thread:${{env.ARCH}}-windows boost-program-options:${{env.ARCH}}-windows
+        vcpkg install xerces-c:${{env.ARCH}}-windows
+        vcpkg list
     
     # Install Codesynthesis xsd (not available from vcpkg)
     - name: Download xsd
@@ -71,10 +71,5 @@ jobs:
       # Add additional options to the MSBuild command line here (like platform or verbosity level).
       # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
       run: |
-        echo workspace=$GITHUB_WORKSPACE >> $GITHUB_ENV
-        echo ${{env.workspace}}
-        dir ${{env.GITHUB_WORKSPACE}}
-        dir ${{env.CS_XSD_INSTALL_FOLDER}}
-        set PATH=${{env.workspace}};${{env.workspace}}/dynadjust;${{env.CS_XSD_INSTALL_FOLDER}};%PATH%
-        echo %PATH%
-      #  msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.ARCH}} /p:"VCBuildAdditionalOptions= /useenv" ${{env.SOLUTION_FILE_PATH}}
+        set PATH=${{env.workspace}};${{env.CS_XSD_INSTALL_FOLDER}};%PATH%
+        msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.ARCH}} /p:"VCBuildAdditionalOptions= /useenv" ${{env.SOLUTION_FILE_PATH}}
