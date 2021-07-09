@@ -59,7 +59,7 @@ jobs:
       with:
         file-url: 'https://www.codesynthesis.com/download/xsd/4.0/windows/i686/xsd-4.0.0-i686-windows.zip'
         file-name: 'xsd-4.0.0-i686-windows.zip'
-        location: './xsd'
+        location: './'
     
     - name: Install xsd
       shell: cmd
