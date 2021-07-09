@@ -46,7 +46,6 @@ jobs:
       shell: cmd
       if: steps.cache.outputs.cache-hit != 'true'
       run: |
-        echo "VCPKG_INSTALL_FOLDER_ARCH=${{env.VCPKG_INSTALL_FOLDER}}/${{env.ARCH}}-windows" >> $GITHUB_ENV
         vcpkg install 7zip:${{env.ARCH}}-windows
     #    vcpkg install boost-system:${{env.ARCH}}-windows boost-filesystem:${{env.ARCH}}-windows boost-timer:${{env.ARCH}}-windows boost-thread:${{env.ARCH}}-windows boost-program-options:${{env.ARCH}}-windows
     #    vcpkg install xerces-c:${{env.ARCH}}-windows
@@ -63,20 +62,18 @@ jobs:
     
     - name: Install xsd
       shell: cmd
-      run: |
-        7z x xsd-4.0.0-i686-windows.zip -y -o./xsd
-    
-    - name: Set environment variables
-      run: |
-        echo "XSD_DIR=${{env.CS_XSD_INSTALL_FOLDER}}" >> $GITHUB_ENV
-        echo "SLN_DIR=${{env.GITHUB_WORKSPACE}}/dynadjust" >> $GITHUB_ENV
+      run: 7z x xsd-4.0.0-i686-windows.zip -y -o./xsd
     
     - name: Build DynAdjust
+      shell: cmd
       working-directory: ${{env.GITHUB_WORKSPACE}}
       # Add additional options to the MSBuild command line here (like platform or verbosity level).
       # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
       run: |
-        echo ${{env.CS_XSD_INSTALL_FOLDER}}
-        echo xsd directory = ${{env.XSD_DIR}}
-        echo sln directory = ${{env.SLN_DIR}}
+        set DEPS_DIR=${{env.VCPKG_INSTALL_FOLDER}}/${{env.ARCH}}-windows
+        set XSD_DIR=${{env.CS_XSD_INSTALL_FOLDER}}
+        set SLN_DIR=./dynadjust/
+        set DNA_DIR=%GITHUB_WORKSPACE%/dynadjust
+        set PATH=%DEPS_DIR%;%XSD_DIR%;%SLN_DIR%;%DNA_DIR%;%PATH%
+        echo %PATH
     #    msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.ARCH}} /p:"VCBuildAdditionalOptions= /useenv" ${{env.SOLUTION_FILE_PATH}}
