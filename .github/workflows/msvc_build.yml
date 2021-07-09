@@ -18,7 +18,7 @@ env:
   ARCH: x64
   
   VCPKG_INSTALL_FOLDER: c:/vcpkg/installed
-  CS_XSD_INSTALL_FOLDER: ./xsd/xsd-4.0.0-i686-windows/libxsd
+  CS_XSD_INSTALL_FOLDER: xsd/xsd-4.0.0-i686-windows/libxsd
 
 jobs:
   build:
@@ -47,9 +47,9 @@ jobs:
       if: steps.cache.outputs.cache-hit != 'true'
       run: |
         vcpkg install 7zip:${{env.ARCH}}-windows
-    #    vcpkg install boost-system:${{env.ARCH}}-windows boost-filesystem:${{env.ARCH}}-windows boost-timer:${{env.ARCH}}-windows boost-thread:${{env.ARCH}}-windows boost-program-options:${{env.ARCH}}-windows
-    #    vcpkg install xerces-c:${{env.ARCH}}-windows
-    #    vcpkg list
+        vcpkg install boost-system:${{env.ARCH}}-windows boost-filesystem:${{env.ARCH}}-windows boost-timer:${{env.ARCH}}-windows boost-thread:${{env.ARCH}}-windows boost-program-options:${{env.ARCH}}-windows
+        vcpkg install xerces-c:${{env.ARCH}}-windows
+        vcpkg list
     
     # Install Codesynthesis xsd (not available from vcpkg)
     - name: Download xsd
@@ -64,6 +64,7 @@ jobs:
       shell: cmd
       run: 7z x xsd-4.0.0-i686-windows.zip -y -o./xsd
     
+    # Build Dynadjust using msbuild
     - name: Build DynAdjust
       shell: cmd
       working-directory: ${{env.GITHUB_WORKSPACE}}
@@ -71,9 +72,8 @@ jobs:
       # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
       run: |
         set DEPS_DIR=${{env.VCPKG_INSTALL_FOLDER}}/${{env.ARCH}}-windows
-        set XSD_DIR=${{env.CS_XSD_INSTALL_FOLDER}}
-        set SLN_DIR=./dynadjust/
-        set DNA_DIR=%GITHUB_WORKSPACE%/dynadjust
-        set PATH=%DEPS_DIR%;%XSD_DIR%;%SLN_DIR%;%DNA_DIR%;%PATH%
+        set XSD_DIR=%GITHUB_WORKSPACE%/${{env.CS_XSD_INSTALL_FOLDER}}
+        set SLN_DIR=%GITHUB_WORKSPACE%/dynadjust
+        set PATH=%DEPS_DIR%;%XSD_DIR%;%SLN_DIR%;%PATH%
         echo %PATH%
-    #    msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.ARCH}} /p:"VCBuildAdditionalOptions= /useenv" ${{env.SOLUTION_FILE_PATH}}
+        msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.ARCH}} /p:"VCBuildAdditionalOptions= /useenv" ${{env.SOLUTION_FILE_PATH}}
