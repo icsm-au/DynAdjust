@@ -74,7 +74,7 @@ jobs:
       # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
       run: |
         dir ${{env.GITHUB_WORKSPACE}}
-        dir ${{env.CS_XSD_INSTALL_FOLDER}}
+        dir ./xsd
         echo $GITHUB_ENV
         
       #  set PATH=${{env.GITHUB_WORKSPACE}}/${{env.CS_XSD_INSTALL_FOLDER}};%PATH%
