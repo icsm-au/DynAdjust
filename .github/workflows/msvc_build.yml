@@ -34,17 +34,17 @@ jobs:
       working-directory: ${{env.GITHUB_WORKSPACE}}
       run: nuget restore ${{env.SOLUTION_FILE_PATH}}
 
-    - name: Cache vcpkg packages
-      uses: actions/cache@v2
-      id: cache
-      with:
-          path: ${{env.VCPKG_INSTALL_FOLDER}}
-          key: ${{ runner.os }}-vcpkg-${{ hashFiles('.github/workflows/msvc_build.yml') }}
+    #- name: Cache vcpkg packages
+    #  uses: actions/cache@v2
+    #  id: cache
+    #  with:
+    #      path: ${{env.VCPKG_INSTALL_FOLDER}}
+    #      key: ${{ runner.os }}-vcpkg-${{ hashFiles('.github/workflows/msvc_build.yml') }}
     
     # Install prerequisites available from vcpkg
     - name: Install vcpkg prerequisites
       shell: cmd
-      if: steps.cache.outputs.cache-hit != 'true'
+    #  if: steps.cache.outputs.cache-hit != 'true'
       run: |
         vcpkg update
         vcpkg install intel-mkl --triplet=${{env.ARCH}}-windows
