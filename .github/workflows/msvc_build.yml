@@ -46,9 +46,9 @@ jobs:
       shell: cmd
       if: steps.cache.outputs.cache-hit != 'true'
       run: |
-        vcpkg install 7zip:${{env.ARCH}}-windows
-        vcpkg install boost-system:${{env.ARCH}}-windows boost-filesystem:${{env.ARCH}}-windows boost-timer:${{env.ARCH}}-windows boost-thread:${{env.ARCH}}-windows boost-program-options:${{env.ARCH}}-windows
-        vcpkg install xerces-c:${{env.ARCH}}-windows
+        vcpkg install 7zip --triplet=${{env.ARCH}}-windows
+        vcpkg install boost-process boost-iostreams boost-spirit boost-system boost-filesystem boost-timer boost-thread boost-program-options --triplet=${{env.ARCH}}-windows
+        vcpkg install xerces-c --triplet=${{env.ARCH}}-windows
         vcpkg integrate install
         vcpkg list
     
