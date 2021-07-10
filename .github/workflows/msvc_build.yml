@@ -46,8 +46,9 @@ jobs:
       shell: cmd
       if: steps.cache.outputs.cache-hit != 'true'
       run: |
-        vcpkg install 7zip --triplet=${{env.ARCH}}-windows
+        vcpkg install intel-mkl --triplet=${{env.ARCH}}-windows
         vcpkg install boost-process boost-iostreams boost-spirit boost-system boost-filesystem boost-timer boost-thread boost-program-options --triplet=${{env.ARCH}}-windows
+        vcpkg install 7zip --triplet=${{env.ARCH}}-windows
         vcpkg install xerces-c --triplet=${{env.ARCH}}-windows
         vcpkg integrate install
         vcpkg list
