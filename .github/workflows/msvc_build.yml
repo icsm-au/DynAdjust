@@ -1,0 +1,81 @@
+name: Build release (Windows)
+
+on: 
+  push: 
+    branches: [master]
+  pull_request: 
+    branches: [master]
+
+env:
+  # Path to the solution file relative to the root of the project.
+  SOLUTION_FILE_PATH: ./dynadjust/dynadjust_1_01_00.sln
+
+  # Configuration type to build.
+  # You can convert this to a build matrix if you need coverage of multiple configuration types.
+  # https://docs.github.com/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+  BUILD_CONFIGURATION: Release  
+  # Platform to build.
+  ARCH: x64
+  
+  VCPKG_INSTALL_FOLDER: c:/vcpkg/installed
+  CS_XSD_INSTALL_FOLDER: xsd/xsd-4.0.0-i686-windows/libxsd
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v1.0.2  
+
+    - name: Restore NuGet packages
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      run: nuget restore ${{env.SOLUTION_FILE_PATH}}
+
+    - name: Cache vcpkg packages
+      uses: actions/cache@v2
+      id: cache
+      with:
+          path: ${{env.VCPKG_INSTALL_FOLDER}}
+          key: ${{ runner.os }}-vcpkg-${{ hashFiles('.github/workflows/msvc_build.yml') }}
+    
+    # Install prerequisites available from vcpkg
+    - name: Install vcpkg prerequisites
+      shell: cmd
+      if: steps.cache.outputs.cache-hit != 'true'
+      run: |
+        vcpkg update
+        vcpkg install boost-process boost-iostreams boost-spirit boost-system boost-filesystem boost-timer boost-thread boost-program-options --triplet=${{env.ARCH}}-windows
+        vcpkg install 7zip --triplet=${{env.ARCH}}-windows
+        vcpkg install xerces-c --triplet=${{env.ARCH}}-windows
+        vcpkg integrate install
+        vcpkg list
+    
+    # Install Codesynthesis xsd (not available from vcpkg)
+    - name: Download xsd
+      uses: carlosperate/download-file-action@v1.0.3
+      id: download-xsd
+      with:
+        file-url: 'https://www.codesynthesis.com/download/xsd/4.0/windows/i686/xsd-4.0.0-i686-windows.zip'
+        file-name: 'xsd-4.0.0-i686-windows.zip'
+        location: './'
+    
+    - name: Install xsd
+      shell: cmd
+      run: 7z x xsd-4.0.0-i686-windows.zip -y -o./xsd
+    
+    # Build Dynadjust using msbuild
+    - name: Build DynAdjust
+      shell: cmd
+      working-directory: ${{env.GITHUB_WORKSPACE}}
+      # Add additional options to the MSBuild command line here (like platform or verbosity level).
+      # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
+      run: |
+        set DEPS_DIR=${{env.VCPKG_INSTALL_FOLDER}}/${{env.ARCH}}-windows/include
+        set XSD_DIR=%GITHUB_WORKSPACE%/${{env.CS_XSD_INSTALL_FOLDER}}
+        set SLN_DIR=%GITHUB_WORKSPACE%/dynadjust
+        set PATH=%DEPS_DIR%;%XSD_DIR%;%SLN_DIR%;%PATH%
+        echo %PATH%
+    #    msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} /p:Platform=${{env.ARCH}} /p:"VCBuildAdditionalOptions= /useenv" ${{env.SOLUTION_FILE_PATH}}

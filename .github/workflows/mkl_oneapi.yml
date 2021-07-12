@@ -1,0 +1,52 @@
+# Copied and adapted from https://github.com/oneapi-src/oneapi-ci/blob/master/.github/workflows/build_all.yml
+# SPDX-FileCopyrightText: 2020 Intel Corporation
+#
+# SPDX-License-Identifier: MIT
+
+name: Build intel mkl
+
+on: push
+
+env:
+  WINDOWS_BASEKIT_URL: https://registrationcenter-download.intel.com/akdlm/irc_nas/17978/w_BaseKit_p_2021.3.0.3221_offline.exe
+  WINDOWS_HPCKIT_URL: https://registrationcenter-download.intel.com/akdlm/irc_nas/17940/w_HPCKit_p_2021.3.0.3227_offline.exe
+  WINDOWS_CPP_COMPONENTS: intel.oneapi.win.cpp-compiler
+  
+jobs:
+  build_intel_mkl:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+    - uses: actions/checkout@v2
+    - name: cache install
+      id: cache-install
+      uses: actions/cache@v2
+      with:
+        path: C:\Program Files (x86)\Intel\oneAPI\compiler
+        key: install-${{ env.WINDOWS_HPCKIT_URL }}-${{ env.WINDOWS_CPP_COMPONENTS }}-compiler-${{ hashFiles('**/scripts/cache_exclude_windows.sh') }}
+        
+    - name: install
+      if: steps.cache-install.outputs.cache-hit != 'true'
+      run: resources/install_mkl_windows.bat $WINDOWS_HPCKIT_URL $WINDOWS_CPP_COMPONENTS
+      
+    - name: build
+      run: resources/build_mkl_windows.bat c++ 2017_build_tools
+      
+    - name: exclude unused files from cache
+      if: steps.cache-install.outputs.cache-hit != 'true'
+      shell: bash
+      run: resources/cache_exclude_windows.sh
+
+    # Delete the following if you don't want to save install logs
+    - name: Saving install logs
+      if: steps.cache-install.outputs.cache-hit != 'true'
+      uses: actions/upload-artifact@v2
+      with:
+        name: InstallLogs_${{ github.job }}
+        path: |
+          extract.log
+          bootstrapper*
+          installer*
+        retention-days: 7
