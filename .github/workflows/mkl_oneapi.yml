@@ -13,7 +13,7 @@ env:
   WINDOWS_CPP_COMPONENTS: intel.oneapi.win.cpp-compiler
   
 jobs:
-  build intel mkl:
+  build_intel_mkl:
     runs-on: windows-latest
     defaults:
       run:
