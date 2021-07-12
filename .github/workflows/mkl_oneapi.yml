@@ -3,7 +3,7 @@
 #
 # SPDX-License-Identifier: MIT
 
-name: Build Intel MKL
+name: Build intel mkl
 
 on: push
 
@@ -32,7 +32,7 @@ jobs:
       run: resources/install_mkl_windows.bat $WINDOWS_HPCKIT_URL $WINDOWS_CPP_COMPONENTS
       
     - name: build
-      run: resources/build_mkl_windows.bat c++
+      run: resources/build_mkl_windows.bat c++ 2017_build_tools
       
     - name: exclude unused files from cache
       if: steps.cache-install.outputs.cache-hit != 'true'
