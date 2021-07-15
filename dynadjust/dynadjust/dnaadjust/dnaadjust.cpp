@@ -12625,7 +12625,6 @@ void dna_adjust::PrintCompMeasurements_GXY(const UINT32& block, it_vmsr_t& _it_m
 	UINT32 covariance_count;
 	bool nextElement(false);
 	double computed, correction;
-	string ignoreFlag;
 
 	for (cluster_msr=0; cluster_msr<cluster_count; ++cluster_msr)
 	{
@@ -12666,10 +12665,6 @@ void dna_adjust::PrintCompMeasurements_GXY(const UINT32& block, it_vmsr_t& _it_m
 			break;
 		}
 
-		ignoreFlag = " ";
-		if (_it_msr->ignore)
-			ignoreFlag = "*";
-
 		// Print linear measurement, taking care of user requirements for precision	
 		PrintCompMeasurementsLinear('X', computed, correction, _it_msr);
 
@@ -12689,10 +12684,6 @@ void dna_adjust::PrintCompMeasurements_GXY(const UINT32& block, it_vmsr_t& _it_m
 			break;
 		}
 
-		ignoreFlag = " ";
-		if (_it_msr->ignore)
-			ignoreFlag = "*";
-
 		// Print linear measurement, taking care of user requirements for precision	
 		PrintCompMeasurementsLinear('Y', computed, correction, _it_msr);
 
@@ -12711,10 +12702,6 @@ void dna_adjust::PrintCompMeasurements_GXY(const UINT32& block, it_vmsr_t& _it_m
 			computed = _it_msr->measAdj;
 			break;
 		}
-
-		ignoreFlag = " ";
-		if (_it_msr->ignore)
-			ignoreFlag = "*";
 
 		// Print linear measurement, taking care of user requirements for precision	
 		PrintCompMeasurementsLinear('Z', computed, correction, _it_msr);
@@ -12751,10 +12738,6 @@ void dna_adjust::PrintCompMeasurements_HR(const UINT32& block, it_vmsr_t& _it_ms
 		computed = _it_msr->measAdj;
 		break;
 	}
-
-	string ignoreFlag(" ");
-	if (_it_msr->ignore)
-		ignoreFlag = "*";
 
 	// Print linear measurement, taking care of user requirements for precision	
 	PrintCompMeasurementsLinear(' ', computed, correction, _it_msr);
