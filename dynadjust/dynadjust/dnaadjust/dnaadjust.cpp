@@ -2413,8 +2413,8 @@ void dna_adjust::PrintAdjustedNetworkStations()
 	switch (projectSettings_.a.adjust_mode)
 	{
 	case SimultaneousMode:
-		PrintAdjStations(adj_file, 0, &v_estimatedStations_.at(0), &v_normals_.at(0), false, true, true, printHeader);
-		PrintAdjStations(xyz_file, 0, &v_estimatedStations_.at(0), &v_normals_.at(0), false, false, false, printHeader);
+		PrintAdjStations(adj_file, 0, &v_estimatedStations_.at(0), &v_rigorousVariances_.at(0), false, true, true, printHeader);
+		PrintAdjStations(xyz_file, 0, &v_estimatedStations_.at(0), &v_rigorousVariances_.at(0), false, false, false, printHeader);
 		break;
 	case PhasedMode:
 	case Phased_Block_1Mode:
@@ -3478,6 +3478,20 @@ void dna_adjust::ValidateandFinaliseAdjustment(cpu_timer& tot_time)
 	if (CurrentIteration() == projectSettings_.a.max_iterations &&
 		fabs(maxCorr_) > projectSettings_.a.iteration_threshold)
 		adjustStatus_ = ADJUST_MAX_ITERATIONS_EXCEEDED;
+
+	// Back up simultaneous rigorous variance estimates (for serialising 
+	// to disk at SerialiseAdjustedVarianceMatrices() ), so that executing adjust
+	// in report-results mode has access to the latest variance estimates
+	switch (projectSettings_.a.adjust_mode)
+	{
+	case SimultaneousMode:
+		v_rigorousVariances_.at(0) = v_normals_.at(0);
+		break;
+	case Phased_Block_1Mode:
+	case PhasedMode:
+	default:
+		break;
+	}
 
 	// Print status
 	PrintAdjustmentStatus();
