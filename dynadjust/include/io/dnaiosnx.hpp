@@ -177,7 +177,7 @@ bool rename_discont_station(T& begin, S& site_name, D& site_date, S& site_rename
 			{
 				// format using the start epoch
 				// year
-				year << dateYear<UINT32>(site_date);
+				year = dateYear<UINT32>(site_date);
 				// doy
 				doy = dateDOY<UINT32>(site_date);
 					
