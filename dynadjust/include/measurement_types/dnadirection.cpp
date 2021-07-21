@@ -212,7 +212,7 @@ void CDnaDirection::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& c
 	}
 	else
 	{
-		// Zenith angle, vertical angle
+		// Zenith distance, vertical angle
 		if (comment.empty())
 			*dynaml_stream << "  <!-- Type " << measurement_name<char, string>(GetTypeC()) << " -->" << endl;
 		else
@@ -232,7 +232,7 @@ void CDnaDirection::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& c
 			<< RadtoDms(m_drValue) << "</Value>" << endl;
 		*dynaml_stream << "    <StdDev>" << scientific << setprecision(6) << Seconds(m_dStdDev) << "</StdDev>" << endl;	
 
-		// Zenith angle, vertical angle
+		// Zenith distance, vertical angle
 		switch (GetTypeC())
 		{
 		case 'Z':
@@ -272,7 +272,7 @@ void CDnaDirection::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields&
 	}
 	else
 	{
-		// Azimuth, zenith angle, vertical angle
+		// Azimuth, zenith distance, vertical angle
 		*dna_stream << left << setw(dmw.msr_inst) << m_strFirst;
 		*dna_stream << left << setw(dmw.msr_targ1) << m_strTarget;
 		*dna_stream << setw(dmw.msr_targ2) << " ";
@@ -281,7 +281,7 @@ void CDnaDirection::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields&
 			right << FormatDnaDmsString(RadtoDms(m_drValue), 8);
 		*dna_stream << setw(dmw.msr_stddev) << fixed << setprecision(3) << Seconds(m_dStdDev);
 
-		// Zenith angle, vertical angle
+		// Zenith distance, vertical angle
 		switch (GetTypeC())
 		{
 		case 'Z':
@@ -311,32 +311,22 @@ void CDnaDirection::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* elli
 	_it_vdnastnptr stn2_it(vStations->begin() + m_lstn2Index);
 	
 	double zenithDistance;
-	double direction = 0.0;
+	double direction;
 
-	// compute direction for:
-	//	- geodetic azimuths, directions or astronomic azimuths, or
-	//  - zenith distances or vertical angles if deflections have been supplied
-	if (GetTypeC() == 'B' ||
-		GetTypeC() == 'D' ||
-		GetTypeC() == 'K' ||
-		((GetTypeC() == 'V' ||
-		GetTypeC() == 'Z') &&
-		(fabs(stn1_it->get()->GetverticalDef()) > E4_SEC_DEFLECTION || 
-		fabs(stn1_it->get()->GetmeridianDef()) > E4_SEC_DEFLECTION)))
-	{
-		direction = Direction(
-			stn1_it->get()->GetXAxis(), 
-			stn1_it->get()->GetYAxis(),
-			stn1_it->get()->GetZAxis(),
-			stn2_it->get()->GetXAxis(), 
-			stn2_it->get()->GetYAxis(),
-			stn2_it->get()->GetZAxis(),
-			stn1_it->get()->GetcurrentLatitude(),
-			stn1_it->get()->GetcurrentLongitude());
-	}
+	direction = Direction(
+		stn1_it->get()->GetXAxis(), 
+		stn1_it->get()->GetYAxis(),
+		stn1_it->get()->GetZAxis(),
+		stn2_it->get()->GetXAxis(), 
+		stn2_it->get()->GetYAxis(),
+		stn2_it->get()->GetZAxis(),
+		stn1_it->get()->GetcurrentLatitude(),
+		stn1_it->get()->GetcurrentLongitude());
 
 	switch (GetTypeC())
 	{
+	
+	// direction
 	case 'D':	
 		// assign direction
 		m_drValue = direction;
@@ -344,7 +334,7 @@ void CDnaDirection::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* elli
 		// Deflections available?
 		if (fabs(stn1_it->get()->GetverticalDef()) > E4_SEC_DEFLECTION || fabs(stn1_it->get()->GetmeridianDef()) > E4_SEC_DEFLECTION)
 		{
-			// 1. compute zenith angle 
+			// 1. compute zenith distance 
 			zenithDistance = ZenithDistance<double>(
 				stn1_it->get()->GetXAxis(), 
 				stn1_it->get()->GetYAxis(),
@@ -370,10 +360,14 @@ void CDnaDirection::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* elli
 			m_drValue += m_preAdjCorr;
 		}
 		break;
+	
+	// geodetic azimuth
 	case 'B':	
 		// assign direction
 		m_drValue = direction;
 		break;
+	
+	// astronomic azimuth
 	case 'K':	
 		// assign direction
 		m_drValue = direction;
@@ -381,7 +375,7 @@ void CDnaDirection::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* elli
 		// Deflections available?
 		if (fabs(stn1_it->get()->GetverticalDef()) > E4_SEC_DEFLECTION || fabs(stn1_it->get()->GetmeridianDef()) > E4_SEC_DEFLECTION)
 		{
-			// 1. compute zenith angle 
+			// 1. compute zenith distance 
 			zenithDistance = ZenithDistance<double>(
 				stn1_it->get()->GetXAxis(), 
 				stn1_it->get()->GetYAxis(),
@@ -410,6 +404,7 @@ void CDnaDirection::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* elli
 
 		break;
 	
+	// vertical angle
 	case 'Z':
 		m_fInstHeight = float(1.650);
 		m_fTargHeight = float(1.651);
@@ -441,16 +436,18 @@ void CDnaDirection::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* elli
 				stn1_it->get()->GetverticalDef(),				// deflection in prime vertical
 				stn1_it->get()->GetmeridianDef());				// deflection in prime meridian
 
-			// 3. apply deflection correction
+			// 3. apply deflection correction (in reverse 
+			// to get the simulated observation)
 			m_drValue += m_preAdjCorr;
 		}
-
 		break;
+	
+	// zenith distance
 	case 'V':
 		m_fInstHeight = float(1.650);
 		m_fTargHeight = float(1.651);
 
-		// compute zenith angle 
+		// compute zenith distance 
 		m_drValue = ZenithDistance<double>(
 			stn1_it->get()->GetXAxis(), 
 			stn1_it->get()->GetYAxis(),
@@ -472,13 +469,14 @@ void CDnaDirection::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* elli
 			// see above
 
 			// 2. Compute correction
-			m_preAdjCorr = ZenithDeflectionCorrection<double>(	// Correction to vertical angle for deflection of vertical
+			m_preAdjCorr = ZenithDeflectionCorrection<double>(	// Correction to zenith distance for deflection of vertical
 				direction,										// geodetic azimuth
 				stn1_it->get()->GetverticalDef(),				// deflection in prime vertical
 				stn1_it->get()->GetmeridianDef());				// deflection in prime meridian
 
-			// 3. apply deflection correction
-			m_drValue += m_preAdjCorr;
+			// 3. apply deflection correction (in reverse 
+			// to get the simulated observation)
+			m_drValue -= m_preAdjCorr;
 		}
 	}
 
@@ -505,7 +503,7 @@ void CDnaDirection::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* elli
 //	// the numberofdirections in the vector plus one for the RO
 //	m_lRecordedTotal = measRecord->vectorCount1;
 //
-//	if (GetTypeC() != 'D')		// not part of a DnaDirectionSet (e.g. vertical angle, zenith angle)
+//	if (GetTypeC() != 'D')		// not part of a DnaDirectionSet (e.g. vertical angle, zenith distance)
 //	{
 //		m_strType = measRecord->measType;
 //		
@@ -546,7 +544,7 @@ UINT32 CDnaDirection::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_m
 	// the numberofdirections in the vector plus one for the RO
 	m_lRecordedTotal = it_msr->vectorCount1;
 
-	if (it_msr->measType != 'D')		// not part of a DnaDirectionSet (e.g. vertical angle, zenith angle)
+	if (it_msr->measType != 'D')		// not part of a DnaDirectionSet (e.g. vertical angle, zenith distance)
 	{
 		m_strType = it_msr->measType;
 		

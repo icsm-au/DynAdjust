@@ -164,6 +164,13 @@ bool rename_discont_station(T& begin, S& site_name, D& site_date, S& site_rename
 	// find the next occurrence of this site
 	while (equals(site_name, begin->site_name))
 	{
+		// Check if discontinuities exist at this site, if not, skip
+		if (!begin->discontinuity_exists)
+		{
+			begin++;
+			continue;
+		}
+
 		// Test if the start epoch of this site is within this discontinuity window
 		if (site_date >= begin->date_start &&
 			site_date < begin->date_end)
@@ -172,16 +179,6 @@ bool rename_discont_station(T& begin, S& site_name, D& site_date, S& site_rename
 			doy = begin->date_start.day_of_year();
 			year = begin->date_start.year();
 			ss << site_name << "_";
-
-			if (year == DISCONT_TIME_IMMEMORIAL)
-			{
-				// format using the start epoch
-				// year
-				year << dateYear<UINT32>(site_date);
-				// doy
-				doy = dateDOY<UINT32>(site_date);
-					
-			}
 
 			ss << year;
 			if (doy < 100)

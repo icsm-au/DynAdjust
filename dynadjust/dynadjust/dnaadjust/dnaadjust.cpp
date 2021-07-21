@@ -1599,7 +1599,7 @@ void dna_adjust::UpdateNormals(const UINT32& block, bool MT_ReverseOrCombine)
 		case 'L':	// Level difference
 		case 'M':	// MSL arc
 		case 'S':	// Slope distance
-		case 'V':	// Zenith angle
+		case 'V':	// Zenith distance
 		case 'Z':	// Vertical angle
 			stn2 = GetBlkMatrixElemStn2(block, &_it_msr);
 			UpdateNormals_BCEKLMSVZ(block, stn1, stn2, design_row, normals, design, AtVinv);
@@ -2413,8 +2413,8 @@ void dna_adjust::PrintAdjustedNetworkStations()
 	switch (projectSettings_.a.adjust_mode)
 	{
 	case SimultaneousMode:
-		PrintAdjStations(adj_file, 0, &v_estimatedStations_.at(0), &v_normals_.at(0), false, true, true, printHeader);
-		PrintAdjStations(xyz_file, 0, &v_estimatedStations_.at(0), &v_normals_.at(0), false, false, false, printHeader);
+		PrintAdjStations(adj_file, 0, &v_estimatedStations_.at(0), &v_rigorousVariances_.at(0), false, true, true, printHeader);
+		PrintAdjStations(xyz_file, 0, &v_estimatedStations_.at(0), &v_rigorousVariances_.at(0), false, false, false, printHeader);
 		break;
 	case PhasedMode:
 	case Phased_Block_1Mode:
@@ -3181,7 +3181,7 @@ void dna_adjust::FormUniqueMsrList()
 		case 'L':	// Level difference
 		case 'M':	// MSL arc
 		case 'S':	// Slope distance
-		case 'V':	// Zenith angle
+		case 'V':	// Zenith distance
 		case 'Z':	// Vertical angle
 		case 'H':	// Orthometric height
 		case 'I':	// Astronomic latitude
@@ -3478,6 +3478,20 @@ void dna_adjust::ValidateandFinaliseAdjustment(cpu_timer& tot_time)
 	if (CurrentIteration() == projectSettings_.a.max_iterations &&
 		fabs(maxCorr_) > projectSettings_.a.iteration_threshold)
 		adjustStatus_ = ADJUST_MAX_ITERATIONS_EXCEEDED;
+
+	// Back up simultaneous rigorous variance estimates (for serialising 
+	// to disk at SerialiseAdjustedVarianceMatrices() ), so that executing adjust
+	// in report-results mode has access to the latest variance estimates
+	switch (projectSettings_.a.adjust_mode)
+	{
+	case SimultaneousMode:
+		v_rigorousVariances_.at(0) = v_normals_.at(0);
+		break;
+	case Phased_Block_1Mode:
+	case PhasedMode:
+	default:
+		break;
+	}
 
 	// Print status
 	PrintAdjustmentStatus();
@@ -5029,7 +5043,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices(pit_vmsr_t _it_msr, UINT32& desi
 		UpdateDesignNormalMeasMatrices_S(_it_msr, design_row, block,
 			measMinusComp, estimatedStations, normals, design, AtVinv, buildnewMatrices);
 		break;
-	case 'V':	// Zenith angle
+	case 'V':	// Zenith distance
 		UpdateDesignNormalMeasMatrices_V(_it_msr, design_row, block,
 			measMinusComp, estimatedStations, normals, design, AtVinv, buildnewMatrices);
 		break;		
@@ -6003,7 +6017,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_BK(pit_vmsr_t _it_msr, UINT32& d
 		{
 			////////////////////////////////////////////////////////////////////////////
 			// Astronomic azimuths must be corrected for deflection of the vertical via
-			// "Laplace correction".  This correction requires zenith angle and geodetic 
+			// "Laplace correction".  This correction requires zenith distance and geodetic 
 			// azimuth (comp_msr), both of which must be computed from coordinates.
 		
 			////////////////////////////////////////////////////////////////////////////
@@ -6527,8 +6541,9 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_S(pit_vmsr_t _it_msr, UINT32& de
 		design_row++;
 }
 
-
-// Like vertical angles and slope distances, the relationship between zenith distances and the
+// Zenith distance
+//
+// Like vertical angles, the relationship between zenith distances and the
 // coordinates of p1 and p2 requires a little extra work to take into consideration instrument
 // and target height.  For the measurements-minus-computed vector, the "computed" zenith distance
 // is the true angle between the ellipsoid normal and instrument-target vector, and so must take 
@@ -6570,12 +6585,12 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_V(pit_vmsr_t _it_msr, UINT32& de
 				stn1_it->currentLongitude));
 		
 			// 2. Compute correction
-			(*_it_msr)->preAdjCorr = ZenithDeflectionCorrection<double>(		// Correction to vertical angle for deflection of vertical
+			(*_it_msr)->preAdjCorr = ZenithDeflectionCorrection<double>(		// Correction to zenith distance for deflection of vertical
 				azimuth,														// geodetic azimuth
 				stn1_it->verticalDef,											// deflection in prime vertical
 				stn1_it->meridianDef);											// deflection in prime meridian
 
-			(*_it_msr)->term1 -= (*_it_msr)->preAdjCorr;						// apply deflection correction
+			(*_it_msr)->term1 += (*_it_msr)->preAdjCorr;						// apply deflection correction
 			////////////////////////////////////////////////////////////////////////////
 		}
 		else
@@ -6585,7 +6600,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_V(pit_vmsr_t _it_msr, UINT32& de
 			return;
 	}
 
-	// compute zenith angle from estimated coordinates
+	// compute zenith distance from estimated coordinates
 	double comp_msr(ZenithDistance(
 		estimatedStations->get(stn1, 0),					// X1
 		estimatedStations->get(stn1+1, 0),					// Y1
@@ -6635,7 +6650,9 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_V(pit_vmsr_t _it_msr, UINT32& de
 }
 
 
-// Like zenith distances and vertical angles, the relationship between slope distances and the
+// Vertical angles
+//
+// Like zenith distances, the relationship between slope distances and the
 // coordinates of p1 and p2 requires a little extra work to take into consideration instrument
 // and target height.  For the measurements-minus-computed vector, the "computed" distance
 // is the true distance between the instrument and target, and so must take into consideration 
@@ -8366,7 +8383,7 @@ void dna_adjust::ComputeChiSquare(const UINT32& block)
 		case 'Q':	// Geodetic longitude
 		case 'R':	// Ellipsoidal height
 		case 'S':	// Slope distance
-		case 'V':	// Zenith angle
+		case 'V':	// Zenith distance
 		case 'Z':	// Vertical angle
 			ComputeChiSquare_ABCEHIJKLMPQRSVZ(_it_msr, measurement_index, &v_measMinusComp_.at(block));
 			break;
@@ -8653,7 +8670,7 @@ void dna_adjust::ComputePrecisionAdjMsrs(const UINT32& block /*= 0*/)
 		case 'L':	// Level difference
 		case 'M':	// MSL arc
 		case 'S':	// Slope distance
-		case 'V':	// Zenith angle
+		case 'V':	// Zenith distance
 		case 'Z':	// Vertical angle
 			ComputePrecisionAdjMsrs_BCEKLMSVZ(block, 
 				GetBlkMatrixElemStn1(block, &_it_msr), 
@@ -8967,9 +8984,11 @@ void dna_adjust::UpdateMsrRecords_GXY(const UINT32& block, it_vmsr_t& _it_msr, U
 
 void dna_adjust::UpdateMsrRecord(const UINT32& block, it_vmsr_t& _it_msr, 
 	const UINT32& msr_row, const UINT32& precadjmsr_row, const double& measPrec)
-{																			// adjusted measurement
-	_it_msr->measCorr = -v_measMinusComp_.at(block).get(msr_row, 0);			// correction
+{
+	// set adjusted measurement correction
+	_it_msr->measCorr = -v_measMinusComp_.at(block).get(msr_row, 0);
 	
+	// apply adjusted measurement correction
 	if (_it_msr->measType == 'D')
 	{
 		_it_msr->measAdj = _it_msr->scale1 + _it_msr->measCorr;
@@ -9029,17 +9048,20 @@ void dna_adjust::UpdateMsrRecord(const UINT32& block, it_vmsr_t& _it_msr,
 		_it_msr->measAdj -= _it_msr->preAdjCorr;
 		break;
 
-	// Apply correction for deflections
+	// Apply correction for deflections of the vertical
 	case 'A':
-	case 'B':
+	case 'D':
 	case 'I':
 	case 'J':
 	case 'K':
-	case 'P':
-	case 'Q':
+	case 'Z':
+		// add deflection of the vertical to adjusted value
+		_it_msr->measAdj += _it_msr->preAdjCorr;
+		break;
 	case 'V':
-	case 'z':
-		//_it_msr->measAdj += _it_msr->preAdjCorr;
+		// apply deflection of the vertical to the adjusted
+		// measurement to get the commensurate measurement value
+		_it_msr->measAdj -= _it_msr->preAdjCorr;
 		break;
 	}
 
@@ -10588,7 +10610,7 @@ void dna_adjust::PrintCompMeasurements(const UINT32& block, const string& type)
 			break;
 		case 'B':	// Geodetic azimuth
 		case 'K':	// Astronomic azimuth
-		case 'V':	// Zenith angle
+		case 'V':	// Zenith distance
 		case 'Z':	// Vertical angle
 			PrintCompMeasurements_BKVZ(block, _it_msr, design_row, computedMsrs);
 			break;
@@ -11339,7 +11361,7 @@ void dna_adjust::UpdateIgnoredMeasurements_K(pit_vmsr_t _it_msr, bool storeOrigi
 	{
 		////////////////////////////////////////////////////////////////////////////
 		// Astronomic azimuths must be corrected for deflection of the vertical via
-		// "Laplace correction".  This correction requires zenith angle and geodetic 
+		// "Laplace correction".  This correction requires zenith distance and geodetic 
 		// azimuth (comp_msr), both of which must be computed from coordinates.
 
 		////////////////////////////////////////////////////////////////////////////
@@ -11558,7 +11580,8 @@ void dna_adjust::UpdateIgnoredMeasurements_S(pit_vmsr_t _it_msr, bool storeOrigi
 	(*_it_msr)->measCorr = (*_it_msr)->measAdj - (*_it_msr)->preAdjMeas;
 }
 	
-
+// Zenith distance
+//
 void dna_adjust::UpdateIgnoredMeasurements_V(pit_vmsr_t _it_msr, bool storeOriginalMeasurement)
 {
 	// initialise measurement (on the first adjustment only!)
@@ -11586,7 +11609,7 @@ void dna_adjust::UpdateIgnoredMeasurements_V(pit_vmsr_t _it_msr, bool storeOrigi
 
 	double local_12e, local_12n, local_12up;
 
-	// compute zenith angle from estimated coordinates
+	// compute zenith distance from estimated coordinates
 	(*_it_msr)->measAdj = (ZenithDistance(
 		estimatedStations_stn1->get(stn1, 0),					// X1
 		estimatedStations_stn1->get(stn1 + 1, 0),					// Y1
@@ -11631,7 +11654,7 @@ void dna_adjust::UpdateIgnoredMeasurements_V(pit_vmsr_t _it_msr, bool storeOrigi
 		(*_it_msr)->preAdjCorr = 0.;
 
 	// apply correction for deflections in the vertical
-	(*_it_msr)->measAdj += (*_it_msr)->preAdjCorr;
+	(*_it_msr)->measAdj -= (*_it_msr)->preAdjCorr;
 	// compute adjustment correction
 	(*_it_msr)->measCorr = (*_it_msr)->measAdj - (*_it_msr)->preAdjMeas;
 }
@@ -11746,6 +11769,8 @@ void dna_adjust::UpdateIgnoredMeasurements_Y(pit_vmsr_t _it_msr, bool storeOrigi
 }
 	
 
+// Vertical angle
+//
 void dna_adjust::UpdateIgnoredMeasurements_Z(pit_vmsr_t _it_msr, bool storeOriginalMeasurement)
 {
 	// initialise measurement (on the first adjustment only!)
@@ -11884,7 +11909,7 @@ void dna_adjust::UpdateIgnoredMeasurements(pit_vmsr_t _it_msr, bool storeOrigina
 	case 'S':	// Slope distance
 		UpdateIgnoredMeasurements_S(_it_msr, storeOriginalMeasurement);
 		break;
-	case 'V':	// Zenith angle
+	case 'V':	// Zenith distance
 		UpdateIgnoredMeasurements_V(_it_msr, storeOriginalMeasurement);
 		break;
 	case 'X':	// GPS Baseline cluster
@@ -12036,7 +12061,7 @@ void dna_adjust::PrintIgnoredAdjMeasurements(bool printHeader)
 			break;
 		case 'B':	// Geodetic azimuth
 		case 'K':	// Astronomic azimuth
-		case 'V':	// Zenith angle
+		case 'V':	// Zenith distance
 		case 'Z':	// Vertical angle
 			PrintCompMeasurements_BKVZ(0, _it_msr, design_row, ignoredMsrs);
 			break;
@@ -12096,7 +12121,7 @@ bool dna_adjust::IgnoredMeasurementContainsInvalidStation(pit_vmsr_t _it_msr)
 	case 'L':	// Level difference
 	case 'M':	// MSL arc
 	case 'S':	// Slope distance
-	case 'V':	// Zenith angle
+	case 'V':	// Zenith distance
 	case 'Z':	// Vertical angle
 		if (vAssocStnList_.at((*_it_msr)->station2).IsInvalid())
 			return false;
@@ -12305,7 +12330,7 @@ void dna_adjust::PrintAdjMeasurements(v_uint32_u32u32_pair msr_block, bool print
 			break;
 		case 'B':	// Geodetic azimuth
 		case 'K':	// Astronomic azimuth
-		case 'V':	// Zenith angle
+		case 'V':	// Zenith distance
 		case 'Z':	// Vertical angle
 			PrintAdjMeasurements_BKVZ(_it_msr);
 			break;
@@ -12614,7 +12639,6 @@ void dna_adjust::PrintCompMeasurements_GXY(const UINT32& block, it_vmsr_t& _it_m
 	UINT32 covariance_count;
 	bool nextElement(false);
 	double computed, correction;
-	string ignoreFlag;
 
 	for (cluster_msr=0; cluster_msr<cluster_count; ++cluster_msr)
 	{
@@ -12655,10 +12679,6 @@ void dna_adjust::PrintCompMeasurements_GXY(const UINT32& block, it_vmsr_t& _it_m
 			break;
 		}
 
-		ignoreFlag = " ";
-		if (_it_msr->ignore)
-			ignoreFlag = "*";
-
 		// Print linear measurement, taking care of user requirements for precision	
 		PrintCompMeasurementsLinear('X', computed, correction, _it_msr);
 
@@ -12678,10 +12698,6 @@ void dna_adjust::PrintCompMeasurements_GXY(const UINT32& block, it_vmsr_t& _it_m
 			break;
 		}
 
-		ignoreFlag = " ";
-		if (_it_msr->ignore)
-			ignoreFlag = "*";
-
 		// Print linear measurement, taking care of user requirements for precision	
 		PrintCompMeasurementsLinear('Y', computed, correction, _it_msr);
 
@@ -12700,10 +12716,6 @@ void dna_adjust::PrintCompMeasurements_GXY(const UINT32& block, it_vmsr_t& _it_m
 			computed = _it_msr->measAdj;
 			break;
 		}
-
-		ignoreFlag = " ";
-		if (_it_msr->ignore)
-			ignoreFlag = "*";
 
 		// Print linear measurement, taking care of user requirements for precision	
 		PrintCompMeasurementsLinear('Z', computed, correction, _it_msr);
@@ -12740,10 +12752,6 @@ void dna_adjust::PrintCompMeasurements_HR(const UINT32& block, it_vmsr_t& _it_ms
 		computed = _it_msr->measAdj;
 		break;
 	}
-
-	string ignoreFlag(" ");
-	if (_it_msr->ignore)
-		ignoreFlag = "*";
 
 	// Print linear measurement, taking care of user requirements for precision	
 	PrintCompMeasurementsLinear(' ', computed, correction, _it_msr);
@@ -12948,26 +12956,8 @@ void dna_adjust::PrintMeasurementsAngular(const char cardinal, const double& mea
 
 void dna_adjust::PrintAdjMeasurementsAngular(const char cardinal, const it_vmsr_t& _it_msr)
 {
-	double measAdj(_it_msr->measAdj);
-
-	switch (_it_msr->measType)
-	{
-	case 'A':
-	case 'D':
-	case 'J':
-	case 'I':
-	case 'K':
-	case 'V':
-	case 'Z':
-		// add deflection of the vertical to adjusted value
-		// Does a check need to be performed that it has been calculated?
-		//if (fabs(_it_msr->preAdjCorr) > E4_SEC_DEFLECTION)
-		measAdj += _it_msr->preAdjCorr;
-		break;
-	}
-
 	// Print adjusted angular measurements
-	PrintMeasurementsAngular(cardinal, measAdj, _it_msr->measCorr, _it_msr);
+	PrintMeasurementsAngular(cardinal, _it_msr->measAdj, _it_msr->measCorr, _it_msr);
 
 	// Print adjusted statistics
 	PrintAdjMeasurementStatistics(cardinal, _it_msr);
