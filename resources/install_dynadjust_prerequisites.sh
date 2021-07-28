@@ -6,7 +6,14 @@
 #   
 #################################################################################
 
-
+_distro_centos="CentOS Linux"
+_distro_debian="Debian"
+_distro_fedora="Fedora"
+_distro_opensusel="openSUSE Leap"
+_distro_opensuse="openSUSE"
+_distro_rhels="Red Hat Enterprise Linux Server"
+_distro_rhel="Red Hat Enterprise Linux"
+_distro_ubuntu="Ubuntu"
 
 #################################################################################
 # Capture system variables and set defaults
@@ -27,6 +34,7 @@ _system=$(uname -sroi)
 _script="install_dynadjust_prerequisites.sh"
 _mode=0
 _distribution=
+_create_downloads_dir=0
 #################################################################################
 
 
@@ -48,8 +56,14 @@ function help {
     echo ""
     usage
     echo -e "options:"
-    echo -e "  -d [ --distro ] arg    The linux distribution, e.g. \"Ubuntu\", \"Fedora\", etc. "
-    echo -e "                         If not provided, try to get from /etc/os-release."
+    echo -e "  -d [ --distro ] arg    The linux distribution. Recognised distros include:"
+    echo -e "                           - ${_distro_centos}"
+    echo -e "                           - ${_distro_debian}"
+    echo -e "                           - ${_distro_fedora}"
+    echo -e "                           - ${_distro_opensuse}"
+    echo -e "                           - ${_distro_rhel}"
+    echo -e "                           - ${_distro_ubuntu}"
+    echo -e "                         If not provided, I will try to get the distro from /etc/os-release."
     echo -e "  -m [ --mode ] arg      Mode of installing prerequisites:"
     echo -e "                           0: interactive (default)"
     echo -e "                           1: package manager"
@@ -99,20 +113,26 @@ function args_check {
     if [[ ! -z $_distribution ]]; then
         # Set distro based on first character
         if [[ "$firstletter" = "C" ]]; then
-            _distro="CentOS Linux"
+            _distro=${_distro_centos}
         elif [[ "$firstletter" = "R" ]]; then
-            _distro="Red Hat Enterprise Linux Server"
+            _distro=${_distro_rhel}
         elif [[ "$firstletter" = "F" ]]; then
-            _distro="Fedora"
+            _distro=${_distro_fedora}
         elif [[ "$firstletter" = "O" ]]; then
-            _distro="openSUSE"
+            _distro=${_distro_opensuse}
         elif [[ "$firstletter" = "U" ]]; then
-            _distro="Ubuntu"
+            _distro=${_distro_ubuntu}
         elif [[ "$firstletter" = "D" ]]; then
-            _distro="Debian"
+            _distro=${_distro_debian}
         else
             # error
-            echo -e "\nUnknown value: --distro $_distribution"
+            echo -e "\nerror: Unknown distribution: \"$_distribution\"\n"
+            echo -e "  If your Linux distribution is based on a distro in the supported"
+            echo -e "  list (e.g. Mint is based on Ubuntu), try running:"
+            echo -e "    $ ${_script} -d base-distro\n"
+            echo -e "  If this fails to work, please submit an issue at:"
+            echo -e "  https://github.com/icsm-au/DynAdjust/issues including this message"
+            echo -e "  and your distribution."
             help
             exit 1 # error
         fi
@@ -397,6 +417,13 @@ elif [[ $REPLY == 2 ]]; then
         sudo mkdir /opt/xerces-c/3.1.4
     fi    
 
+    if [[ ! -d "$DOWNLOADS_FOLDER_FULLPATH" ]]; then
+        mkdir "$DOWNLOADS_FOLDER_FULLPATH"
+        _create_downloads_dir=1
+    else
+        #echo -e "\n ${DOWNLOADS_FOLDER} exists"
+    fi
+
     # 2. download:
     echo "Downloading xerces-c 3.1.4..."
     echo " "
@@ -434,6 +461,11 @@ elif [[ $REPLY == 2 ]]; then
 
     if [[ -e "$XERCES_TMP_FILE" ]]; then
         rm -f "$XERCES_TMP_FILE"
+    fi
+
+    if [[ _create_downloads_dir -eq 1 ]]; then
+        #echo -e "\n ${DOWNLOADS_FOLDER} removed"
+        rm -R "$DOWNLOADS_FOLDER_FULLPATH"    
     fi
     
 else
@@ -513,6 +545,9 @@ elif [[ $REPLY == 2 ]]; then
 
     if [[ ! -d "$DOWNLOADS_FOLDER_FULLPATH" ]]; then
         mkdir "$DOWNLOADS_FOLDER_FULLPATH"
+        _create_downloads_dir=1
+    else
+        #echo -e "\n ${DOWNLOADS_FOLDER} exists"
     fi
 
     # 2. download:
@@ -549,6 +584,11 @@ elif [[ $REPLY == 2 ]]; then
     if [[ -e "$XSD_TMP_FILE" ]]; then
         rm -f "$XSD_TMP_FILE"
     fi 
+
+    if [[ _create_downloads_dir -eq 1 ]]; then
+        #echo -e "\n ${DOWNLOADS_FOLDER} removed"
+        rm -R "$DOWNLOADS_FOLDER_FULLPATH"    
+    fi
 
 else
     echo " "
