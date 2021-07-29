@@ -24,7 +24,6 @@ before_install:
   - sudo apt-get install -y intel-mkl-64bit-2018.3-051
 
 script:
-   - cd ./DynAdjust
    - chmod +x ./resources/make_dynadjust_gcc.sh
    - ./resources/make_dynadjust_gcc.sh --no-install --auto --do-not-clone --test
   
