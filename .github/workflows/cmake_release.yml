@@ -49,7 +49,6 @@ jobs:
     # Build and test using shell script
     - name: Build
       run: |
-        cd ./DynAdjust
         chmod +x ./resources/make_dynadjust_gcc.sh
         ./resources/make_dynadjust_gcc.sh --no-install --auto --do-not-clone
 
