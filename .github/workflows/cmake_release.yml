@@ -50,6 +50,6 @@ jobs:
     - name: Build
       run: |
         chmod +x ./resources/make_dynadjust_gcc.sh
-        ./resources/make_dynadjust_gcc.sh --no-install --auto --do-not-clone
+        ./resources/make_dynadjust_gcc.sh --no-install --auto --no-clone
 
     
