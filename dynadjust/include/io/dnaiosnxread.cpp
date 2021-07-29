@@ -405,24 +405,14 @@ void dna_io_snx::format_station_names(v_discontinuity_tuple* stn_discontinuities
 				year = _it_discont_site->date_start.year();
 				ss << siteOccurrence_.at(site).site_name << "_";
 
-				if (year == DISCONT_TIME_IMMEMORIAL)
-				{
-					// format using the start epoch
-					// year (4 chars)
-					ss << siteOccurrence_.at(site).formatted_date.substr(4, 4);
-					// doy (3 chars)
-					ss << siteOccurrence_.at(site).formatted_date.substr(0, 3);
-				}
-				else
-				{
-					// format using the discontinuity date
-					ss << year;
-					if  (doy < 100)
-						ss << "0";
-					if (doy < 10)
-						ss << "0";
-					ss << doy;
-				}
+				// format date using the start of the window defining the 
+				// period up to which a discontinuity has been identified
+				ss << year;
+				if  (doy < 100)
+					ss << "0";
+				if (doy < 10)
+					ss << "0";
+				ss << doy;
 				
 				siteOccurrence_.at(site).formatted_name = ss.str();
 				//TRACE("Site %s\n", siteOccurrence_.at(site).formatted_name.c_str());
