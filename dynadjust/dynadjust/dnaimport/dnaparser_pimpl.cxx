@@ -1137,7 +1137,7 @@ void StationCoord_pimpl::pre()
 
 void StationCoord_pimpl::Name(const ::std::string& Name)
 {
-	_parent_dnaStn->SetName(Name);
+	//_parent_dnaStn->SetName(Name);
 }
 
 void StationCoord_pimpl::XAxis(const ::std::string& XAxis)

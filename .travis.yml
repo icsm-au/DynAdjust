@@ -22,17 +22,13 @@ before_install:
   - sudo sh -c 'echo deb https://apt.repos.intel.com/mkl all main > /etc/apt/sources.list.d/intel-mkl.list'
   - sudo apt-get update
   - sudo apt-get install -y intel-mkl-64bit-2018.3-051
-#  - bash resources/install_dynadjust_prerequisites.sh -m 1
 
 script:
-   - cd ..
-   - cp ./DynAdjust/resources/make_dynadjust_gcc.sh ./
-   - bash make_dynadjust_gcc.sh --no-install --auto --do-not-clone --test
+   - chmod +x ./resources/make_dynadjust_gcc.sh
+   - ./resources/make_dynadjust_gcc.sh --no-install --auto --no-clone --test
   
 after_success:
-   - cd ./DynAdjust/dynadjust/
-#  - coveralls --root . -E ".*CMakeFiles.*" 
-#  - coveralls --root . --verbose --exclude-pattern ".*feature_tests.*" --exclude-pattern ".*CompilerId.*" --gcov-options '\-lp'
+   - cd ./dynadjust/
    - coveralls 
      --gcov /usr/bin/gcov
      --exclude-pattern ".*feature_tests.*" 

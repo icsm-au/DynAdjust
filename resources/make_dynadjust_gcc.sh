@@ -30,7 +30,7 @@ _binaries=(dnaimportwrapper dnaimport dnageoidwrapper dnageoid dnareftranwrapper
 # display example message
 function example {
     echo -e "examples:"
-	echo -e "  $_script --auto --do-not-clone --test --no-install"
+	echo -e "  $_script --auto --no-clone --test --no-install"
 }
 
 # display usage message
@@ -43,15 +43,21 @@ function help {
     echo ""
     usage
     echo -e "options:"
-    echo -e "  -a [ --auto ]          Run automatically with no user interaction."
-    echo -e "  -b [ --binary ] arg    Build a specific binary (e.g. \"dnaimport\" or \"dnaadjustwrapper\")."
-    echo -e "                         By default, \"all\" binaries are built."
-    echo -e "  -c [ --do-not-clone ]  By default, the latest version will be cloned from GitHub."
-    echo -e "                         Set this option if a clone should not be made."
-    echo -e "  -d [ --debug ]         Compile debug version."
-    echo -e "  -n [ --no-install ]    Do not install binaries."
-    echo -e "  -t [ --test ]          Run cmake tests."
-    echo -e "  -h [ --help ]          Prints this help message.\n"
+    echo -e "  -a [ --auto ]        Run automatically with no user interaction."
+    echo -e "  -b [ --binary ] arg  Build a specific binary (e.g. \"dnaimport\" or \"dnaadjustwrapper\")."
+    echo -e "                       By default, \"all\" binaries are built."
+    echo -e "  -c [ --no-clone ]    By default, the latest version will be cloned from GitHub"
+	echo -e "                       into the current directory, using:"
+	echo -e "                         git clone https://github.com/icsm-au/DynAdjust.git"
+    echo -e "                       Provide this option if building source from a local copy, e.g.:"
+	echo -e "                         $ wget https://github.com/icsm-au/DynAdjust/archive/refs/tags/v1.1.0.tar.gz -O DynAdjust-1.1.0.tar.gz"
+    echo -e "                         $ tar xzvf DynAdjust-1.1.0.tar.gz"
+    echo -e "                         $ cd DynAdjust-1.1.0/"
+	echo -e "                         $ bash ./resources/make_dynadjust_gc.sh (this script)"
+    echo -e "  -d [ --debug ]       Compile debug version."
+    echo -e "  -n [ --no-install ]  Do not install binaries."
+    echo -e "  -t [ --test ]        Run cmake tests."
+    echo -e "  -h [ --help ]        Prints this help message.\n"
     example
     echo ""
 }
@@ -69,7 +75,7 @@ do
    -d  | --debug )  
    					_debug=1 # compile debug variant
 			        ;;
-   -c  | --do-not-clone )
+   -c  | --no-clone )
    					_clone=1 # do not clone from GitHub
 			        ;;
    -t  | --test )   
@@ -128,10 +134,20 @@ else
 	echo -e " - run interactively (ask for user input)."
 fi
 
+# get current directory
+_cwd="$PWD"
+
 if [[ $_clone -eq 1 ]]; then
-	echo -e " - do not clone a fresh copy from GitHub."
+	echo -e " - do not clone, but build from local source."
+	# As per help, the user is expected to be in this directory once
+	# a local copy has been extracted.
+	_clone_dir="$_cwd"
+
 else
 	echo -e " - clone a fresh copy from GitHub."
+	# set directory to which git will clone the latest
+	# DynAdjust repo
+	_clone_dir="$_cwd/DynAdjust"
 fi
 
 if [[ $_test -eq 1 ]]; then
@@ -144,11 +160,6 @@ else
 	echo -e " - install binaries to /opt/dynadjust/gcc/x_x_x."
 fi
 
-
-# get current directory
-_cwd="$PWD"
-# set dynadjust clone dir
-_clone_dir="$_cwd/DynAdjust"
 # set dynadjust root dir
 _root_dir="$_clone_dir/dynadjust"
 # set dynadjust root dir
@@ -165,10 +176,10 @@ eval BIN_FOLDER_FULLPATH="$BIN_FOLDER"
 # opt installation folder
 OPT_DYNADJUST_PATH=/opt/dynadjust
 OPT_DYNADJUST_GCC_PATH=/opt/dynadjust/gcc
-DYNADJUST_INSTALL_PATH=/opt/dynadjust/gcc/1_1_0
+DYNADJUST_INSTALL_PATH=/opt/dynadjust/gcc/1_2_1
 
 # version info
-_version="1.1.0"
+_version="1.2.1"
 
 echo -e "\n==========================================================================="
 echo -e "Build and installation of DynAdjust $_version...\n"
@@ -212,20 +223,29 @@ else
 fi
 
 # INSTALL DYNADJUST
-# 1. create install dirs:
-if [[ $_install -eq 0 ]]; then
-	if [[ ! -d "$BIN_FOLDER_FULLPATH" ]]; then
-		echo " "
-		echo "Making $BIN_FOLDER_FULLPATH"
-		mkdir "$BIN_FOLDER_FULLPATH"
-	fi
-fi
-
-# 2. clone from GitHub:
+# 1. clone from GitHub (if required):
 if [[ $_clone -eq 0 ]]; then
 	echo " "
 	echo "Cloning DynAdjust..."
 	git clone "$_clone_url" || echo -e "Okay, let's assume we already have a previously cloned version.\n"
+fi
+
+# check if root directory exists
+if [[ -d "$_root_dir" ]]; then
+    # Good, directory exists
+	echo -e "\nSuccessfully found root directory: $_root_dir\n"
+else
+    echo -e "\nerror: can't find root directory: $_root_dir\n"
+	echo -e "  If building from a local copy, please ensure this script is executed"
+	echo -e "  from the parent directory containing the following directories:"
+	echo -e "    ./dynadjust"
+	echo -e "    ./resources"
+	echo -e "    ./sampleData\n"
+	echo -e "  For example:"
+	echo -e "    $ tar xzvf DynAdjust-1.1.0.tar.gz"
+	echo -e "    $ cd DynAdjust-1.1.0/"
+	echo -e "    $ ./resources/make_dynadjust_gcc.sh\n"
+	exit 1 # error
 fi
 
 if [[ -d "$_build_dir" ]]; then
@@ -279,6 +299,7 @@ esac
 
 echo -e "\n==========================================================================="
 
+
 # Make!
 if [[ $_binary = "all" ]]; then
 	echo -e "Building DynAdjust $_version...\n"
@@ -309,26 +330,44 @@ esac
 #
 # determine if user needs prompting
 case ${_auto} in
-    0) # install binaries
-        echo " "
-		read -r -p "Install DynAdjust to $OPT_DYNADJUST_PATH [Y/n]: " optresponse;;
-    *) # proceed without asking
+    0)  # Interactive mode (check if the user has 
+	    # already decided not to install)
+		if [[ $_install -eq 1 ]]; then
+			# user did not want to install, so don't ask
+			optresponse="n"
+		else
+			echo " "
+			read -r -p "Install DynAdjust to $OPT_DYNADJUST_PATH [Y/n]: " optresponse
+		fi
+        ;;
+    *)  # proceed without asking. Assume installation
         optresponse="y"
-		# set install option
+		
+		# user did not want to install, so alter the 
+		# response accordingly
 		if [[ $_install -eq 1 ]]; then
 			optresponse="n"
 		fi
 		;;
 esac
 
+_lib_ext="so"
+
 if [[ "$optresponse" =~ ^([nN][oO]|[nN])$ ]]
 then    
     echo " "
 else
 
-    _lib_ext="so"
+	# create install dirs:
+	if [[ $_install -eq 0 ]]; then
+		if [[ ! -d "$BIN_FOLDER_FULLPATH" ]]; then
+			echo " "
+			echo "Making $BIN_FOLDER_FULLPATH"
+			mkdir "$BIN_FOLDER_FULLPATH"
+		fi
+	fi
 
-	# 1 GET OS, DISTRO AND TOOLS
+    # 1 GET OS, DISTRO AND TOOLS
 	if [[ "$OSTYPE" == "darwin"* ]]; then
 		# Mac OSX
 		_lib_ext="dylib"
@@ -423,12 +462,53 @@ fi
 # return to the original "current directory"
 cd "$_cwd"
 
-echo "Done."
-echo " "
+echo -e "Done.\n"
 
 if [[ $_install -eq 0 ]]; then
 	echo "Don't forget to add the bin directory to path in ~/.bash_profile"
 	echo "For example:"
-	echo "    EXPORT PATH=$PATH:$HOME/bin"
+	echo -e "    EXPORT PATH=$PATH:$HOME/bin\n"
+else
+	echo "DynAdjust binaries can be located as follows:"
+	if [[ -e "${_build_dir}/dynadjust/dynadjust/dynadjust" ]]; then
+		echo " +[dynadjust]"
+		echo "  ./dynadjust/build_gcc/dynadjust/dynadjust"
+	fi
+	if [[ -e "${_build_dir}/dynadjust/dnaadjustwrapper/dnaadjust" ]]; then
+		echo " +[dnaadjust]"
+		echo "  ./dynadjust/build_gcc/dynadjust/dnaadjustwrapper/dnaadjust"
+		echo "  ./dynadjust/build_gcc/dynadjust/dnaadjust/libdnaadjust.$_lib_ext"
+	fi
+
+	if [[ -e "${_build_dir}/dynadjust/dnaimportwrapper/dnaimport" ]]; then
+		echo " +[dnaimport]"
+		echo "  ./dynadjust/build_gcc/dynadjust/dnaimport/libdnaimport.$_lib_ext"
+		echo "  ./dynadjust/build_gcc/dynadjust/dnaimportwrapper/dnaimport"
+	fi
+
+	if [[ -e "${_build_dir}/dynadjust/dnareftranwrapper/dnareftran" ]]; then
+		echo " +[dnareftran]"
+		echo "  ./dynadjust/build_gcc/dynadjust/dnareftranwrapper/dnareftran"
+		echo "  ./dynadjust/build_gcc/dynadjust/dnareftran/libdnareftran.$_lib_ext"
+	fi
+
+	if [[ -e "${_build_dir}/dynadjust/dnageoidwrapper/dnageoid" ]]; then
+		echo " +[dnageoid]"
+		echo "  ./dynadjust/build_gcc/dynadjust/dnageoidwrapper/dnageoid"
+		echo "  ./dynadjust/build_gcc/dynadjust/dnageoid/libdnageoid.$_lib_ext"
+	fi
+
+	if [[ -e "${_build_dir}/dynadjust/dnasegmentwrapper/dnasegment" ]]; then
+		echo " +[dnasegment]"
+		echo "  ./dynadjust/build_gcc/dynadjust/dnasegmentwrapper/dnasegment"
+		echo "  ./dynadjust/build_gcc/dynadjust/dnasegment/libdnasegment.$_lib_ext"
+	fi
+
+	if [[ -e "${_build_dir}/dynadjust/dnaplotwrapper/dnaplot" ]]; then
+		echo " +[dnaplot]"
+		echo "  ./dynadjust/build_gcc/dynadjust/dnaplotwrapper/dnaplot"
+		echo "  ./dynadjust/build_gcc/dynadjust/dnaplot/libdnaplot.$_lib_ext"
+	fi
+	
 	echo " "
 fi
