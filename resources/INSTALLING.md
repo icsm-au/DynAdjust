@@ -1,4 +1,4 @@
-# Installation and use
+# Installation
 
 The steps required to install DynAdjust on your system will depend upon your operating system, and whether or not you choose to build from source code or install pre-built binaries. In addition, installation may require the installation (or building) of one or more prerequisite applications that are external to DynAdjust but essential for its installation and use.
 
