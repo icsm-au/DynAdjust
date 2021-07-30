@@ -12,8 +12,8 @@ The steps required to install DynAdjust on your system will depend upon your ope
       - [1. Install prerequisites](#1-install-prerequisites)
       - [2. Build the source code](#2-build-the-source-code)
         - [2.1. Clone a fresh copy, build and install](#21-clone-a-fresh-copy-build-and-install)
-        - [2.2. Compile an existing copy](#22-compile-an-existing-copy)
-        - [2.3. Compile Help](#23-compile-help)
+        - [2.2. Build an existing copy](#22-build-an-existing-copy)
+        - [2.3. Build Help](#23-build-help)
     - [Windows only](#windows-only-1)
 
 
