@@ -17,11 +17,6 @@
 - [Contents](#contents)
 - [Overview](#overview)
 - [Installation](#installation)
-  - [Installing from pre-built binaries](#installing-from-pre-built-binaries)
-  - [Building from source](#building-from-source)
-    - [General requirements and prerequisites](#general-requirements-and-prerequisites)
-    - [Linux / Mac OS X build requirements](#linux--mac-os-x-build-requirements)
-    - [Windows build requirements](#windows-build-requirements)
 - [Contributing to DynAdjust](#contributing-to-dynadjust)
 - [Feedback](#feedback)
 - [User's guide](#users-guide)
@@ -59,7 +54,7 @@ To install DynAdjust on Linux, Mac or Windows, please visit the [installation pa
 
 ## Contributing to DynAdjust
 
-Pleae refer to the [Contributing guidelines](https://github.com/icsm-au/DynAdjust/blob/master/CONTRIBUTING.md) for information on how to contribute to DynAdjust.
+Pleae refer to the [Contributing guidelines](CONTRIBUTING.md) for information on how to contribute to DynAdjust.
 
 ## Feedback
 
