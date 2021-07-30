@@ -23,5 +23,5 @@ RUN apt-get update &&\
  apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install cpio intel-mkl-64bit-2018.3-051 &&\
  cd ./DynAdjust &&\
  chmod +x ./resources/make_dynadjust_gcc.sh &&\
- ./resources/make_dynadjust_gcc.sh --no-install --auto --no-clone
+ ./resources/make_dynadjust_gcc.sh --auto --no-clone
   
