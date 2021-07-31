@@ -47,7 +47,7 @@ To install DynAdjust on Windows:
 
 ## Building from source
 
-The following build instructions are only needed if you would like to build DynAdjust yourself or make changes to the source code, rather than use pre-built binaries.
+The following build instructions are only needed if you would like to build DynAdjust yourself, rather than use pre-built binaries, or make changes to the source code and [contribute to the DynAdjust repository](../CONTRIBUTING.md).
 
 ### General requirements and prerequisites
 
