@@ -191,7 +191,15 @@ If you have made changes to the source code and would like to build and test you
   $ ./resources/make_dynadjust_gcc.sh --no-clone --test --no-install
   ```
 
-This will automatically build a debug variant and execute a range of tests using data contained in the [`./sampleData/`](../sampleData) directory.
+This will automatically build a debug variant (produced by the `--debug` option), and will execute a range of tests using data contained in the [`./sampleData/`](../sampleData) directory.
+
+If you would like to debug one of the programs (e.g. to debug `dnaadjust` using `gdb`), run the following:
+
+``` bash
+  $ ./resources/make_dynadjust_gcc.sh --no-clone --debug --no-install --binary adjust
+  ```
+
+This will build debug variants of both the `libdnaadjust.so` library and `dnaadjust` executable.
 
 If you have added a new feature and would like to test its functionality, please consider adding some test data to the `./sampleData/` directory and adding a test script to the list of tests in [`./CMakeLists.txt`](https://github.com/icsm-au/DynAdjust/blob/master/dynadjust/CMakeLists.txt#L167).
 
