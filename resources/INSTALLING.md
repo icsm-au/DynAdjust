@@ -181,6 +181,8 @@ For example, execute the following at the terminal (in the home directory) to ge
 
 As with the previous build approach, executing `./resources/make_dynadjust_gcc.sh` without `--no-install` will build and install binaries to `/opt/dynadjust/gcc/x_x_x/`.
 
+##### 2.3. Testing your changes and adding test scripts
+
 If you have made changes to the source code and would like to build and test your changes, simply return to the source code directory and run the following:
 
 ``` bash
@@ -188,7 +190,9 @@ If you have made changes to the source code and would like to build and test you
   $ ./resources/make_dynadjust_gcc.sh --no-clone --test --no-install
   ```
 
-This will automatically build a debug variant and execute a range of tests using data contained in the `./sampleData/` directory.
+This will automatically build a debug variant and execute a range of tests using data contained in the [`./sampleData/`](../sampleData) directory.
+
+If you have added a new feature and would like to test its functionality, please consider adding some test data to the `./sampleData/` directory and adding a test script to the list of tests in [`./CMakeLists.txt`](https://github.com/icsm-au/DynAdjust/blob/master/dynadjust/CMakeLists.txt#L167).
 
 ##### 2.3. Build Help
 
