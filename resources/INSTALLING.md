@@ -13,7 +13,8 @@ The steps required to install DynAdjust on your system will depend upon your ope
       - [2. Build the source code](#2-build-the-source-code)
         - [2.1. Clone a fresh copy, build and install](#21-clone-a-fresh-copy-build-and-install)
         - [2.2. Build an existing copy](#22-build-an-existing-copy)
-        - [2.3. Build Help](#23-build-help)
+        - [2.3. Testing your changes and adding test scripts](#23-testing-your-changes-and-adding-test-scripts)
+        - [2.4. Build Help](#24-build-help)
     - [Windows only](#windows-only-1)
 
 
@@ -194,7 +195,7 @@ This will automatically build a debug variant and execute a range of tests using
 
 If you have added a new feature and would like to test its functionality, please consider adding some test data to the `./sampleData/` directory and adding a test script to the list of tests in [`./CMakeLists.txt`](https://github.com/icsm-au/DynAdjust/blob/master/dynadjust/CMakeLists.txt#L167).
 
-##### 2.3. Build Help
+##### 2.4. Build Help
 
 To view the available options for building DynAdjust, execute `./make_dynadjust_gcc.sh` with the "help" option:
 
