@@ -199,7 +199,7 @@ If you would like to debug one of the programs (e.g. to debug `dnaadjust` using 
   $ ./resources/make_dynadjust_gcc.sh --no-clone --debug --no-install --binary adjust
   ```
 
-This will build debug variants of both the `libdnaadjust.so` library and `dnaadjust` executable.
+This will build debug variants of both the `libdnaadjust.so` library and `dnaadjust` executable.  To assist with debugging the respective DynAdjust binaries, please refer to [`/.vscode/launch.json`](../.vscode/launch.json) for debug launch configuration settings for Microsoft Visual Studio Code.
 
 If you have added a new feature and would like to test its functionality, please consider adding some test data to the `./sampleData/` directory and adding a test script to the list of tests in [`./CMakeLists.txt`](https://github.com/icsm-au/DynAdjust/blob/master/dynadjust/CMakeLists.txt#L167).
 
