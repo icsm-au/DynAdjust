@@ -420,11 +420,13 @@ elif [[ $REPLY == 2 ]]; then
     if [[ ! -d "$DOWNLOADS_FOLDER_FULLPATH" ]]; then
         mkdir "$DOWNLOADS_FOLDER_FULLPATH"
         _create_downloads_dir=1
+        echo -e "\n Creating ${DOWNLOADS_FOLDER} folder to store temporary files."
     else
-        #echo -e "\n ${DOWNLOADS_FOLDER} exists"
+        echo -e "\n ${DOWNLOADS_FOLDER} folder exists. Using this folder to store temporary files."
     fi
 
     # 2. download:
+    echo " "
     echo "Downloading xerces-c 3.1.4..."
     echo " "
     cd "$DOWNLOADS_FOLDER_FULLPATH"
@@ -546,8 +548,9 @@ elif [[ $REPLY == 2 ]]; then
     if [[ ! -d "$DOWNLOADS_FOLDER_FULLPATH" ]]; then
         mkdir "$DOWNLOADS_FOLDER_FULLPATH"
         _create_downloads_dir=1
+        echo -e "\n Creating ${DOWNLOADS_FOLDER} folder to store temporary files."
     else
-        #echo -e "\n ${DOWNLOADS_FOLDER} exists"
+        echo -e "\n ${DOWNLOADS_FOLDER} folder exists. Using this folder to store temporary files."
     fi
 
     # 2. download:
