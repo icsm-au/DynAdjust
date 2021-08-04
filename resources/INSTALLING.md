@@ -1,4 +1,4 @@
-# Installation
+# Installing DynAdjust
 
 The steps required to install DynAdjust on your system will depend upon your operating system, and whether or not you choose to [build from source code](BUILDING.md) or install pre-built binaries. In addition, installation may require the installation (or building) of one or more prerequisite applications that are external to DynAdjust but essential for its installation and use.
 
@@ -8,6 +8,9 @@ The steps required to install DynAdjust on your system will depend upon your ope
   
 
 ## Linux, Mac and Windows
+
+[![docker build](https://img.shields.io/github/workflow/status/icsm-au/dynadjust/Build%20docker%20image?label=docker%20build)](https://hub.docker.com/repository/docker/icsm/dynadjust)
+[![Docker Pulls](https://img.shields.io/docker/pulls/icsm/dynadjust)](https://hub.docker.com/repository/docker/icsm/dynadjust)
 
 The DynAdjust repository comes with a [Dockerfile](https://github.com/icsm-au/DynAdjust/blob/master/Dockerfile) which builds a DynAdjust docker image for the Linux environment each time changes are pushed to the main repository. This means if you have docker installed on your system, a DynAdjust image can be run on your system (whether Linux, Mac or Windows) within a virtual enviroment managed by docker.
 
@@ -20,6 +23,8 @@ Alternatively, you can pull a DynAdjust docker image from your system via:
   ```
 
 ## Windows only
+
+[![GitHub Releases](https://img.shields.io/github/v/release/icsm-au/DynAdjust.svg)](https://github.com/icsm-au/DynAdjust/releases)
 
 For each stable release, DynAdjust binaries are built using Microsoft Visual Studio 2017 and published on the [releases page](https://github.com/icsm-au/dynadjust/releases/latest).
 
