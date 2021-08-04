@@ -20,7 +20,8 @@
 
 - [Contents](#contents)
 - [Overview](#overview)
-- [Installation](#installation)
+- [Installing DynAdjust](#installing-dynadjust)
+- [Building DynAdjust](#building-dynadjust)
 - [Contributing to DynAdjust](#contributing-to-dynadjust)
 - [Feedback](#feedback)
 - [User's guide](#users-guide)
@@ -52,9 +53,13 @@ DynAdjust provides the following capabilities:
 - Production of high quality network plots;
 - Automated processing and analysis with minimal user interaction.
 
-## Installation
+## Installing DynAdjust
 
 To install DynAdjust on Linux, Mac or Windows, please visit the [installation page](resources/INSTALLING.md).
+
+## Building DynAdjust
+
+To build DynAdjust from source code on Linux, Mac or Windows, please visit the [building page](resources/BUILDING.md).
 
 ## Contributing to DynAdjust
 
