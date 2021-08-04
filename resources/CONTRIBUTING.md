@@ -141,19 +141,19 @@ With every commit and pull request, the project is tested with a unit test suite
 
 ### Continuous integration
 
-[![Build Status](https://travis-ci.org/icsm-au/DynAdjust.svg?branch=master)](https://travis-ci.org/icsm-au/DynAdjust)
+[![cmake tests](https://img.shields.io/github/workflow/status/icsm-au/dynadjust/Build,%20test%20and%20code%20coverage?label=cmake%20tests)](https://github.com/icsm-au/DynAdjust/actions/workflows/test_coverage.yml)
 
-The DynAdjust repository uses an automated test suite managed by GitHub Actions and [Travis](https://travis-ci.org/github/icsm-au/DynAdjust) to ensure new or changed code is built and tested in an automated way. In this context, continuous integration (CI) has been set up to invoke builds for Linux using the script [`.travis.yaml`](https://github.com/icsm-au/DynAdjust/blob/master/.travis.yml).
+The DynAdjust repository uses an automated test suite managed by GitHub Actions and [Travis](https://travis-ci.org/github/icsm-au/DynAdjust) to ensure new or changed code is built and tested in an automated way. In this context, continuous integration (CI) has been set up to invoke builds for Linux using the script [`test_coverage.yml`](https://github.com/icsm-au/DynAdjust/actions/workflows/test_coverage.yml).
 
 ### Test code coverage
 
-[![Coveralls status](https://coveralls.io/repos/github/icsm-au/DynAdjust/badge.svg)](https://coveralls.io/github/icsm-au/DynAdjust)
+[![coveralls status](https://img.shields.io/coveralls/github/icsm-au/DynAdjust)](https://coveralls.io/github/icsm-au/DynAdjust)
 
 To ensure the test suite adequately covers the code base (as much as practically possible), code coverage analysis is run on every commit and pull request.  The code coverage analysis tool used for DynAdjust is [coveralls.io](https://coveralls.io/github/icsm-au/DynAdjust). The developers are currently working on increasing the coverage provided by the cmake test suite (via [`CMakeLists.txt`](https://github.com/icsm-au/DynAdjust/blob/master/dynadjust/CMakeLists.txt)).
 
 ### Static code analysis
 
-[![Codecov status](https://codecov.io/gh/icsm-au/DynAdjust/branch/master/graph/badge.svg)](https://codecov.io/gh/icsm-au/DynAdjust)
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/a3944cda0c72445f8a13b1f82b64f714)](https://www.codacy.com/gh/icsm-au/DynAdjust/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=icsm-au/DynAdjust&amp;utm_campaign=Badge_Grade)
+[![codecov status](https://img.shields.io/codecov/c/github/icsm-au/dynadjust)](https://codecov.io/gh/icsm-au/DynAdjust)
+[![codacy badge](https://img.shields.io/codacy/grade/a3944cda0c72445f8a13b1f82b64f714)](https://app.codacy.com/gh/icsm-au/DynAdjust/dashboard)
 
 With every commit and pull request, [Codecov](https://app.codecov.io/gh/icsm-au/DynAdjust) and [Codacy](https://app.codacy.com/gh/icsm-au/DynAdjust/dashboard) are run to perform static code analysis. The code base is undergoing regular review to address the remaining issues (some of which are insignificant).
