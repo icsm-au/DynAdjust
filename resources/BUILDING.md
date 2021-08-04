@@ -1,4 +1,4 @@
-# Building DynAdjust from source
+# Building DynAdjust from source code
 
 The following build instructions are only needed if you would like to build DynAdjust yourself, rather than use [pre-built binaries](https://github.com/icsm-au/DynAdjust/releases), or make changes to the source code and [contribute to the DynAdjust repository](../CONTRIBUTING.md).
 
@@ -17,11 +17,15 @@ The following build instructions are only needed if you would like to build DynA
 
 ## General requirements and prerequisites
 
+To build DynAdjust, the following prerequisites will be needed:
+
 - A C++14 compiler (e.g. gcc, Microsoft Visual Studio or Apple LLVM (clang))
 - Boost C++ headers and libraries
 - Apache Xerces C++ headers and libraries
 - Codesynthesis XSD headers and libraries
 - Intel Math Kernel Library (MKL) headers and libraries
+
+The way in which these prerequisites are installed will depend upon your operating system and will be discussed in the following sections.
 
 ## Windows only
 
@@ -93,6 +97,8 @@ To install the prerequisites:
 
 ### 2. Build the source code
 
+[![cmake workflow](https://img.shields.io/github/workflow/status/icsm-au/dynadjust/Build%20release?label=cmake%20workflow)](https://github.com/icsm-au/DynAdjust/actions/workflows/cmake_release.yml)
+
 There are two general approaches to building and installing DynAdjust:
 
   1. Cloning a fresh copy of DynAdjust from GitHub, and building
@@ -127,6 +133,8 @@ If you do not want to install DynAdjust to `/opt/dynadjust/gcc/x_x_x/`, run the 
   
 #### 2.2. Build an existing copy
 
+[![github releases](https://img.shields.io/github/v/release/icsm-au/DynAdjust)](https://github.com/icsm-au/DynAdjust/releases)
+
 To build and install DynAdjust from an existing copy of the source code, either from a previous version on GitHub or from a local copy that you have modified:
 
 1. Create a suitable directory where DynAdjust is to be built.
@@ -152,6 +160,12 @@ For example, execute the following at the terminal (in the home directory) to ge
 As with the previous build approach, executing `./resources/make_dynadjust_gcc.sh` without `--no-install` will build and install binaries to `/opt/dynadjust/gcc/x_x_x/`.
 
 ### 3. Test your changes and add test scripts
+
+[![github issues](https://img.shields.io/github/issues/icsm-au/DynAdjust.svg)](https://github.com/icsm-au/DynAdjust/issues)
+[![cmake tests](https://img.shields.io/github/workflow/status/icsm-au/dynadjust/Build,%20test%20and%20code%20coverage?label=cmake%20tests)](https://github.com/icsm-au/DynAdjust/actions/workflows/test_coverage.yml)
+[![codacy badge](https://img.shields.io/codacy/grade/a3944cda0c72445f8a13b1f82b64f714)](https://app.codacy.com/gh/icsm-au/DynAdjust/dashboard)
+[![coveralls status](https://img.shields.io/coveralls/github/icsm-au/DynAdjust)](https://coveralls.io/github/icsm-au/DynAdjust)
+[![codecov status](https://img.shields.io/codecov/c/github/icsm-au/dynadjust)](https://codecov.io/gh/icsm-au/DynAdjust)
 
 If you have made changes to the source code and would like to build and test your changes, simply return to the source code directory and run the following:
 
