@@ -10,9 +10,9 @@ The following build instructions are only needed if you would like to build DynA
   - [2. Build the source code](#2-build-the-source-code)
     - [2.1. Clone a fresh copy, build and install](#21-clone-a-fresh-copy-build-and-install)
     - [2.2. Build an existing copy](#22-build-an-existing-copy)
-  - [3. Testing your changes and adding test scripts](#23-test-your-changes-and-add-test-scripts)
-  - [4. Build Help](#24-build-help)
-- [Windows only](#windows-only-1)
+  - [3. Testing your changes and adding test scripts](#3-test-your-changes-and-add-test-scripts)
+  - [4. Build Help](#4-build-help)
+- [Windows only](#windows-only)
 
 ## General requirements and prerequisites
 
