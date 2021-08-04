@@ -39,7 +39,7 @@ To make any changes to the DynAdjust code base, suggest new features, or improve
 
 Please familiarise yourself with [GitHub's pull request process](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests).  Another useful resource is Aaron Meurer's [tutorial](https://www.asmeurer.com/git-workflow/) on the git workflow.
 
-If you plan to make changes to the code base, please ensure you have read the [installation instructions](./resources/INSTALLING.md) and have obtained all the essential prerequisites.
+If you plan to make changes to the code base, please ensure you have read the [installation instructions](./INSTALLING.md) and have obtained all the essential prerequisites.
 
 ### Raising and addressing an issue
 
@@ -64,7 +64,7 @@ The general process for addressing issues in DynAdjust is as follows.
 4. Prepare for a specific pull request and begin making your changes.
    1. Ensure your changes relate to the discrete issue you're attempting to address.  That is, don't try to solve or fix everything in the one change request.
    2. For new DynAdjust features, create a new test script that tests your work and provides satisfactory [code coverage](https://coveralls.io/github/icsm-au/DynAdjust).
-   3. Make sure all tests pass using the supplied [`make_dynadjust_gcc.sh`](https://github.com/icsm-au/DynAdjust/blob/master/resources/make_dynadjust_gcc.sh) script. For instance, to build and test your changes, run the script as: `$ make_dynadjust_gcc.sh -c -a -n -t` This will build the code base without cloning a fresh copy, no user interaction, no installation and will execute all cmake tests. For more information, please refer to the [installation instructions](./resources/INSTALLING.md).
+   3. Make sure all tests pass using the supplied [`make_dynadjust_gcc.sh`](https://github.com/icsm-au/DynAdjust/blob/master/resources/make_dynadjust_gcc.sh) script. For instance, to build and test your changes, run the script as: `$ make_dynadjust_gcc.sh -c -a -n -t` This will build the code base without cloning a fresh copy, no user interaction, no installation and will execute all cmake tests. For more information, please refer to the [installation instructions](./INSTALLING.md).
    4. Issue commits in logical packets of work, providing a clear message that describes what you're doing.
    5. When all commits for your change request are complete, issue a pull request. Please provide concise, clear and simple descriptions of your changes (and don't forget to check your spelling!). If required, please assign a reviewer you feel would be best placed to review your changes.
 5. People with sufficient permissions will review your changes and approve the request when they are satisfied.  They may respond to you with questions or requests for further improvements.
