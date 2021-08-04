@@ -5,6 +5,7 @@ The following build instructions are only needed if you would like to build DynA
 ## Contents
 
 - [General requirements and prerequisites](#general-requirements-and-prerequisites)
+- [Windows only](#windows-only)
 - [Linux and Mac](#linux-and-mac)
   - [1. Install prerequisites](#1-install-prerequisites)
   - [2. Build the source code](#2-build-the-source-code)
@@ -12,7 +13,7 @@ The following build instructions are only needed if you would like to build DynA
     - [2.2. Build an existing copy](#22-build-an-existing-copy)
   - [3. Testing your changes and adding test scripts](#3-test-your-changes-and-add-test-scripts)
   - [4. Build Help](#4-build-help)
-- [Windows only](#windows-only)
+
 
 ## General requirements and prerequisites
 
@@ -21,6 +22,10 @@ The following build instructions are only needed if you would like to build DynA
 - Apache Xerces C++ headers and libraries
 - Codesynthesis XSD headers and libraries
 - Intel Math Kernel Library (MKL) headers and libraries
+
+## Windows only
+
+Please refer to the Windows compilation [instructions](https://github.com/icsm-au/DynAdjust/blob/master/resources/dynadjust-compilation-in-windows.pdf) for the steps to compile DynAdjust on Windows using Microsoft's freely available Visual Studio 2017 Community Edition.
 
 ## Linux and Mac
 
@@ -203,9 +208,3 @@ This will display the script's help message:
     make_dynadjust_gcc.sh --auto --no-clone --test --no-install
   ```
 
-
-
-
-## Windows only
-
-Please refer to the Windows compilation [instructions](https://github.com/icsm-au/DynAdjust/blob/master/resources/dynadjust-compilation-in-windows.pdf) for the steps to compile DynAdjust on Windows using Microsoft's freely available Visual Studio 2017 Community Edition.
