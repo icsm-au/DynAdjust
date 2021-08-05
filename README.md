@@ -26,7 +26,7 @@
 - [Feedback](#feedback)
 - [User's guide](#users-guide)
 - [Creating images](#creating-images)
-- [License details](#license-details)
+- [Licence details](#licence-details)
 
 ## Overview
 
@@ -81,7 +81,7 @@ DynAdjust provides a capability to generate publication-quality images of raw st
   
 DynAdjust uses the **Generic Mapping Tools (GMT)**, available from the [GMT website](https://www.generic-mapping-tools.org/download/), and **gnuplot**, available from the [gnuplot homepage](http://www.gnuplot.info/). The current version of DynAdjust supports GMT version 6 and gnuplot version 5.4. To install GMT, please refer to the [install instructions](https://github.com/GenericMappingTools/gmt/blob/master/INSTALL.md), or the [build instructions](https://github.com/GenericMappingTools/gmt/blob/master/BUILDING.md) to build GMT from source. To install gnuplot, please refer to the [gnuplot download](http://www.gnuplot.info/download.html) page.
 
-## License details
+## Licence details
 
 DynAdjust has an Apache 2.0 Licence - http ://www.apache.org/licenses/LICENSE-2.0.
 
