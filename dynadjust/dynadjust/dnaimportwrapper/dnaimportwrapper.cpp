@@ -1288,6 +1288,12 @@ int main(int argc, char* argv[])
 		return EXIT_FAILURE;
 	}
 
+	
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// start "total" time
+	cpu_timer time;
+	
+	
 	// Import discontinuity file and apply discontinuities
 	// Due to the structure and format of SINEX files, it is essential that
 	// discontinuities be parsed prior to reading any SINEX files.
@@ -1337,10 +1343,6 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// start "total" time
-	cpu_timer time;
-	
 	// Import network information based on a segmentation block?
 	if (p.i.import_block)
 	{

@@ -173,6 +173,8 @@ const char* const TECTONIC_PLATE_BDY_FILE_B = "plate-boundary-file,b";
 const char* const TECTONIC_PLATE_POLE_FILE = "plate-pole-file";
 const char* const TECTONIC_PLATE_POLE_FILE_M = "plate-pole-file,m";
 const char* const TECTONIC_PLATE_MODEL_OPTION = "plate-model-option";
+const char* const FRAME_SUBSTITUTIONS_FILE = "frame-subs-file";
+const char* const FRAME_SUBSTITUTIONS_FILE_X = "frame-subs-file,x";
 
 const char* const VSCALE = "v-scale";
 const char* const PSCALE = "p-scale";

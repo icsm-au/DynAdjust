@@ -11,6 +11,7 @@ add_library (${PROJECT_NAME} SHARED
 			${CMAKE_SOURCE_DIR}/include/io/dnaiobst.cpp
 			${CMAKE_SOURCE_DIR}/include/io/dnaiodna.cpp
 			${CMAKE_SOURCE_DIR}/include/io/dnaiotpb.cpp
+			${CMAKE_SOURCE_DIR}/include/io/dnaiofrx.cpp
 			${CMAKE_SOURCE_DIR}/include/measurement_types/dnaangle.cpp
 			${CMAKE_SOURCE_DIR}/include/measurement_types/dnacoordinate.cpp
 			${CMAKE_SOURCE_DIR}/include/measurement_types/dnadirection.cpp
