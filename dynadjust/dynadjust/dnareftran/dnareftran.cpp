@@ -250,6 +250,37 @@ void dna_reftran::CalculateRotations()
 
 }
 
+void dna_reftran::LoadFrameSubstitutions(const string& frxfileName)
+{
+	dna_io_frx frx;
+	stringstream ss;
+	ss << "LoadFrameSubstitutions(): An error was encountered when loading frame substition information." << endl;
+	
+	try {
+	
+		// Load frame substitution information.  Throws runtime_error on failure.
+		frx.load_frx_file(frxfileName, frame_substitutions_);
+		//sort(frame_substitutions_.begin(), frame_substitutions_.end());
+	}
+	catch (const runtime_error& e) {
+		ss << e.what();
+		throw boost::enable_current_exception(runtime_error(ss.str()));
+	}
+
+	try {
+		ApplyFrameSubstitutions();
+	}
+	catch (const runtime_error& e) {
+		ss << e.what();
+		throw boost::enable_current_exception(runtime_error(ss.str()));
+	}
+}
+	
+void dna_reftran::ApplyFrameSubstitutions()
+{
+
+}
+
 void dna_reftran::LoadBinaryStationFile(const string& bstfileName)
 {
 	try {

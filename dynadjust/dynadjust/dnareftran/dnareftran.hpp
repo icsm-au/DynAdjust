@@ -44,6 +44,7 @@ using namespace boost::posix_time;
 using namespace boost::filesystem;
 
 #include <include/io/dnaiotpb.hpp>
+#include <include/io/dnaiofrx.hpp>
 #include <include/io/dnaiobst.hpp>
 #include <include/io/dnaiobms.hpp>
 #include <include/io/dnaiodna.hpp>
@@ -131,6 +132,8 @@ public:
 
 	void LoadTectonicPlateParameters(const string& pltfileName, const string& pmmfileName);
 
+	void LoadFrameSubstitutions(const string& frxfileName);
+
 	inline void InitialiseSettings(const project_settings& p) {projectSettings_ = p;}
 
 private:
@@ -193,6 +196,8 @@ private:
 	
 	void CalculateRotations();
 
+	void ApplyFrameSubstitutions();
+
 	//double							m_dPercentComplete;			// percentage of bytes read from file
 	int								m_iBytesRead;				// bytes read from file
 	UINT32							m_stnsTransformed;
@@ -215,6 +220,8 @@ private:
 	v_string_v_doubledouble_pair	global_plates_;				// Tectonic plate boundaries
 	v_plate_motion_eulers			plate_motion_eulers_;		// Euler parameters corresponding to each plate
 	v_plate_motion_cartesians		plate_motion_cartesians_;	// Helmert parameters computed from Euler parameters
+
+	v_frame_substitutions			frame_substitutions_;		// Reference frame substitutions
 
 	v_string_uint32_pair 			vplateMap_;					// Plate Map index sorted on plate ID
 
