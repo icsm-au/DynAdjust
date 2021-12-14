@@ -225,7 +225,6 @@
     <ClCompile Include="..\..\include\io\dnaiobms.cpp" />
     <ClCompile Include="..\..\include\io\dnaiobst.cpp" />
     <ClCompile Include="..\..\include\io\dnaiodna.cpp" />
-    <ClCompile Include="..\..\include\io\dnaiofrx.cpp" />
     <ClCompile Include="..\..\include\io\dnaiotpb.cpp" />
     <ClCompile Include="..\..\include\math\dnamatrix_contiguous.cpp" />
     <ClCompile Include="..\..\include\measurement_types\dnaangle.cpp" />
