@@ -32,6 +32,7 @@
     <UseIntelTBB>true</UseIntelTBB>
     <UseIntelMKL>Parallel</UseIntelMKL>
     <PlatformToolset>v141</PlatformToolset>
+    <UseInteloneMKL>Parallel</UseInteloneMKL>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -40,6 +41,7 @@
     <UseIntelTBB>true</UseIntelTBB>
     <UseIntelMKL>Parallel</UseIntelMKL>
     <PlatformToolset>v141</PlatformToolset>
+    <UseInteloneMKL>Parallel</UseInteloneMKL>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -49,6 +51,7 @@
     <UseIntelTBB>true</UseIntelTBB>
     <UseIntelMKL>Parallel</UseIntelMKL>
     <PlatformToolset>v141</PlatformToolset>
+    <UseInteloneMKL>Parallel</UseInteloneMKL>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -58,6 +61,7 @@
     <UseIntelTBB>true</UseIntelTBB>
     <UseIntelMKL>Parallel</UseIntelMKL>
     <PlatformToolset>v141</PlatformToolset>
+    <UseInteloneMKL>Parallel</UseInteloneMKL>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -197,6 +201,7 @@
     <ClInclude Include="..\..\include\io\dnaiobms.hpp" />
     <ClInclude Include="..\..\include\io\dnaiobst.hpp" />
     <ClInclude Include="..\..\include\io\dnaiodna.hpp" />
+    <ClInclude Include="..\..\include\io\dnaiofrx.hpp" />
     <ClInclude Include="..\..\include\io\dnaiotpb.hpp" />
     <ClInclude Include="..\..\include\math\dnamatrix_contiguous.hpp" />
     <ClInclude Include="..\..\include\measurement_types\dnaangle.hpp" />

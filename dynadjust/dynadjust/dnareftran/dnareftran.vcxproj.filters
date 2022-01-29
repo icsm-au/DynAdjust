@@ -87,6 +87,9 @@
     <ClInclude Include="..\..\include\io\dnaiotpb.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\io\dnaiofrx.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dnareftran.cpp">

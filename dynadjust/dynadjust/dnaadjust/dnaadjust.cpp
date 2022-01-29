@@ -3191,9 +3191,9 @@ void dna_adjust::FormUniqueMsrList()
 		case 'R':	// Ellipsoidal height
 			precadjmsr_row++;
 			break;
-		// Single row per direction
+		// Single row per subtended angle (# directions less 1)
 		case 'D':	// Direction set
-			precadjmsr_row += _it_msr->vectorCount1;
+			precadjmsr_row += (_it_msr->vectorCount1 - 1);
 			break;
 		// Three rows (6 elements for upper triangular)
 		case 'G':	// GPS Baseline
