@@ -41,6 +41,7 @@
     <UseIntelTBB>true</UseIntelTBB>
     <UseIntelMKL>Parallel</UseIntelMKL>
     <PlatformToolset>v141</PlatformToolset>
+    <UseInteloneMKL>Parallel</UseInteloneMKL>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -49,6 +50,7 @@
     <UseIntelTBB>true</UseIntelTBB>
     <UseIntelMKL>Parallel</UseIntelMKL>
     <PlatformToolset>v141</PlatformToolset>
+    <UseInteloneMKL>Parallel</UseInteloneMKL>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -59,6 +61,7 @@
     <UseIntelTBB>true</UseIntelTBB>
     <UseIntelMKL>Parallel</UseIntelMKL>
     <PlatformToolset>v141</PlatformToolset>
+    <UseInteloneMKL>Parallel</UseInteloneMKL>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
