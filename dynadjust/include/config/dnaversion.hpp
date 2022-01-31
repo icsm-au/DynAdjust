@@ -24,9 +24,9 @@
 #define DNAVERSION_HPP
 
 #if defined(_MSC_VER)
-	#if defined(LIST_INCLUDES_ON_BUILD) 
-		#pragma message("  " __FILE__) 
-	#endif
+#if defined(LIST_INCLUDES_ON_BUILD) 
+#pragma message("  " __FILE__) 
+#endif
 #endif
 
 #ifdef _MSC_VER
@@ -119,54 +119,54 @@ const char* const __metadata_app_name__ = "metadata";
 const char* const __dynadjust_app_name__ = "dynadjust";
 
 #if defined(_WIN32) || defined(_Wp64)
-	#ifdef _MSDEBUG
-		#if defined(_M_IX86)
-			#define __BINARY_BUILDTYPE__ "Debug (32-bit)"
-		#elif defined(_M_X64)
-			#define __BINARY_BUILDTYPE__ "Debug (64-bit)"
-		#endif
-	#else
-		#if defined(_M_IX86)
-			#define __BINARY_BUILDTYPE__ "Release (32-bit)"
-		#elif defined(_M_X64)
-			#define __BINARY_BUILDTYPE__ "Release (64-bit)"
-		#endif
-	#endif
+#ifdef _MSDEBUG
+#if defined(_M_IX86)
+#define __BINARY_BUILDTYPE__ "Debug (32-bit)"
+#elif defined(_M_X64)
+#define __BINARY_BUILDTYPE__ "Debug (64-bit)"
+#endif
+#else
+#if defined(_M_IX86)
+#define __BINARY_BUILDTYPE__ "Release (32-bit)"
+#elif defined(_M_X64)
+#define __BINARY_BUILDTYPE__ "Release (64-bit)"
+#endif
+#endif
 
-	const char* const __import_app_name__ = "import";
-	const char* const __reftran_app_name__ = "reftran";
-	const char* const __geoid_app_name__ = "geoid";
-	const char* const __segment_app_name__ = "segment";
-	const char* const __adjust_app_name__ = "adjust";
-	const char* const __plot_app_name__ = "plot";
+const char* const __import_app_name__ = "import";
+const char* const __reftran_app_name__ = "reftran";
+const char* const __geoid_app_name__ = "geoid";
+const char* const __segment_app_name__ = "segment";
+const char* const __adjust_app_name__ = "adjust";
+const char* const __plot_app_name__ = "plot";
 
-	const char* const __import_dll_name__ = "dnaInterop.dll";
-	const char* const __reftran_dll_name__ = "dnaRefTran.dll";
-	const char* const __geoid_dll_name__ = "dnaGeoid.dll";
-	const char* const __segment_dll_name__ = "dnaSegment.dll";
-	const char* const __adjust_dll_name__ = "dnaAdjust.dll";
-	const char* const __plot_dll_name__ = "dnaPlot.dll";
+const char* const __import_dll_name__ = "dnaInterop.dll";
+const char* const __reftran_dll_name__ = "dnaRefTran.dll";
+const char* const __geoid_dll_name__ = "dnaGeoid.dll";
+const char* const __segment_dll_name__ = "dnaSegment.dll";
+const char* const __adjust_dll_name__ = "dnaAdjust.dll";
+const char* const __plot_dll_name__ = "dnaPlot.dll";
 
 #elif defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
-	#ifdef NDEBUG
-		#define __BINARY_BUILDTYPE__ "Release"
-	#else
-		#define __BINARY_BUILDTYPE__ "Debug"
-	#endif
+#ifdef NDEBUG
+#define __BINARY_BUILDTYPE__ "Release"
+#else
+#define __BINARY_BUILDTYPE__ "Debug"
+#endif
 
-	const char* const __import_app_name__ = "dnaimport";
-	const char* const __reftran_app_name__ = "dnareftran";
-	const char* const __geoid_app_name__ = "dnageoid";
-	const char* const __segment_app_name__ = "dnasegment";
-	const char* const __adjust_app_name__ = "dnaadjust";
-	const char* const __plot_app_name__ = "dnaplot";
+const char* const __import_app_name__ = "dnaimport";
+const char* const __reftran_app_name__ = "dnareftran";
+const char* const __geoid_app_name__ = "dnageoid";
+const char* const __segment_app_name__ = "dnasegment";
+const char* const __adjust_app_name__ = "dnaadjust";
+const char* const __plot_app_name__ = "dnaplot";
 
-	const char* const __import_dll_name__ = "libdnaimport.so";
-	const char* const __reftran_dll_name__ = "libdnareftran.so";
-	const char* const __geoid_dll_name__ = "libdnageoid.so";
-	const char* const __segment_dll_name__ = "libdnasegment.so";
-	const char* const __adjust_dll_name__ = "libdnaadjust.so";
-	const char* const __plot_dll_name__ = "libdnaplot.so";
+const char* const __import_dll_name__ = "libdnaimport.so";
+const char* const __reftran_dll_name__ = "libdnareftran.so";
+const char* const __geoid_dll_name__ = "libdnageoid.so";
+const char* const __segment_dll_name__ = "libdnasegment.so";
+const char* const __adjust_dll_name__ = "libdnaadjust.so";
+const char* const __plot_dll_name__ = "libdnaplot.so";
 
 #endif
 
@@ -191,8 +191,8 @@ const char* const __dynadjust_app_name__ = "dynadjust";
 // 2.2.0.a1    02020001		Alpha release 
 // 2.2.0.b2    02020002		Beta release
 // 2.2.0.rc2   02020003		Release candidate 1 (unless bug notification is received, this is taken to be the final release)
-#define __BINARY_VERSION__ "1.2.2"
-#define __SHORT_VERSION__ "10202"	// used to record DynAdjust version in binary file header
+#define __BINARY_VERSION__ "1.2.3"
+#define __SHORT_VERSION__ "10203"	// used to record DynAdjust version in binary file header
 
 // define executable name
 #define __GLOBAL_BINARY_NAME__ __dynadjust_app_name__
@@ -202,19 +202,19 @@ const char* const __dynadjust_app_name__ = "dynadjust";
 #define __BINARY_NAME__ __import_dll_name__
 #define __BINARY_DESC__ "File import and format exchange library"
 #endif
-	
+
 // define BUILD_DNASEGMENT_DLL when building libdnasegment.dll
 #ifdef BUILD_DNASEGMENT_DLL
 #define __BINARY_NAME__ __segment_dll_name__
 #define __BINARY_DESC__ "Automated network segmentation library"
 #endif
-	
+
 // define BUILD_DNASEGMENT_DLL when building libdnasegment.dll
 #ifdef BUILD_DNAADJUST_DLL
 #define __BINARY_NAME__ __adjust_dll_name__
 #define __BINARY_DESC__ "Geodetic network adjustment library"
 #endif
-		
+
 // define BUILD_DNAPLOT_DLL when building libdnaplot.dll
 #ifdef BUILD_DNAPLOT_DLL
 #define __BINARY_NAME__ __plot_dll_name__
@@ -226,13 +226,13 @@ const char* const __dynadjust_app_name__ = "dynadjust";
 #define __BINARY_NAME__ __geoid_dll_name__
 #define __BINARY_DESC__ "Geoid grid file interpolation library"
 #endif
-	
+
 // define BUILD_DNAREFTRAN_DLL when building libdnareftran.dll
 #ifdef BUILD_DNAREFTRAN_DLL
 #define __BINARY_NAME__ __reftran_dll_name__
 #define __BINARY_DESC__ "Reference frame transformation library"
 #endif
-	
+
 // define executable name
 #ifdef BUILD_DYNADJUST_EXE
 #define __BINARY_NAME__ __dynadjust_app_name__
@@ -289,61 +289,65 @@ const char* const __dynadjust_app_name__ = "dynadjust";
 
 
 #if defined(_MSC_VER) && (_MSC_VER > 1100)
-	#define _MS_COMPILER_ _MSC_VER
-	//#include <boost/preprocessor/stringize.hpp>
-	//#pragma message("_MSC_VER=" BOOST_PP_STRINGIZE(_MSC_VER))
+#define _MS_COMPILER_ _MSC_VER
+//#include <boost/preprocessor/stringize.hpp>
+//#pragma message("_MSC_VER=" BOOST_PP_STRINGIZE(_MSC_VER))
 #endif
 
 
 #if defined(__GNUC__) || defined(__GNUG__)				// GNU GCC
-	#define __COMPILER__ "GNU GCC"
-	#define __COMPILER_VERSION__ __VERSION__
+#define __COMPILER__ "GNU GCC"
+#define __COMPILER_VERSION__ __VERSION__
 #elif defined(__SUNPRO_CC)								// Oracle Solaris
-	#define __COMPILER__ "Solaris"
-	#define __COMPILER_VERSION__ __SUNPRO_CC
+#define __COMPILER__ "Solaris"
+#define __COMPILER_VERSION__ __SUNPRO_CC
 #elif defined(__ICC) || defined(__INTEL_COMPILER)		// Intel compiler
-	#define __COMPILER__ "Intel ICC"
-	#define __COMPILER_VERSION__ lexical_cast<string>(__INTEL_COMPILER)
+#define __COMPILER__ "Intel ICC"
+#define __COMPILER_VERSION__ lexical_cast<string>(__INTEL_COMPILER)
 #elif defined(__HP_aCC)								// Oracle Solaris
-	#define __COMPILER__ "HP C++"
-	#define __COMPILER_VERSION__ __HP_aCC
+#define __COMPILER__ "HP C++"
+#define __COMPILER_VERSION__ __HP_aCC
 #elif defined(_MSC_VER)
-	#define __COMPILER__ "MSVC++"
-	#if (_MSC_VER == 1100)	
-		#define __COMPILER_VERSION__ "5.0"
-	#elif (_MSC_VER == 1200)
-		#define __COMPILER_VERSION__ "6.0"
-	#elif (_MSC_VER == 1300)
-		#define __COMPILER_VERSION__ "7.0"
-	#elif (_MSC_VER == 1310)
-		#define __COMPILER_VERSION__ "7.1, VS2003"
-	#elif (_MSC_VER == 1400)
-		#define __COMPILER_VERSION__ "8.0, VS2005"
-	#elif (_MSC_VER == 1500)
-		#define __COMPILER_VERSION__ "9.0, VS2008"
-	#elif (_MSC_VER == 1600)
-		#define __COMPILER_VERSION__ "10.0, VS2010"
-	#elif (_MSC_VER == 1700)
-		#define __COMPILER_VERSION__ "11.0, VS2012"
-	#elif (_MSC_VER == 1800)
-		#define __COMPILER_VERSION__ "12.0, VS2013"
-	#elif (_MSC_VER == 1900)
-		#define __COMPILER_VERSION__ "14.0, VS2015"
-	#elif (_MSC_VER == 1910)
-		#define __COMPILER_VERSION__ "14.1, VS2017"
-	#elif (_MSC_VER == 1911)
-		#define __COMPILER_VERSION__ "14.11, VS2017"
-	#elif (_MSC_VER == 1912)
-		#define __COMPILER_VERSION__ "14.12, VS2017"
-	#elif (_MSC_VER == 1913)
-		#define __COMPILER_VERSION__ "14.13, VS2017"
-	#elif (_MSC_VER == 1914)
-		#define __COMPILER_VERSION__ "14.14, VS2017"
-	#elif (_MSC_VER > 1914)
-		#define __COMPILER_VERSION__ _MSC_VER
-	#endif
-#else
-	#define __COMPILER__ "Unknown"
+#define __COMPILER__ "MSVC++"
+#if (_MSC_VER == 1100)	
+#define __COMPILER_VERSION__ "5.0"
+#elif (_MSC_VER == 1200)
+#define __COMPILER_VERSION__ "6.0"
+#elif (_MSC_VER == 1300)
+#define __COMPILER_VERSION__ "7.0"
+#elif (_MSC_VER == 1310)
+#define __COMPILER_VERSION__ "7.1, VS2003"
+#elif (_MSC_VER == 1400)
+#define __COMPILER_VERSION__ "8.0, VS2005"
+#elif (_MSC_VER == 1500)
+#define __COMPILER_VERSION__ "9.0, VS2008"
+#elif (_MSC_VER == 1600)
+#define __COMPILER_VERSION__ "10.0, VS2010"
+#elif (_MSC_VER == 1700)
+#define __COMPILER_VERSION__ "11.0, VS2012"
+#elif (_MSC_VER == 1800)
+#define __COMPILER_VERSION__ "12.0, VS2013"
+#elif (_MSC_VER == 1900)
+#define __COMPILER_VERSION__ "14.0, VS2015"
+#elif (_MSC_VER == 1910)
+#define __COMPILER_VERSION__ "14.1, VS2017"
+#elif (_MSC_VER == 1911)
+#define __COMPILER_VERSION__ "15.3, VS2017"
+#elif (_MSC_VER == 1912)
+#define __COMPILER_VERSION__ "15.5, VS2017"
+#elif (_MSC_VER == 1913)
+#define __COMPILER_VERSION__ "15.6, VS2017"
+#elif (_MSC_VER == 1914)
+#define __COMPILER_VERSION__ "15.7, VS2017"
+#elif (_MSC_VER == 1915)
+#define __COMPILER_VERSION__ "15.8, VS2017"
+#elif (_MSC_VER == 1916)
+#define __COMPILER_VERSION__ "15.9, VS2017"
+#elif (_MSC_VER > 1916)
+#define __COMPILER_VERSION__ _MSC_VER
 #endif
-	
+#else
+#define __COMPILER__ "Unknown"
+#endif
+
 #endif  // DNAVERSION_HPP
