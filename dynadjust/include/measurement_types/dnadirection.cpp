@@ -63,6 +63,8 @@ CDnaDirection::CDnaDirection(CDnaDirection&& d)
 
 	m_databaseIdSet = d.m_databaseIdSet;
 	m_msr_db_map = d.m_msr_db_map;
+
+	m_epoch = d.m_epoch;
 }
 
 // move assignment operator 
@@ -160,7 +162,8 @@ bool CDnaDirection::operator== (const CDnaDirection& rhs) const
 		m_dStdDev == rhs.m_dStdDev &&
 		m_strType == rhs.m_strType &&
 		m_fInstHeight == rhs.m_fInstHeight &&
-		m_fTargHeight == rhs.m_fTargHeight
+		m_fTargHeight == rhs.m_fTargHeight &&
+		m_epoch == rhs.m_epoch
 		);
 }
 
@@ -170,19 +173,22 @@ bool CDnaDirection::operator< (const CDnaDirection& rhs) const
 	if (m_strFirst == rhs.m_strFirst) {
 		if (m_strType == rhs.m_strType) {	// could be B, D, V, Z
 			if (m_bIgnore == rhs.m_bIgnore) {
-				if (m_strTarget == rhs.m_strTarget) {
-					if (m_drValue == rhs.m_drValue) {
-						if (m_dStdDev == rhs.m_dStdDev) {
-							if (m_fInstHeight == rhs.m_fInstHeight)
-								return m_fTargHeight < rhs.m_fTargHeight;
+				if (m_epoch == rhs.m_epoch) {
+					if (m_strTarget == rhs.m_strTarget) {
+						if (m_drValue == rhs.m_drValue) {
+							if (m_dStdDev == rhs.m_dStdDev) {
+								if (m_fInstHeight == rhs.m_fInstHeight)
+									return m_fTargHeight < rhs.m_fTargHeight;
+								else
+									return m_fInstHeight < rhs.m_fInstHeight; }
 							else
-								return m_fInstHeight < rhs.m_fInstHeight; }
+								return m_dStdDev < rhs.m_dStdDev; }
 						else
-							return m_dStdDev < rhs.m_dStdDev; }
+							return m_drValue < rhs.m_drValue; }
 					else
-						return m_drValue < rhs.m_drValue; }
+						return m_strTarget < rhs.m_strTarget; }
 				else
-					return m_strTarget < rhs.m_strTarget; }
+					return m_epoch < rhs.m_epoch; }
 			else
 				return m_bIgnore < rhs.m_bIgnore; }
 		else
@@ -226,6 +232,12 @@ void CDnaDirection::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& c
 			*dynaml_stream << "    <Ignore>*</Ignore>" << endl;
 		else
 			*dynaml_stream << "    <Ignore/>" << endl;
+		
+		if (m_epoch.empty())
+			*dynaml_stream << "    <Epoch/>" << endl;
+		else
+			*dynaml_stream << "    <Epoch>" << m_epoch << "</Epoch>" << endl;
+
 		*dynaml_stream << "    <First>" << m_strFirst << "</First>" << endl;
 		*dynaml_stream << "    <Second>" << m_strTarget << "</Second>" << endl;
 		*dynaml_stream << "    <Value>" << setprecision(8) << fixed 
@@ -288,14 +300,19 @@ void CDnaDirection::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields&
 		case 'V':
 			*dna_stream << setw(dmw.msr_inst_ht) << fixed << setprecision(3) << m_fInstHeight;
 			*dna_stream << setw(dmw.msr_targ_ht) << fixed << setprecision(3) << m_fTargHeight;
-			width = dml.msr_id_msr - dml.msr_targ_ht - dmw.msr_targ_ht;
+			width = dml.msr_gps_epoch - dml.msr_targ_ht - dmw.msr_targ_ht;
 			break;
 		}
+
+		*dna_stream << setw(width) << " ";
+		*dna_stream << setw(dmw.msr_gps_epoch) << m_epoch;
+		width = 0;
 	}
 
 	if (m_databaseIdSet)
 	{
-		*dna_stream << setw(width) << " ";
+		if (width)
+			*dna_stream << setw(width) << " ";
 		*dna_stream << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
 
 		if (bSubMeasurement)
@@ -365,6 +382,7 @@ void CDnaDirection::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* elli
 	case 'B':	
 		// assign direction
 		m_drValue = direction;
+		m_epoch = "01.10.1985";
 		break;
 	
 	// astronomic azimuth
@@ -401,7 +419,7 @@ void CDnaDirection::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* elli
 			// 3. apply deflection correction
 			m_drValue += m_preAdjCorr;
 		}
-
+		m_epoch = "01.10.1985";
 		break;
 	
 	// vertical angle
@@ -440,6 +458,7 @@ void CDnaDirection::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* elli
 			// to get the simulated observation)
 			m_drValue += m_preAdjCorr;
 		}
+		m_epoch = "01.10.1985";
 		break;
 	
 	// zenith distance
@@ -481,6 +500,8 @@ void CDnaDirection::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* elli
 	}
 
 	m_dStdDev = SecondstoRadians(0.010);
+
+	m_epoch = "01.10.1985";
 }
 	
 
@@ -568,6 +589,8 @@ UINT32 CDnaDirection::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_m
 	m_drValue = it_msr->term1;
 	m_dStdDev = sqrt(it_msr->term2);
 
+	m_epoch = it_msr->epoch;
+	
 	return 0;
 }
 	
@@ -599,6 +622,8 @@ void CDnaDirection::WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrInde
 	measRecord.vectorCount1 = m_lRecordedTotal;
 	measRecord.measurementStations = m_MSmeasurementStations;
 	measRecord.fileOrder = ((*msrIndex)++);
+
+	sprintf(measRecord.epoch, "%s", m_epoch.substr(0, STN_EPOCH_WIDTH).c_str());
 
 	binary_stream->write(reinterpret_cast<char *>(&measRecord), sizeof(measurement_t));
 }
@@ -727,7 +752,8 @@ bool CDnaAzimuth::operator== (const CDnaAzimuth& rhs) const
 		m_strTarget == rhs.m_strTarget &&
 		m_drValue == rhs.m_drValue &&
 		m_dStdDev == rhs.m_dStdDev &&
-		m_strType == rhs.m_strType
+		m_strType == rhs.m_strType &&
+		m_epoch == rhs.m_epoch
 		);
 }
 

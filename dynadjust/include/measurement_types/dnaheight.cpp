@@ -83,7 +83,8 @@ bool CDnaHeight::operator== (const CDnaHeight& rhs) const
 		m_strType == rhs.m_strType &&
 		m_bIgnore == rhs.m_bIgnore &&
 		m_dValue == rhs.m_dValue &&
-		m_dStdDev == rhs.m_dStdDev
+		m_dStdDev == rhs.m_dStdDev &&
+		m_epoch == rhs.m_epoch
 		);
 }
 
@@ -92,10 +93,13 @@ bool CDnaHeight::operator< (const CDnaHeight& rhs) const
 	if (m_strFirst == rhs.m_strFirst) {
 		if (m_strType == rhs.m_strType) {	// don't think this is needed
 			if (m_bIgnore == rhs.m_bIgnore) {
-				if (m_dValue == rhs.m_dValue)
-					return m_dStdDev < rhs.m_dStdDev; 
+				if (m_epoch == rhs.m_epoch) {
+					if (m_dValue == rhs.m_dValue)
+						return m_dStdDev < rhs.m_dStdDev; 
+					else
+						return m_dValue < rhs.m_dValue; }
 				else
-					return m_dValue < rhs.m_dValue; }
+					return m_epoch < rhs.m_epoch; }
 			else
 				return m_bIgnore < rhs.m_bIgnore; }
 		else
@@ -120,6 +124,12 @@ void CDnaHeight::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comm
 		*dynaml_stream << "    <Ignore>*</Ignore>" << endl;
 	else
 		*dynaml_stream << "    <Ignore/>" << endl;
+	
+	if (m_epoch.empty())
+		*dynaml_stream << "    <Epoch/>" << endl;
+	else
+		*dynaml_stream << "    <Epoch>" << m_epoch << "</Epoch>" << endl;
+
 	*dynaml_stream << "    <First>" << m_strFirst << "</First>" << endl;
 	*dynaml_stream << "    <Value>" << fixed << setprecision(4) << m_dValue << "</Value>" << endl;
 	*dynaml_stream << "    <StdDev>" << scientific << setprecision(6) << m_dStdDev << "</StdDev>" << endl;
@@ -144,9 +154,11 @@ void CDnaHeight::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dm
 	*dna_stream << setw(dmw.msr_ang_d + dmw.msr_ang_m + dmw.msr_ang_s) << " ";
 	*dna_stream << setw(dmw.msr_stddev) << fixed << setprecision(6) << m_dStdDev;
 
+	*dna_stream << setw(dml.msr_gps_epoch - dml.msr_inst_ht) << " ";
+	*dna_stream << setw(dmw.msr_gps_epoch) << m_epoch;
+
 	if (m_databaseIdSet)
 	{
-		*dna_stream << setw(dml.msr_id_msr - dml.msr_inst_ht) << " ";
 		*dna_stream << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
 	}
 
@@ -182,6 +194,8 @@ void CDnaHeight::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* ellipso
 		}
 		break;
 	}
+
+	m_epoch = "01.10.1985";
 }
 	
 
@@ -223,6 +237,9 @@ UINT32 CDnaHeight::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr)
 	m_preAdjCorr = it_msr->preAdjCorr;
 	m_dValue = it_msr->term1;
 	m_dStdDev = sqrt(it_msr->term2);
+
+	m_epoch = it_msr->epoch;
+
 	return 0;
 }
 	
@@ -245,6 +262,8 @@ void CDnaHeight::WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) 
 	measRecord.term4 = 0.;
 	measRecord.measurementStations = m_MSmeasurementStations;
 	measRecord.fileOrder = ((*msrIndex)++);
+
+	sprintf(measRecord.epoch, "%s", m_epoch.substr(0, STN_EPOCH_WIDTH).c_str());
 
 	binary_stream->write(reinterpret_cast<char *>(&measRecord), sizeof(measurement_t));
 }

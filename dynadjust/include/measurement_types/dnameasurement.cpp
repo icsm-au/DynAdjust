@@ -469,6 +469,7 @@ CDnaMeasurement::CDnaMeasurement()
 	, m_measAdjPrec(0)
 	, m_residualPrec(0)
 	, m_preAdjCorr(0)
+	, m_epoch("")
 	, m_epsgCode(DEFAULT_EPSG_S)
 	, m_databaseIdSet(false)
 {
@@ -497,6 +498,7 @@ CDnaMeasurement::CDnaMeasurement(CDnaMeasurement&& m)
 	m_residualPrec = m.m_residualPrec;
 	m_preAdjCorr = m.m_preAdjCorr;
 
+	m_epoch = m.m_epoch;
 	m_epsgCode = m.m_epsgCode;
 
 	m_msr_db_map = m.m_msr_db_map;
@@ -525,6 +527,7 @@ CDnaMeasurement& CDnaMeasurement::operator= (CDnaMeasurement&& rhs)
 	m_residualPrec = rhs.m_residualPrec;
 	m_preAdjCorr = rhs.m_preAdjCorr;
 
+	m_epoch = rhs.m_epoch;
 	m_epsgCode = rhs.m_epsgCode;
 
 	m_msr_db_map = rhs.m_msr_db_map;
@@ -623,6 +626,11 @@ void CDnaMeasurement::SerialiseDatabaseMap(std::ofstream* os)
 {
 	os->write(reinterpret_cast<const char *>(&m_msr_db_map.msr_id), sizeof(UINT32));
 	os->write(reinterpret_cast<const char *>(&m_msr_db_map.cluster_id), sizeof(UINT32));
+}
+
+void CDnaMeasurement::SetEpoch(const string& epoch)
+{
+	m_epoch = epoch;
 }
 
 }	// namespace measurements

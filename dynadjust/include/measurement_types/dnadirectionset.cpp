@@ -147,7 +147,8 @@ bool CDnaDirectionSet::operator== (const CDnaDirectionSet& rhs) const
 		m_drValue == rhs.m_drValue &&
 		m_dStdDev == rhs.m_dStdDev &&
 		m_lRecordedTotal == rhs.m_lRecordedTotal &&
-		m_vTargetDirections == rhs.m_vTargetDirections
+		m_vTargetDirections == rhs.m_vTargetDirections &&
+		m_epoch == rhs.m_epoch
 		);
 }
 
@@ -157,16 +158,19 @@ bool CDnaDirectionSet::operator< (const CDnaDirectionSet& rhs) const
 	if (m_strFirst == rhs.m_strFirst) {
 		if (m_strType == rhs.m_strType) {	// I don't think this is needed
 			if (m_bIgnore == rhs.m_bIgnore) {
-				if (m_strTarget == rhs.m_strTarget) {
-					if (m_drValue == rhs.m_drValue) {
-						if (m_dStdDev == rhs.m_dStdDev)
-							return m_vTargetDirections < rhs.m_vTargetDirections;
+				if (m_epoch == rhs.m_epoch) {
+					if (m_strTarget == rhs.m_strTarget) {
+						if (m_drValue == rhs.m_drValue) {
+							if (m_dStdDev == rhs.m_dStdDev)
+								return m_vTargetDirections < rhs.m_vTargetDirections;
+							else
+								return m_dStdDev < rhs.m_dStdDev; }
 						else
-							return m_dStdDev < rhs.m_dStdDev; }
+							return m_drValue < rhs.m_drValue; }
 					else
-						return m_drValue < rhs.m_drValue; }
+						return m_strTarget < rhs.m_strTarget; }
 				else
-					return m_strTarget < rhs.m_strTarget; }
+					return m_epoch < rhs.m_epoch; }
 			else
 				return m_bIgnore < rhs.m_bIgnore; }
 		else
@@ -259,6 +263,12 @@ void CDnaDirectionSet::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string
 		*dynaml_stream << "    <Ignore>*</Ignore>" << endl;
 	else
 		*dynaml_stream << "    <Ignore/>" << endl;
+	
+	if (m_epoch.empty())
+		*dynaml_stream << "    <Epoch/>" << endl;
+	else
+		*dynaml_stream << "    <Epoch>" << m_epoch << "</Epoch>" << endl;
+
 	*dynaml_stream << "    <First>" << m_strFirst << "</First>" << endl;
 	*dynaml_stream << "    <Second>" << m_strTarget << "</Second>" << endl;
 	*dynaml_stream << "    <Value>" << setprecision(8) << fixed << RadtoDms(m_drValue) << "</Value>" << endl;
@@ -297,9 +307,11 @@ void CDnaDirectionSet::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fiel
 		right << FormatDnaDmsString(RadtoDms(m_drValue), 8);
 	*dna_stream << setw(dmw.msr_stddev) << fixed << setprecision(3) << Seconds(m_dStdDev);
 	
+	*dna_stream << setw(dml.msr_gps_epoch - dml.msr_inst_ht) << " ";
+	*dna_stream << setw(dmw.msr_gps_epoch) << m_epoch;
+
 	if (m_databaseIdSet)
 	{ 
-		*dna_stream << setw(dml.msr_id_msr - dml.msr_inst_ht) << " ";
 		*dna_stream << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
 		*dna_stream << setw(dmw.msr_id_cluster) << m_msr_db_map.cluster_id;
 	}
@@ -360,6 +372,8 @@ void CDnaDirectionSet::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* e
 
 	// compute standard deviation in radians
 	m_dStdDev = SecondstoRadians(0.01);
+
+	m_epoch = "01.10.1985";
 	
 	vector<CDnaDirection>::iterator _it_dir = m_vTargetDirections.begin();
 	for (_it_dir = m_vTargetDirections.begin(); _it_dir!=m_vTargetDirections.end(); ++_it_dir)
@@ -445,6 +459,8 @@ UINT32 CDnaDirectionSet::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& i
 
 	m_lsetID = it_msr->clusterID;
 
+	m_epoch = it_msr->epoch;
+
 	m_vTargetDirections.clear();
 	m_vTargetDirections.resize(m_lRecordedTotal);
 
@@ -487,6 +503,8 @@ void CDnaDirectionSet::WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrI
 	measRecord.clusterID = m_lsetID;
 	measRecord.measurementStations = m_MSmeasurementStations;
 	measRecord.fileOrder = ((*msrIndex)++);
+
+	sprintf(measRecord.epoch, "%s", m_epoch.substr(0, STN_EPOCH_WIDTH).c_str());
 
 	binary_stream->write(reinterpret_cast<char *>(&measRecord), sizeof(measurement_t));
 
