@@ -94,7 +94,8 @@ bool CDnaAngle::operator== (const CDnaAngle& rhs) const
 		m_strTarget == rhs.m_strTarget &&
 		m_strTarget2 == rhs.m_strTarget2 &&
 		m_drValue == rhs.m_drValue &&
-		m_dStdDev == rhs.m_dStdDev
+		m_dStdDev == rhs.m_dStdDev &&
+		m_epoch == rhs.m_epoch
 		);
 }
 
@@ -104,17 +105,19 @@ bool CDnaAngle::operator< (const CDnaAngle& rhs) const
 		if (m_strTarget == rhs.m_strTarget) {
 			if (m_strTarget2 == rhs.m_strTarget2) {
 				if (m_bIgnore == rhs.m_bIgnore) {
-					if (m_drValue == rhs.m_drValue)
-						return m_dStdDev < rhs.m_dStdDev; 
+					if (m_epoch == rhs.m_epoch) {
+						if (m_drValue == rhs.m_drValue)
+							return m_dStdDev < rhs.m_dStdDev;
+						else
+							return m_drValue < rhs.m_drValue; }
 					else
-						return m_drValue < rhs.m_drValue; }
+						return m_epoch < rhs.m_epoch; }
 				else
 					return m_bIgnore < rhs.m_bIgnore; }		
 			else
 				return m_strTarget2 < rhs.m_strTarget2; }
 		else
-			return m_strTarget < rhs.m_strTarget; }
-		
+			return m_strTarget < rhs.m_strTarget; }		
 	else
 		return m_strFirst < rhs.m_strFirst;
 }
@@ -135,6 +138,12 @@ void CDnaAngle::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comme
 		*dynaml_stream << "    <Ignore>*</Ignore>" << endl;
 	else
 		*dynaml_stream << "    <Ignore/>" << endl;
+
+	if (m_epoch.empty())
+		*dynaml_stream << "    <Epoch/>" << endl;
+	else
+		*dynaml_stream << "    <Epoch>" << m_epoch << "</Epoch>" << endl;
+
 	*dynaml_stream << "    <First>" << m_strFirst << "</First>" << endl;
 	*dynaml_stream << "    <Second>" << m_strTarget << "</Second>" << endl;
 	*dynaml_stream << "    <Third>" << m_strTarget2 << "</Third>" << endl;
@@ -161,9 +170,11 @@ void CDnaAngle::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw
 		right << FormatDnaDmsString(RadtoDms(m_drValue), 8);
 	*dna_stream << setw(dmw.msr_stddev) << fixed << setprecision(3) << Seconds(m_dStdDev);
 	
+	*dna_stream << setw(dml.msr_gps_epoch - dml.msr_inst_ht) << " ";
+	*dna_stream << setw(dmw.msr_gps_epoch) << m_epoch;
+
 	if (m_databaseIdSet)
 	{ 
-		*dna_stream << setw(dml.msr_id_msr - dml.msr_inst_ht) << " ";
 		*dna_stream << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
 	}
 	
@@ -248,6 +259,8 @@ void CDnaAngle::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* ellipsoi
 
 	// compute standard deviation in radians
 	m_dStdDev = SecondstoRadians(0.01);
+
+	m_epoch = "01.10.1985";
 }
 	
 
@@ -310,6 +323,9 @@ UINT32 CDnaAngle::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr)
 	m_preAdjCorr = it_msr->preAdjCorr;
 	m_drValue = it_msr->term1;
 	m_dStdDev = sqrt(it_msr->term2);
+	
+	m_epoch = it_msr->epoch;
+
 	return 0;
 }
 
@@ -331,6 +347,8 @@ void CDnaAngle::WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) c
 	measRecord.term2 = m_dStdDev * m_dStdDev;	// convert to variance
 	measRecord.measurementStations = m_MSmeasurementStations;
 	measRecord.fileOrder = ((*msrIndex)++);
+
+	sprintf(measRecord.epoch, "%s", m_epoch.substr(0, STN_EPOCH_WIDTH).c_str());
 
 	binary_stream->write(reinterpret_cast<char *>(&measRecord), sizeof(measurement_t));
 }

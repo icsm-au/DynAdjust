@@ -83,10 +83,10 @@ public:
 	void SetSigmaZZ(const string& str);
 	
 	void SetReferenceFrame(const string& refFrame);
-	void SetEpoch(const string& epoch);
+	//void SetEpoch(const string& epoch); //moved to CDnaMeasurement
 	void SetEpsg(const string& epsg);	
 	inline string GetReferenceFrame() const { return m_referenceFrame; }
-	inline string GetEpoch() const { return m_epoch; }
+	//inline string GetEpoch() const { return m_epoch; } // moved to CDnaMeasurement
 		
 	void SetPscale(const string& str);
 	void SetLscale(const string& str);
@@ -143,7 +143,7 @@ protected:
 	double m_dVscale;
 
 	string	m_referenceFrame;
-	string	m_epoch;
+	//string	m_epoch;
 
 	UINT32 m_lclusterID;
 
@@ -189,10 +189,10 @@ public:
 	inline double GetVscale() const { return m_dVscale; }
 
 	void SetReferenceFrame(const string& refFrame);
-	void SetEpoch(const string& epoch);
+	//void SetEpoch(const string& epoch);
 	void SetEpsg(const string& epsg);	
 	inline string GetReferenceFrame() const { return m_referenceFrame; }
-	inline string GetEpoch() const { return m_epoch; }
+	//inline string GetEpoch() const { return m_epoch; } 
 		
 	inline void SetTarget(const string& str) { m_strTarget = trimstr(str); }
 	inline void SetTotal(const UINT32& l) { m_lRecordedTotal = l; }
@@ -237,7 +237,7 @@ protected:
 	vector<CDnaGpsBaseline> m_vGpsBaselines;
 
 	string	m_referenceFrame;
-	string	m_epoch;
+	//string	m_epoch;
 
 	UINT32 m_lclusterID;
 

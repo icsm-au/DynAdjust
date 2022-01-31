@@ -49,10 +49,10 @@ CDnaGpsPoint::CDnaGpsPoint(void)
 	, m_strCoordType("XYZ")
 	, m_ctType(XYZ_type_i)
 	, m_referenceFrame(DEFAULT_DATUM)
-	, m_epoch(DEFAULT_EPOCH)
 	, m_lclusterID(0)
 	
 {
+	SetEpoch(DEFAULT_EPOCH);
 	SetEpsg(epsgStringFromName<string>(m_referenceFrame));
 
 	m_vPointCovariances.clear();
@@ -260,13 +260,16 @@ bool CDnaGpsPoint::operator< (const CDnaGpsPoint& rhs) const
 		if (m_strType == rhs.m_strType) {
 			if (m_lRecordedTotal == rhs.m_lRecordedTotal) {
 				if (m_bIgnore == rhs.m_bIgnore) {
-					if (fabs(m_dX - rhs.m_dX) < PRECISION_1E4) {
-						if (fabs(m_dY - rhs.m_dY) < PRECISION_1E4) {
-							return m_dZ < rhs.m_dZ; }
+					if (m_epoch == rhs.m_epoch) {
+						if (fabs(m_dX - rhs.m_dX) < PRECISION_1E4) {
+							if (fabs(m_dY - rhs.m_dY) < PRECISION_1E4) {
+								return m_dZ < rhs.m_dZ; }
+							else
+								return m_dY < rhs.m_dY; }
 						else
-							return m_dY < rhs.m_dY; }
+							return m_dX < rhs.m_dX; }
 					else
-						return m_dX < rhs.m_dX; }
+						return m_epoch < rhs.m_epoch; }
 				else
 					return m_bIgnore < rhs.m_bIgnore; }
 			else
@@ -842,10 +845,11 @@ void CDnaGpsPoint::SerialiseDatabaseMap(std::ofstream* os)
 //}
 
 
-void CDnaGpsPoint::SetEpoch(const string& epoch) 
-{
-	m_epoch = epoch;
-}
+// moved to dnameasurement.cpp
+//void CDnaGpsPoint::SetEpoch(const string& epoch) 
+//{
+//	m_epoch = epoch;
+//}
 
 
 void CDnaGpsPoint::SetEpsg(const string& epsg) 
@@ -972,9 +976,9 @@ CDnaGpsPointCluster::CDnaGpsPointCluster(void)
 	, m_strCoordType("XYZ")
 	, m_ctType(XYZ_type_i)
 	, m_referenceFrame(DEFAULT_DATUM)
-	, m_epoch(DEFAULT_EPOCH)
 	, m_lclusterID(0)
 {
+	SetEpoch(DEFAULT_EPOCH);
 	SetEpsg(epsgStringFromName<string>(m_referenceFrame));
 
 	m_strType = "Y";
@@ -1084,9 +1088,9 @@ CDnaGpsPointCluster::CDnaGpsPointCluster(const UINT32 lclusterID, const string& 
 	, m_strCoordType("XYZ")
 	, m_ctType(XYZ_type_i)
 	, m_referenceFrame(referenceframe)
-	, m_epoch(epoch)
 	, m_lclusterID(lclusterID)
 {
+	SetEpoch(epoch);
 	SetEpsg(epsgStringFromName<string>(referenceframe));
 
 	m_strType = "Y";
@@ -1147,13 +1151,16 @@ bool CDnaGpsPointCluster::operator< (const CDnaGpsPointCluster& rhs) const
 	if (m_strFirst == rhs.m_strFirst) {
 		if (m_strType == rhs.m_strType) {
 			if (m_bIgnore == rhs.m_bIgnore) {
-				if (m_strCoordType == rhs.m_strCoordType) {
-					if (m_lRecordedTotal == rhs.m_lRecordedTotal) 
-						return m_vGpsPoints < rhs.m_vGpsPoints;
+				if (m_epoch == rhs.m_epoch) {
+					if (m_strCoordType == rhs.m_strCoordType) {
+						if (m_lRecordedTotal == rhs.m_lRecordedTotal) 
+							return m_vGpsPoints < rhs.m_vGpsPoints;
+						else
+							return m_lRecordedTotal < rhs.m_lRecordedTotal; }
 					else
-						return m_lRecordedTotal < rhs.m_lRecordedTotal; }
+						return m_strCoordType < rhs.m_strCoordType; }
 				else
-					return m_strCoordType < rhs.m_strCoordType; }
+					return m_epoch < rhs.m_epoch; }
 			else
 				return m_bIgnore < rhs.m_bIgnore; }
 		else
@@ -1419,14 +1426,15 @@ void CDnaGpsPointCluster::WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 m
 }
 
 
-void CDnaGpsPointCluster::SetEpoch(const string& epoch) 
-{
-	//for_each(m_vGpsPoints.begin(), m_vGpsPoints.end(),
-	//	[this, &epoch] (CDnaGpsPoint &p) {
-	//		p.SetEpoch(epoch); 
-	//});
-	m_epoch = epoch;
-}
+// moved to dnameasurement.cpp
+//void CDnaGpsPointCluster::SetEpoch(const string& epoch) 
+//{
+//	//for_each(m_vGpsPoints.begin(), m_vGpsPoints.end(),
+//	//	[this, &epoch] (CDnaGpsPoint &p) {
+//	//		p.SetEpoch(epoch); 
+//	//});
+//	m_epoch = epoch;
+//}
 
 
 void CDnaGpsPointCluster::SetEpsg(const string& epsg) 

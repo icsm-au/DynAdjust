@@ -80,10 +80,10 @@ public:
 	void SetSigmaZZ(const string& str);
 	
 	void SetReferenceFrame(const string& refFrame);
-	void SetEpoch(const string& epoch);
+	//void SetEpoch(const string& epoch);
 	void SetEpsg(const string& epsg);	
 	inline string GetReferenceFrame() const { return m_referenceFrame; }
-	inline string GetEpoch() const { return m_epoch; }
+	//inline string GetEpoch() const { return m_epoch; }
 		
 	//void SetPscale(const string& str);
 	//void SetLscale(const string& str);
@@ -161,7 +161,7 @@ protected:
 	COORD_TYPE m_ctType;
 
 	string	m_referenceFrame;
-	string	m_epoch;
+	//string	m_epoch;
 
 	UINT32 m_lclusterID;
 
@@ -211,10 +211,10 @@ public:
 	_COORD_TYPE_ GetMyCoordTypeC();
 
 	void SetReferenceFrame(const string& refFrame);
-	void SetEpoch(const string& epoch);
+	//void SetEpoch(const string& epoch);
 	void SetEpsg(const string& epsg);	
 	inline string GetReferenceFrame() const { return m_referenceFrame; }
-	inline string GetEpoch() const { return m_epoch; }
+	//inline string GetEpoch() const { return m_epoch; }
 	
 	//inline void SetPoints(const vector<CDnaGpsPoint>& d) { m_vGpsPoints = d; }
 	void SetTotal(const string& str);
@@ -260,7 +260,7 @@ protected:
 	vector<CDnaGpsPoint> m_vGpsPoints;
 
 	string	m_referenceFrame;
-	string	m_epoch;
+	//string	m_epoch;
 
 	UINT32 m_lclusterID;
 };
