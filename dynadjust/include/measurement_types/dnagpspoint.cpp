@@ -260,13 +260,16 @@ bool CDnaGpsPoint::operator< (const CDnaGpsPoint& rhs) const
 		if (m_strType == rhs.m_strType) {
 			if (m_lRecordedTotal == rhs.m_lRecordedTotal) {
 				if (m_bIgnore == rhs.m_bIgnore) {
-					if (fabs(m_dX - rhs.m_dX) < PRECISION_1E4) {
-						if (fabs(m_dY - rhs.m_dY) < PRECISION_1E4) {
-							return m_dZ < rhs.m_dZ; }
+					if (m_epoch == rhs.m_epoch) {
+						if (fabs(m_dX - rhs.m_dX) < PRECISION_1E4) {
+							if (fabs(m_dY - rhs.m_dY) < PRECISION_1E4) {
+								return m_dZ < rhs.m_dZ; }
+							else
+								return m_dY < rhs.m_dY; }
 						else
-							return m_dY < rhs.m_dY; }
+							return m_dX < rhs.m_dX; }
 					else
-						return m_dX < rhs.m_dX; }
+						return m_epoch < rhs.m_epoch; }
 				else
 					return m_bIgnore < rhs.m_bIgnore; }
 			else
@@ -1148,13 +1151,16 @@ bool CDnaGpsPointCluster::operator< (const CDnaGpsPointCluster& rhs) const
 	if (m_strFirst == rhs.m_strFirst) {
 		if (m_strType == rhs.m_strType) {
 			if (m_bIgnore == rhs.m_bIgnore) {
-				if (m_strCoordType == rhs.m_strCoordType) {
-					if (m_lRecordedTotal == rhs.m_lRecordedTotal) 
-						return m_vGpsPoints < rhs.m_vGpsPoints;
+				if (m_epoch == rhs.m_epoch) {
+					if (m_strCoordType == rhs.m_strCoordType) {
+						if (m_lRecordedTotal == rhs.m_lRecordedTotal) 
+							return m_vGpsPoints < rhs.m_vGpsPoints;
+						else
+							return m_lRecordedTotal < rhs.m_lRecordedTotal; }
 					else
-						return m_lRecordedTotal < rhs.m_lRecordedTotal; }
+						return m_strCoordType < rhs.m_strCoordType; }
 				else
-					return m_strCoordType < rhs.m_strCoordType; }
+					return m_epoch < rhs.m_epoch; }
 			else
 				return m_bIgnore < rhs.m_bIgnore; }
 		else
