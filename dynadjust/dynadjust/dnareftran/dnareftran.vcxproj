@@ -201,6 +201,7 @@
     <ClInclude Include="..\..\include\io\dnaiobms.hpp" />
     <ClInclude Include="..\..\include\io\dnaiobst.hpp" />
     <ClInclude Include="..\..\include\io\dnaiodna.hpp" />
+    <ClInclude Include="..\..\include\io\dnaiofrx.hpp" />
     <ClInclude Include="..\..\include\io\dnaiotpb.hpp" />
     <ClInclude Include="..\..\include\math\dnamatrix_contiguous.hpp" />
     <ClInclude Include="..\..\include\measurement_types\dnaangle.hpp" />
