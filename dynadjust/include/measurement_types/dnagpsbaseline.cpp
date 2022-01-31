@@ -47,9 +47,9 @@ CDnaGpsBaseline::CDnaGpsBaseline(void)
 	, m_dHscale(1.)
 	, m_dVscale(1.)
 	, m_referenceFrame(DEFAULT_DATUM)
-	, m_epoch(DEFAULT_EPOCH)
 	, m_lclusterID(0)
 {
+	SetEpoch(DEFAULT_EPOCH);
 	SetEpsg(epsgStringFromName<string>(m_referenceFrame));
 
 	m_vGpsCovariances.clear();
@@ -243,7 +243,8 @@ bool CDnaGpsBaseline::operator== (const CDnaGpsBaseline& rhs) const
 		fabs(m_dX - rhs.m_dX) < PRECISION_1E4 &&
 		fabs(m_dY - rhs.m_dY) < PRECISION_1E4 &&
 		fabs(m_dZ - rhs.m_dZ) < PRECISION_1E4 &&
-		iequals(m_referenceFrame, rhs.m_referenceFrame)
+		iequals(m_referenceFrame, rhs.m_referenceFrame) &&
+		m_epoch == rhs.m_epoch
 		);
 }
 
@@ -254,13 +255,16 @@ bool CDnaGpsBaseline::operator< (const CDnaGpsBaseline& rhs) const
 			if (m_strType == rhs.m_strType) {
 				if (m_lRecordedTotal == rhs.m_lRecordedTotal) {
 					if (m_bIgnore == rhs.m_bIgnore) {
-						if (fabs(m_dX - rhs.m_dX) < PRECISION_1E4) {
-							if (fabs(m_dY - rhs.m_dY) < PRECISION_1E4) {
-								return m_dZ < rhs.m_dZ; }
+						if (m_epoch == rhs.m_epoch) {
+							if (fabs(m_dX - rhs.m_dX) < PRECISION_1E4) {
+								if (fabs(m_dY - rhs.m_dY) < PRECISION_1E4) {
+									return m_dZ < rhs.m_dZ; }
+								else
+									return m_dY < rhs.m_dY; }
 							else
-								return m_dY < rhs.m_dY; }
+								return m_dX < rhs.m_dX; }
 						else
-							return m_dX < rhs.m_dX; }
+							return m_epoch < rhs.m_epoch; }
 					else
 						return m_bIgnore < rhs.m_bIgnore; }
 				else
@@ -816,10 +820,11 @@ void CDnaGpsBaseline::SetSigmaZZ(const string& str)
 	//DoubleFromString(m_dSigmaZZ, trimstr(str));
 }
 
-void CDnaGpsBaseline::SetEpoch(const string& epoch) 
-{
-	m_epoch = epoch;
-}
+// moved to dnameasurement.cpp
+//void CDnaGpsBaseline::SetEpoch(const string& epoch) 
+//{
+//	m_epoch = epoch;
+//}
 
 
 void CDnaGpsBaseline::SetEpsg(const string& epsg) 
@@ -871,9 +876,9 @@ CDnaGpsBaselineCluster::CDnaGpsBaselineCluster(void)
 	, m_dHscale(1.)
 	, m_dVscale(1.)
 	, m_referenceFrame(DEFAULT_DATUM)
-	, m_epoch(DEFAULT_EPOCH)
 	, m_lclusterID(0)
 {
+	SetEpoch(DEFAULT_EPOCH);
 	SetEpsg(epsgStringFromName<string>(m_referenceFrame));
 
 	m_vGpsBaselines.clear();
@@ -955,9 +960,9 @@ CDnaGpsBaselineCluster::CDnaGpsBaselineCluster(const UINT32 lclusterID, const st
 	, m_dHscale(1.)
 	, m_dVscale(1.)
 	, m_referenceFrame(referenceframe)
-	, m_epoch(epoch)
 	, m_lclusterID(lclusterID)
 {
+	SetEpoch(epoch);
 	SetEpsg(epsgStringFromName<string>(referenceframe));
 
 	m_vGpsBaselines.clear();
@@ -1043,7 +1048,8 @@ bool CDnaGpsBaselineCluster::operator== (const CDnaGpsBaselineCluster& rhs) cons
 		m_dHscale == rhs.m_dHscale &&
 		m_dVscale == rhs.m_dVscale &&
 		m_vGpsBaselines == rhs.m_vGpsBaselines &&
-		iequals(m_referenceFrame, rhs.m_referenceFrame)
+		iequals(m_referenceFrame, rhs.m_referenceFrame) &&
+		m_epoch == rhs.m_epoch
 		);
 }
 
@@ -1052,13 +1058,16 @@ bool CDnaGpsBaselineCluster::operator< (const CDnaGpsBaselineCluster& rhs) const
 	if (m_strFirst == rhs.m_strFirst) {
 		if (m_strType == rhs.m_strType) {	// could be G, X
 			if (m_bIgnore == rhs.m_bIgnore) {
-				if (m_strTarget == rhs.m_strTarget) {
-					if (m_lRecordedTotal == rhs.m_lRecordedTotal) 
-						return m_vGpsBaselines < rhs.m_vGpsBaselines;
+				if (m_epoch == rhs.m_epoch) {
+					if (m_strTarget == rhs.m_strTarget) {
+						if (m_lRecordedTotal == rhs.m_lRecordedTotal) 
+							return m_vGpsBaselines < rhs.m_vGpsBaselines;
+						else
+							return m_lRecordedTotal < rhs.m_lRecordedTotal; }
 					else
-						return m_lRecordedTotal < rhs.m_lRecordedTotal; }
+						return m_strTarget < rhs.m_strTarget; }
 				else
-					return m_strTarget < rhs.m_strTarget; }
+					return m_epoch < rhs.m_epoch; }
 			else
 				return m_bIgnore < rhs.m_bIgnore; }
 		else
@@ -1277,11 +1286,12 @@ void CDnaGpsBaselineCluster::WriteBinaryMsr(std::ofstream* binary_stream, PUINT3
 }
 
 
-void CDnaGpsBaselineCluster::SetEpoch(const string& epoch) 
-{
-	// m_epoch is a member of CDnaGpsBaselineCluster
-	m_epoch = epoch;
-}
+// moved to dnameasurement.cpp
+//void CDnaGpsBaselineCluster::SetEpoch(const string& epoch) 
+//{
+//	// m_epoch is a member of CDnaGpsBaselineCluster
+//	m_epoch = epoch;
+//}
 
 
 void CDnaGpsBaselineCluster::SetEpsg(const string& epsg) 

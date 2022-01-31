@@ -386,7 +386,7 @@ public:
 	virtual inline double GetValue() const { return 0; }
 
 	virtual inline string GetReferenceFrame() const { return ""; }
-	virtual inline string GetEpoch() const { return ""; }	
+	inline string GetEpoch() const { return m_epoch; }
 	
 	virtual inline vector<CDnaGpsBaseline>* GetBaselines_ptr() { return 0; }
 	virtual inline vector<CDnaDirection>* GetDirections_ptr() { return 0; }
@@ -413,7 +413,7 @@ public:
 	virtual void SetInstrumentHeight(const string& str) {}
 	
 	virtual void SetReferenceFrame(const string& str) {}
-	virtual void SetEpoch(const string& str) {}
+	void SetEpoch(const string& epoch);
 	
 	virtual void SetLscale(const string& str) {}
 	virtual void SetLscale(const double& dbl) {}
@@ -492,6 +492,8 @@ protected:
 
 	string	m_epsgCode;
 	string	m_sourceFile;
+
+	string	m_epoch;
 	
 	msr_database_id_map		m_msr_db_map;
 	bool					m_databaseIdSet;

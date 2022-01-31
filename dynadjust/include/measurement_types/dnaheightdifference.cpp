@@ -89,7 +89,8 @@ bool CDnaHeightDifference::operator== (const CDnaHeightDifference& rhs) const
 		m_strType == rhs.m_strType &&
 		m_bIgnore == rhs.m_bIgnore &&
 		m_dValue == rhs.m_dValue &&
-		m_dStdDev == rhs.m_dStdDev
+		m_dStdDev == rhs.m_dStdDev &&
+		m_epoch == rhs.m_epoch
 		);
 }
 
@@ -99,13 +100,16 @@ bool CDnaHeightDifference::operator< (const CDnaHeightDifference& rhs) const
 	if (m_strFirst == rhs.m_strFirst) {
 		if (m_strType == rhs.m_strType) {	// don't think this is needed
 			if (m_bIgnore == rhs.m_bIgnore) {
-				if (m_strTarget == rhs.m_strTarget) {
-					if (m_dValue == rhs.m_dValue)
-						return m_dStdDev < rhs.m_dStdDev; 
+				if (m_epoch == rhs.m_epoch) {
+					if (m_strTarget == rhs.m_strTarget) {
+						if (m_dValue == rhs.m_dValue)
+							return m_dStdDev < rhs.m_dStdDev; 
+						else
+							return m_dValue < rhs.m_dValue; }
 					else
-						return m_dValue < rhs.m_dValue; }
+						return m_strTarget < rhs.m_strTarget; }
 				else
-					return m_strTarget < rhs.m_strTarget; }
+					return m_epoch < rhs.m_epoch; }
 			else
 				return m_bIgnore < rhs.m_bIgnore; }
 		else
@@ -130,6 +134,12 @@ void CDnaHeightDifference::WriteDynaMLMsr(std::ofstream* dynaml_stream, const st
 		*dynaml_stream << "    <Ignore>*</Ignore>" << endl;
 	else
 		*dynaml_stream << "    <Ignore/>" << endl;
+	
+	if (m_epoch.empty())
+		*dynaml_stream << "    <Epoch/>" << endl;
+	else
+		*dynaml_stream << "    <Epoch>" << m_epoch << "</Epoch>" << endl;
+
 	*dynaml_stream << "    <First>" << m_strFirst << "</First>" << endl;
 	*dynaml_stream << "    <Second>" << m_strTarget << "</Second>" << endl;
 	*dynaml_stream << "    <Value>" << fixed << setprecision(4) << m_dValue << "</Value>" << endl;
@@ -155,9 +165,11 @@ void CDnaHeightDifference::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_
 	*dna_stream << setw(dmw.msr_ang_d + dmw.msr_ang_m + dmw.msr_ang_s) << " ";
 	*dna_stream << setw(dmw.msr_stddev) << fixed << setprecision(6) << m_dStdDev;
 
+	*dna_stream << setw(dml.msr_gps_epoch - dml.msr_inst_ht) << " ";
+	*dna_stream << setw(dmw.msr_gps_epoch) << m_epoch;
+
 	if (m_databaseIdSet)
 	{
-		*dna_stream << setw(dml.msr_id_msr - dml.msr_inst_ht) << " ";
 		*dna_stream << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
 	}
 
@@ -190,6 +202,8 @@ void CDnaHeightDifference::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoi
 		vStations->at(m_lstn2Index).get()->GetcurrentLongitude());
 
 	m_dStdDev = 3.0 * sqrt(distance / 1000.0) / 100.0;
+
+	m_epoch = "01.10.1985";
 
 	// N value available?
 	if (fabs(vStations->at(m_lstn1Index).get()->GetgeoidSep()) > PRECISION_1E4 ||
@@ -254,6 +268,8 @@ UINT32 CDnaHeightDifference::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_
 	m_dValue = it_msr->term1;
 	m_dStdDev = sqrt(it_msr->term2);
 
+	m_epoch = it_msr->epoch;
+
 	return 0;
 }
 	
@@ -275,6 +291,8 @@ void CDnaHeightDifference::WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 
 	measRecord.term2 = m_dStdDev * m_dStdDev;	// convert to variance
 	measRecord.measurementStations = m_MSmeasurementStations;
 	measRecord.fileOrder = ((*msrIndex)++);
+
+	sprintf(measRecord.epoch, "%s", m_epoch.substr(0, STN_EPOCH_WIDTH).c_str());
 
 	binary_stream->write(reinterpret_cast<char *>(&measRecord), sizeof(measurement_t));
 }

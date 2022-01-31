@@ -939,7 +939,7 @@ void dna_import::ApplyDiscontinuitiesMeasurements(vdnaMsrPtr* vMeasurements, pro
 		case 'D':	// Direction set
 					// handle the directions in the set
 			vdirns = _it_msr->get()->GetDirections_ptr();
-			ApplyDiscontinuitiesMeasurements_D(vdirns);
+			ApplyDiscontinuitiesMeasurements_D(vdirns, site_date);
 			continue;
 			// Finished with single station measurements
 		case 'B':	// Geodetic azimuth
@@ -1067,20 +1067,16 @@ void dna_import::ApplyDiscontinuitiesMeasurements_Y(vector<CDnaGpsPoint>* vGpsPo
 }
 
 
-void dna_import::ApplyDiscontinuitiesMeasurements_D(vector<CDnaDirection>* vDirections)
+void dna_import::ApplyDiscontinuitiesMeasurements_D(vector<CDnaDirection>* vDirections, const date& site_date)
 {
 	vector< CDnaDirection >::iterator _it_msr(vDirections->begin());
 	_it_vdiscontinuity_tuple _it_discont(stn_discontinuities_.begin());
 	string site_renamed, stn1, stn2, stn3;
-	date site_date;
 
 	for (_it_msr = vDirections->begin();
 		_it_msr != vDirections->end();
 		_it_msr++)
 	{
-		// Capture the epoch of the measurement
-		site_date = dateFromString<date>(_it_msr->GetEpoch());
-
 		// Station 1
 		stn1 = _it_msr->GetFirst();
 
@@ -1744,11 +1740,11 @@ void dna_import::ParseDNAMSRLinear(const string& sBuf, dnaMsrPtr& msr_ptr)
 	}
 
 	// Instrument station
-	msr_ptr->SetFirst(ParseInstrumentValue(sBuf, "ParseLinear"));
+	msr_ptr->SetFirst(ParseInstrumentValue(sBuf, "ParseDNAMSRLinear"));
 
 	// Target station
 	if (msr_ptr->GetMsrStnCount() >= TWO_STATION)
-		msr_ptr->SetTarget(ParseTargetValue(sBuf, "ParseLinear"));
+		msr_ptr->SetTarget(ParseTargetValue(sBuf, "ParseDNAMSRLinear"));
 
 	// If import is being used to simulate measurements, return as the
 	// expected input is:
@@ -1761,14 +1757,17 @@ void dna_import::ParseDNAMSRLinear(const string& sBuf, dnaMsrPtr& msr_ptr)
 
 	// Value
 	msr_ptr->SetValue(ParseLinearValue(sBuf, 
-		measurement_name<char, string>(msr_ptr->GetTypeC()), "ParseLinear"));
+		measurement_name<char, string>(msr_ptr->GetTypeC()), "ParseDNAMSRLinear"));
 
 	// Standard deviation
-	msr_ptr->SetStdDev(ParseStdDevValue(sBuf, "ParseLinear"));
+	msr_ptr->SetStdDev(ParseStdDevValue(sBuf, "ParseDNAMSRLinear"));
+
+	// Epoch
+	msr_ptr->SetEpoch(ParseEpochValue(sBuf, "ParseDNAMSRLinear"));
 
 	// Capture msr_id and cluster_id (for database referencing)
 	m_databaseIdSet = false;
-	ParseDatabaseIds(sBuf, "ParseLinear", msr_ptr->GetTypeC());
+	ParseDatabaseIds(sBuf, "ParseDNAMSRLinear", msr_ptr->GetTypeC());
 	msr_ptr->SetDatabaseMap(m_msr_db_map, m_databaseIdSet);
 
 	// instrument and target heights only make sense for 
@@ -1789,7 +1788,7 @@ void dna_import::ParseDNAMSRLinear(const string& sBuf, dnaMsrPtr& msr_ptr)
 		msr_ptr->SetTargetHeight("0.0");
 		return;
 	}
-	msr_ptr->SetInstrumentHeight(ParseInstHeightValue(sBuf, "ParseLinear"));
+	msr_ptr->SetInstrumentHeight(ParseInstHeightValue(sBuf, "ParseDNAMSRLinear"));
 
 	// Target height
 	if (sBuf.length() <= dml_.msr_targ_ht)
@@ -1797,7 +1796,7 @@ void dna_import::ParseDNAMSRLinear(const string& sBuf, dnaMsrPtr& msr_ptr)
 		msr_ptr->SetTargetHeight("0.0");
 		return;
 	}
-	msr_ptr->SetTargetHeight(ParseTargHeightValue(sBuf, "ParseLinear"));
+	msr_ptr->SetTargetHeight(ParseTargHeightValue(sBuf, "ParseDNAMSRLinear"));
 }
 	
 
@@ -1830,6 +1829,9 @@ void dna_import::ParseDNAMSRCoordinate(const string& sBuf, dnaMsrPtr& msr_ptr)
 
 	// Standard deviation
 	msr_ptr->SetStdDev(ParseStdDevValue(sBuf, "ParseDNAMSRCoordinate"));
+
+	// Epoch
+	msr_ptr->SetEpoch(ParseEpochValue(sBuf, "ParseDNAMSRLinear"));
 
 	// Capture msr_id and cluster_id (for database referencing), then set
 	// database id info
@@ -2766,6 +2768,9 @@ void dna_import::ParseDNAMSRAngular(const string& sBuf, dnaMsrPtr& msr_ptr)
 	// Standard deviation
 	msr_ptr->SetStdDev(ParseStdDevValue(sBuf, "ParseDNAMSRAngular"));
 
+	// Epoch
+	msr_ptr->SetEpoch(ParseEpochValue(sBuf, "ParseDNAMSRAngular"));
+
 	// Capture msr_id and cluster_id (for database referencing), then set
 	// database id info
 	m_databaseIdSet = false;
@@ -2842,6 +2847,9 @@ void dna_import::ParseDNAMSRDirections(string& sBuf, dnaMsrPtr& msr_ptr, bool ig
 
 		// Standard deviation
 		msr_ptr->SetStdDev(ParseStdDevValue(sBuf, "ParseDNAMSRDirections"));
+
+		// Epoch
+		msr_ptr->SetEpoch(ParseEpochValue(sBuf, "ParseDNAMSRDirections"));
 
 		// Capture msr_id and cluster_id (for database referencing)
 		m_databaseIdSet = false;
