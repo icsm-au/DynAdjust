@@ -189,7 +189,7 @@ void CDnaDistance::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& 
 	*dna_stream << setw(dmw.msr_stddev) << fixed << setprecision(3) << m_dStdDev;
 	
 	// database id width
-	UINT32 width(dml.msr_id_msr - dml.msr_inst_ht);
+	UINT32 width(dml.msr_gps_epoch - dml.msr_inst_ht);
 	
 	// Slope distance
 	switch (GetTypeC())
@@ -197,11 +197,11 @@ void CDnaDistance::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& 
 	case 'S':
 		*dna_stream << setw(dmw.msr_inst_ht) << fixed << setprecision(3) << m_fInstHeight;
 		*dna_stream << setw(dmw.msr_targ_ht) << fixed << setprecision(3) << m_fTargHeight;
-		width = dml.msr_id_msr - dml.msr_targ_ht - dmw.msr_targ_ht;
+		width = dml.msr_gps_epoch - dml.msr_targ_ht - dmw.msr_targ_ht;
 		break;
 	}
 	
-	*dna_stream << setw(dml.msr_gps_epoch - dml.msr_inst_ht) << " ";
+	*dna_stream << setw(width) << " ";
 	*dna_stream << setw(dmw.msr_gps_epoch) << m_epoch;
 
 	if (m_databaseIdSet)

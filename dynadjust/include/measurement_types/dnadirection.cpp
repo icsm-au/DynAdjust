@@ -269,7 +269,7 @@ void CDnaDirection::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields&
 		*dna_stream << setw(dmw.msr_ignore) << " ";
 
 	// database id width
-	UINT32 width(dml.msr_id_msr - dml.msr_inst_ht);
+	UINT32 width(dml.msr_gps_epoch - dml.msr_inst_ht);
 
 	if (bSubMeasurement)
 	{
