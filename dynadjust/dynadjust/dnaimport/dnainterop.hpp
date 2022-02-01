@@ -143,7 +143,7 @@ public:
 
 	void ApplyDiscontinuitiesMeasurements_GX(vector<CDnaGpsBaseline>* vGpsBaselines);
 	void ApplyDiscontinuitiesMeasurements_Y(vector<CDnaGpsPoint>* vGpsPoints);
-	void ApplyDiscontinuitiesMeasurements_D(vector<CDnaDirection>* vDirections);
+	void ApplyDiscontinuitiesMeasurements_D(vector<CDnaDirection>* vDirections, const date& site_date);
 	
 	void AddDiscontinuityStations(vdnaStnPtr* vstationsTotal);
 
