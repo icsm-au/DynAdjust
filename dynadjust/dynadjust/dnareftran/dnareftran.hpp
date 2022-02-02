@@ -54,13 +54,16 @@ using namespace boost::filesystem;
 #include <include/config/dnaversion-stream.hpp>
 #include <include/config/dnaconsts.hpp>
 #include <include/config/dnaoptions.hpp>
+#include <include/config/dnaoptions-interface.hpp>
 #include <include/exception/dnaexception.hpp>
+
 #include <include/functions/dnatemplatedatetimefuncs.hpp>
 #include <include/functions/dnaiostreamfuncs.hpp>
 #include <include/functions/dnastringfuncs.hpp>
 #include <include/functions/dnastrmanipfuncs.hpp>
 #include <include/functions/dnatemplatematrixfuncs.hpp>
 #include <include/functions/dnatransparamfuncs.hpp>
+
 #include <include/parameters/dnaepsg.hpp>
 #include <include/parameters/dnaellipsoid.hpp>
 #include <include/parameters/dnaprojection.hpp>
@@ -196,7 +199,11 @@ private:
 	
 	void CalculateRotations();
 
-	void ApplyFrameSubstitutions();
+	void ValidateFrameSubstitutions();
+	void ApplyStationFrameSubstitutions();
+	void ApplyMeasurementFrameSubstitutions();
+
+	bool IsolateandApplySubstitute(const string& epsgCode, const string& epoch, string& epsgSubstitute);
 
 	//double							m_dPercentComplete;			// percentage of bytes read from file
 	int								m_iBytesRead;				// bytes read from file

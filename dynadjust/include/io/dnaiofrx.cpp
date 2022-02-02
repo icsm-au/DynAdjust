@@ -58,10 +58,45 @@ void dna_io_frx::load_frx_file(const string& frx_filename, v_frame_substitutions
 	ss.str("");
 	ss << "load_frx_file(): An error was encountered when reading from " << frx_filename << "." << endl;
 
-	string frx_record;
+	string frx_record, version, type, param;
 	
     frame_substitutions frx;
     boost::gregorian::date today(day_clock::local_day());
+
+	// read header
+	getline(frx_file, frx_record);
+	frx_record = trimstr(frx_record);
+
+	// Attempt to get the file's version
+	try {
+		if (iequals("!#=DNA", frx_record.substr(0, 6)))
+			version = trimstr(frx_record.substr(6, 6));
+
+		// Attempt to get the file's type
+		try {
+			type = trimstr(frx_record.substr(12, 3));
+		}
+		catch (const runtime_error& e) {
+			stringstream ssError;
+			ssError << "- Error: File type has not been provided in the header" << endl <<
+				frx_record << endl << e.what() << endl;
+			throw boost::enable_current_exception(runtime_error(ssError.str()));
+		}
+
+		// Station file
+		if (!iequals(type, "frx"))
+		{
+			stringstream ssError;
+			ssError << "- Error: A FRX file type was expected in the header" << endl <<
+				frx_record << endl;
+			throw boost::enable_current_exception(runtime_error(ssError.str()));
+		}
+	}
+	catch (const runtime_error& e) {
+		throw boost::enable_current_exception(runtime_error(e.what()));
+	}
+
+	double parameters[7];
 
 	try {
 
@@ -71,6 +106,7 @@ void dna_io_frx::load_frx_file(const string& frx_filename, v_frame_substitutions
 		{
 			// get the plate identifier
 			getline(frx_file, frx_record);
+			frx_record = trimstr(frx_record);
 
 			// blank or whitespace?
 			if (trimstr(frx_record).empty())
@@ -84,14 +120,18 @@ void dna_io_frx::load_frx_file(const string& frx_filename, v_frame_substitutions
 			if (frx_record.compare(0, 3, "---") == 0)
 				continue;
 
+			frx.initialise();
+
             // frame name
             frx.frame_name = trimstr(frx_record.substr(0, 12));
+			str_toupper<int>(frx.frame_name);
 
             // frame epsg
             frx.frame_epsg = val_uint<UINT32, string>(trimstr(frx_record.substr(12, 6)));
 
             // substitute
             frx.substitute_name = trimstr(frx_record.substr(18, 12));
+			str_toupper<int>(frx.substitute_name);
 
             // substitute epsg
             frx.substitute_epsg = val_uint<UINT32, string>(trimstr(frx_record.substr(30, 6)));
@@ -112,19 +152,74 @@ void dna_io_frx::load_frx_file(const string& frx_filename, v_frame_substitutions
             if (frx_record.length() > 84)
                 frx.frame_desc = trimstr(frx_record.substr(84, 22));
             
-            if (frx_record.length() < 106)
-                continue;
+			if (frx_record.length() < 106)
+			{
+				// no parameters, just direct substitution
+				frame_subs.push_back(frx);
+				continue;
+			}
 
-            // parameters
-            frx.parameters_[0] = DoubleFromString<double>(trimstr(frx_record.substr(106, 10)));		
-            frx.parameters_[1] = DoubleFromString<double>(trimstr(frx_record.substr(116, 10)));		
-            frx.parameters_[2] = DoubleFromString<double>(trimstr(frx_record.substr(126, 10)));		
-            frx.parameters_[3] = DoubleFromString<double>(trimstr(frx_record.substr(136, 10)));		
-            frx.parameters_[4] = DoubleFromString<double>(trimstr(frx_record.substr(146, 10)));		
-            frx.parameters_[5] = DoubleFromString<double>(trimstr(frx_record.substr(156, 10)));		
-            frx.parameters_[6] = DoubleFromString<double>(trimstr(frx_record.substr(166, 10)));		
-            
-			frame_subs.push_back(frx);
+			// initialise and extract parameters, if any
+			memset(parameters, '\0', sizeof(parameters));
+			
+			// X
+			if (frx_record.length() > 106)
+			{
+				param = trimstr(frx_record.substr(106, 10));
+				if (!param.empty())
+					parameters[0] = DoubleFromString<double>(param);
+			}
+
+			// Y
+			if (frx_record.length() > 116)
+			{
+				param = trimstr(frx_record.substr(116, 10));
+				if (!param.empty())
+					parameters[1] = DoubleFromString<double>(param);
+			}
+
+			// Z
+			if (frx_record.length() > 126)
+			{
+				param = trimstr(frx_record.substr(126, 10));
+				if (!param.empty())
+					parameters[2] = DoubleFromString<double>(param);
+			}
+
+			// PPM
+			if (frx_record.length() > 136)
+			{
+				param = trimstr(frx_record.substr(136, 10));
+				if (!param.empty())
+					parameters[3] = DoubleFromString<double>(param);
+			}
+
+			// R1
+			if (frx_record.length() > 146)
+			{
+				param = trimstr(frx_record.substr(146, 10));
+				if (!param.empty())
+					parameters[4] = DoubleFromString<double>(param);
+			}
+
+			// R2
+			if (frx_record.length() > 156)
+			{
+				param = trimstr(frx_record.substr(156, 10));
+				if (!param.empty())
+					parameters[5] = DoubleFromString<double>(param);
+			}
+
+			// R3
+			if (frx_record.length() > 166)
+			{
+				param = trimstr(frx_record.substr(166, 10));
+				if (!param.empty())
+					parameters[6] = DoubleFromString<double>(param);
+			}
+
+			memcpy(frx.parameters_, parameters, sizeof(frx.parameters_));
+            frame_subs.push_back(frx);
 		}
 
 		frx_file.close();

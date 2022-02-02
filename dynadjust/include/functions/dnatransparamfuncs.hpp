@@ -160,6 +160,20 @@ void determineGDA94Parameters(transformation_parameter_set& tParam)
 	// GDA94-to-WGS84
 	case WGS84_i_xyz:
 	case WGS84_i:
+	case WGS84_transit_i_xyz:
+	case WGS84_transit_i:
+	case WGS84_G730_i_xyz:
+	case WGS84_G730_i:
+	case WGS84_G873_i_xyz:
+	case WGS84_G873_i:
+	case WGS84_G1150_i_xyz:
+	case WGS84_G1150_i:
+	case WGS84_G1674_i_xyz:
+	case WGS84_G1674_i:
+	case WGS84_G1762_i_xyz:
+	case WGS84_G1762_i:
+	case WGS84_G2139_i_xyz:
+	case WGS84_G2139_i:
 	default:
 		throw boost::enable_current_exception(runtime_error("determineGDA94Parameters(): "));
 	}
@@ -269,6 +283,20 @@ void determineGDA2020Parameters(transformation_parameter_set& tParam)
 	// GDA2020-to-WGS84
 	case WGS84_i_xyz:
 	case WGS84_i:
+	case WGS84_transit_i_xyz:
+	case WGS84_transit_i:
+	case WGS84_G730_i_xyz:
+	case WGS84_G730_i:
+	case WGS84_G873_i_xyz:
+	case WGS84_G873_i:
+	case WGS84_G1150_i_xyz:
+	case WGS84_G1150_i:
+	case WGS84_G1674_i_xyz:
+	case WGS84_G1674_i:
+	case WGS84_G1762_i_xyz:
+	case WGS84_G1762_i:
+	case WGS84_G2139_i_xyz:
+	case WGS84_G2139_i:
 	default:
 		throw boost::enable_current_exception(runtime_error("determineGDA2020Parameters(): "));
 	}
@@ -355,6 +383,20 @@ void determineITRF1988Parameters(transformation_parameter_set& tParam)
 	// ITRF1988-to-WGS84
 	case WGS84_i_xyz:
 	case WGS84_i:
+	case WGS84_transit_i_xyz:
+	case WGS84_transit_i:
+	case WGS84_G730_i_xyz:
+	case WGS84_G730_i:
+	case WGS84_G873_i_xyz:
+	case WGS84_G873_i:
+	case WGS84_G1150_i_xyz:
+	case WGS84_G1150_i:
+	case WGS84_G1674_i_xyz:
+	case WGS84_G1674_i:
+	case WGS84_G1762_i_xyz:
+	case WGS84_G1762_i:
+	case WGS84_G2139_i_xyz:
+	case WGS84_G2139_i:
 	default:
 		throw boost::enable_current_exception(runtime_error("determineITRF1988Parameters(): "));
 	}
@@ -440,6 +482,20 @@ void determineITRF1989Parameters(transformation_parameter_set& tParam)
 	// ITRF1989-to-WGS84
 	case WGS84_i_xyz:
 	case WGS84_i:
+	case WGS84_transit_i_xyz:
+	case WGS84_transit_i:
+	case WGS84_G730_i_xyz:
+	case WGS84_G730_i:
+	case WGS84_G873_i_xyz:
+	case WGS84_G873_i:
+	case WGS84_G1150_i_xyz:
+	case WGS84_G1150_i:
+	case WGS84_G1674_i_xyz:
+	case WGS84_G1674_i:
+	case WGS84_G1762_i_xyz:
+	case WGS84_G1762_i:
+	case WGS84_G2139_i_xyz:
+	case WGS84_G2139_i:
 	default:		
 		throw boost::enable_current_exception(runtime_error("determineITRF1989Parameters(): "));
 	}
@@ -525,6 +581,20 @@ void determineITRF1990Parameters(transformation_parameter_set& tParam)
 	// ITRF1990-to-IWGS84
 	case WGS84_i_xyz:
 	case WGS84_i:
+	case WGS84_transit_i_xyz:
+	case WGS84_transit_i:
+	case WGS84_G730_i_xyz:
+	case WGS84_G730_i:
+	case WGS84_G873_i_xyz:
+	case WGS84_G873_i:
+	case WGS84_G1150_i_xyz:
+	case WGS84_G1150_i:
+	case WGS84_G1674_i_xyz:
+	case WGS84_G1674_i:
+	case WGS84_G1762_i_xyz:
+	case WGS84_G1762_i:
+	case WGS84_G2139_i_xyz:
+	case WGS84_G2139_i:
 	default:
 		throw boost::enable_current_exception(runtime_error("determineITRF1990Parameters(): "));
 	}
@@ -610,6 +680,20 @@ void determineITRF1991Parameters(transformation_parameter_set& tParam)
 	// ITRF1991-to-WGS84
 	case WGS84_i_xyz:
 	case WGS84_i:
+	case WGS84_transit_i_xyz:
+	case WGS84_transit_i:
+	case WGS84_G730_i_xyz:
+	case WGS84_G730_i:
+	case WGS84_G873_i_xyz:
+	case WGS84_G873_i:
+	case WGS84_G1150_i_xyz:
+	case WGS84_G1150_i:
+	case WGS84_G1674_i_xyz:
+	case WGS84_G1674_i:
+	case WGS84_G1762_i_xyz:
+	case WGS84_G1762_i:
+	case WGS84_G2139_i_xyz:
+	case WGS84_G2139_i:
 	default:		
 		throw boost::enable_current_exception(runtime_error("determineITRF1991Parameters(): "));
 	}
@@ -695,6 +779,20 @@ void determineITRF1992Parameters(transformation_parameter_set& tParam)
 	// ITRF1992-to-WGS84
 	case WGS84_i_xyz:
 	case WGS84_i:
+	case WGS84_transit_i_xyz:
+	case WGS84_transit_i:
+	case WGS84_G730_i_xyz:
+	case WGS84_G730_i:
+	case WGS84_G873_i_xyz:
+	case WGS84_G873_i:
+	case WGS84_G1150_i_xyz:
+	case WGS84_G1150_i:
+	case WGS84_G1674_i_xyz:
+	case WGS84_G1674_i:
+	case WGS84_G1762_i_xyz:
+	case WGS84_G1762_i:
+	case WGS84_G2139_i_xyz:
+	case WGS84_G2139_i:
 	default:
 		throw boost::enable_current_exception(runtime_error("determineITRF1992Parameters(): "));
 	}
@@ -780,6 +878,20 @@ void determineITRF1993Parameters(transformation_parameter_set& tParam)
 	// ITRF1993-to-WGS84
 	case WGS84_i_xyz:
 	case WGS84_i:
+	case WGS84_transit_i_xyz:
+	case WGS84_transit_i:
+	case WGS84_G730_i_xyz:
+	case WGS84_G730_i:
+	case WGS84_G873_i_xyz:
+	case WGS84_G873_i:
+	case WGS84_G1150_i_xyz:
+	case WGS84_G1150_i:
+	case WGS84_G1674_i_xyz:
+	case WGS84_G1674_i:
+	case WGS84_G1762_i_xyz:
+	case WGS84_G1762_i:
+	case WGS84_G2139_i_xyz:
+	case WGS84_G2139_i:
 	default:
 		throw boost::enable_current_exception(runtime_error("determineITRF1993Parameters(): "));
 	}
@@ -865,6 +977,20 @@ void determineITRF1994Parameters(transformation_parameter_set& tParam)
 	// ITRF1994-to-WGS84
 	case WGS84_i_xyz:
 	case WGS84_i:
+	case WGS84_transit_i_xyz:
+	case WGS84_transit_i:
+	case WGS84_G730_i_xyz:
+	case WGS84_G730_i:
+	case WGS84_G873_i_xyz:
+	case WGS84_G873_i:
+	case WGS84_G1150_i_xyz:
+	case WGS84_G1150_i:
+	case WGS84_G1674_i_xyz:
+	case WGS84_G1674_i:
+	case WGS84_G1762_i_xyz:
+	case WGS84_G1762_i:
+	case WGS84_G2139_i_xyz:
+	case WGS84_G2139_i:
 	default:
 		throw boost::enable_current_exception(runtime_error("determineITRF1994Parameters(): "));
 	}
@@ -958,6 +1084,20 @@ void determineITRF1996Parameters(transformation_parameter_set& tParam)
 	// ITRF1996-to-WGS84
 	case WGS84_i_xyz:
 	case WGS84_i:
+	case WGS84_transit_i_xyz:
+	case WGS84_transit_i:
+	case WGS84_G730_i_xyz:
+	case WGS84_G730_i:
+	case WGS84_G873_i_xyz:
+	case WGS84_G873_i:
+	case WGS84_G1150_i_xyz:
+	case WGS84_G1150_i:
+	case WGS84_G1674_i_xyz:
+	case WGS84_G1674_i:
+	case WGS84_G1762_i_xyz:
+	case WGS84_G1762_i:
+	case WGS84_G2139_i_xyz:
+	case WGS84_G2139_i:
 	default:
 		throw boost::enable_current_exception(runtime_error("determineITRF1996Parameters(): "));
 	}
@@ -1051,6 +1191,20 @@ void determineITRF1997Parameters(transformation_parameter_set& tParam)
 	// ITRF1997-to-WGS84
 	case WGS84_i_xyz:
 	case WGS84_i:
+	case WGS84_transit_i_xyz:
+	case WGS84_transit_i:
+	case WGS84_G730_i_xyz:
+	case WGS84_G730_i:
+	case WGS84_G873_i_xyz:
+	case WGS84_G873_i:
+	case WGS84_G1150_i_xyz:
+	case WGS84_G1150_i:
+	case WGS84_G1674_i_xyz:
+	case WGS84_G1674_i:
+	case WGS84_G1762_i_xyz:
+	case WGS84_G1762_i:
+	case WGS84_G2139_i_xyz:
+	case WGS84_G2139_i:
 	default:		
 		throw boost::enable_current_exception(runtime_error("determineITRF1997Parameters(): "));
 	}
@@ -1177,6 +1331,20 @@ void determineITRF2000Parameters(transformation_parameter_set& tParam)
 	// ITRF2000-to-WGS84
 	case WGS84_i_xyz:
 	case WGS84_i:
+	case WGS84_transit_i_xyz:
+	case WGS84_transit_i:
+	case WGS84_G730_i_xyz:
+	case WGS84_G730_i:
+	case WGS84_G873_i_xyz:
+	case WGS84_G873_i:
+	case WGS84_G1150_i_xyz:
+	case WGS84_G1150_i:
+	case WGS84_G1674_i_xyz:
+	case WGS84_G1674_i:
+	case WGS84_G1762_i_xyz:
+	case WGS84_G1762_i:
+	case WGS84_G2139_i_xyz:
+	case WGS84_G2139_i:
 	default:
 		throw boost::enable_current_exception(runtime_error("determineITRF2000Parameters(): "));
 	}
@@ -1265,9 +1433,23 @@ void determineITRF2005Parameters(transformation_parameter_set& tParam)
 		tParam.paramDirection_ = __paramReverse__;
 		tParam.reverse();
 		break;
-	// WGS84
+	// ITRF2005-to-WGS84
 	case WGS84_i_xyz:
 	case WGS84_i:
+	case WGS84_transit_i_xyz:
+	case WGS84_transit_i:
+	case WGS84_G730_i_xyz:
+	case WGS84_G730_i:
+	case WGS84_G873_i_xyz:
+	case WGS84_G873_i:
+	case WGS84_G1150_i_xyz:
+	case WGS84_G1150_i:
+	case WGS84_G1674_i_xyz:
+	case WGS84_G1674_i:
+	case WGS84_G1762_i_xyz:
+	case WGS84_G1762_i:
+	case WGS84_G2139_i_xyz:
+	case WGS84_G2139_i:
 	default:
 		throw boost::enable_current_exception(runtime_error("determineITRF2005Parameters(): "));
 	}
@@ -1390,6 +1572,20 @@ void determineITRF2008Parameters(transformation_parameter_set& tParam)
 	// ITRF2008-to-WGS84
 	case WGS84_i_xyz:
 	case WGS84_i:
+	case WGS84_transit_i_xyz:
+	case WGS84_transit_i:
+	case WGS84_G730_i_xyz:
+	case WGS84_G730_i:
+	case WGS84_G873_i_xyz:
+	case WGS84_G873_i:
+	case WGS84_G1150_i_xyz:
+	case WGS84_G1150_i:
+	case WGS84_G1674_i_xyz:
+	case WGS84_G1674_i:
+	case WGS84_G1762_i_xyz:
+	case WGS84_G1762_i:
+	case WGS84_G2139_i_xyz:
+	case WGS84_G2139_i:
 	default:
 		throw boost::enable_current_exception(runtime_error("determineITRF2008Parameters(): "));
 	}
@@ -1511,6 +1707,20 @@ void determineITRF2014Parameters(transformation_parameter_set& tParam)
 	// ITRF2014-to-WGS84
 	case WGS84_i_xyz:
 	case WGS84_i:
+	case WGS84_transit_i_xyz:
+	case WGS84_transit_i:
+	case WGS84_G730_i_xyz:
+	case WGS84_G730_i:
+	case WGS84_G873_i_xyz:
+	case WGS84_G873_i:
+	case WGS84_G1150_i_xyz:
+	case WGS84_G1150_i:
+	case WGS84_G1674_i_xyz:
+	case WGS84_G1674_i:
+	case WGS84_G1762_i_xyz:
+	case WGS84_G1762_i:
+	case WGS84_G2139_i_xyz:
+	case WGS84_G2139_i:
 	default:
 		throw boost::enable_current_exception(runtime_error("determineITRF2014Parameters(): "));
 	}
@@ -1637,21 +1847,35 @@ void determineHelmertParameters(transformation_parameter_set& tParam)
 		// WGS84
 		case WGS84_i_xyz:
 		case WGS84_i:
+		case WGS84_transit_i_xyz:
+		case WGS84_transit_i:
+		case WGS84_G730_i_xyz:
+		case WGS84_G730_i:
+		case WGS84_G873_i_xyz:
+		case WGS84_G873_i:
+		case WGS84_G1150_i_xyz:
+		case WGS84_G1150_i:
+		case WGS84_G1674_i_xyz:
+		case WGS84_G1674_i:
+		case WGS84_G1762_i_xyz:
+		case WGS84_G1762_i:
+		case WGS84_G2139_i_xyz:
+		case WGS84_G2139_i:
+			throw RefTranException("Transformation parameters from and to WGS84 are unavailable.",
+				REFTRAN_WGS84_TRANS_UNSUPPORTED);
+			break;
 		default:
-			stringstream ss;
-			ss << "determineHelmertParameters(): Parameters for " <<
-				datumFromEpsgCode<string, UINT32>(tParam.from_to_.first) << endl;
-			ss << "  have not been defined yet." << endl;
-			throw boost::enable_current_exception(runtime_error(ss.str()));
+			throw boost::enable_current_exception(runtime_error(""));
 		}
 	}
 	catch (runtime_error& e)
 	{
 		stringstream ss;
-		ss << e.what() <<
-			datumFromEpsgCode<string, UINT32>(tParam.from_to_.first) << " <-> " << 
-			datumFromEpsgCode<string, UINT32>(tParam.from_to_.second) << " parameters" << endl;
-		ss << "  have not been defined yet." << endl;
+		ss << 
+			"determineHelmertParameters(): Parameters for" <<
+			"  transforming between " << datumFromEpsgCode<string, UINT32>(tParam.from_to_.first) << " and " << 
+			datumFromEpsgCode<string, UINT32>(tParam.from_to_.second) << endl <<
+			"  have not been defined yet." << endl << e.what();
 		throw boost::enable_current_exception(runtime_error(ss.str()));
 	}
 }

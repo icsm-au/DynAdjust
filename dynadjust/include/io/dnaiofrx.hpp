@@ -41,6 +41,26 @@ namespace iostreams {
 template <class T1 = string, class T2 = UINT32, class T3 = double>
 struct frame_substitutions_t
 {
+	//frame_substitutions_t()
+	//	: frame_name(""), frame_epsg(0), frame_desc("")
+	//	, substitute_name(""), substitute_epsg(0)
+	//	, alignment_epoch(date_time::min_date_time), from_epoch(date_time::min_date_time), to_epoch(date_time::min_date_time)
+	//{
+	//	memset(parameters_, '\0', sizeof(parameters_));
+	//}
+
+	void initialise() {
+		frame_name = "";
+		frame_epsg = 0;
+		frame_desc = "";
+		substitute_name = "";
+		substitute_epsg = 0;
+		//alignment_epoch = date_time::min_date_time;
+		//from_epoch = date_time::min_date_time;
+		//to_epoch = date_time::min_date_time;
+		memset(parameters_, '\0', sizeof(parameters_));
+	}
+
     T1 frame_name;              // frame name
     T2 frame_epsg;              // frame epsg code
     T1 frame_desc;              // frame description
@@ -52,9 +72,51 @@ struct frame_substitutions_t
     T3 parameters_[7];		    // transformation parameters (if any)
 };
 
-typedef frame_substitutions_t<string, double> frame_substitutions;
+typedef frame_substitutions_t<string, UINT32, double> frame_substitutions;
 typedef vector<frame_substitutions> v_frame_substitutions;
 typedef v_frame_substitutions::iterator it_frame_substitutions;
+
+// Used to sort site tuples by WGS84 starting epoch
+template <typename T>
+class CompareSubstitutionByEpoch {
+public:
+	bool operator()(const T& left, const T& right) {
+		// if the starting epochs are equal
+		if (left.from_epoch == right.from_epoch)
+			// sort on ending epochs
+			return left.to_epoch < right.to_epoch;
+		// sort on starting epoch
+		return left.from_epoch < right.from_epoch;
+	}
+};
+
+template<typename T, typename S>
+struct CompareSubstituteOnEPSG
+{
+	//public:
+	bool operator()(const T& lhs, const S& rhs) const {
+		return pair_firstless(lhs.frame_name, rhs);
+	}
+	bool operator()(const S& lhs, const T& rhs) const {
+		return pair_firstless(lhs, rhs.frame_name);
+	}
+	//private:
+	bool pair_firstless(const S& s1, const S& s2) const {
+		return s1 < s2;
+	}
+};
+
+
+// tweak the binary search so it returns the iterator of the object found
+template<typename T, typename S>
+T binary_search_substitution(T begin, T end, S value)
+{
+	T i = lower_bound(begin, end, value, CompareSubstituteOnEPSG<frame_substitutions, string>());
+	if (i != end && i->frame_name == value)
+		return i;
+	else
+		return end;
+}
 /////////////////////////////////////////////////////////////
 
 class dna_io_frx : public dna_io_base

@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>-n ps2 vic2ex.simult.adj.stn pseudo-driver-file-2.msr --simulate --geo geoidef.geo --export-dna</LocalDebuggerCommandArguments>
-    <LocalDebuggerWorkingDirectory>$(DIST)_git_issues\print-ignored-msrs</LocalDebuggerWorkingDirectory>
+    <LocalDebuggerCommandArguments>-n 09139 09139.stn 09139.msr -r wgs84</LocalDebuggerCommandArguments>
+    <LocalDebuggerWorkingDirectory>$(DIST)_git_issues\wgs84</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

@@ -164,5 +164,8 @@
     <ClCompile Include="..\..\include\io\dnaiotpb.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\include\io\dnaiofrx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
