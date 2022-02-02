@@ -144,7 +144,9 @@ void dna_io_frx::load_frx_file(const string& frx_filename, v_frame_substitutions
 
             // to date
             if (trimstr(frx_record.substr(68, 16)).empty())
-			    frx.to_epoch = day_clock::local_day() + years(100);
+			    // No date supplied?
+				// Set a date 100 years into the future
+				frx.to_epoch = day_clock::local_day() + years(100);
 			else
                 frx.to_epoch = dateFromString<date>(trimstr(frx_record.substr(68, 16)));
             
