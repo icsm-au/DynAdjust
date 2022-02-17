@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>-n 09139 09139.stn 09139.msr -r wgs84</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-n 09139test 09139.stn 09139.msr --export-dna -r "WGS84 (G730)"</LocalDebuggerCommandArguments>
     <LocalDebuggerWorkingDirectory>$(DIST)_git_issues\wgs84</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>

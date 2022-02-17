@@ -201,7 +201,6 @@
     <ClInclude Include="..\..\include\io\dnaiobms.hpp" />
     <ClInclude Include="..\..\include\io\dnaiobst.hpp" />
     <ClInclude Include="..\..\include\io\dnaiodna.hpp" />
-    <ClInclude Include="..\..\include\io\dnaiofrx.hpp" />
     <ClInclude Include="..\..\include\io\dnaiotpb.hpp" />
     <ClInclude Include="..\..\include\math\dnamatrix_contiguous.hpp" />
     <ClInclude Include="..\..\include\measurement_types\dnaangle.hpp" />
@@ -217,6 +216,7 @@
     <ClInclude Include="..\..\include\measurement_types\dnastation.hpp" />
     <ClInclude Include="..\..\include\parameters\dnadatum.hpp" />
     <ClInclude Include="..\..\include\parameters\dnaellipsoid.hpp" />
+    <ClInclude Include="..\..\include\parameters\dnaframesubstitutions.hpp" />
     <ClInclude Include="..\..\include\parameters\dnaprojection.hpp" />
     <ClInclude Include="dnareftran.hpp" />
     <ClInclude Include="precompile.h" />
@@ -228,7 +228,6 @@
     <ClCompile Include="..\..\include\io\dnaiobms.cpp" />
     <ClCompile Include="..\..\include\io\dnaiobst.cpp" />
     <ClCompile Include="..\..\include\io\dnaiodna.cpp" />
-    <ClCompile Include="..\..\include\io\dnaiofrx.cpp" />
     <ClCompile Include="..\..\include\io\dnaiotpb.cpp" />
     <ClCompile Include="..\..\include\math\dnamatrix_contiguous.cpp" />
     <ClCompile Include="..\..\include\measurement_types\dnaangle.cpp" />

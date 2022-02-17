@@ -1196,7 +1196,7 @@ void dna_import::ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32
 		import_file_mutex.unlock();
 	}
 	catch (const runtime_error& e) {
-		SignalExceptionParse(static_cast<string>(e.what()), 0);
+		throw XMLInteropException(e.what(), 0);
 	}
 		
 	// Station file
@@ -1221,14 +1221,14 @@ void dna_import::ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32
 			}
 			stringstream ss;
 			ss << "ParseDNA(): An ios_base failure was encountered when attempting to read stations file  " << fileName << "." << endl << "  " << f.what();
-			SignalExceptionParse(ss.str(), 0);
+			throw XMLInteropException(ss.str(), 0);
 		}
 		catch (const XMLInteropException& f) {
 			stringstream ss;
 			ss << "  - line " << m_lineNo;
 			ss << ", column " <<  m_columnNo << endl;
 			ss << "  - " << f.what();
-			SignalExceptionParse(ss.str(), 0);
+			throw XMLInteropException(ss.str(), 0);
 		}
 		catch (...) {
 			if (ifsInputFILE_->eof())
@@ -1239,7 +1239,7 @@ void dna_import::ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32
 			}
 			stringstream ss;
 			ss << "ParseDNA(): An error was encountered when attempting to read stations file  " << fileName << ".";
-			SignalExceptionParse(ss.str(), 0);
+			throw XMLInteropException(ss.str(), 0);
 		}
 	}
 	else if (idt == msr_data ||
@@ -1263,14 +1263,14 @@ void dna_import::ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32
 			}
 			stringstream ss;
 			ss << "ParseDNA(): An ios_base failure was encountered when attempting to read measurements file  " << fileName << "." << endl << "  " << f.what();
-			SignalExceptionParse(ss.str(), 0);
+			throw XMLInteropException(ss.str(), 0);
 		}
 		catch (const XMLInteropException& f) {
 			stringstream ss;
 			ss << endl << "  - line " << m_lineNo;
 			ss << ", column " <<  m_columnNo << endl;
 			ss << "  - " << f.what();
-			SignalExceptionParse(ss.str(), 0);
+			throw XMLInteropException(ss.str(), 0);
 		}
 		catch (...) {
 			if (ifsInputFILE_->eof())
@@ -1283,7 +1283,7 @@ void dna_import::ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32
 			ss << "ParseDNA(): An error was encountered when attempting to read measurements file  " << fileName << "." << endl;
 			ss << "  - line " << m_lineNo;
 			ss << ", column " <<  m_columnNo << endl;
-			SignalExceptionParse(ss.str(), 0);
+			throw XMLInteropException(ss.str(), 0);
 		}
 	}
 }

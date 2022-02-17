@@ -36,7 +36,19 @@ dna_reftran::dna_reftran()
 #endif
 #endif
 	rft_file = 0;
+
+	LoadWGS84FrameSubstitutions();
 }
+
+dna_reftran::dna_reftran(const project_settings& p, std::ofstream* f_out) 
+{
+	InitialiseSettings(p);
+	// reftran log file pointer
+	rft_file = f_out;
+
+	LoadWGS84FrameSubstitutions();
+}
+
 
 dna_reftran::~dna_reftran()
 {
@@ -54,8 +66,8 @@ void dna_reftran::TransformBinaryFiles(const string& bstFile, const string& bmsF
 	// load the binary station file into memory
 	LoadBinaryStationFile(bstFile);
 
-	if (projectSettings_.r.apply_frame_substitutions)
-		ApplyStationFrameSubstitutions();
+	// Identify and apply any substitutions for WGS84 in the list of stations
+	ApplyStationFrameSubstitutions();
 
 	if (projectSettings_.r.plate_model_option == 1)
 		IdentifyStationPlate();
@@ -63,8 +75,8 @@ void dna_reftran::TransformBinaryFiles(const string& bstFile, const string& bmsF
 	// load the binary measurement file into memory
 	LoadBinaryMeasurementFile(bmsFile);
 
-	if (projectSettings_.r.apply_frame_substitutions)
-		ApplyMeasurementFrameSubstitutions();
+	// Identify and apply any substitutions for WGS84 in the list of measurements
+	ApplyMeasurementFrameSubstitutions();
 
 	datumTo_.SetDatumFromName(newFrame, newEpoch);
 
@@ -257,157 +269,60 @@ void dna_reftran::CalculateRotations()
 
 }
 
-void dna_reftran::LoadFrameSubstitutions(const string& frxfileName)
+// Load substitutions for WGS84 and WGS84 (...)
+void dna_reftran::LoadWGS84FrameSubstitutions()
 {
-	dna_io_frx frx;
-	stringstream ss;
-	ss << "LoadFrameSubstitutions(): An error was encountered when loading" << endl <<
-		"  frame substitution information." << endl;
-	
-	try {
-	
-		// Load frame substitution information.  Throws runtime_error on failure.
-		frx.load_frx_file(frxfileName, frame_substitutions_);
-		sort(frame_substitutions_.begin(), frame_substitutions_.end(), 
-			CompareSubstitutionByEpoch<frame_substitutions>());
-	}
-	catch (const runtime_error& e) {
-		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
-	}
+	frameSubsPtr frameSubstitution;
 
-	try {
-		ValidateFrameSubstitutions();
-	}
-	catch (runtime_error& rft) {
-		ss << rft.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
-	}
+	_frameSubstitutions.clear();
+	
+	// WGS84 (transit) and WGS84 to ITRF90
+	frameSubstitution.reset(new WGS84_TRANSIT_ITRF90<string, UINT32, double>);
+	_frameSubstitutions.push_back(frameSubstitution);
+	frameSubstitution.reset(new WGS84_ITRF90<string, UINT32, double>);
+	_frameSubstitutions.push_back(frameSubstitution);
+
+	// WGS84 (G730) and WGS84 to ITRF91
+	frameSubstitution.reset(new WGS84_G730_ITRF91<string, UINT32, double>);
+	_frameSubstitutions.push_back(frameSubstitution);
+	frameSubstitution.reset(new WGS84_ITRF91<string, UINT32, double>);
+	_frameSubstitutions.push_back(frameSubstitution);
+
+	// WGS84 (G873) and WGS84 to ITRF94
+	frameSubstitution.reset(new WGS84_G873_ITRF94<string, UINT32, double>);
+	_frameSubstitutions.push_back(frameSubstitution);
+	frameSubstitution.reset(new WGS84_ITRF94<string, UINT32, double>);
+	_frameSubstitutions.push_back(frameSubstitution);
+
+	// WGS84 (G1150) and WGS84 to ITRF2000
+	frameSubstitution.reset(new WGS84_G1150_ITRF2000<string, UINT32, double>);
+	_frameSubstitutions.push_back(frameSubstitution);
+	frameSubstitution.reset(new WGS84_ITRF2000<string, UINT32, double>);
+	_frameSubstitutions.push_back(frameSubstitution);
+
+	// WGS84 (G1674) and WGS84 to ITRF2008
+	frameSubstitution.reset(new WGS84_G1674_ITRF2008<string, UINT32, double>);
+	_frameSubstitutions.push_back(frameSubstitution);
+	frameSubstitution.reset(new WGS84_ITRF2008_1<string, UINT32, double>);
+	_frameSubstitutions.push_back(frameSubstitution);
+
+	// WGS84 (G1762) and WGS84 to ITRF2008
+	frameSubstitution.reset(new WGS84_G1762_ITRF2008<string, UINT32, double>);
+	_frameSubstitutions.push_back(frameSubstitution);
+	frameSubstitution.reset(new WGS84_ITRF2008_2<string, UINT32, double>);
+	_frameSubstitutions.push_back(frameSubstitution);
+
+	// WGS84 (G2139) and WGS84 to ITRF2014
+	frameSubstitution.reset(new WGS84_G2139_ITRF2014<string, UINT32, double>);
+	_frameSubstitutions.push_back(frameSubstitution);
+	frameSubstitution.reset(new WGS84_ITRF2014<string, UINT32, double>);
+	_frameSubstitutions.push_back(frameSubstitution);
+
+	sort(_frameSubstitutions.begin(), _frameSubstitutions.end(), 
+		CompareSubstituteOnFrameName< frame_substitutions_t<string, UINT32, double>, string>());
+
 }
 
-void dna_reftran::ValidateFrameSubstitutions()
-{
-	// check the validity of the from/to dates and that there are no overlapping 
-	// periods for which two substitutions may apply
-	// this function assumes the frame_substitutions_ vector has been sorted on 
-	// date (see LoadFrameSubstitutions)
-
-	it_frame_substitutions this_sub, next_sub;
-	stringstream ss, the_header, the_record, next_record;
-
-	the_header << "  " <<
-		setw(BLOCK) << left << "Frame name" <<
-		setw(ZONE) << left << "epsg" <<
-		setw(BLOCK) << left << "Substitution" <<
-		setw(ZONE) << left << "epsg" <<
-		setw(BLOCK) << right << "From epoch" <<
-		setw(BLOCK) << right << "To epoch" << endl;
-	the_header << "  " <<
-		string(BLOCK + ZONE + BLOCK + ZONE + BLOCK + BLOCK, '-') << endl;
-	
-	for (this_sub = frame_substitutions_.begin();
-		this_sub != frame_substitutions_.end(); ++this_sub)
-	{
-		next_sub = this_sub + 1;
-		
-		the_record.str("");		
-		the_record << "  " <<
-			setw(BLOCK) << left << this_sub->frame_name <<
-			setw(ZONE) << left << this_sub->frame_epsg <<
-			setw(BLOCK) << left << this_sub->substitute_name <<
-			setw(ZONE) << left << this_sub->substitute_epsg <<
-			setw(BLOCK) << right << stringFromDate(this_sub->from_epoch) <<
-			setw(BLOCK) << right << stringFromDate(this_sub->to_epoch) << endl;
-		
-		// invalid from/to dates?
-		if (this_sub->from_epoch >= this_sub->to_epoch)
-		{
-			ss.str("");
-			ss <<
-				"  The 'from' epoch cannot be later than the 'to' epoch in the" << endl <<
-				"  frame substitution record: " << endl <<
-				the_header.str() <<
-				the_record.str();
-			throw boost::enable_current_exception(runtime_error(ss.str()));
-		}
-
-		if (next_sub == frame_substitutions_.end())
-			break;
-
-		next_record.str("");
-		next_record << "  " <<
-			setw(BLOCK) << left << next_sub->frame_name <<
-			setw(ZONE) << left << next_sub->frame_epsg <<
-			setw(BLOCK) << left << next_sub->substitute_name <<
-			setw(ZONE) << left << next_sub->substitute_epsg <<
-			setw(BLOCK) << right << stringFromDate(next_sub->from_epoch) <<
-			setw(BLOCK) << right << stringFromDate(next_sub->to_epoch) << endl;
-
-		// invalid from/to dates?
-		if (next_sub->from_epoch >= next_sub->to_epoch)
-		{
-			ss.str("");
-			ss <<
-				"  The 'from' epoch cannot be later than the 'to' epoch in the" << endl <<
-				"  frame substitution record: " << endl <<
-				the_header.str() <<
-				next_record.str();
-			throw boost::enable_current_exception(runtime_error(ss.str()));
-		}
-
-		// do we have valid, non-overlapping substitute periods?
-		if (this_sub->to_epoch < next_sub->from_epoch)
-			continue;
-
-
-		// if this point is reached, there is something wrong
-		ss.str("");
-		ss <<
-			"  The first substitution period cannot overlap the next" << endl <<
-			"  substitution period: " << endl <<
-			the_header.str() <<
-			the_record.str() <<
-			next_record.str();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
-	}
-
-	// Okay, the substitutions appear valid.  Print to log file
-	UINT32 j(0);
-	if (projectSettings_.g.verbose > 1)
-	{
-		j = (BLOCK * 5) + (ZONE * 2) + HEADER_25;
-		*rft_file << endl << endl << "Reference frame substitutions" << endl <<
-			string(j, '-') << endl << endl;
-		*rft_file <<
-			setw(BLOCK) << left << "Frame name" <<
-			setw(ZONE) << left << "epsg" <<
-			setw(BLOCK) << left << "Substitute" <<
-			setw(ZONE) << left << "epsg" <<
-			setw(BLOCK) << right << "Ref epoch" <<
-			setw(BLOCK) << right << "From epoch" <<
-			setw(BLOCK) << right << "To epoch" <<
-			setw(HEADER_25) << left << " Comment" << endl;
-		*rft_file << string(j, '-');
-		*rft_file << endl;
-
-		for (it_frame_substitutions s = frame_substitutions_.begin();
-			s != frame_substitutions_.end(); ++s)
-		{
-			*rft_file <<
-				setw(BLOCK) << left << s->frame_name <<
-				setw(ZONE) << left << s->frame_epsg <<
-				setw(BLOCK) << left << s->substitute_name <<
-				setw(ZONE) << left << s->substitute_epsg <<
-				setw(BLOCK) << right << stringFromDate(s->alignment_epoch) <<
-				setw(BLOCK) << right << stringFromDate(s->from_epoch) <<
-				setw(BLOCK) << right << stringFromDate(s->to_epoch) <<
-				" " << setw(HEADER_25) << left << s->frame_desc << endl;
-		}
-
-		*rft_file << string(j, '-');
-		*rft_file << endl << endl;
-	}
-}
 	
 void dna_reftran::ApplyStationFrameSubstitutions()
 {
@@ -439,35 +354,41 @@ void dna_reftran::ApplyMeasurementFrameSubstitutions()
 
 bool dna_reftran::IsolateandApplySubstitute(const string& epsgCode, const string& stnEpoch, string& epsgSubstitute)
 {
-	it_frame_substitutions _it_subst = frame_substitutions_.begin();
+	_it_vframesubptr _it_subst = _frameSubstitutions.begin();
 
 	string frame;
 	frame = datumFromEpsgCode<string, UINT32>(LongFromString<UINT32>(epsgCode));
 
-	// first, find the first occurrence of the substitute in frame_substitutions_ 
+	// first, find the first occurrence of the substitute in _frameSubstitutions 
 	if ((_it_subst = binary_search_substitution(
 		_it_subst,
-		frame_substitutions_.end(),
-		frame)) == frame_substitutions_.end())
+		_frameSubstitutions.end(),
+		frame)) == _frameSubstitutions.end())
 	{
 		// Frame not found in substitutions
 		return false;
 	}
 
-	boost::gregorian::date epoch = dateFromString<date>(stnEpoch);
-
 	epsgSubstitute = "";
 
-	while (_it_subst != frame_substitutions_.end())
+	if (isDatumWGSEnsemble(epsgCode))
 	{
-		if (epoch >= _it_subst->from_epoch &&
-			epoch <= _it_subst->to_epoch)
+		// In this case, use the epoch to identify the correct substitution
+		boost::gregorian::date epoch = dateFromString<date>(stnEpoch);
+
+		while (_it_subst != _frameSubstitutions.end())
 		{
-			epsgSubstitute = _it_subst->substitute_name;
-			break;
+			if (epoch >= _it_subst->get()->getFromEpoch() &&
+				epoch <= _it_subst->get()->getToEpoch())
+			{
+				epsgSubstitute = _it_subst->get()->getSubstituteName();
+				break;
+			}
+			_it_subst++;
 		}
-		_it_subst++;
 	}
+	else
+		epsgSubstitute = _it_subst->get()->getSubstituteName();	
 
 	if (epsgSubstitute.empty())
 		return false;
@@ -1422,10 +1343,9 @@ void dna_reftran::TransformStationRecords(const string& newFrame, const string& 
 		{
 			stringstream throw_msg;
 			throw_msg << e.what() << endl <<
-				"  When transforming from or to WGS84, please ensure that a reference" << endl <<
-				"  frame substitutions (*.frx) file with ITRF substitutes for WGS84 at" << endl <<
-				"  for specific epochs has been provided using the" << endl <<
-				"  --" << FRAME_SUBSTITUTIONS_FILE << " option." << endl;
+				"  When transforming from or to WGS 84, please ensure that \"WGS84\" or" << endl <<
+				"  one of the known WGS 84 realisations (e.g. \"" << WGS84_G1762_s << "\")" << endl <<
+				"  has been provided in the station and measurement files." << endl;
 			throw RefTranException(throw_msg.str(), REFTRAN_WGS84_TRANS_UNSUPPORTED);
 			break;
 		}
@@ -1586,10 +1506,9 @@ void dna_reftran::TransformMeasurementRecords(const string& newFrame, const stri
 		{
 			stringstream throw_msg;
 			throw_msg << e.what() << error_msg.str() << endl <<
-				"  When transforming from or to WGS84, please ensure that a reference" << endl <<
-				"  frame substitutions (*.frx) file with ITRF substitutes for WGS84 at" << endl <<
-				"  for specific epochs has been provided using the" << endl <<
-				"  --" << FRAME_SUBSTITUTIONS_FILE << " option." << endl;
+				"  When transforming from or to WGS 84, please ensure that \"WGS84\" or" << endl <<
+				"  one of the known WGS 84 realisations (e.g. \"" << WGS84_G1762_s << "\")" << endl <<
+				"  has been provided in the station and measurement files." << endl;
 			throw RefTranException(throw_msg.str(), REFTRAN_WGS84_TRANS_UNSUPPORTED);
 			break;
 		}

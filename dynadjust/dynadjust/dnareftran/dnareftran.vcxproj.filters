@@ -87,7 +87,7 @@
     <ClInclude Include="..\..\include\io\dnaiotpb.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\io\dnaiofrx.hpp">
+    <ClInclude Include="..\..\include\parameters\dnaframesubstitutions.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -162,9 +162,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\include\io\dnaiotpb.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\include\io\dnaiofrx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -124,51 +124,51 @@ U epsgCodeFromName(const S& datumName)
 	if (iequals(datumName, AGD84_s))
 		return AGD84_i;		
 	if (iequals(datumName, GDA94_s))
-		return GDA94_i;	
+		return GDA94_i_xyz;	
 	if (iequals(datumName, GDA2020_s))
-		return GDA2020_i;
+		return GDA2020_i_xyz;
 	if (iequals(datumName, ITRF2014_s))
-		return ITRF2014_i;	
+		return ITRF2014_i_xyz;
 	if (iequals(datumName, ITRF2008_s))
-		return ITRF2008_i;
+		return ITRF2008_i_xyz;
 	if (iequals(datumName, ITRF2005_s))
-		return ITRF2005_i;
+		return ITRF2005_i_xyz;
 	if (iequals(datumName, ITRF2000_s))
-		return ITRF2000_i;
+		return ITRF2000_i_xyz;
 	if (iequals(datumName, ITRF1997_s) || iequals(datumName, ITRF1997_s_brief))
-		return ITRF1997_i;
+		return ITRF1997_i_xyz;
 	if (iequals(datumName, ITRF1996_s) || iequals(datumName, ITRF1996_s_brief))
-		return ITRF1996_i;
+		return ITRF1996_i_xyz;
 	if (iequals(datumName, ITRF1994_s) || iequals(datumName, ITRF1994_s_brief))
-		return ITRF1994_i;
+		return ITRF1994_i_xyz;
 	if (iequals(datumName, ITRF1993_s) || iequals(datumName, ITRF1993_s_brief))
-		return ITRF1993_i;
+		return ITRF1993_i_xyz;
 	if (iequals(datumName, ITRF1992_s) || iequals(datumName, ITRF1992_s_brief))
-		return ITRF1992_i;
+		return ITRF1992_i_xyz;
 	if (iequals(datumName, ITRF1991_s) || iequals(datumName, ITRF1991_s_brief))
-		return ITRF1991_i;
+		return ITRF1991_i_xyz;
 	if (iequals(datumName, ITRF1990_s) || iequals(datumName, ITRF1990_s_brief))
-		return ITRF1990_i;
+		return ITRF1990_i_xyz;
 	if (iequals(datumName, ITRF1989_s) || iequals(datumName, ITRF1989_s_brief))
-		return ITRF1989_i;
+		return ITRF1989_i_xyz;
 	if (iequals(datumName, ITRF1988_s) || iequals(datumName, ITRF1988_s_brief))
-		return ITRF1988_i;
-	if (iequals(datumName, WGS84_s))
-		return WGS84_i;
+		return ITRF1988_i_xyz;
+	if (iequals(datumName, WGS84_s) || iequals(datumName, WGS84_ensemble_s))
+		return WGS84_i_xyz;
 	if (iequals(datumName, WGS84_transit_s))
-		return WGS84_transit_i;
+		return WGS84_transit_i_xyz;
 	if (iequals(datumName, WGS84_G730_s))
-		return WGS84_G730_i;
+		return WGS84_G730_i_xyz;
 	if (iequals(datumName, WGS84_G873_s))
-		return WGS84_G873_i;
+		return WGS84_G873_i_xyz;
 	if (iequals(datumName, WGS84_G1150_s))
-		return WGS84_G1150_i;
+		return WGS84_G1150_i_xyz;
 	if (iequals(datumName, WGS84_G1674_s))
-		return WGS84_G1674_i;
+		return WGS84_G1674_i_xyz;
 	if (iequals(datumName, WGS84_G1762_s))
-		return WGS84_G1762_i;
+		return WGS84_G1762_i_xyz;
 	if (iequals(datumName, WGS84_G2139_s))
-		return WGS84_G2139_i;
+		return WGS84_G2139_i_xyz;
 	
 	stringstream ss;
 	ss << "epsgCodeFromName: " << datumName << " is not yet supported." << endl;
@@ -182,6 +182,8 @@ S epsgStringFromName(const S& datumName)
 	// epsgCodeFromname throws on bad datumName
 	UINT32 epsgCode = epsgCodeFromName<UINT32, S>(datumName);
 
+	// get string form of epsg code
+	// Reduce all forms(2D / 3D geographic and geocentric) to geocentric
 	switch (epsgCode)
 	{
 	case AGD66_i:
@@ -190,56 +192,77 @@ S epsgStringFromName(const S& datumName)
 		return AGD84_c;
 	case GDA94_i:
 	case GDA94_i_2d:
-		return GDA94_c;
 	case GDA94_i_xyz:
-		return GDA94_c_xyz;
+		return GDA94_c;
 	case GDA2020_i:
-		return GDA2020_c;
 	case GDA2020_i_2d:
-		return GDA2020_c_2d;
 	case GDA2020_i_xyz:
-		return GDA2020_c_xyz;
+		return GDA2020_c;
+	// ITRF
 	case ITRF2014_i:
+	case ITRF2014_i_xyz:
 		return ITRF2014_c;
 	case ITRF2008_i:
+	case ITRF2008_i_xyz:
 		return ITRF2008_c;
 	case ITRF2005_i:
+	case ITRF2005_i_xyz:
 		return ITRF2005_c;
 	case ITRF2000_i:
+	case ITRF2000_i_xyz:
 		return ITRF2000_c;
 	case ITRF1997_i:
+	case ITRF1997_i_xyz:
 		return ITRF1997_c;
 	case ITRF1996_i:
+	case ITRF1996_i_xyz:
 		return ITRF1996_c;
 	case ITRF1994_i:
+	case ITRF1994_i_xyz:
 		return ITRF1994_c;
 	case ITRF1993_i:
+	case ITRF1993_i_xyz:
 		return ITRF1993_c;
 	case ITRF1992_i:
+	case ITRF1992_i_xyz:
 		return ITRF1992_c;
 	case ITRF1991_i:
+	case ITRF1991_i_xyz:
 		return ITRF1991_c;
 	case ITRF1990_i:
+	case ITRF1990_i_xyz:
 		return ITRF1990_c;
 	case ITRF1989_i:
+	case ITRF1989_i_xyz:
 		return ITRF1989_c;
 	case ITRF1988_i:
+	case ITRF1988_i_xyz:
 		return ITRF1988_c;
+	// WGS84
 	case WGS84_i:
+	case WGS84_i_xyz:
+	case WGS84_ensemble_i:
 		return WGS84_c;
 	case WGS84_transit_i:
+	case WGS84_transit_i_xyz:
 		return WGS84_transit_c;
 	case WGS84_G730_i:
+	case WGS84_G730_i_xyz:
 		return WGS84_G730_c;
 	case WGS84_G873_i:
+	case WGS84_G873_i_xyz:
 		return WGS84_G873_c;
 	case WGS84_G1150_i:
+	case WGS84_G1150_i_xyz:
 		return WGS84_G1150_c;
 	case WGS84_G1674_i:
+	case WGS84_G1674_i_xyz:
 		return WGS84_G1674_c;
 	case WGS84_G1762_i:
+	case WGS84_G1762_i_xyz:
 		return WGS84_G1762_c;
 	case WGS84_G2139_i:
+	case WGS84_G2139_i_xyz:
 		return WGS84_G2139_c;
 	}
 
@@ -270,30 +293,34 @@ bool isEpsgDatumStatic(const U& epsgCode)
 		return true;
 	// ITRF....
 	case ITRF1988_i_xyz:
-	case ITRF1989_i_xyz:
-	case ITRF1990_i_xyz:
-	case ITRF1991_i_xyz:
-	case ITRF1992_i_xyz:
-	case ITRF1993_i_xyz:
-	case ITRF1994_i_xyz:
-	case ITRF1996_i_xyz:
-	case ITRF1997_i_xyz:
-	case ITRF2000_i_xyz:
-	case ITRF2005_i:
 	case ITRF1988_i:
+	case ITRF1989_i_xyz:
 	case ITRF1989_i:
+	case ITRF1990_i_xyz:
 	case ITRF1990_i:
+	case ITRF1991_i_xyz:
 	case ITRF1991_i:
+	case ITRF1992_i_xyz:
 	case ITRF1992_i:
+	case ITRF1993_i_xyz:
 	case ITRF1993_i:
+	case ITRF1994_i_xyz:
 	case ITRF1994_i:
+	case ITRF1996_i_xyz:
 	case ITRF1996_i:
+	case ITRF1997_i_xyz:
 	case ITRF1997_i:
+	case ITRF2000_i_xyz:
 	case ITRF2000_i:
+	case ITRF2005_i:
+	case ITRF2005_i_xyz:
 	case ITRF2008_i:
+	case ITRF2008_i_xyz:
 	case ITRF2014_i:
+	case ITRF2014_i_xyz:
 	case WGS84_i_xyz:
 	case WGS84_i:
+	case WGS84_ensemble_i:
 	case WGS84_transit_i_xyz:
 	case WGS84_transit_i:
 	case WGS84_G730_i_xyz:
@@ -347,27 +374,30 @@ void spheroidFromEpsgCode(const U& epsgCode, epsg_spheroid& ellipsoid)
 	case GDA2020_i:
 	// ITRF....
 	case ITRF1988_i_xyz:
-	case ITRF1989_i_xyz:
-	case ITRF1990_i_xyz:
-	case ITRF1991_i_xyz:
-	case ITRF1992_i_xyz:
-	case ITRF1993_i_xyz:
-	case ITRF1994_i_xyz:
-	case ITRF1996_i_xyz:
-	case ITRF1997_i_xyz:
-	case ITRF2000_i_xyz:
-	case ITRF2005_i:
 	case ITRF1988_i:
+	case ITRF1989_i_xyz:
 	case ITRF1989_i:
+	case ITRF1990_i_xyz:
 	case ITRF1990_i:
+	case ITRF1991_i_xyz:
 	case ITRF1991_i:
+	case ITRF1992_i_xyz:
 	case ITRF1992_i:
+	case ITRF1993_i_xyz:
 	case ITRF1993_i:
+	case ITRF1994_i_xyz:
 	case ITRF1994_i:
+	case ITRF1996_i_xyz:
 	case ITRF1996_i:
+	case ITRF1997_i_xyz:
 	case ITRF1997_i:
+	case ITRF2000_i_xyz:
 	case ITRF2000_i:
+	case ITRF2005_i_xyz:
+	case ITRF2005_i:
+	case ITRF2008_i_xyz:
 	case ITRF2008_i:
+	case ITRF2014_i_xyz:
 	case ITRF2014_i:
 		// authority
 		ellipsoid.authority_.first = "EPSG";
@@ -378,15 +408,30 @@ void spheroidFromEpsgCode(const U& epsgCode, epsg_spheroid& ellipsoid)
 		ellipsoid.semi_major_ = GRS80_a;
 		break;
 	// WGS84
+	case WGS84_transit_i:
+	case WGS84_transit_i_xyz:
+	case WGS84_G730_i:
+	case WGS84_G730_i_xyz:
+	case WGS84_G873_i:
+	case WGS84_G873_i_xyz:
+	case WGS84_G1150_i:
+	case WGS84_G1150_i_xyz:
+	case WGS84_G1674_i:
+	case WGS84_G1674_i_xyz:
+	case WGS84_G1762_i:
+	case WGS84_G1762_i_xyz:
+	case WGS84_G2139_i:
+	case WGS84_G2139_i_xyz:
+	case WGS84_ensemble_i:
 	case WGS84_i_xyz:
 	case WGS84_i:
 		// authority
 		ellipsoid.authority_.first = "EPSG";
 		ellipsoid.authority_.second = "7030";
 		// ellipsoid params
-		ellipsoid.inv_flattening_ = 298.25722360;
+		ellipsoid.inv_flattening_ = WGS84_inv_f;
 		ellipsoid.name_ = "WGS 84";
-		ellipsoid.semi_major_ = 6378137.0;
+		ellipsoid.semi_major_ = WGS84_a;
 		break;
 	default:
 		stringstream ss;
@@ -539,10 +584,13 @@ S datumFromEpsgCode(const U& epsgCode)
 	case ITRF2000_i_xyz:
 	case ITRF2000_i:
 		return ITRF2000_s;
+	case ITRF2005_i_xyz:
 	case ITRF2005_i:
 		return ITRF2005_s;
+	case ITRF2008_i_xyz:
 	case ITRF2008_i:
 		return ITRF2008_s;
+	case ITRF2014_i_xyz:
 	case ITRF2014_i:
 		return ITRF2014_s;
 	case WGS84_i_xyz:
@@ -632,14 +680,18 @@ bool validateEpsgCode(const U& epsgCode)
 	case ITRF2000_i_xyz:
 	case ITRF2000_i:
 	// ITRF2005
+	case ITRF2005_i_xyz:
 	case ITRF2005_i:
 	// ITRF2008
-	case ITRF2014_i:
-	// ITRF2014
+	case ITRF2008_i_xyz:
 	case ITRF2008_i:
+	// ITRF2014
+	case ITRF2014_i_xyz:
+	case ITRF2014_i:
 	// WGS84
 	case WGS84_i_xyz:
 	case WGS84_i:
+	case WGS84_ensemble_i:
 	case WGS84_transit_i_xyz:
 	case WGS84_transit_i:
 	case WGS84_G730_i_xyz:
@@ -664,27 +716,14 @@ bool validateEpsgCode(const U& epsgCode)
 }
 
 template <typename U>
-bool isEpsgCodeWGS84(const U& epsgCode)
+bool isEpsgWGSEnsemble(const U& epsgCode)
 {
 	switch (epsgCode)
 	{
 	// WGS84
 	case WGS84_i_xyz:
 	case WGS84_i:
-	case WGS84_transit_i_xyz:
-	case WGS84_transit_i:
-	case WGS84_G730_i_xyz:
-	case WGS84_G730_i:
-	case WGS84_G873_i_xyz:
-	case WGS84_G873_i:
-	case WGS84_G1150_i_xyz:
-	case WGS84_G1150_i:
-	case WGS84_G1674_i_xyz:
-	case WGS84_G1674_i:
-	case WGS84_G1762_i_xyz:
-	case WGS84_G1762_i:
-	case WGS84_G2139_i_xyz:
-	case WGS84_G2139_i:
+	case WGS84_ensemble_i:
 		return true;
 	default:
 		return false;
@@ -693,24 +732,11 @@ bool isEpsgCodeWGS84(const U& epsgCode)
 }
 
 template <typename U>
-bool isDatumNameWGS84(const U& datumName)
-{
-	
+bool isDatumWGSEnsemble(const U& datumName)
+{	
 	if (iequals(datumName, WGS84_s))
 		return true;
-	if (iequals(datumName, WGS84_transit_s))
-		return true;
-	if (iequals(datumName, WGS84_G730_s))
-		return true;
-	if (iequals(datumName, WGS84_G873_s))
-		return true;
-	if (iequals(datumName, WGS84_G1150_s))
-		return true;
-	if (iequals(datumName, WGS84_G1674_s))
-		return true;
-	if (iequals(datumName, WGS84_G1762_s))
-		return true;
-	if (iequals(datumName, WGS84_G2139_s))
+	if (iequals(datumName, WGS84_ensemble_s))
 		return true;
 
 	return false;

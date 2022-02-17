@@ -11,7 +11,7 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>09139 -r gda94 --frame-subs .\wgs84-itrf-substitutions.frx --verb 2</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>09139 -r gda94 --verb 2</LocalDebuggerCommandArguments>
     <LocalDebuggerWorkingDirectory>$(dist)\_git_issues\wgs84</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>

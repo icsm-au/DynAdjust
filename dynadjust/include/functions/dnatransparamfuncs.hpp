@@ -134,6 +134,7 @@ void determineGDA94Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// GDA94-to-ITRF2005
+	case ITRF2005_i_xyz:
 	case ITRF2005_i:
 		memcpy(&tParam.parameters_, ITRF2005_GDA94<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2005_GDA94<double, UINT32>::reference_epoch;
@@ -142,6 +143,7 @@ void determineGDA94Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// GDA94-to-ITRF2008
+	case ITRF2008_i_xyz:
 	case ITRF2008_i:
 		memcpy(&tParam.parameters_, ITRF2008_GDA94<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2008_GDA94<double, UINT32>::reference_epoch;
@@ -150,6 +152,7 @@ void determineGDA94Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// GDA94-to-ITRF2014
+	case ITRF2014_i_xyz:
 	case ITRF2014_i:
 		memcpy(&tParam.parameters_, ITRF2014_GDA94<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2014_GDA94<double, UINT32>::reference_epoch;
@@ -257,6 +260,7 @@ void determineGDA2020Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// GDA2020-to-ITRF2005
+	case ITRF2005_i_xyz:
 	case ITRF2005_i:
 		memcpy(&tParam.parameters_, ITRF2005_GDA2020<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2005_GDA2020<double, UINT32>::reference_epoch;
@@ -265,6 +269,7 @@ void determineGDA2020Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// GDA2020-to-ITRF2008
+	case ITRF2008_i_xyz:
 	case ITRF2008_i:
 		memcpy(&tParam.parameters_, ITRF2008_GDA2020<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2008_GDA2020<double, UINT32>::reference_epoch;
@@ -273,6 +278,7 @@ void determineGDA2020Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// GDA2020-to-ITRF2014
+	case ITRF2014_i_xyz:
 	case ITRF2014_i:
 		memcpy(&tParam.parameters_, ITRF2014_GDA2020<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2014_GDA2020<double, UINT32>::reference_epoch;
@@ -344,6 +350,7 @@ void determineITRF1988Parameters(transformation_parameter_set& tParam)
 	case ITRF1997_i_xyz:
 	case ITRF1997_i:
 	// ITRF1988-to-ITRF2005
+	case ITRF2005_i_xyz:
 	case ITRF2005_i:
 		// No direct parameters exist!
 		throw RefTranException(message_parameters_undefined<string, UINT32>(tParam.from_to_.first, tParam.from_to_.second),
@@ -365,6 +372,7 @@ void determineITRF1988Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// ITRF1988-to-ITRF2008
+	case ITRF2008_i_xyz:
 	case ITRF2008_i:
 		memcpy(&tParam.parameters_, ITRF2008_ITRF1988<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2008_ITRF1988<double, UINT32>::reference_epoch;
@@ -373,6 +381,7 @@ void determineITRF1988Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// ITRF1988-to-ITRF2014
+	case ITRF2014_i_xyz:
 	case ITRF2014_i:
 		memcpy(&tParam.parameters_, ITRF2014_ITRF1988<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2014_ITRF1988<double, UINT32>::reference_epoch;
@@ -443,6 +452,7 @@ void determineITRF1989Parameters(transformation_parameter_set& tParam)
 	case ITRF1997_i_xyz:
 	case ITRF1997_i:
 	// ITRF1989-to-ITRF2005
+	case ITRF2005_i_xyz:
 	case ITRF2005_i:
 		// No direct parameters exist!
 		throw RefTranException(message_parameters_undefined<string, UINT32>(tParam.from_to_.first, tParam.from_to_.second),
@@ -464,6 +474,7 @@ void determineITRF1989Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// ITRF1989-to-ITRF2008
+	case ITRF2008_i_xyz:
 	case ITRF2008_i:
 		memcpy(&tParam.parameters_, ITRF2008_ITRF1989<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2008_ITRF1989<double, UINT32>::reference_epoch;
@@ -472,6 +483,7 @@ void determineITRF1989Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// ITRF1989-to-ITRF2014
+	case ITRF2014_i_xyz:
 	case ITRF2014_i:
 		memcpy(&tParam.parameters_, ITRF2014_ITRF1989<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2014_ITRF1989<double, UINT32>::reference_epoch;
@@ -542,6 +554,7 @@ void determineITRF1990Parameters(transformation_parameter_set& tParam)
 	case ITRF1997_i_xyz:
 	case ITRF1997_i:
 	// ITRF1990-to-ITRF2005
+	case ITRF2005_i_xyz:
 	case ITRF2005_i:
 		// No direct parameters exist!
 		throw RefTranException(message_parameters_undefined<string, UINT32>(tParam.from_to_.first, tParam.from_to_.second),
@@ -563,6 +576,7 @@ void determineITRF1990Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// ITRF1990-to-ITRF2008
+	case ITRF2008_i_xyz:
 	case ITRF2008_i:
 		memcpy(&tParam.parameters_, ITRF2008_ITRF1990<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2008_ITRF1990<double, UINT32>::reference_epoch;
@@ -571,6 +585,7 @@ void determineITRF1990Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// ITRF1990-to-ITRF2014
+	case ITRF2014_i_xyz:
 	case ITRF2014_i:
 		memcpy(&tParam.parameters_, ITRF2014_ITRF1990<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2014_ITRF1990<double, UINT32>::reference_epoch;
@@ -641,6 +656,7 @@ void determineITRF1991Parameters(transformation_parameter_set& tParam)
 	case ITRF1997_i_xyz:
 	case ITRF1997_i:
 	// ITRF1991-to-ITRF2005
+	case ITRF2005_i_xyz:
 	case ITRF2005_i:
 		// No direct parameters exist!
 		throw RefTranException(message_parameters_undefined<string, UINT32>(tParam.from_to_.first, tParam.from_to_.second),
@@ -662,6 +678,7 @@ void determineITRF1991Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// ITRF1991-to-ITRF2008
+	case ITRF2008_i_xyz:
 	case ITRF2008_i:
 		memcpy(&tParam.parameters_, ITRF2008_ITRF1991<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2008_ITRF1991<double, UINT32>::reference_epoch;
@@ -670,6 +687,7 @@ void determineITRF1991Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// ITRF1991-to-ITRF2014
+	case ITRF2014_i_xyz:
 	case ITRF2014_i:
 		memcpy(&tParam.parameters_, ITRF2014_ITRF1991<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2014_ITRF1991<double, UINT32>::reference_epoch;
@@ -740,6 +758,7 @@ void determineITRF1992Parameters(transformation_parameter_set& tParam)
 	case ITRF1997_i_xyz:
 	case ITRF1997_i:
 	// ITRF1992-to-ITRF2005
+	case ITRF2005_i_xyz:
 	case ITRF2005_i:
 		// No direct parameters exist!
 		throw RefTranException(message_parameters_undefined<string, UINT32>(tParam.from_to_.first, tParam.from_to_.second),
@@ -761,6 +780,7 @@ void determineITRF1992Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// ITRF1992-to-ITRF2008
+	case ITRF2008_i_xyz:
 	case ITRF2008_i:
 		memcpy(&tParam.parameters_, ITRF2008_ITRF1992<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2008_ITRF1992<double, UINT32>::reference_epoch;
@@ -769,6 +789,7 @@ void determineITRF1992Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// ITRF1992-to-ITRF2014
+	case ITRF2014_i_xyz:
 	case ITRF2014_i:
 		memcpy(&tParam.parameters_, ITRF2014_ITRF1992<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2014_ITRF1992<double, UINT32>::reference_epoch;
@@ -839,6 +860,7 @@ void determineITRF1993Parameters(transformation_parameter_set& tParam)
 	case ITRF1997_i_xyz:
 	case ITRF1997_i:
 	// ITRF1993-to-ITRF2005
+	case ITRF2005_i_xyz:
 	case ITRF2005_i:
 		// No direct parameters exist!
 		throw RefTranException(message_parameters_undefined<string, UINT32>(tParam.from_to_.first, tParam.from_to_.second),
@@ -860,6 +882,7 @@ void determineITRF1993Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// ITRF1993-to-ITRF2008
+	case ITRF2008_i_xyz:
 	case ITRF2008_i:
 		memcpy(&tParam.parameters_, ITRF2008_ITRF1993<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2008_ITRF1993<double, UINT32>::reference_epoch;
@@ -868,6 +891,7 @@ void determineITRF1993Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// ITRF1993-to-ITRF2014
+	case ITRF2014_i_xyz:
 	case ITRF2014_i:
 		memcpy(&tParam.parameters_, ITRF2014_ITRF1993<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2014_ITRF1993<double, UINT32>::reference_epoch;
@@ -938,6 +962,7 @@ void determineITRF1994Parameters(transformation_parameter_set& tParam)
 	case ITRF1997_i_xyz:
 	case ITRF1997_i:
 	// ITRF1994-to-ITRF2005
+	case ITRF2005_i_xyz:
 	case ITRF2005_i:
 		// No direct parameters exist!
 		throw RefTranException(message_parameters_undefined<string, UINT32>(tParam.from_to_.first, tParam.from_to_.second),
@@ -959,6 +984,7 @@ void determineITRF1994Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// ITRF1994-to-ITRF2008
+	case ITRF2008_i_xyz:
 	case ITRF2008_i:
 		memcpy(&tParam.parameters_, ITRF2008_ITRF1994<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2008_ITRF1994<double, UINT32>::reference_epoch;
@@ -967,6 +993,7 @@ void determineITRF1994Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// ITRF1994-to-ITRF2014
+	case ITRF2014_i_xyz:
 	case ITRF2014_i:
 		memcpy(&tParam.parameters_, ITRF2014_ITRF1994<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2014_ITRF1994<double, UINT32>::reference_epoch;
@@ -1045,6 +1072,7 @@ void determineITRF1996Parameters(transformation_parameter_set& tParam)
 	case ITRF1997_i_xyz:
 	case ITRF1997_i:
 	// ITRF1996-to-ITRF2005
+	case ITRF2005_i_xyz:
 	case ITRF2005_i:
 		// No direct parameters exist!
 		throw RefTranException(message_parameters_undefined<string, UINT32>(tParam.from_to_.first, tParam.from_to_.second),
@@ -1066,6 +1094,7 @@ void determineITRF1996Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// ITRF1996-to-ITRF2008
+	case ITRF2008_i_xyz:
 	case ITRF2008_i:
 		memcpy(&tParam.parameters_, ITRF2008_ITRF1996<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2008_ITRF1996<double, UINT32>::reference_epoch;
@@ -1074,6 +1103,7 @@ void determineITRF1996Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// ITRF1996-to-ITRF2014
+	case ITRF2014_i_xyz:
 	case ITRF2014_i:
 		memcpy(&tParam.parameters_, ITRF2014_ITRF1996<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2014_ITRF1996<double, UINT32>::reference_epoch;
@@ -1152,6 +1182,7 @@ void determineITRF1997Parameters(transformation_parameter_set& tParam)
 	case ITRF1996_i_xyz:
 	case ITRF1996_i:
 	// ITRF1997-to-ITRF2005
+	case ITRF2005_i_xyz:
 	case ITRF2005_i:
 		// No direct parameters exist!
 		throw RefTranException(message_parameters_undefined<string, UINT32>(tParam.from_to_.first, tParam.from_to_.second),
@@ -1173,6 +1204,7 @@ void determineITRF1997Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// ITRF1997-to-ITRF2008
+	case ITRF2008_i_xyz:
 	case ITRF2008_i:
 		memcpy(&tParam.parameters_, ITRF2008_ITRF1997<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2008_ITRF1997<double, UINT32>::reference_epoch;
@@ -1181,6 +1213,7 @@ void determineITRF1997Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// ITRF1997-to-ITRF2014
+	case ITRF2014_i_xyz:
 	case ITRF2014_i:
 		memcpy(&tParam.parameters_, ITRF2014_ITRF1997<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2014_ITRF1997<double, UINT32>::reference_epoch;
@@ -1305,6 +1338,7 @@ void determineITRF2000Parameters(transformation_parameter_set& tParam)
 		throw RefTranException("A transformation between different epochs on the same frame is required.", 
 			REFTRAN_TRANS_ON_PLATE_REQUIRED);
 	// ITRF2000-to-ITRF2005
+	case ITRF2005_i_xyz:
 	case ITRF2005_i:
 		memcpy(&tParam.parameters_, ITRF2005_ITRF2000<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2005_ITRF2000<double, UINT32>::reference_epoch;
@@ -1313,6 +1347,7 @@ void determineITRF2000Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// ITRF2000-to-ITRF2008
+	case ITRF2008_i_xyz:
 	case ITRF2008_i:
 		memcpy(&tParam.parameters_, ITRF2008_ITRF2000<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2008_ITRF2000<double, UINT32>::reference_epoch;
@@ -1321,6 +1356,7 @@ void determineITRF2000Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// ITRF2000-to-ITRF2014
+	case ITRF2014_i_xyz:
 	case ITRF2014_i:
 		memcpy(&tParam.parameters_, ITRF2014_ITRF2000<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2014_ITRF2000<double, UINT32>::reference_epoch;
@@ -1412,12 +1448,14 @@ void determineITRF2005Parameters(transformation_parameter_set& tParam)
 		tParam.reference_frame_ = ITRF2005_ITRF2000<double, UINT32>::reference_frame;
 		break;
 	// ITRF2005-to-ITRF2005
+	case ITRF2005_i_xyz:
 	case ITRF2005_i:
 		// not a transformation of frame, but a shift in epoch only
 		// Not defined yet - requires interpolation from the ITRF2005 velocity model
 		throw RefTranException("A transformation between different epochs on the same frame is required.",
 			REFTRAN_TRANS_ON_PLATE_REQUIRED);
 	// ITRF2005-to-ITRF2008
+	case ITRF2008_i_xyz:
 	case ITRF2008_i:
 		memcpy(&tParam.parameters_, ITRF2008_ITRF2005<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2008_ITRF2005<double, UINT32>::reference_epoch;
@@ -1426,6 +1464,7 @@ void determineITRF2005Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// ITRF2005-to-ITRF2014
+	case ITRF2014_i_xyz:
 	case ITRF2014_i:
 		memcpy(&tParam.parameters_, ITRF2014_ITRF2005<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2014_ITRF2005<double, UINT32>::reference_epoch;
@@ -1550,12 +1589,14 @@ void determineITRF2008Parameters(transformation_parameter_set& tParam)
 		tParam.reference_frame_ = ITRF2008_ITRF2000<double, UINT32>::reference_frame;
 		break;
 	// ITRF2008-to-ITRF2005
+	case ITRF2005_i_xyz:
 	case ITRF2005_i:
 		memcpy(&tParam.parameters_, ITRF2008_ITRF2005<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2008_ITRF2005<double, UINT32>::reference_epoch;
 		tParam.reference_frame_ = ITRF2008_ITRF2005<double, UINT32>::reference_frame;
 		break;
 	// ITRF2008-to-ITRF2014
+	case ITRF2014_i_xyz:
 	case ITRF2014_i:
 		memcpy(&tParam.parameters_, ITRF2014_ITRF2008<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2014_ITRF2008<double, UINT32>::reference_epoch;
@@ -1564,6 +1605,7 @@ void determineITRF2008Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// ITRF2008-to-ITRF2008
+	case ITRF2008_i_xyz:
 	case ITRF2008_i:
 		// not a transformation of frame, but a shift in epoch only
 		// Not defined yet - requires interpolation from the ITRF2008 velocity model
@@ -1687,18 +1729,21 @@ void determineITRF2014Parameters(transformation_parameter_set& tParam)
 		tParam.reference_frame_ = ITRF2014_ITRF2005<double, UINT32>::reference_frame;
 		break;
 	// ITRF2014-to-ITRF2005
+	case ITRF2005_i_xyz:
 	case ITRF2005_i:
 		memcpy(&tParam.parameters_, ITRF2014_ITRF2005<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2014_ITRF2005<double, UINT32>::reference_epoch;
 		tParam.reference_frame_ = ITRF2014_ITRF2005<double, UINT32>::reference_frame;
 		break;
 	// ITRF2014-to-ITRF2008
+	case ITRF2008_i_xyz:
 	case ITRF2008_i:
 		memcpy(&tParam.parameters_, ITRF2014_ITRF2008<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2014_ITRF2008<double, UINT32>::reference_epoch;
 		tParam.reference_frame_ = ITRF2014_ITRF2008<double, UINT32>::reference_frame;
 		break;
 	// ITRF2014-to-ITRF2014
+	case ITRF2014_i_xyz:
 	case ITRF2014_i:
 		// not a transformation of frame, but a shift in epoch only
 		// Not defined yet - requires interpolation from the ITRF2014 velocity model
@@ -1833,14 +1878,17 @@ void determineHelmertParameters(transformation_parameter_set& tParam)
 			determineITRF2000Parameters<U>(tParam);
 			break;
 		// ITRF2005
+		case ITRF2005_i_xyz:
 		case ITRF2005_i:
 			determineITRF2005Parameters<U>(tParam);
 			break;
 		// ITRF2008
+		case ITRF2008_i_xyz:
 		case ITRF2008_i:
 			determineITRF2008Parameters<U>(tParam);
 			break;
 		// ITRF2014
+		case ITRF2014_i_xyz:
 		case ITRF2014_i:
 			determineITRF2014Parameters<U>(tParam);
 			break;

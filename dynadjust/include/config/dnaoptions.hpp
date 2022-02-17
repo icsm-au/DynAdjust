@@ -299,8 +299,8 @@ public:
 	reftran_settings()
 		: rft_file(""), bst_file(""), bms_file("")
 		, reference_frame(DEFAULT_DATUM), epoch("")
-		, tpb_file(""), tpp_file(""), frx_file("")
-		, plate_model_option(0), apply_frame_substitutions(0)
+		, tpb_file(""), tpp_file("")
+		, plate_model_option(0)
 		, command_line_arguments("") {}
 
 private:
@@ -320,9 +320,7 @@ public:
 	string		epoch;						// Epoch
 	string		tpb_file;					// Tectonic plate boundary file
 	string		tpp_file;					// Tectonic plate pole file
-	string		frx_file;					// Frame substitutions file
 	UINT16		plate_model_option;			// Informs reftran which plate model option to use
-	UINT16		apply_frame_substitutions;	// Apply reference frame substitutions found in frx file
 	string		command_line_arguments;
 };
 

@@ -57,9 +57,6 @@ void PrintOutputFileHeaderInfo(std::ofstream* f_out, const string& out_file, pro
 		*f_out << setw(PRINT_VAR_PAD) << left << "Plate pole parameter file: " << p->r.tpp_file << endl;
 	}
 	
-	if (p->r.apply_frame_substitutions > 0)
-		*f_out << setw(PRINT_VAR_PAD) << left << "Frame substitutions file:" << p->r.frx_file << endl;
-
 	if (p->i.export_dynaml)
 	{
 		if (p->i.export_single_xml_file)
@@ -160,22 +157,6 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 		}
 	}
 
-	// Import frame substitutions file and apply substitutions
-	// Note that substitutions are handled on import, not in 
-	// reftran
-	if (vm.count(FRAME_SUBSTITUTIONS_FILE))
-	{
-		if (!exists(p.r.frx_file))
-		{
-			cout << endl << "- Error: ";
-			cout << endl << "frame substitutions file " << endl << "               ";
-			cout << p.r.frx_file << " does not exist." << endl << endl;
-			return EXIT_FAILURE;
-		}
-
-		p.r.apply_frame_substitutions = 1;
-	}
-	
 	p.g.project_file = formPath<string>(p.g.output_folder, p.g.network_name, "dnaproj");
 	p.r.rft_file = formPath<string>(p.g.output_folder, p.g.network_name, "rft");
 
@@ -302,8 +283,6 @@ int main(int argc, char* argv[])
 				"Target reference frame for all stations and datum-dependent measurements.")
 			(EPOCH_E, value<string>(&p.r.epoch),
 				"Projected date for the transformed stations and measurements. arg is a dot delimited string \"dd.mm.yyyy\", or \"today\" if today's date is required. If no date is supplied, the reference epoch of the supplied reference frame will be used.")
-			(FRAME_SUBSTITUTIONS_FILE_X, value<string>(&p.r.frx_file),
-				"Reference frame substitutions file.  This file provides the frame substitutions required to handle frames for which there are no direct parameters such as WGS84.")
 			(TECTONIC_PLATE_MODEL_OPTION, value<UINT16>(&p.r.plate_model_option),
 				string("Plate motion model option.\n"
 					"  0: Assume all stations are on the Australian plate (default)\n"
@@ -488,9 +467,6 @@ int main(int argc, char* argv[])
 			cout << setw(PRINT_VAR_PAD) << left << "  Plate pole parameter file: " << p.r.tpp_file << endl;
 		}
 
-		if (p.r.apply_frame_substitutions > 0)
-			cout << setw(PRINT_VAR_PAD) << left << "  Frame substitutions file:" << p.r.frx_file << endl;	
-
 		// Export options
 		if (p.i.export_dynaml)
 		{
@@ -531,36 +507,6 @@ int main(int argc, char* argv[])
 		try
 		{
 			refTran.LoadTectonicPlateParameters(p.r.tpb_file, p.r.tpp_file);
-		}
-		catch (const runtime_error& e) {
-			cout << endl << "- Error: " << e.what() << endl;
-			rft_file << endl << "- Error: " << e.what() << endl;
-			rft_file.close();
-			return EXIT_FAILURE;
-		}
-
-		if (!p.g.quiet)
-			cout << "done." << endl;
-
-		if (p.g.verbose == 0)
-			rft_file << "done." << endl;
-		else
-			rft_file << endl << "+ Done." << endl << endl;
-	}
-
-	// Load frame substitution information
-	if (vm.count(FRAME_SUBSTITUTIONS_FILE))
-	{
-		ss_msg.str("");
-		ss_msg << "+ Loading frame substitution information... ";
-
-		if (!p.g.quiet)
-			cout << ss_msg.str();		
-		rft_file << ss_msg.str();
-
-		try
-		{
-			refTran.LoadFrameSubstitutions(p.r.frx_file);
 		}
 		catch (const runtime_error& e) {
 			cout << endl << "- Error: " << e.what() << endl;

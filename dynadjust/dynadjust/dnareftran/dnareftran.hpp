@@ -44,7 +44,6 @@ using namespace boost::posix_time;
 using namespace boost::filesystem;
 
 #include <include/io/dnaiotpb.hpp>
-#include <include/io/dnaiofrx.hpp>
 #include <include/io/dnaiobst.hpp>
 #include <include/io/dnaiobms.hpp>
 #include <include/io/dnaiodna.hpp>
@@ -70,6 +69,8 @@ using namespace boost::filesystem;
 #include <include/parameters/dnadatum.hpp>
 #include <include/parameters/dnatransformationparameters.hpp>
 #include <include/parameters/dnaplatemotionmodels.hpp>
+#include <include/parameters/dnaframesubstitutions.hpp>
+
 #include <include/math/dnamatrix_contiguous.hpp>
 #include <include/measurement_types/dnameasurement.hpp>
 #include <include/measurement_types/dnageometries.hpp>
@@ -82,6 +83,7 @@ using namespace dynadjust::datum_parameters;
 using namespace dynadjust::pmm_parameters;
 using namespace dynadjust::math;
 using namespace dynadjust::geometries;
+using namespace dynadjust::frame_substitutions;
 
 namespace dynadjust {
 namespace referenceframe {
@@ -95,11 +97,7 @@ class dna_reftran {
 
 public:
 	dna_reftran();
-	dna_reftran(const project_settings& p, std::ofstream* f_out) {
-		InitialiseSettings(p);
-		// reftran log file pointer
-		rft_file = f_out;
-	}
+	dna_reftran(const project_settings& p, std::ofstream* f_out);
 	virtual ~dna_reftran();
 
 private:
@@ -135,7 +133,8 @@ public:
 
 	void LoadTectonicPlateParameters(const string& pltfileName, const string& pmmfileName);
 
-	void LoadFrameSubstitutions(const string& frxfileName);
+	//void LoadFrameSubstitutions(const string& frxfileName);
+	void LoadWGS84FrameSubstitutions();
 
 	inline void InitialiseSettings(const project_settings& p) {projectSettings_ = p;}
 
@@ -199,7 +198,7 @@ private:
 	
 	void CalculateRotations();
 
-	void ValidateFrameSubstitutions();
+	//void ValidateFrameSubstitutions();
 	void ApplyStationFrameSubstitutions();
 	void ApplyMeasurementFrameSubstitutions();
 
@@ -228,7 +227,7 @@ private:
 	v_plate_motion_eulers			plate_motion_eulers_;		// Euler parameters corresponding to each plate
 	v_plate_motion_cartesians		plate_motion_cartesians_;	// Helmert parameters computed from Euler parameters
 
-	v_frame_substitutions			frame_substitutions_;		// Reference frame substitutions
+	vframeSubsPtr					_frameSubstitutions;		// Reference frame substitutions
 
 	v_string_uint32_pair 			vplateMap_;					// Plate Map index sorted on plate ID
 
