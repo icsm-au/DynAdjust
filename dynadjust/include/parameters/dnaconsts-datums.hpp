@@ -179,16 +179,25 @@ const char* const ITRF1989_s_brief =  "ITRF89";
 const char* const ITRF1988_s =		"ITRF1988";
 const char* const ITRF1988_s_brief =  "ITRF88";
 
+// The vague and ambiguous WGS84 frame that some refer to an ensemble!
 const char* const WGS84_s =				"WGS84";
+const char* const WGS84_alias_s =		"WGS 84";
 const char* const WGS84_ensemble_s =	"WGS84 (ensemble)";
-const char* const WGS84_transit_s =		"WGS84 (transit)";
-const char* const WGS84_G730_s =		"WGS84 (G730)";
-const char* const WGS84_G873_s =		"WGS84 (G873)";
-const char* const WGS84_G1150_s =		"WGS84 (G1150)";
-const char* const WGS84_G1674_s =		"WGS84 (G1674)";
-const char* const WGS84_G1762_s =		"WGS84 (G1762)";
-const char* const WGS84_G2139_s =		"WGS84 (G2139)";
-
+// The specific realisations of WGS84
+const char* const WGS84_transit_s =			"WGS84 (transit)";
+const char* const WGS84_transit_alias_s =	"WGS 84 (transit)";
+const char* const WGS84_G730_s =			"WGS84 (G730)";
+const char* const WGS84_G730_alias_s =		"WGS 84 (G730)";
+const char* const WGS84_G873_s =			"WGS84 (G873)";
+const char* const WGS84_G873_alias_s =		"WGS 84 (G873)";
+const char* const WGS84_G1150_s =			"WGS84 (G1150)";
+const char* const WGS84_G1150_alias_s =		"WGS 84 (G1150)";
+const char* const WGS84_G1674_s =			"WGS84 (G1674)";
+const char* const WGS84_G1674_alias_s =		"WGS 84 (G1674)";
+const char* const WGS84_G1762_s =			"WGS84 (G1762)";
+const char* const WGS84_G1762_alias_s =		"WGS 84 (G1762)";
+const char* const WGS84_G2139_s =			"WGS84 (G2139)";
+const char* const WGS84_G2139_alias_s =		"WGS 84 (G2139)";
 
 
 #endif  // DNACONSTS_DATUMS_HPP

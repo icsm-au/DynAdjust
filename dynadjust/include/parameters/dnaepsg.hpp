@@ -127,6 +127,7 @@ U epsgCodeFromName(const S& datumName)
 		return GDA94_i_xyz;	
 	if (iequals(datumName, GDA2020_s))
 		return GDA2020_i_xyz;
+	// ITRF
 	if (iequals(datumName, ITRF2014_s))
 		return ITRF2014_i_xyz;
 	if (iequals(datumName, ITRF2008_s))
@@ -153,21 +154,31 @@ U epsgCodeFromName(const S& datumName)
 		return ITRF1989_i_xyz;
 	if (iequals(datumName, ITRF1988_s) || iequals(datumName, ITRF1988_s_brief))
 		return ITRF1988_i_xyz;
-	if (iequals(datumName, WGS84_s) || iequals(datumName, WGS84_ensemble_s))
+	// WGS84
+	if (iequals(datumName, WGS84_s) || 
+		iequals(datumName, WGS84_ensemble_s) ||
+		iequals(datumName, WGS84_alias_s))
 		return WGS84_i_xyz;
-	if (iequals(datumName, WGS84_transit_s))
+	if (iequals(datumName, WGS84_transit_s) ||
+		iequals(datumName, WGS84_transit_alias_s))
 		return WGS84_transit_i_xyz;
-	if (iequals(datumName, WGS84_G730_s))
+	if (iequals(datumName, WGS84_G730_s) ||
+		iequals(datumName, WGS84_G730_alias_s))
 		return WGS84_G730_i_xyz;
-	if (iequals(datumName, WGS84_G873_s))
+	if (iequals(datumName, WGS84_G873_s) ||
+		iequals(datumName, WGS84_G873_alias_s))
 		return WGS84_G873_i_xyz;
-	if (iequals(datumName, WGS84_G1150_s))
+	if (iequals(datumName, WGS84_G1150_s) ||
+		iequals(datumName, WGS84_G1150_alias_s))
 		return WGS84_G1150_i_xyz;
-	if (iequals(datumName, WGS84_G1674_s))
+	if (iequals(datumName, WGS84_G1674_s) ||
+		iequals(datumName, WGS84_G1674_alias_s))
 		return WGS84_G1674_i_xyz;
-	if (iequals(datumName, WGS84_G1762_s))
+	if (iequals(datumName, WGS84_G1762_s) ||
+		iequals(datumName, WGS84_G1762_alias_s))
 		return WGS84_G1762_i_xyz;
-	if (iequals(datumName, WGS84_G2139_s))
+	if (iequals(datumName, WGS84_G2139_s) ||
+		iequals(datumName, WGS84_G2139_alias_s))
 		return WGS84_G2139_i_xyz;
 	
 	stringstream ss;
@@ -492,12 +503,16 @@ string referenceepochFromEpsgCode(const U& epsgCode)
 	case ITRF2000_i_xyz:
 	case ITRF2000_i:
 		return ITRF2000_epoch;
+	case ITRF2005_i_xyz:
 	case ITRF2005_i:
 		return ITRF2005_epoch;
+	case ITRF2008_i_xyz:
 	case ITRF2008_i:
 		return ITRF2008_epoch;
+	case ITRF2014_i_xyz:
 	case ITRF2014_i:
 		return ITRF2014_epoch;
+	// WGS84
 	case WGS84_transit_i_xyz:
 	case WGS84_transit_i:
 		return WGS84_transit_epoch;
@@ -734,9 +749,9 @@ bool isEpsgWGSEnsemble(const U& epsgCode)
 template <typename U>
 bool isDatumWGSEnsemble(const U& datumName)
 {	
-	if (iequals(datumName, WGS84_s))
-		return true;
-	if (iequals(datumName, WGS84_ensemble_s))
+	if (iequals(datumName, WGS84_s) ||
+		iequals(datumName, WGS84_alias_s) ||
+		iequals(datumName, WGS84_ensemble_s))
 		return true;
 
 	return false;
