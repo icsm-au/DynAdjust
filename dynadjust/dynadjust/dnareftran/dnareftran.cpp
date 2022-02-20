@@ -323,6 +323,71 @@ void dna_reftran::LoadWGS84FrameSubstitutions()
 
 }
 
+void dna_reftran::LogFrameSubstitutions(vector<string_string_pair>& substitutions, const string& type)
+{
+	// Sort, count and remove duplicates
+	vector<string_string_pair>::iterator _it_sub_1, _it_sub_2, _it_sub_newend;
+	UINT32 i(0);
+	vUINT32 subs;
+
+	// sort
+	sort(substitutions.begin(), substitutions.end());
+
+	// count unique pairs
+	for (_it_sub_1 = substitutions.begin();
+		_it_sub_1 != substitutions.end();)
+	{
+		subs.push_back(1);
+		for (_it_sub_2 = _it_sub_1 + 1; _it_sub_2 != substitutions.end(); ++_it_sub_2)
+		{
+			if (*_it_sub_1 == *_it_sub_2)
+			{
+				subs.at(i)++;
+				++_it_sub_1;
+			}
+			else
+				break;
+		}
+		i++;
+		if (_it_sub_2 == substitutions.end())
+			break;
+		_it_sub_1 = _it_sub_2;
+	}
+
+	// remove duplicates
+	_it_sub_newend = unique(substitutions.begin(), substitutions.end());
+	UINT32 subs_count = _it_sub_newend - substitutions.begin();
+	if (_it_sub_newend != substitutions.end())
+		substitutions.resize(_it_sub_newend - substitutions.begin());
+
+	if (subs.size() != substitutions.size())
+		// something went wrong
+		return;
+
+	// print
+	vUINT32::iterator _it_subs = subs.begin();
+	stringstream ss1, ss2;
+	ss1 << type << " reference frame substitutions";
+	ss2 << "(" << subs_count << ")";
+	
+	*rft_file << endl << endl <<
+		setw(PRINT_VAL_PAD) << left << ss1.str() <<
+		setw(NUMERIC_WIDTH) << right << ss2.str() << endl;
+	*rft_file << string(PRINT_VAL_PAD + NUMERIC_WIDTH, '-') << endl;
+
+	for_each(
+		substitutions.begin(),
+		substitutions.end(),
+		[this, &_it_subs](string_string_pair& substitution) {
+			*rft_file << setw(BLOCK) << left << substitution.first <<
+				" --> " <<
+				setw(BLOCK) << substitution.second <<
+				setw(HEADER_20) << right << *(_it_subs++) << endl;
+		}
+	);
+	
+}
+
 	
 void dna_reftran::ApplyStationFrameSubstitutions()
 {
@@ -330,12 +395,26 @@ void dna_reftran::ApplyStationFrameSubstitutions()
 	// the frame to be replaced with a substitute
 	it_vstn_t stn_it;
 	string epsgSubstitute;
+
+	_v_stn_substitutions.clear();
+	
 	for (stn_it = bstBinaryRecords_.begin(); stn_it != bstBinaryRecords_.end(); ++stn_it)
 	{
 		if (IsolateandApplySubstitute(stn_it->epsgCode, stn_it->epoch, epsgSubstitute))
+		{
+			_v_stn_substitutions.push_back(string_string_pair(
+				datumFromEpsgString(string(stn_it->epsgCode)),
+				datumFromEpsgString(epsgSubstitute)));
 			strcpy(stn_it->epsgCode, epsgSubstitute.c_str());
+		}
 	}
 
+	if (_v_stn_substitutions.empty())
+		return;
+	if (projectSettings_.g.verbose < 2)
+		return;
+
+	LogFrameSubstitutions(_v_stn_substitutions, "Station");
 }
 	
 void dna_reftran::ApplyMeasurementFrameSubstitutions()
@@ -344,11 +423,27 @@ void dna_reftran::ApplyMeasurementFrameSubstitutions()
 	// the frame to be replaced with a substitute
 	it_vmsr_t msr_it;
 	string epsgSubstitute;
+
+	_v_msr_substitutions.clear();
+
 	for (msr_it = bmsBinaryRecords_.begin(); msr_it != bmsBinaryRecords_.end(); ++msr_it)
 	{
 		if (IsolateandApplySubstitute(msr_it->epsgCode, msr_it->epoch, epsgSubstitute))
+		{
+			if (msr_it->measStart == xMeas)
+				_v_msr_substitutions.push_back(string_string_pair(
+					datumFromEpsgString(string(msr_it->epsgCode)),
+					datumFromEpsgString(epsgSubstitute)));
 			strcpy(msr_it->epsgCode, epsgSubstitute.c_str());
+		}
 	}
+
+	if (_v_msr_substitutions.empty())
+		return;
+	if (projectSettings_.g.verbose < 2)
+		return;
+
+	LogFrameSubstitutions(_v_msr_substitutions, "Measurement");
 }
 	
 

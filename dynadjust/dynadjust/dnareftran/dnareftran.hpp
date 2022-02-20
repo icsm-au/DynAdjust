@@ -198,7 +198,7 @@ private:
 	
 	void CalculateRotations();
 
-	//void ValidateFrameSubstitutions();
+	void LogFrameSubstitutions(vector<string_string_pair>& substitutions, const string& type);
 	void ApplyStationFrameSubstitutions();
 	void ApplyMeasurementFrameSubstitutions();
 
@@ -228,6 +228,8 @@ private:
 	v_plate_motion_cartesians		plate_motion_cartesians_;	// Helmert parameters computed from Euler parameters
 
 	vframeSubsPtr					_frameSubstitutions;		// Reference frame substitutions
+	vector<string_string_pair>		_v_stn_substitutions;		// station substitutions made
+	vector<string_string_pair>		_v_msr_substitutions;		// station substitutions made
 
 	v_string_uint32_pair 			vplateMap_;					// Plate Map index sorted on plate ID
 
