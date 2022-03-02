@@ -466,8 +466,17 @@ bool dna_reftran::IsolateandApplySubstitute(const string& epsgCode, const string
 
 	epsgSubstitute = "";
 
-	if (isDatumWGSEnsemble(epsgCode))
+	if (isEpsgStringWGS84Ensemble(epsgCode))
 	{
+		if (stnEpoch.empty())
+		{
+			stringstream throw_msg;
+			throw_msg << endl <<
+				"  When transforming from or to WGS 84, please ensure that \"" << WGS84_s << "\" in" << endl <<
+				"  the station and measurement files has been provided with an epoch." << endl;
+			throw RefTranException(throw_msg.str(), REFTRAN_WGS84_TRANS_UNSUPPORTED);
+		}
+
 		// In this case, use the epoch to identify the correct substitution
 		boost::gregorian::date epoch = dateFromString<date>(stnEpoch);
 
@@ -1432,25 +1441,28 @@ void dna_reftran::TransformStationRecords(const string& newFrame, const string& 
 	}
 	catch (const RefTranException& e) {
 
+		stringstream error_msg;
+		error_msg << endl <<
+			"    - Station:          " << stn_it->stationName << endl <<
+			"    - Frame and epoch:  " << datumFromEpsgString<string>(stn_it->epsgCode) << " @ " <<
+			stn_it->epoch << endl;
+
 		switch (e.exception_type())
 		{
 		case REFTRAN_WGS84_TRANS_UNSUPPORTED:
 		{
 			stringstream throw_msg;
-			throw_msg << e.what() << endl <<
-				"  When transforming from or to WGS 84, please ensure that \"WGS84\" or" << endl <<
-				"  one of the known WGS 84 realisations (e.g. \"" << WGS84_G1762_s << "\")" << endl <<
-				"  has been provided in the station and measurement files." << endl;
+			throw_msg << e.what() << error_msg.str() << endl <<
+				"  When transforming from or to WGS 84, please ensure that \"" << WGS84_s << "\" or" << endl <<
+				"  one of the known WGS 84 realisations (e.g. \"" << WGS84_G1762_s << "\") in the" << endl <<
+				"  station and measurement files has been provided with an epoch." << endl;
 			throw RefTranException(throw_msg.str(), REFTRAN_WGS84_TRANS_UNSUPPORTED);
 			break;
 		}
 		default:
 			throw RefTranException(e.what());
 			break;
-		}
-
-
-		
+		}		
 	}
 }
 	
@@ -1601,9 +1613,9 @@ void dna_reftran::TransformMeasurementRecords(const string& newFrame, const stri
 		{
 			stringstream throw_msg;
 			throw_msg << e.what() << error_msg.str() << endl <<
-				"  When transforming from or to WGS 84, please ensure that \"WGS84\" or" << endl <<
-				"  one of the known WGS 84 realisations (e.g. \"" << WGS84_G1762_s << "\")" << endl <<
-				"  has been provided in the station and measurement files." << endl;
+				"  When transforming from or to WGS 84, please ensure that \"" << WGS84_s << "\" or" << endl <<
+				"  one of the known WGS 84 realisations (e.g. \"" << WGS84_G1762_s << "\") in the" << endl <<
+				"  station and measurement files has been provided with an epoch." << endl;
 			throw RefTranException(throw_msg.str(), REFTRAN_WGS84_TRANS_UNSUPPORTED);
 			break;
 		}

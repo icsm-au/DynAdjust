@@ -301,6 +301,10 @@ bool isEpsgDatumStatic(const U& epsgCode)
 	case GDA2020_i_xyz:
 	case GDA2020_i_2d:
 	case GDA2020_i:
+	// WGS84 ensemble
+	case WGS84_i_xyz:
+	case WGS84_i:
+	case WGS84_ensemble_i:
 		return true;
 	// ITRF....
 	case ITRF1988_i_xyz:
@@ -329,9 +333,7 @@ bool isEpsgDatumStatic(const U& epsgCode)
 	case ITRF2008_i_xyz:
 	case ITRF2014_i:
 	case ITRF2014_i_xyz:
-	case WGS84_i_xyz:
-	case WGS84_i:
-	case WGS84_ensemble_i:
+	// WGS84 @ epoch
 	case WGS84_transit_i_xyz:
 	case WGS84_transit_i:
 	case WGS84_G730_i_xyz:
@@ -731,7 +733,7 @@ bool validateEpsgCode(const U& epsgCode)
 }
 
 template <typename U>
-bool isEpsgWGSEnsemble(const U& epsgCode)
+bool isEpsgWGS84Ensemble(const U& epsgCode)
 {
 	switch (epsgCode)
 	{
@@ -747,15 +749,62 @@ bool isEpsgWGSEnsemble(const U& epsgCode)
 }
 
 template <typename U>
-bool isDatumWGSEnsemble(const U& datumName)
+bool isEpsgStringWGS84Ensemble(const U& epsgString)
 {	
-	if (iequals(datumName, WGS84_s) ||
-		iequals(datumName, WGS84_alias_s) ||
-		iequals(datumName, WGS84_ensemble_s))
+	if (iequals(epsgString, WGS84_c) ||
+		iequals(epsgString, WGS84_ensemble_c))
 		return true;
 
 	return false;
 }
+
+template <typename U>
+bool isEpsgWGS84(const U& epsgCode)
+{
+	switch (epsgCode)
+	{
+		// WGS84
+	case WGS84_i_xyz:
+	case WGS84_i:
+	case WGS84_ensemble_i:
+	case WGS84_transit_i_xyz:
+	case WGS84_transit_i:
+	case WGS84_G730_i_xyz:
+	case WGS84_G730_i:
+	case WGS84_G873_i_xyz:
+	case WGS84_G873_i:
+	case WGS84_G1150_i_xyz:
+	case WGS84_G1150_i:
+	case WGS84_G1674_i_xyz:
+	case WGS84_G1674_i:
+	case WGS84_G1762_i_xyz:
+	case WGS84_G1762_i:
+	case WGS84_G2139_i_xyz:
+	case WGS84_G2139_i:
+		return true;
+	default:
+		return false;
+	}
+	return false;
+}
+
+template <typename U>
+bool isEpsgStringWGS84(const U& epsgString)
+{
+	if (iequals(epsgString, WGS84_c) ||
+		iequals(epsgString, WGS84_ensemble_c) ||
+		iequals(epsgString, WGS84_transit_c) ||
+		iequals(epsgString, WGS84_G730_c) ||
+		iequals(epsgString, WGS84_G873_c) ||
+		iequals(epsgString, WGS84_G1150_c) ||
+		iequals(epsgString, WGS84_G1674_c) ||
+		iequals(epsgString, WGS84_G1762_c) ||
+		iequals(epsgString, WGS84_G2139_c))
+		return true;
+
+	return false;
+}
+
 
 }	// namespace epsg
 }	// namespace dynadjust

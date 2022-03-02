@@ -735,6 +735,9 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 	//
 	UINT32 stnCount(0), msrCount(0), clusterID(0);
 	
+	// obtain the project reference frame
+	string epsgCode(epsgStringFromName<string>(p.i.reference_frame));
+	
 	size_t pos = string::npos;
 	size_t strlen_arg = 0;
 	for_each(p.i.input_files.begin(), p.i.input_files.end(),
@@ -857,7 +860,6 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 
 			// Produce a warning if the input file's default reference frame
 			// is different to the project reference frame
-			string epsgCode(epsgStringFromName<string>(p.i.reference_frame));
 			string inputFileEpsg;
 			try {
 				inputFileEpsg = datumFromEpsgString<string>(input_file_meta.epsgCode);
@@ -870,7 +872,6 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 			{
 				stringstream ssEpsgWarning;
 				
-
 				ssEpsgWarning << "- Warning: Input file reference frame (" << inputFileEpsg <<
 					") does not match the " << endl << "  default reference frame.";
 				if (!p.g.quiet)
@@ -1286,6 +1287,27 @@ int main(int argc, char* argv[])
 		ss << "- Error: ";
 		cout << ss.str() << e.what() << endl;
 		return EXIT_FAILURE;
+	}
+
+	// obtain the project reference frame
+	UINT32 epsgCode(epsgCodeFromName<UINT32>(p.i.reference_frame));
+
+	// Produce a warning if an ensemble is set as the default reference frame
+	if (isEpsgWGS84Ensemble(epsgCode))
+	{
+		stringstream ssEnsembleWarning;
+		ssEnsembleWarning << 
+			"- Warning:  The reference frame (" << p.i.reference_frame << ") set for this project is assumed to" << endl << 
+			"  mean the \"World Geodetic System 1984 (WGS 84) ensemble\".  The WGS 84 ensemble" << endl <<
+			"  represents a generic collection of more precisely defined WGS 84 (Gxxxx)" << endl <<
+			"  realisations, is generally suitable for low accuracy (metre level) positioning" << endl <<
+			"  and web mapping applications, and does not provide for precise transformations" << endl <<
+			"  to other well known reference frames.  To achieve optimum reliability in" << endl <<
+			"  adjustment results using data on WGS 84, please refer to \"Configuring import" << endl <<
+			"  options\" in the DynAdjust User's Guide." << endl;
+		if (!p.g.quiet)
+			cout << ssEnsembleWarning.str() << endl;
+		imp_file << ssEnsembleWarning.str() << endl;
 	}
 
 	

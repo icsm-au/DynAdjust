@@ -52,8 +52,6 @@ typedef enum _SINEX_WARN_TYPE_
 } SINEX_WARN_TYPE;
 
 
-const UINT32 DISCONT_TIME_IMMEMORIAL = 1900;
-
 /////////////////////////////////////////////////////////////
 // Custom struct to manage occurrences of a station in a SINEX file
 //T1 file_index;
@@ -135,7 +133,7 @@ struct discontinuity_tuple_t
 
 	discontinuity_tuple_t()
 		: file_index(0), solution_id(0), site_name("")
-		, date_start(date(DISCONT_TIME_IMMEMORIAL, 1, 1)), date_end(date(DISCONT_TIME_IMMEMORIAL, 1, 1)), discontinuity_exists(false) {}
+		, date_start(date(TIME_IMMEMORIAL, 1, 1)), date_end(date(TIME_IMMEMORIAL, 1, 1)), discontinuity_exists(false) {}
 	discontinuity_tuple_t(const T1& index, const T1& solution, const T2& name, 
 		const T3& from, const T3& to, const T4& discontinuity) 
 		: file_index(index), solution_id(solution), site_name(name)

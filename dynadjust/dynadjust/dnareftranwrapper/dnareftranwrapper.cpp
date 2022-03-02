@@ -545,6 +545,11 @@ int main(int argc, char* argv[])
 		return EXIT_FAILURE;
 	}
 	catch (const RefTranException& e) {
+		switch (e.exception_type())
+		{
+		case REFTRAN_WGS84_TRANS_UNSUPPORTED:
+			break;
+		}
 		cout << endl << "- Error: " << e.what() << endl;
 		rft_file << endl << "- Error: " << e.what() << endl;
 		rft_file.close();
