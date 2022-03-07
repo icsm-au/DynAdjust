@@ -125,7 +125,7 @@ void CDnaDatum::initialiseDatumFromEpsgCode()
 //  - "" for ensembles that do not have an epoch
 string CDnaDatum::GetEpoch_s() const
 {
-	if (isEpsgWGS84Ensemble(epsgCode_))
+	if (isEpsgWGS84Ensemble(epsgCode_) && isTimeImmemorial(epoch_))
 		return "";
 	return stringFromDate<date>(epoch_);
 }
