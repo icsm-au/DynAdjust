@@ -182,7 +182,7 @@ U epsgCodeFromName(const S& datumName)
 		return WGS84_G2139_i_xyz;
 	
 	stringstream ss;
-	ss << "epsgCodeFromName: " << datumName << " is not yet supported." << endl;
+	ss << "epsgCodeFromName: " << datumName << " is not a supported reference frame label." << endl;
 	throw boost::enable_current_exception(runtime_error(ss.str()));
 }
 
@@ -350,7 +350,7 @@ bool isEpsgDatumStatic(const U& epsgCode)
 	case WGS84_G2139_i:
 		return false;
 	default:
-		ss << "isEpsgDatumStatic: EPSG code " << epsgCode << " is not yet supported." << endl;
+		ss << "isEpsgDatumStatic: EPSG code " << epsgCode << " is not a supported EPSG code." << endl;
 		throw boost::enable_current_exception(runtime_error(ss.str()));
 	}
 	return false;
@@ -448,7 +448,7 @@ void spheroidFromEpsgCode(const U& epsgCode, epsg_spheroid& ellipsoid)
 		break;
 	default:
 		stringstream ss;
-		ss << "spheroidFromEpsgCode: EPSG code " << epsgCode << " is not yet supported." << endl;
+		ss << "spheroidFromEpsgCode: EPSG code " << epsgCode << " is not a supported EPSG code." << endl;
 		throw boost::enable_current_exception(runtime_error(ss.str()));
 	}
 }
@@ -540,7 +540,7 @@ string referenceepochFromEpsgCode(const U& epsgCode)
 		return WGS84_G2139_epoch;
 	default:
 		stringstream ss;
-		ss << "referenceepochFromEpsgCode: EPSG code " << epsgCode << " is not yet supported." << endl;
+		ss << "referenceepochFromEpsgCode: EPSG code " << epsgCode << " is not a supported EPSG code." << endl;
 		throw boost::enable_current_exception(runtime_error(ss.str()));
 	}
 	return "";
@@ -636,7 +636,7 @@ S datumFromEpsgCode(const U& epsgCode)
 		return WGS84_G2139_s;
 	default:
 		stringstream ss;
-		ss << "datumFromEpsgCode: EPSG code " << epsgCode << " is not yet supported." << endl;
+		ss << "datumFromEpsgCode: EPSG code " << epsgCode << " is not a supported EPSG code." << endl;
 		throw boost::enable_current_exception(runtime_error(ss.str()));
 	}
 	return "";
@@ -726,7 +726,7 @@ bool validateEpsgCode(const U& epsgCode)
 		return true;
 	default:
 		stringstream ss;
-		ss << "validateEpsgCode: EPSG code " << epsgCode << " is not yet supported." << endl;
+		ss << "validateEpsgCode: EPSG code " << epsgCode << " is not a supported EPSG code." << endl;
 		throw boost::enable_current_exception(runtime_error(ss.str()));
 	}
 	return false;

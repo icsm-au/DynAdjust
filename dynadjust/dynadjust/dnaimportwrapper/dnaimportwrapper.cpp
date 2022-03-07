@@ -1292,25 +1292,6 @@ int main(int argc, char* argv[])
 	// obtain the project reference frame
 	UINT32 epsgCode(epsgCodeFromName<UINT32>(p.i.reference_frame));
 
-	// Produce a warning if an ensemble is set as the default reference frame
-	if (isEpsgWGS84Ensemble(epsgCode))
-	{
-		stringstream ssEnsembleWarning;
-		ssEnsembleWarning << 
-			"- Warning:  The reference frame (" << p.i.reference_frame << ") set for this project is assumed to" << endl << 
-			"  mean the \"World Geodetic System 1984 (WGS 84) ensemble\".  The WGS 84 ensemble" << endl <<
-			"  represents a generic collection of more precisely defined WGS 84 (Gxxxx)" << endl <<
-			"  realisations, is generally suitable for low accuracy (metre level) positioning" << endl <<
-			"  and web mapping applications, and does not provide for precise transformations" << endl <<
-			"  to other well known reference frames.  To achieve optimum reliability in" << endl <<
-			"  adjustment results using data on WGS 84, please refer to \"Configuring import" << endl <<
-			"  options\" in the DynAdjust User's Guide." << endl;
-		if (!p.g.quiet)
-			cout << ssEnsembleWarning.str() << endl;
-		imp_file << ssEnsembleWarning.str() << endl;
-	}
-
-	
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// start "total" time
 	cpu_timer time;
@@ -2400,7 +2381,23 @@ int main(int argc, char* argv[])
 	{
 		cout << "- Warning: some files were not parsed - please read the log file for more details." << endl;
 		imp_file << "- Warning: some files were not parsed - please read the log file for more details." << endl;
-	}	
+	}
+
+	// Produce a warning if an ensemble is set as the default reference frame
+	if (isEpsgWGS84Ensemble(epsgCode))
+	{
+		stringstream ssEnsembleWarning;
+		ssEnsembleWarning << endl <<
+			"- Warning:  The '" << p.i.reference_frame << "' reference frame set for this project refers to the" << endl <<
+			"  \"World Geodetic System 1984 (WGS 84) ensemble\".  The WGS 84 ensemble is" << endl <<
+			"  only suitable for low accuracy (metre level) positioning and does not" << endl <<
+			"  provide for precise transformations to other well-known reference frames." << endl <<
+			"  To achieve reliable adjustment results from data on WGS 84, please refer" << endl <<
+			"  to \"Configuring import options\" in the DynAdjust User's Guide." << endl;
+		if (!p.g.quiet)
+			cout << ssEnsembleWarning.str();
+		imp_file << ssEnsembleWarning.str();
+	}
 	
 	milliseconds elapsed_time(milliseconds(time.elapsed().wall/MILLI_TO_NANO));
 	string time_message = formatedElapsedTime<string>(&elapsed_time, "+ Total file handling process took ");

@@ -550,8 +550,8 @@ int main(int argc, char* argv[])
 		case REFTRAN_WGS84_TRANS_UNSUPPORTED:
 			break;
 		}
-		cout << endl << "- Error: " << e.what() << endl;
-		rft_file << endl << "- Error: " << e.what() << endl;
+		cout << endl << endl << "- Error: " << e.what() << endl;
+		rft_file << endl << endl << "- Error: " << e.what() << endl;
 		rft_file.close();
 		return EXIT_FAILURE;
 	}

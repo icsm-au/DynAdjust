@@ -1909,7 +1909,7 @@ void determineHelmertParameters(transformation_parameter_set& tParam)
 		case WGS84_G1762_i:
 		case WGS84_G2139_i_xyz:
 		case WGS84_G2139_i:
-			throw RefTranException("Transformation parameters from and to WGS84 are unavailable.",
+			throw RefTranException("Transformation parameters from WGS 84 are unavailable.",
 				REFTRAN_WGS84_TRANS_UNSUPPORTED);
 			break;
 		default:
@@ -1919,11 +1919,11 @@ void determineHelmertParameters(transformation_parameter_set& tParam)
 	catch (runtime_error& e)
 	{
 		stringstream ss;
-		ss << 
-			"determineHelmertParameters(): Parameters for" <<
-			"  transforming between " << datumFromEpsgCode<string, UINT32>(tParam.from_to_.first) << " and " << 
-			datumFromEpsgCode<string, UINT32>(tParam.from_to_.second) << endl <<
-			"  have not been defined yet." << endl << e.what();
+		ss << "determineHelmertParameters():" << endl << 
+			"  " << e.what() << " Parameters for transforming between" << endl <<
+			"  " << datumFromEpsgCode<string, UINT32>(tParam.from_to_.first) << " and " << 
+			datumFromEpsgCode<string, UINT32>(tParam.from_to_.second) <<
+			" have not been defined yet." << endl;
 		throw boost::enable_current_exception(runtime_error(ss.str()));
 	}
 }

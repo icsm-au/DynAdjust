@@ -400,12 +400,36 @@ void dna_reftran::ApplyStationFrameSubstitutions()
 	
 	for (stn_it = bstBinaryRecords_.begin(); stn_it != bstBinaryRecords_.end(); ++stn_it)
 	{
-		if (IsolateandApplySubstitute(stn_it->epsgCode, stn_it->epoch, epsgSubstitute))
+		try {
+			if (IsolateandApplySubstitute(stn_it->epsgCode, stn_it->epoch, epsgSubstitute))
+			{
+				_v_stn_substitutions.push_back(string_string_pair(
+					datumFromEpsgString(string(stn_it->epsgCode)),
+					datumFromEpsgString(epsgSubstitute)));
+				strcpy(stn_it->epsgCode, epsgSubstitute.c_str());
+			}
+		}
+		catch (const RefTranException& e) 
 		{
-			_v_stn_substitutions.push_back(string_string_pair(
-				datumFromEpsgString(string(stn_it->epsgCode)),
-				datumFromEpsgString(epsgSubstitute)));
-			strcpy(stn_it->epsgCode, epsgSubstitute.c_str());
+			stringstream error_msg;
+			error_msg << endl <<
+				"    - Station:          " << stn_it->stationName << endl <<
+				"    - Frame and epoch:  " << datumFromEpsgString<string>(stn_it->epsgCode) << 
+				" (no epoch)" << endl;
+
+			switch (e.exception_type())
+			{
+			case REFTRAN_WGS84_TRANS_UNSUPPORTED:
+			{
+				stringstream throw_msg;
+				throw_msg << e.what() << error_msg.str() << endl;
+				throw RefTranException(throw_msg.str(), REFTRAN_WGS84_TRANS_UNSUPPORTED);
+				break;
+			}
+			default:
+				throw RefTranException(e.what());
+				break;
+			}
 		}
 	}
 
@@ -428,13 +452,39 @@ void dna_reftran::ApplyMeasurementFrameSubstitutions()
 
 	for (msr_it = bmsBinaryRecords_.begin(); msr_it != bmsBinaryRecords_.end(); ++msr_it)
 	{
-		if (IsolateandApplySubstitute(msr_it->epsgCode, msr_it->epoch, epsgSubstitute))
+		try {
+			if (IsolateandApplySubstitute(msr_it->epsgCode, msr_it->epoch, epsgSubstitute))
+			{
+				if (msr_it->measStart == xMeas)
+					_v_msr_substitutions.push_back(string_string_pair(
+						datumFromEpsgString(string(msr_it->epsgCode)),
+						datumFromEpsgString(epsgSubstitute)));
+				strcpy(msr_it->epsgCode, epsgSubstitute.c_str());
+			}
+		}
+		catch (const RefTranException& e)
 		{
-			if (msr_it->measStart == xMeas)
-				_v_msr_substitutions.push_back(string_string_pair(
-					datumFromEpsgString(string(msr_it->epsgCode)),
-					datumFromEpsgString(epsgSubstitute)));
-			strcpy(msr_it->epsgCode, epsgSubstitute.c_str());
+			stringstream error_msg;
+			error_msg << endl <<
+				"    - Measurement type: " << measurement_name<char, string>(msr_it->measType) << endl <<
+				"    - From:             " << bstBinaryRecords_.at(msr_it->station1).stationName << endl <<
+				"    - To:               " << bstBinaryRecords_.at(msr_it->station2).stationName << endl <<
+				"    - Frame and epoch:  " << datumFromEpsgString<string>(msr_it->epsgCode) << 
+				" (no epoch)" << endl;
+
+			switch (e.exception_type())
+			{
+			case REFTRAN_WGS84_TRANS_UNSUPPORTED:
+			{
+				stringstream throw_msg;
+				throw_msg << e.what() << error_msg.str() << endl;
+				throw RefTranException(throw_msg.str(), REFTRAN_WGS84_TRANS_UNSUPPORTED);
+				break;
+			}
+			default:
+				throw RefTranException(e.what());
+				break;
+			}
 		}
 	}
 
@@ -471,9 +521,12 @@ bool dna_reftran::IsolateandApplySubstitute(const string& epsgCode, const string
 		if (stnEpoch.empty())
 		{
 			stringstream throw_msg;
-			throw_msg << endl <<
-				"  When transforming from or to WGS 84, please ensure that \"" << WGS84_s << "\" in" << endl <<
-				"  the station and measurement files has been provided with an epoch." << endl;
+			throw_msg << " Cannot perform a reference frame substitution for data on '" << frame << "'" << endl <<
+				"  without a valid epoch.  '" << frame << "' refers to the \"World Geodetic System 1984" << endl <<
+				"  (WGS 84) ensemble\".  When transforming stations and measurements from the" << endl <<
+				"  WGS 84 ensemble, each record must be accompanied with an epoch.  Refer to" << endl <<
+				"  the DynAdjust User's Guide (\"Configuring import options\") for information" << endl <<
+				"  on how to achieve reliable transformation results using WGS 84." << endl;
 			throw RefTranException(throw_msg.str(), REFTRAN_WGS84_TRANS_UNSUPPORTED);
 		}
 
@@ -1436,33 +1489,24 @@ void dna_reftran::TransformStationRecords(const string& newFrame, const string& 
 			m_stnsTransformed++;
 		}
 	}
-	catch (const runtime_error& e) {
-		throw RefTranException(e.what());
-	}
-	catch (const RefTranException& e) {
-
+	catch (const runtime_error& e)
+	{
 		stringstream error_msg;
-		error_msg << endl <<
+		error_msg << e.what() << endl <<
 			"    - Station:          " << stn_it->stationName << endl <<
 			"    - Frame and epoch:  " << datumFromEpsgString<string>(stn_it->epsgCode) << " @ " <<
 			stn_it->epoch << endl;
-
-		switch (e.exception_type())
-		{
-		case REFTRAN_WGS84_TRANS_UNSUPPORTED:
-		{
-			stringstream throw_msg;
-			throw_msg << e.what() << error_msg.str() << endl <<
-				"  When transforming from or to WGS 84, please ensure that \"" << WGS84_s << "\" or" << endl <<
-				"  one of the known WGS 84 realisations (e.g. \"" << WGS84_G1762_s << "\") in the" << endl <<
-				"  station and measurement files has been provided with an epoch." << endl;
-			throw RefTranException(throw_msg.str(), REFTRAN_WGS84_TRANS_UNSUPPORTED);
-			break;
-		}
-		default:
-			throw RefTranException(e.what());
-			break;
-		}		
+		throw RefTranException(e.what());
+	}
+	catch (const RefTranException& e)
+	{
+		stringstream error_msg;
+		error_msg << e.what() << endl <<
+			"    - Station:          " << stn_it->stationName << endl <<
+			"    - Frame and epoch:  " << datumFromEpsgString<string>(stn_it->epsgCode) << " @ " <<
+			stn_it->epoch << endl;		
+		throw RefTranException(e.what());
+				
 	}
 }
 	
@@ -1587,7 +1631,8 @@ void dna_reftran::TransformMeasurementRecords(const string& newFrame, const stri
 			transformationPerformed_ = true;
 		}
 	}
-	catch (const runtime_error& e) {
+	catch (const runtime_error& e)
+	{
 		stringstream error_msg;
 		error_msg << e.what() << endl <<
 			"    - Measurement type: " << measurement_name<char, string>(msr_it->measType) << endl <<
@@ -1597,36 +1642,17 @@ void dna_reftran::TransformMeasurementRecords(const string& newFrame, const stri
 			msr_it->epoch << endl;
 		throw RefTranException(error_msg.str());
 	}
-	catch (const RefTranException& e) {
-
+	catch (const RefTranException& e) 
+	{
 		stringstream error_msg;
-		error_msg << endl <<
+		error_msg << e.what() << endl <<
 			"    - Measurement type: " << measurement_name<char, string>(msr_it->measType) << endl <<
 			"    - From:             " << bstBinaryRecords_.at(msr_it->station1).stationName << endl <<
 			"    - To:               " << bstBinaryRecords_.at(msr_it->station2).stationName << endl <<
 			"    - Frame and epoch:  " << datumFromEpsgString<string>(msr_it->epsgCode) << " @ " <<
 			msr_it->epoch << endl;
 
-		switch (e.exception_type())
-		{
-		case REFTRAN_WGS84_TRANS_UNSUPPORTED:
-		{
-			stringstream throw_msg;
-			throw_msg << e.what() << error_msg.str() << endl <<
-				"  When transforming from or to WGS 84, please ensure that \"" << WGS84_s << "\" or" << endl <<
-				"  one of the known WGS 84 realisations (e.g. \"" << WGS84_G1762_s << "\") in the" << endl <<
-				"  station and measurement files has been provided with an epoch." << endl;
-			throw RefTranException(throw_msg.str(), REFTRAN_WGS84_TRANS_UNSUPPORTED);
-			break;
-		}
-		default:
-		{
-			stringstream throw_msg;
-			throw_msg << e.what() << error_msg.str();
-			throw RefTranException(throw_msg.str());
-			break;
-		}
-		}
+		throw RefTranException(error_msg.str());
 	}
 }
 
