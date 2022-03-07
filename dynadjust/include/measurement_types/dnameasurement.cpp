@@ -469,8 +469,8 @@ CDnaMeasurement::CDnaMeasurement()
 	, m_measAdjPrec(0)
 	, m_residualPrec(0)
 	, m_preAdjCorr(0)
-	, m_epoch("")
 	, m_epsgCode(DEFAULT_EPSG_S)
+	, m_epoch("")
 	, m_databaseIdSet(false)
 {
 }
