@@ -120,9 +120,15 @@ void CDnaDatum::initialiseDatumFromEpsgCode()
 	datumName_ = datumFromEpsgCode<string, UINT32>(epsgCode_);
 }
 	
-// returns dd.mm.yyyy
+// returns:
+//  - dd.mm.yyyy for datums that have a reference epoch
+//  - "" for ensembles that do not have an epoch
 string CDnaDatum::GetEpoch_s() const
 {
+	if (isEpsgWGS84Ensemble(epsgCode_) && isTimeImmemorial(epoch_))
+		return "";
+	else if (isTimeImmemorial(epoch_))
+		return "";
 	return stringFromDate<date>(epoch_);
 }
 	
@@ -167,7 +173,12 @@ void CDnaDatum::SetEpoch(const string& epoch)
 {
 	// Parse epoch
 	if (epoch.empty())
-		epoch_ = dateFromString<date>(referenceepochFromEpsgCode(epsgCode_));
+	{
+		if (isEpsgWGS84Ensemble(epsgCode_))
+			epoch_ = timeImmemorial<date>();
+		else
+			epoch_ = dateFromString<date>(referenceepochFromEpsgCode(epsgCode_));
+	}
 	else
 		epoch_ = dateFromString<date>(epoch);
 }

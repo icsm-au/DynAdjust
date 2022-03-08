@@ -36,7 +36,19 @@ dna_reftran::dna_reftran()
 #endif
 #endif
 	rft_file = 0;
+
+	LoadWGS84FrameSubstitutions();
 }
+
+dna_reftran::dna_reftran(const project_settings& p, std::ofstream* f_out) 
+{
+	InitialiseSettings(p);
+	// reftran log file pointer
+	rft_file = f_out;
+
+	LoadWGS84FrameSubstitutions();
+}
+
 
 dna_reftran::~dna_reftran()
 {
@@ -54,11 +66,17 @@ void dna_reftran::TransformBinaryFiles(const string& bstFile, const string& bmsF
 	// load the binary station file into memory
 	LoadBinaryStationFile(bstFile);
 
+	// Identify and apply any substitutions for WGS84 in the list of stations
+	ApplyStationFrameSubstitutions();
+
 	if (projectSettings_.r.plate_model_option == 1)
 		IdentifyStationPlate();
 
 	// load the binary measurement file into memory
 	LoadBinaryMeasurementFile(bmsFile);
+
+	// Identify and apply any substitutions for WGS84 in the list of measurements
+	ApplyMeasurementFrameSubstitutions();
 
 	datumTo_.SetDatumFromName(newFrame, newEpoch);
 
@@ -157,7 +175,8 @@ void dna_reftran::LoadTectonicPlateParameters(const string& pltfileName, const s
 {
 	dna_io_tpb tpb;
 	stringstream ss;
-	ss << "LoadTectonicPlateParameters(): An error was encountered when loading tectonic plate information." << endl;
+	ss << "LoadTectonicPlateParameters(): An error was encountered when loading" << endl <<
+		"  tectonic plate information." << endl;
 	
 	projectSettings_.r.plate_model_option = 1;
 
@@ -249,6 +268,293 @@ void dna_reftran::CalculateRotations()
 	}
 
 }
+
+// Load substitutions for WGS84 and WGS84 (...)
+void dna_reftran::LoadWGS84FrameSubstitutions()
+{
+	frameSubsPtr frameSubstitution;
+
+	_frameSubstitutions.clear();
+	
+	// WGS84 (transit) and WGS84 to ITRF90
+	frameSubstitution.reset(new WGS84_TRANSIT_ITRF90<string, UINT32, double>);
+	_frameSubstitutions.push_back(frameSubstitution);
+	frameSubstitution.reset(new WGS84_ITRF90<string, UINT32, double>);
+	_frameSubstitutions.push_back(frameSubstitution);
+
+	// WGS84 (G730) and WGS84 to ITRF91
+	frameSubstitution.reset(new WGS84_G730_ITRF91<string, UINT32, double>);
+	_frameSubstitutions.push_back(frameSubstitution);
+	frameSubstitution.reset(new WGS84_ITRF91<string, UINT32, double>);
+	_frameSubstitutions.push_back(frameSubstitution);
+
+	// WGS84 (G873) and WGS84 to ITRF94
+	frameSubstitution.reset(new WGS84_G873_ITRF94<string, UINT32, double>);
+	_frameSubstitutions.push_back(frameSubstitution);
+	frameSubstitution.reset(new WGS84_ITRF94<string, UINT32, double>);
+	_frameSubstitutions.push_back(frameSubstitution);
+
+	// WGS84 (G1150) and WGS84 to ITRF2000
+	frameSubstitution.reset(new WGS84_G1150_ITRF2000<string, UINT32, double>);
+	_frameSubstitutions.push_back(frameSubstitution);
+	frameSubstitution.reset(new WGS84_ITRF2000<string, UINT32, double>);
+	_frameSubstitutions.push_back(frameSubstitution);
+
+	// WGS84 (G1674) and WGS84 to ITRF2008
+	frameSubstitution.reset(new WGS84_G1674_ITRF2008<string, UINT32, double>);
+	_frameSubstitutions.push_back(frameSubstitution);
+	frameSubstitution.reset(new WGS84_ITRF2008_1<string, UINT32, double>);
+	_frameSubstitutions.push_back(frameSubstitution);
+
+	// WGS84 (G1762) and WGS84 to ITRF2008
+	frameSubstitution.reset(new WGS84_G1762_ITRF2008<string, UINT32, double>);
+	_frameSubstitutions.push_back(frameSubstitution);
+	frameSubstitution.reset(new WGS84_ITRF2008_2<string, UINT32, double>);
+	_frameSubstitutions.push_back(frameSubstitution);
+
+	// WGS84 (G2139) and WGS84 to ITRF2014
+	frameSubstitution.reset(new WGS84_G2139_ITRF2014<string, UINT32, double>);
+	_frameSubstitutions.push_back(frameSubstitution);
+	frameSubstitution.reset(new WGS84_ITRF2014<string, UINT32, double>);
+	_frameSubstitutions.push_back(frameSubstitution);
+
+	sort(_frameSubstitutions.begin(), _frameSubstitutions.end(), 
+		CompareSubstituteOnFrameName< frame_substitutions_t<string, UINT32, double>, string>());
+
+}
+
+void dna_reftran::LogFrameSubstitutions(vector<string_string_pair>& substitutions, const string& type)
+{
+	// Sort, count and remove duplicates
+	vector<string_string_pair>::iterator _it_sub_1, _it_sub_2, _it_sub_newend;
+	UINT32 i(0);
+	vUINT32 subs;
+
+	// sort
+	sort(substitutions.begin(), substitutions.end());
+
+	// count unique pairs
+	for (_it_sub_1 = substitutions.begin();
+		_it_sub_1 != substitutions.end();)
+	{
+		subs.push_back(1);
+		for (_it_sub_2 = _it_sub_1 + 1; _it_sub_2 != substitutions.end(); ++_it_sub_2)
+		{
+			if (*_it_sub_1 == *_it_sub_2)
+			{
+				subs.at(i)++;
+				++_it_sub_1;
+			}
+			else
+				break;
+		}
+		i++;
+		if (_it_sub_2 == substitutions.end())
+			break;
+		_it_sub_1 = _it_sub_2;
+	}
+
+	// remove duplicates
+	_it_sub_newend = unique(substitutions.begin(), substitutions.end());
+	UINT32 subs_count = _it_sub_newend - substitutions.begin();
+	if (_it_sub_newend != substitutions.end())
+		substitutions.resize(_it_sub_newend - substitutions.begin());
+
+	if (subs.size() != substitutions.size())
+		// something went wrong
+		return;
+
+	// print
+	vUINT32::iterator _it_subs = subs.begin();
+	stringstream ss1, ss2;
+	ss1 << type << " reference frame substitutions";
+	ss2 << "(" << subs_count << ")";
+	
+	*rft_file << endl << endl <<
+		setw(PRINT_VAL_PAD) << left << ss1.str() <<
+		setw(NUMERIC_WIDTH) << right << ss2.str() << endl;
+	*rft_file << string(PRINT_VAL_PAD + NUMERIC_WIDTH, '-') << endl;
+
+	for_each(
+		substitutions.begin(),
+		substitutions.end(),
+		[this, &_it_subs](string_string_pair& substitution) {
+			*rft_file << setw(BLOCK) << left << substitution.first <<
+				" --> " <<
+				setw(BLOCK) << substitution.second <<
+				setw(HEADER_20) << right << *(_it_subs++) << endl;
+		}
+	);
+	
+}
+
+	
+void dna_reftran::ApplyStationFrameSubstitutions()
+{
+	// loop through binary station records and replace occurrences of 
+	// the frame to be replaced with a substitute
+	it_vstn_t stn_it;
+	string epsgSubstitute;
+
+	_v_stn_substitutions.clear();
+	
+	for (stn_it = bstBinaryRecords_.begin(); stn_it != bstBinaryRecords_.end(); ++stn_it)
+	{
+		try {
+			if (IsolateandApplySubstitute(stn_it->epsgCode, stn_it->epoch, epsgSubstitute))
+			{
+				_v_stn_substitutions.push_back(string_string_pair(
+					datumFromEpsgString(string(stn_it->epsgCode)),
+					datumFromEpsgString(epsgSubstitute)));
+				strcpy(stn_it->epsgCode, epsgSubstitute.c_str());
+			}
+		}
+		catch (const RefTranException& e) 
+		{
+			stringstream error_msg;
+			error_msg << endl <<
+				"    - Station:          " << stn_it->stationName << endl <<
+				"    - Frame and epoch:  " << datumFromEpsgString<string>(stn_it->epsgCode) << 
+				" (no epoch)" << endl;
+
+			switch (e.exception_type())
+			{
+			case REFTRAN_WGS84_TRANS_UNSUPPORTED:
+			{
+				stringstream throw_msg;
+				throw_msg << e.what() << error_msg.str() << endl;
+				throw RefTranException(throw_msg.str(), REFTRAN_WGS84_TRANS_UNSUPPORTED);
+				break;
+			}
+			default:
+				throw RefTranException(e.what());
+				break;
+			}
+		}
+	}
+
+	if (_v_stn_substitutions.empty())
+		return;
+	if (projectSettings_.g.verbose < 2)
+		return;
+
+	LogFrameSubstitutions(_v_stn_substitutions, "Station");
+}
+	
+void dna_reftran::ApplyMeasurementFrameSubstitutions()
+{
+	// loop through binary station records and replace occurrences of 
+	// the frame to be replaced with a substitute
+	it_vmsr_t msr_it;
+	string epsgSubstitute;
+
+	_v_msr_substitutions.clear();
+
+	for (msr_it = bmsBinaryRecords_.begin(); msr_it != bmsBinaryRecords_.end(); ++msr_it)
+	{
+		try {
+			if (IsolateandApplySubstitute(msr_it->epsgCode, msr_it->epoch, epsgSubstitute))
+			{
+				if (msr_it->measStart == xMeas)
+					_v_msr_substitutions.push_back(string_string_pair(
+						datumFromEpsgString(string(msr_it->epsgCode)),
+						datumFromEpsgString(epsgSubstitute)));
+				strcpy(msr_it->epsgCode, epsgSubstitute.c_str());
+			}
+		}
+		catch (const RefTranException& e)
+		{
+			stringstream error_msg;
+			error_msg << endl <<
+				"    - Measurement type: " << measurement_name<char, string>(msr_it->measType) << endl <<
+				"    - From:             " << bstBinaryRecords_.at(msr_it->station1).stationName << endl <<
+				"    - To:               " << bstBinaryRecords_.at(msr_it->station2).stationName << endl <<
+				"    - Frame and epoch:  " << datumFromEpsgString<string>(msr_it->epsgCode) << 
+				" (no epoch)" << endl;
+
+			switch (e.exception_type())
+			{
+			case REFTRAN_WGS84_TRANS_UNSUPPORTED:
+			{
+				stringstream throw_msg;
+				throw_msg << e.what() << error_msg.str() << endl;
+				throw RefTranException(throw_msg.str(), REFTRAN_WGS84_TRANS_UNSUPPORTED);
+				break;
+			}
+			default:
+				throw RefTranException(e.what());
+				break;
+			}
+		}
+	}
+
+	if (_v_msr_substitutions.empty())
+		return;
+	if (projectSettings_.g.verbose < 2)
+		return;
+
+	LogFrameSubstitutions(_v_msr_substitutions, "Measurement");
+}
+	
+
+bool dna_reftran::IsolateandApplySubstitute(const string& epsgCode, const string& stnEpoch, string& epsgSubstitute)
+{
+	_it_vframesubptr _it_subst = _frameSubstitutions.begin();
+
+	string frame;
+	frame = datumFromEpsgCode<string, UINT32>(LongFromString<UINT32>(epsgCode));
+
+	// first, find the first occurrence of the substitute in _frameSubstitutions 
+	if ((_it_subst = binary_search_substitution(
+		_it_subst,
+		_frameSubstitutions.end(),
+		frame)) == _frameSubstitutions.end())
+	{
+		// Frame not found in substitutions
+		return false;
+	}
+
+	epsgSubstitute = "";
+
+	if (isEpsgStringWGS84Ensemble(epsgCode))
+	{
+		if (stnEpoch.empty())
+		{
+			stringstream throw_msg;
+			throw_msg << " Cannot perform a reference frame substitution for data on '" << frame << "'" << endl <<
+				"  without a valid epoch.  '" << frame << "' refers to the \"World Geodetic System 1984" << endl <<
+				"  (WGS 84) ensemble\".  When transforming stations and measurements from the" << endl <<
+				"  WGS 84 ensemble, each record must be accompanied with an epoch.  Refer to" << endl <<
+				"  the DynAdjust User's Guide (\"Configuring import options\") for information" << endl <<
+				"  on how to achieve reliable transformation results using WGS 84." << endl;
+			throw RefTranException(throw_msg.str(), REFTRAN_WGS84_TRANS_UNSUPPORTED);
+		}
+
+		// In this case, use the epoch to identify the correct substitution
+		boost::gregorian::date epoch = dateFromString<date>(stnEpoch);
+
+		while (_it_subst != _frameSubstitutions.end())
+		{
+			if (epoch >= _it_subst->get()->getFromEpoch() &&
+				epoch <= _it_subst->get()->getToEpoch())
+			{
+				epsgSubstitute = _it_subst->get()->getSubstituteName();
+				break;
+			}
+			_it_subst++;
+		}
+	}
+	else
+		epsgSubstitute = _it_subst->get()->getSubstituteName();	
+
+	if (epsgSubstitute.empty())
+		return false;
+
+	epsgSubstitute = epsgStringFromName<string>(epsgSubstitute);
+
+	return true;
+}
+
 
 void dna_reftran::LoadBinaryStationFile(const string& bstfileName)
 {
@@ -779,6 +1085,9 @@ void dna_reftran::TransformFrames_WithoutPlateMotionModel(it_vstn_t& stn_it, con
 		case REFTRAN_DIRECT_PARAMS_UNAVAILABLE:
 			TransformFrames_Join(stn_it, coordinates, coordinates_mod, datumFrom, datumTo, transformParameters, transType);
 			break;
+		case REFTRAN_WGS84_TRANS_UNSUPPORTED:
+			throw RefTranException(rft.what(), REFTRAN_WGS84_TRANS_UNSUPPORTED);
+			break;
 		default:
 			throw RefTranException(rft.what());
 		}
@@ -1180,11 +1489,24 @@ void dna_reftran::TransformStationRecords(const string& newFrame, const string& 
 			m_stnsTransformed++;
 		}
 	}
-	catch (const runtime_error& e) {
+	catch (const runtime_error& e)
+	{
+		stringstream error_msg;
+		error_msg << e.what() << endl <<
+			"    - Station:          " << stn_it->stationName << endl <<
+			"    - Frame and epoch:  " << datumFromEpsgString<string>(stn_it->epsgCode) << " @ " <<
+			stn_it->epoch << endl;
 		throw RefTranException(e.what());
 	}
-	catch (const RefTranException& e) {
+	catch (const RefTranException& e)
+	{
+		stringstream error_msg;
+		error_msg << e.what() << endl <<
+			"    - Station:          " << stn_it->stationName << endl <<
+			"    - Frame and epoch:  " << datumFromEpsgString<string>(stn_it->epsgCode) << " @ " <<
+			stn_it->epoch << endl;		
 		throw RefTranException(e.what());
+				
 	}
 }
 	
@@ -1309,7 +1631,8 @@ void dna_reftran::TransformMeasurementRecords(const string& newFrame, const stri
 			transformationPerformed_ = true;
 		}
 	}
-	catch (const runtime_error& e) {
+	catch (const runtime_error& e)
+	{
 		stringstream error_msg;
 		error_msg << e.what() << endl <<
 			"    - Measurement type: " << measurement_name<char, string>(msr_it->measType) << endl <<
@@ -1319,7 +1642,8 @@ void dna_reftran::TransformMeasurementRecords(const string& newFrame, const stri
 			msr_it->epoch << endl;
 		throw RefTranException(error_msg.str());
 	}
-	catch (const RefTranException& e) {
+	catch (const RefTranException& e) 
+	{
 		stringstream error_msg;
 		error_msg << e.what() << endl <<
 			"    - Measurement type: " << measurement_name<char, string>(msr_it->measType) << endl <<
@@ -1327,6 +1651,7 @@ void dna_reftran::TransformMeasurementRecords(const string& newFrame, const stri
 			"    - To:               " << bstBinaryRecords_.at(msr_it->station2).stationName << endl <<
 			"    - Frame and epoch:  " << datumFromEpsgString<string>(msr_it->epsgCode) << " @ " <<
 			msr_it->epoch << endl;
+
 		throw RefTranException(error_msg.str());
 	}
 }

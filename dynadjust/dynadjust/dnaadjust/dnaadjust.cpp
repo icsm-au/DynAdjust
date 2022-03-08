@@ -13942,6 +13942,9 @@ void dna_adjust::SetDefaultReferenceFrame()
 	//	  *	If dnareftran has been run, every station and measurement record will
 	//		have been transformed to the one frame and epoch. These reference frame
 	//		records will be consistent with the bst/bms_meta.
+	//    * If the user has not specified an epoch with WGS84, then the epoch will
+	//      be set to "time immemorial" being 01.01.1900. Any occurrence of this will
+	//      cause output to be set to an empty string ("").
 	try {
 		// Load binary stations data.  Throws runtime_error on failure.
 		dna_io_bst bst;

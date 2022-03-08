@@ -193,6 +193,9 @@ void dna_import::UpdateEpoch(const vifm_t* vinput_file_meta)
 		// Do nothing
 		return;
 
+	if (dateFromString<date>(epoch) == timeImmemorial<date>())
+		epoch = "";
+
 	m_strProjectDefaultEpoch = epoch;
 
 	// Set default epoch
@@ -222,6 +225,9 @@ void dna_import::InitialiseDatum(const string& reference_frame)
 	// Get epsg code and epoch from the 'parsed' datum and epoch
 	m_strProjectDefaultEpsg = datum_.GetEpsgCode_s();
 	m_strProjectDefaultEpoch = datum_.GetEpoch_s();
+
+	if (datum_.GetEpoch() == timeImmemorial<date>())
+		m_strProjectDefaultEpoch = "";
 
 	// Update binary file meta
 	// Note: the following rule applies each time a new file is loaded:
@@ -1196,7 +1202,7 @@ void dna_import::ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32
 		import_file_mutex.unlock();
 	}
 	catch (const runtime_error& e) {
-		SignalExceptionParse(static_cast<string>(e.what()), 0);
+		throw XMLInteropException(e.what(), 0);
 	}
 		
 	// Station file
@@ -1221,14 +1227,14 @@ void dna_import::ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32
 			}
 			stringstream ss;
 			ss << "ParseDNA(): An ios_base failure was encountered when attempting to read stations file  " << fileName << "." << endl << "  " << f.what();
-			SignalExceptionParse(ss.str(), 0);
+			throw XMLInteropException(ss.str(), 0);
 		}
 		catch (const XMLInteropException& f) {
 			stringstream ss;
 			ss << "  - line " << m_lineNo;
 			ss << ", column " <<  m_columnNo << endl;
 			ss << "  - " << f.what();
-			SignalExceptionParse(ss.str(), 0);
+			throw XMLInteropException(ss.str(), 0);
 		}
 		catch (...) {
 			if (ifsInputFILE_->eof())
@@ -1239,7 +1245,7 @@ void dna_import::ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32
 			}
 			stringstream ss;
 			ss << "ParseDNA(): An error was encountered when attempting to read stations file  " << fileName << ".";
-			SignalExceptionParse(ss.str(), 0);
+			throw XMLInteropException(ss.str(), 0);
 		}
 	}
 	else if (idt == msr_data ||
@@ -1263,14 +1269,14 @@ void dna_import::ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32
 			}
 			stringstream ss;
 			ss << "ParseDNA(): An ios_base failure was encountered when attempting to read measurements file  " << fileName << "." << endl << "  " << f.what();
-			SignalExceptionParse(ss.str(), 0);
+			throw XMLInteropException(ss.str(), 0);
 		}
 		catch (const XMLInteropException& f) {
 			stringstream ss;
 			ss << endl << "  - line " << m_lineNo;
 			ss << ", column " <<  m_columnNo << endl;
 			ss << "  - " << f.what();
-			SignalExceptionParse(ss.str(), 0);
+			throw XMLInteropException(ss.str(), 0);
 		}
 		catch (...) {
 			if (ifsInputFILE_->eof())
@@ -1283,7 +1289,7 @@ void dna_import::ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32
 			ss << "ParseDNA(): An error was encountered when attempting to read measurements file  " << fileName << "." << endl;
 			ss << "  - line " << m_lineNo;
 			ss << ", column " <<  m_columnNo << endl;
-			SignalExceptionParse(ss.str(), 0);
+			throw XMLInteropException(ss.str(), 0);
 		}
 	}
 }
@@ -1312,7 +1318,6 @@ void dna_import::ParseDNASTN(vdnaStnPtr* vStations, PUINT32 stnCount, string* su
 		
 		try {
 			getline((*ifsInputFILE_), sBuf);
-			stn_ptr.reset(new CDnaStation(datum_.GetName(), datum_.GetEpoch_s()));
 		}
 		catch (...) {
 			if (ifsInputFILE_->eof())
@@ -1342,6 +1347,9 @@ void dna_import::ParseDNASTN(vdnaStnPtr* vStations, PUINT32 stnCount, string* su
 		if (sBuf.compare(0, 1, "*") == 0)
 			continue;
 		
+		// initialise new station
+		stn_ptr.reset(new CDnaStation(datum_.GetName(), datum_.GetEpoch_s()));
+
 		stn_ptr->SetfileOrder(g_fileOrder++);
 
 		// name
@@ -1953,7 +1961,17 @@ void dna_import::ParseDNAMSRGPSBaselines(string& sBuf, dnaMsrPtr& msr_ptr, bool 
 			// Get the epoch from the file
 			tmp = ParseEpochValue(sBuf, "ParseDNAMSRGPSBaselines");
 
-			if (!tmp.empty())
+			if (tmp.empty())
+			{
+				if (isEpsgWGS84Ensemble(epsgCodeFromName<UINT32, string>(msr_ptr->GetReferenceFrame())))
+				{
+					// Set the cluster epoch
+					msr_ptr->SetEpoch("");
+					// Set the baseline epoch
+					bslTmp.SetEpoch("");
+				}
+			}
+			else
 			{
 				// Set the cluster epoch
 				msr_ptr->SetEpoch(tmp);
@@ -2176,7 +2194,17 @@ void dna_import::ParseDNAMSRGPSPoints(string& sBuf, dnaMsrPtr& msr_ptr, bool ign
 			// Get the epoch from the file
 			tmp = ParseEpochValue(sBuf, "ParseDNAMSRGPSPoints");
 
-			if (!tmp.empty())
+			if (tmp.empty())
+			{
+				if (isEpsgWGS84Ensemble(epsgCodeFromName<UINT32, string>(msr_ptr->GetReferenceFrame())))
+				{
+					// Set the cluster epoch
+					msr_ptr->SetEpoch("");
+					// Set the baseline epoch
+					pntTmp.SetEpoch("");
+				}
+			}
+			else
 			{
 				// Set the cluster epoch
 				msr_ptr->SetEpoch(tmp);
@@ -2389,6 +2417,7 @@ string dna_import::ParseAngularValue(const string& sBuf, const string& calling_f
 {
 	string parsed_value, tmp;
 	double d;
+	UINT32 u;
 
 	// degrees value
 	try {
@@ -2402,10 +2431,10 @@ string dna_import::ParseAngularValue(const string& sBuf, const string& calling_f
 	// minutes value
 	try {
 		tmp = trimstr(sBuf.substr(dml_.msr_ang_m, dmw_.msr_ang_m));
-		d = DoubleFromString<double>(tmp);
-		if (d < 10 && tmp.at(0) != '0')
+		u = LongFromString<UINT32>(tmp);
+		if (u < 10)
 			parsed_value.append("0");
-		parsed_value.append(tmp);		
+		parsed_value.append(StringFromT<UINT32>(u));
 	}
 	catch (...) {
 		SignalExceptionParseDNA(calling_function + "(): Could not extract minutes value from the record:  ",

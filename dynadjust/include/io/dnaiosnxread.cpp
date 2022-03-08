@@ -218,7 +218,7 @@ stringstream dna_io_snx::parse_date_from_string(const string& date_str, DATE_FOR
 		{
 		case date_from:
 			// Set a date before the advent of GPS
-			date_ss << "001 " << DISCONT_TIME_IMMEMORIAL;
+			date_ss << "001 " << TIME_IMMEMORIAL;
 			return date_ss;
 		case date_to:
 			// Set a date 100 years into the future

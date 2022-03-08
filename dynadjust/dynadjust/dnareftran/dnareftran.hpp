@@ -53,19 +53,24 @@ using namespace boost::filesystem;
 #include <include/config/dnaversion-stream.hpp>
 #include <include/config/dnaconsts.hpp>
 #include <include/config/dnaoptions.hpp>
+#include <include/config/dnaoptions-interface.hpp>
 #include <include/exception/dnaexception.hpp>
+
 #include <include/functions/dnatemplatedatetimefuncs.hpp>
 #include <include/functions/dnaiostreamfuncs.hpp>
 #include <include/functions/dnastringfuncs.hpp>
 #include <include/functions/dnastrmanipfuncs.hpp>
 #include <include/functions/dnatemplatematrixfuncs.hpp>
 #include <include/functions/dnatransparamfuncs.hpp>
+
 #include <include/parameters/dnaepsg.hpp>
 #include <include/parameters/dnaellipsoid.hpp>
 #include <include/parameters/dnaprojection.hpp>
 #include <include/parameters/dnadatum.hpp>
 #include <include/parameters/dnatransformationparameters.hpp>
 #include <include/parameters/dnaplatemotionmodels.hpp>
+#include <include/parameters/dnaframesubstitutions.hpp>
+
 #include <include/math/dnamatrix_contiguous.hpp>
 #include <include/measurement_types/dnameasurement.hpp>
 #include <include/measurement_types/dnageometries.hpp>
@@ -78,6 +83,7 @@ using namespace dynadjust::datum_parameters;
 using namespace dynadjust::pmm_parameters;
 using namespace dynadjust::math;
 using namespace dynadjust::geometries;
+using namespace dynadjust::frame_substitutions;
 
 namespace dynadjust {
 namespace referenceframe {
@@ -91,11 +97,7 @@ class dna_reftran {
 
 public:
 	dna_reftran();
-	dna_reftran(const project_settings& p, std::ofstream* f_out) {
-		InitialiseSettings(p);
-		// reftran log file pointer
-		rft_file = f_out;
-	}
+	dna_reftran(const project_settings& p, std::ofstream* f_out);
 	virtual ~dna_reftran();
 
 private:
@@ -130,6 +132,9 @@ public:
 	//bool PrintTransformedStationCoordinatestoSNX();
 
 	void LoadTectonicPlateParameters(const string& pltfileName, const string& pmmfileName);
+
+	//void LoadFrameSubstitutions(const string& frxfileName);
+	void LoadWGS84FrameSubstitutions();
 
 	inline void InitialiseSettings(const project_settings& p) {projectSettings_ = p;}
 
@@ -193,6 +198,12 @@ private:
 	
 	void CalculateRotations();
 
+	void LogFrameSubstitutions(vector<string_string_pair>& substitutions, const string& type);
+	void ApplyStationFrameSubstitutions();
+	void ApplyMeasurementFrameSubstitutions();
+
+	bool IsolateandApplySubstitute(const string& epsgCode, const string& epoch, string& epsgSubstitute);
+
 	//double							m_dPercentComplete;			// percentage of bytes read from file
 	int								m_iBytesRead;				// bytes read from file
 	UINT32							m_stnsTransformed;
@@ -215,6 +226,10 @@ private:
 	v_string_v_doubledouble_pair	global_plates_;				// Tectonic plate boundaries
 	v_plate_motion_eulers			plate_motion_eulers_;		// Euler parameters corresponding to each plate
 	v_plate_motion_cartesians		plate_motion_cartesians_;	// Helmert parameters computed from Euler parameters
+
+	vframeSubsPtr					_frameSubstitutions;		// Reference frame substitutions
+	vector<string_string_pair>		_v_stn_substitutions;		// station substitutions made
+	vector<string_string_pair>		_v_msr_substitutions;		// station substitutions made
 
 	v_string_uint32_pair 			vplateMap_;					// Plate Map index sorted on plate ID
 

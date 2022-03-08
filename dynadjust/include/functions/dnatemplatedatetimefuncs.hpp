@@ -35,6 +35,8 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <include/functions/dnastrmanipfuncs.hpp>
 
+const UINT32 TIME_IMMEMORIAL = 1900;
+
 using namespace std;
 using namespace boost::timer;
 using namespace boost::posix_time;
@@ -190,6 +192,18 @@ template <class U, class T>
 T ymdToDate(const U& year, const U& month, const U& day)
 {
 	return date(year, month, day);
+}
+
+template <class T>
+T timeImmemorial()
+{
+	return T(TIME_IMMEMORIAL, 1, 1);
+}
+
+template <class T>
+bool isTimeImmemorial(const T& theDate)
+{
+	return theDate < T(TIME_IMMEMORIAL, 1, 2);
 }
 
 // cumulative days in a year required for determining decimal year
