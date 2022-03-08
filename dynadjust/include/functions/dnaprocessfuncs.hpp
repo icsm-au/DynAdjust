@@ -32,7 +32,6 @@
 #include <string>
 
 #include <boost/thread.hpp>
-#include <boost/process.hpp>
 
 #if defined(_WIN32) || defined(__WIN32__)
 #include <windows.h>
