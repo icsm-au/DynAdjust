@@ -15,6 +15,7 @@ add_library (${PROJECT_NAME} SHARED
              ${CMAKE_SOURCE_DIR}/include/parameters/dnaellipsoid.cpp
              ${CMAKE_SOURCE_DIR}/include/parameters/dnaprojection.cpp
              ${CMAKE_SOURCE_DIR}/include/functions/dnastringfuncs.cpp
+             ${CMAKE_SOURCE_DIR}/include/functions/dnaprocessfuncs.cpp
              ${CMAKE_SOURCE_DIR}/include/math/dnamatrix_contiguous.cpp
              ${CMAKE_SOURCE_DIR}/include/measurement_types/dnamsrtally.cpp
              ${CMAKE_SOURCE_DIR}/include/measurement_types/dnastation.cpp
