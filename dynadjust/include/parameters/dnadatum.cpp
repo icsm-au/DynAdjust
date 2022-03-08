@@ -127,6 +127,8 @@ string CDnaDatum::GetEpoch_s() const
 {
 	if (isEpsgWGS84Ensemble(epsgCode_) && isTimeImmemorial(epoch_))
 		return "";
+	else if (isTimeImmemorial(epoch_))
+		return "";
 	return stringFromDate<date>(epoch_);
 }
 	
