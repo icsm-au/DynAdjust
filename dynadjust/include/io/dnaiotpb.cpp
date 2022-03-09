@@ -66,7 +66,7 @@ void dna_io_tpb::load_tpb_file(const string& tpb_filename, v_string_v_doubledoub
 	ss << "load_tpb_file(): An error was encountered when opening " << tpb_filename << "." << endl;
 	
 	try {
-		// open binary stations file.  Throws runtime_error on failure.
+		// open ascii plate boundaries file.  Throws runtime_error on failure.
 		file_opener(tpb_file, tpb_filename, ios::in, ascii, true);
 	}
 	catch (const runtime_error& e) {
@@ -169,7 +169,7 @@ void dna_io_tpb::load_tpp_file(const string& tpp_filename, v_plate_motion_eulers
 	ss << "load_tpp_file(): An error was encountered when opening " << tpp_filename << "." << endl;
 
 	try {
-		// open binary stations file.  Throws runtime_error on failure.
+		// open ascii pole parameters file.  Throws runtime_error on failure.
 		file_opener(tpp_file, tpp_filename, ios::in, ascii, true);
 	}
 	catch (const runtime_error& e) {

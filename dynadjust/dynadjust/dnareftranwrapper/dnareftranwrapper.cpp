@@ -156,7 +156,7 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 			return EXIT_FAILURE;
 		}
 	}
-	
+
 	p.g.project_file = formPath<string>(p.g.output_folder, p.g.network_name, "dnaproj");
 	p.r.rft_file = formPath<string>(p.g.output_folder, p.g.network_name, "rft");
 
@@ -495,11 +495,11 @@ int main(int argc, char* argv[])
 	dna_reftran refTran(p, &rft_file);
 	stringstream ss_msg;
 
+	// Load plate boundary and euler pole information
 	if (vm.count(TECTONIC_PLATE_MODEL_OPTION))
 	{
 		ss_msg << "+ Loading global tectonic plate boundaries and plate motion information... ";
 
-		// Load plate boundary and euler pole information
 		if (!p.g.quiet)
 			cout << ss_msg.str();		
 		rft_file << ss_msg.str();
@@ -545,8 +545,13 @@ int main(int argc, char* argv[])
 		return EXIT_FAILURE;
 	}
 	catch (const RefTranException& e) {
-		cout << endl << "- Error: " << e.what() << endl;
-		rft_file << endl << "- Error: " << e.what() << endl;
+		switch (e.exception_type())
+		{
+		case REFTRAN_WGS84_TRANS_UNSUPPORTED:
+			break;
+		}
+		cout << endl << endl << "- Error: " << e.what() << endl;
+		rft_file << endl << endl << "- Error: " << e.what() << endl;
 		rft_file.close();
 		return EXIT_FAILURE;
 	}

@@ -134,6 +134,7 @@ void determineGDA94Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// GDA94-to-ITRF2005
+	case ITRF2005_i_xyz:
 	case ITRF2005_i:
 		memcpy(&tParam.parameters_, ITRF2005_GDA94<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2005_GDA94<double, UINT32>::reference_epoch;
@@ -142,6 +143,7 @@ void determineGDA94Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// GDA94-to-ITRF2008
+	case ITRF2008_i_xyz:
 	case ITRF2008_i:
 		memcpy(&tParam.parameters_, ITRF2008_GDA94<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2008_GDA94<double, UINT32>::reference_epoch;
@@ -150,6 +152,7 @@ void determineGDA94Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// GDA94-to-ITRF2014
+	case ITRF2014_i_xyz:
 	case ITRF2014_i:
 		memcpy(&tParam.parameters_, ITRF2014_GDA94<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2014_GDA94<double, UINT32>::reference_epoch;
@@ -160,6 +163,20 @@ void determineGDA94Parameters(transformation_parameter_set& tParam)
 	// GDA94-to-WGS84
 	case WGS84_i_xyz:
 	case WGS84_i:
+	case WGS84_transit_i_xyz:
+	case WGS84_transit_i:
+	case WGS84_G730_i_xyz:
+	case WGS84_G730_i:
+	case WGS84_G873_i_xyz:
+	case WGS84_G873_i:
+	case WGS84_G1150_i_xyz:
+	case WGS84_G1150_i:
+	case WGS84_G1674_i_xyz:
+	case WGS84_G1674_i:
+	case WGS84_G1762_i_xyz:
+	case WGS84_G1762_i:
+	case WGS84_G2139_i_xyz:
+	case WGS84_G2139_i:
 	default:
 		throw boost::enable_current_exception(runtime_error("determineGDA94Parameters(): "));
 	}
@@ -243,6 +260,7 @@ void determineGDA2020Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// GDA2020-to-ITRF2005
+	case ITRF2005_i_xyz:
 	case ITRF2005_i:
 		memcpy(&tParam.parameters_, ITRF2005_GDA2020<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2005_GDA2020<double, UINT32>::reference_epoch;
@@ -251,6 +269,7 @@ void determineGDA2020Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// GDA2020-to-ITRF2008
+	case ITRF2008_i_xyz:
 	case ITRF2008_i:
 		memcpy(&tParam.parameters_, ITRF2008_GDA2020<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2008_GDA2020<double, UINT32>::reference_epoch;
@@ -259,6 +278,7 @@ void determineGDA2020Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// GDA2020-to-ITRF2014
+	case ITRF2014_i_xyz:
 	case ITRF2014_i:
 		memcpy(&tParam.parameters_, ITRF2014_GDA2020<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2014_GDA2020<double, UINT32>::reference_epoch;
@@ -269,6 +289,20 @@ void determineGDA2020Parameters(transformation_parameter_set& tParam)
 	// GDA2020-to-WGS84
 	case WGS84_i_xyz:
 	case WGS84_i:
+	case WGS84_transit_i_xyz:
+	case WGS84_transit_i:
+	case WGS84_G730_i_xyz:
+	case WGS84_G730_i:
+	case WGS84_G873_i_xyz:
+	case WGS84_G873_i:
+	case WGS84_G1150_i_xyz:
+	case WGS84_G1150_i:
+	case WGS84_G1674_i_xyz:
+	case WGS84_G1674_i:
+	case WGS84_G1762_i_xyz:
+	case WGS84_G1762_i:
+	case WGS84_G2139_i_xyz:
+	case WGS84_G2139_i:
 	default:
 		throw boost::enable_current_exception(runtime_error("determineGDA2020Parameters(): "));
 	}
@@ -316,6 +350,7 @@ void determineITRF1988Parameters(transformation_parameter_set& tParam)
 	case ITRF1997_i_xyz:
 	case ITRF1997_i:
 	// ITRF1988-to-ITRF2005
+	case ITRF2005_i_xyz:
 	case ITRF2005_i:
 		// No direct parameters exist!
 		throw RefTranException(message_parameters_undefined<string, UINT32>(tParam.from_to_.first, tParam.from_to_.second),
@@ -337,6 +372,7 @@ void determineITRF1988Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// ITRF1988-to-ITRF2008
+	case ITRF2008_i_xyz:
 	case ITRF2008_i:
 		memcpy(&tParam.parameters_, ITRF2008_ITRF1988<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2008_ITRF1988<double, UINT32>::reference_epoch;
@@ -345,6 +381,7 @@ void determineITRF1988Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// ITRF1988-to-ITRF2014
+	case ITRF2014_i_xyz:
 	case ITRF2014_i:
 		memcpy(&tParam.parameters_, ITRF2014_ITRF1988<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2014_ITRF1988<double, UINT32>::reference_epoch;
@@ -355,6 +392,20 @@ void determineITRF1988Parameters(transformation_parameter_set& tParam)
 	// ITRF1988-to-WGS84
 	case WGS84_i_xyz:
 	case WGS84_i:
+	case WGS84_transit_i_xyz:
+	case WGS84_transit_i:
+	case WGS84_G730_i_xyz:
+	case WGS84_G730_i:
+	case WGS84_G873_i_xyz:
+	case WGS84_G873_i:
+	case WGS84_G1150_i_xyz:
+	case WGS84_G1150_i:
+	case WGS84_G1674_i_xyz:
+	case WGS84_G1674_i:
+	case WGS84_G1762_i_xyz:
+	case WGS84_G1762_i:
+	case WGS84_G2139_i_xyz:
+	case WGS84_G2139_i:
 	default:
 		throw boost::enable_current_exception(runtime_error("determineITRF1988Parameters(): "));
 	}
@@ -401,6 +452,7 @@ void determineITRF1989Parameters(transformation_parameter_set& tParam)
 	case ITRF1997_i_xyz:
 	case ITRF1997_i:
 	// ITRF1989-to-ITRF2005
+	case ITRF2005_i_xyz:
 	case ITRF2005_i:
 		// No direct parameters exist!
 		throw RefTranException(message_parameters_undefined<string, UINT32>(tParam.from_to_.first, tParam.from_to_.second),
@@ -422,6 +474,7 @@ void determineITRF1989Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// ITRF1989-to-ITRF2008
+	case ITRF2008_i_xyz:
 	case ITRF2008_i:
 		memcpy(&tParam.parameters_, ITRF2008_ITRF1989<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2008_ITRF1989<double, UINT32>::reference_epoch;
@@ -430,6 +483,7 @@ void determineITRF1989Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// ITRF1989-to-ITRF2014
+	case ITRF2014_i_xyz:
 	case ITRF2014_i:
 		memcpy(&tParam.parameters_, ITRF2014_ITRF1989<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2014_ITRF1989<double, UINT32>::reference_epoch;
@@ -440,6 +494,20 @@ void determineITRF1989Parameters(transformation_parameter_set& tParam)
 	// ITRF1989-to-WGS84
 	case WGS84_i_xyz:
 	case WGS84_i:
+	case WGS84_transit_i_xyz:
+	case WGS84_transit_i:
+	case WGS84_G730_i_xyz:
+	case WGS84_G730_i:
+	case WGS84_G873_i_xyz:
+	case WGS84_G873_i:
+	case WGS84_G1150_i_xyz:
+	case WGS84_G1150_i:
+	case WGS84_G1674_i_xyz:
+	case WGS84_G1674_i:
+	case WGS84_G1762_i_xyz:
+	case WGS84_G1762_i:
+	case WGS84_G2139_i_xyz:
+	case WGS84_G2139_i:
 	default:		
 		throw boost::enable_current_exception(runtime_error("determineITRF1989Parameters(): "));
 	}
@@ -486,6 +554,7 @@ void determineITRF1990Parameters(transformation_parameter_set& tParam)
 	case ITRF1997_i_xyz:
 	case ITRF1997_i:
 	// ITRF1990-to-ITRF2005
+	case ITRF2005_i_xyz:
 	case ITRF2005_i:
 		// No direct parameters exist!
 		throw RefTranException(message_parameters_undefined<string, UINT32>(tParam.from_to_.first, tParam.from_to_.second),
@@ -507,6 +576,7 @@ void determineITRF1990Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// ITRF1990-to-ITRF2008
+	case ITRF2008_i_xyz:
 	case ITRF2008_i:
 		memcpy(&tParam.parameters_, ITRF2008_ITRF1990<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2008_ITRF1990<double, UINT32>::reference_epoch;
@@ -515,6 +585,7 @@ void determineITRF1990Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// ITRF1990-to-ITRF2014
+	case ITRF2014_i_xyz:
 	case ITRF2014_i:
 		memcpy(&tParam.parameters_, ITRF2014_ITRF1990<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2014_ITRF1990<double, UINT32>::reference_epoch;
@@ -525,6 +596,20 @@ void determineITRF1990Parameters(transformation_parameter_set& tParam)
 	// ITRF1990-to-IWGS84
 	case WGS84_i_xyz:
 	case WGS84_i:
+	case WGS84_transit_i_xyz:
+	case WGS84_transit_i:
+	case WGS84_G730_i_xyz:
+	case WGS84_G730_i:
+	case WGS84_G873_i_xyz:
+	case WGS84_G873_i:
+	case WGS84_G1150_i_xyz:
+	case WGS84_G1150_i:
+	case WGS84_G1674_i_xyz:
+	case WGS84_G1674_i:
+	case WGS84_G1762_i_xyz:
+	case WGS84_G1762_i:
+	case WGS84_G2139_i_xyz:
+	case WGS84_G2139_i:
 	default:
 		throw boost::enable_current_exception(runtime_error("determineITRF1990Parameters(): "));
 	}
@@ -571,6 +656,7 @@ void determineITRF1991Parameters(transformation_parameter_set& tParam)
 	case ITRF1997_i_xyz:
 	case ITRF1997_i:
 	// ITRF1991-to-ITRF2005
+	case ITRF2005_i_xyz:
 	case ITRF2005_i:
 		// No direct parameters exist!
 		throw RefTranException(message_parameters_undefined<string, UINT32>(tParam.from_to_.first, tParam.from_to_.second),
@@ -592,6 +678,7 @@ void determineITRF1991Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// ITRF1991-to-ITRF2008
+	case ITRF2008_i_xyz:
 	case ITRF2008_i:
 		memcpy(&tParam.parameters_, ITRF2008_ITRF1991<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2008_ITRF1991<double, UINT32>::reference_epoch;
@@ -600,6 +687,7 @@ void determineITRF1991Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// ITRF1991-to-ITRF2014
+	case ITRF2014_i_xyz:
 	case ITRF2014_i:
 		memcpy(&tParam.parameters_, ITRF2014_ITRF1991<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2014_ITRF1991<double, UINT32>::reference_epoch;
@@ -610,6 +698,20 @@ void determineITRF1991Parameters(transformation_parameter_set& tParam)
 	// ITRF1991-to-WGS84
 	case WGS84_i_xyz:
 	case WGS84_i:
+	case WGS84_transit_i_xyz:
+	case WGS84_transit_i:
+	case WGS84_G730_i_xyz:
+	case WGS84_G730_i:
+	case WGS84_G873_i_xyz:
+	case WGS84_G873_i:
+	case WGS84_G1150_i_xyz:
+	case WGS84_G1150_i:
+	case WGS84_G1674_i_xyz:
+	case WGS84_G1674_i:
+	case WGS84_G1762_i_xyz:
+	case WGS84_G1762_i:
+	case WGS84_G2139_i_xyz:
+	case WGS84_G2139_i:
 	default:		
 		throw boost::enable_current_exception(runtime_error("determineITRF1991Parameters(): "));
 	}
@@ -656,6 +758,7 @@ void determineITRF1992Parameters(transformation_parameter_set& tParam)
 	case ITRF1997_i_xyz:
 	case ITRF1997_i:
 	// ITRF1992-to-ITRF2005
+	case ITRF2005_i_xyz:
 	case ITRF2005_i:
 		// No direct parameters exist!
 		throw RefTranException(message_parameters_undefined<string, UINT32>(tParam.from_to_.first, tParam.from_to_.second),
@@ -677,6 +780,7 @@ void determineITRF1992Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// ITRF1992-to-ITRF2008
+	case ITRF2008_i_xyz:
 	case ITRF2008_i:
 		memcpy(&tParam.parameters_, ITRF2008_ITRF1992<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2008_ITRF1992<double, UINT32>::reference_epoch;
@@ -685,6 +789,7 @@ void determineITRF1992Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// ITRF1992-to-ITRF2014
+	case ITRF2014_i_xyz:
 	case ITRF2014_i:
 		memcpy(&tParam.parameters_, ITRF2014_ITRF1992<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2014_ITRF1992<double, UINT32>::reference_epoch;
@@ -695,6 +800,20 @@ void determineITRF1992Parameters(transformation_parameter_set& tParam)
 	// ITRF1992-to-WGS84
 	case WGS84_i_xyz:
 	case WGS84_i:
+	case WGS84_transit_i_xyz:
+	case WGS84_transit_i:
+	case WGS84_G730_i_xyz:
+	case WGS84_G730_i:
+	case WGS84_G873_i_xyz:
+	case WGS84_G873_i:
+	case WGS84_G1150_i_xyz:
+	case WGS84_G1150_i:
+	case WGS84_G1674_i_xyz:
+	case WGS84_G1674_i:
+	case WGS84_G1762_i_xyz:
+	case WGS84_G1762_i:
+	case WGS84_G2139_i_xyz:
+	case WGS84_G2139_i:
 	default:
 		throw boost::enable_current_exception(runtime_error("determineITRF1992Parameters(): "));
 	}
@@ -741,6 +860,7 @@ void determineITRF1993Parameters(transformation_parameter_set& tParam)
 	case ITRF1997_i_xyz:
 	case ITRF1997_i:
 	// ITRF1993-to-ITRF2005
+	case ITRF2005_i_xyz:
 	case ITRF2005_i:
 		// No direct parameters exist!
 		throw RefTranException(message_parameters_undefined<string, UINT32>(tParam.from_to_.first, tParam.from_to_.second),
@@ -762,6 +882,7 @@ void determineITRF1993Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// ITRF1993-to-ITRF2008
+	case ITRF2008_i_xyz:
 	case ITRF2008_i:
 		memcpy(&tParam.parameters_, ITRF2008_ITRF1993<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2008_ITRF1993<double, UINT32>::reference_epoch;
@@ -770,6 +891,7 @@ void determineITRF1993Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// ITRF1993-to-ITRF2014
+	case ITRF2014_i_xyz:
 	case ITRF2014_i:
 		memcpy(&tParam.parameters_, ITRF2014_ITRF1993<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2014_ITRF1993<double, UINT32>::reference_epoch;
@@ -780,6 +902,20 @@ void determineITRF1993Parameters(transformation_parameter_set& tParam)
 	// ITRF1993-to-WGS84
 	case WGS84_i_xyz:
 	case WGS84_i:
+	case WGS84_transit_i_xyz:
+	case WGS84_transit_i:
+	case WGS84_G730_i_xyz:
+	case WGS84_G730_i:
+	case WGS84_G873_i_xyz:
+	case WGS84_G873_i:
+	case WGS84_G1150_i_xyz:
+	case WGS84_G1150_i:
+	case WGS84_G1674_i_xyz:
+	case WGS84_G1674_i:
+	case WGS84_G1762_i_xyz:
+	case WGS84_G1762_i:
+	case WGS84_G2139_i_xyz:
+	case WGS84_G2139_i:
 	default:
 		throw boost::enable_current_exception(runtime_error("determineITRF1993Parameters(): "));
 	}
@@ -826,6 +962,7 @@ void determineITRF1994Parameters(transformation_parameter_set& tParam)
 	case ITRF1997_i_xyz:
 	case ITRF1997_i:
 	// ITRF1994-to-ITRF2005
+	case ITRF2005_i_xyz:
 	case ITRF2005_i:
 		// No direct parameters exist!
 		throw RefTranException(message_parameters_undefined<string, UINT32>(tParam.from_to_.first, tParam.from_to_.second),
@@ -847,6 +984,7 @@ void determineITRF1994Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// ITRF1994-to-ITRF2008
+	case ITRF2008_i_xyz:
 	case ITRF2008_i:
 		memcpy(&tParam.parameters_, ITRF2008_ITRF1994<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2008_ITRF1994<double, UINT32>::reference_epoch;
@@ -855,6 +993,7 @@ void determineITRF1994Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// ITRF1994-to-ITRF2014
+	case ITRF2014_i_xyz:
 	case ITRF2014_i:
 		memcpy(&tParam.parameters_, ITRF2014_ITRF1994<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2014_ITRF1994<double, UINT32>::reference_epoch;
@@ -865,6 +1004,20 @@ void determineITRF1994Parameters(transformation_parameter_set& tParam)
 	// ITRF1994-to-WGS84
 	case WGS84_i_xyz:
 	case WGS84_i:
+	case WGS84_transit_i_xyz:
+	case WGS84_transit_i:
+	case WGS84_G730_i_xyz:
+	case WGS84_G730_i:
+	case WGS84_G873_i_xyz:
+	case WGS84_G873_i:
+	case WGS84_G1150_i_xyz:
+	case WGS84_G1150_i:
+	case WGS84_G1674_i_xyz:
+	case WGS84_G1674_i:
+	case WGS84_G1762_i_xyz:
+	case WGS84_G1762_i:
+	case WGS84_G2139_i_xyz:
+	case WGS84_G2139_i:
 	default:
 		throw boost::enable_current_exception(runtime_error("determineITRF1994Parameters(): "));
 	}
@@ -919,6 +1072,7 @@ void determineITRF1996Parameters(transformation_parameter_set& tParam)
 	case ITRF1997_i_xyz:
 	case ITRF1997_i:
 	// ITRF1996-to-ITRF2005
+	case ITRF2005_i_xyz:
 	case ITRF2005_i:
 		// No direct parameters exist!
 		throw RefTranException(message_parameters_undefined<string, UINT32>(tParam.from_to_.first, tParam.from_to_.second),
@@ -940,6 +1094,7 @@ void determineITRF1996Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// ITRF1996-to-ITRF2008
+	case ITRF2008_i_xyz:
 	case ITRF2008_i:
 		memcpy(&tParam.parameters_, ITRF2008_ITRF1996<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2008_ITRF1996<double, UINT32>::reference_epoch;
@@ -948,6 +1103,7 @@ void determineITRF1996Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// ITRF1996-to-ITRF2014
+	case ITRF2014_i_xyz:
 	case ITRF2014_i:
 		memcpy(&tParam.parameters_, ITRF2014_ITRF1996<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2014_ITRF1996<double, UINT32>::reference_epoch;
@@ -958,6 +1114,20 @@ void determineITRF1996Parameters(transformation_parameter_set& tParam)
 	// ITRF1996-to-WGS84
 	case WGS84_i_xyz:
 	case WGS84_i:
+	case WGS84_transit_i_xyz:
+	case WGS84_transit_i:
+	case WGS84_G730_i_xyz:
+	case WGS84_G730_i:
+	case WGS84_G873_i_xyz:
+	case WGS84_G873_i:
+	case WGS84_G1150_i_xyz:
+	case WGS84_G1150_i:
+	case WGS84_G1674_i_xyz:
+	case WGS84_G1674_i:
+	case WGS84_G1762_i_xyz:
+	case WGS84_G1762_i:
+	case WGS84_G2139_i_xyz:
+	case WGS84_G2139_i:
 	default:
 		throw boost::enable_current_exception(runtime_error("determineITRF1996Parameters(): "));
 	}
@@ -1012,6 +1182,7 @@ void determineITRF1997Parameters(transformation_parameter_set& tParam)
 	case ITRF1996_i_xyz:
 	case ITRF1996_i:
 	// ITRF1997-to-ITRF2005
+	case ITRF2005_i_xyz:
 	case ITRF2005_i:
 		// No direct parameters exist!
 		throw RefTranException(message_parameters_undefined<string, UINT32>(tParam.from_to_.first, tParam.from_to_.second),
@@ -1033,6 +1204,7 @@ void determineITRF1997Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// ITRF1997-to-ITRF2008
+	case ITRF2008_i_xyz:
 	case ITRF2008_i:
 		memcpy(&tParam.parameters_, ITRF2008_ITRF1997<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2008_ITRF1997<double, UINT32>::reference_epoch;
@@ -1041,6 +1213,7 @@ void determineITRF1997Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// ITRF1997-to-ITRF2014
+	case ITRF2014_i_xyz:
 	case ITRF2014_i:
 		memcpy(&tParam.parameters_, ITRF2014_ITRF1997<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2014_ITRF1997<double, UINT32>::reference_epoch;
@@ -1051,6 +1224,20 @@ void determineITRF1997Parameters(transformation_parameter_set& tParam)
 	// ITRF1997-to-WGS84
 	case WGS84_i_xyz:
 	case WGS84_i:
+	case WGS84_transit_i_xyz:
+	case WGS84_transit_i:
+	case WGS84_G730_i_xyz:
+	case WGS84_G730_i:
+	case WGS84_G873_i_xyz:
+	case WGS84_G873_i:
+	case WGS84_G1150_i_xyz:
+	case WGS84_G1150_i:
+	case WGS84_G1674_i_xyz:
+	case WGS84_G1674_i:
+	case WGS84_G1762_i_xyz:
+	case WGS84_G1762_i:
+	case WGS84_G2139_i_xyz:
+	case WGS84_G2139_i:
 	default:		
 		throw boost::enable_current_exception(runtime_error("determineITRF1997Parameters(): "));
 	}
@@ -1151,6 +1338,7 @@ void determineITRF2000Parameters(transformation_parameter_set& tParam)
 		throw RefTranException("A transformation between different epochs on the same frame is required.", 
 			REFTRAN_TRANS_ON_PLATE_REQUIRED);
 	// ITRF2000-to-ITRF2005
+	case ITRF2005_i_xyz:
 	case ITRF2005_i:
 		memcpy(&tParam.parameters_, ITRF2005_ITRF2000<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2005_ITRF2000<double, UINT32>::reference_epoch;
@@ -1159,6 +1347,7 @@ void determineITRF2000Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// ITRF2000-to-ITRF2008
+	case ITRF2008_i_xyz:
 	case ITRF2008_i:
 		memcpy(&tParam.parameters_, ITRF2008_ITRF2000<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2008_ITRF2000<double, UINT32>::reference_epoch;
@@ -1167,6 +1356,7 @@ void determineITRF2000Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// ITRF2000-to-ITRF2014
+	case ITRF2014_i_xyz:
 	case ITRF2014_i:
 		memcpy(&tParam.parameters_, ITRF2014_ITRF2000<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2014_ITRF2000<double, UINT32>::reference_epoch;
@@ -1177,6 +1367,20 @@ void determineITRF2000Parameters(transformation_parameter_set& tParam)
 	// ITRF2000-to-WGS84
 	case WGS84_i_xyz:
 	case WGS84_i:
+	case WGS84_transit_i_xyz:
+	case WGS84_transit_i:
+	case WGS84_G730_i_xyz:
+	case WGS84_G730_i:
+	case WGS84_G873_i_xyz:
+	case WGS84_G873_i:
+	case WGS84_G1150_i_xyz:
+	case WGS84_G1150_i:
+	case WGS84_G1674_i_xyz:
+	case WGS84_G1674_i:
+	case WGS84_G1762_i_xyz:
+	case WGS84_G1762_i:
+	case WGS84_G2139_i_xyz:
+	case WGS84_G2139_i:
 	default:
 		throw boost::enable_current_exception(runtime_error("determineITRF2000Parameters(): "));
 	}
@@ -1244,12 +1448,14 @@ void determineITRF2005Parameters(transformation_parameter_set& tParam)
 		tParam.reference_frame_ = ITRF2005_ITRF2000<double, UINT32>::reference_frame;
 		break;
 	// ITRF2005-to-ITRF2005
+	case ITRF2005_i_xyz:
 	case ITRF2005_i:
 		// not a transformation of frame, but a shift in epoch only
 		// Not defined yet - requires interpolation from the ITRF2005 velocity model
 		throw RefTranException("A transformation between different epochs on the same frame is required.",
 			REFTRAN_TRANS_ON_PLATE_REQUIRED);
 	// ITRF2005-to-ITRF2008
+	case ITRF2008_i_xyz:
 	case ITRF2008_i:
 		memcpy(&tParam.parameters_, ITRF2008_ITRF2005<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2008_ITRF2005<double, UINT32>::reference_epoch;
@@ -1258,6 +1464,7 @@ void determineITRF2005Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// ITRF2005-to-ITRF2014
+	case ITRF2014_i_xyz:
 	case ITRF2014_i:
 		memcpy(&tParam.parameters_, ITRF2014_ITRF2005<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2014_ITRF2005<double, UINT32>::reference_epoch;
@@ -1265,9 +1472,23 @@ void determineITRF2005Parameters(transformation_parameter_set& tParam)
 		tParam.paramDirection_ = __paramReverse__;
 		tParam.reverse();
 		break;
-	// WGS84
+	// ITRF2005-to-WGS84
 	case WGS84_i_xyz:
 	case WGS84_i:
+	case WGS84_transit_i_xyz:
+	case WGS84_transit_i:
+	case WGS84_G730_i_xyz:
+	case WGS84_G730_i:
+	case WGS84_G873_i_xyz:
+	case WGS84_G873_i:
+	case WGS84_G1150_i_xyz:
+	case WGS84_G1150_i:
+	case WGS84_G1674_i_xyz:
+	case WGS84_G1674_i:
+	case WGS84_G1762_i_xyz:
+	case WGS84_G1762_i:
+	case WGS84_G2139_i_xyz:
+	case WGS84_G2139_i:
 	default:
 		throw boost::enable_current_exception(runtime_error("determineITRF2005Parameters(): "));
 	}
@@ -1368,12 +1589,14 @@ void determineITRF2008Parameters(transformation_parameter_set& tParam)
 		tParam.reference_frame_ = ITRF2008_ITRF2000<double, UINT32>::reference_frame;
 		break;
 	// ITRF2008-to-ITRF2005
+	case ITRF2005_i_xyz:
 	case ITRF2005_i:
 		memcpy(&tParam.parameters_, ITRF2008_ITRF2005<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2008_ITRF2005<double, UINT32>::reference_epoch;
 		tParam.reference_frame_ = ITRF2008_ITRF2005<double, UINT32>::reference_frame;
 		break;
 	// ITRF2008-to-ITRF2014
+	case ITRF2014_i_xyz:
 	case ITRF2014_i:
 		memcpy(&tParam.parameters_, ITRF2014_ITRF2008<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2014_ITRF2008<double, UINT32>::reference_epoch;
@@ -1382,6 +1605,7 @@ void determineITRF2008Parameters(transformation_parameter_set& tParam)
 		tParam.reverse();
 		break;
 	// ITRF2008-to-ITRF2008
+	case ITRF2008_i_xyz:
 	case ITRF2008_i:
 		// not a transformation of frame, but a shift in epoch only
 		// Not defined yet - requires interpolation from the ITRF2008 velocity model
@@ -1390,6 +1614,20 @@ void determineITRF2008Parameters(transformation_parameter_set& tParam)
 	// ITRF2008-to-WGS84
 	case WGS84_i_xyz:
 	case WGS84_i:
+	case WGS84_transit_i_xyz:
+	case WGS84_transit_i:
+	case WGS84_G730_i_xyz:
+	case WGS84_G730_i:
+	case WGS84_G873_i_xyz:
+	case WGS84_G873_i:
+	case WGS84_G1150_i_xyz:
+	case WGS84_G1150_i:
+	case WGS84_G1674_i_xyz:
+	case WGS84_G1674_i:
+	case WGS84_G1762_i_xyz:
+	case WGS84_G1762_i:
+	case WGS84_G2139_i_xyz:
+	case WGS84_G2139_i:
 	default:
 		throw boost::enable_current_exception(runtime_error("determineITRF2008Parameters(): "));
 	}
@@ -1491,18 +1729,21 @@ void determineITRF2014Parameters(transformation_parameter_set& tParam)
 		tParam.reference_frame_ = ITRF2014_ITRF2005<double, UINT32>::reference_frame;
 		break;
 	// ITRF2014-to-ITRF2005
+	case ITRF2005_i_xyz:
 	case ITRF2005_i:
 		memcpy(&tParam.parameters_, ITRF2014_ITRF2005<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2014_ITRF2005<double, UINT32>::reference_epoch;
 		tParam.reference_frame_ = ITRF2014_ITRF2005<double, UINT32>::reference_frame;
 		break;
 	// ITRF2014-to-ITRF2008
+	case ITRF2008_i_xyz:
 	case ITRF2008_i:
 		memcpy(&tParam.parameters_, ITRF2014_ITRF2008<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2014_ITRF2008<double, UINT32>::reference_epoch;
 		tParam.reference_frame_ = ITRF2014_ITRF2008<double, UINT32>::reference_frame;
 		break;
 	// ITRF2014-to-ITRF2014
+	case ITRF2014_i_xyz:
 	case ITRF2014_i:
 		// not a transformation of frame, but a shift in epoch only
 		// Not defined yet - requires interpolation from the ITRF2014 velocity model
@@ -1511,6 +1752,20 @@ void determineITRF2014Parameters(transformation_parameter_set& tParam)
 	// ITRF2014-to-WGS84
 	case WGS84_i_xyz:
 	case WGS84_i:
+	case WGS84_transit_i_xyz:
+	case WGS84_transit_i:
+	case WGS84_G730_i_xyz:
+	case WGS84_G730_i:
+	case WGS84_G873_i_xyz:
+	case WGS84_G873_i:
+	case WGS84_G1150_i_xyz:
+	case WGS84_G1150_i:
+	case WGS84_G1674_i_xyz:
+	case WGS84_G1674_i:
+	case WGS84_G1762_i_xyz:
+	case WGS84_G1762_i:
+	case WGS84_G2139_i_xyz:
+	case WGS84_G2139_i:
 	default:
 		throw boost::enable_current_exception(runtime_error("determineITRF2014Parameters(): "));
 	}
@@ -1623,35 +1878,52 @@ void determineHelmertParameters(transformation_parameter_set& tParam)
 			determineITRF2000Parameters<U>(tParam);
 			break;
 		// ITRF2005
+		case ITRF2005_i_xyz:
 		case ITRF2005_i:
 			determineITRF2005Parameters<U>(tParam);
 			break;
 		// ITRF2008
+		case ITRF2008_i_xyz:
 		case ITRF2008_i:
 			determineITRF2008Parameters<U>(tParam);
 			break;
 		// ITRF2014
+		case ITRF2014_i_xyz:
 		case ITRF2014_i:
 			determineITRF2014Parameters<U>(tParam);
 			break;
 		// WGS84
 		case WGS84_i_xyz:
 		case WGS84_i:
+		case WGS84_transit_i_xyz:
+		case WGS84_transit_i:
+		case WGS84_G730_i_xyz:
+		case WGS84_G730_i:
+		case WGS84_G873_i_xyz:
+		case WGS84_G873_i:
+		case WGS84_G1150_i_xyz:
+		case WGS84_G1150_i:
+		case WGS84_G1674_i_xyz:
+		case WGS84_G1674_i:
+		case WGS84_G1762_i_xyz:
+		case WGS84_G1762_i:
+		case WGS84_G2139_i_xyz:
+		case WGS84_G2139_i:
+			throw RefTranException("Transformation parameters from WGS 84 are unavailable.",
+				REFTRAN_WGS84_TRANS_UNSUPPORTED);
+			break;
 		default:
-			stringstream ss;
-			ss << "determineHelmertParameters(): Parameters for " <<
-				datumFromEpsgCode<string, UINT32>(tParam.from_to_.first) << endl;
-			ss << "  have not been defined yet." << endl;
-			throw boost::enable_current_exception(runtime_error(ss.str()));
+			throw boost::enable_current_exception(runtime_error(""));
 		}
 	}
 	catch (runtime_error& e)
 	{
 		stringstream ss;
-		ss << e.what() <<
-			datumFromEpsgCode<string, UINT32>(tParam.from_to_.first) << " <-> " << 
-			datumFromEpsgCode<string, UINT32>(tParam.from_to_.second) << " parameters" << endl;
-		ss << "  have not been defined yet." << endl;
+		ss << "determineHelmertParameters():" << endl << 
+			"  " << e.what() << " Parameters for transforming between" << endl <<
+			"  " << datumFromEpsgCode<string, UINT32>(tParam.from_to_.first) << " and " << 
+			datumFromEpsgCode<string, UINT32>(tParam.from_to_.second) <<
+			" have not been defined yet." << endl;
 		throw boost::enable_current_exception(runtime_error(ss.str()));
 	}
 }
