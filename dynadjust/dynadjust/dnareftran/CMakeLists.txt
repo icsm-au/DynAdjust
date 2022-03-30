@@ -1,7 +1,7 @@
 # <dnareftran/...> build rules
 project (dnareftran)
 
-add_definitions(-DBUILD_DNAREFTRAN_DLL -DBUILD_EXPORTDNATYPES -DMKL_ILP64 -openmp)
+add_definitions(-DBUILD_DNAREFTRAN_DLL -DBUILD_EXPORTDNATYPES -DMKL_ILP64 -fopenmp)
 
 include_directories (${PROJECT_SOURCE_DIR})
 
