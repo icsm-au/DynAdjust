@@ -15,13 +15,23 @@ branches:
 before_install:
   - pip install --user cpp-coveralls codecov
   - sudo apt-get update
-  - sudo apt-get install -y --no-install-recommends lcov bzip2 wget cmake make g++ xsdcxx libxerces-c-dev
+  - sudo apt-get install -y --no-install-recommends lcov bzip2 wget make g++ xsdcxx libxerces-c-dev
+  # Upgrade to a newer version of CMake version to handle oneAPI
+  - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
+  - mkdir ${DEPS_DIR} && cd ${DEPS_DIR}
+  - travis_retry wget --no-check-certificate https://cmake.org/files/v3.20/cmake-3.20.6-linux-x86_64.tar.gz
+  - tar -xvf cmake-3.20.6-linux-x86_64.tar.gz > /dev/null
+  - mv cmake-3.20.6-linux-x86_64 cmake-install
+  - PATH=${DEPS_DIR}/cmake-install:${DEPS_DIR}/cmake-install/bin:$PATH
+  - cd ${TRAVIS_BUILD_DIR}
+  # Install boost
   - sudo apt-get install -y --no-install-recommends libboost-system-dev libboost-filesystem-dev libboost-timer-dev libboost-thread-dev libboost-program-options-dev
+  # Install Intel oneAPI
   - wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
   - sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
   - sudo add-apt-repository "deb https://apt.repos.intel.com/oneapi all main"
   - sudo apt-get update
-  - sudo apt-get install -y intel-basekit
+  - sudo apt-get install -y intel-basekit  
 
 script:
    - chmod +x ./resources/make_dynadjust_gcc.sh
