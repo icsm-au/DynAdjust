@@ -9,6 +9,7 @@ RUN apt-get update &&\
  apt update &&\
  apt-get install -y tzdata &&\
  apt-get install -y wget &&\
+ apt-get install -y software-properties-common &&\
  apt-get install -y --no-install-recommends gnupg2 &&\
  apt-get install -y --no-install-recommends p7zip &&\
  apt-get install -y --no-install-recommends libboost-system-dev libboost-filesystem-dev libboost-timer-dev libboost-thread-dev libboost-program-options-dev &&\
