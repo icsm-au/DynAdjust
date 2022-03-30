@@ -16,12 +16,12 @@ RUN apt-get update &&\
  apt-get install -y --no-install-recommends cmake &&\
  apt-get install -y --no-install-recommends make &&\
  apt-get install -y --no-install-recommends g++ &&\
- apt-get install -y --no-install-recommends xsdcxx &&\
- wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB &&\
- apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB &&\
- add-apt-repository "deb https://apt.repos.intel.com/oneapi all main" &&\
- apt-get install -y intel-basekit &&\
- apt-get -y install cpio &&\
+ apt-get install -y --no-install-recommends xsdcxx
+RUN wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
+RUN apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB 
+RUN add-apt-repository "deb https://apt.repos.intel.com/oneapi all main"
+RUN apt install -y intel-basekit 
+RUN apt-get -y install cpio &&\
  cd ./DynAdjust &&\
  chmod +x ./resources/make_dynadjust_gcc.sh &&\
  ./resources/make_dynadjust_gcc.sh --auto --no-clone
