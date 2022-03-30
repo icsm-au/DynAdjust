@@ -21,7 +21,7 @@ RUN apt-get update &&\
  apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB &&\
  add-apt-repository "deb https://apt.repos.intel.com/oneapi all main" &&\
  apt install -y intel-basekit &&\
- DEBIAN_FRONTEND=noninteractive apt-get -y install cpio &&\
+ apt-get -y install cpio &&\
  cd ./DynAdjust &&\
  chmod +x ./resources/make_dynadjust_gcc.sh &&\
  ./resources/make_dynadjust_gcc.sh --auto --no-clone
