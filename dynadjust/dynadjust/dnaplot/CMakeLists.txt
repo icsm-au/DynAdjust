@@ -1,7 +1,7 @@
 # <dnaplot/...> build rules
 project (dnaplot)
 
-add_definitions(-DBUILD_DNAPLOT_DLL -DBUILD_EXPORTDNATYPES -DMKL_ILP64 -openmp)
+add_definitions(-DBUILD_DNAPLOT_DLL -DBUILD_EXPORTDNATYPES -DMKL_ILP64 -fopenmp)
 
 include_directories (${PROJECT_SOURCE_DIR})
 
