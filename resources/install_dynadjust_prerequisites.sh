@@ -172,7 +172,7 @@ function args_check {
 args_check 0
 
 _repo_intel_yum="https://yum.repos.intel.com/oneapi"
-_repo_intel_apt="https://yum.repos.intel.com/oneapi"
+_repo_intel_apt="https://apt.repos.intel.com/oneapi"
 _gpg_intel_yum="https://yum.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB"
 _gpg_intel_apt="https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB"
 _gpg_intel_keyfile="GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB"
