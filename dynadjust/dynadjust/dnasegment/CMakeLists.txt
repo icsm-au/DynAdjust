@@ -16,7 +16,8 @@ add_library (${PROJECT_NAME} SHARED
              ${CMAKE_SOURCE_DIR}/include/measurement_types/dnastation.cpp
              ${CMAKE_SOURCE_DIR}/include/measurement_types/dnamsrtally.cpp
              ${CMAKE_SOURCE_DIR}/include/functions/dnastringfuncs.cpp
-             dnasegment.cpp)
+             dnasegment.cpp
+             ${CMAKE_SOURCE_DIR}/dynadjust.rc)
 
 target_link_libraries (${PROJECT_NAME} ${DNA_LIBRARIES})
 

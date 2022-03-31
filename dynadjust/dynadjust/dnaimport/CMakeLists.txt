@@ -36,7 +36,8 @@ add_library (${PROJECT_NAME} SHARED
              ${CMAKE_SOURCE_DIR}/include/measurement_types/dnastntally.cpp
              dnaparser_pskel.cxx
              dnaparser_pimpl.cxx
-             dnainterop.cpp)
+             dnainterop.cpp
+             ${CMAKE_SOURCE_DIR}/dynadjust.rc)
 
 target_link_libraries (${PROJECT_NAME} ${DNA_LIBRARIES})
 

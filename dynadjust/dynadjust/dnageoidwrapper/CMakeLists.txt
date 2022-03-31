@@ -11,7 +11,8 @@ include_directories (${PROJECT_SOURCE_DIR})
 add_executable (${PROJECT_NAME}
                 ${CMAKE_SOURCE_DIR}/include/config/dnaprojectfile.cpp
                 ${CMAKE_SOURCE_DIR}/include/functions/dnastringfuncs.cpp
-                dnageoidwrapper.cpp)
+                dnageoidwrapper.cpp
+                ${CMAKE_SOURCE_DIR}/dynadjust.rc)
 
 target_link_libraries (${PROJECT_NAME} dnageoid ${DNA_LIBRARIES})
 

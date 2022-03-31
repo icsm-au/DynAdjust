@@ -10,11 +10,14 @@ include_directories (${PROJECT_SOURCE_DIR})
 
 add_executable (${PROJECT_NAME} 
 			${CMAKE_SOURCE_DIR}/include/io/dnaiobase.cpp
+			${CMAKE_SOURCE_DIR}/include/io/dnaiobst.cpp
+			${CMAKE_SOURCE_DIR}/include/io/dnaiobms.cpp
 			${CMAKE_SOURCE_DIR}/include/functions/dnastringfuncs.cpp
 			${CMAKE_SOURCE_DIR}/include/functions/dnaprocessfuncs.cpp
 			${CMAKE_SOURCE_DIR}/include/parameters/dnaellipsoid.cpp
 			${CMAKE_SOURCE_DIR}/include/parameters/dnaprojection.cpp
-			dnaplotwrapper.cpp)
+			dnaplotwrapper.cpp
+			${CMAKE_SOURCE_DIR}/dynadjust.rc)
 
 target_link_libraries (${PROJECT_NAME} dnaplot ${DNA_LIBRARIES})
 
