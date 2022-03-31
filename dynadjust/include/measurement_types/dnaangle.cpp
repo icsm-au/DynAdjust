@@ -123,7 +123,7 @@ bool CDnaAngle::operator< (const CDnaAngle& rhs) const
 }
 	
 
-void CDnaAngle::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool bSubMeasurement /*= false*/) const
+void CDnaAngle::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool) const
 {
 	if (comment.empty())
 		*dynaml_stream << "  <!-- Type " << measurement_name<char, string>(GetTypeC()) << " -->" << endl;
@@ -155,7 +155,7 @@ void CDnaAngle::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comme
 }
 	
 
-void CDnaAngle::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool bSubMeasurement /*= false*/) const
+void CDnaAngle::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool) const
 {
 	*dna_stream << setw(dmw.msr_type) << m_strType;
 	if (m_bIgnore)
@@ -182,7 +182,7 @@ void CDnaAngle::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw
 }
 	
 
-void CDnaAngle::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* ellipsoid)
+void CDnaAngle::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid*)
 {
 	_it_vdnastnptr stn1_it(vStations->begin() + m_lstn1Index);
 	_it_vdnastnptr stn2_it(vStations->begin() + m_lstn2Index);

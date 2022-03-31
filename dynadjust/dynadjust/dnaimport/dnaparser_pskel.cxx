@@ -2143,7 +2143,7 @@ bool DnaXmlFormat_pskel::_attribute_impl (const ::xml_schema::ro_string& ns,
 			this->epoch_parser_->_pre_impl ();
 			this->epoch_parser_->_characters (v);
 			this->epoch_parser_->_post_impl ();
-			this->epoch_parser_->post_type (_epoch, _userspecifiedreferenceframe, _overridereferenceframe);
+			this->epoch_parser_->post_type (_epoch, _overridereferenceframe);
 			this->epoch();
 		}
 
@@ -3182,30 +3182,24 @@ bool GeoidModel_pskel::_end_element_impl (const ::xml_schema::ro_string& ns,
 }
 
 // type_pskel
-//
-
 void type_pskel::post_type ()
 {
 }
 
 // referenceframe_pskel
-//
-
-void referenceframe_pskel::post_type (string& referenceframe, bool user_specified, bool override_referenceframe)
+// string& referenceframe, bool user_specified, bool override_referenceframe
+void referenceframe_pskel::post_type (string&, bool, bool)
 {
 
 }
 
 // epoch_pskel
-//
-
-void epoch_pskel::post_type (string& epoch, bool user_specified, bool override_referenceframe)
+// string& epoch, bool override_referenceframe
+void epoch_pskel::post_type (string&, bool)
 {
 }
 
 // system_pskel
-//
-
 void system_pskel::post_system ()
 {
 }

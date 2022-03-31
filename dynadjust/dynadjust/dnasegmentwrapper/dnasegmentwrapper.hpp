@@ -124,7 +124,7 @@ public:
 		cpu_timer time;
 		try {
 			*_segmentStatus = SEGMENT_EXCEPTION_RAISED;
-			*_segmentStatus = _dnaSeg->SegmentNetwork(_p, _status_msg);
+			*_segmentStatus = _dnaSeg->SegmentNetwork(_p);
 		} 
 		catch (const NetSegmentException& e) {
 			running = false;

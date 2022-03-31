@@ -32,23 +32,21 @@ namespace iostreams {
 
 void dna_io_dna::write_dna_files(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, 
 			const string& stnfilename, const string& msrfilename, 
-			const project_settings& p, const CDnaDatum& datum, 
-			const CDnaProjection& projection, bool flagUnused,
+			const CDnaDatum& datum, const CDnaProjection& projection, bool flagUnused,
 			const string& stn_comment, const string& msr_comment)
 {
 
-	write_stn_file(vStations, stnfilename, p, datum, projection, flagUnused, stn_comment);
-	write_msr_file(vMeasurements, msrfilename, p, datum, msr_comment);
+	write_stn_file(vStations, stnfilename, datum, projection, flagUnused, stn_comment);
+	write_msr_file(vMeasurements, msrfilename, datum, msr_comment);
 }
 
 void dna_io_dna::write_dna_files(pvstn_t vbinary_stn, pvmsr_t vbinary_msr, 
 			const string& stnfilename, const string& msrfilename, 
-			const project_settings& p, const CDnaDatum& datum, 
-			const CDnaProjection& projection, bool flagUnused,
+			const CDnaDatum& datum, const CDnaProjection& projection, bool flagUnused,
 			const string& stn_comment, const string& msr_comment)
 {
-	write_stn_file(vbinary_stn, stnfilename, p, datum, projection, flagUnused, stn_comment);
-	write_msr_file(*vbinary_stn, vbinary_msr, msrfilename, p, datum, msr_comment);
+	write_stn_file(vbinary_stn, stnfilename, datum, projection, flagUnused, stn_comment);
+	write_msr_file(*vbinary_stn, vbinary_msr, msrfilename, datum, msr_comment);
 }
 	
 void dna_io_dna::create_file_stn(std::ofstream* ptr, const string& filename)
@@ -94,8 +92,7 @@ void dna_io_dna::open_file_pointer(std::ifstream* ptr, const string& filename)
 }
 
 void dna_io_dna::write_stn_header(std::ofstream* ptr, vdnaStnPtr* vStations, 
-			const project_settings& p, const CDnaDatum& datum, bool flagUnused,
-			const string& comment)
+			const CDnaDatum& datum, bool flagUnused, const string& comment)
 {
 	// print stations
 	// Has the user specified --flag-unused-stations, in which case, do not
@@ -121,8 +118,7 @@ void dna_io_dna::write_stn_header(std::ofstream* ptr, vdnaStnPtr* vStations,
 	
 
 void dna_io_dna::write_stn_header(std::ofstream* ptr, pvstn_t vbinary_stn, 
-			const project_settings& p, const CDnaDatum& datum, bool flagUnused,
-			const string& comment)
+			const CDnaDatum& datum, bool flagUnused, const string& comment)
 {
 	// print stations
 	// Has the user specified --flag-unused-stations, in which case, do not
@@ -425,8 +421,7 @@ void dna_io_dna::read_dna_header(std::ifstream* ptr, string& version, INPUT_DATA
 
 
 void dna_io_dna::write_stn_file(pvstn_t vbinary_stn, const string& stnfilename,  
-				const project_settings& p, const CDnaDatum& datum, 
-				const CDnaProjection& projection, bool flagUnused,
+				const CDnaDatum& datum, const CDnaProjection& projection, bool flagUnused,
 				const string& comment)
 {
 	// Print DNA stations from a vector of stn_t
@@ -437,7 +432,7 @@ void dna_io_dna::write_stn_file(pvstn_t vbinary_stn, const string& stnfilename,
 		create_file_stn(&dna_stn_file, stnfilename);
 
 		// Write header and comment
-		write_stn_header(&dna_stn_file, vbinary_stn, p, datum, flagUnused, comment);
+		write_stn_header(&dna_stn_file, vbinary_stn, datum, flagUnused, comment);
 
 		// Sort on original file order
 		prepare_sort_list(static_cast<UINT32>(vbinary_stn->size()));
@@ -483,8 +478,7 @@ void dna_io_dna::write_stn_file(pvstn_t vbinary_stn, const string& stnfilename,
 	
 
 void dna_io_dna::write_stn_file(vdnaStnPtr* vStations, const string& stnfilename,  
-			const project_settings& p, const CDnaDatum& datum, 
-			const CDnaProjection& projection, bool flagUnused,
+			const CDnaDatum& datum, const CDnaProjection& projection, bool flagUnused,
 			const string& comment)
 {
 	// Print DNA stations from a vector of dnaStnPtr
@@ -495,7 +489,7 @@ void dna_io_dna::write_stn_file(vdnaStnPtr* vStations, const string& stnfilename
 		create_file_stn(&dna_stn_file, stnfilename);
 
 		// Write header and comment
-		write_stn_header(&dna_stn_file, vStations, p, datum, flagUnused, comment);
+		write_stn_header(&dna_stn_file, vStations, datum, flagUnused, comment);
 
 		// Sort on original file order
 		sort(vStations->begin(), vStations->end(), CompareStnFileOrder_CDnaStn<CDnaStation>());
@@ -532,8 +526,7 @@ void dna_io_dna::write_stn_file(vdnaStnPtr* vStations, const string& stnfilename
 }
 
 void dna_io_dna::write_msr_header(std::ofstream* ptr, vdnaMsrPtr* vMeasurements, 
-	const project_settings& p, const CDnaDatum& datum, bool flagUnused,
-	const string& comment)
+	const CDnaDatum& datum, const string& comment)
 {
 	// Write version line
 	dna_header(*ptr, "3.01", "MSR", datum.GetName(), datum.GetEpoch_s(), vMeasurements->size());
@@ -545,8 +538,7 @@ void dna_io_dna::write_msr_header(std::ofstream* ptr, vdnaMsrPtr* vMeasurements,
 	
 
 void dna_io_dna::write_msr_header(std::ofstream* ptr, pvmsr_t vbinary_msrn, 
-	const project_settings& p, const CDnaDatum& datum, bool flagUnused,
-	const string& comment)
+	const CDnaDatum& datum, const string& comment)
 {
 	// Write version line
 	dna_header(*ptr, "3.01", "MSR", datum.GetName(), datum.GetEpoch_s(), vbinary_msrn->size());
@@ -557,8 +549,7 @@ void dna_io_dna::write_msr_header(std::ofstream* ptr, pvmsr_t vbinary_msrn,
 
 
 void dna_io_dna::write_msr_file(const vstn_t& vbinary_stn, pvmsr_t vbinary_msr, const string& msrfilename, 
-	const project_settings& p, const CDnaDatum& datum,
-	const string& comment)
+	const CDnaDatum& datum, const string& comment)
 {
 	// Print DNA measurements	
 
@@ -572,7 +563,7 @@ void dna_io_dna::write_msr_file(const vstn_t& vbinary_stn, pvmsr_t vbinary_msr, 
 		create_file_msr(&dna_msr_file, msrfilename);
 
 		// Write header and comment
-		write_msr_header(&dna_msr_file, vbinary_msr, p, datum, true, comment);
+		write_msr_header(&dna_msr_file, vbinary_msr, datum, comment);
 
 		// print measurements
 		for (_it_msr=vbinary_msr->begin(); _it_msr!=vbinary_msr->end(); ++_it_msr)
@@ -591,8 +582,7 @@ void dna_io_dna::write_msr_file(const vstn_t& vbinary_stn, pvmsr_t vbinary_msr, 
 }
 	
 void dna_io_dna::write_msr_file(vdnaMsrPtr* vMeasurements, const string& msrfilename, 
-	const project_settings& p, const CDnaDatum& datum,
-	const string& comment)
+	const CDnaDatum& datum,	const string& comment)
 {
 	// Print DNA measurements	
 	
@@ -605,7 +595,7 @@ void dna_io_dna::write_msr_file(vdnaMsrPtr* vMeasurements, const string& msrfile
 		create_file_msr(&dna_msr_file, msrfilename);
 
 		// Write header and comment
-		write_msr_header(&dna_msr_file, vMeasurements, p, datum, true, comment);
+		write_msr_header(&dna_msr_file, vMeasurements, datum, comment);
 
 		// print measurements
 		for (_it_msr=vMeasurements->begin(); _it_msr!=vMeasurements->end(); _it_msr++)

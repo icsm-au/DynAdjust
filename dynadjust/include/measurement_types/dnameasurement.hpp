@@ -244,7 +244,7 @@ public:
 	virtual void WriteDNAMsr(std::ofstream* dna_stream, 
 		const dna_msr_fields& dmw, const dna_msr_fields& dml, 
 		const msr_database_id_map& dbidmap, bool dbidSet) const;
-	virtual void SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* ellipsoid);
+	virtual void SimulateMsr(vdnaStnPtr*, const CDnaEllipsoid*);
 	
 	void SerialiseDatabaseMap(std::ofstream* os, const UINT32& msr_id, const UINT32& cluster_id);
 
@@ -360,15 +360,15 @@ public:
 	virtual UINT32 CalcBinaryRecordCount() const = 0;
 	virtual void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) const = 0;
 	//virtual UINT32 SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord) = 0;
-	virtual UINT32 SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr) = 0;
+	virtual UINT32 SetMeasurementRec(const vstn_t&, it_vmsr_t& it_msr) = 0;
 	virtual void WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool bSubMeasurement = false) const = 0;
 	virtual void WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool bSubMeasurement = false) const = 0;
 	virtual void SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* ellipsoid) = 0;
 
 	// A function used by CDnaGpsPoint and CDnaGpsPointCluster only.
 	// Used to export latest station coordinate and variance estimates to Y measurement
-	virtual void PopulateMsr(pvstn_t bstRecords, uint32_uint32_map* blockStationsMap, vUINT32* blockStations,
-		const UINT32& block, const CDnaDatum* datum, math::matrix_2d* estimates, math::matrix_2d* variances) {}
+	virtual void PopulateMsr(pvstn_t, uint32_uint32_map*, vUINT32*,
+		const UINT32&, const CDnaDatum*, math::matrix_2d*, math::matrix_2d*) {}
 
 	// virtual functions overridden by specialised classes
 	virtual inline UINT32 GetClusterID() const { return 0; }
@@ -393,60 +393,60 @@ public:
 	virtual inline vector<CDnaGpsPoint>* GetPoints_ptr() { return 0; }
 	virtual inline vector<CDnaCovariance>* GetCovariances_ptr() { return 0; }
 
-	virtual void AddDirection(const CDnaMeasurement* pDirection) {}
-	virtual void AddGpsBaseline(const CDnaMeasurement* pGpsBaseline) {}
-	virtual void AddGpsPoint(const CDnaMeasurement* pGpsPoint) {}
-	virtual void AddGpsCovariance(const CDnaCovariance* pGpsCovariance) {}
-	virtual void AddPointCovariance(const CDnaCovariance* pGpsCovariance) {}
+	virtual void AddDirection(const CDnaMeasurement*) {}
+	virtual void AddGpsBaseline(const CDnaMeasurement*) {}
+	virtual void AddGpsPoint(const CDnaMeasurement*) {}
+	virtual void AddGpsCovariance(const CDnaCovariance*) {}
+	virtual void AddPointCovariance(const CDnaCovariance*) {}
 
-	virtual void ReserveDirectionsCount(const UINT32& size) {}
-	virtual void ReserveGpsBaselinesCount(const UINT32& size) {}
-	virtual void ReserveGpsPointsCount(const UINT32& size) {}
-	virtual void ReserveGpsCovariancesCount(const UINT32& size) {}
-	virtual void ResizeGpsCovariancesCount(const UINT32& size = 0) {}
+	virtual void ReserveDirectionsCount(const UINT32&) {}
+	virtual void ReserveGpsBaselinesCount(const UINT32&) {}
+	virtual void ReserveGpsPointsCount(const UINT32&) {}
+	virtual void ReserveGpsCovariancesCount(const UINT32&) {}
+	virtual void ResizeGpsCovariancesCount(const UINT32&) {}
 
-	virtual void SetRecordedTotal(const UINT32& total) {}
-	virtual void SetClusterID(const UINT32& id) {}
-	virtual void SetCoordType(const string& str) {}
-	virtual void SetHscale(const string& str) {}
-	virtual void SetHscale(const double& dbl) {}
-	virtual void SetInstrumentHeight(const string& str) {}
+	virtual void SetRecordedTotal(const UINT32&) {}
+	virtual void SetClusterID(const UINT32&) {}
+	virtual void SetCoordType(const string&) {}
+	virtual void SetHscale(const string&) {}
+	virtual void SetHscale(const double&) {}
+	virtual void SetInstrumentHeight(const string&) {}
 	
-	virtual void SetReferenceFrame(const string& str) {}
+	virtual void SetReferenceFrame(const string&) {}
 	void SetEpoch(const string& epoch);
 	
-	virtual void SetLscale(const string& str) {}
-	virtual void SetLscale(const double& dbl) {}
-	virtual void SetPscale(const string& str) {}
-	virtual void SetPscale(const double& dbl) {}
-	virtual void SetSigmaXX(const string& str) {}
-	virtual void SetSigmaXY(const string& str) {}
-	virtual void SetSigmaXZ(const string& str) {}
-	virtual void SetSigmaYY(const string& str) {}
-	virtual void SetSigmaYZ(const string& str) {}
-	virtual void SetSigmaZZ(const string& str) {}
-	virtual void SetStdDev(const string& str) {}
-	virtual void SetTarget(const string& str) {}
-	virtual void SetTarget2(const string& str) {}
-	virtual void SetTargetHeight(const string& str) {}
-	virtual void SetTotal(const string& str) {}
-	virtual void SetValue(const string& str) {}
-	virtual void SetVscale(const string& str) {}
-	virtual void SetVscale(const double& dbl) {}
-	virtual void SetX(const string& str) {}
-	virtual void SetY(const string& str) {}
-	virtual void SetZ(const string& str) {}
+	virtual void SetLscale(const string&) {}
+	virtual void SetLscale(const double&) {}
+	virtual void SetPscale(const string&) {}
+	virtual void SetPscale(const double&) {}
+	virtual void SetSigmaXX(const string&) {}
+	virtual void SetSigmaXY(const string&) {}
+	virtual void SetSigmaXZ(const string&) {}
+	virtual void SetSigmaYY(const string&) {}
+	virtual void SetSigmaYZ(const string&) {}
+	virtual void SetSigmaZZ(const string&) {}
+	virtual void SetStdDev(const string&) {}
+	virtual void SetTarget(const string&) {}
+	virtual void SetTarget2(const string&) {}
+	virtual void SetTargetHeight(const string&) {}
+	virtual void SetTotal(const string&) {}
+	virtual void SetValue(const string&) {}
+	virtual void SetVscale(const string&) {}
+	virtual void SetVscale(const double&) {}
+	virtual void SetX(const string&) {}
+	virtual void SetY(const string&) {}
+	virtual void SetZ(const string&) {}
 
-	virtual void SetXAxis(const double& dbl) {}
-	virtual void SetYAxis(const double& dbl) {}
-	virtual void SetZAxis(const double& dbl) {}
-	virtual void SetSigmaXX(const double& dbl) {}
-	virtual void SetSigmaXY(const double& dbl) {}
-	virtual void SetSigmaXZ(const double& dbl) {}
-	virtual void SetSigmaYY(const double& dbl) {}
-	virtual void SetSigmaYZ(const double& dbl) {}
-	virtual void SetSigmaZZ(const double& dbl) {}
-	virtual void SetTotal(const UINT32& u) {}
+	virtual void SetXAxis(const double&) {}
+	virtual void SetYAxis(const double&) {}
+	virtual void SetZAxis(const double&) {}
+	virtual void SetSigmaXX(const double&) {}
+	virtual void SetSigmaXY(const double&) {}
+	virtual void SetSigmaXZ(const double&) {}
+	virtual void SetSigmaYY(const double&) {}
+	virtual void SetSigmaYZ(const double&) {}
+	virtual void SetSigmaZZ(const double&) {}
+	virtual void SetTotal(const UINT32&) {}
 	
 	virtual void PreferGMeasurements() {}
 

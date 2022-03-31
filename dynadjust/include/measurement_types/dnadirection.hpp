@@ -115,7 +115,7 @@ private:
 
 public:
 
-	CDnaAzimuth(const bool bIgnore, const string& strFirst, const string& strTarget, const double& drValue, const double& dStdDev, bool bConvertAstroToGeodetic, bool bComputeDeflectionsFromAstro);
+	//CDnaAzimuth(const bool bIgnore, const string& strFirst, const string& strTarget, const double& drValue, const double& dStdDev);
 
 	bool operator==(const CDnaAzimuth& rhs) const;
 

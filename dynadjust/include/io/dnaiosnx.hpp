@@ -258,7 +258,7 @@ public:
 	stringstream parse_date_from_yy_doy(const UINT32& yy, const UINT32& doy, DATE_FORMAT_TYPE date_type, const string& separator);
 
 	void parse_sinex(std::ifstream** snx_file, const string& fileName, vdnaStnPtr* vStations, PUINT32 stnCount, 
-					vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID, string* success_msg,
+					vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID,
 					StnTally& parsestn_tally, MsrTally& parsemsr_tally, UINT32& fileOrder,
 					CDnaDatum& datum, bool applyDiscontinuities, 
 					v_discontinuity_tuple* stn_discontinuities_, bool& m_discontsSortedbyName,
@@ -268,7 +268,7 @@ public:
 		v_discontinuity_tuple* stn_discontinuities_, bool& m_discontsSortedbyName,
 		UINT32& lineNo, UINT32& columnNo, _PARSE_STATUS_& parseStatus);
 
-	void serialise_sinex(std::ofstream* snx_file, pvstn_t bstRecords, pvmsr_t bmsRecords,
+	void serialise_sinex(std::ofstream* snx_file, pvstn_t bstRecords,
 					binary_file_meta_t& bst_meta, binary_file_meta_t& bms_meta,
 					matrix_2d* estimates, matrix_2d* variances, const project_settings& p,
 					UINT32& measurementParams, UINT32& unknownParams, double& sigmaZero,
@@ -283,17 +283,17 @@ public:
 protected:
 
 	// Read functions
-	void parse_sinex_data(std::ifstream** snx_file, const string& fileName, vdnaStnPtr* vStations, PUINT32 stnCount, 
-			vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID, string* success_msg,
+	void parse_sinex_data(std::ifstream** snx_file, vdnaStnPtr* vStations, PUINT32 stnCount, 
+			vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID,
 			StnTally& parsestn_tally, MsrTally& parsemsr_tally, CDnaDatum& datum, 
 			v_discontinuity_tuple* stn_discontinuities_, bool& m_discontsSortedbyName,
 			UINT32& fileOrder, UINT32& lineNo, UINT32& columnNo);
 	
-	bool parse_sinex_header(std::ifstream** snx_file, CDnaDatum& datum, UINT32& lineNo, UINT32& columnNo);
+	bool parse_sinex_header(std::ifstream** snx_file, CDnaDatum& datum, UINT32& lineNo);
 	
 	void parse_sinex_block(std::ifstream** snx_file, const char* sinexRec, vdnaStnPtr* vStations, PUINT32 stnCount, 
-			vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID, string* success_msg,
-			StnTally& parsestn_tally, MsrTally& parsemsr_tally, CDnaDatum& datum, v_discontinuity_tuple* stn_discontinuities_,
+			vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID,
+			StnTally& parsestn_tally, MsrTally& parsemsr_tally, CDnaDatum& datum,
 			UINT32& fileOrder, UINT32& lineNo, UINT32& columnNo);
 	
 	void parse_sinex_discontinuities(std::ifstream* snx_file, 
@@ -306,14 +306,13 @@ protected:
 
 	void parse_sinex_stn(std::ifstream** snx_file, const char* sinexRec, vdnaStnPtr* vStations, PUINT32 stnCount,
 			StnTally& parsestn_tally, CDnaDatum& datum, 
-			v_discontinuity_tuple* stn_discontinuities_, UINT32& fileOrder, UINT32& lineNo, UINT32& columnNo);
+			UINT32& fileOrder, UINT32& lineNo, UINT32& columnNo);
 	
 	void parse_sinex_msr(std::ifstream** snx_file, const char* sinexRec, vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, PUINT32 clusterID, PUINT32 msrCount,
-			MsrTally& parsemsr_tally, CDnaDatum& datum, v_discontinuity_tuple* stn_discontinuities_, UINT32& lineNo);
+			MsrTally& parsemsr_tally, CDnaDatum& datum, UINT32& lineNo);
 
 	void format_station_names(v_discontinuity_tuple* stn_discontinuities, bool& m_discontsSortedbyName,
-		vdnaStnPtr* vStations, PUINT32 stnCount, 
-		vdnaMsrPtr* vMeasurements, PUINT32 msrCount);
+		vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements);
 
 	// Write functions
 	void serialise_meta(std::ofstream* snx_file, 
@@ -321,10 +320,9 @@ protected:
 			const project_settings& p, const CDnaDatum* datum);
 	void serialise_statistics(std::ofstream* snx_file);
 	void serialise_site_id(std::ofstream* snx_file, pvstn_t bstRecords);
-	void serialise_solution_estimates(std::ofstream* snx_file, pvstn_t bstRecords, pvmsr_t bmsRecords,
+	void serialise_solution_estimates(std::ofstream* snx_file, pvstn_t bstRecords,
 			matrix_2d* estimates, matrix_2d* variances, const CDnaDatum* datum);
-	void serialise_solution_variances(std::ofstream* snx_file, pvstn_t bstRecords, pvmsr_t bmsRecords,
-			matrix_2d* variances);
+	void serialise_solution_variances(std::ofstream* snx_file, matrix_2d* variances);
 	void print_line(std::ofstream* snx_file);
 
 	//string format_exponent(string value);

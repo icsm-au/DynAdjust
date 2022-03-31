@@ -362,7 +362,7 @@ UINT32 CDnaGpsBaseline::CalcBinaryRecordCount() const
 //}
 
 
-void CDnaGpsBaseline::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool bSubMeasurement /*= false*/) const
+void CDnaGpsBaseline::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string&, bool) const
 {
 	*dynaml_stream << "    <First>" << m_strFirst << "</First>" << endl;
 	*dynaml_stream << "    <Second>" << m_strTarget << "</Second>" << endl;
@@ -394,7 +394,7 @@ void CDnaGpsBaseline::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string&
 }
 
 
-void CDnaGpsBaseline::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool bSubMeasurement /*= false*/) const
+void CDnaGpsBaseline::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool) const
 {
 	*dna_stream << setw(dmw.msr_type) << m_strType;
 	if (m_bIgnore)
@@ -1127,7 +1127,7 @@ UINT32 CDnaGpsBaselineCluster::CalcBinaryRecordCount() const
 }
 
 
-void CDnaGpsBaselineCluster::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool bSubMeasurement /*= false*/) const
+void CDnaGpsBaselineCluster::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool) const
 {
 	const size_t bslCount = m_vGpsBaselines.size();
 	char cType = GetTypeC();
@@ -1183,7 +1183,7 @@ void CDnaGpsBaselineCluster::WriteDynaMLMsr(std::ofstream* dynaml_stream, const 
 }
 	
 
-void CDnaGpsBaselineCluster::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool bSubMeasurement /*= false*/) const
+void CDnaGpsBaselineCluster::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool) const
 {
 	// write GpsBaselines
 	vector<CDnaGpsBaseline>::const_iterator _it_bsl;

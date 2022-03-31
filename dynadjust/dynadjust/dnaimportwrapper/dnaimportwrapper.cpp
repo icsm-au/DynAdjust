@@ -361,7 +361,7 @@ void PrintMeasurementstoStations(MsrTally* parsemsrTally, dna_import* parserDyna
 }
 
 int SearchForSimilarMeasurements(dna_import* parserDynaML, project_settings* p, std::ofstream* imp_file,
-	vdnaStnPtr* vstationsTotal, vdnaMsrPtr* vmeasurementsTotal)
+	vdnaMsrPtr* vmeasurementsTotal)
 {
 	std::ofstream dms_file;
 	UINT32 msr;
@@ -1939,7 +1939,7 @@ int main(int argc, char* argv[])
 	if (msrCount > 0 && (p.i.search_similar_msr || p.i.search_similar_msr_gx || p.i.ignore_similar_msr)) 
 	{
 		if (SearchForSimilarMeasurements(&parserDynaML, &p, &imp_file,
-			&vstationsTotal, &vmeasurementsTotal) != EXIT_SUCCESS)
+			&vmeasurementsTotal) != EXIT_SUCCESS)
 			return EXIT_FAILURE;	
 	}
 
@@ -2120,7 +2120,7 @@ int main(int argc, char* argv[])
 				cout.flush();
 			}
 			imp_file << "+ Creating association lists... ";
-			parserDynaML.CompleteAssociationLists(&vmeasurementsTotal, &associatedSL, &associatedML, &vunusedStations, &vignoredMeasurements);
+			parserDynaML.CompleteAssociationLists(&vmeasurementsTotal, &associatedSL, &associatedML);
 			if (!p.g.quiet)
 			{
 				cout << "Done." << endl;

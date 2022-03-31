@@ -43,7 +43,7 @@ CDnaDirectionSet::CDnaDirectionSet(void)
 
 CDnaDirectionSet::~CDnaDirectionSet(void)
 {
-	m_vTargetDirections.empty();
+	m_vTargetDirections.clear();
 }
 	
 CDnaDirectionSet::CDnaDirectionSet(const UINT32 lsetID)
@@ -239,7 +239,7 @@ UINT32 CDnaDirectionSet::CalcBinaryRecordCount() const
 }
 	
 
-void CDnaDirectionSet::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool bSubMeasurement /*= false*/) const
+void CDnaDirectionSet::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool) const
 {
 	const size_t dirCount(GetNumDirections());
 
@@ -289,7 +289,7 @@ void CDnaDirectionSet::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string
 }
 	
 
-void CDnaDirectionSet::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool bSubMeasurement /*= false*/) const
+void CDnaDirectionSet::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool) const
 {
 	const size_t dirCount(GetNumDirections());
 	

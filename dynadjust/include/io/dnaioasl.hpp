@@ -42,7 +42,7 @@ class dna_io_asl : public dna_io_base
 {
 public:
 	dna_io_asl(void) {};
-	dna_io_asl(const dna_io_asl&) {};
+	dna_io_asl(const dna_io_asl& asl) : dna_io_base(asl) {};
 	virtual ~dna_io_asl(void) {};
 
 	dna_io_asl& operator=(const dna_io_asl& rhs);

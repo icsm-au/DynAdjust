@@ -324,10 +324,12 @@ public:
 	void WriteMappedFileRegion(void* addr);
 
 	// debug
+#ifdef _MSDEBUG
 	void trace(const string& comment, const string& format) const;
 	void trace(const string& comment, const string& submat_comment, const string& format,
 		const UINT32& row_begin, const UINT32& col_begin, 
 		const UINT32& rows, const UINT32& columns) const;
+#endif
 
 	//void replacebuffer(const UINT32& rows, const UINT32& columns, double**	buffer);
 

@@ -29,7 +29,7 @@ namespace dynadjust {
 namespace iostreams {
 
 void dna_io_snx::parse_sinex(std::ifstream** snx_file, const string& fileName, vdnaStnPtr* vStations, PUINT32 stnCount, 
-					vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID, string* success_msg,
+					vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID,
 					StnTally& parsestn_tally, MsrTally& parsemsr_tally, UINT32& fileOrder,
 					CDnaDatum& datum, bool applyDiscontinuities, 
 					v_discontinuity_tuple* stn_discontinuities, bool& m_discontsSortedbyName,
@@ -50,7 +50,7 @@ void dna_io_snx::parse_sinex(std::ifstream** snx_file, const string& fileName, v
 	containsDiscontinuities_ = false;
 
 	// read header line and extract epoch
-	if (!parse_sinex_header(snx_file, datum, lineNo, columnNo))
+	if (!parse_sinex_header(snx_file, datum, lineNo))
 	{
 		stringstream ss;
 		ss << "parse_sinex(): The SINEX file  " << fileName << " did not contain a header record." << endl;
@@ -60,7 +60,7 @@ void dna_io_snx::parse_sinex(std::ifstream** snx_file, const string& fileName, v
 	try {
 		
 		// read data
-		parse_sinex_data(snx_file, fileName, vStations, stnCount, vMeasurements, msrCount, clusterID, success_msg,
+		parse_sinex_data(snx_file, vStations, stnCount, vMeasurements, msrCount, clusterID,
 					parsestn_tally, parsemsr_tally, datum, 
 					stn_discontinuities, m_discontsSortedbyName,
 					fileOrder, lineNo, columnNo);
@@ -102,7 +102,7 @@ void dna_io_snx::parse_discontinuity_file(std::ifstream* snx_file, const string&
 		// As the purpose of the discontinuity file is to provide dates on when discontinuities occur,
 		// there is no real imperative to capture the date from the header line
 		// Check for it anyway
-		parse_sinex_header(&snx_file, datum, lineNo, columnNo);
+		parse_sinex_header(&snx_file, datum, lineNo);
 
 		while (!snx_file->eof())			// while EOF not found
 		{
@@ -230,7 +230,7 @@ stringstream dna_io_snx::parse_date_from_string(const string& date_str, DATE_FOR
 	return parse_date_from_yy_doy(yy, doy, date_type, separator);
 }
 
-bool dna_io_snx::parse_sinex_header(std::ifstream** snx_file, CDnaDatum& datum, UINT32& lineNo, UINT32& columnNo)
+bool dna_io_snx::parse_sinex_header(std::ifstream** snx_file, CDnaDatum& datum, UINT32& lineNo)
 {
 	/*
 	%=SNX 2.00 AUS 11:182:57860 IGS 11:157:00000 11:157:86370 P 00054 0 S          
@@ -279,8 +279,8 @@ bool dna_io_snx::parse_sinex_header(std::ifstream** snx_file, CDnaDatum& datum, 
 }
 	
 
-void dna_io_snx::parse_sinex_data(std::ifstream** snx_file, const string& fileName, vdnaStnPtr* vStations, PUINT32 stnCount, 
-					vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID, string* success_msg,
+void dna_io_snx::parse_sinex_data(std::ifstream** snx_file, vdnaStnPtr* vStations, PUINT32 stnCount, 
+					vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID,
 					StnTally& parsestn_tally, MsrTally& parsemsr_tally, CDnaDatum& datum, 
 					v_discontinuity_tuple* stn_discontinuities, bool& m_discontsSortedbyName,
 					UINT32& fileOrder, UINT32& lineNo, UINT32& columnNo)
@@ -305,8 +305,8 @@ void dna_io_snx::parse_sinex_data(std::ifstream** snx_file, const string& fileNa
 		try {
 
 			if (sBuf.substr(0, 1) == "+")
-				parse_sinex_block(snx_file, sBuf.c_str(), vStations, stnCount, vMeasurements, msrCount, clusterID, success_msg,
-					parsestn_tally, parsemsr_tally, datum, stn_discontinuities, fileOrder, lineNo, columnNo);
+				parse_sinex_block(snx_file, sBuf.c_str(), vStations, stnCount, vMeasurements, msrCount, clusterID,
+					parsestn_tally, parsemsr_tally, datum, fileOrder, lineNo, columnNo);
 		}
 		catch (runtime_error& e) {
 			stringstream ss;
@@ -325,13 +325,12 @@ void dna_io_snx::parse_sinex_data(std::ifstream** snx_file, const string& fileNa
 	if (applyDiscontinuities_)
 		// true if  --discontinuity-file sinex_discontinuities.snx
 		format_station_names(stn_discontinuities, m_discontsSortedbyName, 
-			vStations, stnCount, vMeasurements, msrCount);
+			vStations, vMeasurements);
 }
 	
 
 void dna_io_snx::format_station_names(v_discontinuity_tuple* stn_discontinuities, bool& m_discontsSortedbyName,
-	vdnaStnPtr* vStations, PUINT32 stnCount, 
-	vdnaMsrPtr* vMeasurements, PUINT32 msrCount)
+	vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements)
 {
 	UINT32 site, doy, year;
 	string site_name;
@@ -466,9 +465,8 @@ void dna_io_snx::format_station_names(v_discontinuity_tuple* stn_discontinuities
 
 	
 void dna_io_snx::parse_sinex_block(std::ifstream** snx_file, const char* sinexRec, vdnaStnPtr* vStations, PUINT32 stnCount, 
-					vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID, string* success_msg,
+					vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID,
 					StnTally& parsestn_tally, MsrTally& parsemsr_tally, CDnaDatum& datum, 
-					v_discontinuity_tuple* stn_discontinuities,
 					UINT32& fileOrder, UINT32& lineNo, UINT32& columnNo)
 {
 	// write comments
@@ -511,7 +509,7 @@ void dna_io_snx::parse_sinex_block(std::ifstream** snx_file, const char* sinexRe
 	{
 		// OK, found some stations
 		parse_sinex_stn(snx_file, sinexRec, vStations, stnCount,
-			parsestn_tally, datum, stn_discontinuities, fileOrder, lineNo, columnNo);
+			parsestn_tally, datum, fileOrder, lineNo, columnNo);
 		return;
 	}
 
@@ -519,7 +517,7 @@ void dna_io_snx::parse_sinex_block(std::ifstream** snx_file, const char* sinexRe
 	{
 		// Ok, found some measurements
 		parse_sinex_msr(snx_file, sinexRec, vStations, vMeasurements, clusterID, msrCount,
-			parsemsr_tally, datum, stn_discontinuities, lineNo);
+			parsemsr_tally, datum, lineNo);
 		return;
 	}
 }
@@ -881,7 +879,7 @@ void dna_io_snx::reduce_sinex_sites()
 }
 	
 void dna_io_snx::parse_sinex_stn(std::ifstream** snx_file, const char* sinexRec, vdnaStnPtr* vStations, PUINT32 stnCount,
-					StnTally& parsestn_tally, CDnaDatum& datum, v_discontinuity_tuple* stn_discontinuities,
+					StnTally& parsestn_tally, CDnaDatum& datum,
 					UINT32& fileOrder, UINT32& lineNo, UINT32& columnNo)
 {
 	stringstream ss;
@@ -1054,7 +1052,7 @@ void dna_io_snx::parse_sinex_stn(std::ifstream** snx_file, const char* sinexRec,
 	
 
 void dna_io_snx::parse_sinex_msr(std::ifstream** snx_file, const char* sinexRec, vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, PUINT32 clusterID, PUINT32 msrCount,
-					MsrTally& parsemsr_tally, CDnaDatum& datum, v_discontinuity_tuple* stn_discontinuities, UINT32& lineNo)
+					MsrTally& parsemsr_tally, CDnaDatum& datum, UINT32& lineNo)
 {
 	stringstream ss;
 

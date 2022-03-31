@@ -205,12 +205,12 @@ private:
 		n_file_par* pGridfile, bool isTEMP=true);
 	
 	// NTv2 File creation
-	void PrintGridHeaderInfoAscii(std::ofstream* f_out, n_file_par* pGridfile);
+	void PrintGridHeaderInfoAscii(std::ofstream* f_out);
 	void PrintGridHeaderInfoBinary(std::ofstream* f_out, n_file_par* pGridfile);
-	void PrintSubGridHeaderInfoAscii(std::ofstream* f_out, n_gridfileindex* m_gfIndex, const string& shiftType);
-	void PrintSubGridHeaderInfoBinary(std::ofstream* f_out, n_gridfileindex* m_gfIndex, const string& shiftType);
+	void PrintSubGridHeaderInfoAscii(std::ofstream* f_out, n_gridfileindex* m_gfIndex);
+	void PrintSubGridHeaderInfoBinary(std::ofstream* f_out, n_gridfileindex* m_gfIndex);
 	void ScanDatFileValues(char* szLine, float* n_value, char* c_northsouth, int* lat_deg, int* lat_min, float* lat_sec, char* c_eastwest, int* lon_deg, int* lon_min, float* lon_sec, float* defl_meridian, float* defl_primev);
-	void ScanNodeLocations(char* szLine, double* latitude, double* longitude, const UINT32& lNodeRead);
+	void ScanNodeLocations(char* szLine, double* latitude, double* longitude);
 	void ComputeLatLong(double* dlat_initial, const char& c_northsouth, const int& lat_deg, const int& lat_min, const double& lat_sec, double* dlon_initial, const char& c_eastwest, const int& lon_deg, const int& lon_min, const double& lon_sec);
 	void WriteBinaryRecords(std::ofstream* f_out, float n_value, float defl_meridian, float defl_primev);
 
@@ -221,8 +221,8 @@ private:
 	bool IsWithinLowerLatitudeGridInterval(n_gridfileindex* gfIndex);
 	bool IsWithinUpperLongitudeGridInterval(n_gridfileindex* gfIndex);
 	bool IsWithinLowerLongitudeGridInterval(n_gridfileindex* gfIndex);
-	int InterpolateNvalue_BiLinear(double dlat, double dlon, geoid_point* dInterpPoint);
-	int InterpolateNvalue_BiCubic(double dlat, double dlon, geoid_point* dInterpPoint);
+	int InterpolateNvalue_BiLinear(geoid_point* dInterpPoint);
+	int InterpolateNvalue_BiCubic(geoid_point* dInterpPoint);
 	int DetermineFileType(const char* cType);
 	bool ReadAsciiShifts(geoid_values* pNShifts[], int iNodeIndex, long lNode);
 	bool ReadBinaryShifts(geoid_values* pNShifts[], int iNodeIndex, long lNode);

@@ -546,7 +546,7 @@ string formattedDateStringFromNumericString(const string& dateString)
 }
 
 template <typename T>
-T formattedDateTimeStringFromDate(const date& theDate)
+T formattedDateTimeString()
 {
 	stringstream datetime_ss, stream;
 	time_facet* p_time_output = new time_facet;
