@@ -114,6 +114,9 @@
     <ClInclude Include="..\..\include\io\DynaML-schema.hxx">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\measurement_types\dnaangle.hpp">
@@ -268,5 +271,10 @@
     <ClCompile Include="..\..\include\io\DynaML-schema.cxx">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\dynadjust.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>
