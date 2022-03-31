@@ -27,15 +27,15 @@ endif(UNIX)
 set (CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR};${CMAKE_MODULE_PATH}")
 set (CMAKE_CXX_STANDARD 14)
 
-# Do not warn about uses of functions, variables, and types
-# marked as deprecated by using the deprecated attribute. 
-add_definitions(-Wno-deprecated-declarations)
+# ignore warnings if the return type of a function has a 
+# type qualifier such as const (e.g. std::exception::what())
+add_definitions(-Wno-ignored-qualifiers)
 
 # default CXX flags
 if (BUILD_TESTING)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w")    # turn off warnings for unit testing and code coverage
 else ()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 endif (BUILD_TESTING)
 
 # Debug CXX flags (GCC 4.8 introduced -Og for superior debugging experience. For older versions, use -O0)
