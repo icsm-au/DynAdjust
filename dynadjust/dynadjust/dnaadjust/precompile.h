@@ -5,6 +5,10 @@
 
 #pragma once
 
+// See https://github.com/boostorg/process/issues/161
+#define _WIN32_WINNT 0x0501
+#include <boost/process.hpp>
+
 // Support MKL inverse oly if compiler is Intel
 #if defined(__ICC) || defined(__INTEL_COMPILER)		// Intel compiler
 #include <mkl.h>
