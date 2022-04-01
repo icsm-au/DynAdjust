@@ -100,13 +100,11 @@ b2 -j%cores% toolset=%msvcver% address-model=32 architecture=x86 link=static,sha
 
 rem move contents of %stage_32%\lib to %stage_32%
 move %stage_32%\lib\* %stage_32%\
-del %stage_32%\lib
+rmdir /S /Q %stage_32%\lib
 
 rem make include folder (C:\Data\boost\%boost_dir%\include) and move headers (boost folder)
 md %headers%
 move .\boost %headers% 
-
-echo Finished!
 ```
 
 The DynAdjust repository includes a Visual Studio property sheet (`dynadjust.props`), which allows you to set the folder paths to the boost header files and libraries on your machine. The boost header and library folder paths are saved within `dynadjust.props` as _User Macros_, named **BoostIncludeDir** and **BoostLibDir**, and are referenced throughout the solution’s project properties. Saving thes paths in a global property sheet
