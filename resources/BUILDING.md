@@ -123,8 +123,10 @@ By default, the boost paths are set as follows. Change these to match the locati
 
 #### 1.3 Install CodeSynthesis XSD and Apache xerces-c headers and libraries
 
-DynAdjust requires CodeSynthesis XSD (version 4.0) headers and Apache xerces-c headers and libraries. The x86 and x64 Windows dependencies are available as a bundle via:
+DynAdjust requires CodeSynthesis XSD (version 4.0) headers and Apache xerces-c headers and libraries. XSD x86 and x64 Windows dependencies are available as a bundle via:
 https://www.codesynthesis.com/products/xsd/download.xhtml
+
+Note that the XSD installer (.msi) for Windows includes precompiled Apache Xerces-C++ libraries (32 and 64 bit) for all the supported Visual Studio versions.
 
 If the default installation path (`C:\Program Files (x86)\CodeSynthesis XSD 4.0`) is used during setup, the XSD and xerces-c paths will be correctly referenced via the Visual Studio property sheet `dynadjust.props`. As with the boost paths, the header and library folder paths for XSD and xerces-c are saved using _User Macros_, named **XsdIncludeDir**, **XsdLibDir_x64**, and **XsdLibDir_Win32**:
 
