@@ -29,13 +29,172 @@ The way in which these prerequisites are installed will depend upon your operati
 
 ## Windows only
 
-Please refer to the Windows compilation [instructions](https://github.com/icsm-au/DynAdjust/blob/master/resources/dynadjust-compilation-in-windows.pdf) for the steps to compile DynAdjust on Windows using Microsoft's freely available Visual Studio 2017 Community Edition.
+Building DynAdjust on Windows requires two steps: (1) installation of prerequisite tools and (2) compilation via Visual Studio C++.
+
+### 1. Install Windows prerequisites
+
+#### _1.1 Install Microsoft Visual Studio 2022 Community Edition_
+
+Microsoft’s Visual Studio 2022 Community Edition is available from
+https://visualstudio.microsoft.com/vs/community/
+
+C++ is required for compiling all DynAdjust binaries.  MFC is required only for building `GeoidInt.exe` - Geoid Interpolation software with a (dialog-based) graphical user interface.
+
+#### _1.2 Install Boost C++ headers and libraries_
+
+The supported versions of boost are 1.58.0 – 1.78.0. The headers and library sources are available from https://www.boost.org/users/download/
+
+The boost libraries needed by DynAdjust include `filesystem`, `system`, `program_options`, `thread`, `date_time`, `math`, `timer`, `atomic` and `chrono`. These will need to be built from the boost C++ sources using Visual Studio 2022, and installed to a suitable folder on your machine.
+
+Follow the instructions on the [Boost Website](https://www.boost.org/doc/libs/1_78_0/more/getting_started/windows.html#prepare-to-use-a-boost-library-binary) to build the boost libraries from source.  For example, the steps are: 
+
+1. Download and extract boost to a suitable folder
+2. Run `Bootstrap.bat` to build `b2`
+3. Build the boost binaries using `b2`
+
+For steps 2 and 3, run the following (assuming boost has been downloaded and unzipped):
+
+``` bat
+rem Start building boost
+echo 
+echo Building bootstrap.bat
+echo
+
+rem inside the root directory where boost was unzipped, change to tools\build\
+cd .\tools\build
+
+rem build b2 using VS 2022
+call bootstrap.bat vc143
+
+rem Directory to boost root
+set boost_dir=boost_1_78_0
+
+rem Store compiled libraries in directories corresponding to 64-bit and 32-bit.
+set stage_64=C:\Data\boost\%boost_dir%\lib\x64
+set stage_32=C:\Data\boost\%boost_dir%\lib\Win32
+set headers=C:\Data\boost\%boost_dir%\include
+
+rem Number of cores to use when building boost
+set cores=%NUMBER_OF_PROCESSORS%
+
+rem Visual Studio 2022
+set msvcver=msvc-14.3
+
+rem change to the root directory, copy b2 to root
+cd ..\..
+copy .\tools\build\b2.exe .\
+
+rem Static libraries (64 bit)
+echo Building %boost_dir% (64-bit) with %cores% cores using toolset %msvcver%.
+echo Destination directory is %stage_64%
+b2 -j%cores% toolset=%msvcver% address-model=64 architecture=x86 link=static,shared threading=multi runtime-link=shared --build-type=minimal stage --stagedir=%stage_64%
+
+rem move contents of %stage_64%\lib to %stage_64%
+move %stage_64%\lib\* %stage_64%\
+del %stage_64%\lib
+
+rem Static libraries (32 bit)
+echo Building %boost_dir% (32-bit) with %cores% cores using toolset %msvcver%.
+echo Destination directory is %stage_32%
+b2 -j%cores% toolset=%msvcver% address-model=32 architecture=x86 link=static,shared threading=multi runtime-link=shared --build-type=minimal stage --stagedir=%stage_32%
+
+rem move contents of %stage_32%\lib to %stage_32%
+move %stage_32%\lib\* %stage_32%\
+del %stage_32%\lib
+
+rem make include folder (C:\Data\boost\%boost_dir%\include) and move headers (boost folder)
+md %headers%
+move .\boost %headers% 
+
+echo Finished!
+```
+
+The DynAdjust repository includes a Visual Studio property sheet (`dynadjust.props`), which allows you to set the folder paths to the boost header files and libraries on your machine. The boost header and library folder paths are saved within `dynadjust.props` as _User Macros_, named **BoostIncludeDir** and **BoostLibDir**, and are referenced throughout the solution’s project properties. Saving thes paths in a global property sheet
+provides a convenient way to reference custom boost C++ file paths across the entire solution without having to change individual property page for each project.
+
+By default, the boost paths are set as follows. Change these to match the location of the boost header files and libraries on your machine, making sure that `\lib\` contains two folders named `x64` and `Win32` if you need to build 64-bit and 32-bit binaries respectively.
+
+- **BoostIncludeDir:**  `C:\Data\boost\boost_1_78_0\include\`
+- **BoostLibDir:** `C:\Data\boost\boost_1_78_0\lib\$(Platform)`
+
+#### _1.3 Install CodeSynthesis XSD and Apache xerces-c headers and libraries_
+
+DynAdjust requires CodeSynthesis XSD (version 4.0) headers and Apache xerces-c headers and libraries. The x86 and x64 Windows dependencies are available as a bundle via:
+https://www.codesynthesis.com/products/xsd/download.xhtml
+
+If the default installation path (`C:\Program Files (x86)\CodeSynthesis XSD 4.0`) is used during setup, the XSD and xerces-c paths will be correctly referenced via the Visual Studio property sheet `dynadjust.props`. As with the boost paths, the header and library folder paths for XSD and xerces-c are saved using _User Macros_, named **XsdIncludeDir**, **XsdLibDir_x64**, and **XsdLibDir_Win32**:
+
+- **XsdIncludeDir**: `C:\Program Files (x86)\CodeSynthesis XSD 4.0\include`
+- **XsdLibDir_x64**: `C:\Program Files (x86)\CodeSynthesis XSD 4.0\lib64\vc-12.0`
+- **XsdLibDir_Win32**: `C:\Program Files (x86)\CodeSynthesis XSD 4.0\lib\vc-12.0`
+
+If an alternative installation path is chosen, change the User Macros accordingly.
+
+#### _1.4 Install Intel oneAPI Math Kernel Library (MKL)_
+
+DynAdjust requires Intel’s oneAPI MKL and TBB libraries. A free version of oneAPI is available from:
+https://www.intel.com/content/www/us/en/developer/tools/oneapi/onemkl.html
+
+With Visual Studio 2022 already installed, the Intel oneAPI installer will automatically enable integration into the Visual Studio 2022 IDE. This means that the oneAPI MKL and TBB libraries and headers will be automatically referenced upon compiling DynAdjust without modification.
+
+> **Note:** The entire oneAPI toolkit is quite large – choose MKL installation only for a minimum build set up.
+
+### 2. Building Windows binaries in Visual Studio
+
+DynAdjust is comprised of several executables and dependent dynamic link libraries (DLL), each of which is managed and configured as a VC++ project.  All projects are contained within a single solution file `dynadjust_x_xx_xx.sln`.  
+
+The VC++ project for each executable is named using the convention `dna<program-name>wrapper`, except for the main program
+`dynadjust`. Upon compilation, these projects will create executables named `<program-name>.exe`.
+Each executable named `<program-name>.exe` is dependent on a DLL named `dna<program-name>.dll`. The DLLs must and will be compiled first before compiling the executables.
+
+The executable projects and their dependent DLLs are listed below:
+- dnaadjustwrapper
+  - dnaadjust
+- dnageoidwrapper
+  - dnageoid
+- dnaimportwrapper
+  - dnaimport
+- dnaplotwrapper
+  - dnaplot
+- dnareftranwrapper
+  - dnareftran
+- dnasegmentwrapper
+  - dnasegment
+- dynadjust (no project dependencies, but requires all preceding projects to be built for normal execution behaviour)
+- GeoidInt
+  - dnageoid
+
+For each VC++ project, four build configurations have been created:
+1. Debug Win32
+2. Release Win32
+3. Debug x64
+4. Release x64
+
+The project properties pages for each executable and DLL project make use of User Macros that simplify the creation of settings for the four configurations.
+
+Given that many functions are shared throughout the suite of executables and DLLs, the DynAdjust solution makes extensive use of precompiled headers to simplify and speed up compile time.
 
 ## Linux and Mac
 
+Building DynAdjust on Linux or Mac requires two steps: (1) installation of prerequisite tools and (2) execution of a gcc build script using cmake.
+
 ### 1. Install prerequisites
 
-To install the prerequisites:
+The specific Linux/Mac prerequisites for building DynaAdjust include the following software:
+
+- gcc-c++ (with std C++ 14 support), with a compatible version of make
+- cmake (minimum v3.13)
+- Intel oneAPI Math Kernel Library (MKL)
+- boost-devel (minimum v1.58.0. v1.78.0 preferred)
+- xerces-c (3.1.4)
+- xsd (4.0)
+- git (if cloning copies from the GitHub repository)
+- bzip2 (required for building xerces-c from source)
+- wget (for accessing Intel gpg keys, xsd, xerces-c)
+
+> **Note:** If all prerequisites are installed, they do not need to be re-installed. In this instance, skip to step [2. Build the source code](#2-build-the-source-code).
+
+These prerequisites can be installed manually, or via a convenient installation script:
 
 1. Download the shell script [`install_dynadjust_prerequisites.sh`](https://github.com/icsm-au/DynAdjust/raw/master/resources/install_dynadjust_prerequisites.sh) (from the [resources](https://github.com/icsm-au/DynAdjust/tree/master/resources) folder) to a suitable directory. It does not matter where this script is executed from.
 2. Open the terminal and go to the directory where this shell script was saved.
@@ -55,9 +214,9 @@ To install the prerequisites:
 > $ ./install_dynadjust_prerequisites.sh
 > ```
 
-  Executing the script without any options will cause the script to run in interactive mode, allowing you to choose several options for how the prerequisites (boost, xerces-c, xsd, mkl) are installed. 
+  Executing the script without any options will cause the script to run in interactive mode, allowing you to choose several options for how the prerequisites (boost, xerces-c, xsd, oneAPI mkl) are installed. 
   
-  Your system-specific package manager will be used to install boost and mkl.
+  Your system-specific package manager will be used to install boost and oneAPI mkl.
   
   Options are provided for installing xerces-c and xsd prerequisites via your system-specific package manager or downloading and building from source.
   
