@@ -26,7 +26,7 @@ Alternatively, you can pull a DynAdjust docker image from your system via:
 
 [![GitHub Releases](https://img.shields.io/github/v/release/icsm-au/DynAdjust.svg)](https://github.com/icsm-au/DynAdjust/releases)
 
-For each stable release, DynAdjust binaries are built using Microsoft Visual Studio 2017 and published on the [releases page](https://github.com/icsm-au/dynadjust/releases/latest).
+For each stable release, DynAdjust binaries are built using Microsoft Visual Studio 2022 and published on the [releases page](https://github.com/icsm-au/dynadjust/releases/latest).
 
 To install DynAdjust on Windows:
 
