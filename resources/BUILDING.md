@@ -6,6 +6,12 @@ The following build instructions are only needed if you would like to build DynA
 
 - [General requirements and prerequisites](#general-requirements-and-prerequisites)
 - [Windows only](#windows-only)
+  - [1. Install Windows prerequisites](#1-install-windows-prerequisites)
+    - [1.1 Install Microsoft Visual Studio 2022 Community Edition](#11-install-microsoft-visual-studio-2022-community-edition)
+    - [1.2 Install Boost C++ headers and libraries](#12-install-boost-c-headers-and-libraries)
+    - [1.3 Install CodeSynthesis XSD and Apache xerces-c headers and libraries](#13-install-codesynthesis-xsd-and-apache-xerces-c-headers-and-libraries)
+    - [1.4 Install Intel oneAPI Math Kernel Library (MKL)](#14-install-intel-oneapi-math-kernel-library-mkl)
+  - [2. Building Windows binaries in Visual Studio](#2-building-windows-binaries-in-visual-studio)
 - [Linux and Mac](#linux-and-mac)
   - [1. Install prerequisites](#1-install-prerequisites)
   - [2. Build the source code](#2-build-the-source-code)
@@ -33,14 +39,14 @@ Building DynAdjust on Windows requires two steps: (1) installation of prerequisi
 
 ### 1. Install Windows prerequisites
 
-#### _1.1 Install Microsoft Visual Studio 2022 Community Edition_
+#### 1.1 Install Microsoft Visual Studio 2022 Community Edition
 
 Microsoft’s Visual Studio 2022 Community Edition is available from
 https://visualstudio.microsoft.com/vs/community/
 
 C++ is required for compiling all DynAdjust binaries.  MFC is required only for building `GeoidInt.exe` - Geoid Interpolation software with a (dialog-based) graphical user interface.
 
-#### _1.2 Install Boost C++ headers and libraries_
+#### 1.2 Install Boost C++ headers and libraries
 
 The supported versions of boost are 1.58.0 – 1.78.0. The headers and library sources are available from https://www.boost.org/users/download/
 
@@ -115,7 +121,7 @@ By default, the boost paths are set as follows. Change these to match the locati
 - **BoostIncludeDir:**  `C:\Data\boost\boost_1_78_0\include\`
 - **BoostLibDir:** `C:\Data\boost\boost_1_78_0\lib\$(Platform)`
 
-#### _1.3 Install CodeSynthesis XSD and Apache xerces-c headers and libraries_
+#### 1.3 Install CodeSynthesis XSD and Apache xerces-c headers and libraries
 
 DynAdjust requires CodeSynthesis XSD (version 4.0) headers and Apache xerces-c headers and libraries. The x86 and x64 Windows dependencies are available as a bundle via:
 https://www.codesynthesis.com/products/xsd/download.xhtml
@@ -128,7 +134,7 @@ If the default installation path (`C:\Program Files (x86)\CodeSynthesis XSD 4.0`
 
 If an alternative installation path is chosen, change the User Macros accordingly.
 
-#### _1.4 Install Intel oneAPI Math Kernel Library (MKL)_
+#### 1.4 Install Intel oneAPI Math Kernel Library (MKL)
 
 DynAdjust requires Intel’s oneAPI MKL and TBB libraries. A free version of oneAPI is available from:
 https://www.intel.com/content/www/us/en/developer/tools/oneapi/onemkl.html
