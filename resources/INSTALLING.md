@@ -31,10 +31,9 @@ For each stable release, DynAdjust binaries are built using Microsoft Visual Stu
 To install DynAdjust on Windows:
 
 1. Install the following (64-bit) libraries and dependencies:
-   1. Apache Xerces-C++ XML Parser: <http://xerces.apache.org/xerces-c/download.cgi>
-   2. Codesynthesis XSD XML Data Binding for C++: <https://www.codesynthesis.com/products/xsd/download.xhtml>
-   3. Intel® oneAPI Math Kernel Library: <https://www.intel.com/content/www/us/en/developer/tools/oneapi/onemkl.html>
-   4. Microsoft Visual C++ Redistributable for Visual Studio 2015-2022: <https://docs.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist>, or <https://visualstudio.microsoft.com/downloads/> > _Other Tools, Frameworks, and Redistributables_ > _Microsoft Visual C++ Redistributable for Visual Studio 2022_
+   1. Codesynthesis XSD XML Data Binding for C++: <https://www.codesynthesis.com/products/xsd/download.xhtml>. Note that the XSD installer (.msi) for Windows includes precompiled Apache Xerces-C++ libraries (32 and 64 bit) for all the supported Visual Studio versions.
+   2. Intel® oneAPI Math Kernel Library: <https://www.intel.com/content/www/us/en/developer/tools/oneapi/onemkl.html>
+   3. Microsoft Visual C++ Redistributable for Visual Studio 2015-2022: <https://docs.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist>, or <https://visualstudio.microsoft.com/downloads/> > _Other Tools, Frameworks, and Redistributables_ > _Microsoft Visual C++ Redistributable for Visual Studio 2022_
 
 2. Download the latest pre-built Windows (64-bit) DynAdjust binaries from the [releases page](https://github.com/icsm-au/dynadjust/releases/latest) to a dedicated folder (not the Desktop) on your system.  Add the location of this folder to your system's path environment variables so that DynAdjust can be executed from any location on your system.
 
