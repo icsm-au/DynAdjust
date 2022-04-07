@@ -329,7 +329,7 @@ baseurl=$_repo_intel_yum
 enabled=1
 gpgcheck=1
 repo_gpgcheck=1
-gpgkey=$gpg_intel
+gpgkey=$_gpg_intel
 EOF
         sudo mv /tmp/oneAPI.repo /etc/yum.repos.d
 
