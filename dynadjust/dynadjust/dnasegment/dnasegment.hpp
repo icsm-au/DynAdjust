@@ -96,7 +96,7 @@ public:
 	void PrepareSegmentation(project_settings* projectSettings);
 
 	// Segment a memory-based network and store blocked lists in memory
-	_SEGMENT_STATUS_ SegmentNetwork(project_settings* projectSettings, string* success_msg);
+	_SEGMENT_STATUS_ SegmentNetwork(project_settings* projectSettings);
 
 	void InitialiseSegmentation();
 	

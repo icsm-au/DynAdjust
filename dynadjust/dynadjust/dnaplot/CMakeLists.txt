@@ -1,7 +1,7 @@
 # <dnaplot/...> build rules
 project (dnaplot)
 
-add_definitions(-DBUILD_DNAPLOT_DLL -DBUILD_EXPORTDNATYPES -DMKL_ILP64 -openmp)
+add_definitions(-DBUILD_DNAPLOT_DLL -DBUILD_EXPORTDNATYPES -DMKL_ILP64 -fopenmp)
 
 include_directories (${PROJECT_SOURCE_DIR})
 
@@ -20,7 +20,8 @@ add_library (${PROJECT_NAME} SHARED
              ${CMAKE_SOURCE_DIR}/include/measurement_types/dnamsrtally.cpp
              ${CMAKE_SOURCE_DIR}/include/measurement_types/dnastation.cpp
              ${CMAKE_SOURCE_DIR}/include/io/dnaiobase.cpp
-             dnaplot.cpp)
+             dnaplot.cpp
+             ${CMAKE_SOURCE_DIR}/dynadjust.rc)
 
 target_link_libraries (${PROJECT_NAME} ${DNA_LIBRARIES})
 

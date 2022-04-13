@@ -246,7 +246,7 @@ class epoch_pimpl: public virtual epoch_pskel,
 {
 public:
 	virtual void pre ();
-	virtual void post_type (string& epoch, bool userspecifiedreferenceframe, bool override_referenceframe);
+	virtual void post_type (string& epoch, bool override_referenceframe);
 	inline const string str() { return _epoch; }
 
 protected:

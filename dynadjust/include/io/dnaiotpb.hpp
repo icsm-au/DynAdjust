@@ -134,7 +134,7 @@ class dna_io_tpb : public dna_io_base
 {
 public:
 	dna_io_tpb(void) {};
-	dna_io_tpb(const dna_io_tpb&) {};
+	dna_io_tpb(const dna_io_tpb& tpb) : dna_io_base(tpb) {};
 	virtual ~dna_io_tpb(void) {};
 
 	dna_io_tpb& operator=(const dna_io_tpb& rhs);

@@ -48,7 +48,7 @@ int CloseLogandReturn(std::ofstream& os, const int status, const string& output_
 {
 	if (status == EXIT_FAILURE)
 	{
-		os << setw(25) << left << formattedDateTimeStringFromDate<string>(gregorian::day_clock::local_day()) << 
+		os << setw(25) << left << formattedDateTimeString<string>() << 
 			"Failed. " << endl << endl << 
 			"+ DynAdjust ended prematurely. ";
 
@@ -71,13 +71,13 @@ void PrintAppStartTimeMessage(std::ofstream& os, string&& app)
 {
 	// App start time
 	os << setw(15) << left << string("+ " + app) << setw(25) << 
-		formattedDateTimeStringFromDate<string>(gregorian::day_clock::local_day());
+		formattedDateTimeString<string>();
 }
 
 void PrintSuccessStatusMessage(std::ofstream& os)
 {
 	// end time
-	os << setw(25) << left << formattedDateTimeStringFromDate<string>(gregorian::day_clock::local_day()) << 
+	os << setw(25) << left << formattedDateTimeString<string>() << 
 		"Ended successfully." << endl;
 }
 

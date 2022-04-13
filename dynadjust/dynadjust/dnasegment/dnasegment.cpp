@@ -21,7 +21,9 @@
 //============================================================================
 
 #include <dynadjust/dnasegment/dnasegment.hpp>
+#ifdef _MSDEBUG
 #include <include/ide/trace.hpp>
+#endif
 
 namespace dynadjust { namespace networksegment {
 
@@ -167,7 +169,7 @@ void dna_segment::InitialiseSegmentation()
 }
 	
 
-_SEGMENT_STATUS_ dna_segment::SegmentNetwork(project_settings* p, string* success_msg)
+_SEGMENT_STATUS_ dna_segment::SegmentNetwork(project_settings* p)
 {
 	isProcessing_ = true;	
 

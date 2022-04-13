@@ -1,7 +1,7 @@
 # <dnareftran/...> build rules
 project (dnareftran)
 
-add_definitions(-DBUILD_DNAREFTRAN_DLL -DBUILD_EXPORTDNATYPES -DMKL_ILP64 -openmp)
+add_definitions(-DBUILD_DNAREFTRAN_DLL -DBUILD_EXPORTDNATYPES -DMKL_ILP64 -fopenmp)
 
 include_directories (${PROJECT_SOURCE_DIR})
 
@@ -27,7 +27,8 @@ add_library (${PROJECT_NAME} SHARED
 			${CMAKE_SOURCE_DIR}/include/measurement_types/dnastation.cpp
 			${CMAKE_SOURCE_DIR}/include/math/dnamatrix_contiguous.cpp
 			${CMAKE_SOURCE_DIR}/include/functions/dnastringfuncs.cpp
-			dnareftran.cpp)
+			dnareftran.cpp
+			${CMAKE_SOURCE_DIR}/dynadjust.rc)
 
 target_link_libraries (${PROJECT_NAME} ${DNA_LIBRARIES})
 

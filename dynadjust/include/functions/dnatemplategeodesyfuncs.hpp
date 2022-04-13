@@ -1157,7 +1157,7 @@ template <class T>
 T MSLArcDistance(
 			 const T X1, const T Y1, const T Z1, 
 			 const T X2, const T Y2, const T Z2, 				  
-			 const T Latitude1, const T Longitude1, const T Latitude2,
+			 const T Latitude1, const T Latitude2,
 			 const T Height1, const T Height2, 
 			 const T N1, const T N2,
 			 const CDnaEllipsoid* ellipsoid)

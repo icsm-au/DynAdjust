@@ -22,7 +22,7 @@
     <ProjectGuid>{A18EDE4A-B7CA-4CF2-AE15-9887FE8369DC}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>dnareftranwrapper</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -31,7 +31,7 @@
     <CharacterSet>MultiByte</CharacterSet>
     <UseIntelTBB>true</UseIntelTBB>
     <UseIntelMKL>Parallel</UseIntelMKL>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <UseInteloneMKL>Parallel</UseInteloneMKL>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -40,8 +40,9 @@
     <CharacterSet>MultiByte</CharacterSet>
     <UseIntelTBB>true</UseIntelTBB>
     <UseIntelMKL>Parallel</UseIntelMKL>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <UseInteloneMKL>Parallel</UseInteloneMKL>
+    <UseILP64Interfaces1A>true</UseILP64Interfaces1A>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -50,7 +51,7 @@
     <CharacterSet>MultiByte</CharacterSet>
     <UseIntelTBB>true</UseIntelTBB>
     <UseIntelMKL>Parallel</UseIntelMKL>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <UseInteloneMKL>Parallel</UseInteloneMKL>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
@@ -60,29 +61,34 @@
     <CharacterSet>MultiByte</CharacterSet>
     <UseIntelTBB>true</UseIntelTBB>
     <UseIntelMKL>Parallel</UseIntelMKL>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <UseInteloneMKL>Parallel</UseInteloneMKL>
+    <UseILP64Interfaces1A>true</UseILP64Interfaces1A>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\dynadjust.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\dynadjust.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\dynadjust.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\dynadjust.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)dynadjust\dnareftran;$(SolutionDir);$(BoostIncludeDir);$(MKLIncludeDir);$(TBBIncludeDir);$(IncludePath)</IncludePath>
-    <LibraryPath>$(BoostLibDir);$(TBBLibDir)\vc_mt;$(OmpLibDir);$(MKLLibDir);$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)dynadjust\dnareftran;$(SolutionDir);$(BoostIncludeDir);$(IncludePath)</IncludePath>
+    <LibraryPath>$(BoostLibDir);$(LibraryPath)</LibraryPath>
     <TargetName>reftran</TargetName>
     <OutDir>$(SolutionDir)bin\$(Configuration)\$(Platform)\</OutDir>
     <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
@@ -90,8 +96,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)dynadjust\dnareftran;$(SolutionDir);$(BoostIncludeDir);$(MKLIncludeDir);$(TBBIncludeDir);$(IncludePath)</IncludePath>
-    <LibraryPath>$(BoostLibDir);$(TBBLibDir)\vc_mt;$(OmpLibDir);$(MKLLibDir);$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)dynadjust\dnareftran;$(SolutionDir);$(BoostIncludeDir);$(IncludePath)</IncludePath>
+    <LibraryPath>$(BoostLibDir);$(LibraryPath)</LibraryPath>
     <TargetName>reftran</TargetName>
     <OutDir>$(SolutionDir)bin\$(Configuration)\$(Platform)\</OutDir>
     <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
@@ -99,8 +105,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)dynadjust\dnareftran;$(SolutionDir);$(BoostIncludeDir);$(MKLIncludeDir);$(TBBIncludeDir);$(IncludePath)</IncludePath>
-    <LibraryPath>$(BoostLibDir);$(TBBLibDir)\vc_mt;$(OmpLibDir);$(MKLLibDir);$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)dynadjust\dnareftran;$(SolutionDir);$(BoostIncludeDir);$(IncludePath)</IncludePath>
+    <LibraryPath>$(BoostLibDir);$(LibraryPath)</LibraryPath>
     <TargetName>reftran</TargetName>
     <OutDir>$(SolutionDir)bin\$(Configuration)\$(Platform)\</OutDir>
     <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
@@ -108,8 +114,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)dynadjust\dnareftran;$(SolutionDir);$(BoostIncludeDir);$(MKLIncludeDir);$(TBBIncludeDir);$(IncludePath)</IncludePath>
-    <LibraryPath>$(BoostLibDir);$(TBBLibDir)\vc_mt;$(OmpLibDir);$(MKLLibDir);$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)dynadjust\dnareftran;$(SolutionDir);$(BoostIncludeDir);$(IncludePath)</IncludePath>
+    <LibraryPath>$(BoostLibDir);$(LibraryPath)</LibraryPath>
     <TargetName>reftran</TargetName>
     <OutDir>$(SolutionDir)bin\$(Configuration)\$(Platform)\</OutDir>
     <IntDir>$(SolutionDir)build\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
@@ -212,6 +218,7 @@
     <ClInclude Include="..\..\include\config\dnaprojectfile.hpp" />
     <ClInclude Include="..\..\include\functions\dnastringfuncs.hpp" />
     <ClInclude Include="..\..\include\ide\trace.hpp" />
+    <ClInclude Include="..\..\resource.h" />
     <ClInclude Include="dnareftranwrapper.hpp" />
     <ClInclude Include="precompile.h" />
   </ItemGroup>
@@ -219,6 +226,9 @@
     <ProjectReference Include="..\dnareftran\dnareftran.vcxproj">
       <Project>{0a5d9f7a-7036-4085-af0c-874d822cb8ee}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\dynadjust.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

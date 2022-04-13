@@ -1508,7 +1508,7 @@ void dna_adjust::UpdateAtVinv(pit_vmsr_t _it_msr, const UINT32& stn1, const UINT
 void dna_adjust::UpdateAtVinv_D(const UINT32& stn1, const UINT32& stn2, const UINT32& stn3, 
 							const UINT32& angle, const UINT32& angle_count,
 							UINT32& design_row, UINT32& design_row_begin,
-							matrix_2d* Vinv, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices)
+							matrix_2d* Vinv, matrix_2d* design, matrix_2d* AtVinv)
 {
 	for (UINT32 j, i(0); i<3; ++i)													// for each coordinate element (x, y, z)
 	{
@@ -1576,13 +1576,13 @@ void dna_adjust::UpdateNormals(const UINT32& block, bool MT_ReverseOrCombine)
 		case 'P':	// Geodetic latitude
 		case 'Q':	// Geodetic longitude
 		case 'R':	// Ellipsoidal height
-			UpdateNormals_HIJPQR(block, stn1, design_row, normals, design, AtVinv);
+			UpdateNormals_HIJPQR(stn1, design_row, normals, design, AtVinv);
 			break;
 
 		case 'A':	// Horizontal angle
 			stn2 = GetBlkMatrixElemStn2(block, &_it_msr);
 			stn3 = GetBlkMatrixElemStn3(block, &_it_msr);
-			UpdateNormals_A(block, stn1, stn2, stn3, design_row, normals, design, AtVinv);
+			UpdateNormals_A(stn1, stn2, stn3, design_row, normals, design, AtVinv);
 			break;
 
 		case 'D':	// Direction set	
@@ -1602,13 +1602,13 @@ void dna_adjust::UpdateNormals(const UINT32& block, bool MT_ReverseOrCombine)
 		case 'V':	// Zenith distance
 		case 'Z':	// Vertical angle
 			stn2 = GetBlkMatrixElemStn2(block, &_it_msr);
-			UpdateNormals_BCEKLMSVZ(block, stn1, stn2, design_row, normals, design, AtVinv);
+			UpdateNormals_BCEKLMSVZ(stn1, stn2, design_row, normals, design, AtVinv);
 			break;
 
 		case 'G':	// GPS Baseline
 			// multiplies only the elements of AT * V-1 and A that contain this measurement
 			stn2 = GetBlkMatrixElemStn2(block, &_it_msr);
-			UpdateNormals_G(block, stn1, stn2, design_row, normals, design, AtVinv);
+			UpdateNormals_G(stn1, stn2, design_row, normals, AtVinv);
 			break;
 		
 		case 'X':	// GPS Baseline cluster
@@ -1616,7 +1616,7 @@ void dna_adjust::UpdateNormals(const UINT32& block, bool MT_ReverseOrCombine)
 			break;
 		
 		case 'Y':	// GPS Point cluster
-			UpdateNormals_Y(block, _it_msr, design_row, normals, design, AtVinv);
+			UpdateNormals_Y(block, _it_msr, design_row, normals, AtVinv);
 			break;		
 		
 		default:
@@ -1629,7 +1629,7 @@ void dna_adjust::UpdateNormals(const UINT32& block, bool MT_ReverseOrCombine)
 }
 	
 
-void dna_adjust::AddMsrtoNormalsVar(const UINT32& design_row, const UINT32& block, const UINT32& stn,
+void dna_adjust::AddMsrtoNormalsVar(const UINT32& design_row, const UINT32& stn,
 										 matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv)
 {
 	// Add weighted measurement contributions to normal matrix
@@ -1644,7 +1644,7 @@ void dna_adjust::AddMsrtoNormalsVar(const UINT32& design_row, const UINT32& bloc
 }
 	
 
-void dna_adjust::AddMsrtoNormalsCoVar2(const UINT32& design_row, const UINT32& block, const UINT32& stn1, const UINT32& stn2,
+void dna_adjust::AddMsrtoNormalsCoVar2(const UINT32& design_row, const UINT32& stn1, const UINT32& stn2,
 										 matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv)
 {
 	// Add covariance terms (station 1 and station 2) to normal matrix
@@ -1662,7 +1662,7 @@ void dna_adjust::AddMsrtoNormalsCoVar2(const UINT32& design_row, const UINT32& b
 	}
 }
 
-void dna_adjust::AddMsrtoNormalsCoVar3(const UINT32& design_row, const UINT32& block, const UINT32& stn1, const UINT32& stn2, const UINT32& stn3,
+void dna_adjust::AddMsrtoNormalsCoVar3(const UINT32& design_row, const UINT32& stn1, const UINT32& stn2, const UINT32& stn3,
 										 matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv)
 {
 	// Add covariance terms (station 1, station 2, station 3) to normal matrix
@@ -1695,17 +1695,17 @@ void dna_adjust::AddMsrtoNormalsCoVar3(const UINT32& design_row, const UINT32& b
 }
 
 
-void dna_adjust::UpdateNormals_A(const UINT32& block, const UINT32& stn1, const UINT32& stn2, const UINT32& stn3, UINT32& design_row,
+void dna_adjust::UpdateNormals_A(const UINT32& stn1, const UINT32& stn2, const UINT32& stn3, UINT32& design_row,
 										 matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv)
 {
 	// station 1
-	AddMsrtoNormalsVar(design_row, block, stn1, normals, design, AtVinv);
+	AddMsrtoNormalsVar(design_row, stn1, normals, design, AtVinv);
 	// station 2
-	AddMsrtoNormalsVar(design_row, block, stn2, normals, design, AtVinv);
+	AddMsrtoNormalsVar(design_row, stn2, normals, design, AtVinv);
 	// station 3
-	AddMsrtoNormalsVar(design_row, block, stn3, normals, design, AtVinv);
+	AddMsrtoNormalsVar(design_row, stn3, normals, design, AtVinv);
 	// covariance terms (station 1, station 2, station 3)
-	AddMsrtoNormalsCoVar3(design_row, block, stn1, stn2, stn3, normals, design, AtVinv);
+	AddMsrtoNormalsCoVar3(design_row, stn1, stn2, stn3, normals, design, AtVinv);
 	design_row ++;
 
 }
@@ -1817,31 +1817,31 @@ void dna_adjust::UpdateNormals_D(const UINT32& block, it_vmsr_t& _it_msr, UINT32
 	
 
 // This function can be used for all two-station measurements
-void dna_adjust::UpdateNormals_BCEKLMSVZ(const UINT32& block, const UINT32& stn1, const UINT32& stn2, UINT32& design_row,
+void dna_adjust::UpdateNormals_BCEKLMSVZ(const UINT32& stn1, const UINT32& stn2, UINT32& design_row,
 										 matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv)
 {
 	// station 1
-	AddMsrtoNormalsVar(design_row, block, stn1, normals, design, AtVinv);
+	AddMsrtoNormalsVar(design_row, stn1, normals, design, AtVinv);
 	// station 2
-	AddMsrtoNormalsVar(design_row, block, stn2, normals, design, AtVinv);
+	AddMsrtoNormalsVar(design_row, stn2, normals, design, AtVinv);
 	// covariance terms (station 1 and station 2)
-	AddMsrtoNormalsCoVar2(design_row, block, stn1, stn2, normals, design, AtVinv);
+	AddMsrtoNormalsCoVar2(design_row, stn1, stn2, normals, design, AtVinv);
 	design_row ++;
 }
 	
 
 // This function can be used for all two-station measurements
-void dna_adjust::UpdateNormals_HIJPQR(const UINT32& block, const UINT32& stn1, UINT32& design_row,
+void dna_adjust::UpdateNormals_HIJPQR(const UINT32& stn1, UINT32& design_row,
 										 matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv)
 {
 	// station 1
-	AddMsrtoNormalsVar(design_row, block, stn1, normals, design, AtVinv);
+	AddMsrtoNormalsVar(design_row, stn1, normals, design, AtVinv);
 	design_row ++;
 }
 	
 
-void dna_adjust::UpdateNormals_G(const UINT32& block, const UINT32& stn1, const UINT32& stn2, UINT32& design_row,
-										 matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv)
+void dna_adjust::UpdateNormals_G(const UINT32& stn1, const UINT32& stn2, UINT32& design_row,
+										 matrix_2d* normals, matrix_2d* AtVinv)
 {
 	UINT32 col, row;
 
@@ -1985,7 +1985,7 @@ void dna_adjust::UpdateNormals_X(const UINT32& block, it_vmsr_t& _it_msr, UINT32
 	
 
 void dna_adjust::UpdateNormals_Y(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row,
-										 matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv)
+										 matrix_2d* normals, matrix_2d* AtVinv)
 {
 	UINT32 cluster_pnt, point_count(_it_msr->vectorCount1);
 	UINT32 cluster_cov, covariance_count;
@@ -2098,7 +2098,7 @@ void dna_adjust::AddConstraintStationstoNormalsForward(const UINT32& block)
 			continue;
 		
 		// compute _var_cart for this station
-		FormConstraintStationVarianceMatrix(_it_const, block, var_cart);
+		FormConstraintStationVarianceMatrix(_it_const, var_cart);
 
 #ifdef _MS_COMPILER_
 #pragma region debug_output
@@ -2146,7 +2146,7 @@ void dna_adjust::AddConstraintStationstoNormalsReverse(const UINT32& block, bool
 			continue;		
 		
 		// compute _var_cart for this station
-		FormConstraintStationVarianceMatrix(_it_const, block, var_cart);
+		FormConstraintStationVarianceMatrix(_it_const, var_cart);
 
 		// Add the variance to the normals
 		stn = v_blockStationsMap_.at(block)[(*_it_const)] * 3;
@@ -2195,7 +2195,7 @@ void dna_adjust::AddConstraintStationstoNormalsCombine(const UINT32& block, bool
 		// So, remove the effect.
 
 		// compute _var_cart for this station
-		FormConstraintStationVarianceMatrix(_it_const, block, var_cart);
+		FormConstraintStationVarianceMatrix(_it_const, var_cart);
 
 		// Add the variance to the normals
 		stn = v_blockStationsMap_.at(block)[(*_it_const)] * 3;
@@ -2225,7 +2225,7 @@ void dna_adjust::AddConstraintStationstoNormalsSimultaneous(const UINT32& block)
 	{
 
 		// compute _var_cart for this station
-		FormConstraintStationVarianceMatrix(_it_const, block, var_cart);
+		FormConstraintStationVarianceMatrix(_it_const, var_cart);
 
 #ifdef _MS_COMPILER_
 #pragma region debug_output
@@ -2245,7 +2245,7 @@ void dna_adjust::AddConstraintStationstoNormalsSimultaneous(const UINT32& block)
 
 // used in phased adjustment to compute variances for all inner stations
 void dna_adjust::FormConstraintStationVarianceMatrix(
-	const it_vUINT32& _it_param_stn, const UINT32& block, matrix_2d& var_cart)
+	const it_vUINT32& _it_param_stn, matrix_2d& var_cart)
 {
 	vstn_t::const_iterator _it_stn(bstBinaryRecords_.begin() + (*_it_param_stn));
 	
@@ -2741,6 +2741,7 @@ bool dna_adjust::PrintEstimatedStationCoordinatestoSNX(string& sinex_filename)
 				block = blockCount_;
 				continue;
 			}
+			[[fallthrough]];
 		case PhasedMode:
 			ssBlock.str("");
 			ssBlock << "-block" << block + 1;
@@ -2781,7 +2782,7 @@ bool dna_adjust::PrintEstimatedStationCoordinatestoSNX(string& sinex_filename)
 		try {
 			// Print results for adjustment in SINEX format.
 			// Throws runtime_error on failure.
-			snx.serialise_sinex(&sinex_file, &bstBinaryRecords_, &bmsBinaryRecords_,
+			snx.serialise_sinex(&sinex_file, &bstBinaryRecords_,
 				bst_meta_, bms_meta_, estimates, variances, projectSettings_,
 				measurementParams_, unknownsCount_, sigmaZero_,
 				&v_blockStationsMap_.at(block), &v_parameterStationList_.at(block),
@@ -2902,6 +2903,7 @@ void dna_adjust::PrintEstimatedStationCoordinatestoDNAXML_Y(const string& msrFil
 					block = blockCount_;
 					continue;
 				}
+				[[fallthrough]];
 			case PhasedMode:
 				
 				// if staged, load up the block from memory mapped files
@@ -4562,7 +4564,7 @@ void dna_adjust::AdjustPhasedReverseCombine()
 					adj_file << " done." << endl;
 
 				// shrink msr-comp and AtVinv by pseudomsrJSLCount from forward pass
-				UpdateEstimatesCombine(currentBlock, pseudomsrJSLCount, false);
+				UpdateEstimatesCombine(currentBlock, pseudomsrJSLCount);
 
 				// Debug and diagnose (if required)
 				debug_BlockInformation(currentBlock, "(reverse, rigorous)");
@@ -4719,7 +4721,7 @@ void dna_adjust::UpdateEstimatesReverse(const UINT32 currentBlock, bool MT_Rever
 }
 	
 
-void dna_adjust::UpdateEstimatesCombine(const UINT32 currentBlock, UINT32 pseudomsrJSLCount, bool MT_ReverseOrCombine)
+void dna_adjust::UpdateEstimatesCombine(const UINT32 currentBlock, UINT32 pseudomsrJSLCount)
 {
 	matrix_2d* estimatedStations(&v_estimatedStations_.at(currentBlock));
 	matrix_2d* corrections(&v_corrections_.at(currentBlock));
@@ -5049,11 +5051,11 @@ void dna_adjust::UpdateDesignNormalMeasMatrices(pit_vmsr_t _it_msr, UINT32& desi
 		break;		
 	case 'X':	// GPS Baseline cluster
 		UpdateDesignNormalMeasMatrices_X(_it_msr, design_row, block,
-			measMinusComp, estimatedStations, normals, design, AtVinv, buildnewMatrices);
+			measMinusComp, estimatedStations, design, AtVinv, buildnewMatrices);
 		break;		
 	case 'Y':	// GPS Point cluster
 		UpdateDesignNormalMeasMatrices_Y(_it_msr, design_row, block,
-			measMinusComp, estimatedStations, normals, design, AtVinv, buildnewMatrices);
+			measMinusComp, estimatedStations, design, AtVinv, buildnewMatrices);
 		break;		
 	case 'Z':	// Vertical angle
 		UpdateDesignNormalMeasMatrices_Z(_it_msr, design_row, block,
@@ -5786,7 +5788,7 @@ inline void dna_adjust::AddMsrtoDesign_BCEKMSVZ(const UINT32& design_row, const 
 }
 	
 
-void dna_adjust::AddMsrtoMeasMinusComp(pit_vmsr_t _it_msr, const UINT32& design_row, const UINT32& block, const double comp_msr, 
+void dna_adjust::AddMsrtoMeasMinusComp(pit_vmsr_t _it_msr, const UINT32& design_row, const double comp_msr, 
 	matrix_2d* measMinusComp, bool printBlock)
 {
 	double mmc((*_it_msr)->term1 - comp_msr);
@@ -5918,7 +5920,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_A(pit_vmsr_t _it_msr, UINT32& de
 	}
 
 	// Update measured minus computed value
-	AddMsrtoMeasMinusComp(_it_msr, design_row, block, comp_msr, measMinusComp);
+	AddMsrtoMeasMinusComp(_it_msr, design_row, comp_msr, measMinusComp);
 
 	double cos_lat(cos(stn1_it->currentLatitude));
 	double sin_lat(sin(stn1_it->currentLatitude));
@@ -5974,7 +5976,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_A(pit_vmsr_t _it_msr, UINT32& de
 
 	if (buildnewMatrices)
 		// Add weighted measurement contributions to normal matrix
-		UpdateNormals_A(block, stn1, stn2, stn3, design_row, normals, design, AtVinv);
+		UpdateNormals_A(stn1, stn2, stn3, design_row, normals, design, AtVinv);
 	else
 		design_row++;
 }
@@ -6054,7 +6056,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_BK(pit_vmsr_t _it_msr, UINT32& d
 	}
 
 	// Update measured minus computed value
-	AddMsrtoMeasMinusComp(_it_msr, design_row, block, comp_msr, measMinusComp);
+	AddMsrtoMeasMinusComp(_it_msr, design_row, comp_msr, measMinusComp);
 
 	////////////////////////////////////////////////////////////////////////////
 	// compute partial derivatives for normals
@@ -6078,7 +6080,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_BK(pit_vmsr_t _it_msr, UINT32& d
 
 	if (buildnewMatrices)
 		// Add weighted measurement contributions to normal matrix
-		UpdateNormals_BCEKLMSVZ(block, stn1, stn2, design_row, normals, design, AtVinv);
+		UpdateNormals_BCEKLMSVZ(stn1, stn2, design_row, normals, design, AtVinv);
 	else
 		design_row++;
 }
@@ -6131,7 +6133,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_CEM(pit_vmsr_t _it_msr, UINT32& 
 		datum_.GetEllipsoidRef()));
 	
 	// Update measured minus computed value
-	AddMsrtoMeasMinusComp(_it_msr, design_row, block, comp_msr, measMinusComp);
+	AddMsrtoMeasMinusComp(_it_msr, design_row, comp_msr, measMinusComp);
 
 	// Add partial derivatives dA/dX1, dA/dY1, dA/dZ1 to design matrix
 	AddMsrtoDesign_BCEKMSVZ(design_row, stn1, stn2,
@@ -6143,7 +6145,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_CEM(pit_vmsr_t _it_msr, UINT32& 
 
 	if (buildnewMatrices)
 		// Add weighted measurement contributions to normal matrix
-		UpdateNormals_BCEKLMSVZ(block, stn1, stn2, design_row, normals, design, AtVinv);
+		UpdateNormals_BCEKLMSVZ(stn1, stn2, design_row, normals, design, AtVinv);
 	else
 		design_row++;
 }
@@ -6331,7 +6333,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_E(pit_vmsr_t _it_msr, UINT32& de
 		measMinusComp, estimatedStations, normals, design, AtVinv, buildnewMatrices);
 }
 
-void dna_adjust::UpdateDesignMeasMatrices_GX(pit_vmsr_t _it_msr, UINT32& design_row, const UINT32& block,
+void dna_adjust::UpdateDesignMeasMatrices_GX(pit_vmsr_t _it_msr, UINT32& design_row,
 											matrix_2d* measMinusComp, matrix_2d* estimatedStations, matrix_2d* design,
 											const UINT32& stn1, const UINT32& stn2, bool buildnewMatrices)
 {
@@ -6352,7 +6354,7 @@ void dna_adjust::UpdateDesignMeasMatrices_GX(pit_vmsr_t _it_msr, UINT32& design_
 	// on each iteration.
 
 	// Add X elements to measured minus computed
-	AddMsrtoMeasMinusComp(_it_msr, design_row, block, 
+	AddMsrtoMeasMinusComp(_it_msr, design_row, 
 		(estimatedStations->get(stn2, 0) - estimatedStations->get(stn1, 0)), 
 		measMinusComp);
 
@@ -6369,7 +6371,7 @@ void dna_adjust::UpdateDesignMeasMatrices_GX(pit_vmsr_t _it_msr, UINT32& design_
 	(*_it_msr)++;
 
 	// Add Y elements to measured minus computed
-	AddMsrtoMeasMinusComp(_it_msr, design_row, block, 
+	AddMsrtoMeasMinusComp(_it_msr, design_row, 
 		(estimatedStations->get(stn2+1, 0) - estimatedStations->get(stn1+1, 0)), 
 		measMinusComp, false);
 			
@@ -6386,7 +6388,7 @@ void dna_adjust::UpdateDesignMeasMatrices_GX(pit_vmsr_t _it_msr, UINT32& design_
 	(*_it_msr)++;
 	
 	// Add Z elements to measured minus computed
-	AddMsrtoMeasMinusComp(_it_msr, design_row, block, 
+	AddMsrtoMeasMinusComp(_it_msr, design_row, 
 		(estimatedStations->get(stn2+2, 0) - estimatedStations->get(stn1+2, 0)), 
 		measMinusComp, false);
 		
@@ -6408,7 +6410,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_G(pit_vmsr_t _it_msr, UINT32& de
 	UINT32 stn2(GetBlkMatrixElemStn2(block, _it_msr));
 	UINT32 design_row_begin(design_row);
 	
-	UpdateDesignMeasMatrices_GX(_it_msr, design_row, block,
+	UpdateDesignMeasMatrices_GX(_it_msr, design_row,
 			measMinusComp, estimatedStations, design,
 			stn1, stn2, buildnewMatrices);
 
@@ -6439,7 +6441,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_G(pit_vmsr_t _it_msr, UINT32& de
 
 		if (!projectSettings_.a.stage)
 			// Add weighted measurement contributions to normal matrix
-			UpdateNormals_G(block, stn1, stn2, design_row_begin, normals, design, AtVinv);
+			UpdateNormals_G(stn1, stn2, design_row_begin, normals, AtVinv);
 	}
 	
 	design_row++;
@@ -6524,7 +6526,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_S(pit_vmsr_t _it_msr, UINT32& de
 	double comp_msr(magnitude(dX, dY, dZ));
 
 	// Add measured minus computed value
-	AddMsrtoMeasMinusComp(_it_msr, design_row, block, comp_msr, measMinusComp);
+	AddMsrtoMeasMinusComp(_it_msr, design_row, comp_msr, measMinusComp);
 
 	// Add partial derivatives dA/dX1, dA/dY1, dA/dZ1 to design matrix
 	AddMsrtoDesign_BCEKMSVZ(design_row, stn1, stn2,
@@ -6536,7 +6538,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_S(pit_vmsr_t _it_msr, UINT32& de
 
 	if (buildnewMatrices)
 		// Add weighted measurement contributions to normal matrix
-		UpdateNormals_BCEKLMSVZ(block, stn1, stn2, design_row, normals, design, AtVinv);
+		UpdateNormals_BCEKLMSVZ(stn1, stn2, design_row, normals, design, AtVinv);
 	else
 		design_row++;
 }
@@ -6619,7 +6621,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_V(pit_vmsr_t _it_msr, UINT32& de
 		&local_12up));										// station1 and station2
 	
 	// Update measured minus computed value
-	AddMsrtoMeasMinusComp(_it_msr, design_row, block, comp_msr, measMinusComp);
+	AddMsrtoMeasMinusComp(_it_msr, design_row, comp_msr, measMinusComp);
 
 	// compute partial derivatives for normals
 	double e2n2(local_12e*local_12e + local_12n*local_12n);
@@ -6644,7 +6646,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_V(pit_vmsr_t _it_msr, UINT32& de
 
 	if (buildnewMatrices)
 		// Add weighted measurement contributions to normal matrix
-		UpdateNormals_BCEKLMSVZ(block, stn1, stn2, design_row, normals, design, AtVinv);
+		UpdateNormals_BCEKLMSVZ(stn1, stn2, design_row, normals, design, AtVinv);
 	else
 		design_row++;
 }
@@ -6728,7 +6730,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_Z(pit_vmsr_t _it_msr, UINT32& de
 		&local_12up));										// station1 and station2
 
 	// Update measured minus computed value
-	AddMsrtoMeasMinusComp(_it_msr, design_row, block, comp_msr, measMinusComp);
+	AddMsrtoMeasMinusComp(_it_msr, design_row, comp_msr, measMinusComp);
 
 	// compute partial derivative terms
 	double e2n2(local_12e*local_12e + local_12n*local_12n);
@@ -6753,7 +6755,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_Z(pit_vmsr_t _it_msr, UINT32& de
 
 	if (buildnewMatrices)
 		// Add weighted measurement contributions to normal matrix
-		UpdateNormals_BCEKLMSVZ(block, stn1, stn2, design_row, normals, design, AtVinv);
+		UpdateNormals_BCEKLMSVZ(stn1, stn2, design_row, normals, design, AtVinv);
 	else
 		design_row++;
 }
@@ -6810,7 +6812,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_L(pit_vmsr_t _it_msr, UINT32& de
 	}
 
 	// Update measured minus computed value
-	AddMsrtoMeasMinusComp(_it_msr, design_row, block, comp_msr, measMinusComp);
+	AddMsrtoMeasMinusComp(_it_msr, design_row, comp_msr, measMinusComp);
 
 	// Add partial derivatives dA/dX1, dA/dY1, dA/dZ1, dA/dX2, dA/dY2, dA/dZ2 to design matrix
 	AddMsrtoDesign_L(design_row, stn1, stn2,
@@ -6827,7 +6829,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_L(pit_vmsr_t _it_msr, UINT32& de
 
 	if (buildnewMatrices)
 		// Add weighted measurement contributions to normal matrix
-		UpdateNormals_BCEKLMSVZ(block, stn1, stn2, design_row, normals, design, AtVinv);
+		UpdateNormals_BCEKLMSVZ(stn1, stn2, design_row, normals, design, AtVinv);
 	else
 		design_row++;
 }
@@ -6928,7 +6930,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_IP(pit_vmsr_t _it_msr, UINT32& d
 		design);								// X
 
 	// Update measured minus computed value
-	AddMsrtoMeasMinusComp(_it_msr, design_row, block, latitude, measMinusComp);
+	AddMsrtoMeasMinusComp(_it_msr, design_row, latitude, measMinusComp);
 
 	// partial derivative for Y
 	partialDerivative = PartialD_Latitude(
@@ -6957,7 +6959,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_IP(pit_vmsr_t _it_msr, UINT32& d
 	
 	if (buildnewMatrices)
 		// Add weighted measurement contributions to normal matrix
-		UpdateNormals_HIJPQR(block, stn1, design_row, normals, design, AtVinv);
+		UpdateNormals_HIJPQR(stn1, design_row, normals, design, AtVinv);
 	else
 		design_row++;
 }
@@ -6986,7 +6988,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_JQ(pit_vmsr_t _it_msr, UINT32& d
 	it_vstn_t_const stn1_it(bstBinaryRecords_.begin() + (*_it_msr)->station1);
 	
 	// Add measured minus computed value
-	AddMsrtoMeasMinusComp(_it_msr, design_row, block, stn1_it->currentLongitude, measMinusComp);
+	AddMsrtoMeasMinusComp(_it_msr, design_row, stn1_it->currentLongitude, measMinusComp);
 
 	// xy / (x^2 + y^2)^1.5
 	double term1(estimatedStations->get(stn1, 0) * estimatedStations->get(stn1+1, 0) / 
@@ -7009,7 +7011,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_JQ(pit_vmsr_t _it_msr, UINT32& d
 	
 	if (buildnewMatrices)
 		// Add weighted measurement contributions to normal matrix
-		UpdateNormals_HIJPQR(block, stn1, design_row, normals, design, AtVinv);
+		UpdateNormals_HIJPQR(stn1, design_row, normals, design, AtVinv);
 	else
 		design_row++;
 }
@@ -7066,7 +7068,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_HR(pit_vmsr_t _it_msr, UINT32& d
 		datum_.GetEllipsoidRef()));
 	
 	// Add measured minus computed value
-	AddMsrtoMeasMinusComp(_it_msr, design_row, block, comp_msr, measMinusComp);
+	AddMsrtoMeasMinusComp(_it_msr, design_row, comp_msr, measMinusComp);
 
 	// design matrix dR/dX1
 	AddElementtoDesign(design_row, stn1, estimatedStations->get(stn1, 0)/(nu1+comp_msr), design);			// X1
@@ -7082,7 +7084,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_HR(pit_vmsr_t _it_msr, UINT32& d
 	
 	if (buildnewMatrices)
 		// Add weighted measurement contributions to normal matrix
-		UpdateNormals_HIJPQR(block, stn1, design_row, normals, design, AtVinv);
+		UpdateNormals_HIJPQR(stn1, design_row, normals, design, AtVinv);
 	else
 		design_row++;
 }
@@ -7104,7 +7106,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_R(pit_vmsr_t _it_msr, UINT32& de
 
 void dna_adjust::UpdateDesignNormalMeasMatrices_X(pit_vmsr_t _it_msr, UINT32& design_row, const UINT32& block,
 											  matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
-											  matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices)
+											  matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices)
 {
 	it_vmsr_t _it_msr_first(*_it_msr);
 
@@ -7119,7 +7121,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_X(pit_vmsr_t _it_msr, UINT32& de
 		stn1 = GetBlkMatrixElemStn1(block, _it_msr); 
 		stn2 = GetBlkMatrixElemStn2(block, _it_msr);
 
-		UpdateDesignMeasMatrices_GX(_it_msr, design_row, block,
+		UpdateDesignMeasMatrices_GX(_it_msr, design_row,
 			measMinusComp, estimatedStations, design,
 			stn1, stn2, buildnewMatrices);
 
@@ -7294,7 +7296,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_X(pit_vmsr_t _it_msr, UINT32& de
 
 void dna_adjust::UpdateDesignNormalMeasMatrices_Y(pit_vmsr_t _it_msr, UINT32& design_row, const UINT32& block,
 											  matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
-											  matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices)
+											  matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices)
 {
 	it_vmsr_t _it_msr_first(*_it_msr);
 	it_vmsr_t tmp_msr;
@@ -7384,7 +7386,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_Y(pit_vmsr_t _it_msr, UINT32& de
 			// on each iteration.
 
 			// Add X element to measured minus computed
-			AddMsrtoMeasMinusComp(_it_msr, design_row, block, 
+			AddMsrtoMeasMinusComp(_it_msr, design_row, 
 				estimatedStations->get(stn1, 0), 
 				measMinusComp);
 		
@@ -7429,7 +7431,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_Y(pit_vmsr_t _it_msr, UINT32& de
 			// on each iteration.
 
 			// Add Y element to measured minus computed
-			AddMsrtoMeasMinusComp(_it_msr, design_row, block, 
+			AddMsrtoMeasMinusComp(_it_msr, design_row, 
 				estimatedStations->get(stn1+1, 0),
 				measMinusComp, false);
 		
@@ -7474,7 +7476,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_Y(pit_vmsr_t _it_msr, UINT32& de
 			// on each iteration.
 
 			// Add Z element to measured minus computed
-			AddMsrtoMeasMinusComp(_it_msr, design_row, block, 
+			AddMsrtoMeasMinusComp(_it_msr, design_row, 
 				estimatedStations->get(stn1+2, 0),
 				measMinusComp, false);
 		
@@ -8681,13 +8683,11 @@ void dna_adjust::ComputePrecisionAdjMsrs(const UINT32& block /*= 0*/)
 		case 'G':	// GPS Baseline
 		case 'X':	// GPS Baseline cluster
 			ComputePrecisionAdjMsrs_GX(block, _it_msr, 
-				design, aposterioriVariances,
-				design_row, precadjmsr_row);
+				aposterioriVariances, design_row, precadjmsr_row);
 			break;
 		case 'Y':	// GPS Point cluster
 			ComputePrecisionAdjMsrs_Y(block, _it_msr, 
-				design, aposterioriVariances,
-				design_row, precadjmsr_row);
+				aposterioriVariances, design_row, precadjmsr_row);
 			break;		
 		default:
 			stringstream ss;
@@ -8818,7 +8818,7 @@ void dna_adjust::ComputePrecisionAdjMsrs_HIJPQR(const UINT32& block, const UINT3
 		
 
 void dna_adjust::ComputePrecisionAdjMsrs_GX(const UINT32& block, it_vmsr_t& _it_msr, 
-											  matrix_2d* design, matrix_2d* aposterioriVariances, 
+											  matrix_2d* aposterioriVariances, 
 											  UINT32& design_row, UINT32& precadjmsr_row)
 {
 	UINT32 cluster_bsl, baseline_count(_it_msr->vectorCount1);
@@ -8846,7 +8846,7 @@ void dna_adjust::ComputePrecisionAdjMsrs_GX(const UINT32& block, it_vmsr_t& _it_
 	
 
 void dna_adjust::ComputePrecisionAdjMsrs_Y(const UINT32& block, it_vmsr_t& _it_msr, 
-											  matrix_2d* design, matrix_2d* aposterioriVariances, 
+											  matrix_2d* aposterioriVariances, 
 											  UINT32& design_row, UINT32& precadjmsr_row)
 {
 	UINT32 cluster_pnt, point_count(_it_msr->vectorCount1);
@@ -9120,13 +9120,13 @@ void dna_adjust::ComputeGlobalPelzer()
 				// When a target direction is found, continue to next element.  
 				if (_it_msr->vectorCount1 < 1)
 					continue;
-				ComputeGlobalPelzer_D(block, _it_msr, numMsr, sum);
+				ComputeGlobalPelzer_D(_it_msr, numMsr, sum);
 				continue;
 
 			case 'G':	// GPS Baseline (treat as single-baseline cluster)
 			case 'X':	// GPS Baseline cluster
 			case 'Y':	// GPS Point cluster
-				ComputeGlobalPelzer_GXY(block, _it_msr, numMsr, sum);
+				ComputeGlobalPelzer_GXY(_it_msr, numMsr, sum);
 				continue;
 			}
 			
@@ -9156,7 +9156,7 @@ void dna_adjust::ComputeGlobalPelzer()
 }
 
 // Compute Pelzer's global reliability
-void dna_adjust::ComputeGlobalPelzer_D(const UINT32& block, it_vmsr_t& _it_msr, UINT32& numMsr, double& sum)
+void dna_adjust::ComputeGlobalPelzer_D(it_vmsr_t& _it_msr, UINT32& numMsr, double& sum)
 {
 	UINT32 a, angle_count(_it_msr->vectorCount1 - 1);
 
@@ -9178,7 +9178,7 @@ void dna_adjust::ComputeGlobalPelzer_D(const UINT32& block, it_vmsr_t& _it_msr, 
 		
 
 // Compute Pelzer's global reliability
-void dna_adjust::ComputeGlobalPelzer_GXY(const UINT32& block, it_vmsr_t& _it_msr, UINT32& numMsr, double& sum)
+void dna_adjust::ComputeGlobalPelzer_GXY(it_vmsr_t& _it_msr, UINT32& numMsr, double& sum)
 {
 	UINT32 cluster_msr, cluster_count(_it_msr->vectorCount1);
 	UINT32 covariance_count, i;
@@ -10202,7 +10202,7 @@ void dna_adjust::PrintPosUncertainty(ostream& os, /*ostream* csv,*/ const UINT32
 	ErrorEllipseParameters<double>(variances_local, semimajor, semiminor, azimuth);
 
 	// Compute positional uncertainty terms
-	PositionalUncertainty<double>(semimajor, semiminor, azimuth, sqrt(variances_local.get(2, 2)), hzPosU, vtPosU);
+	PositionalUncertainty<double>(semimajor, semiminor, sqrt(variances_local.get(2, 2)), hzPosU, vtPosU);
 
 	// print...
 	// station and padding
@@ -10619,10 +10619,10 @@ void dna_adjust::PrintCompMeasurements(const UINT32& block, const string& type)
 		case 'L':	// Level difference
 		case 'M':	// MSL arc
 		case 'S':	// Slope distance
-			PrintCompMeasurements_CELMS(block, _it_msr, design_row, computedMsrs);
+			PrintCompMeasurements_CELMS(_it_msr, design_row, computedMsrs);
 			break;
 		case 'D':	// Direction set
-			PrintCompMeasurements_D(block, _it_msr, design_row, computedMsrs);
+			PrintCompMeasurements_D(_it_msr, design_row);
 			break;
 		case 'H':	// Orthometric height
 		case 'R':	// Ellipsoidal height
@@ -11974,7 +11974,7 @@ void dna_adjust::PrintIgnoredAdjMeasurements(bool printHeader)
 			if (!IgnoredMeasurementContainsInvalidStation(&_it_msr))
 				continue;
 
-			ignored_msrs.push_back(_it_tmp - bmsBinaryRecords_.begin());
+			ignored_msrs.push_back(static_cast<UINT32>(_it_tmp - bmsBinaryRecords_.begin()));
 		}
 	}
 
@@ -12070,10 +12070,10 @@ void dna_adjust::PrintIgnoredAdjMeasurements(bool printHeader)
 		case 'L':	// Level difference
 		case 'M':	// MSL arc
 		case 'S':	// Slope distance
-			PrintCompMeasurements_CELMS(0, _it_msr, design_row, ignoredMsrs);
+			PrintCompMeasurements_CELMS(_it_msr, design_row, ignoredMsrs);
 			break;
 		case 'D':	// Direction set
-			PrintCompMeasurements_D(0, _it_msr, design_row, ignoredMsrs);
+			PrintCompMeasurements_D(_it_msr, design_row);
 			break;
 		case 'H':	// Orthometric height
 		case 'R':	// Ellipsoidal height
@@ -12112,6 +12112,7 @@ bool dna_adjust::IgnoredMeasurementContainsInvalidStation(pit_vmsr_t _it_msr)
 	case 'A':	// Horizontal angle
 		if (vAssocStnList_.at((*_it_msr)->station3).IsInvalid())
 			return false;
+		[[fallthrough]];
 	// Two station measurements
 	case 'B':	// Geodetic azimuth
 	case 'C':	// Chord dist
@@ -12125,6 +12126,7 @@ bool dna_adjust::IgnoredMeasurementContainsInvalidStation(pit_vmsr_t _it_msr)
 	case 'Z':	// Vertical angle
 		if (vAssocStnList_.at((*_it_msr)->station2).IsInvalid())
 			return false;
+		[[fallthrough]];
 	// One station measurements
 	case 'H':	// Orthometric height
 	case 'I':	// Astronomic latitude
@@ -12463,7 +12465,7 @@ void dna_adjust::PrintCompMeasurements_BKVZ(const UINT32& block, it_vmsr_t& _it_
 }
 	
 
-void dna_adjust::PrintCompMeasurements_CELMS(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode)
+void dna_adjust::PrintCompMeasurements_CELMS(it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode)
 {
 	// normal format
 	adj_file << left << setw(STATION) << bstBinaryRecords_.at(_it_msr->station1).stationName;
@@ -12492,7 +12494,7 @@ void dna_adjust::PrintCompMeasurements_CELMS(const UINT32& block, it_vmsr_t& _it
 // The estimation of parameters from direction clusters is handled by reducing the 
 // respective directions to angles.  Therefore, the "adjusted measurements" are
 // the adjusted angles.
-void dna_adjust::PrintCompMeasurements_D(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode)
+void dna_adjust::PrintCompMeasurements_D(it_vmsr_t& _it_msr, UINT32& design_row)
 {
 	// normal format
 	adj_file << left << setw(STATION) << bstBinaryRecords_.at(_it_msr->station1).stationName;
@@ -12541,7 +12543,7 @@ void dna_adjust::PrintCompMeasurements_D(const UINT32& block, it_vmsr_t& _it_msr
 }
 	
 
-void dna_adjust::PrintCompMeasurements_YLLH(it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode)
+void dna_adjust::PrintCompMeasurements_YLLH(it_vmsr_t& _it_msr, UINT32& design_row)
 {
 	// create a temporary copy of this Y measurement and transform/propagate
 	// cartesian elements to geographic
@@ -12557,7 +12559,7 @@ void dna_adjust::PrintCompMeasurements_YLLH(it_vmsr_t& _it_msr, UINT32& design_r
 	it_vstn_t stn1_it;
 	
 	// 1. Convert coordinates from cartesian to geographic
-	ReduceYLLHMeasurementsforPrinting(_it_msr, y_msr, mpositions, computedMsrs);
+	ReduceYLLHMeasurementsforPrinting(y_msr, mpositions, computedMsrs);
 
 	for (cluster_msr=0; cluster_msr<cluster_count; ++cluster_msr)
 		design_row += 3;
@@ -12630,7 +12632,7 @@ void dna_adjust::PrintCompMeasurements_GXY(const UINT32& block, it_vmsr_t& _it_m
 		if (_it_msr->station3 == LLH_type_i)
 		{
 			// Print phi, lambda, H
-			PrintCompMeasurements_YLLH(_it_msr, design_row, printMode);
+			PrintCompMeasurements_YLLH(_it_msr, design_row);
 			return;
 		}
 	}
@@ -12902,7 +12904,7 @@ void dna_adjust::PrintMeasurementsAngular(const char cardinal, const double& mea
 			break;
 		}
 
-		if (isAdjustmentQuestionable_)
+		if (isAdjustmentQuestionable_ || (fabs(_it_msr->NStat) > criticalValue_ * 4.0))
 			adj_file << 
 				right << StringFromTW(removeNegativeZero(Seconds(correction), PRECISION_SEC_MSR), CORR, PRECISION_SEC_MSR) <<	// correction
 				right << StringFromTW(Seconds(sqrt(precision)), PREC, PRECISION_SEC_MSR);							// Precision (Meas)
@@ -12913,7 +12915,7 @@ void dna_adjust::PrintMeasurementsAngular(const char cardinal, const double& mea
 
 		if (printAdjMsr)
 		{
-			if (isAdjustmentQuestionable_)
+			if (isAdjustmentQuestionable_ || (fabs(_it_msr->NStat) > criticalValue_ * 4.0))
 				adj_file << 
 					right << StringFromTW(Seconds(sqrt(_it_msr->measAdjPrec)), PREC, PRECISION_SEC_MSR) <<			// Precision (Adjusted)
 					right << StringFromTW(Seconds(sqrt(_it_msr->residualPrec)), PREC, PRECISION_SEC_MSR);			// Precision (Residual)
@@ -12930,7 +12932,7 @@ void dna_adjust::PrintMeasurementsAngular(const char cardinal, const double& mea
 		adj_file << setw(MSR) << right << StringFromT(Degrees(preAdjMeas), 4+PRECISION_SEC_MSR) <<					// Measured (less correction for deflections)
 			setw(MSR) << right << StringFromT(Degrees(adjMeas), 4+PRECISION_SEC_MSR); 								// Adjusted
 		
-		if (isAdjustmentQuestionable_)
+		if (isAdjustmentQuestionable_ || (fabs(_it_msr->NStat) > criticalValue_ * 4.0))
 			adj_file <<
 				right << StringFromTW(removeNegativeZero(Degrees(correction), PRECISION_SEC_MSR), CORR, PRECISION_SEC_MSR) <<	// Correction
 				right << StringFromTW(Degrees(sqrt(precision)), PREC, PRECISION_SEC_MSR);							// Precision (Meas)
@@ -12941,7 +12943,7 @@ void dna_adjust::PrintMeasurementsAngular(const char cardinal, const double& mea
 		
 		if (printAdjMsr)
 		{
-			if (isAdjustmentQuestionable_)
+			if (isAdjustmentQuestionable_ || (fabs(_it_msr->NStat) > criticalValue_ * 4.0))
 				adj_file <<
 					right << StringFromTW(Degrees(sqrt(_it_msr->measAdjPrec)), PREC, PRECISION_SEC_MSR) <<			// Precision (Adjusted)
 					right << StringFromTW(Degrees(sqrt(_it_msr->residualPrec)), PREC, PRECISION_SEC_MSR);			// Precision (Residual)
@@ -13019,7 +13021,7 @@ void dna_adjust::PrintMeasurementsLinear(
 		setw(MSR) << setprecision(PRECISION_MTR_MSR) << fixed << right << _it_msr->preAdjMeas <<	// Measured (less correction for geoid)
 		setw(MSR) << setprecision(PRECISION_MTR_MSR) << fixed << right << measurement;				// Adjusted
 	
-	if (isAdjustmentQuestionable_)
+	if (isAdjustmentQuestionable_ || (fabs(_it_msr->NStat) > criticalValue_ * 4.0))
 		adj_file <<			
 			right << StringFromTW(removeNegativeZero(correction, PRECISION_MTR_MSR), CORR, PRECISION_MTR_MSR);	// Correction
 	else
@@ -13062,7 +13064,7 @@ void dna_adjust::PrintMeasurementsLinear(
 		}
 		break;
 	default:
-		if (isAdjustmentQuestionable_)
+		if (isAdjustmentQuestionable_ || (fabs(_it_msr->NStat) > criticalValue_ * 4.0))
 			adj_file << StringFromTW(sqrt(_it_msr->term2), PREC, PRECISION_MTR_MSR);				// Precision (Meas)
 		else
 			adj_file << setw(PREC) << setprecision(PRECISION_MTR_MSR) << fixed << right << sqrt(_it_msr->term2);			// Precision (Meas)
@@ -13070,7 +13072,7 @@ void dna_adjust::PrintMeasurementsLinear(
 
 	if (printAdjMsr)
 	{
-		if (isAdjustmentQuestionable_)
+		if (isAdjustmentQuestionable_ || (fabs(_it_msr->NStat) > criticalValue_ * 4.0))
 			adj_file << 
 				right << StringFromTW(sqrt(_it_msr->measAdjPrec), PREC, PRECISION_MTR_MSR) <<		// Precision (Adjusted)
 				right << StringFromTW(sqrt(_it_msr->residualPrec), PREC, PRECISION_MTR_MSR); 		// Precision (Residual)
@@ -13161,7 +13163,7 @@ void dna_adjust::PrintAdjMeasurementStatistics(const char cardinal, const it_vms
 {
 	UINT16 PRECISION_STAT(2);
 
-	if (isAdjustmentQuestionable_)
+	if (isAdjustmentQuestionable_ || (fabs(_it_msr->NStat) > criticalValue_ * 4.0))
 		adj_file << StringFromTW(removeNegativeZero(_it_msr->NStat, 2), STAT, PRECISION_STAT);		// N Stat
 	else
 		adj_file << setw(STAT) << setprecision(2) << fixed << right << 
@@ -13169,7 +13171,7 @@ void dna_adjust::PrintAdjMeasurementStatistics(const char cardinal, const it_vms
 
 	if (projectSettings_.o._adj_msr_tstat)
 	{
-		if (isAdjustmentQuestionable_)
+		if (isAdjustmentQuestionable_ || (fabs(_it_msr->NStat) > criticalValue_ * 4.0))
 			adj_file << StringFromTW(removeNegativeZero(_it_msr->TStat, 2), STAT, PRECISION_STAT);	// T Stat
 		else
 			adj_file << setw(STAT) << setprecision(2) << fixed << right << 
@@ -13278,7 +13280,7 @@ void dna_adjust::PrintAdjMeasurements_D(it_vmsr_t& _it_msr)
 	}
 }
 
-void dna_adjust::ReduceYLLHMeasurementsforPrinting(it_vmsr_t& _it_msr, vmsr_t& y_msr, matrix_2d& mpositions, printMeasurementsMode print_mode)
+void dna_adjust::ReduceYLLHMeasurementsforPrinting(vmsr_t& y_msr, matrix_2d& mpositions, printMeasurementsMode print_mode)
 {
 	it_vmsr_t _it_y_msr(y_msr.begin());
 	UINT32 covr, cluster_msr, cluster_count(_it_y_msr->vectorCount1), covariance_count;
@@ -13373,7 +13375,7 @@ void dna_adjust::PrintAdjMeasurements_YLLH(it_vmsr_t& _it_msr)
 	it_vstn_t stn1_it;
 
 	// 1. Convert coordinates from cartesian to geographic
-	ReduceYLLHMeasurementsforPrinting(_it_msr, y_msr, mpositions, adjustedMsrs);
+	ReduceYLLHMeasurementsforPrinting(y_msr, mpositions, adjustedMsrs);
 	
 	_it_y_msr = y_msr.begin();
 

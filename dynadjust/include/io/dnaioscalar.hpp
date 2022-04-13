@@ -42,7 +42,7 @@ class dna_io_scalar : public dna_io_base
 {
 public:
 	dna_io_scalar(void) {};
-	dna_io_scalar(const dna_io_scalar&) {};
+	dna_io_scalar(const dna_io_scalar& scl) : dna_io_base(scl) {};
 	virtual ~dna_io_scalar(void) {};
 
 	dna_io_scalar& operator=(const dna_io_scalar& rhs);

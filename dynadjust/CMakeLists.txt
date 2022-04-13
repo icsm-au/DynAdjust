@@ -1,11 +1,12 @@
-cmake_minimum_required (VERSION 3.0)
+cmake_minimum_required (VERSION 3.15)
 
 project (dynadjust)
 
-set (DYNADJUST_VERSION "1.2.4")
+set (DYNADJUST_VERSION "1.2.5")
 
 if (BUILD_TESTING)
     enable_testing()
+    set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 endif (BUILD_TESTING)
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -25,13 +26,16 @@ endif(UNIX)
 
 set (CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR};${CMAKE_MODULE_PATH}")
 set (CMAKE_CXX_STANDARD 14)
-add_definitions(-Wno-deprecated-declarations)
+
+# ignore warnings if the return type of a function has a 
+# type qualifier such as const (e.g. std::exception::what())
+add_definitions(-Wno-ignored-qualifiers)
 
 # default CXX flags
 if (BUILD_TESTING)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w")    # turn off warnings for unit testing and code coverage
 else ()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 endif (BUILD_TESTING)
 
 # Debug CXX flags (GCC 4.8 introduced -Og for superior debugging experience. For older versions, use -O0)
@@ -87,34 +91,51 @@ endif ()
 message (" ")
 
 message (STATUS "Looking for intel math kernel library (mkl)...")
-find_package (MKL COMPONENTS mkl_blas95_ilp64 mkl_intel_ilp64 mkl_intel_thread mkl_core REQUIRED)
-if (NOT MKL_FOUND )
-   set (DNA_BUILD_ERROR 1)
-   set (MKL_FIND_ERROR 1)
-   message (SEND_ERROR "Cannot find MKL library components")
-else ()
-    message (STATUS "MKL seems to be installed correctly.")
-endif ()
-message (" ")
+find_package(MKL CONFIG REQUIRED)
 
 if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     find_library(IOMP5_LIB iomp5 PATHS /opt/intel/lib)
+    find_library(MKL_INTEL_ILP64 mkl_intel_ilp64 PATHS ${MKL_ROOT}/lib/intel64)
+    find_library(MKL_INTEL_THREAD NAMES mkl_intel_thread PATHS ${MKL_ROOT}/lib/intel64)
+    find_library(MKL_INTEL_CORE NAMES mkl_core PATHS ${MKL_ROOT}/lib/intel64)
 else()
-    find_library(IOMP5_LIB iomp5 PATHS /opt/intel/lib/intel64)
+    find_library(IOMP5_LIB iomp5 PATHS /opt/intel/oneapi/compiler/latest/linux/compiler/lib/intel64)
+    find_library(MKL_INTEL_ILP64 mkl_intel_ilp64 PATHS ${MKL_ROOT}/lib/intel64)
+    find_library(MKL_INTEL_THREAD NAMES mkl_intel_thread PATHS ${MKL_ROOT}/lib/intel64)
+    find_library(MKL_INTEL_CORE NAMES mkl_core PATHS ${MKL_ROOT}/lib/intel64)
 endif()
+
 if( NOT IOMP5_LIB )
    set(DNA_BUILD_ERROR 1)
    set (IOMP5_FIND_ERROR 1)
    message(SEND_ERROR "Cannot find iomp5 library")
 endif()
 
-set (DNA_LIBRARIES ${Boost_LIBRARIES} ${XERCESC_LIBRARY} ${MKL_LIBRARIES} ${IOMP5_LIB})
+if( NOT MKL_INTEL_ILP64 )
+   set(DNA_BUILD_ERROR 1)
+   set (MKL_INTEL_ILP64_FIND_ERROR 1)
+   message(SEND_ERROR "Cannot find mkl_intel_ilp64 library")
+endif()
+
+if( NOT MKL_INTEL_THREAD )
+   set(DNA_BUILD_ERROR 1)
+   set (MKL_INTEL_THREAD_FIND_ERROR 1)
+   message(SEND_ERROR "Cannot find mkl_intel_thread library")
+endif()
+
+if( NOT MKL_INTEL_CORE )
+   set(DNA_BUILD_ERROR 1)
+   set (MKL_INTEL_CORE_FIND_ERROR 1)
+   message(SEND_ERROR "Cannot find mkl_intel_core library")
+endif()
+
+set (DNA_LIBRARIES ${Boost_LIBRARIES} ${XERCESC_LIBRARY} ${MKL_INTEL_ILP64} ${MKL_INTEL_THREAD} ${MKL_INTEL_CORE} ${IOMP5_LIB})
 
 message (STATUS "DynAdjust library dependencies:")
 message (STATUS ${DNA_LIBRARIES})
 message (" ")
 
-include_directories( ${CMAKE_SOURCE_DIR} ${Boost_INCLUDE_DIRS} ${MKL_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIR} ${XSD_INCLUDE_DIR})
+include_directories( ${CMAKE_SOURCE_DIR} ${Boost_INCLUDE_DIRS} ${MKL_ROOT}/include ${XERCESC_INCLUDE_DIR} ${XSD_INCLUDE_DIR})
 
 if (DNA_BUILD_ERROR)
     message (" ")

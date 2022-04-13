@@ -39,7 +39,7 @@ class dna_io_map : public dna_io_base
 {
 public:
 	dna_io_map(void) {};
-	dna_io_map(const dna_io_map&) {};
+	dna_io_map(const dna_io_map& map) : dna_io_base(map) {};
 	virtual ~dna_io_map(void) {};
 
 	dna_io_map& operator=(const dna_io_map& rhs);

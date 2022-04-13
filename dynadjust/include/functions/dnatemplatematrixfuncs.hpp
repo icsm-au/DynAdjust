@@ -786,7 +786,7 @@ void Transform_7parameter(const matrix_2d& mcoordinates, matrix_2d& mcoordinates
 	
 
 template <typename T>
-void PositionalUncertainty(const T& semimajor, const T& semiminor, const T& azimuth, const T& sdHt,
+void PositionalUncertainty(const T& semimajor, const T& semiminor, const T& sdHt,
 						   T& hzPosU_Radius, T& vtPosU_Radius)
 {
 	hzPosU_Radius = vtPosU_Radius = -1.;

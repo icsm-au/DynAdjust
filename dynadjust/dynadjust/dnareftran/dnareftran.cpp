@@ -356,7 +356,7 @@ void dna_reftran::LogFrameSubstitutions(vector<string_string_pair>& substitution
 
 	// remove duplicates
 	_it_sub_newend = unique(substitutions.begin(), substitutions.end());
-	UINT32 subs_count = _it_sub_newend - substitutions.begin();
+	UINT32 subs_count = static_cast<UINT32>(_it_sub_newend - substitutions.begin());
 	if (_it_sub_newend != substitutions.end())
 		substitutions.resize(_it_sub_newend - substitutions.begin());
 
@@ -1871,7 +1871,7 @@ void dna_reftran::SerialiseDNA(const string& stnfilename, const string& msrfilen
 			comment.append(", epoch ").append(datumTo_.GetEpoch_s());
 		comment.append(".  Exported by reftran.");
 		dna.write_dna_files(&bstBinaryRecords_, &bmsBinaryRecords_, 
-			stnfilename, msrfilename, projectSettings_, 
+			stnfilename, msrfilename, 
 			datumTo_, projection, flagUnused, "Station coordinates" + comment, "GNSS measurements" + comment);
 	}
 	catch (const runtime_error& e) {

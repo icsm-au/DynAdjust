@@ -42,7 +42,7 @@ class dna_io_bms : public dna_io_base
 {
 public:
 	dna_io_bms(void) {};
-	dna_io_bms(const dna_io_bms&) {};
+	dna_io_bms(const dna_io_bms& bms) : dna_io_base(bms) {};
 	virtual ~dna_io_bms(void) {};
 
 	dna_io_bms& operator=(const dna_io_bms& rhs);

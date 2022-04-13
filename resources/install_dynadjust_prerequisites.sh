@@ -171,11 +171,11 @@ function args_check {
 #args_check 1
 args_check 0
 
-_repo_intel_yum="https://yum.repos.intel.com/mkl/setup/intel-mkl.repo"
-_repo_intel_apt="https://apt.repos.intel.com/mkl"
-_gpg_intel_yum="https://yum.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB"
-_gpg_intel_apt="https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB"
-_gpg_intel_keyfile="GPG-PUB-KEY-INTEL-SW-PRODUCTS-2019.PUB"
+_repo_intel_yum="https://yum.repos.intel.com/oneapi"
+_repo_intel_apt="https://apt.repos.intel.com/oneapi"
+_gpg_intel_yum="https://yum.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB"
+_gpg_intel_apt="https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB"
+_gpg_intel_keyfile="GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB"
 _toolset_apt="apt"
 _toolset_yum="yum"
 _toolset_dnf="dnf"
@@ -318,16 +318,36 @@ then
     echo -e "Skipping Intel MKL installation.\n"
 else
     # Install MKL for rpm based distros (Fedora, CentOS, Red Hat, SUSE, OpenSUSE)
+    # From:
+    #  https://www.intel.com/content/www/us/en/develop/documentation/installation-guide-for-intel-oneapi-toolkits-linux/top/installation/install-using-package-managers/yum-dnf-zypper.html
     if [[ "$_format" == "rpm" ]]; then
-        sudo "$_toolset" config-manager --add-repo "$_repo_intel"
-        sudo "$_format" --import "$_gpg_intel"
-        sudo "$_toolset" install intel-mkl
+
+cat << EOF > /tmp/oneAPI.repo
+[oneAPI]
+name=Intel® oneAPI repository
+baseurl=$_repo_intel_yum
+enabled=1
+gpgcheck=1
+repo_gpgcheck=1
+gpgkey=$gpg_intel
+EOF
+        sudo mv /tmp/oneAPI.repo /etc/yum.repos.d
+
+        if [[ "$_distro" == *"SUSE"* ]]; then
+            sudo "$_toolset" addrepo "$_repo_intel" oneAPI
+            sudo "$_format" --import "$_gpg_intel"
+        fi
+        sudo "$_toolset" install intel-basekit
+
     # Install MKL for deb based distros (Ubuntu, Debian)
+    # From:
+    #  https://www.intel.com/content/www/us/en/develop/documentation/installation-guide-for-intel-oneapi-toolkits-linux/top/installation/install-using-package-managers/apt.html
     elif [[ "$_format" == "deb" ]]; then
-        wget "$_gpg_intel"
-        sudo "$_toolset-key" add "$_gpg_intel_keyfile"
-        sudo sh -c 'echo deb https://apt.repos.intel.com/mkl all main > /etc/apt/sources.list.d/intel-mkl.list'
-        sudo "$_toolset-get" update && sudo "$_toolset-get" install intel-mkl-64bit-2020.1-102
+        # download the key to system keyring
+        wget -O- "$_gpg_intel" | gpg --dearmor | sudo tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null
+        # add signed entry to apt sources and configure the APT client to use Intel repository:
+        echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
+        sudo "$_toolset" install intel-basekit
     else
         echo " "
         echo "I don't know how to handle $OSTYPE or $_distro and am going to quit."

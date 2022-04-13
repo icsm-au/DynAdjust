@@ -96,8 +96,16 @@ do
 	shift
 done
 
+# opt installation folder
+OPT_DYNADJUST_PATH=/opt/dynadjust
+OPT_DYNADJUST_GCC_PATH=/opt/dynadjust/gcc
+DYNADJUST_INSTALL_PATH=/opt/dynadjust/gcc/1_2_4
+
+# version info
+_version="1.2.5"
+
 echo -e "\n==========================================================================="
-echo -e "DynAdjust build configuration options..."
+echo -e "DynAdjust $_version build configuration options..."
 
 if [[ $_debug -eq 1 || $_test -eq 1 ]]; then
 	echo -e " - debug variant."
@@ -157,7 +165,7 @@ fi
 if [[ $_install -eq 1 ]]; then
 	echo -e " - do not install."
 else
-	echo -e " - install binaries to /opt/dynadjust/gcc/x_x_x."
+	echo -e " - install binaries to ${DYNADJUST_INSTALL_PATH}."
 fi
 
 # set dynadjust root dir
@@ -173,16 +181,8 @@ _clone_url="https://github.com/icsm-au/DynAdjust.git"
 BIN_FOLDER="~/bin"
 eval BIN_FOLDER_FULLPATH="$BIN_FOLDER"
 
-# opt installation folder
-OPT_DYNADJUST_PATH=/opt/dynadjust
-OPT_DYNADJUST_GCC_PATH=/opt/dynadjust/gcc
-DYNADJUST_INSTALL_PATH=/opt/dynadjust/gcc/1_2_4
-
-# version info
-_version="1.2.3"
-
 echo -e "\n==========================================================================="
-echo -e "Build and installation of DynAdjust $_version...\n"
+echo -e "\nBuild and installation of DynAdjust $_version...\n"
 if [[ $_clone -eq 0 ]]; then
 	echo "Repository settings:"
 	echo "  Git repo:      $_clone_url"
@@ -263,7 +263,7 @@ cd "$_build_dir"
 # 3. copy files:
 echo "Copying Find*.cmake files to build directory..."
 cp ../FindXercesC.cmake ./
-cp ../FindMKL.cmake ./
+#cp ../FindMKL.cmake ./
 cp ../FindXSD.cmake ./
 
 REL_BUILD_TYPE="Release"
@@ -337,7 +337,7 @@ case ${_auto} in
 			optresponse="n"
 		else
 			echo " "
-			read -r -p "Install DynAdjust to $OPT_DYNADJUST_PATH [Y/n]: " optresponse
+			read -r -p "Install DynAdjust to $DYNADJUST_INSTALL_PATH [Y/n]: " optresponse
 		fi
         ;;
     *)  # proceed without asking. Assume installation

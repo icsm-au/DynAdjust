@@ -328,7 +328,7 @@ UINT32 CDnaGpsPoint::CalcBinaryRecordCount() const
 }
 	
 
-void CDnaGpsPoint::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool bSubMeasurement /*= false*/) const
+void CDnaGpsPoint::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string&, bool) const
 {
 	UINT32 precision(4);
 	
@@ -367,7 +367,7 @@ void CDnaGpsPoint::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& co
 	*dynaml_stream << "    </Clusterpoint>" << endl;
 }
 	
-void CDnaGpsPoint::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool bSubMeasurement /*= false*/) const
+void CDnaGpsPoint::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool) const
 {
 	*dna_stream << setw(dmw.msr_type) << m_strType;
 	if (m_bIgnore)
@@ -1230,7 +1230,7 @@ UINT32 CDnaGpsPointCluster::CalcBinaryRecordCount() const
 }
 	
 
-void CDnaGpsPointCluster::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool bSubMeasurement /*= false*/) const
+void CDnaGpsPointCluster::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool) const
 {
 	const size_t pntCount = m_vGpsPoints.size();
 
@@ -1280,7 +1280,7 @@ void CDnaGpsPointCluster::WriteDynaMLMsr(std::ofstream* dynaml_stream, const str
 }
 
 void CDnaGpsPointCluster::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, 
-		const dna_msr_fields& dml, bool bSubMeasurement /*= false*/) const
+		const dna_msr_fields& dml, bool) const
 {
 	// write GpsPoints
 	vector<CDnaGpsPoint>::const_iterator _it_pnt;

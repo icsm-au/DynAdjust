@@ -1223,7 +1223,8 @@ public:
 	// virtual void
 	// pre ();
 
-	virtual void post_type (string& referenceframe, bool user_specified, bool overridereferenceframe);
+	// string& referenceframe, bool user_specified, bool overridereferenceframe
+	virtual void post_type (string&, bool, bool);
 };
 
 class epoch_pskel: public virtual ::xml_schema::string_pskel
@@ -1234,7 +1235,8 @@ public:
 	// virtual void
 	// pre ();
 
-	virtual void post_type (string& epoch, bool user_specified, bool overridereferenceframe);
+	// string& referenceframe, bool overridereferenceframe
+	virtual void post_type (string&, bool);
 };
 
 class system_pskel: public virtual ::xml_schema::string_pskel
