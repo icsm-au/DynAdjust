@@ -311,14 +311,14 @@ To build and install DynAdjust from an existing copy of the source code, either 
 
 > **Note:** The directory containing the source code will contain the subdirectories `dynadjust`, `resources`, `sampleData`, `ubuntu`, `.github` and `.vscode`.
 
-For example, execute the following at the terminal (in the home directory) to get, build and install version 1.2.4:
+For example, execute the following at the terminal (in the home directory) to get, build and install version 1.2.5:
 
   ``` bash
   $ mkdir dynadjust_local_copy
   $ cd ./dynadjust_local_copy/
-  $ wget https://github.com/icsm-au/DynAdjust/archive/refs/tags/v1.2.4.tar.gz -O DynAdjust-1.2.4.tar.gz
-  $ tar xzvf DynAdjust-1.2.4.tar.gz
-  $ cd ./DynAdjust-1.2.4/
+  $ wget https://github.com/icsm-au/DynAdjust/archive/refs/tags/v1.2.5.tar.gz -O DynAdjust-1.2.5.tar.gz
+  $ tar xzvf DynAdjust-1.2.5.tar.gz
+  $ cd ./DynAdjust-1.2.5/
   $ ./resources/make_dynadjust_gcc.sh --no-clone
   ```
 
@@ -335,7 +335,7 @@ As with the previous build approach, executing `./resources/make_dynadjust_gcc.s
 If you have made changes to the source code and would like to build and test your changes, simply return to the source code directory and run the following:
 
 ``` bash
-  $ cd ./DynAdjust-1.2.4/
+  $ cd ./DynAdjust-1.2.5/
   $ ./resources/make_dynadjust_gcc.sh --no-clone --test --no-install
   ```
 
