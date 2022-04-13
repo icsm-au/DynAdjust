@@ -12904,7 +12904,7 @@ void dna_adjust::PrintMeasurementsAngular(const char cardinal, const double& mea
 			break;
 		}
 
-		if (isAdjustmentQuestionable_)
+		if (isAdjustmentQuestionable_ || (fabs(_it_msr->NStat) > criticalValue_ * 4.0))
 			adj_file << 
 				right << StringFromTW(removeNegativeZero(Seconds(correction), PRECISION_SEC_MSR), CORR, PRECISION_SEC_MSR) <<	// correction
 				right << StringFromTW(Seconds(sqrt(precision)), PREC, PRECISION_SEC_MSR);							// Precision (Meas)
@@ -12915,7 +12915,7 @@ void dna_adjust::PrintMeasurementsAngular(const char cardinal, const double& mea
 
 		if (printAdjMsr)
 		{
-			if (isAdjustmentQuestionable_)
+			if (isAdjustmentQuestionable_ || (fabs(_it_msr->NStat) > criticalValue_ * 4.0))
 				adj_file << 
 					right << StringFromTW(Seconds(sqrt(_it_msr->measAdjPrec)), PREC, PRECISION_SEC_MSR) <<			// Precision (Adjusted)
 					right << StringFromTW(Seconds(sqrt(_it_msr->residualPrec)), PREC, PRECISION_SEC_MSR);			// Precision (Residual)
@@ -12932,7 +12932,7 @@ void dna_adjust::PrintMeasurementsAngular(const char cardinal, const double& mea
 		adj_file << setw(MSR) << right << StringFromT(Degrees(preAdjMeas), 4+PRECISION_SEC_MSR) <<					// Measured (less correction for deflections)
 			setw(MSR) << right << StringFromT(Degrees(adjMeas), 4+PRECISION_SEC_MSR); 								// Adjusted
 		
-		if (isAdjustmentQuestionable_)
+		if (isAdjustmentQuestionable_ || (fabs(_it_msr->NStat) > criticalValue_ * 4.0))
 			adj_file <<
 				right << StringFromTW(removeNegativeZero(Degrees(correction), PRECISION_SEC_MSR), CORR, PRECISION_SEC_MSR) <<	// Correction
 				right << StringFromTW(Degrees(sqrt(precision)), PREC, PRECISION_SEC_MSR);							// Precision (Meas)
@@ -12943,7 +12943,7 @@ void dna_adjust::PrintMeasurementsAngular(const char cardinal, const double& mea
 		
 		if (printAdjMsr)
 		{
-			if (isAdjustmentQuestionable_)
+			if (isAdjustmentQuestionable_ || (fabs(_it_msr->NStat) > criticalValue_ * 4.0))
 				adj_file <<
 					right << StringFromTW(Degrees(sqrt(_it_msr->measAdjPrec)), PREC, PRECISION_SEC_MSR) <<			// Precision (Adjusted)
 					right << StringFromTW(Degrees(sqrt(_it_msr->residualPrec)), PREC, PRECISION_SEC_MSR);			// Precision (Residual)
@@ -13021,7 +13021,7 @@ void dna_adjust::PrintMeasurementsLinear(
 		setw(MSR) << setprecision(PRECISION_MTR_MSR) << fixed << right << _it_msr->preAdjMeas <<	// Measured (less correction for geoid)
 		setw(MSR) << setprecision(PRECISION_MTR_MSR) << fixed << right << measurement;				// Adjusted
 	
-	if (isAdjustmentQuestionable_)
+	if (isAdjustmentQuestionable_ || (fabs(_it_msr->NStat) > criticalValue_ * 4.0))
 		adj_file <<			
 			right << StringFromTW(removeNegativeZero(correction, PRECISION_MTR_MSR), CORR, PRECISION_MTR_MSR);	// Correction
 	else
@@ -13064,7 +13064,7 @@ void dna_adjust::PrintMeasurementsLinear(
 		}
 		break;
 	default:
-		if (isAdjustmentQuestionable_)
+		if (isAdjustmentQuestionable_ || (fabs(_it_msr->NStat) > criticalValue_ * 4.0))
 			adj_file << StringFromTW(sqrt(_it_msr->term2), PREC, PRECISION_MTR_MSR);				// Precision (Meas)
 		else
 			adj_file << setw(PREC) << setprecision(PRECISION_MTR_MSR) << fixed << right << sqrt(_it_msr->term2);			// Precision (Meas)
@@ -13072,7 +13072,7 @@ void dna_adjust::PrintMeasurementsLinear(
 
 	if (printAdjMsr)
 	{
-		if (isAdjustmentQuestionable_)
+		if (isAdjustmentQuestionable_ || (fabs(_it_msr->NStat) > criticalValue_ * 4.0))
 			adj_file << 
 				right << StringFromTW(sqrt(_it_msr->measAdjPrec), PREC, PRECISION_MTR_MSR) <<		// Precision (Adjusted)
 				right << StringFromTW(sqrt(_it_msr->residualPrec), PREC, PRECISION_MTR_MSR); 		// Precision (Residual)
@@ -13163,7 +13163,7 @@ void dna_adjust::PrintAdjMeasurementStatistics(const char cardinal, const it_vms
 {
 	UINT16 PRECISION_STAT(2);
 
-	if (isAdjustmentQuestionable_)
+	if (isAdjustmentQuestionable_ || (fabs(_it_msr->NStat) > criticalValue_ * 4.0))
 		adj_file << StringFromTW(removeNegativeZero(_it_msr->NStat, 2), STAT, PRECISION_STAT);		// N Stat
 	else
 		adj_file << setw(STAT) << setprecision(2) << fixed << right << 
@@ -13171,7 +13171,7 @@ void dna_adjust::PrintAdjMeasurementStatistics(const char cardinal, const it_vms
 
 	if (projectSettings_.o._adj_msr_tstat)
 	{
-		if (isAdjustmentQuestionable_)
+		if (isAdjustmentQuestionable_ || (fabs(_it_msr->NStat) > criticalValue_ * 4.0))
 			adj_file << StringFromTW(removeNegativeZero(_it_msr->TStat, 2), STAT, PRECISION_STAT);	// T Stat
 		else
 			adj_file << setw(STAT) << setprecision(2) << fixed << right << 
