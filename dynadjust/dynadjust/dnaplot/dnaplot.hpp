@@ -125,12 +125,12 @@ public:
 	void CreategnuplotGraphEnvironment(project_settings* pprj, const plotGraphMode& graphMode);
 	void CreateSegmentationGraph(const plotGraphMode& graphMode);
 
-	const inline UINT32 blockCount() const { return blockCount_; }
-	const inline UINT32 stationCount() const { return stationCount_; }
-	const inline UINT32 measurementCount() const { return measurementCount_; }
-	const inline UINT32 measurementCategories() const { return measurementCategories_; }
-	const inline UINT32 blockThreshold() const { return blockThreshold_; }
-	const inline UINT32 minInnerStns() const { return minInnerStns_; }
+	inline UINT32 blockCount() const { return blockCount_; }
+	inline UINT32 stationCount() const { return stationCount_; }
+	inline UINT32 measurementCount() const { return measurementCount_; }
+	inline UINT32 measurementCategories() const { return measurementCategories_; }
+	inline UINT32 blockThreshold() const { return blockThreshold_; }
+	inline UINT32 minInnerStns() const { return minInnerStns_; }
 
 private:
 
@@ -195,8 +195,8 @@ private:
 	void PrintMeasurementsDatFiles();
 	void PrintMeasurementsDatFilesBlock(const UINT32& block);
 
-	void PrintMeasurementsDatFile(const string& msr_file_name, char msrType, std::ofstream* msr_file_stream);
-	void PrintMeasurementsDatFileBlock(const UINT32& block, const string& msr_file_name, char msrType, std::ofstream* msr_file_stream);
+	void PrintMeasurementsDatFile(char msrType, std::ofstream* msr_file_stream);
+	void PrintMeasurementsDatFileBlock(const UINT32& block, char msrType, std::ofstream* msr_file_stream);
 	
 	//void PrintGMTPlotCoords(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, ostream& osStn, ostream& osStn2, ostream& osMsr); 
 	//void PrintGMTPlotCoords_D(vdnaStnPtr* vStations, vector<CDnaDirection>* vDirections, ostream& osMsr); 

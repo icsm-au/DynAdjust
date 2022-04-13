@@ -264,7 +264,7 @@ public:
 	void BackupNormals(const UINT32 block, bool MT_ReverseOrCombine);
 	void UpdateEstimatesForward(const UINT32 block);
 	void UpdateEstimatesReverse(const UINT32 block, bool MT_ReverseOrCombine);
-	void UpdateEstimatesCombine(const UINT32 block, UINT32 prevJSLCount, bool MT_ReverseOrCombine);
+	void UpdateEstimatesCombine(const UINT32 block, UINT32 prevJSLCount);
 	void UpdateEstimatesFinal(const UINT32 currentBlock);
 	void UpdateEstimatesFinalNoCombine();
 	
@@ -498,13 +498,13 @@ private:
 	void PurgeMatricesFromDisk();
 
 	// Helpers
-	void AddMsrtoMeasMinusComp(pit_vmsr_t _it_msr, const UINT32& design_row, const UINT32& block, const double comp_msr, 
+	void AddMsrtoMeasMinusComp(pit_vmsr_t _it_msr, const UINT32& design_row, const double comp_msr, 
 				matrix_2d* measMinusComp, bool printBlock=true);
-	void AddMsrtoNormalsVar(const UINT32& design_row, const UINT32& block, const UINT32& stn,
+	void AddMsrtoNormalsVar(const UINT32& design_row, const UINT32& stn,
 										 matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv);
-	void AddMsrtoNormalsCoVar2(const UINT32& design_row, const UINT32& block, const UINT32& stn1, const UINT32& stn2,
+	void AddMsrtoNormalsCoVar2(const UINT32& design_row, const UINT32& stn1, const UINT32& stn2,
 										 matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv);
-	void AddMsrtoNormalsCoVar3(const UINT32& design_row, const UINT32& block, const UINT32& stn1, const UINT32& stn2, const UINT32& stn3,
+	void AddMsrtoNormalsCoVar3(const UINT32& design_row, const UINT32& stn1, const UINT32& stn2, const UINT32& stn3,
 										 matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv);
 	
 	inline void AddMsrtoDesign(const UINT32& design_row, const UINT32& stn,
@@ -536,7 +536,7 @@ private:
 	void UpdateDesignNormalMeasMatrices_E(pit_vmsr_t _it_msr, UINT32& design_row, const UINT32& block,
 											  matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
 											  matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
-	void UpdateDesignMeasMatrices_GX(pit_vmsr_t _it_msr, UINT32& design_row, const UINT32& block,
+	void UpdateDesignMeasMatrices_GX(pit_vmsr_t _it_msr, UINT32& design_row,
 											matrix_2d* measMinusComp, matrix_2d* estimatedStations, matrix_2d* design,
 											const UINT32& stn1, const UINT32& stn2, bool buildnewMatrices);
 	void UpdateDesignNormalMeasMatrices_G(pit_vmsr_t _it_msr, UINT32& design_row, const UINT32& block,
@@ -583,10 +583,10 @@ private:
 											  matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
 	void UpdateDesignNormalMeasMatrices_X(pit_vmsr_t _it_msr, UINT32& design_row, const UINT32& block,
 											  matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
-											  matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
+											  matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
 	void UpdateDesignNormalMeasMatrices_Y(pit_vmsr_t _it_msr, UINT32& design_row, const UINT32& block,
 											  matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
-											  matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
+											  matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
 	void UpdateDesignNormalMeasMatrices_Z(pit_vmsr_t _it_msr, UINT32& design_row, const UINT32& block,
 											  matrix_2d* measMinusComp, matrix_2d* estimatedStations, 
 											  matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices);
@@ -646,30 +646,30 @@ private:
 	void UpdateAtVinv_D(const UINT32& stn1, const UINT32& stn2, const UINT32& stn3, 
 							const UINT32& angle, const UINT32& angle_count,
 							UINT32& design_row, UINT32& design_row_begin,
-							matrix_2d* Vinv, matrix_2d* design, matrix_2d* AtVinv, bool buildnewMatrices = true);
+							matrix_2d* Vinv, matrix_2d* design, matrix_2d* AtVinv);
 	
 
 	// Update Normals based on new design matrix elements (i.e. when non-GPS msrs are involved)
 	void UpdateNormals(const UINT32& block, bool MT_ReverseOrCombine);
 	// three station measurements
-	void UpdateNormals_A(const UINT32& block, const UINT32& stn1, const UINT32& stn2, const UINT32& stn3, UINT32& design_row,
+	void UpdateNormals_A(const UINT32& stn1, const UINT32& stn2, const UINT32& stn3, UINT32& design_row,
 							matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv);
 	// two station measurements
-	void UpdateNormals_BCEKLMSVZ(const UINT32& block, const UINT32& stn1, const UINT32& stn2, UINT32& design_row,
+	void UpdateNormals_BCEKLMSVZ(const UINT32& stn1, const UINT32& stn2, UINT32& design_row,
 							matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv);
 	// single station measurements
-	void UpdateNormals_HIJPQR(const UINT32& block, const UINT32& stn1, UINT32& design_row,
+	void UpdateNormals_HIJPQR(const UINT32& stn1, UINT32& design_row,
 							matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv);
 	// Direction (cluster measurement)
 	void UpdateNormals_D(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row,
 							matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv);
 	// GPS specific
-	void UpdateNormals_G(const UINT32& block, const UINT32& stn1, const UINT32& stn2, UINT32& design_row,
-							matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv);
+	void UpdateNormals_G(const UINT32& stn1, const UINT32& stn2, UINT32& design_row,
+							matrix_2d* normals, matrix_2d* AtVinv);
 	void UpdateNormals_X(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row,
 							matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv);
 	void UpdateNormals_Y(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row,
-							matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv);
+							matrix_2d* normals, matrix_2d* AtVinv);
 	
 	void OutputLargestCorrection(string& formatted_msg);
 	
@@ -683,7 +683,7 @@ private:
 	void AddConstraintStationstoNormalsReverse(const UINT32& block, bool MT_ReverseOrCombine);
 	void AddConstraintStationstoNormalsCombine(const UINT32& block, bool MT_ReverseOrCombine);
 	void AddConstraintStationstoNormalsSimultaneous(const UINT32& block);
-	void FormConstraintStationVarianceMatrix(const it_vUINT32& _it_param_stn, const UINT32& block, matrix_2d& var_cart);
+	void FormConstraintStationVarianceMatrix(const it_vUINT32& _it_param_stn, matrix_2d& var_cart);
 	
 #ifdef MULTI_THREAD_ADJUST
 	void UpdateNormalsR(const UINT32& block);
@@ -728,9 +728,9 @@ private:
 	void ComputePrecisionAdjMsrs_HIJPQR(const UINT32& block, const UINT32& stn1, 
 		matrix_2d* design, matrix_2d* aposterioriVariances, UINT32& design_row, UINT32& precadjmsr_row);
 	void ComputePrecisionAdjMsrs_GX(const UINT32& block, it_vmsr_t& _it_msr, 
-		matrix_2d* design, matrix_2d* aposterioriVariances, UINT32& design_row, UINT32& precadjmsr_row);
+		matrix_2d* aposterioriVariances, UINT32& design_row, UINT32& precadjmsr_row);
 	void ComputePrecisionAdjMsrs_Y(const UINT32& block, it_vmsr_t& _it_msr, 
-		matrix_2d* design, matrix_2d* aposterioriVariances, UINT32& design_row, UINT32& precadjmsr_row);
+		matrix_2d* aposterioriVariances, UINT32& design_row, UINT32& precadjmsr_row);
 	
 	void UpdateMsrRecords(const UINT32& block = 0);
 	void UpdateMsrRecord(const UINT32& block, it_vmsr_t& _it_msr, const UINT32& msr_row, const UINT32& precadjmsr_row, const double& measPrec);
@@ -739,8 +739,8 @@ private:
 	void UpdateMsrRecordStats(it_vmsr_t& _it_msr, const double& measPrec);
 
 	void ComputeGlobalPelzer();
-	void ComputeGlobalPelzer_D(const UINT32& block, it_vmsr_t& _it_msr, UINT32& numMsr, double& sum);
-	void ComputeGlobalPelzer_GXY(const UINT32& block, it_vmsr_t& _it_msr, UINT32& numMsr, double& sum);
+	void ComputeGlobalPelzer_D(it_vmsr_t& _it_msr, UINT32& numMsr, double& sum);
+	void ComputeGlobalPelzer_GXY(it_vmsr_t& _it_msr, UINT32& numMsr, double& sum);
 	
 	void ComputeChiSquare_ABCEHIJKLMPQRSVZ(const it_vmsr_t& _it_msr, UINT32& measurement_index, matrix_2d* measMinusComp);
 	void ComputeChiSquare_D(it_vmsr_t& _it_msr, UINT32& measurement_index, matrix_2d* measMinusComp);
@@ -760,13 +760,13 @@ private:
 	void PrintCompMeasurementsAngular(const char cardinal, const double& computed, const double& correction, const it_vmsr_t& _it_msr);
 	void PrintCompMeasurementsLinear(const char cardinal, const double& computed, const double& correction, const it_vmsr_t& _it_msr);
 	void PrintCompMeasurements_A(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode);
-	void PrintCompMeasurements_CELMS(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode);
-	void PrintCompMeasurements_D(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode);
+	void PrintCompMeasurements_CELMS(it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode);
+	void PrintCompMeasurements_D(it_vmsr_t& _it_msr, UINT32& design_row);
 	void PrintCompMeasurements_HR(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode);
 	void PrintCompMeasurements_IJPQ(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode);
 	void PrintCompMeasurements_BKVZ(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode);
 	void PrintCompMeasurements_GXY(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode);
-	void PrintCompMeasurements_YLLH(it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode);
+	void PrintCompMeasurements_YLLH(it_vmsr_t& _it_msr, UINT32& design_row);
 
 	void PrintMeasurementsAngular(const char cardinal, const double& measurement, const double& correction, const it_vmsr_t& _it_msr, bool printAdjMsr = true);
 	void PrintMeasurementsLinear(const char cardinal, const double& measurement, const double& correction, const it_vmsr_t& _it_msr, bool printAdjMsr = true);
@@ -792,7 +792,7 @@ private:
 	void PrintAdjMeasurements_BKVZ(it_vmsr_t& _it_msr);
 	void PrintAdjMeasurements_GXY(it_vmsr_t& _it_msr, const uint32_uint32_pair& b_pam);
 	void PrintAdjMeasurements_YLLH(it_vmsr_t& _it_msr);
-	void ReduceYLLHMeasurementsforPrinting(it_vmsr_t& _it_msr, vmsr_t& y_msr, matrix_2d& mpositions, printMeasurementsMode print_mode);
+	void ReduceYLLHMeasurementsforPrinting(vmsr_t& y_msr, matrix_2d& mpositions, printMeasurementsMode print_mode);
 
 	void PrintAdjStation(ostream& os, const UINT32& block, const UINT32& stn, const UINT32& mat_idx, const matrix_2d* stationEstimates, const matrix_2d* stationVariances, bool recomputeGeographicCoords, bool updateGeographicCoords);
 	void PrintAdjStations(ostream& os, const UINT32& block, const matrix_2d* stationEstimates, const matrix_2d* stationVariances, 

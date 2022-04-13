@@ -133,7 +133,7 @@ bool CDnaDistance::operator< (const CDnaDistance& rhs) const
 }
 	
 
-void CDnaDistance::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool bSubMeasurement /*= false*/) const
+void CDnaDistance::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool) const
 {
 	if (comment.empty())
 		*dynaml_stream << "  <!-- Type " << measurement_name<char, string>(GetTypeC()) << " -->" << endl;
@@ -173,7 +173,7 @@ void CDnaDistance::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& co
 }
 	
 
-void CDnaDistance::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool bSubMeasurement /*= false*/) const
+void CDnaDistance::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool) const
 {
 	*dna_stream << setw(dmw.msr_type) << m_strType;
 	if (m_bIgnore)
@@ -279,7 +279,6 @@ void CDnaDistance::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* ellip
 			stn2_it->get()->GetYAxis(),
 			stn2_it->get()->GetZAxis(),
 			stn1_it->get()->GetcurrentLatitude(),
-			stn1_it->get()->GetcurrentLongitude(),
 			stn2_it->get()->GetcurrentLatitude(),
 			stn1_it->get()->GetcurrentHeight(),
 			stn2_it->get()->GetcurrentHeight(),

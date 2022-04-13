@@ -137,9 +137,9 @@ public:
 	void ReduceStations(vdnaStnPtr* vStations, const CDnaProjection& projection);
 	void ReduceStations(vdnaStnPtr* vStations, const CDnaProjection& projection, const UINT32& cores);
 	void RenameStations(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, project_settings* p);
-	void ApplyDiscontinuities(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, project_settings* p);
+	void ApplyDiscontinuities(vdnaMsrPtr* vMeasurements);
 	void TrackDiscontinuitySite(const string& site, const string& site_renamed);
-	void ApplyDiscontinuitiesMeasurements(vdnaMsrPtr* vMeasurements, project_settings* p);
+	void ApplyDiscontinuitiesMeasurements(vdnaMsrPtr* vMeasurements);
 
 	void ApplyDiscontinuitiesMeasurements_GX(vector<CDnaGpsBaseline>* vGpsBaselines);
 	void ApplyDiscontinuitiesMeasurements_Y(vector<CDnaGpsPoint>* vGpsPoints);
@@ -174,7 +174,7 @@ public:
 
 	void SerialiseDatabaseId(const string& dbid_filename, pvdnaMsrPtr vMeasurements);
 
-	void CompleteAssociationLists(vdnaMsrPtr* vMeasurements, pvASLPtr vAssocStnList, pvUINT32 vAssocMsrList, pvstring vUnusedStns, pvUINT32 vIgnoredMsrs);
+	void CompleteAssociationLists(vdnaMsrPtr* vMeasurements, pvASLPtr vAssocStnList, pvUINT32 vAssocMsrList);
 
 	double GetProgress();
 	inline bool IsProcessing() const { return isProcessing_; }
@@ -202,17 +202,17 @@ private:
 	
 	// SINEX files
 	void ParseSNX(const string& fileName, vdnaStnPtr* vStations, PUINT32 stnCount, 
-							   vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID, string* success_msg);
+							   vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID);
 	
 	// DNA Ascii files
 	//void ParseDNAVersion(const INPUT_DATA_TYPE& idt);
 	void ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32 stnCount, 
 							   vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID, 
-							   string& fileEpsg, string& fileEpoch, string* success_msg);
-	void ParseDNASTN(vdnaStnPtr* vStations, PUINT32 stnCount, string* success_msg);
-	void ParseDNAMSR(vdnaStnPtr* vStations, pvdnaMsrPtr vMeasurements, PUINT32 msrCount, PUINT32 clusterID, string* success_msg);
+							   string& fileEpsg, string& fileEpoch);
+	void ParseDNASTN(vdnaStnPtr* vStations, PUINT32 stnCount);
+	void ParseDNAMSR(pvdnaMsrPtr vMeasurements, PUINT32 msrCount, PUINT32 clusterID);
 
-	void SetDefaultReferenceFrame(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements);
+	//void SetDefaultReferenceFrame(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements);
 
 	void ParseDNAMSRAngular(const string& sBuf, dnaMsrPtr& msr_ptr);
 	void ParseDNAMSRCoordinate(const string& sBuf, dnaMsrPtr& msr_ptr);
@@ -247,7 +247,6 @@ private:
 	void LoadNetworkFiles(pvstn_t binaryStn, pvmsr_t binaryMsr, const project_settings& projectSettings, bool loadSegmentFile);
 	void LoadBinaryFiles(pvstn_t binaryStn, pvmsr_t binaryMsr);
 	void LoadSegmentationFile();
-	bool WriteBinaryMsrGps(vector<CDnaGpsBaseline>* vMeasurements, measurement_t* mMeasRec, std::ofstream* ofbinaryMsrFile);
 
 	void SplitClusterMsrsConnectedToStns(vdnaMsrPtr* vClusterMsrs, 
 		pvstring pvIncludedStns, pvstring pvExcludedStns, 

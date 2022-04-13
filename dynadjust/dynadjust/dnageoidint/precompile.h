@@ -5,6 +5,8 @@
 
 #pragma once
 
+#define _WIN32_WINNT 0x0501
+
 //////////////////////////////////////////////////////////////
 // see http://stackoverflow.com/questions/25201724/fix-macro-redefinition-in-c
 // if problems exist with VS2010 INT... macro redefinition

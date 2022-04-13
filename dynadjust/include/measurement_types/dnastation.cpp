@@ -659,6 +659,7 @@ void CDnaStation::ReduceStations_XYZ(const CDnaEllipsoid* m_eEllipsoid, const CD
 			m_pProjection->GetFalseEasting(), m_pProjection->GetFalseNorthing(),	// projection parameters
 			m_pProjection->GetCentralScaleFactor(), m_pProjection->GetLongCentralMeridianZone1(), 
 			m_pProjection->GetZoneWidth());
+		[[fallthrough]];
 	case LLH_type_i:
 	case LLh_type_i:
 		m_dcurrentLatitude = m_dXAxis;

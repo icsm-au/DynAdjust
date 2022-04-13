@@ -322,7 +322,7 @@ void CDnaDirection::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields&
 	*dna_stream << endl;
 }
 	
-void CDnaDirection::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* ellipsoid)
+void CDnaDirection::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid*)
 {
 	_it_vdnastnptr stn1_it(vStations->begin() + m_lstn1Index);
 	_it_vdnastnptr stn2_it(vStations->begin() + m_lstn2Index);
@@ -717,13 +717,13 @@ CDnaAzimuth::~CDnaAzimuth(void)
 //}
 
 
-CDnaAzimuth::CDnaAzimuth(const bool bIgnore, const string& strFirst, const string& strTarget, const double& drValue, const double& dStdDev, bool bConvertAstroToGeodetic, bool bComputeDeflectionsFromAstro)
-{
-	m_bIgnore = bIgnore;
-	m_strTarget = strTarget;
-	m_drValue = drValue;
-	m_dStdDev = dStdDev;
-}
+//CDnaAzimuth::CDnaAzimuth(const bool bIgnore, const string& strFirst, const string& strTarget, const double& drValue, const double& dStdDev)
+//{
+//	m_bIgnore = bIgnore;
+//	m_strTarget = strTarget;
+//	m_drValue = drValue;
+//	m_dStdDev = dStdDev;
+//}
 
 
 //CDnaAzimuth& CDnaAzimuth::operator= (const CDnaAzimuth& rhs)

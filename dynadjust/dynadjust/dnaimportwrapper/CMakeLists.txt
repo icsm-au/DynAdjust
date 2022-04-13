@@ -17,7 +17,8 @@ add_executable (${PROJECT_NAME}
                 ${CMAKE_SOURCE_DIR}/include/measurement_types/dnamsrtally.cpp
                 ${CMAKE_SOURCE_DIR}/include/measurement_types/dnastntally.cpp
                 ${CMAKE_SOURCE_DIR}/include/functions/dnastringfuncs.cpp
-                dnaimportwrapper.cpp)
+                dnaimportwrapper.cpp
+                ${CMAKE_SOURCE_DIR}/dynadjust.rc)
 
 target_link_libraries (${PROJECT_NAME} dnaimport ${DNA_LIBRARIES})
 

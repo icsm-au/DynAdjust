@@ -39,7 +39,7 @@ class dna_io_adj : public dna_io_base
 {
 public:
 	dna_io_adj(void) {};
-	dna_io_adj(const dna_io_adj&) {};
+	dna_io_adj(const dna_io_adj& adj) : dna_io_base(adj) {};
 	virtual ~dna_io_adj(void) {};
 
 	dna_io_adj& operator=(const dna_io_adj& rhs);

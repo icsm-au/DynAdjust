@@ -260,23 +260,23 @@ void CDnaProjectFile::LoadProjectFile()
 				LoadSettingImport(mSetting, var, val);
 				break;
 			case reftranSetting:
-				LoadSettingReftran(mSetting, var, val);
+				LoadSettingReftran(var, val);
 				break;
 			case geoidSetting:
-				LoadSettingGeoid(mSetting, var, val);
+				LoadSettingGeoid(var, val);
 				break;
 			case segmentSetting:
-				LoadSettingSegment(mSetting, var, val);
+				LoadSettingSegment(var, val);
 				break;
 			case adjustSetting:
-				LoadSettingAdjust(mSetting, var, val);
-				LoadSettingOutput(mSetting, var, val);
+				LoadSettingAdjust(var, val);
+				LoadSettingOutput(var, val);
 				break;
 			case outputSetting:
-				LoadSettingOutput(mSetting, var, val);
+				LoadSettingOutput(var, val);
 				break;
 			case plotSetting:
-				LoadSettingOutput(mSetting, var, val);
+				LoadSettingOutput(var, val);
 				break;
 			case displaySetting:
 				break;
@@ -1061,7 +1061,7 @@ void CDnaProjectFile::LoadSettingImport(const settingMode mSetting, const string
 	
 }
 	
-void CDnaProjectFile::LoadSettingReftran(const settingMode mSetting, const string& var, string& val)
+void CDnaProjectFile::LoadSettingReftran(const string& var, string& val)
 {
 	if (iequals(var, REFERENCE_FRAME))
 	{
@@ -1077,7 +1077,7 @@ void CDnaProjectFile::LoadSettingReftran(const settingMode mSetting, const strin
 	}	
 }
 	
-void CDnaProjectFile::LoadSettingGeoid(const settingMode mSetting, const string& var, string& val)
+void CDnaProjectFile::LoadSettingGeoid(const string& var, string& val)
 {
 	if (iequals(var, DAT_FILEPATH))
 	{
@@ -1139,7 +1139,7 @@ void CDnaProjectFile::LoadSettingGeoid(const settingMode mSetting, const string&
 	}
 }
 	
-void CDnaProjectFile::LoadSettingSegment(const settingMode mSetting, const string& var, string& val)
+void CDnaProjectFile::LoadSettingSegment(const string& var, string& val)
 {
 	if (iequals(var, NET_FILE))
 	{
@@ -1209,7 +1209,7 @@ void CDnaProjectFile::LoadSettingSegment(const settingMode mSetting, const strin
 	}
 }
 	
-void CDnaProjectFile::LoadSettingAdjust(const settingMode mSetting, const string& var, string& val)
+void CDnaProjectFile::LoadSettingAdjust(const string& var, string& val)
 {
 	if (iequals(var, BIN_STN_FILE))
 	{
@@ -1349,7 +1349,7 @@ void CDnaProjectFile::LoadSettingAdjust(const settingMode mSetting, const string
 	}
 }
 	
-void CDnaProjectFile::LoadSettingOutput(const settingMode mSetting, const string& var, string& val)
+void CDnaProjectFile::LoadSettingOutput(const string& var, string& val)
 {
 	if (iequals(var, OUTPUT_MSR_TO_STN))
 	{
@@ -1552,13 +1552,13 @@ void CDnaProjectFile::LoadSettingOutput(const settingMode mSetting, const string
 	
 }
 	
-void CDnaProjectFile::LoadSettingPlot(const settingMode mSetting, const string& var, string& val)
-{
-}
-	
-void CDnaProjectFile::LoadSettingDisplay(const settingMode mSetting, const string& var, string& val)
-{
-}
+//void CDnaProjectFile::LoadSettingPlot(const string& var, string& val)
+//{
+//}
+//	
+//void CDnaProjectFile::LoadSettingDisplay(const string& var, string& val)
+//{
+//}
 
 template <typename T>
 void CDnaProjectFile::AddOptionValue(ostream& os, const char* const option, const T& value) {

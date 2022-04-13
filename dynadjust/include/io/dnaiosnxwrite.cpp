@@ -28,7 +28,7 @@
 namespace dynadjust { 
 namespace iostreams {
 
-void dna_io_snx::serialise_sinex(std::ofstream* snx_file, pvstn_t bstRecords, pvmsr_t bmsRecords,
+void dna_io_snx::serialise_sinex(std::ofstream* snx_file, pvstn_t bstRecords,
 					binary_file_meta_t& bst_meta, binary_file_meta_t& bms_meta,
 					matrix_2d* estimates, matrix_2d* variances, const project_settings& p,
 					UINT32& measurementParams, UINT32& unknownParams, double& sigmaZero,
@@ -50,8 +50,8 @@ void dna_io_snx::serialise_sinex(std::ofstream* snx_file, pvstn_t bstRecords, pv
 	serialise_meta(snx_file, bst_meta, bms_meta, p, datum);
 	serialise_site_id(snx_file, bstRecords);
 	serialise_statistics(snx_file);
-	serialise_solution_estimates(snx_file, bstRecords, bmsRecords, estimates, variances, datum);
-	serialise_solution_variances(snx_file, bstRecords, bmsRecords, variances);
+	serialise_solution_estimates(snx_file, bstRecords, estimates, variances, datum);
+	serialise_solution_variances(snx_file, variances);
 
 	*snx_file << "%ENDSNX" << endl;
 }
@@ -96,12 +96,12 @@ void dna_io_snx::serialise_meta(std::ofstream* snx_file,
 			numberofparamsstr <<		// Number of parameters estimated in the SINEX file
 		"0 " <<							// Single character indicating the constraint in the SINEX solution
 		"S           " <<				// Solution types contained in this SINEX file.
-										// S – all station parameters (i.e. station coordinates, station velocities, biases, geocenter)
+										// S ï¿½ all station parameters (i.e. station coordinates, station velocities, biases, geocenter)
 										// O - Orbits
 										// E - Earth Orientation Parameter
-										// T – Troposphere
-										// C – Celestial Reference Frame
-										// A – Antenna parameters
+										// T ï¿½ Troposphere
+										// C ï¿½ Celestial Reference Frame
+										// A ï¿½ Antenna parameters
 										// BLANK
 		endl;
 	
@@ -255,7 +255,7 @@ void dna_io_snx::serialise_statistics(std::ofstream* snx_file)
 }
 	
 
-void dna_io_snx::serialise_solution_estimates(std::ofstream* snx_file, pvstn_t bstRecords, pvmsr_t bmsRecords,
+void dna_io_snx::serialise_solution_estimates(std::ofstream* snx_file, pvstn_t bstRecords,
 				matrix_2d* estimates, matrix_2d* variances, const CDnaDatum* datum)
 {
 	print_line(snx_file);
@@ -374,8 +374,7 @@ void dna_io_snx::print_matrix_index(std::ofstream* snx_file, const UINT32& row, 
 		right << setw(5) << col + 1 << " ";
 }
 
-void dna_io_snx::serialise_solution_variances(std::ofstream* snx_file, pvstn_t bstRecords, pvmsr_t bmsRecords,
-				matrix_2d* variances)
+void dna_io_snx::serialise_solution_variances(std::ofstream* snx_file, matrix_2d* variances)
 {
 	print_line(snx_file);
 

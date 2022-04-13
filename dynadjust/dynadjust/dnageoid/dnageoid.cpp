@@ -51,10 +51,8 @@ dna_geoid_interpolation::~dna_geoid_interpolation()
 
 void dna_geoid_interpolation::ApplyAusGeoidGrid(geoid_point *agCoord, const int& method)
 {
-	double dlat, dlon;
-	
-	dlat = m_pGridfile->dLat = agCoord->cVar.dLatitude * DEG_TO_SEC;
-	dlon = m_pGridfile->dLong = agCoord->cVar.dLongitude * -DEG_TO_SEC;
+	m_pGridfile->dLat = agCoord->cVar.dLatitude * DEG_TO_SEC;
+	m_pGridfile->dLong = agCoord->cVar.dLongitude * -DEG_TO_SEC;
 
 	// Outside the extents of the grid
 	if ((agCoord->cVar.IO_Status = FindSubGrid()) < 0)
@@ -68,12 +66,12 @@ void dna_geoid_interpolation::ApplyAusGeoidGrid(geoid_point *agCoord, const int&
 	// Interpolate values
 	if (method == BILINEAR)
 	{
-		if ((agCoord->cVar.IO_Status = InterpolateNvalue_BiLinear(dlat, dlon, agCoord)) != ERR_TRANS_SUCCESS)
+		if ((agCoord->cVar.IO_Status = InterpolateNvalue_BiLinear(agCoord)) != ERR_TRANS_SUCCESS)
 			throw NetGeoidException(ErrorString(agCoord->cVar.IO_Status), agCoord->cVar.IO_Status);
 	}
 	else if (method == BICUBIC)
 	{
-		if ((agCoord->cVar.IO_Status = InterpolateNvalue_BiCubic(dlat, dlon, agCoord)) != ERR_TRANS_SUCCESS)
+		if ((agCoord->cVar.IO_Status = InterpolateNvalue_BiCubic(agCoord)) != ERR_TRANS_SUCCESS)
 			throw NetGeoidException(ErrorString(agCoord->cVar.IO_Status), agCoord->cVar.IO_Status);
 	}
 	else
@@ -113,7 +111,6 @@ string dna_geoid_interpolation::ReturnBadStationRecords()
 void dna_geoid_interpolation::PopulateStationRecords(const int& method, bool convertHeights)
 {
 	geoid_point agCoord;
-	double dlat, dlon;
 	it_vstn_t stn_it;
 
 	m_pointsInterpolated = m_pointsNotInterpolated = 0;
@@ -123,8 +120,8 @@ void dna_geoid_interpolation::PopulateStationRecords(const int& method, bool con
 
 	for (stn_it=bstBinaryRecords_.begin(); stn_it!=bstBinaryRecords_.end(); ++stn_it)
 	{
-		dlat = m_pGridfile->dLat = stn_it->currentLatitude * RAD_TO_SEC;
-		dlon = m_pGridfile->dLong = stn_it->currentLongitude * -RAD_TO_SEC;
+		m_pGridfile->dLat = stn_it->currentLatitude * RAD_TO_SEC;
+		m_pGridfile->dLong = stn_it->currentLongitude * -RAD_TO_SEC;
 		
 		agCoord.cVar.IO_Status = FindSubGrid();
 		switch (agCoord.cVar.IO_Status)
@@ -145,12 +142,12 @@ void dna_geoid_interpolation::PopulateStationRecords(const int& method, bool con
 		// Interpolate values
 		if (method == BILINEAR)
 		{
-			if ((agCoord.cVar.IO_Status = InterpolateNvalue_BiLinear(dlat, dlon, &agCoord)) != ERR_TRANS_SUCCESS)
+			if ((agCoord.cVar.IO_Status = InterpolateNvalue_BiLinear(&agCoord)) != ERR_TRANS_SUCCESS)
 				throw NetGeoidException(ErrorString(agCoord.cVar.IO_Status), agCoord.cVar.IO_Status);
 		}
 		else if (method == BICUBIC)
 		{
-			if ((agCoord.cVar.IO_Status = InterpolateNvalue_BiCubic(dlat, dlon, &agCoord)) != ERR_TRANS_SUCCESS)
+			if ((agCoord.cVar.IO_Status = InterpolateNvalue_BiCubic(&agCoord)) != ERR_TRANS_SUCCESS)
 				throw NetGeoidException(ErrorString(agCoord.cVar.IO_Status), agCoord.cVar.IO_Status);
 		}
 		else
@@ -1094,7 +1091,7 @@ void dna_geoid_interpolation::CreateNTv2File(const char* datFile, const n_file_p
 				continue;
 
 			// determine limits
-			ScanNodeLocations(szLine, &lat, &lon, lNodeRead);
+			ScanNodeLocations(szLine, &lat, &lon);
 			if (lat < min_lat)
 				min_lat = lat;
 			if (lat > max_lat)
@@ -1178,7 +1175,7 @@ void dna_geoid_interpolation::CreateNTv2File(const char* datFile, const n_file_p
 
 	// Print default header block and subgrid header block information.
 	PrintGridHeaderInfoBinary(&f_out, &GridfileTmp);
-	PrintSubGridHeaderInfoBinary(&f_out, GridfileTmp.ptrIndex, shiftType);
+	PrintSubGridHeaderInfoBinary(&f_out, GridfileTmp.ptrIndex);
 	
 	// put file pointer back to beginning
 	f_in.clear();
@@ -1326,7 +1323,7 @@ void dna_geoid_interpolation::ExportToAscii(const char *gridFile, const char *gr
 	strcpy(m_pGridfile->chGs_type, shiftTypeTo.c_str());
 
 	// Print header block information.
-	PrintGridHeaderInfoAscii(&f_out, m_pGridfile);
+	PrintGridHeaderInfoAscii(&f_out);
 
 	int i, j;
 	float fValue1, fValue2, fValue3, fValue4;
@@ -1335,7 +1332,7 @@ void dna_geoid_interpolation::ExportToAscii(const char *gridFile, const char *gr
 	for (i=0; i<m_pGridfile->iNumsubgrids; i++)
 	{
 		// print sub-grid header block information
-		PrintSubGridHeaderInfoAscii(&f_out, &(m_pGridfile->ptrIndex[i]), shiftTypeTo);
+		PrintSubGridHeaderInfoAscii(&f_out, &(m_pGridfile->ptrIndex[i]));
 		
 		// set file pointer to file position held by ptrIndex[i].fpGridPos
 		m_pGfileptr.seekg(m_pGridfile->ptrIndex[i].iGridPos);
@@ -1483,7 +1480,7 @@ void dna_geoid_interpolation::ExportToBinary(const char *gridFile, const char *g
 	for (int j, i=0; i<m_pGridfile->iNumsubgrids; ++i)
 	{
 		// print sub-grid header block information
-		PrintSubGridHeaderInfoBinary(&f_out, &(m_pGridfile->ptrIndex[i]), shiftTypeTo);
+		PrintSubGridHeaderInfoBinary(&f_out, &(m_pGridfile->ptrIndex[i]));
 		
 		m_pGfileptr.seekg(m_pGridfile->ptrIndex[i].iGridPos);
 		
@@ -1749,7 +1746,7 @@ int dna_geoid_interpolation::DetermineFileType(const char *cType)
 		return -1;					// Unsupported filetype
 }
 
-int dna_geoid_interpolation::InterpolateNvalue_BiLinear(double dlat, double dlon, geoid_point *dInterpPoint)
+int dna_geoid_interpolation::InterpolateNvalue_BiLinear(geoid_point *dInterpPoint)
 {
 	double dLatA, dLongA, dX, dY, da0, da1, da2, da3;
 	long iA, iB, iC, iD, iRow_Index, iColumn_Index, iGrid_Points_Per_Row;
@@ -1897,7 +1894,7 @@ int dna_geoid_interpolation::InterpolateNvalue_BiLinear(double dlat, double dlon
 }
 	
 
-int dna_geoid_interpolation::InterpolateNvalue_BiCubic(double dlat, double dlon, geoid_point *dInterpPoint)
+int dna_geoid_interpolation::InterpolateNvalue_BiCubic(geoid_point *dInterpPoint)
 {
 	double dLatLower, dLongLower, dLongUpper;
 	long iRow_Index, iColumn_Index, iGrid_Points_Per_Row;
@@ -2681,7 +2678,7 @@ int dna_geoid_interpolation::OpenGridFile(const char *filename, const char *file
 }
 	
 
-void dna_geoid_interpolation::PrintGridHeaderInfoAscii(std::ofstream* f_out, n_file_par* pGridfile)
+void dna_geoid_interpolation::PrintGridHeaderInfoAscii(std::ofstream* f_out)
 {
 	// print header block information
 	*f_out << "NUM_OREC" << setw(8) << right << m_pGridfile->iH_info << endl;			// Number of header identifiers (NUM_OREC)
@@ -2742,7 +2739,7 @@ void dna_geoid_interpolation::PrintGridHeaderInfoBinary(std::ofstream* f_out, n_
 }
 
 
-void dna_geoid_interpolation::PrintSubGridHeaderInfoAscii(std::ofstream* f_out, n_gridfileindex* gfIndex, const string& shiftType)
+void dna_geoid_interpolation::PrintSubGridHeaderInfoAscii(std::ofstream* f_out, n_gridfileindex* gfIndex)
 {
 	// Print header info for sub-grid
 	*f_out << "SUB_NAME" << setw(8) << right << gfIndex->chSubname << endl;
@@ -2764,7 +2761,7 @@ void dna_geoid_interpolation::PrintSubGridHeaderInfoAscii(std::ofstream* f_out, 
 }
 	
 
-void dna_geoid_interpolation::PrintSubGridHeaderInfoBinary(std::ofstream* f_out, n_gridfileindex* gfIndex, const string& shiftType)
+void dna_geoid_interpolation::PrintSubGridHeaderInfoBinary(std::ofstream* f_out, n_gridfileindex* gfIndex)
 {
 	// Print header info for sub-grid
 	f_out->write(reinterpret_cast<const char *>("SUB_NAME"), OVERVIEW_RECS);
@@ -2842,7 +2839,7 @@ void dna_geoid_interpolation::ScanDatFileValues(char* szLine, float* n_value, ch
 	sscanf(&(szLine[53]), "%f", dDefl_primev);
 }
 
-void dna_geoid_interpolation::ScanNodeLocations(char* szLine, double* latitude, double* longitude, const UINT32& lNodeRead)
+void dna_geoid_interpolation::ScanNodeLocations(char* szLine, double* latitude, double* longitude)
 {
 	// extract data (AusGeoid98 file)
 	double deg, min, sec;

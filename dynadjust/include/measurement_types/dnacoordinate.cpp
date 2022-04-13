@@ -107,7 +107,7 @@ bool CDnaCoordinate::operator< (const CDnaCoordinate& rhs) const
 }
 	
 
-void CDnaCoordinate::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool bSubMeasurement /*= false*/) const
+void CDnaCoordinate::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool) const
 {
 	if (comment.empty())
 		*dynaml_stream << "  <!-- Type " << measurement_name<char, string>(GetTypeC()) << " -->" << endl;
@@ -152,7 +152,7 @@ void CDnaCoordinate::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& 
 }
 	
 
-void CDnaCoordinate::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool bSubMeasurement /*= false*/) const
+void CDnaCoordinate::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool) const
 {
 	*dna_stream << setw(dmw.msr_type) << m_strType;
 	if (m_bIgnore)
@@ -178,7 +178,7 @@ void CDnaCoordinate::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields
 }
 	
 
-void CDnaCoordinate::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* ellipsoid)
+void CDnaCoordinate::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid*)
 {
 	switch (GetTypeC())
 	{

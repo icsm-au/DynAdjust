@@ -109,7 +109,7 @@ bool CDnaHeight::operator< (const CDnaHeight& rhs) const
 }
 	
 
-void CDnaHeight::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool bSubMeasurement /*= false*/) const
+void CDnaHeight::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool) const
 {
 	if (comment.empty())
 		*dynaml_stream << "  <!-- Type " << measurement_name<char, string>(GetTypeC()) << " -->" << endl;
@@ -139,7 +139,7 @@ void CDnaHeight::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comm
 }
 	
 
-void CDnaHeight::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool bSubMeasurement /*= false*/) const
+void CDnaHeight::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool) const
 {
 	*dna_stream << setw(dmw.msr_type) << m_strType;
 	if (m_bIgnore)

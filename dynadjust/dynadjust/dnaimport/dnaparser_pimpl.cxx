@@ -1135,7 +1135,7 @@ void StationCoord_pimpl::pre()
 {
 }
 
-void StationCoord_pimpl::Name(const ::std::string& Name)
+void StationCoord_pimpl::Name(const ::std::string& /*Name*/)
 {
 	//_parent_dnaStn->SetName(Name);
 }
@@ -1173,17 +1173,17 @@ void GeoidModel_pimpl::pre()
 {
 }
 
-void GeoidModel_pimpl::NValue (const ::std::string& NValue)
+void GeoidModel_pimpl::NValue (const ::std::string& /*NValue*/)
 {
 
 }
 
-void GeoidModel_pimpl::DeflPM (const ::std::string& DeflPM)
+void GeoidModel_pimpl::DeflPM (const ::std::string& /*DeflPM*/)
 {
 
 }
 
-void GeoidModel_pimpl::DeflPV (const ::std::string& DeflPV)
+void GeoidModel_pimpl::DeflPV (const ::std::string& /*DeflPV*/)
 {
 
 }
@@ -1265,7 +1265,7 @@ void epoch_pimpl::pre()
 // For DynaML.xsd, the following is specified:
 //     <xs:attribute name="epoch" type="xs:string" use="optional" default="01.01.1994"/>
 // In this case, post_string() will return "01.01.1994"
-void epoch_pimpl::post_type(string& epoch, bool userspecifiedreferenceframe, bool overridereferenceframe)
+void epoch_pimpl::post_type(string& epoch, bool overridereferenceframe)
 {
 	// 1. Get the DnaXmlFormat epoch attribute value from the file
 	_epoch = post_string();

@@ -34,7 +34,7 @@ extern boost::exception_ptr rev_error;
 extern boost::exception_ptr cmb_error;
 extern boost::exception_ptr prep_error;
 
-bool combineAdjustmentExceptionThrown(const vector<boost::exception_ptr>& cmb_errors_, const UINT32& thread_id)
+bool combineAdjustmentExceptionThrown(const vector<boost::exception_ptr>& cmb_errors_)
 {
 	// got a forward or reverse exception, or 
 	// have any of the other combination adjustments failed?
@@ -58,7 +58,7 @@ bool combineAdjustmentExceptionThrown(const vector<boost::exception_ptr>& cmb_er
 	return false;
 }
 
-bool prepareAdjustmentExceptionThrown(const vector<boost::exception_ptr>& prep_errors_, const UINT32& thread_id)
+bool prepareAdjustmentExceptionThrown(const vector<boost::exception_ptr>& prep_errors_)
 {
 	// have any of the other combination adjustments failed?
 	UINT32 err_size(static_cast<UINT32>(prep_errors_.size()));
@@ -623,7 +623,7 @@ void adjust_process_combine_thread::operator()()
 				break;
 			
 			// Have any other adjustments failed?
-			if (combineAdjustmentExceptionThrown(cmb_errors_, thread_id_))
+			if (combineAdjustmentExceptionThrown(cmb_errors_))
 				return;
 
 			// Wait here until blocks have been placed on the queue
@@ -634,7 +634,7 @@ void adjust_process_combine_thread::operator()()
 			}
 
 			// Have any other adjustments failed?
-			if (combineAdjustmentExceptionThrown(cmb_errors_, thread_id_))
+			if (combineAdjustmentExceptionThrown(cmb_errors_))
 				return;
 
 			main_adj_->isCombining_ = true;
@@ -644,7 +644,7 @@ void adjust_process_combine_thread::operator()()
 			{
 				// Least Squares Solution
 				main_adj_->SolveMTTry(true, currentBlock);
-				main_adj_->UpdateEstimatesCombine(currentBlock, pseudomsrJSLCount, true);
+				main_adj_->UpdateEstimatesCombine(currentBlock, pseudomsrJSLCount);
 				main_adj_->UpdateEstimatesFinal(currentBlock);
 			}
 		}
@@ -742,7 +742,7 @@ void adjust_process_prepare_thread::operator()()
 				break;
 			
 			// Have any other adjustments failed?
-			if (prepareAdjustmentExceptionThrown(prep_errors_, thread_id_))
+			if (prepareAdjustmentExceptionThrown(prep_errors_))
 				return;
 
 			// Wait here until blocks have been placed on the queue
@@ -753,7 +753,7 @@ void adjust_process_prepare_thread::operator()()
 			}
 
 			// Have any other adjustments failed?
-			if (prepareAdjustmentExceptionThrown(prep_errors_, thread_id_))
+			if (prepareAdjustmentExceptionThrown(prep_errors_))
 				return;
 
 			main_adj_->SetcurrentBlock(currentBlock);

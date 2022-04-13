@@ -130,13 +130,13 @@ private:
 
 	void LoadSettingGeneral(const settingMode mSetting, const string& var, string& val);
 	void LoadSettingImport(const settingMode mSetting, const string& var, string& val);
-	void LoadSettingReftran(const settingMode mSetting, const string& var, string& val);
-	void LoadSettingGeoid(const settingMode mSetting, const string& var, string& val);
-	void LoadSettingSegment(const settingMode mSetting, const string& var, string& val);
-	void LoadSettingAdjust(const settingMode mSetting, const string& var, string& val);
-	void LoadSettingOutput(const settingMode mSetting, const string& var, string& val);
-	void LoadSettingPlot(const settingMode mSetting, const string& var, string& val);
-	void LoadSettingDisplay(const settingMode mSetting, const string& var, string& val);
+	void LoadSettingReftran(const string& var, string& val);
+	void LoadSettingGeoid(const string& var, string& val);
+	void LoadSettingSegment(const string& var, string& val);
+	void LoadSettingAdjust(const string& var, string& val);
+	void LoadSettingOutput(const string& var, string& val);
+	//void LoadSettingPlot(const string& var, string& val);
+	//void LoadSettingDisplay(const string& var, string& val);
 	
 	project_settings settings_;
 };

@@ -9,7 +9,8 @@ add_executable (${PROJECT_NAME}
                 ${CMAKE_SOURCE_DIR}/include/config/dnaprojectfile.cpp
                 ${CMAKE_SOURCE_DIR}/include/functions/dnaprocessfuncs.cpp
                 ${CMAKE_SOURCE_DIR}/include/functions/dnastringfuncs.cpp
-                dynadjust.cpp)
+                dynadjust.cpp
+                ${CMAKE_SOURCE_DIR}/dynadjust.rc)
 
 target_link_libraries (${PROJECT_NAME} ${DNA_LIBRARIES})
 

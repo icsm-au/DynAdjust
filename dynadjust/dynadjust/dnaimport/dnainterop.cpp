@@ -244,96 +244,96 @@ void dna_import::InitialiseDatum(const string& reference_frame)
 }
 	
 
-// DynaXML, dna v.1-2 and sinex file formats do not contain reference frame information, so
-// by default the reference frame for all stations is set to GDA2020.
-// This function is called to modify the default frame to a user-specified frame
-void dna_import::SetDefaultReferenceFrame(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements)
-{
-	// Default is GDA2020.
-	switch (m_ift)
-	{
-	case sinex:			// SNX	
-		// For sinex files, the default (or user input) reference frame is set in
-		// parse_sinex_msr and parse_sinex_stn.  The epoch of the sinex file is
-		// also set in these functions.  Hence, there is no need to override here.
-		return;
-
-	case dynaml:		// DynaML - *stn.xml and *msr.xml
-		// Reference frame is properly handled in and dnaparser_pskel.cxx dnaparser_pimpl.cxx
-	case dna:			// DNA - .stn and .msr
-		// Reference frame is properly handled in and ParseDNAMSR...
-		return;
-
-	//////////////////////////////////////////////////////////
-	// UNSUPPORTED OPTIONS
-
-	case geodesyml:		// GeodesyML - GML application schema
-	case csv:			// CSV
-	default:
-
-		//throw XMLInteropException("ParseInputFile(): Could not deduce file type from extension or contents.", 0);		
-		stringstream ss;
-		ss << "SetDefaultReferenceFrame(): unsupported file type.";
-		parseStatus_ = PARSE_UNRECOGNISED_FILE;
-		throw XMLInteropException(ss.str(), 0);
-
-
-		// Does the user want to override what is contained in the input files?
-		if (projectSettings_.i.override_input_rfame == 0)
-			// No, so don't override the reference frame found in the input files
-			return;
-		break;
-	}
-
-//////////////////////////////////////////////////////////
-// Unused code - comment out until required
-//
-//	// Yes, override what is contained in the input files.
-//
-//	// Get defaults
-//	string strEpsg(datum_.GetEpsgCode_s());
-//	string strEpoch(datum_.GetEpoch_s());
-//
-//	for_each(vStations->begin(), vStations->end(), 
-//		[this, &strEpsg, &strEpoch] (dnaStnPtr& s) {			
-//			s->SetReferenceFrame(projectSettings_.i.reference_frame);
-//			s->SetEpoch(strEpoch);
-//	});
-//
-//	// If only some dna records have frame and epoch, the default reference frame and epoch will be used.
-//	
-//	CDnaGpsBaselineCluster* bslCluster;
-//	CDnaGpsPointCluster* pntCluster;
-//
-//	for_each(vMeasurements->begin(), vMeasurements->end(),
-//		[this, &bslCluster, &pntCluster, &strEpsg, &strEpoch](dnaMsrPtr& m){
-//			
-//			// Set reference frame (and reference epoch) in the CDnaMeasurement (parent class)
-//			m->SetReferenceFrame(projectSettings_.i.reference_frame);
-//			m->SetEpoch(strEpoch);
-//
-//			switch (m->GetTypeC()) {
-//			case 'G': // Single Baseline (treat as a single-baseline cluster)
-//				bslCluster = (CDnaGpsBaselineCluster*) (m.get());
-//				bslCluster->SetReferenceFrame(projectSettings_.i.reference_frame);
-//				bslCluster->SetEpoch(strEpoch);
-//				break;
-//			case 'X': // GPS Baseline cluster
-//				bslCluster = (CDnaGpsBaselineCluster*) (m.get());
-//				bslCluster->SetReferenceFrame(projectSettings_.i.reference_frame);
-//				bslCluster->SetEpoch(strEpoch);
-//				break;
-//			case 'Y': // GPS point cluster
-//				pntCluster = (CDnaGpsPointCluster*) (m.get());
-//				pntCluster->SetReferenceFrame(projectSettings_.i.reference_frame);
-//				pntCluster->SetEpoch(strEpoch);
-//				break;
-//			default:
-//				break;
-//			}
-//			
-//	});
-}
+//   // DynaXML, dna v.1-2 and sinex file formats do not contain reference frame information, so
+//   // by default the reference frame for all stations is set to GDA2020.
+//   // This function is called to modify the default frame to a user-specified frame
+//   void dna_import::SetDefaultReferenceFrame(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements)
+//   {
+//   	// Default is GDA2020.
+//   	switch (m_ift)
+//   	{
+//   	case sinex:			// SNX	
+//   		// For sinex files, the default (or user input) reference frame is set in
+//   		// parse_sinex_msr and parse_sinex_stn.  The epoch of the sinex file is
+//   		// also set in these functions.  Hence, there is no need to override here.
+//   		return;
+//   
+//   	case dynaml:		// DynaML - *stn.xml and *msr.xml
+//   		// Reference frame is properly handled in and dnaparser_pskel.cxx dnaparser_pimpl.cxx
+//   	case dna:			// DNA - .stn and .msr
+//   		// Reference frame is properly handled in and ParseDNAMSR...
+//   		return;
+//   
+//   	//////////////////////////////////////////////////////////
+//   	// UNSUPPORTED OPTIONS
+//   
+//   	case geodesyml:		// GeodesyML - GML application schema
+//   	case csv:			// CSV
+//   	default:
+//   
+//   		//throw XMLInteropException("ParseInputFile(): Could not deduce file type from extension or contents.", 0);		
+//   		stringstream ss;
+//   		ss << "SetDefaultReferenceFrame(): unsupported file type.";
+//   		parseStatus_ = PARSE_UNRECOGNISED_FILE;
+//   		throw XMLInteropException(ss.str(), 0);
+//   
+//   
+//   		// Does the user want to override what is contained in the input files?
+//   		if (projectSettings_.i.override_input_rfame == 0)
+//   			// No, so don't override the reference frame found in the input files
+//   			return;
+//   		break;
+//   	}
+//   
+//   //////////////////////////////////////////////////////////
+//   // Unused code - comment out until required
+//   //
+//   //	// Yes, override what is contained in the input files.
+//   //
+//   //	// Get defaults
+//   //	string strEpsg(datum_.GetEpsgCode_s());
+//   //	string strEpoch(datum_.GetEpoch_s());
+//   //
+//   //	for_each(vStations->begin(), vStations->end(), 
+//   //		[this, &strEpsg, &strEpoch] (dnaStnPtr& s) {			
+//   //			s->SetReferenceFrame(projectSettings_.i.reference_frame);
+//   //			s->SetEpoch(strEpoch);
+//   //	});
+//   //
+//   //	// If only some dna records have frame and epoch, the default reference frame and epoch will be used.
+//   //	
+//   //	CDnaGpsBaselineCluster* bslCluster;
+//   //	CDnaGpsPointCluster* pntCluster;
+//   //
+//   //	for_each(vMeasurements->begin(), vMeasurements->end(),
+//   //		[this, &bslCluster, &pntCluster, &strEpsg, &strEpoch](dnaMsrPtr& m){
+//   //			
+//   //			// Set reference frame (and reference epoch) in the CDnaMeasurement (parent class)
+//   //			m->SetReferenceFrame(projectSettings_.i.reference_frame);
+//   //			m->SetEpoch(strEpoch);
+//   //
+//   //			switch (m->GetTypeC()) {
+//   //			case 'G': // Single Baseline (treat as a single-baseline cluster)
+//   //				bslCluster = (CDnaGpsBaselineCluster*) (m.get());
+//   //				bslCluster->SetReferenceFrame(projectSettings_.i.reference_frame);
+//   //				bslCluster->SetEpoch(strEpoch);
+//   //				break;
+//   //			case 'X': // GPS Baseline cluster
+//   //				bslCluster = (CDnaGpsBaselineCluster*) (m.get());
+//   //				bslCluster->SetReferenceFrame(projectSettings_.i.reference_frame);
+//   //				bslCluster->SetEpoch(strEpoch);
+//   //				break;
+//   //			case 'Y': // GPS point cluster
+//   //				pntCluster = (CDnaGpsPointCluster*) (m.get());
+//   //				pntCluster->SetReferenceFrame(projectSettings_.i.reference_frame);
+//   //				pntCluster->SetEpoch(strEpoch);
+//   //				break;
+//   //			default:
+//   //				break;
+//   //			}
+//   //			
+//   //	});
+//   }
 	
 
 _PARSE_STATUS_ dna_import::ParseInputFile(const string& fileName, vdnaStnPtr* vStations, PUINT32 stnCount, 
@@ -446,7 +446,7 @@ _PARSE_STATUS_ dna_import::ParseInputFile(const string& fileName, vdnaStnPtr* vS
 		m_idt = stn_msr_data;
 
 		// Parse the SINEX file and capture the epoch
-		ParseSNX(fileName, vStations, stnCount, vMeasurements, msrCount, clusterID, success_msg);
+		ParseSNX(fileName, vStations, stnCount, vMeasurements, msrCount, clusterID);
 
 		// Since SINEX files do not permit recording of reference frame within the file, set
 		// the frame to the default reference frame
@@ -467,7 +467,7 @@ _PARSE_STATUS_ dna_import::ParseInputFile(const string& fileName, vdnaStnPtr* vS
 		m_ift = dna;
 
 		// Parse the DNA file
-		ParseDNA(fileName, vStations, stnCount, vMeasurements, msrCount, clusterID, fileEpsg, fileEpoch, success_msg);
+		ParseDNA(fileName, vStations, stnCount, vMeasurements, msrCount, clusterID, fileEpsg, fileEpoch);
 		
 		if (fileEpsg.empty())
 			fileEpsg = m_strProjectDefaultEpsg;
@@ -496,11 +496,13 @@ _PARSE_STATUS_ dna_import::ParseInputFile(const string& fileName, vdnaStnPtr* vS
 	if (m_ift != sinex)
 	{
 		if (p->i.apply_discontinuities)
-			ApplyDiscontinuities(vStations, vMeasurements, p);
+			ApplyDiscontinuities(vMeasurements);
 	}
 
-	// Set default reference frame (if the file type does not specify it).
-	SetDefaultReferenceFrame(vStations, vMeasurements);
+	// SetDefaultReferenceFrame is not needed.  Keep for potential file formats that require this to be set
+	//
+	// // Set default reference frame (if the file type does not specify it).
+	// SetDefaultReferenceFrame(vStations, vMeasurements);
 	
 	// Populate metadata
 	sprintf(input_file_meta->filename, "%s", fileName.c_str());
@@ -714,12 +716,12 @@ void dna_import::ParseXML(const string& fileName, vdnaStnPtr* vStations, PUINT32
 }
 
 void dna_import::ParseSNX(const string& fileName, vdnaStnPtr* vStations, PUINT32 stnCount, 
-							   vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID, string* success_msg)
+							   vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID)
 {
 	try {
 		// Load sinex file and capture epoch.  Throws runtime_error on failure.
 		dna_io_snx snx;
-		snx.parse_sinex(&ifsInputFILE_, fileName, vStations, stnCount, vMeasurements, msrCount, clusterID, success_msg,
+		snx.parse_sinex(&ifsInputFILE_, fileName, vStations, stnCount, vMeasurements, msrCount, clusterID,
 			g_parsestn_tally, g_parsemsr_tally, g_fileOrder, 
 			datum_, projectSettings_.i.apply_discontinuities==1, &stn_discontinuities_, m_discontsSortedbyName,
 			m_lineNo, m_columnNo, parseStatus_);
@@ -813,7 +815,7 @@ void dna_import::AddDiscontinuityStations(vdnaStnPtr* vStations)
 }
 	
 
-void dna_import::ApplyDiscontinuities(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, project_settings* p)
+void dna_import::ApplyDiscontinuities(vdnaMsrPtr* vMeasurements)
 {
 	if (stn_discontinuities_.empty())
 		return;
@@ -837,7 +839,7 @@ void dna_import::ApplyDiscontinuities(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasur
 	// measurements).
 
 	if (!vMeasurements->empty())
-		ApplyDiscontinuitiesMeasurements(vMeasurements, p);
+		ApplyDiscontinuitiesMeasurements(vMeasurements);
 }
 
 void dna_import::TrackDiscontinuitySite(const string& site, const string& site_renamed)
@@ -853,7 +855,7 @@ void dna_import::TrackDiscontinuitySite(const string& site, const string& site_r
 // This function renames stations in each measurement based on a discontinuity file
 // NOTE: A fundamental prerequisite for the proper renaming of discontinuity sites
 // in this function is a valid epoch for each measurement!
-void dna_import::ApplyDiscontinuitiesMeasurements(vdnaMsrPtr* vMeasurements, project_settings* p)
+void dna_import::ApplyDiscontinuitiesMeasurements(vdnaMsrPtr* vMeasurements)
 {
 	_it_vdiscontinuity_tuple _it_discont(stn_discontinuities_.begin());
 
@@ -1164,7 +1166,7 @@ void dna_import::ApplyDiscontinuitiesMeasurements_D(vector<CDnaDirection>* vDire
 
 void dna_import::ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32 stnCount, 
 							   vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID, 
-							   string& fileEpsg, string& fileEpoch, string* success_msg)
+							   string& fileEpsg, string& fileEpoch)
 {
 	parseStatus_ = PARSE_SUCCESS;
 
@@ -1215,7 +1217,7 @@ void dna_import::ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32
 		dsw_ = dnaFile.dna_stn_widths();
 		
 		try {
-			ParseDNASTN(vStations, stnCount, success_msg);
+			ParseDNASTN(vStations, stnCount);
 			m_idt = stn_data;
 		}
 		catch (const ios_base::failure& f) {
@@ -1257,7 +1259,7 @@ void dna_import::ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32
 		dmw_ = dnaFile.dna_msr_widths();
 		
 		try {
-			ParseDNAMSR(vStations, vMeasurements, msrCount, clusterID, success_msg);
+			ParseDNAMSR(vMeasurements, msrCount, clusterID);
 			m_idt = msr_data;
 		}
 		catch (const ios_base::failure& f) {
@@ -1294,7 +1296,7 @@ void dna_import::ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32
 	}
 }
 	
-void dna_import::ParseDNASTN(vdnaStnPtr* vStations, PUINT32 stnCount, string* success_msg)
+void dna_import::ParseDNASTN(vdnaStnPtr* vStations, PUINT32 stnCount)
 {
 	string sBuf, tmp;
 
@@ -1513,7 +1515,7 @@ void dna_import::ParseDNASTN(vdnaStnPtr* vStations, PUINT32 stnCount, string* su
 }
 	
 
-void dna_import::ParseDNAMSR(vdnaStnPtr* vStations, pvdnaMsrPtr vMeasurements, PUINT32 msrCount, PUINT32 clusterID, string* success_msg)
+void dna_import::ParseDNAMSR(pvdnaMsrPtr vMeasurements, PUINT32 msrCount, PUINT32 clusterID)
 {
 	string sBuf, tmp;
 
@@ -5649,9 +5651,6 @@ void dna_import::MapMeasurementStations(vdnaMsrPtr* vMeasurements, pvASLPtr vAss
 
 		// Increment ASL associated measurement count (i.e. CAStationList.assocMsrs_)
 		at_station_index = it_stnmap_range.first->second;
-		if (at_station_index < 0)
-			throw XMLInteropException("MapMeasurementStations(): An invalid index was found in the station map \
-									while \ntrying to determine ASL index for the First station.", 0);
 		
 		_it_msr->get()->SetStn1Index(at_station_index);
 		if (!vAssocStnList->at(at_station_index))
@@ -5707,9 +5706,6 @@ void dna_import::MapMeasurementStations(vdnaMsrPtr* vMeasurements, pvASLPtr vAss
 
 		// Increment ASL associated measurement count (i.e. CAStationList.assocMsrs_)
 		to_station_index = it_stnmap_range.first->second;
-		if (to_station_index < 0)
-			throw XMLInteropException("MapMeasurementStations(): An invalid index was found in the station map \
-									while \ntrying to determine ASL index for the Second station.", 0);
 		
 		_it_msr->get()->SetStn2Index(to_station_index);
 
@@ -5781,10 +5777,7 @@ void dna_import::MapMeasurementStations(vdnaMsrPtr* vMeasurements, pvASLPtr vAss
 
 		// Increment ASL associated measurement count (i.e. CAStationList.assocMsrs_)
 		to2_station_index = it_stnmap_range.first->second;
-		if (to2_station_index < 0)
-			throw XMLInteropException("MapMeasurementStations(): An invalid index was found in the station map \
-									while \ntrying to determine ASL index for the Third station.", 0);
-
+		
 		_it_msr->get()->SetStn3Index(to2_station_index);
 
 		if (!vAssocStnList->at(to2_station_index))
@@ -5945,10 +5938,7 @@ void dna_import::MapMeasurementStationsBsl(vector<CDnaGpsBaseline>* vGpsBaseline
 
 		// Increment ASL associated measurement count (i.e. CAStationList.assocMsrs_)
 		station_index = it_stnmap_range.first->second;
-		if (station_index < 0)
-			throw XMLInteropException("MapMeasurementStationsBsl(): An invalid index was found in the station map \
-									while \ntrying to determine ASL index for the First station.", 0);
-
+		
 		_it_msr->SetStn1Index(station_index);
 		if (!vAssocStnList->at(station_index))
 			vAssocStnList->at(station_index).reset(new CAStationList);
@@ -5976,10 +5966,7 @@ void dna_import::MapMeasurementStationsBsl(vector<CDnaGpsBaseline>* vGpsBaseline
 
 		// Increment ASL associated measurement count (i.e. CAStationList.assocMsrs_)
 		station_index = it_stnmap_range.first->second;
-		if (station_index < 0)
-			throw XMLInteropException("MapMeasurementStationsBsl(): An invalid index was found in the station map \
-									while \ntrying to determine ASL index for the Second station.", 0);
-
+		
 		_it_msr->SetStn2Index(station_index);
 		if (!vAssocStnList->at(station_index))
 			vAssocStnList->at(station_index).reset(new CAStationList);
@@ -6062,10 +6049,7 @@ void dna_import::MapMeasurementStationsPnt(vector<CDnaGpsPoint>* vGpsPoints, pvA
 
 		// Increment ASL associated measurement count (i.e. CAStationList.assocMsrs_)
 		station_index = it_stnmap_range.first->second;
-		if (station_index < 0)
-			throw XMLInteropException("MapMeasurementStationsPnt(): An invalid index was found in the station map \
-									while \ntrying to determine ASL index for the GPS station.", 0);
-
+		
 		_it_msr->SetStn1Index(station_index);
 		if (!vAssocStnList->at(station_index))
 			vAssocStnList->at(station_index).reset(new CAStationList);
@@ -6129,10 +6113,7 @@ void dna_import::MapMeasurementStationsDir(vector<CDnaDirection>* vDirections, p
 		}
 
 		at_station_index = it_stnmap_range.first->second;
-		if (at_station_index < 0)
-			throw XMLInteropException("MapMeasurementStationsDir(): An invalid index was found in the station map \
-									while \ntrying to determine ASL index for the First station.", 0);
-
+		
 		// This is needed to initialise the at station index for every
 		// target direction
 		_it_msr->SetStn1Index(at_station_index);
@@ -6152,9 +6133,7 @@ void dna_import::MapMeasurementStationsDir(vector<CDnaDirection>* vDirections, p
 		}
 
 		to_station_index = it_stnmap_range.first->second;
-		if (to_station_index < 0)
-			throw XMLInteropException("MapMeasurementStationsDir(): An invalid index was found in the station map \
-									while \ntrying to determine ASL index for the Target station.", 0);
+		
 		_it_msr->SetStn2Index(to_station_index);
 		if (!vAssocStnList->at(to_station_index))
 			vAssocStnList->at(to_station_index).reset(new CAStationList);
@@ -6171,7 +6150,7 @@ void dna_import::MapMeasurementStationsDir(vector<CDnaDirection>* vDirections, p
 		vAssocStnList->at(*_it_stn).get()->IncrementMsrCount();
 }
 
-void dna_import::CompleteAssociationLists(vdnaMsrPtr* vMeasurements, pvASLPtr vAssocStnList, pvUINT32 vAssocMsrList, pvstring vUnusedStns, pvUINT32 vIgnoredMsrs)
+void dna_import::CompleteAssociationLists(vdnaMsrPtr* vMeasurements, pvASLPtr vAssocStnList, pvUINT32 vAssocMsrList)
 {
 	CAStationList* currentASL;
 	

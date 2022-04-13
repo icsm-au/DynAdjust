@@ -783,6 +783,7 @@ void dna_plot::FinaliseGMTParameters()
 	case robinson:
 		default_paper_width_ = 27.7;
 		default_paper_height_ = 20.1;
+		break;
 	default:
 		default_paper_width_ = 59.4;
 		default_paper_height_ = 42.0;
@@ -1056,8 +1057,8 @@ void dna_plot::InitialiseGMTFilenames()
 	//
 	// Specific block (n) plot cmd files are created as:
 	//   create_<network_name>_block_n.[bat|sh]
-	v_gmt_cmd_filenames_.empty();
-	v_gmt_pdf_filenames_.empty();
+	v_gmt_cmd_filenames_.clear();
+	v_gmt_pdf_filenames_.clear();
 	string gmt_filename, gmt_cmd_basename("create_" + network_name_ + "_block_");
 		
 	UINT32 block;
@@ -2900,7 +2901,7 @@ void dna_plot::PrintMeasurementsDatFilesBlock(const UINT32& block)
 			SignalExceptionPlot(e.what(), 0, NULL);
 		}
 
-		PrintMeasurementsDatFileBlock(block, v_msr_def_file_.back(), pprj_->p._separate_msrs.at(c), &msr_file_stream);
+		PrintMeasurementsDatFileBlock(block, pprj_->p._separate_msrs.at(c), &msr_file_stream);
 
 		msr_file_stream.close();
 
@@ -2949,7 +2950,7 @@ void dna_plot::PrintMeasurementsDatFilesBlock(const UINT32& block)
 	}
 
 	for (_it_type=_combined_msr_list.begin(); _it_type!=_combined_msr_list.end(); _it_type++)
-		PrintMeasurementsDatFileBlock(block, v_msr_all_file_.back(), *_it_type, &msr_file_stream);
+		PrintMeasurementsDatFileBlock(block, *_it_type, &msr_file_stream);
 
 	msr_file_stream.close();
 
@@ -3015,7 +3016,7 @@ void dna_plot::PrintMeasurementsDatFiles()
 			SignalExceptionPlot(e.what(), 0, NULL);
 		}
 
-		PrintMeasurementsDatFile(msr_file_name, pprj_->p._separate_msrs.at(c), &msr_file_stream);
+		PrintMeasurementsDatFile(pprj_->p._separate_msrs.at(c), &msr_file_stream);
 
 		msr_file_stream.close();
 
@@ -3063,7 +3064,7 @@ void dna_plot::PrintMeasurementsDatFiles()
 	}
 
 	for (_it_type=_combined_msr_list.begin(); _it_type!=_combined_msr_list.end(); _it_type++)
-		PrintMeasurementsDatFile(msr_file_name, *_it_type, &msr_file_stream);
+		PrintMeasurementsDatFile(*_it_type, &msr_file_stream);
 
 	msr_file_stream.close();
 
@@ -3080,7 +3081,7 @@ bool dna_plot::WithinLimits(const double& latitude, const double& longitude)
 }
 	
 
-void dna_plot::PrintMeasurementsDatFileBlock(const UINT32& block, const string& msr_file_name, char msrType, std::ofstream* msr_file_stream)
+void dna_plot::PrintMeasurementsDatFileBlock(const UINT32& block, char msrType, std::ofstream* msr_file_stream)
 {
 	it_vstn_t _it_stn(bstBinaryRecords_.begin());
 	
@@ -3123,12 +3124,16 @@ void dna_plot::PrintMeasurementsDatFileBlock(const UINT32& block, const string& 
 			if (!default_limits_)
 				ThirdisWithinLimits = WithinLimits(bstBinaryRecords_.at(_it_msr->station3).initialLatitude, bstBinaryRecords_.at(_it_msr->station3).initialLongitude);
 
+			[[fallthrough]];
+
 		case 'G': // GPS Baseline
 		case 'X': // GPS Baseline cluster
 		
 			// The following prevents GPS measurements from printing three times (i.e. once per X, Y, Z)
 			if (_it_msr->measStart > xMeas)
 				continue;
+
+			[[fallthrough]];
 			
 		case 'B': // Geodetic azimuth
 		case 'D': // Direction set
@@ -3227,7 +3232,7 @@ void dna_plot::PrintMeasurementsDatFileBlock(const UINT32& block, const string& 
 }
 	
 
-void dna_plot::PrintMeasurementsDatFile(const string& msr_file_name, char msrType, std::ofstream* msr_file_stream)
+void dna_plot::PrintMeasurementsDatFile(char msrType, std::ofstream* msr_file_stream)
 {
 	it_vstn_t _it_stn(bstBinaryRecords_.begin());
 	it_vmsr_t _it_msr(bmsBinaryRecords_.begin());
@@ -3265,12 +3270,16 @@ void dna_plot::PrintMeasurementsDatFile(const string& msr_file_name, char msrTyp
 			if (!default_limits_)
 				ThirdisWithinLimits = WithinLimits(bstBinaryRecords_.at(_it_msr->station3).initialLatitude, bstBinaryRecords_.at(_it_msr->station3).initialLongitude);
 
+			[[fallthrough]];
+
 		case 'G': // GPS Baseline
 		case 'X': // GPS Baseline cluster
 		
 			// The following prevents GPS measurements from printing three times (i.e. once per X, Y, Z)
 			if (_it_msr->measStart > xMeas)
 				continue;
+
+			[[fallthrough]];
 
 		case 'B': // Geodetic azimuth
 		case 'D': // Direction set

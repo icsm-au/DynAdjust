@@ -39,7 +39,7 @@ class dna_io_aml : public dna_io_base
 {
 public:
 	dna_io_aml(void) {};
-	dna_io_aml(const dna_io_aml&) {};
+	dna_io_aml(const dna_io_aml& aml) : dna_io_base(aml) {};
 	virtual ~dna_io_aml(void) {};
 
 	dna_io_aml& operator=(const dna_io_aml& rhs);

@@ -280,7 +280,7 @@ bool reportGridProperties(dna_geoid_interpolation* g, const char* gridfilePath, 
 	return true;
 }
 
-bool InterpolateGridPoint(dna_geoid_interpolation* g, const char* gridfilePath, geoid_point* apInterpolant, 
+bool InterpolateGridPoint(dna_geoid_interpolation* g, geoid_point* apInterpolant, 
 	const int& method, const int& coordinate_format, const string& inputLatitude, const string& inputLongitude)
 {
 	try {
@@ -1027,8 +1027,8 @@ int main(int argc, char* argv[])
 		if (!createGridIndex(&g, ntv2.filename, ntv2.filetype, p.g.quiet))
 			return EXIT_FAILURE;
 
-		if (!InterpolateGridPoint(&g, ntv2.filename, &apInterpolant,
-			p.n.interpolation_method, p.n.coordinate_format, inputLatitude, inputLongitude))
+		if (!InterpolateGridPoint(&g, &apInterpolant, p.n.interpolation_method,
+			p.n.coordinate_format, inputLatitude, inputLongitude))
 		{
 			cout << endl;
 			if (apInterpolant.cVar.IO_Status == ERR_FINDSUBGRID_OUTSIDE)

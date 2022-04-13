@@ -42,7 +42,7 @@ class dna_io_seg : public dna_io_base
 {
 public:
 	dna_io_seg(void) {};
-	dna_io_seg(const dna_io_seg&) {};
+	dna_io_seg(const dna_io_seg& seg) : dna_io_base(seg) {};
 	virtual ~dna_io_seg(void) {};
 
 	dna_io_seg& operator=(const dna_io_seg& rhs);

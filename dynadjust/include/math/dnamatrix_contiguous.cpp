@@ -244,8 +244,8 @@ UINT32 __col__;
 void out_of_memory_handler()
 {
 	stringstream ss("");
-	double mem(max(__row__, __col__));
-	mem *= min(__row__, __col__) * sizeof(double);
+	UINT32 mem(max(__row__, __col__));
+	mem *= min(__row__, __col__) * sizeof(UINT32);
 	
 	ss << "Insufficient memory available to create a " <<
 		__row__ << " x " << __col__ << " matrix (" << 
@@ -1329,10 +1329,10 @@ matrix_2d matrix_2d::choleskyinverse_mkl(bool LOWER_IS_CLEARED /*=false*/)
 	if (LOWER_IS_CLEARED)
 		uplo = UPPER_TRIANGLE;
 
-#if defined(_WIN32) || defined(__WIN32__)
-	int info, n = _rows;
-#else // defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
+#if defined(_WIN64) || defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
 	long long info, n = _rows;
+#else // defined(_WIN32) || defined(__WIN32__)
+	int info, n = _rows;
 #endif	
 
 	// Perform Cholesky factorisation
@@ -1909,21 +1909,20 @@ matrix_2d matrix_2d::multiply_mkl(const char* lhs_trans, const matrix_2d& rhs, c
 	const double one = 1.0;
 	const double zero = 0.0;
 
-#if defined(_WIN32) || defined(__WIN32__)
-	int lhs_rows(rows()), rhs_cols(rhs.columns());
-	int lhs_cols(columns()), rhs_rows(rhs.rows());
-	int new_mem_rows(memRows());
-	int lhs_mem_rows(memRows());
-	int rhs_mem_rows(memRows());
-#else // defined(__linux) || defined(sun) || defined(__unix__)
+#if defined(_WIN64) || defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
 	long long lhs_rows(rows()), rhs_cols(rhs.columns());
 	long long lhs_cols(columns()), rhs_rows(rhs.rows());
 	long long new_mem_rows(memRows());
 	long long lhs_mem_rows(memRows());
 	long long rhs_mem_rows(memRows());
-#endif
+#else // defined(_WIN32) || defined(__WIN32__)
+	int lhs_rows(rows()), rhs_cols(rhs.columns());
+	int lhs_cols(columns()), rhs_rows(rhs.rows());
+	int new_mem_rows(memRows());
+	int lhs_mem_rows(memRows());
+	int rhs_mem_rows(memRows());
+#endif	
 
-	//if (lhs_trans == "T")
 	if (strcmp(lhs_trans, "T") == 0)
 	{
 		lhs_rows = columns();		// transpose
@@ -1988,19 +1987,19 @@ matrix_2d matrix_2d::multiply_mkl(const matrix_2d& lhs, const char* lhs_trans,
 	const double one = 1.0;
 	const double zero = 0.0;
 
-#if defined(_WIN32) || defined(__WIN32__)
-	int lhs_rows(lhs.rows()), rhs_cols(rhs.columns());
-	int lhs_cols(lhs.columns()), rhs_rows(rhs.rows());
-	int new_mem_rows(memRows());
-	int lhs_mem_rows(lhs.memRows());
-	int rhs_mem_rows(rhs.memRows());
-#else // defined(__linux) || defined(sun) || defined(__unix__)
+#if defined(_WIN64) || defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
 	long long lhs_rows(lhs.rows()), rhs_cols(rhs.columns());
 	long long lhs_cols(lhs.columns()), rhs_rows(rhs.rows());
 	long long new_mem_rows(memRows());
 	long long lhs_mem_rows(lhs.memRows());
 	long long rhs_mem_rows(rhs.memRows());
-#endif
+#else // defined(_WIN32) || defined(__WIN32__)
+	int lhs_rows(lhs.rows()), rhs_cols(rhs.columns());
+	int lhs_cols(lhs.columns()), rhs_rows(rhs.rows());
+	int new_mem_rows(memRows());
+	int lhs_mem_rows(lhs.memRows());
+	int rhs_mem_rows(rhs.memRows());
+#endif	
 
 	if (strncmp(lhs_trans, "T", 1) == 0)
 	{
@@ -2240,9 +2239,9 @@ double matrix_2d::compute_maximum_value()
 //			put(i, j, fabs(lhs.get(i, j) - rhs->get(i, j)));
 //}
 
+#ifdef _MSDEBUG
 void matrix_2d::trace(const string& comment, const string& format) const
 {
-#ifdef _MSDEBUG
 	UINT32 i, j;
 	if (comment.empty())
 		TRACE("%d %d\n", _rows, _cols);
@@ -2253,13 +2252,13 @@ void matrix_2d::trace(const string& comment, const string& format) const
 			TRACE(format.c_str(), get(i, j));
 		TRACE("\n");
 	} TRACE("\n");
-#endif
 }
+#endif
 
+#ifdef _MSDEBUG
 void matrix_2d::trace(const string& comment, const string& submat_comment, const string& format, 
 					  const UINT32& row_begin, const UINT32& col_begin, const UINT32& rows, const UINT32& columns) const
 {
-#ifdef _MSDEBUG
 	// comparison of unsigned expression < 0 is always false
 	if (row_begin >= _rows) {	
 		TRACE("%d %d lies outside the range of the matrix (%d %d)\n", row_begin, col_begin, _rows, _cols);
@@ -2291,8 +2290,8 @@ void matrix_2d::trace(const string& comment, const string& submat_comment, const
 			TRACE(format.c_str(), get(i, j));
 		TRACE("\n");
 	} TRACE("\n");
-#endif
 }
+#endif
 
 
 } // namespace math 

@@ -102,7 +102,7 @@ OPT_DYNADJUST_GCC_PATH=/opt/dynadjust/gcc
 DYNADJUST_INSTALL_PATH=/opt/dynadjust/gcc/1_2_4
 
 # version info
-_version="1.2.4"
+_version="1.2.5"
 
 echo -e "\n==========================================================================="
 echo -e "DynAdjust $_version build configuration options..."
