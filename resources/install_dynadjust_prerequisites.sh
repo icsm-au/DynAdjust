@@ -285,11 +285,14 @@ echo "Checking for the following packages (install if missing):"
 if [[ "$_format" == "rpm" ]]; then
     echo " bzip2, wget, cmake, make, gcc-c++, git and boost + boost-devel..."
     echo " "
-    sudo "$_toolset" install bzip2 wget cmake make gcc-c++ git boost boost-devel 
+    sudo "$_toolset" update
+    sudo "$_toolset" -y install bzip2 wget cmake make gcc-c++ git boost boost-devel 
 elif [[ "$_format" == "deb" ]]; then
     echo " bzip2, wget, cmake, make, gcc-c++, git and libboost-all-dev..."
     echo " "
-    sudo "$_toolset-get" install bzip2 wget cmake make gcc git libboost-system-dev libboost-filesystem-dev libboost-timer-dev libboost-thread-dev libboost-program-options-dev
+    sudo "$_toolset" update
+    sudo "$_toolset" -y install cmake pkg-config build-essential
+    sudo "$_toolset" -y install bzip2 wget make gcc git libboost-system-dev libboost-filesystem-dev libboost-timer-dev libboost-thread-dev libboost-program-options-dev
 else
     echo " "
     echo "I don't know how to handle $OSTYPE or $_distro and am going to quit."
@@ -337,7 +340,7 @@ EOF
             sudo "$_toolset" addrepo "$_repo_intel" oneAPI
             sudo "$_format" --import "$_gpg_intel"
         fi
-        sudo "$_toolset" install intel-basekit
+        sudo "$_toolset" -y install intel-basekit
 
     # Install MKL for deb based distros (Ubuntu, Debian)
     # From:
@@ -347,7 +350,7 @@ EOF
         wget -O- "$_gpg_intel" | gpg --dearmor | sudo tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null
         # add signed entry to apt sources and configure the APT client to use Intel repository:
         echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
-        sudo "$_toolset" install intel-basekit
+        sudo "$_toolset" -y install intel-basekit
     else
         echo " "
         echo "I don't know how to handle $OSTYPE or $_distro and am going to quit."
@@ -410,10 +413,10 @@ if [[ $REPLY == 1 ]]; then
 
     # Install xerces-c for rpm based distros (Fedora, CentOS, Red Hat, SUSE, OpenSUSE)
     if [[ "$_format" == "rpm" ]]; then
-        sudo "$_toolset" install xerces-c-devel
+        sudo "$_toolset" -y install xerces-c-devel
     # Install xerces-c for deb based distros (Ubuntu, Debian)
     elif [[ "$_format" == "deb" ]]; then
-        sudo "$_toolset-get" install libxerces-c-dev
+        sudo "$_toolset" -y install libxerces-c-dev
     else
         echo " "
         echo "I don't know how to handle $OSTYPE or $_distro and am going to quit."
@@ -542,10 +545,10 @@ if [[ $REPLY == 1 ]]; then
 
     # Install xsd for rpm based distros (Fedora, CentOS, Red Hat, SUSE, OpenSUSE)
     if [[ "$_format" == "rpm" ]]; then
-        sudo $_toolset install xsd
+        sudo "$_toolset" -y install xsd
     # Install xsd for deb based distros (Ubuntu, Debian)
     elif [[ "$_format" == "deb" ]]; then
-        sudo "$_toolset-get" install xsdcxx
+        sudo "$_toolset" -y install xsdcxx
     else
         echo " "
         echo "I don't know how to handle $OSTYPE or $_distro and am going to quit."
