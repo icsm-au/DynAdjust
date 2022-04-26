@@ -230,6 +230,18 @@ These prerequisites can be installed manually, or via a convenient installation 
   
   The script will attempt to identify your Linux distribution or Mac flavour, and will select the system-specific package manager accordingly. If your distribution is not supported, you can attempt to select your distribution using the `--distro` option. In this case, you will be required to select the base distro (e.g. Mint is based on Ubuntu). If this fails to work, please submit an issue at: https://github.com/icsm-au/DynAdjust/issues including the script's message and your distribution.
   
+  > **Note:** RHEL and SLES package managers do not provide xerces-c and xsd packages. For these distributions, choose the following options when installing xerces-c and xsd:
+  > 
+> **xerces-c**
+> ``` bash
+> 2) Build xerces-c from source and install to /opt
+> ```
+> **xsd**
+> ``` bash
+> 2) Download and install xsd to /opt
+> ```
+
+  
   To view the alternative options for `install_dynadjust_prerequisites.sh`, run the script with help option:
 
   ``` bash
