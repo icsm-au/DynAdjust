@@ -182,9 +182,10 @@ _toolset_dnf="dnf"
 _toolset_zyp="zypper"
 _format_deb="deb"
 _format_rpm="rpm"
+_no_ask="-y"
 
 # 1 GET OS, DISTRO AND TOOLS
-if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+if [[ "$OSTYPE" == "linux"* ]]; then
     # Linux
     if [[ "$_distro" == "CentOS"* || "$_distro" == "Red Hat"* ]]; then
         # NAME="CentOS Linux"
@@ -199,13 +200,14 @@ if [[ "$OSTYPE" == "linux-gnu"* ]]; then
         _gpg_intel="$_gpg_intel_yum"
         _toolset="$_toolset_dnf"
         _format="$_format_rpm"
-    elif [[ "$_distro" == *"SUSE"* ]]; then
+    elif [[ "$_distro" == *"SUSE"* || "$_distro" == "SLES"* ]]; then
         # NAME="openSUSE Leap"
         # NAME=openSUSE
         _repo_intel="$_repo_intel_yum"
         _gpg_intel="$_gpg_intel_yum"
         _toolset="$_toolset_zyp"
         _format="$_format_rpm"
+	_no_ask="-n"
     elif [[ "$_distro" == "Ubuntu" || "$_distro" == "Debian"* ]]; then
         # NAME="Ubuntu"
         # NAME="Debian GNU/Linux"
@@ -286,13 +288,17 @@ if [[ "$_format" == "rpm" ]]; then
     echo " bzip2, wget, cmake, make, gcc-c++, git and boost + boost-devel..."
     echo " "
     sudo "$_toolset" update
-    sudo "$_toolset" -y install bzip2 wget cmake make gcc-c++ git boost boost-devel 
+    if [[ "$_distro" == *"SUSE"* || "$_distro" == "SLES"* ]]; then
+        sudo "$_toolset" "$_no_ask" install bzip2 wget cmake make gcc-c++ git boost-devel libboost_system* libboost_filesystem* libboost_timer* libboost_thread* libboost_program_options*
+    else
+        sudo "$_toolset" "$_no_ask" install bzip2 wget cmake make gcc-c++ git boost boost-devel
+    fi
 elif [[ "$_format" == "deb" ]]; then
     echo " bzip2, wget, cmake, make, gcc-c++, git and libboost-all-dev..."
     echo " "
     sudo "$_toolset" update
-    sudo "$_toolset" -y install cmake pkg-config build-essential
-    sudo "$_toolset" -y install bzip2 wget make gcc git libboost-system-dev libboost-filesystem-dev libboost-timer-dev libboost-thread-dev libboost-program-options-dev
+    sudo "$_toolset" "$_no_ask" install cmake pkg-config build-essential
+    sudo "$_toolset" "$_no_ask" install bzip2 wget make gcc git libboost-system-dev libboost-filesystem-dev libboost-timer-dev libboost-thread-dev libboost-program-options-dev
 else
     echo " "
     echo "I don't know how to handle $OSTYPE or $_distro and am going to quit."
@@ -336,11 +342,13 @@ gpgkey=$_gpg_intel
 EOF
         sudo mv /tmp/oneAPI.repo /etc/yum.repos.d
 
-        if [[ "$_distro" == *"SUSE"* ]]; then
+        if [[ "$_distro" == *"SUSE"* || "$_distro" == "SLES"* ]]; then
             sudo "$_toolset" addrepo "$_repo_intel" oneAPI
             sudo "$_format" --import "$_gpg_intel"
+            sudo "$_toolset" "$_no_ask" install intel-basekit
+        else
+            sudo "$_toolset" "$_no_ask" install intel-basekit
         fi
-        sudo "$_toolset" -y install intel-basekit
 
     # Install MKL for deb based distros (Ubuntu, Debian)
     # From:
@@ -413,7 +421,11 @@ if [[ $REPLY == 1 ]]; then
 
     # Install xerces-c for rpm based distros (Fedora, CentOS, Red Hat, SUSE, OpenSUSE)
     if [[ "$_format" == "rpm" ]]; then
-        sudo "$_toolset" -y install xerces-c-devel
+        if [[ "$_distro" == *"SUSE"* || "$_distro" == "SLES"* ]]; then
+            sudo "$_toolset" "$_no_ask" install xerces-c-devel
+        else
+            sudo "$_toolset" "$_no_ask" install xerces-c-devel
+        fi
     # Install xerces-c for deb based distros (Ubuntu, Debian)
     elif [[ "$_format" == "deb" ]]; then
         sudo "$_toolset" -y install libxerces-c-dev
@@ -544,8 +556,12 @@ if [[ $REPLY == 1 ]]; then
     echo " "
 
     # Install xsd for rpm based distros (Fedora, CentOS, Red Hat, SUSE, OpenSUSE)
-    if [[ "$_format" == "rpm" ]]; then
-        sudo "$_toolset" -y install xsd
+    if [[ "$_format" == "rpm" ]]; then        
+	if [[ "$_distro" == *"SUSE"* || "$_distro" == "SLES"* ]]; then
+            sudo "$_toolset" "$_no_ask" install xsd
+        else
+            sudo "$_toolset" "$_no_ask" install xsd
+        fi
     # Install xsd for deb based distros (Ubuntu, Debian)
     elif [[ "$_format" == "deb" ]]; then
         sudo "$_toolset" -y install xsdcxx
