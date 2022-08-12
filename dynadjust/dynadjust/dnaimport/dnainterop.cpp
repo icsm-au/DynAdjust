@@ -1208,6 +1208,7 @@ void dna_import::ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32
 		import_file_mutex.unlock();
 	}
 	catch (const runtime_error& e) {
+		import_file_mutex.unlock();
 		throw XMLInteropException(e.what(), 0);
 	}
 		
