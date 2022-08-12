@@ -1,6 +1,6 @@
 # Building DynAdjust from source code
 
-The following build instructions are only needed if you would like to build DynAdjust yourself, rather than use [pre-built binaries](https://github.com/icsm-au/DynAdjust/releases), or make changes to the source code and [contribute to the DynAdjust repository](./CONTRIBUTING.md).
+The following build instructions are only needed if you would like to build DynAdjust yourself, rather than use [pre-built binaries](https://github.com/icsm-au/DynAdjust/releases), or make changes to the source code and [contribute to the DynAdjust repository](../.github/CONTRIBUTING.md).
 
 ## Contents
 
