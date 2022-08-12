@@ -36,6 +36,10 @@ MsrTally	g_parsemsr_tally;
 StnTally	g_parsestn_tally;
 UINT32		g_fileOrder;
 
+//boost::random::mt19937 rng;
+//boost::random::uniform_real_distribution<double> stdev(0.0, 3.0);
+//boost::random::uniform_real_distribution<double> pertu(0.0, 1.0);
+
 //int compare_chararray(const void *a, const void *b)
 //{
 //	const char* a1 = *(const char**)a;
