@@ -1161,7 +1161,7 @@ void Directions_pskel::MeasurementDBID (const ::std::string&)
 {
 }
 
-void Directions_pskel::post_Directions (const UINT32& total)
+void Directions_pskel::post_Directions (const UINT32&)
 {
 }
 
