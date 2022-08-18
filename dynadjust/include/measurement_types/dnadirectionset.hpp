@@ -80,7 +80,7 @@ public:
 
 	inline void SetClusterID(const UINT32& id) { m_lsetID = id; }
 	inline void SetTarget(const string& str) { m_strTarget = trimstr(str); }
-	//inline void SetTotal(const UINT32& l) { m_lRecordedTotal = l; }
+	inline void SetTotal(const UINT32& l) { m_lRecordedTotal = l; }
 	//inline void SetDirections(const vector<CDnaDirection>& d) { m_vTargetDirections = d; }
 
 	void SetTotal(const string& str);

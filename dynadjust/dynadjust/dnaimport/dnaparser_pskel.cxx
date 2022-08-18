@@ -1161,7 +1161,7 @@ void Directions_pskel::MeasurementDBID (const ::std::string&)
 {
 }
 
-void Directions_pskel::post_Directions ()
+void Directions_pskel::post_Directions (const UINT32& total)
 {
 }
 
@@ -1719,7 +1719,7 @@ bool DnaMeasurement_pskel::_end_element_impl (const ::xml_schema::ro_string& ns,
 	{
 		if (this->Directions_parser_)
 		{
-			this->Directions_parser_->post_Directions ();
+			this->Directions_parser_->post_Directions (_total);
 			this->Directions ();
 		}
 
