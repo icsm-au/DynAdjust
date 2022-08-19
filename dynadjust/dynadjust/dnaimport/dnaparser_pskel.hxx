@@ -395,7 +395,7 @@ public:
 	virtual void Value (const ::std::string&);
 	virtual void StdDev (const ::std::string&);
 	virtual void MeasurementDBID (const ::std::string&);
-	virtual void post_Directions ();
+	virtual void post_Directions (const UINT32&);
 
 	// Parser construction API.
 	//
@@ -640,6 +640,8 @@ protected:
 	bool		_overridereferenceframe;
 
 	bool		_preferSingleXasG;
+
+	UINT32		_total;
 };
 
 class DnaStation_pskel: public ::xml_schema::complex_content

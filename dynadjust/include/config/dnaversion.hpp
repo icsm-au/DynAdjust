@@ -171,7 +171,7 @@ const char* const __plot_dll_name__ = "libdnaplot.so";
 #endif
 
 #define __CONTACT_EMAIL__   "geodesy@ga.gov.au"
-#define __COPYRIGHT_YEAR__  "2021"
+#define __COPYRIGHT_YEAR__  "2022"
 #define __COPYRIGHT_OWNER__ "Geoscience Australia"
 #define __COPYRIGHT_MSG__   "This software is released under the Apache License."
 
@@ -191,8 +191,8 @@ const char* const __plot_dll_name__ = "libdnaplot.so";
 // 2.2.0.a1    02020001		Alpha release 
 // 2.2.0.b2    02020002		Beta release
 // 2.2.0.rc2   02020003		Release candidate 1 (unless bug notification is received, this is taken to be the final release)
-#define __BINARY_VERSION__ "1.2.5"
-#define __SHORT_VERSION__ "10205"	// used to record DynAdjust version in binary file header
+#define __BINARY_VERSION__ "1.2.6"
+#define __SHORT_VERSION__ "10206"	// used to record DynAdjust version in binary file header
 
 // define executable name
 #define __GLOBAL_BINARY_NAME__ __dynadjust_app_name__
@@ -343,7 +343,34 @@ const char* const __plot_dll_name__ = "libdnaplot.so";
 #define __COMPILER_VERSION__ "15.8, VS2017"
 #elif (_MSC_VER == 1916)
 #define __COMPILER_VERSION__ "15.9, VS2017"
-#elif (_MSC_VER > 1916)
+#elif (_MSC_VER == 1920)
+#define __COMPILER_VERSION__ "16.0, VS2019"
+#elif (_MSC_VER == 1921)
+#define __COMPILER_VERSION__ "16.1, VS2019"
+#elif (_MSC_VER == 1922)
+#define __COMPILER_VERSION__ "16.2, VS2019"
+#elif (_MSC_VER == 1923)
+#define __COMPILER_VERSION__ "16.3, VS2019"
+#elif (_MSC_VER == 1924)
+#define __COMPILER_VERSION__ "16.4, VS2019"
+#elif (_MSC_VER == 1925)
+#define __COMPILER_VERSION__ "16.5, VS2019"
+#elif (_MSC_VER == 1926)
+#define __COMPILER_VERSION__ "16.6, VS2019"
+#elif (_MSC_VER == 1927)
+#define __COMPILER_VERSION__ "16.7, VS2019"
+#elif (_MSC_VER == 1928)
+#define __COMPILER_VERSION__ "16.8/9, VS2019"
+#elif (_MSC_VER == 1929)
+#define __COMPILER_VERSION__ "16.10/11, VS2019"
+#elif (_MSC_VER == 1930)
+#define __COMPILER_VERSION__ "17.0, VS2022"
+#elif (_MSC_VER == 1931)
+#define __COMPILER_VERSION__ "17.1, VS2022"
+#elif (_MSC_VER == 1932)
+#define __COMPILER_VERSION__ "17.2, VS2022"
+
+#elif (_MSC_VER > 1932)
 #define __COMPILER_VERSION__ _MSC_VER
 #endif
 #else

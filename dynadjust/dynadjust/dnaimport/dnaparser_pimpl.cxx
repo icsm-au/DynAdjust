@@ -145,9 +145,12 @@ void Directions_pimpl::Value(const ::std::string& Value)
 {
 	_dnaDirection->SetValue(Value);
 
-	// increment measurement counter
-	*(_pMeasurementCount) += 1;
-	g_parsemsr_tally.D++;
+	if (_dnaDirection->NotIgnored())
+	{
+		// increment measurement counter
+		*(_pMeasurementCount) += 1;
+		g_parsemsr_tally.D++;
+	}
 }
 
 void Directions_pimpl::StdDev(const ::std::string& StdDev)
@@ -164,10 +167,29 @@ void Directions_pimpl::MeasurementDBID(const ::std::string& MeasurementID)
 }
 	
 
-void Directions_pimpl::post_Directions()
+void Directions_pimpl::post_Directions(const UINT32& total)
 {
-	if (_parent_dnaDirectionSet)
+	if (!_parent_dnaDirectionSet)
+		return;
+
+	if (_dnaDirection->NotIgnored())
 		_parent_dnaDirectionSet->AddDirection(_dnaDirection.get());
+	else
+	{
+		UINT32 t = _parent_dnaDirectionSet->GetTotal() - 1;
+		if (t == 0)
+		{
+			stringstream ss, ss2;
+			ss << 
+				"<Directions>...</Directions>',  total of " << total << " element(s)" << endl <<
+				"  - found 0 <Directions>, or there aren't any non-ignored directions in the set. '";
+			ss2 << " ~ <Total>" << total << "</Total>";
+			throw ::xsd::cxx::parser::expected_element< char >(
+				ss.str(), ss2.str());
+		}
+		_parent_dnaDirectionSet->SetTotal(t);
+	}
+
 }
 
 // DnaMeasurement_pimpl
@@ -485,6 +507,7 @@ void DnaMeasurement_pimpl::Total(const ::std::string& Total)
 	_dnaCurrentMsr->SetTotal(Total);
 
 	const UINT32 measCount(LongFromString<UINT32>(Total));
+	_total = measCount;
 
 	switch (_dnaCurrentMsr->GetTypeC()) 
 	{
@@ -676,31 +699,60 @@ void DnaMeasurement_pimpl::post_DnaMeasurement()
 	// Now that the measurement has completed, capture all essential elements
 	_vParentMsrs->push_back(_dnaCurrentMsr);
 
+	UINT32 total, found;
+
 	// set "First" to be that of the first in the set
 	switch (_dnaCurrentMsr->GetTypeC())
 	{
 	case 'D':
+	
+		total = _dnaCurrentMsr->GetTotal();
+		found = static_cast<UINT32>(_dnaCurrentMsr->GetDirections_ptr()->size());
+		if (total != found)
+		{
+			stringstream ss, ss2;
+			ss <<
+				"<Directions>...</Directions>',  total of " << total << " element(s)" << endl <<
+				"  - found " << found << " <Directions> in the set. '";
+			ss2 << " ~ <Total>" << total << "</Total>";
+			throw ::xsd::cxx::parser::expected_element< char >(
+				ss.str(), ss2.str());
+		}
 
 		// Okay, capture all the elements for this baseline (cluster)
-		for_each(_dnaCurrentMsr->GetDirections_ptr()->begin(), 
+		for_each(_dnaCurrentMsr->GetDirections_ptr()->begin(),
 			_dnaCurrentMsr->GetDirections_ptr()->end(),
-			[this] (CDnaDirection &d) {
+			[this](CDnaDirection& d) {
 				d.SetType(_dnaCurrentMsr->GetType());
 				d.SetFirst(_dnaCurrentMsr->GetFirst());
 				// This is a target direction, so set zero recorded total so as to
 				// distinguish this direction from the RO, for which the recorded
 				// total will be the number of target directions
 				d.SetRecordedTotal(0);
-		});
+			});
 
 		break;
+	
 	case 'G':
 	case 'X':
+	
+		total = _dnaCurrentMsr->GetTotal();
+		found = static_cast<UINT32>(_dnaCurrentMsr->GetBaselines_ptr()->size());
+		if (total != found)
+		{
+			stringstream ss, ss2;
+			ss <<
+				"<GPSBaseline>...</GPSBaseline>',  total of " << total << " element(s)" << endl <<
+				"  - found " << found << " <GPSBaseline> in the set. '";
+			ss2 << " ~ <Total>" << total << "</Total>";
+			throw ::xsd::cxx::parser::expected_element< char >(
+				ss.str(), ss2.str());
+		}
 
 		// Okay, capture all the elements for this baseline (cluster)
-		for_each(_dnaCurrentMsr->GetBaselines_ptr()->begin(), 
+		for_each(_dnaCurrentMsr->GetBaselines_ptr()->begin(),
 			_dnaCurrentMsr->GetBaselines_ptr()->end(),
-			[this] (CDnaGpsBaseline &b) {
+			[this](CDnaGpsBaseline& b) {
 				b.SetIgnore(_dnaCurrentMsr->GetIgnore());
 				b.SetRecordedTotal(_dnaCurrentMsr->GetTotal());
 
@@ -708,15 +760,29 @@ void DnaMeasurement_pimpl::post_DnaMeasurement()
 				b.SetLscale(_dnaCurrentMsr->GetLscale());
 				b.SetHscale(_dnaCurrentMsr->GetHscale());
 				b.SetVscale(_dnaCurrentMsr->GetVscale());
-		});
+			});
 
 		break;
+	
 	case 'Y':
+	
+		total = _dnaCurrentMsr->GetTotal();
+		found = static_cast<UINT32>(_dnaCurrentMsr->GetPoints_ptr()->size());
+		if (total != found)
+		{
+			stringstream ss, ss2;
+			ss <<
+				"<Clusterpoint>...</Clusterpoint>',  total of " << total << " element(s)" << endl <<
+				"  - found " << found << " <Clusterpoint> in the set. '";
+			ss2 << " ~ <Total>" << total << "</Total>";
+			throw ::xsd::cxx::parser::expected_element< char >(
+				ss.str(), ss2.str());
+		}
 
 		// Okay, capture all the elements for this point cluster
-		for_each(_dnaCurrentMsr->GetPoints_ptr()->begin(), 
+		for_each(_dnaCurrentMsr->GetPoints_ptr()->begin(),
 			_dnaCurrentMsr->GetPoints_ptr()->end(),
-			[this] (CDnaGpsPoint &p) {
+			[this](CDnaGpsPoint& p) {
 				p.SetIgnore(_dnaCurrentMsr->GetIgnore());
 				p.SetCoordType(_dnaCurrentMsr->GetCoordType());
 				p.SetRecordedTotal(_dnaCurrentMsr->GetTotal());
@@ -725,8 +791,9 @@ void DnaMeasurement_pimpl::post_DnaMeasurement()
 				p.SetLscale(_dnaCurrentMsr->GetLscale());
 				p.SetHscale(_dnaCurrentMsr->GetHscale());
 				p.SetVscale(_dnaCurrentMsr->GetVscale());
-		});
+			});
 		break;
+	
 	}
 
 }
@@ -783,7 +850,7 @@ void DnaStation_pimpl::post_DnaStation()
 
 DnaXmlFormat_pimpl::DnaXmlFormat_pimpl(std::ifstream* is, PUINT32 clusterID, const string& referenceframe, const string& epoch, bool userspecifiedreferenceframe, bool overridereferenceframe)
 {
-	// capture pointer to file stram
+	// capture pointer to file stream
 	is_ = is;
 	
 	// capture global cluster ID to permit sequential numbering over several input files
