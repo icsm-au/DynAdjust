@@ -24,5 +24,8 @@ dynadjust/bin/
 /.idea/
 .vscode/*
 
+# Visual Studio 2015/2017 cache/options directory
+.vs/
+
 # readme and other files not requiring external contribution
 README.md

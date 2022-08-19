@@ -1292,6 +1292,12 @@ int main(int argc, char* argv[])
 	// obtain the project reference frame
 	UINT32 epsgCode(epsgCodeFromName<UINT32>(p.i.reference_frame));
 
+	// set the default output reference frame and epoch, so that
+	// if adjust is called without reftran, it reflects the datum 
+	// supplied on import
+	p.r.reference_frame = p.i.reference_frame;
+	p.r.epoch = referenceepochFromEpsgCode<UINT32>(epsgCode);
+
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// start "total" time
 	cpu_timer time;
@@ -2368,6 +2374,7 @@ int main(int argc, char* argv[])
 		projectFile.LoadProjectFile(p.g.project_file);
 	
 	projectFile.UpdateSettingsImport(p);
+	projectFile.UpdateSettingsReftran(p);
 	projectFile.UpdateSettingsOutput(p);
 	projectFile.PrintProjectFile();
 

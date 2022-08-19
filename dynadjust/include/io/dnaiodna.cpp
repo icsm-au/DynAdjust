@@ -305,7 +305,12 @@ void dna_io_dna::read_dna_header(std::ifstream* ptr, string& version, INPUT_DATA
 	else if (iequals(type, "ren"))
 		idt = ren_data;
 	else
+	{
 		idt = unknown;
+		stringstream ssError;
+		ssError << "The supplied filetype '" << type << "' is not recognised" << endl;
+		throw boost::enable_current_exception(runtime_error(ssError.str()));
+	}
 
 	if (sBuf.length() < 29)
 	{
