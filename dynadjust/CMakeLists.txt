@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 3.15)
 
 project (dynadjust)
 
-set (DYNADJUST_VERSION "1.2.6")
+set (DYNADJUST_VERSION "1.2.7")
 
 if (BUILD_TESTING)
     enable_testing()
