@@ -1639,7 +1639,11 @@ void dna_import::ParseDNAMSR(pvdnaMsrPtr vMeasurements, PUINT32 msrCount, PUINT3
 			break;
 		case 'D': // Direction set
 			msr_ptr.reset(new CDnaDirectionSet(++(*clusterID)));
-			ParseDNAMSRDirections(sBuf, msr_ptr, ignoreMsr);
+			if (ParseDNAMSRDirections(sBuf, msr_ptr, ignoreMsr) == 0)
+			{
+				measurementRead = true;
+				continue;
+			}
 			(*msrCount) += static_cast<UINT32>(msr_ptr->GetDirections_ptr()->size());
 			break;
 		case 'E': // Ellipsoid arc
@@ -2848,7 +2852,7 @@ void dna_import::ParseDNAMSRAngular(const string& sBuf, dnaMsrPtr& msr_ptr)
 }
 	
 
-void dna_import::ParseDNAMSRDirections(string& sBuf, dnaMsrPtr& msr_ptr, bool ignoreMsr)
+UINT32 dna_import::ParseDNAMSRDirections(string& sBuf, dnaMsrPtr& msr_ptr, bool ignoreMsr)
 {
 	// Measurement type
 	try {
@@ -2920,7 +2924,14 @@ void dna_import::ParseDNAMSRDirections(string& sBuf, dnaMsrPtr& msr_ptr, bool ig
 		{
 			dirnCountLessIgnored--;
 			if (dirnCountLessIgnored == 0)
+			{
+				// Is the entire direction set ignored?
+				// If so, return 0
+				if (ignoreMsr)
+					return 0;
+				
 				throw XMLInteropException("There aren't any non-ignored directions in the set.", m_lineNo);
+			}
 			msr_ptr->SetTotal(dirnCountLessIgnored);
 			continue;
 		}
@@ -2949,6 +2960,8 @@ void dna_import::ParseDNAMSRDirections(string& sBuf, dnaMsrPtr& msr_ptr, bool ig
 		// add the direction
 		msr_ptr->AddDirection(((CDnaMeasurement*)&dirnTmp));
 	}
+
+	return dirnCount;
 }
 
 void dna_import::RemoveIgnoredMeasurements(vdnaMsrPtr* vMeasurements, MsrTally* parsemsrTally)

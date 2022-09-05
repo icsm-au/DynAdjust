@@ -216,7 +216,7 @@ private:
 
 	void ParseDNAMSRAngular(const string& sBuf, dnaMsrPtr& msr_ptr);
 	void ParseDNAMSRCoordinate(const string& sBuf, dnaMsrPtr& msr_ptr);
-	void ParseDNAMSRDirections(string& sBuf, dnaMsrPtr& msr_ptr, bool ignoreMsr);
+	UINT32 ParseDNAMSRDirections(string& sBuf, dnaMsrPtr& msr_ptr, bool ignoreMsr);
 	void ParseDNAMSRGPSBaselines(string& sBuf, dnaMsrPtr& msr_ptr, bool ignoreMsr);
 	void ParseDNAMSRGPSPoints(string& sBuf, dnaMsrPtr& msr_ptr, bool ignoreMsr);
 	void ParseDNAMSRLinear(const string& sBuf, dnaMsrPtr& msr_ptr);
