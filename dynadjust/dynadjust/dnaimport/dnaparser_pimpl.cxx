@@ -177,8 +177,14 @@ void Directions_pimpl::post_Directions(const UINT32& total)
 	else
 	{
 		UINT32 t = _parent_dnaDirectionSet->GetTotal() - 1;
+		_parent_dnaDirectionSet->SetTotal(t);
+
 		if (t == 0)
 		{
+			// Is the entire direction set ignored?
+			if (_parent_dnaDirectionSet->GetIgnore())
+				return;
+
 			stringstream ss, ss2;
 			ss << 
 				"<Directions>...</Directions>',  total of " << total << " element(s)" << endl <<
@@ -187,9 +193,7 @@ void Directions_pimpl::post_Directions(const UINT32& total)
 			throw ::xsd::cxx::parser::expected_element< char >(
 				ss.str(), ss2.str());
 		}
-		_parent_dnaDirectionSet->SetTotal(t);
 	}
-
 }
 
 // DnaMeasurement_pimpl
@@ -696,10 +700,21 @@ void DnaMeasurement_pimpl::post_DnaMeasurement()
 	if (!_dnaCurrentMsr)
 		throw XMLInteropException("\"Type\" element must be the first element within \"DnaMeasurement\".", 0);
 
+	UINT32 total, found;
+
+	// Is the direction set empty and ignored?
+	// If so, do nothing.
+	switch (_dnaCurrentMsr->GetTypeC())
+	{
+	case 'D':
+		total = _dnaCurrentMsr->GetTotal();
+		if (total == 0 && _dnaCurrentMsr->GetIgnore())
+			return;
+		break;
+	}
+
 	// Now that the measurement has completed, capture all essential elements
 	_vParentMsrs->push_back(_dnaCurrentMsr);
-
-	UINT32 total, found;
 
 	// set "First" to be that of the first in the set
 	switch (_dnaCurrentMsr->GetTypeC())
