@@ -27,6 +27,7 @@ extern bool running;
 extern boost::mutex cout_mutex;
 
 using namespace dynadjust;
+using namespace dynadjust::epsg;
 
 void PrintSummaryMessage(dna_adjust* netAdjust, const project_settings* p, milliseconds *elapsed_time)
 {
@@ -470,14 +471,25 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 			// do nothing
 		}
 
-		// update geoid file name from dnaproj file (blank if geoid was not run)
+		// update geoid file name from dnaproj file (blank if geoid was not executed)
 		try {
 			CDnaProjectFile projectFile(p.g.project_file, geoidSetting);
 			p.n = projectFile.GetSettings().n;
 		}
 		catch (...) {
 			// do nothing
-		}		
+		}
+
+		// update reftran settings from dnaproj file
+		// Note, if reftran was not executed, reference frame and epoch will be set to 
+		// the frame and epoch captured on import.
+		try {
+			CDnaProjectFile projectFile(p.g.project_file, reftranSetting);
+			p.r = projectFile.GetSettings().r;
+		}
+		catch (...) {
+			// do nothing
+		}
 	}
 
 	// binary station file location (output)
@@ -1046,8 +1058,8 @@ int main(int argc, char* argv[])
 	bool bst_meta_import, bms_meta_import;
 	LoadBinaryMeta(bst_meta, bms_meta, p, bst_meta_import, bms_meta_import);
 
-	// Capture datum set within binary files
-	CDnaDatum datum(bst_meta.epsgCode, bst_meta.epoch);
+	// Capture datum set within project file
+	CDnaDatum datum(epsgStringFromName<string>(p.r.reference_frame), p.r.epoch);
 
 	if (vm.count(QUIET))
 		p.g.quiet = 1;

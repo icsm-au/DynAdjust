@@ -60,7 +60,7 @@ public:
 	virtual void Value (const ::std::string&);
 	virtual void StdDev (const ::std::string&);
 	virtual void MeasurementDBID (const ::std::string&);
-	virtual void post_Directions ();
+	virtual void post_Directions (const UINT32&);
 
 protected:
 	string _Ignore;

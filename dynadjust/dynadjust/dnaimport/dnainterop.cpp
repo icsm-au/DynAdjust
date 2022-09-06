@@ -36,6 +36,10 @@ MsrTally	g_parsemsr_tally;
 StnTally	g_parsestn_tally;
 UINT32		g_fileOrder;
 
+//boost::random::mt19937 rng;
+//boost::random::uniform_real_distribution<double> stdev(0.0, 3.0);
+//boost::random::uniform_real_distribution<double> pertu(0.0, 1.0);
+
 //int compare_chararray(const void *a, const void *b)
 //{
 //	const char* a1 = *(const char**)a;
@@ -650,7 +654,7 @@ void dna_import::ParseXML(const string& fileName, vdnaStnPtr* vStations, PUINT32
 			return;
 		}
 		stringstream ss;
-		ss << "ParseInputFile(): An ios_base failure was encountered while parsing " << fileName << "." << endl << "  " << f.what();
+		ss << "ParseXML(): An ios_base failure was encountered while parsing " << fileName << "." << endl << "  " << f.what();
 		SignalExceptionParse(static_cast<string>(ss.str()), 0);
 	}
 	catch (const std::system_error& e)
@@ -668,13 +672,13 @@ void dna_import::ParseXML(const string& fileName, vdnaStnPtr* vStations, PUINT32
 			return;
 		}
 		stringstream ss;
-		ss << "ParseInputFile(): An ios_base failure was encountered while parsing " << fileName << "." << endl << "  " << e.what();
+		ss << "ParseXML(): An ios_base failure was encountered while parsing " << fileName << "." << endl << "  " << e.what();
 		SignalExceptionParse(static_cast<string>(ss.str()), 0);
 	}
 	catch (const XMLInteropException& e) 
 	{
 		stringstream ss;
-		ss << "ParseInputFile(): An exception was encountered while parsing " << fileName << "." << endl << "  " << e.what();
+		ss << "ParseXML(): An exception was encountered while parsing " << fileName << "." << endl << "  " << e.what();
 		SignalExceptionParse(static_cast<string>(ss.str()), 0);
 	}
 	catch (const ::xml_schema::parsing& e)
@@ -696,13 +700,13 @@ void dna_import::ParseXML(const string& fileName, vdnaStnPtr* vStations, PUINT32
 	catch (const ::xml_schema::exception& e)
 	{
 		stringstream ss;
-		ss << "ParseInputFile(): An xml_schema exception was encountered while parsing " << fileName << "." << endl << "  " << e.what();
+		ss << "ParseXML(): An xml_schema exception was encountered while parsing " << fileName << "." << endl << "  " << e.what();
 		SignalExceptionParse(static_cast<string>(ss.str()), 0);
 	}
 	catch (...)
 	{
 		stringstream ss;
-		ss << "ParseInputFile(): An unknown error was encountered while parsing " << fileName << "." << endl;
+		ss << "ParseXML(): An unknown error was encountered while parsing " << fileName << "." << endl;
 		SignalExceptionParse(ss.str(), 0);	
 	}
 
@@ -1204,6 +1208,7 @@ void dna_import::ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32
 		import_file_mutex.unlock();
 	}
 	catch (const runtime_error& e) {
+		import_file_mutex.unlock();
 		throw XMLInteropException(e.what(), 0);
 	}
 		
@@ -1231,12 +1236,14 @@ void dna_import::ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32
 			ss << "ParseDNA(): An ios_base failure was encountered when attempting to read stations file  " << fileName << "." << endl << "  " << f.what();
 			throw XMLInteropException(ss.str(), 0);
 		}
-		catch (const XMLInteropException& f) {
+		catch (const XMLInteropException& f)
+		{
 			stringstream ss;
+			ss << "ParseInputFile(): An exception was encountered while parsing " << fileName << "." << endl;
 			ss << "  - line " << m_lineNo;
-			ss << ", column " <<  m_columnNo << endl;
+			ss << ", column " << m_columnNo << endl;
 			ss << "  - " << f.what();
-			throw XMLInteropException(ss.str(), 0);
+			SignalExceptionParse(static_cast<string>(ss.str()), 0);
 		}
 		catch (...) {
 			if (ifsInputFILE_->eof())
@@ -1273,12 +1280,14 @@ void dna_import::ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32
 			ss << "ParseDNA(): An ios_base failure was encountered when attempting to read measurements file  " << fileName << "." << endl << "  " << f.what();
 			throw XMLInteropException(ss.str(), 0);
 		}
-		catch (const XMLInteropException& f) {
+		catch (const XMLInteropException& f)
+		{
 			stringstream ss;
-			ss << endl << "  - line " << m_lineNo;
-			ss << ", column " <<  m_columnNo << endl;
+			ss << "ParseInputFile(): An exception was encountered while parsing " << fileName << "." << endl;
+			ss << "  - line " << m_lineNo;
+			ss << ", column " << m_columnNo << endl;
 			ss << "  - " << f.what();
-			throw XMLInteropException(ss.str(), 0);
+			SignalExceptionParse(static_cast<string>(ss.str()), 0);
 		}
 		catch (...) {
 			if (ifsInputFILE_->eof())
@@ -1630,7 +1639,11 @@ void dna_import::ParseDNAMSR(pvdnaMsrPtr vMeasurements, PUINT32 msrCount, PUINT3
 			break;
 		case 'D': // Direction set
 			msr_ptr.reset(new CDnaDirectionSet(++(*clusterID)));
-			ParseDNAMSRDirections(sBuf, msr_ptr, ignoreMsr);
+			if (ParseDNAMSRDirections(sBuf, msr_ptr, ignoreMsr) == 0)
+			{
+				measurementRead = true;
+				continue;
+			}
 			(*msrCount) += static_cast<UINT32>(msr_ptr->GetDirections_ptr()->size());
 			break;
 		case 'E': // Ellipsoid arc
@@ -2839,7 +2852,7 @@ void dna_import::ParseDNAMSRAngular(const string& sBuf, dnaMsrPtr& msr_ptr)
 }
 	
 
-void dna_import::ParseDNAMSRDirections(string& sBuf, dnaMsrPtr& msr_ptr, bool ignoreMsr)
+UINT32 dna_import::ParseDNAMSRDirections(string& sBuf, dnaMsrPtr& msr_ptr, bool ignoreMsr)
 {
 	// Measurement type
 	try {
@@ -2858,7 +2871,7 @@ void dna_import::ParseDNAMSRDirections(string& sBuf, dnaMsrPtr& msr_ptr, bool ig
 		msr_ptr->SetTarget(ParseTargetValue(sBuf, "ParseDNAMSRDirections"));
 	
 	// Number of directions
-	UINT32 dirnCount;
+	UINT32 dirnCount, dirnCountLessIgnored;
 	msr_ptr->SetTotal(ParseMsrCountValue(sBuf, dirnCount, "ParseDNAMSRDirections"));
 	msr_ptr->GetDirections_ptr()->reserve(dirnCount);
 	
@@ -2889,18 +2902,43 @@ void dna_import::ParseDNAMSRDirections(string& sBuf, dnaMsrPtr& msr_ptr, bool ig
 		dirnTmp.SetClusterID(msr_ptr->GetClusterID());
 	}
 
+	bool subignoreMsr;
+	dirnCountLessIgnored = dirnCount;
+
+	if (dirnCount == 0)
+		throw XMLInteropException("Zero direction count.", m_lineNo);
+
 	for (UINT32 dirn=0; dirn<dirnCount; ++dirn)
 	{
-		dirnTmp.SetFirst(msr_ptr->GetFirst());
-		dirnTmp.SetIgnore(ignoreMsr);
-		g_parsemsr_tally.D++;
-
 		m_lineNo++;
 		// Obtain exclusive use of the input file pointer
 		import_file_mutex.lock();
 		getline((*ifsInputFILE_), sBuf);
 		// release file pointer mutex
 		import_file_mutex.unlock();
+
+		// get ignore flag for sub direction and remove accordingly
+		subignoreMsr = iequals("*", sBuf.substr(dml_.msr_ignore, dmw_.msr_ignore));
+
+		if (subignoreMsr)
+		{
+			dirnCountLessIgnored--;
+			if (dirnCountLessIgnored == 0)
+			{
+				// Is the entire direction set ignored?
+				// If so, return 0
+				if (ignoreMsr)
+					return 0;
+				
+				throw XMLInteropException("There aren't any non-ignored directions in the set.", m_lineNo);
+			}
+			msr_ptr->SetTotal(dirnCountLessIgnored);
+			continue;
+		}
+
+		dirnTmp.SetFirst(msr_ptr->GetFirst());
+		dirnTmp.SetIgnore(ignoreMsr);
+		g_parsemsr_tally.D++;
 
 		// Second target station
 		dirnTmp.SetTarget(ParseTarget2Value(sBuf, "ParseDNAMSRDirections"));
@@ -2922,6 +2960,8 @@ void dna_import::ParseDNAMSRDirections(string& sBuf, dnaMsrPtr& msr_ptr, bool ig
 		// add the direction
 		msr_ptr->AddDirection(((CDnaMeasurement*)&dirnTmp));
 	}
+
+	return dirnCount;
 }
 
 void dna_import::RemoveIgnoredMeasurements(vdnaMsrPtr* vMeasurements, MsrTally* parsemsrTally)
@@ -5585,7 +5625,7 @@ void dna_import::MapMeasurementStations(vdnaMsrPtr* vMeasurements, pvASLPtr vAss
 		if (_it_msr->get()->GetIgnore())
 			vIgnoredMsrs->push_back(static_cast<UINT32>(std::distance(vMeasurements->begin(), _it_msr)));
 		
-		// 1. Handle nested type measurements (D, G, X, Y) separately
+		// 1. Handle nested type measurements (G, X, Y) separately
 		switch (_it_msr->get()->GetTypeC())
 		{
 		case 'G':	// GPS Baseline (treat as single-baseline cluster)

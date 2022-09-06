@@ -22,6 +22,10 @@
 
 #include <include/measurement_types/dnaheightdifference.hpp>
 
+//extern boost::random::mt19937 rng;
+//extern boost::random::uniform_real_distribution<double> stdev;
+//extern boost::random::uniform_real_distribution<double> pertu;
+
 namespace dynadjust {
 namespace measurements {
 
@@ -213,6 +217,19 @@ void CDnaHeightDifference::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoi
 		m_preAdjCorr = vStations->at(m_lstn2Index).get()->GetgeoidSep() - vStations->at(m_lstn1Index).get()->GetgeoidSep();
 		m_dValue -= m_preAdjCorr;
 	}
+
+    // TODO - add option to perturb all measurements and standard deviations by a small (random) amount
+	//      - Below is an example of how this might be achieved
+    //
+	//// perturb standard deviation
+	//m_dStdDev = static_cast<double>(stdev(rng)) * sqrt(distance / 1000.0) / 100.0;
+	//
+	//// perturb measurement
+	//double whichway = static_cast<double>(pertu(rng));
+	//if (whichway > 0.5)
+	//	m_dValue -= static_cast<double>(pertu(rng))/10.0;
+	//else
+	//	m_dValue += static_cast<double>(pertu(rng))/10.0;
 }
 	
 

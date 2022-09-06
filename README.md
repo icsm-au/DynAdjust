@@ -63,7 +63,7 @@ To build DynAdjust from source code on Linux, Mac or Windows, please visit the [
 
 ## Contributing to DynAdjust
 
-Pleae refer to the [Contributing guidelines](./resources/CONTRIBUTING.md) for information on how to contribute to DynAdjust.
+Pleae refer to the [Contributing guidelines](./.github/CONTRIBUTING.md) for information on how to contribute to DynAdjust.
 
 ## Feedback
 
