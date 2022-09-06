@@ -420,7 +420,8 @@ public:
 		, purge_stage_files(false), recreate_stage_files(false)
 		, iteration_threshold((float)0.0005), free_std_dev(10.0), fixed_std_dev(PRECISION_1E6), station_constraints("")
 		, map_file(""), bst_file(""), bms_file(""), seg_file(""), comments("") 
-		, command_line_arguments("") {}
+		, command_line_arguments("")
+		, type_b_global (""), type_b_file ("") {}
 
 private:
 	// Disallow use of compiler generated equality operator.
@@ -471,6 +472,8 @@ public:
 	string		seg_file;				// Segmentation file
 	string		comments;				// General comments about the adjustment, printed to the adj file.
 	string		command_line_arguments;
+	string      type_b_global;          // Comma delimited string containing Type b uncertainties to be applied to all uncertainties computed from an adjustment
+	string      type_b_file;            // File path to Type b uncertainties to be applied to specific site uncertainties computed from an adjustment
 };
 
 // datum and geoid settings
