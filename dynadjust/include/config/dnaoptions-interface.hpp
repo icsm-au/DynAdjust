@@ -123,8 +123,8 @@ const char* const OUTPUT_APU_CORRELATIONS = "output-all-covariances";
 const char* const OUTPUT_APU_UNITS = "output-apu-vcv-units";
 const char* const OUTPUT_MSR_TO_STN = "output-msr-to-stn";
 
-const char* const TYPE_B_GLOBAL = "type-b-uncertainty-global";
-const char* const TYPE_B_FILE = "type-b-uncertainty-file";
+const char* const TYPE_B_GLOBAL = "type-b-sd-global";
+const char* const TYPE_B_FILE = "type-b-sd-file";
 
 const char* const OUTPUT_ADJ_MSR_SORTBY = "sort-adj-msr-field";
 const char* const OUTPUT_MSR_TO_STN_SORTBY = "sort-msr-to-stn-field";
