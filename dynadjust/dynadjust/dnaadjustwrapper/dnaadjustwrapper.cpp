@@ -816,6 +816,10 @@ int main(int argc, char* argv[])
 				StringFromT(p.a.fixed_std_dev, 6)+string("m.")).c_str())
 			(SCALE_NORMAL_UNITY,
 				"Scale adjustment normal matrices to unity prior to computing inverse to minimise loss of precision caused by tight variances placed on constraint stations.")
+			(TYPE_B_GLOBAL, value<string>(&p.a.type_b_global),
+				"Type b uncertainties to be added to each computed uncertainty. arg is a comma delimited string that provides 1D, 2D or 3D uncertainties in the local reference frame (e.g. \"up\" or \"e,n\" or \"e,n,up\").")
+			(TYPE_B_FILE, value<string>(&p.a.type_b_file),
+				"Type b uncertainties file name. Full path to a file containing Type b uncertainties to be added to the computed uncertainty for specific sites.")
 			;
 
 		staged_adj_options.add_options()
