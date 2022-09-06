@@ -314,7 +314,7 @@ void UpdateBinaryFiles(dna_adjust* netAdjust, const project_settings* p)
 	// Update bst and bms files with adjustment results
 	if (!p->g.quiet)
 	{
-		cout << "+ Updating binary station and measurment files...";
+		cout << "+ Updating binary station and measurement files...";
 		cout.flush();
 	}
 	netAdjust->UpdateBinaryFiles();
