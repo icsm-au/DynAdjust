@@ -637,7 +637,7 @@ int main(int argc, char* argv[])
 
 		file_interpolate_options.add_options()
 			(DIRECTION_R, value<UINT16>(&p.n.ellipsoid_to_ortho), 
-				"Conversion of heights:\n  0  Orthometric to ellipsoid\n  1  Ellipsoid to orthometric (default)")
+				"Conversion of heights:\n  0  Orthometric to ellipsoid (default)\n  1  Ellipsoid to orthometric")
 			(CONVERT_BST_HT, 
 				"If a user-supplied height in the binary file is orthometric, the height is converted to ellipsoidal.")
 			;
