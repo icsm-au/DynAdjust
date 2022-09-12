@@ -908,11 +908,14 @@ int main(int argc, char* argv[])
 			else
 				cout << "Degrees minutes seconds" << endl;
 			
-			cout << setw(PRINT_VAR_PAD) << left << "  Transformation direction: ";
-			if (p.n.ellipsoid_to_ortho == 0)
-				cout << "Orthometric to ellipsoid" << endl;
-			else
-				cout << "Ellipsoid to orthometric" << endl;
+			if (!vm.count(INTERACTIVE))
+			{
+				cout << setw(PRINT_VAR_PAD) << left << "  Transformation direction: ";
+				if (p.n.ellipsoid_to_ortho == 0)
+					cout << "Orthometric to ellipsoid" << endl;
+				else
+					cout << "Ellipsoid to orthometric" << endl;
+			}
 		}
 
 		if (p.n.export_dna_geo_file)
