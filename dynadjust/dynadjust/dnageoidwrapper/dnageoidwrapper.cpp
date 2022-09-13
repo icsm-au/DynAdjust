@@ -24,23 +24,6 @@
 
 using namespace dynadjust;
 
-void PrintHelp(string message, const options_description* options)
-{
-	string title;
-	fileproc_help_header(&title);
-
-	cout << endl << title << endl << message << endl << endl << *options << endl;
-}
-	
-
-void PrintVersion()
-{
-	string version;
-	fileproc_help_header(&version);
-	cout << version << endl;
-}
-	
-
 bool CreateNTv2Grid(dna_geoid_interpolation* g, const char* dat_gridfilePath, const n_file_par* grid)
 {
 	// example:
