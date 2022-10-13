@@ -1,5 +1,7 @@
-FROM ubuntu as dynadjust-build
-RUN mkdir -p /app/DynAdjust/
+# if building on M1 uncomment the line 2, and comment out line 3
+#FROM --platform=linux/amd64 ubuntu  as dynadjust-build
+FROM ubuntu  as dynadjust-build
+RUN mkdir -p /app/DynAdjust/ && mkdir -p /opt/dynadjust/geoid_file
 COPY . /app/DynAdjust/
 WORKDIR /app
 RUN apt-get update &&\
@@ -19,11 +21,11 @@ RUN apt-get update &&\
  apt-get install -y --no-install-recommends g++ &&\
  apt-get install -y --no-install-recommends xsdcxx
 RUN wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
-RUN apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB 
+RUN apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB
 RUN add-apt-repository "deb https://apt.repos.intel.com/oneapi all main"
-RUN apt install -y intel-basekit 
+RUN apt install -y intel-oneapi-compiler-dpcpp-cpp intel-oneapi-mkl-devel intel-oneapi-tbb-devel
 RUN apt-get -y install cpio &&\
  cd ./DynAdjust &&\
  chmod +x ./resources/make_dynadjust_gcc.sh &&\
  ./resources/make_dynadjust_gcc.sh --auto --no-clone
-  
+RUN wget "https://s3-ap-southeast-2.amazonaws.com/geoid/AUSGeoid/AUSGeoid2020_20180201.gsb" -P "/opt/dynadjust/geoid_file"
