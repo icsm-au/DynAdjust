@@ -1,6 +1,6 @@
 # if building on M1 uncomment the line 2, and comment out line 3
 #FROM --platform=linux/amd64 ubuntu  as dynadjust-build
-FROM ubuntu  as dynadjust-build
+FROM ubuntu as dynadjust-build
 RUN mkdir -p /app/DynAdjust/ && mkdir -p /opt/dynadjust/geoid_file
 COPY . /app/DynAdjust/
 WORKDIR /app
