@@ -1,8 +1,8 @@
 ---
-name: Bug report
+name: Feature bug report
 about: A brief synopsis of the bug to be fixed
 title: Unexpected behaviour in ...
-labels: bug
+labels: feature bug
 assignees: ''
 
 ---
