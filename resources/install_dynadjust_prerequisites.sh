@@ -345,9 +345,9 @@ EOF
         if [[ "$_distro" == *"SUSE"* || "$_distro" == "SLES"* ]]; then
             sudo "$_toolset" addrepo "$_repo_intel" oneAPI
             sudo "$_format" --import "$_gpg_intel"
-            sudo "$_toolset" "$_no_ask" install intel-intel-oneapi-compiler-dpcpp-cpp intel-oneapi-mkl-devel intel-oneapi-tbb-devel
+            sudo "$_toolset" "$_no_ask" install intel-oneapi-compiler-dpcpp-cpp intel-oneapi-mkl-devel intel-oneapi-tbb-devel
         else
-            sudo "$_toolset" "$_no_ask" install intel-intel-oneapi-compiler-dpcpp-cpp intel-oneapi-mkl-devel intel-oneapi-tbb-devel
+            sudo "$_toolset" "$_no_ask" install intel-oneapi-compiler-dpcpp-cpp intel-oneapi-mkl-devel intel-oneapi-tbb-devel
         fi
 
     # Install MKL for deb based distros (Ubuntu, Debian)
@@ -358,7 +358,7 @@ EOF
         wget -O- "$_gpg_intel" | gpg --dearmor | sudo tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null
         # add signed entry to apt sources and configure the APT client to use Intel repository:
         echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list
-        sudo "$_toolset" -y install intel-intel-oneapi-compiler-dpcpp-cpp intel-oneapi-mkl-devel intel-oneapi-tbb-devel
+        sudo "$_toolset" -y install intel-oneapi-compiler-dpcpp-cpp intel-oneapi-mkl-devel intel-oneapi-tbb-devel
     else
         echo " "
         echo "I don't know how to handle $OSTYPE or $_distro and am going to quit."
