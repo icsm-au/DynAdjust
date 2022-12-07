@@ -13995,6 +13995,9 @@ void dna_adjust::LoadNetworkFiles()
 	// apply to binary station records
 	ApplyAdditionalConstraints();
 
+	// Load type b uncertainties
+	InitialiseTypeBUncertainties();
+
 	vUINT32 v_ISLTemp;
 	try {
 		// open the asl file. the asl file is required to ensure invalid stations are
@@ -14222,6 +14225,49 @@ void dna_adjust::AddDiscontinuitySites(vstring& constraintStns)
 
 	// restore original sort order
 	sort(bstBinaryRecords_.begin(), bstBinaryRecords_.end(), CompareStnName<station_t>());
+}
+
+// Take user-supplied type B uncertainties and compute relevant elements for
+// application to the output results
+void dna_adjust::InitialiseTypeBUncertainties()
+{
+	if (!projectSettings_.o._apply_type_b)
+		return;
+
+	vstring typeBUncertainties;
+	typeBUncertainties.resize(3);
+
+	// Apply global type B uncertainties to all sites
+	if (!projectSettings_.a.type_b_global.empty())
+	{
+		try {
+			// Extract constraints from comma delimited string
+			SplitDelimitedString<string>(
+				projectSettings_.a.type_b_global,		// the comma delimited string
+				string(","),							// the delimiter
+				&typeBUncertainties);					// the respective values
+		}
+		catch (...) {
+			return;
+		}
+
+		typeBUncertaintyGlobal_.set_typeb_values(typeBUncertainties);
+	}
+
+	// Apply (or overwrite) type B uncertainties to specific sites
+	if (projectSettings_.a.type_b_file.empty())
+		return;
+
+	// 1. Load the typeb file. The typeb file contains site-specific type b uncertainties
+	try {
+		dna_io_tbu tbu;
+		tbu.load_tbu_file(projectSettings_.a.type_b_file, v_typeBUncertaintiesLocal_);
+	}
+	catch (const runtime_error& e) {
+		SignalExceptionAdjustment(e.what(), 0);
+	}
+
+	
 }
 
 // Take any additional user-supplied constraints (CCC,CCF,etc) and 

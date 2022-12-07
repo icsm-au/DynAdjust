@@ -493,6 +493,7 @@ public:
 		, _stn_coord_types("PLHhXYZ"), _angular_type_stn(DMS)
 		, _precision_seconds_stn(5), _precision_metres_stn(4), _precision_seconds_msr(4), _precision_metres_msr(4)
 		, _angular_type_msr(DMS), _dms_format_msr(SEPARATED)
+		, _apply_type_b(0)
 		
 	{}
 
@@ -573,6 +574,7 @@ public:
 	UINT16			_precision_metres_msr;	// Precision of linear measurement values given in seconds
 	UINT16			_angular_type_msr;		// Type of angular measurements (dms or ddeg)
 	UINT16			_dms_format_msr;		// Format of dms measurements (sep fields or hp notation)
+	UINT16			_apply_type_b;			// Apply type b uncertainties to the output
 };
 
 // plot settings
