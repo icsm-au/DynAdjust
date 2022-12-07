@@ -587,6 +587,8 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 		p.a.purge_stage_files = 1;
 	if (vm.count(RECREATE_STAGE_FILES))
 		p.a.recreate_stage_files = 1;
+	if (vm.count(TYPE_B_GLOBAL) || vm.count(TYPE_B_FILE))
+		p.o._apply_type_b = 1;
 
 	p.s.asl_file = formPath<string>(p.g.output_folder, p.g.network_name, "asl");	// associated stations list
 	p.s.aml_file = formPath<string>(p.g.output_folder, p.g.network_name, "aml");	// associated measurements list

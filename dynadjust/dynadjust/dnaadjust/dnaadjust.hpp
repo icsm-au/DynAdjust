@@ -65,6 +65,7 @@
 #include <include/io/dnaioseg.hpp>
 #include <include/io/dnaioadj.hpp>
 #include <include/io/dnaiosnx.hpp>
+#include <include/io/dnaiotbu.hpp>
 
 #include <include/config/dnaexports.hpp>
 #include <include/config/dnaversion.hpp>
@@ -469,6 +470,7 @@ private:
 	void RemoveInvalidISLStations(vUINT32& v_ISLTemp);
 	void RemoveNonMeasurements(const UINT32& block);
 	void RemoveDuplicateStations(vUINT32& vStns);
+	void InitialiseTypeBUncertainties();
 	
 	// Adjusted measurement sorting
 	void SortMeasurementsbyType(v_uint32_u32u32_pair& msr_block);
@@ -910,6 +912,9 @@ private:
 	vv_stn_appear			v_paramStnAppearance_;		// The appearance of stations in blocks
 	vUINT32					v_parameterStationCount_;
 	vvUINT32				v_parameterStationList_;	// Inner and Junction stations, sorted. See LoadSegmentationFile()
+
+	type_b_uncertainty		typeBUncertaintyGlobal_;	// Type B uncertainties to be applied to all stations
+	v_type_b_uncertainty	v_typeBUncertaintiesLocal_;	// Type B uncertainties to be applied to selected stations
 	
 	// ----------------------------------------------
 	// Adjustment matrices for phased adjustment
