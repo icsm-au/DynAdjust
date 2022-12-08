@@ -14234,38 +14234,48 @@ void dna_adjust::InitialiseTypeBUncertainties()
 	if (!projectSettings_.o._apply_type_b)
 		return;
 
-	vstring typeBUncertainties;
-	typeBUncertainties.resize(3);
+	dna_io_tbu tbu;
 
 	// Apply global type B uncertainties to all sites
 	if (!projectSettings_.a.type_b_global.empty())
 	{
+		// Load the typeb argument. The typeb argument contains type b uncertainties to be 
+		// applied (by default) to all sies
 		try {
-			// Extract constraints from comma delimited string
-			SplitDelimitedString<string>(
-				projectSettings_.a.type_b_global,		// the comma delimited string
-				string(","),							// the delimiter
-				&typeBUncertainties);					// the respective values
+			
+			tbu.load_tbu_argument(projectSettings_.a.type_b_global, typeBUncertaintyGlobal_);
+		}
+		catch (const runtime_error& e) {
+			SignalExceptionAdjustment(e.what(), 0);
 		}
 		catch (...) {
 			return;
-		}
-
-		typeBUncertaintyGlobal_.set_typeb_values(typeBUncertainties);
+		}		
 	}
 
 	// Apply (or overwrite) type B uncertainties to specific sites
 	if (projectSettings_.a.type_b_file.empty())
 		return;
 
-	// 1. Load the typeb file. The typeb file contains site-specific type b uncertainties
+
+	// load station map
+	v_string_uint32_pair vStnsMap;
+	if (projectSettings_.a.map_file.empty())
+		projectSettings_.a.map_file = projectSettings_.g.input_folder + FOLDER_SLASH + projectSettings_.g.network_name + ".map";
+	LoadStationMap(&vStnsMap, projectSettings_.a.map_file);	
+
+	// Load the typeb file. The typeb file contains site-specific type b uncertainties
 	try {
-		dna_io_tbu tbu;
-		tbu.load_tbu_file(projectSettings_.a.type_b_file, v_typeBUncertaintiesLocal_);
+
+		tbu.load_tbu_file(projectSettings_.a.type_b_file, v_typeBUncertaintiesLocal_, vStnsMap);
+	}
+	catch (const std::ifstream::failure& f) {
+		SignalExceptionAdjustment(f.what(), 0);
 	}
 	catch (const runtime_error& e) {
 		SignalExceptionAdjustment(e.what(), 0);
 	}
+	
 
 	
 }
