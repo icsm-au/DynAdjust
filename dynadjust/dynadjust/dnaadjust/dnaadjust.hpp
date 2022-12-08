@@ -57,6 +57,14 @@
 #include <boost/math/distributions/normal.hpp>
 #include <boost/exception_ptr.hpp>
 
+#include <include/config/dnaexports.hpp>
+#include <include/config/dnaversion.hpp>
+#include <include/config/dnaconsts.hpp>
+#include <include/config/dnatypes.hpp>
+#include <include/config/dnatypes-gui.hpp>
+#include <include/config/dnaoptions-interface.hpp>
+#include <include/exception/dnaexception.hpp>
+
 #include <include/io/dnaiobst.hpp>
 #include <include/io/dnaiobms.hpp>
 #include <include/io/dnaiomap.hpp>
@@ -66,14 +74,6 @@
 #include <include/io/dnaioadj.hpp>
 #include <include/io/dnaiosnx.hpp>
 #include <include/io/dnaiotbu.hpp>
-
-#include <include/config/dnaexports.hpp>
-#include <include/config/dnaversion.hpp>
-#include <include/config/dnaconsts.hpp>
-#include <include/config/dnatypes.hpp>
-#include <include/config/dnatypes-gui.hpp>
-#include <include/config/dnaoptions-interface.hpp>
-#include <include/exception/dnaexception.hpp>
 
 #include <include/functions/dnatemplatematrixfuncs.hpp>
 #include <include/functions/dnatemplatestnmsrfuncs.hpp>

@@ -32,6 +32,8 @@
 #include <include/io/dnaiobase.hpp>
 #include <include/config/dnatypes.hpp>
 #include <include/functions/dnastrmanipfuncs.hpp>
+#include <include/functions/dnatemplatematrixfuncs.hpp>
+#include <include/functions/dnaiostreamfuncs.hpp>
 #include <include/math/dnamatrix_contiguous.hpp>
 
 using namespace std;
@@ -45,7 +47,7 @@ namespace iostreams {
 
 /////////////////////////////////////////////////////////////
 // Custom type to manage cartesian plate motion model parameters
-template <class T1 = UINT32, class T2 = string, class T3 = matrix_2d, class T4 = vstring>
+template <class T1 = UINT32, class T2 = double, class T3 = matrix_2d>
 struct type_b_uncertainty_t
 {
 	T1 station_id;
@@ -55,60 +57,26 @@ struct type_b_uncertainty_t
 		: station_id(0) {
 		type_b.redim(3, 3);
 	}
-	type_b_uncertainty_t(const T1& stn, const T3& typeb_local)
-		: station_id(stn)
-	{
-		type_b.redim(3, 3);
-		set_typeb_values(typeb_local);
-	}
 	
-	void set_station_id(const T1& stn=0) { station_id =stn; }
+	void set_station_id(const T1& stn=0) { station_id =stn; }	
 
-	void set_station_id_str(const T2& stn) { station_id = LongFromString<T1>(stn); }
-
-	void set_typeb_values(const T4& typeb_local) 
-	{ 
-		// 3 dimensions (east, north, up)
-		if (typeb_local.size() > 2) {
-			type_b.put(0, 0, DoubleFromString<double>(typeb_local.at(0)));
-			type_b.put(1, 1, DoubleFromString<double>(typeb_local.at(1)));
-			type_b.put(2, 2, DoubleFromString<double>(typeb_local.at(2)));
-		}
-		// 2 dimensions (east, north)
-		else if (typeb_local.size() > 1) {
-			type_b.put(0, 0, DoubleFromString<double>(typeb_local.at(0)));
-			type_b.put(1, 1, DoubleFromString<double>(typeb_local.at(1)));
-		}
-		// 1 dimension (up)
-		else if (typeb_local.size() > 0) {
-			type_b.put(2, 2, DoubleFromString<double>(typeb_local.at(2)));
-		}
+	void set_typeb_values_3d(const T2& e, const T2& n, const T2& u) {
+		type_b.put(0, 0, e);
+		type_b.put(1, 1, n);
+		type_b.put(2, 2, u);
 	}
-	void set_typeb_values_all(const T4& typeb_local)
+
+	bool operator== (const type_b_uncertainty_t<T1, T2, T3>& rhs) {
+		return equal(station_id, rhs.station_id);
+	}
+
+	bool operator< (const type_b_uncertainty_t<T1, T2, T3>& rhs) const
 	{
-		UINT32 i(0);
-		if (typeb_local.at(i).empty())
-			type_b.put(i, i, 0.);
-		else
-			type_b.put(i, i, DoubleFromString<double>(typeb_local.at(i)));
-		
-		i++;
-		if (typeb_local.at(i).empty())
-			type_b.put(i, i, 0.);
-		else
-			type_b.put(i, i, DoubleFromString<double>(typeb_local.at(i)));
-
-		i++;
-		if (typeb_local.at(i).empty())
-			type_b.put(i, i, 0.);
-		else
-			type_b.put(i, i, DoubleFromString<double>(typeb_local.at(i)));
-
+		return station_id < rhs.station_id;
 	}
-
 };
 
-typedef type_b_uncertainty_t<UINT32, string, matrix_2d, vstring> type_b_uncertainty;
+typedef type_b_uncertainty_t<UINT32, double, matrix_2d> type_b_uncertainty;
 typedef vector<type_b_uncertainty> v_type_b_uncertainty;
 typedef v_type_b_uncertainty::iterator it_type_b_uncertainty;
 /////////////////////////////////////////////////////////////
@@ -124,7 +92,17 @@ public:
 
 	void read_tbu_header(std::ifstream* ptr, string& version, INPUT_DATA_TYPE& idt);
 
-	void load_tbu_file(const string& tbu_filename, v_type_b_uncertainty& type_b_uncertainties);
+	void load_tbu_file(const string& tbu_filename, v_type_b_uncertainty& type_b_uncertainties, v_string_uint32_pair& vStnsMap);
+	void load_tbu_argument(const string& argument, type_b_uncertainty& type_b_uncertainties);
+
+	void identify_station_id(const string& stn_str, UINT32& stn_id, v_string_uint32_pair& vStnsMap);
+
+	void validate_typeb_values(const string& argument, vstring& typeBUncertainties);
+	void assign_typeb_values_global(const vstring& typeBUncertainties, type_b_uncertainty& type_b);
+	void assign_typeb_values_local(const vstring& typeBUncertainties, type_b_uncertainty& type_b);
+
+	void reduce_uncertainties_global(type_b_uncertainty& type_b, matrix_2d& var_cart, stn_t& bstBinaryRecord);
+	void reduce_uncertainties_local(v_type_b_uncertainty& type_b, vstn_t& bstBinaryRecords);
 
 protected:
 
