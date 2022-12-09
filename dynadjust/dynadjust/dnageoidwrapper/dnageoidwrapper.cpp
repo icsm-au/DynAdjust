@@ -575,6 +575,8 @@ int main(int argc, char* argv[])
 				"Interpolate geoid information using a file of coordinates. arg is the path of the input text file.")
 			(METHOD_M, value<UINT16>(&p.n.interpolation_method),
 				"Interpolation method.\n  0  Bi-linear\n  1  Bi-cubic (default)")
+			(CONVERT_BST_HT, 
+				"If a user-supplied height in the binary file is orthometric, the height is converted to ellipsoidal.")
 			(DDEG_FORMAT, "Specify input coordinates in decimal degrees (dd.dddddd).  Default is degrees, minutes and seconds (dd.mmssss).")
 			(CREATE_NTV2_C, "Create NTv2 grid file from standard DAT file.")
 			(NTV2_FILEPATH_G, value<string>(&p.n.ntv2_geoid_file), "Full file path of the NTv2 grid file.")
@@ -621,8 +623,6 @@ int main(int argc, char* argv[])
 		file_interpolate_options.add_options()
 			(DIRECTION_R, value<UINT16>(&p.n.ellipsoid_to_ortho), 
 				"Conversion of heights:\n  0  Orthometric to ellipsoid (default)\n  1  Ellipsoid to orthometric")
-			(CONVERT_BST_HT, 
-				"If a user-supplied height in the binary file is orthometric, the height is converted to ellipsoidal.")
 			;
 
 		// Declare a group of options that will be 
