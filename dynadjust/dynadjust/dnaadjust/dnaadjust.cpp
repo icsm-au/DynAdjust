@@ -9811,27 +9811,30 @@ void dna_adjust::PrintAdjStation(ostream& os,
 	//       previously applied.
 
 	// Add type B uncertainties (if required)
-	if (v_typeBUncertaintyMethod_.at(stn).apply)
+	if (projectSettings_.o._apply_type_b_global || projectSettings_.o._apply_type_b_file)
 	{
-		// apply local first
-		if (v_typeBUncertaintyMethod_.at(stn).method == type_b_local)
+		if (v_typeBUncertaintyMethod_.at(stn).apply)
 		{
-			// Add the cartesian type b variances 
-			// Note: Cartesian variances for this station were computed in dna_io_tbu::reduce_uncertainties_local(...)
-			var_cart.add(v_typeBUncertaintiesLocal_.at(v_stationTypeBMap_.at(stn).second).type_b);
-		}
-		else if (v_typeBUncertaintyMethod_.at(stn).method == type_b_global)
-		{
-			// Compute cartesian variances for this station from the global uncertainty
-			// Note: this needs to be done for each site from the global type b uncertainties entered 
-			// via the command line
-			matrix_2d var_cart_typeb(3, 3);
-			PropagateVariances_LocalCart<double>(typeBUncertaintyGlobal_.type_b, var_cart_typeb,
-				estLatitude, estLongitude, true);
+			// apply local first
+			if (v_typeBUncertaintyMethod_.at(stn).method == type_b_local)
+			{
+				// Add the cartesian type b variances 
+				// Note: Cartesian variances for this station were computed in dna_io_tbu::reduce_uncertainties_local(...)
+				var_cart.add(v_typeBUncertaintiesLocal_.at(v_stationTypeBMap_.at(stn).second).type_b);
+			}
+			else if (v_typeBUncertaintyMethod_.at(stn).method == type_b_global)
+			{
+				// Compute cartesian variances for this station from the global uncertainty
+				// Note: this needs to be done for each site from the global type b uncertainties entered 
+				// via the command line
+				matrix_2d var_cart_typeb(3, 3);
+				PropagateVariances_LocalCart<double>(typeBUncertaintyGlobal_.type_b, var_cart_typeb,
+					estLatitude, estLongitude, true);
 
-			// Add the cartesian type b variances 
-			var_cart.add(var_cart_typeb);
-		}	
+				// Add the cartesian type b variances 
+				var_cart.add(var_cart_typeb);
+			}	
+		}
 	}
 
 	PropagateVariances_LocalCart(var_cart, var_local, 
