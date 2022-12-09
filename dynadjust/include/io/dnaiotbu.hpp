@@ -32,6 +32,8 @@
 #include <include/io/dnaiobase.hpp>
 #include <include/config/dnatypes.hpp>
 #include <include/functions/dnastrmanipfuncs.hpp>
+#include <include/functions/dnatemplatefuncs.hpp>
+#include <include/functions/dnatemplatestnmsrfuncs.hpp>
 #include <include/functions/dnatemplatematrixfuncs.hpp>
 #include <include/functions/dnaiostreamfuncs.hpp>
 #include <include/math/dnamatrix_contiguous.hpp>

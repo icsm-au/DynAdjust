@@ -14,6 +14,7 @@ add_library (${PROJECT_NAME} SHARED
              ${CMAKE_SOURCE_DIR}/include/io/dnaiobst.cpp
              ${CMAKE_SOURCE_DIR}/include/io/dnaiomap.cpp
              ${CMAKE_SOURCE_DIR}/include/io/dnaioseg.cpp
+             ${CMAKE_SOURCE_DIR}/include/io/dnaiotbu.cpp
              ${CMAKE_SOURCE_DIR}/include/io/dnaiosnxwrite.cpp
              ${CMAKE_SOURCE_DIR}/include/parameters/dnadatum.cpp
              ${CMAKE_SOURCE_DIR}/include/parameters/dnaellipsoid.cpp
