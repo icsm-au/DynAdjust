@@ -9505,6 +9505,14 @@ void dna_adjust::PrintOutputFileHeaderInfo()
 			"Yes" << endl;
 	}
 
+	if (projectSettings_.o._apply_type_b_file || projectSettings_.o._apply_type_b_global)
+	{
+		adj_file << setw(PRINT_VAR_PAD) << left << "Add Type B uncertainties:" <<
+			"Yes" << endl;
+		xyz_file << setw(PRINT_VAR_PAD) << left << "Add Type B uncertainties:" <<
+			"Yes" << endl;
+	}
+
 	// Print user-supplied comments.
 	// This is a bit messy and could be cleaned up.
 	// Alas, the following logic is applied:
@@ -9795,6 +9803,46 @@ void dna_adjust::PrintAdjStation(ostream& os,
 	// Standard deviation in local reference frame
 	matrix_2d var_local(3, 3), var_cart(3, 3);
 	var_cart.copyelements(0, 0, stationVariances, mat_idx, mat_idx, 3, 3);
+
+	// TODO. The code below adds type b uncertainties to a variance matrix extracted from the estimated variances held in memory.
+	//       To minimise re-computation, the type b uncertainties should be added to the estimated variances held in memory.
+	//       If adjust is re-run, and the user does not supply type b uncertainties, the variances held in memory will be
+	//       re-estimated.
+
+	// Add type B uncertainties (if required)
+	if (v_typeBUncertaintyMethod_.at(stn).apply)
+	{
+		// apply local first
+		if (v_typeBUncertaintyMethod_.at(stn).method == type_b_local)
+		{
+			// Add the cartesian type b variances 
+			// Note: Cartesian variances for this station were computed in dna_io_tbu::reduce_uncertainties_global(...)
+			var_cart.elementadd(0, 0, 
+				(v_typeBUncertaintiesLocal_.at(v_stationTypeBMap_.at(stn).second).type_b.get(0, 0) *
+					v_typeBUncertaintiesLocal_.at(v_stationTypeBMap_.at(stn).second).type_b.get(0, 0)));
+			var_cart.elementadd(1, 1,
+				(v_typeBUncertaintiesLocal_.at(v_stationTypeBMap_.at(stn).second).type_b.get(1, 1) *
+					v_typeBUncertaintiesLocal_.at(v_stationTypeBMap_.at(stn).second).type_b.get(1, 1)));
+			var_cart.elementadd(2, 2,
+				(v_typeBUncertaintiesLocal_.at(v_stationTypeBMap_.at(stn).second).type_b.get(2, 2) *
+					v_typeBUncertaintiesLocal_.at(v_stationTypeBMap_.at(stn).second).type_b.get(2, 2)));
+		}
+		else if (v_typeBUncertaintyMethod_.at(stn).method == type_b_global)
+		{
+			// Compute cartesian variances for this station from the global uncertainty
+			// Note: this needs to be done for each site from the global type b uncertainties entered 
+			// via the command line
+			matrix_2d var_cart_typeb(3, 3);
+			PropagateVariances_LocalCart<double>(typeBUncertaintyGlobal_.type_b, var_cart_typeb,
+				estLatitude, estLongitude, true);
+
+			// Add the cartesian type b variances 
+			var_cart.elementadd(0, 0, (var_cart_typeb.get(0, 0) * var_cart_typeb.get(0, 0)));
+			var_cart.elementadd(1, 1, (var_cart_typeb.get(1, 1) * var_cart_typeb.get(1, 1)));
+			var_cart.elementadd(2, 2, (var_cart_typeb.get(2, 2) * var_cart_typeb.get(2, 2)));
+		}	
+	}
+
 	PropagateVariances_LocalCart(var_cart, var_local, 
 		estLatitude, estLongitude, false);
 	
