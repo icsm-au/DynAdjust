@@ -314,7 +314,6 @@ void dna_io_tbu::load_tbu_file(const string& tbu_filename, v_type_b_uncertainty&
 
 		tbu_file.close();
 
-		sort(type_b_uncertainties.begin(), type_b_uncertainties.end());
 	}
 	catch (const ios_base::failure& f) {
 		if (tbu_file.eof())
@@ -364,7 +363,6 @@ void dna_io_tbu::reduce_uncertainties_local(v_type_b_uncertainty& type_b, vstn_t
 		PropagateVariances_LocalCart<double>(var_local, _it_tbu->type_b,
 			stn_it->currentLatitude, stn_it->currentLongitude, true);
 	}
-
 }
 
 

@@ -915,6 +915,8 @@ private:
 
 	type_b_uncertainty		typeBUncertaintyGlobal_;	// Type B uncertainties to be applied to all stations
 	v_type_b_uncertainty	v_typeBUncertaintiesLocal_;	// Type B uncertainties to be applied to selected stations
+	v_type_b_method			v_typeBUncertaintyMethod_;	// How Type B uncertainties are to be handled for each station
+	v_uint32_uint32_pair	v_stationTypeBMap_;			// Maps station ID to the index of the local type B uncertainties vector
 	
 	// ----------------------------------------------
 	// Adjustment matrices for phased adjustment

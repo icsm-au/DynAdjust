@@ -46,7 +46,7 @@ namespace iostreams {
 
 
 /////////////////////////////////////////////////////////////
-// Custom type to manage cartesian plate motion model parameters
+// Custom type to manage type b uncertainties
 template <class T1 = UINT32, class T2 = double, class T3 = matrix_2d>
 struct type_b_uncertainty_t
 {
@@ -76,9 +76,66 @@ struct type_b_uncertainty_t
 	}
 };
 
+// Create types for the type b uncertainties to be managed for sites
 typedef type_b_uncertainty_t<UINT32, double, matrix_2d> type_b_uncertainty;
 typedef vector<type_b_uncertainty> v_type_b_uncertainty;
 typedef v_type_b_uncertainty::iterator it_type_b_uncertainty;
+typedef pair<it_type_b_uncertainty, it_type_b_uncertainty> it_pair_type_b_uncertainty;
+
+template <class T1=UINT32, class T2= type_b_uncertainty>
+class CompareTypeBStationID
+{
+public:
+	bool operator()(const T2& lhs, const T2& rhs) const {
+		return keyLess(lhs.second, rhs.second);
+	}
+	bool operator()(const T2& lhs, const T1& rhs) {
+		return keyLess(lhs.station_id, rhs);
+	}
+	bool operator()(const T1& lhs, const T2& rhs) {
+		return keyLess(lhs, rhs.station_id);
+	}
+private:
+	bool keyLess(const T1& s1, const T1& s2) const {
+		return s1 < s2;
+	}
+};
+
+
+// Create types to handle how type b uncertainties are to be handled
+typedef enum _TYPE_B_METHOD_TYPE_
+{
+	type_b_global = 0,
+	type_b_local = 1
+} TYPE_B_METHOD_TYPE;
+
+template <class T1=UINT32, class T2=bool, class T3=TYPE_B_METHOD_TYPE>
+struct type_b_method_t
+{
+	T1 station_id;
+	T2 apply;
+	T3 method;
+
+	type_b_method_t()
+		: station_id(0), apply(false), method(type_b_global) {}
+
+	bool operator< (const type_b_method_t<T1, T2, T3>& rhs) const
+	{
+		return station_id < rhs.station_id;
+	}
+
+	bool operator== (const type_b_method_t<T1, T2, T3>& rhs) {
+		return equals(station_id, rhs.station_id);
+	}
+
+
+};
+
+typedef type_b_method_t<UINT32, bool, TYPE_B_METHOD_TYPE> type_b_method;
+typedef vector<type_b_method> v_type_b_method;
+typedef v_type_b_method::iterator it_type_b_method;
+
+
 /////////////////////////////////////////////////////////////
 
 class dna_io_tbu : public dna_io_base
