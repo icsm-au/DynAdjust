@@ -49,7 +49,7 @@ const char* const SEGMENT_MODULE_CONFIG = "Configuration options";
 const char* const GEOID_MODULE_NTV2 = "NTv2 creation options";
 const char* const GEOID_MODULE_INTERPOLATE = "Interpolation options";
 const char* const GEOID_MODULE_INTERACTIVE = "Interactive interpolation options";
-const char* const GEOID_MODULE_FILE = "File interpolation options";
+const char* const GEOID_MODULE_FILE = "Text file interpolation options";
 
 const char* const REFTRAN_MODULE_TRANSFORM = "Transformation options";
 
