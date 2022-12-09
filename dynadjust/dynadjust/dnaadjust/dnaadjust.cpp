@@ -9805,9 +9805,10 @@ void dna_adjust::PrintAdjStation(ostream& os,
 	var_cart.copyelements(0, 0, stationVariances, mat_idx, mat_idx, 3, 3);
 
 	// TODO. The code below adds type b uncertainties to a variance matrix extracted from the estimated variances held in memory.
-	//       To minimise re-computation, the type b uncertainties should be added to the estimated variances held in memory.
-	//       If adjust is re-run, and the user does not supply type b uncertainties, the variances held in memory will be
-	//       re-estimated.
+	//       To minimise re-computation when printing to .adj and .apu, the type b uncertainties should be added to the estimated 
+	//       variances held in memory. This is not a problem since, if adjust is re-run and the user does not supply type b 
+	//       uncertainties, the variances held in memory will be re-estimated which will overwrite the type b values that were
+	//       previously applied.
 
 	// Add type B uncertainties (if required)
 	if (v_typeBUncertaintyMethod_.at(stn).apply)
@@ -9816,16 +9817,8 @@ void dna_adjust::PrintAdjStation(ostream& os,
 		if (v_typeBUncertaintyMethod_.at(stn).method == type_b_local)
 		{
 			// Add the cartesian type b variances 
-			// Note: Cartesian variances for this station were computed in dna_io_tbu::reduce_uncertainties_global(...)
-			var_cart.elementadd(0, 0, 
-				(v_typeBUncertaintiesLocal_.at(v_stationTypeBMap_.at(stn).second).type_b.get(0, 0) *
-					v_typeBUncertaintiesLocal_.at(v_stationTypeBMap_.at(stn).second).type_b.get(0, 0)));
-			var_cart.elementadd(1, 1,
-				(v_typeBUncertaintiesLocal_.at(v_stationTypeBMap_.at(stn).second).type_b.get(1, 1) *
-					v_typeBUncertaintiesLocal_.at(v_stationTypeBMap_.at(stn).second).type_b.get(1, 1)));
-			var_cart.elementadd(2, 2,
-				(v_typeBUncertaintiesLocal_.at(v_stationTypeBMap_.at(stn).second).type_b.get(2, 2) *
-					v_typeBUncertaintiesLocal_.at(v_stationTypeBMap_.at(stn).second).type_b.get(2, 2)));
+			// Note: Cartesian variances for this station were computed in dna_io_tbu::reduce_uncertainties_local(...)
+			var_cart.add(v_typeBUncertaintiesLocal_.at(v_stationTypeBMap_.at(stn).second).type_b);
 		}
 		else if (v_typeBUncertaintyMethod_.at(stn).method == type_b_global)
 		{
@@ -9837,9 +9830,7 @@ void dna_adjust::PrintAdjStation(ostream& os,
 				estLatitude, estLongitude, true);
 
 			// Add the cartesian type b variances 
-			var_cart.elementadd(0, 0, (var_cart_typeb.get(0, 0) * var_cart_typeb.get(0, 0)));
-			var_cart.elementadd(1, 1, (var_cart_typeb.get(1, 1) * var_cart_typeb.get(1, 1)));
-			var_cart.elementadd(2, 2, (var_cart_typeb.get(2, 2) * var_cart_typeb.get(2, 2)));
+			var_cart.add(var_cart_typeb);
 		}	
 	}
 
@@ -14316,6 +14307,9 @@ void dna_adjust::InitialiseTypeBUncertainties()
 
 		tbu.load_tbu_file(projectSettings_.a.type_b_file, v_typeBUncertaintiesLocal_, vStnsMap);
 		sort(v_typeBUncertaintiesLocal_.begin(), v_typeBUncertaintiesLocal_.end());
+
+		// reduce to the cartesian reference frame
+		tbu.reduce_uncertainties_local(v_typeBUncertaintiesLocal_, bstBinaryRecords_);
 	}
 	catch (const std::ifstream::failure& f) {
 		SignalExceptionAdjustment(f.what(), 0);

@@ -61,7 +61,7 @@ void dna_io_tbu::assign_typeb_values_global(const vstring& typeBUncertainties, t
 	}
 
 	// assign
-	type_b.set_typeb_values_3d(e, n, u);
+	type_b.set_typeb_values_3d(e*e, n*n, u*u);
 }
 	
 
@@ -79,7 +79,7 @@ void dna_io_tbu::assign_typeb_values_local(const vstring& typeBUncertainties, ty
 		u = DoubleFromString<double>(typeBUncertainties.at(i));
 	
 	// assign
-	type_b.set_typeb_values_3d(e, n, u);
+	type_b.set_typeb_values_3d(e*e, n*n, u*u);
 }
 	
 
