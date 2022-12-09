@@ -13995,9 +13995,6 @@ void dna_adjust::LoadNetworkFiles()
 	// apply to binary station records
 	ApplyAdditionalConstraints();
 
-	// Load type b uncertainties
-	InitialiseTypeBUncertainties();
-
 	vUINT32 v_ISLTemp;
 	try {
 		// open the asl file. the asl file is required to ensure invalid stations are
@@ -14186,6 +14183,9 @@ void dna_adjust::LoadNetworkFiles()
 	}
 
 	v_measurementParams_ = v_measurementCount_;
+
+	// Load type b uncertainties, method handler, and the station map
+	InitialiseTypeBUncertainties();
 }
 
 void dna_adjust::AddDiscontinuitySites(vstring& constraintStns)
@@ -14231,7 +14231,7 @@ void dna_adjust::AddDiscontinuitySites(vstring& constraintStns)
 // application to the output results
 void dna_adjust::InitialiseTypeBUncertainties()
 {
-	if (!projectSettings_.o._apply_type_b)
+	if (!projectSettings_.o._apply_type_b_global && !projectSettings_.o._apply_type_b_file)
 		return;
 
 	dna_io_tbu tbu;
@@ -14256,8 +14256,7 @@ void dna_adjust::InitialiseTypeBUncertainties()
 	// Apply (or overwrite) type B uncertainties to specific sites
 	if (projectSettings_.a.type_b_file.empty())
 		return;
-
-
+	
 	// load station map
 	v_string_uint32_pair vStnsMap;
 	if (projectSettings_.a.map_file.empty())
@@ -14268,6 +14267,7 @@ void dna_adjust::InitialiseTypeBUncertainties()
 	try {
 
 		tbu.load_tbu_file(projectSettings_.a.type_b_file, v_typeBUncertaintiesLocal_, vStnsMap);
+		sort(v_typeBUncertaintiesLocal_.begin(), v_typeBUncertaintiesLocal_.end());
 	}
 	catch (const std::ifstream::failure& f) {
 		SignalExceptionAdjustment(f.what(), 0);
@@ -14275,9 +14275,46 @@ void dna_adjust::InitialiseTypeBUncertainties()
 	catch (const runtime_error& e) {
 		SignalExceptionAdjustment(e.what(), 0);
 	}
-	
 
-	
+	// Now, set the method of application
+	UINT32 stn(0);
+	it_pair_type_b_uncertainty it_tbu;
+
+	// Create a vector of elements (with a size equal to the station count) that manages how
+	// type b uncertainties are to be applied.
+	v_typeBUncertaintyMethod_.resize(bstBinaryRecords_.size());
+	// Create a map between station ID and the type b uncertainties vector
+	v_stationTypeBMap_.resize(bstBinaryRecords_.size());
+
+	for (stn = 0; stn < bstBinaryRecords_.size(); ++stn)
+	{
+		v_typeBUncertaintyMethod_.at(stn).station_id = stn;
+		v_stationTypeBMap_.at(stn).first = stn;
+		v_stationTypeBMap_.at(stn).second = 0;
+
+		// set method to be global by default
+		if (projectSettings_.o._apply_type_b_global)
+		{
+			v_typeBUncertaintyMethod_.at(stn).apply = true;
+			v_typeBUncertaintyMethod_.at(stn).method = type_b_global;
+		}
+
+		// overwrite global with site specific type b
+		if (projectSettings_.o._apply_type_b_file)
+		{
+			it_tbu = equal_range(v_typeBUncertaintiesLocal_.begin(), v_typeBUncertaintiesLocal_.end(), 
+				stn, CompareTypeBStationID<UINT32, type_b_uncertainty>());
+			if (it_tbu.first != it_tbu.second)
+			{
+				v_typeBUncertaintyMethod_.at(stn).apply = true;
+				v_typeBUncertaintyMethod_.at(stn).method = type_b_local;
+
+				// map the local uncertainty index
+				v_stationTypeBMap_.at(stn).second = static_cast<UINT32>(std::distance(v_typeBUncertaintiesLocal_.begin(), it_tbu.first));
+			}
+		}
+
+	}
 }
 
 // Take any additional user-supplied constraints (CCC,CCF,etc) and 
