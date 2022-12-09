@@ -796,10 +796,10 @@ private:
 	void PrintAdjMeasurements_YLLH(it_vmsr_t& _it_msr);
 	void ReduceYLLHMeasurementsforPrinting(vmsr_t& y_msr, matrix_2d& mpositions, printMeasurementsMode print_mode);
 
-	void PrintAdjStation(ostream& os, const UINT32& block, const UINT32& stn, const UINT32& mat_idx, const matrix_2d* stationEstimates, const matrix_2d* stationVariances, bool recomputeGeographicCoords, bool updateGeographicCoords);
-	void PrintAdjStations(ostream& os, const UINT32& block, const matrix_2d* stationEstimates, const matrix_2d* stationVariances, 
-		bool printBlockID, bool recomputeGeographicCoords, bool updateGeographicCoords, bool printHeader);
-	void PrintAdjStationsUniqueList(ostream& os, const v_mat_2d* stationEstimates, const v_mat_2d* stationVariances, bool recomputeGeographicCoords, bool updateGeographicCoords);
+	void PrintAdjStation(ostream& os, const UINT32& block, const UINT32& stn, const UINT32& mat_idx, const matrix_2d* stationEstimates, matrix_2d* stationVariances, bool recomputeGeographicCoords, bool updateGeographicCoords, bool reapplyTypeBUncertainties);
+	void PrintAdjStations(ostream& os, const UINT32& block, const matrix_2d* stationEstimates, matrix_2d* stationVariances, 
+		bool printBlockID, bool recomputeGeographicCoords, bool updateGeographicCoords, bool printHeader, bool reapplyTypeBUncertainties);
+	void PrintAdjStationsUniqueList(ostream& os, const v_mat_2d* stationEstimates, v_mat_2d* stationVariances, bool recomputeGeographicCoords, bool updateGeographicCoords, bool reapplyTypeBUncertainties);
 	
 	void PrintCorStations(ostream &cor_file, const UINT32& block);
 	void PrintCorStationsUniqueList(ostream& cor_file);
