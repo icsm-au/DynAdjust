@@ -516,10 +516,12 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 	if (vm.count(DDEG_FORMAT))
 		p.n.coordinate_format = DDEG;
 	
-	if (vm.count(CONVERT_BST_HT))
-		p.n.convert_heights = 1;
-	else
-		p.n.convert_heights = 0;
+	// Change behaviour of geoid to always convert orthometric heights to ellipsoid
+	// deprecate this command
+	//if (vm.count(CONVERT_BST_HT))
+	p.n.convert_heights = 1;
+	//else
+	//	p.n.convert_heights = 0;
 
 	return EXIT_SUCCESS;
 }
@@ -903,6 +905,12 @@ int main(int argc, char* argv[])
 
 		if (p.n.export_dna_geo_file)
 			cout << setw(PRINT_VAR_PAD) << left << "  Export to DNA geoid file: " << "Yes" << endl;
+
+		cout << endl;
+
+		if (vm.count(CONVERT_BST_HT))
+			cout << "- Warning: The '" << CONVERT_BST_HT << "' argument has been deprecated. Orthometric" << endl <<
+				"  heights in the binary file will be converted to ellipsoidal by default." << endl; 
 
 		cout << endl;
 	
