@@ -641,7 +641,7 @@ int main(int argc, char* argv[])
 
 		generic_options.add_options()
 			(VERBOSE, value<UINT16>(&p.g.verbose),
-				string("Give detailed information about what ").append(__BINARY_NAME__).append(" is doing.\n  0: No information (default)\n  1: Helpful information\n  2: Extended information\n  3: Debug level information").c_str())
+				string("When importing geoid information into a project, print the stations for which an N-value could not be interpolated to a log (*.int) file.\n  0: No information (default)\n  1: Helpful information\n  2: Extended information").c_str())
 				(QUIET,
 					string("Suppresses all explanation of what ").append(__BINARY_NAME__).append(" is doing unless an error occurs").c_str())
 					(VERSION_V, "Display the current program version")
@@ -1124,7 +1124,7 @@ int main(int argc, char* argv[])
 				}
 				else
 					cout << "To view the list of stations " << endl <<
-						"  for which a height could not be interpolated, call " << __BINARY_NAME__ << " with --verbose-level 1." << endl;
+						"  for which an N-value could not be interpolated, call " << __BINARY_NAME__ << " with --verbose-level 1." << endl;
 			}
 			// If this point is reached, then this wrapper must have been called
 			// to interpolate points in interactive mode.
