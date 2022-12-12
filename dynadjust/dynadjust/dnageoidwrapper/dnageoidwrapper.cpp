@@ -574,11 +574,14 @@ int main(int argc, char* argv[])
 		interpolate_options.add_options()
 			(INTERACTIVE_E, "Interpolate geoid information using coordinates provided on the command line.")
 			(INPUT_FILE_T, value<string>(&p.n.input_file),
-				"Interpolate geoid information using a file of coordinates. arg is the path of the input text file.")
+				"Interpolate geoid information using coordinates contained in a text file. "
+				"arg is the path of the input text file. "
+				"The supported text file formats include formatted text (*.txt) and comma separated values (*.csv) files. "
+				"Refer to the User's Guide for file format information.")
 			(METHOD_M, value<UINT16>(&p.n.interpolation_method),
 				"Interpolation method.\n  0  Bi-linear\n  1  Bi-cubic (default)")
 			(CONVERT_BST_HT, 
-				"If a user-supplied height in the binary file is orthometric, the height is converted to ellipsoidal.")
+				"DEPRECATED. If a user-supplied height in the binary file is orthometric, the height will be converted to ellipsoidal automatically.")
 			(DDEG_FORMAT, "Specify input coordinates in decimal degrees (dd.dddddd).  Default is degrees, minutes and seconds (dd.mmssss).")
 			(CREATE_NTV2_C, "Create NTv2 grid file from standard DAT file.")
 			(NTV2_FILEPATH_G, value<string>(&p.n.ntv2_geoid_file), "Full file path of the NTv2 grid file.")
