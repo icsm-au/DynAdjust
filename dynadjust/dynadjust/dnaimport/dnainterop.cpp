@@ -1895,6 +1895,7 @@ void dna_import::ParseDNAMSRGPSBaselines(string& sBuf, dnaMsrPtr& msr_ptr, bool 
 		m_databaseIdSet = false;
 		ParseDatabaseIds(sBuf, "ParseDNAMSRGPSBaselines", msr_ptr->GetTypeC());
 		msr_ptr->SetDatabaseMap(m_msr_db_map, m_databaseIdSet);
+		bslTmp.SetDatabaseMap(m_msr_db_map, m_databaseIdSet);
 		bslTmp.SetClusterID(msr_ptr->GetClusterID());
 		covTmp.SetClusterID(msr_ptr->GetClusterID());
 	}
@@ -2036,11 +2037,6 @@ void dna_import::ParseDNAMSRGPSBaselines(string& sBuf, dnaMsrPtr& msr_ptr, bool 
 			// release file pointer mutex
 			import_file_mutex.unlock();
 
-			// Capture msr_id and cluster_id (for database referencing), then set
-			// database id info
-			ParseDatabaseIds(sBuf, "ParseDNAMSRGPSBaselines", msr_ptr->GetTypeC());
-			bslTmp.SetDatabaseMap(m_msr_db_map, m_databaseIdSet);
-	
 			bslTmp.SetX(ParseGPSMsrValue(sBuf, "X", "ParseDNAMSRGPSBaselines"));
 			bslTmp.SetSigmaXX(ParseGPSVarValue(sBuf, "X", dml_.msr_gps_vcv_1, dmw_.msr_gps_vcv_1, "ParseDNAMSRGPSBaselines"));
 
@@ -2113,6 +2109,7 @@ void dna_import::ParseDNAMSRGPSPoints(string& sBuf, dnaMsrPtr& msr_ptr, bool ign
 		m_databaseIdSet = false;
 		ParseDatabaseIds(sBuf, "ParseDNAMSRGPSPoints", msr_ptr->GetTypeC());
 		msr_ptr->SetDatabaseMap(m_msr_db_map, m_databaseIdSet);
+		pntTmp.SetDatabaseMap(m_msr_db_map, m_databaseIdSet);
 		pntTmp.SetClusterID(msr_ptr->GetClusterID());
 		covTmp.SetClusterID(msr_ptr->GetClusterID());
 	}
@@ -2265,11 +2262,6 @@ void dna_import::ParseDNAMSRGPSPoints(string& sBuf, dnaMsrPtr& msr_ptr, bool ign
 			// release file pointer mutex
 			import_file_mutex.unlock();
 
-			// Capture msr_id and cluster_id (for database referencing), then set
-			// database id info
-			ParseDatabaseIds(sBuf, "ParseDNAMSRGPSPoints", msr_ptr->GetTypeC());
-			pntTmp.SetDatabaseMap(m_msr_db_map, m_databaseIdSet);
-	
 			pntTmp.SetX(ParseGPSMsrValue(sBuf, "X", "ParseDNAMSRGPSPoints"));
 			pntTmp.SetSigmaXX(ParseGPSVarValue(sBuf, "X", dml_.msr_gps_vcv_1, dmw_.msr_gps_vcv_1, "ParseDNAMSRGPSPoints"));
 
@@ -3806,6 +3798,7 @@ void dna_import::ImportStnsMsrsFromBlock(vdnaStnPtr* vStations, vdnaMsrPtr* vMea
 	vMeasurements->clear();
 
 	it_vmsr_t it_msr;
+	it_vdbid_t it_dbid;
 	UINT32 advanceBy(0), msr_no(0);
 
 	RemoveNonMeasurements(p.i.import_block_number-1, &binaryMsr);
@@ -3888,7 +3881,7 @@ void dna_import::ImportStnsMsrsFromBlock(vdnaStnPtr* vStations, vdnaMsrPtr* vMea
 			break;
 		}
 
-		if ((advanceBy = msrPtr->SetMeasurementRec(binaryStn, it_msr)) > 0)
+		if ((advanceBy = msrPtr->SetMeasurementRec(binaryStn, it_msr, it_dbid, false)) > 0)
 			std::advance(_it_data, advanceBy);
 		vMeasurements->push_back(msrPtr);
 	}	

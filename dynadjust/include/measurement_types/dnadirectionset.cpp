@@ -59,7 +59,56 @@ CDnaDirectionSet::CDnaDirectionSet(const UINT32 lsetID)
 	m_vTargetDirections.clear();
 	m_vTargetDirections.reserve(15);
 }
+
+// move constructors
+CDnaDirectionSet::CDnaDirectionSet(CDnaDirectionSet&& d)
+{
+	m_bIgnore = d.m_bIgnore;
+	m_strFirst = d.m_strFirst;
+	m_strTarget = d.m_strTarget;
+	m_drValue = d.m_drValue;
+	m_dStdDev = d.m_dStdDev;
+	m_lRecordedTotal = d.m_lRecordedTotal;
+	m_MSmeasurementStations = d.m_MSmeasurementStations;
+
+	m_lsetID = d.m_lsetID;
+
+	m_strType = "D";
+	m_vTargetDirections = std::move(d.m_vTargetDirections);
+
+	m_databaseIdSet = d.m_databaseIdSet;
+	m_msr_db_map = d.m_msr_db_map;
+
+	m_dbidmap = d.m_dbidmap;
+}
+
+// move assignment operator 
+CDnaDirectionSet& CDnaDirectionSet::operator= (CDnaDirectionSet&& rhs)
+{
+	// check for assignment to self!
+	if (this == &rhs)
+		return *this;
+
+	CDnaMeasurement::operator=(std::move(rhs));
+	m_strTarget = rhs.m_strTarget;
+	m_drValue = rhs.m_drValue;
+	m_dStdDev = rhs.m_dStdDev;
+	m_lRecordedTotal = rhs.m_lRecordedTotal;
 	
+	m_lsetID = rhs.m_lsetID;
+	m_MSmeasurementStations = rhs.m_MSmeasurementStations;
+	
+	m_vTargetDirections = std::move(rhs.m_vTargetDirections);
+	
+	m_databaseIdSet = rhs.m_databaseIdSet;
+	m_msr_db_map = rhs.m_msr_db_map;
+
+	m_dbidmap = rhs.m_dbidmap;
+
+	return *this;
+}
+
+
 // copy constructors
 //CDnaDirectionSet::CDnaDirectionSet(const CDnaDirectionSet& newDirectionSet)
 //{
@@ -206,17 +255,6 @@ bool CDnaDirectionSet::IsRepeatedDirection(string strTarget)
 }
 	
 
-//void CDnaDirectionSet::SetDatabaseMap_bmsIndex(const UINT32& bmsIndex) 
-//{ 
-//	m_msr_db_map.bms_index = bmsIndex; 
-//	UINT32 i(bmsIndex+1);
-//	for_each(m_vTargetDirections.begin(), m_vTargetDirections.end(),
-//		[this, &i](const CDnaDirection& dir) {
-//			((CDnaMeasurement*)&dir)->SetDatabaseMap_bmsIndex(i++);
-//	});
-//}
-	
-
 void CDnaDirectionSet::SerialiseDatabaseMap(std::ofstream* os)
 {
 	CDnaMeasurement::SerialiseDatabaseMap(os);
@@ -226,6 +264,26 @@ void CDnaDirectionSet::SerialiseDatabaseMap(std::ofstream* os)
 			((CDnaMeasurement*)&dir)->SerialiseDatabaseMap(os);
 	});
 }
+	
+
+void CDnaDirectionSet::SetDatabaseMaps(it_vdbid_t& dbidmap, bool dbidSet)
+{
+	m_databaseIdSet = dbidSet;
+
+	if (dbidSet)
+	{
+		m_dbidmap = dbidmap;
+
+		CDnaMeasurement::SetDatabaseMap(*m_dbidmap, m_databaseIdSet);
+
+		for_each(m_vTargetDirections.begin(), m_vTargetDirections.end(),
+			[this](const CDnaDirection& dir) {
+				((CDnaMeasurement*)&dir)->SetDatabaseMap(*m_dbidmap, m_databaseIdSet);
+		m_dbidmap++;
+			});
+	}
+}
+
 
 UINT32 CDnaDirectionSet::CalcBinaryRecordCount() const
 {
@@ -431,7 +489,7 @@ void CDnaDirectionSet::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* e
 //}
 	
 
-UINT32 CDnaDirectionSet::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr)
+UINT32 CDnaDirectionSet::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr, it_vdbid_t& dbidmap, bool dbidSet)
 {
 	m_strType = it_msr->measType;
 	m_bIgnore = it_msr->ignore;
@@ -466,14 +524,19 @@ UINT32 CDnaDirectionSet::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& i
 
 	UINT32 it_msrCount = m_lRecordedTotal;	
 
+	if (dbidSet)
+		CDnaMeasurement::SetDatabaseMap(*dbidmap, dbidSet);
+
 	// now covariances
 	vector<CDnaDirection>::iterator _it_dir = m_vTargetDirections.begin();
 	for (; _it_dir!=m_vTargetDirections.end(); ++_it_dir)
 	{
 		it_msr++;
+		if (dbidSet)
+			dbidmap++;
 		_it_dir->SetType(m_strType);
 		_it_dir->SetFirst(m_strFirst);
-		_it_dir->SetMeasurementRec(binaryStn, it_msr);
+		_it_dir->SetMeasurementRec(binaryStn, it_msr, dbidmap, dbidSet);
 	}
 
 	return it_msrCount;

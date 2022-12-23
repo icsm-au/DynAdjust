@@ -75,7 +75,9 @@ void Clusterpoint_pimpl::Z (const ::std::string& Z)
 void Clusterpoint_pimpl::MeasurementDBID(const ::std::string& MeasurementID)
 {
 	_dnaGpsPoint->SetMeasurementDBID(MeasurementID);
-	_dnaGpsPoint->SetClusterDBID(_parent_dnaGpsPointCluster->GetClusterDBID());
+	_dnaGpsPoint->SetClusterDBID(
+		_parent_dnaGpsPointCluster->GetClusterDBID(), 
+		_parent_dnaGpsPointCluster->GetDBIDSet());
 }
 
 
@@ -163,7 +165,9 @@ void Directions_pimpl::StdDev(const ::std::string& StdDev)
 void Directions_pimpl::MeasurementDBID(const ::std::string& MeasurementID)
 {
 	_dnaDirection->SetMeasurementDBID(MeasurementID);
-	_dnaDirection->SetClusterDBID(_parent_dnaDirectionSet->GetClusterDBID());
+	_dnaDirection->SetClusterDBID(
+		_parent_dnaDirectionSet->GetClusterDBID(),
+		_parent_dnaDirectionSet->GetDBIDSet());
 }
 	
 
@@ -944,7 +948,9 @@ void GPSBaseline_pimpl::pre()
 	
 	_dnaGpsBaseline->SetClusterID(_parent_dnaGpsBaselineCluster->GetClusterID());
 
-	_dnaGpsBaseline->SetClusterDBID(_parent_dnaGpsBaselineCluster->GetClusterDBID());
+	_dnaGpsBaseline->SetClusterDBID(
+		_parent_dnaGpsBaselineCluster->GetClusterDBID(),
+		_parent_dnaGpsBaselineCluster->GetDBIDSet());
 
 	if (_parent_dnaGpsBaselineCluster->GetType().empty())
 		throw XMLInteropException("\"Type\" element must be provided before \"GPSBaseline\" element.", 0);
@@ -1025,7 +1031,9 @@ void GPSBaseline_pimpl::Z(const ::std::string& Z)
 void GPSBaseline_pimpl::MeasurementDBID(const ::std::string& MeasurementID)
 {
 	_dnaGpsBaseline->SetMeasurementDBID(MeasurementID);
-	_dnaGpsBaseline->SetClusterDBID(_parent_dnaGpsBaselineCluster->GetClusterDBID());
+	_dnaGpsBaseline->SetClusterDBID(
+		_parent_dnaGpsBaselineCluster->GetClusterDBID(),
+		_parent_dnaGpsBaselineCluster->GetDBIDSet());
 }
 
 void GPSBaseline_pimpl::SigmaXX(const ::std::string& SigmaXX)

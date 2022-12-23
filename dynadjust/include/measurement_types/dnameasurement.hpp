@@ -240,8 +240,7 @@ public:
 
 	inline virtual UINT32 CalcBinaryRecordCount() const { return 3; }
 	void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex, const string& epsgCode, const string& epoch) const;
-	//virtual UINT32 SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord);
-	virtual UINT32 SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr);
+	virtual UINT32 SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr, it_vdbid_t& dbidmap, bool dbidSet);
 	virtual void WriteDynaMLMsr(std::ofstream* dynaml_stream) const;
 	virtual void WriteDNAMsr(std::ofstream* dna_stream, 
 		const dna_msr_fields& dmw, const dna_msr_fields& dml, 
@@ -362,7 +361,7 @@ public:
 	virtual UINT32 CalcBinaryRecordCount() const = 0;
 	virtual void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) const = 0;
 	//virtual UINT32 SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord) = 0;
-	virtual UINT32 SetMeasurementRec(const vstn_t&, it_vmsr_t& it_msr) = 0;
+	virtual UINT32 SetMeasurementRec(const vstn_t&, it_vmsr_t& it_msr, it_vdbid_t& dbidmap, bool dbidSet) = 0;
 	virtual void WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool bSubMeasurement = false) const = 0;
 	virtual void WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool bSubMeasurement = false) const = 0;
 	virtual void SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* ellipsoid) = 0;
@@ -457,17 +456,19 @@ public:
 	void SetMeasurementDBID(const string& str);
 	void SetClusterDBID(const string& str);
 	
-	inline void SetClusterDBID(const UINT32& u) { m_msr_db_map.cluster_id = u; }
-	inline void SetMeasurementDBID(const UINT32& u) { m_msr_db_map.msr_id = u; }
-	
+	void SetMeasurementDBID(const UINT32& u, bool dbidSet);
+	void SetClusterDBID(const UINT32& u, bool dbidSet);
+
 	inline UINT32 GetClusterDBID() { return m_msr_db_map.cluster_id; }
 	inline UINT32 GetMeasurementDBID() { return m_msr_db_map.msr_id; }
+	inline bool GetDBIDSet() { return m_databaseIdSet; }
+
 	//virtual inline UINT32 GetClusterDBID() const { return 0; }
 	//virtual inline UINT32 GetMeasurementDBID() const { return 0; }
 
 	void SetDatabaseMap(const msr_database_id_map& dbidmap, bool dbidSet);
-	//virtual inline void SetDatabaseMap_bmsIndex(const UINT32& bmsIndex) { m_msr_db_map.bms_index = bmsIndex; }
-	
+	virtual void SetDatabaseMaps(it_vdbid_t& it_dbidmap, bool dbidSet);
+
 	virtual void SerialiseDatabaseMap(std::ofstream* os);
 
 protected:

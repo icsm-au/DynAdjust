@@ -53,7 +53,7 @@ typedef struct msr_database_t {
 
 } msr_database_id_map;
 
-typedef vector<msr_database_id_map> v_msr_database_id_map;
+typedef vector<msr_database_id_map> v_msr_database_id_map, *pv_msr_database_id_map;
 typedef v_msr_database_id_map::iterator it_vdbid_t;
 
 typedef struct {
