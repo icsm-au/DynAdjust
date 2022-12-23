@@ -25,6 +25,8 @@ namespace dynadjust {
 namespace referenceframe {
 
 dna_reftran::dna_reftran()
+	: databaseIDsLoaded_(false)
+	, databaseIDsSet_(false)
 {
 #ifdef _MSC_VER
 #if (_MSC_VER < 1900)
@@ -41,6 +43,8 @@ dna_reftran::dna_reftran()
 }
 
 dna_reftran::dna_reftran(const project_settings& p, std::ofstream* f_out) 
+	: databaseIDsLoaded_(false)
+	, databaseIDsSet_(false)
 {
 	InitialiseSettings(p);
 	// reftran log file pointer
@@ -1858,9 +1862,74 @@ void dna_reftran::TransformMeasurement_Y(it_vmsr_t& msr_it, const CDnaDatum& dat
 	}
 			
 }
+	
+
+// First item in the file is a UINT32 value - the number of records in the file
+// All records are of type UINT32
+void dna_reftran::LoadDatabaseId()
+{
+	if (databaseIDsLoaded_)
+		return;
+
+	string dbid_filename = formPath<string>(projectSettings_.g.output_folder,
+		projectSettings_.g.network_name, "dbid");
+
+	stringstream ss;
+	v_msr_db_map_.clear();
+
+	std::ifstream dbid_file;
+	try {
+		// Create geoid file.  Throws runtime_error on failure.
+		file_opener(dbid_file, dbid_filename,
+			ios::in | ios::binary, binary);
+	}
+	catch (const runtime_error& e) {
+		ss << e.what();
+		throw boost::enable_current_exception(runtime_error(ss.str()));
+	}
+
+	UINT32 r, recordCount;
+	msr_database_id_map rec;
+
+	try {
+		// get size and reserve vector size
+		dbid_file.read(reinterpret_cast<char*>(&recordCount), sizeof(UINT32));
+		v_msr_db_map_.reserve(recordCount);
+
+		for (r = 0; r < recordCount; r++)
+		{
+			// Read data
+			dbid_file.read(reinterpret_cast<char*>(&rec.msr_id), sizeof(UINT32));
+			dbid_file.read(reinterpret_cast<char*>(&rec.cluster_id), sizeof(UINT32));
+
+			// push back
+			v_msr_db_map_.push_back(rec);
+		}
+
+		dbid_file.close();
+		databaseIDsLoaded_ = true;
+		if (v_msr_db_map_.size() > 0)
+			databaseIDsSet_ = true;
+		else
+			databaseIDsSet_ = false;
+	}
+	catch (const std::ifstream::failure& f) {
+		ss << f.what();
+		throw boost::enable_current_exception(runtime_error(ss.str()));
+	}
+}
+	
 
 void dna_reftran::SerialiseDNA(const string& stnfilename, const string& msrfilename, bool flagUnused)
 {
+	try {
+		// Load Database IDs
+		LoadDatabaseId();
+	}
+	catch (const runtime_error& e) {
+		throw RefTranException(e.what());
+	}
+
 	CDnaProjection projection;
 	try {
 		// write binary stations data.  Throws runtime_error on failure.
@@ -1870,8 +1939,9 @@ void dna_reftran::SerialiseDNA(const string& stnfilename, const string& msrfilen
 		if (datumTo_.isDynamic())
 			comment.append(", epoch ").append(datumTo_.GetEpoch_s());
 		comment.append(".  Exported by reftran.");
+		dna.set_dbid_ptr(&v_msr_db_map_);
 		dna.write_dna_files(&bstBinaryRecords_, &bmsBinaryRecords_, 
-			stnfilename, msrfilename, 
+			stnfilename, msrfilename, projectSettings_.g.network_name,
 			datumTo_, projection, flagUnused, "Station coordinates" + comment, "GNSS measurements" + comment);
 	}
 	catch (const runtime_error& e) {
@@ -1881,6 +1951,15 @@ void dna_reftran::SerialiseDNA(const string& stnfilename, const string& msrfilen
 
 void dna_reftran::SerialiseDynaML(const string& stnfilename, const string& msrfilename, bool flagUnused)
 {
+	try {
+		// Load Database IDs
+		LoadDatabaseId();
+	}
+	catch (const runtime_error& e) {
+		throw RefTranException(e.what());
+	}
+
+
 	// Open DynaML Station file
 	std::ofstream dynaml_stn_file;
 	try {
@@ -1888,6 +1967,8 @@ void dna_reftran::SerialiseDynaML(const string& stnfilename, const string& msrfi
 		file_opener(dynaml_stn_file, stnfilename);
 		// write header
 		dynaml_header(dynaml_stn_file, "Station File", datumTo_.GetName(), datumTo_.GetEpoch_s());
+		dynaml_comment(dynaml_stn_file, "File type:    Station file");
+		dynaml_comment(dynaml_stn_file, "Project name: " + projectSettings_.g.network_name);
 		// Write header comment line
 		string comment("Station coordinates transformed to ");
 		comment.append(datumTo_.GetName());
@@ -1919,6 +2000,8 @@ void dna_reftran::SerialiseDynaML(const string& stnfilename, const string& msrfi
 		file_opener(dynaml_msr_file, msrfilename);
 		// write header
 		dynaml_header(dynaml_msr_file, "Measurement File", datumTo_.GetName(), datumTo_.GetEpoch_s());
+		dynaml_comment(dynaml_msr_file, "File type:    Measurement file");
+		dynaml_comment(dynaml_msr_file, "Project name: " + projectSettings_.g.network_name);
 		// Write header comment line
 		string comment("GNSS measurements transformed to ");
 		comment.append(datumTo_.GetName());
@@ -1945,6 +2028,14 @@ void dna_reftran::SerialiseDynaML(const string& stnfilename, const string& msrfi
 
 void dna_reftran::SerialiseDynaML(const string& xmlfilename, bool flagUnused)
 {
+	try {
+		// Load Database IDs
+		LoadDatabaseId();
+	}
+	catch (const runtime_error& e) {
+		throw RefTranException(e.what());
+	}
+
 	std::ofstream dynaml_xml_file;
 	try {
 		// Create DynaML station and measurement file.  Throws runtime_error on failure.
@@ -1962,8 +2053,6 @@ void dna_reftran::SerialiseDynaML(const string& xmlfilename, bool flagUnused)
 	catch (const runtime_error& e) {
 		throw RefTranException(e.what());
 	}
-
-	
 
 	CDnaProjection projection;
 
@@ -2023,11 +2112,20 @@ void dna_reftran::SerialiseDynaMLMsr(std::ofstream* xml_file)
 	dnaMsrPtr msrPtr;
 	it_vmsr_t _it_msr;
 	string comment("");
+	size_t dbindex;
+	it_vdbid_t _it_dbid;
 	
 	for (_it_msr=bmsBinaryRecords_.begin(); _it_msr!=bmsBinaryRecords_.end(); ++_it_msr)
 	{
 		ResetMeasurementPtr<char>(&msrPtr, _it_msr->measType);
-		msrPtr->SetMeasurementRec(bstBinaryRecords_, _it_msr);
+
+		if (databaseIDsSet_)
+		{
+			dbindex = std::distance(bmsBinaryRecords_.begin(), _it_msr);
+			_it_dbid = v_msr_db_map_.begin() + dbindex;
+		}
+
+		msrPtr->SetMeasurementRec(bstBinaryRecords_, _it_msr, _it_dbid, databaseIDsSet_);
 		msrPtr->WriteDynaMLMsr(xml_file, comment);
 	}
 }

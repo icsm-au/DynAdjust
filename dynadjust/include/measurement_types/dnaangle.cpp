@@ -298,7 +298,7 @@ void CDnaAngle::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid*)
 //}
 	
 
-UINT32 CDnaAngle::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr)
+UINT32 CDnaAngle::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr, it_vdbid_t& dbidmap, bool dbidSet)
 {
 	m_strType = it_msr->measType;
 	m_bIgnore = it_msr->ignore;
@@ -325,6 +325,9 @@ UINT32 CDnaAngle::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr)
 	m_dStdDev = sqrt(it_msr->term2);
 	
 	m_epoch = it_msr->epoch;
+
+	if (dbidSet)
+		CDnaMeasurement::SetDatabaseMap(*dbidmap, dbidSet);
 
 	return 0;
 }

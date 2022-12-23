@@ -672,7 +672,7 @@ void CDnaGpsPoint::PopulateMsr(pvstn_t bstRecords, uint32_uint32_map* blockStati
 //}
 	
 
-UINT32 CDnaGpsPoint::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr)
+UINT32 CDnaGpsPoint::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr, it_vdbid_t& dbidmap, bool dbidSet)
 {
 	// first station
 	m_lstn1Index = it_msr->station1;
@@ -716,10 +716,13 @@ UINT32 CDnaGpsPoint::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_ms
 	m_vPointCovariances.clear();
 	m_vPointCovariances.resize(it_msr->vectorCount2);
 
+	if (dbidSet)
+		CDnaMeasurement::SetDatabaseMap(*dbidmap, dbidSet);
+
 	// now covariances
 	vector<CDnaCovariance>::iterator _it_cov = m_vPointCovariances.begin();
 	for (; _it_cov!=m_vPointCovariances.end(); ++_it_cov)
-		_it_cov->SetMeasurementRec(binaryStn, it_msr);
+		_it_cov->SetMeasurementRec(binaryStn, it_msr, dbidmap, dbidSet);
 
 	return it_msr->vectorCount1;
 }
@@ -1014,6 +1017,8 @@ CDnaGpsPointCluster::CDnaGpsPointCluster(CDnaGpsPointCluster&& p)
 
 	m_databaseIdSet = p.m_databaseIdSet;
 	m_msr_db_map = p.m_msr_db_map;
+
+	m_dbidmap = p.m_dbidmap;
 }
 
 // move assignment operator
@@ -1043,6 +1048,11 @@ CDnaGpsPointCluster& CDnaGpsPointCluster::operator= (CDnaGpsPointCluster&& rhs)
 	m_msr_db_map = rhs.m_msr_db_map;
 
 	m_vGpsPoints = std::move(rhs.m_vGpsPoints);
+
+	m_databaseIdSet = rhs.m_databaseIdSet;
+	m_msr_db_map = rhs.m_msr_db_map;
+
+	m_dbidmap = rhs.m_dbidmap;
 
 	return *this;
 }
@@ -1218,6 +1228,26 @@ void CDnaGpsPointCluster::SerialiseDatabaseMap(std::ofstream* os)
 			((CDnaGpsPoint*)&pnt)->SerialiseDatabaseMap(os);
 	});
 }
+	
+
+void CDnaGpsPointCluster::SetDatabaseMaps(it_vdbid_t& dbidmap, bool dbidSet)
+{
+	m_databaseIdSet = dbidSet;
+
+	if (dbidSet)
+	{
+		m_dbidmap = dbidmap;
+
+		CDnaMeasurement::SetDatabaseMap(*m_dbidmap, m_databaseIdSet);
+
+		for_each(m_vGpsPoints.begin(), m_vGpsPoints.end(),
+			[this](const CDnaGpsPoint& bsl) {
+				((CDnaGpsPoint*)&bsl)->SetDatabaseMap(*m_dbidmap, m_databaseIdSet);
+		m_dbidmap += ((CDnaGpsPoint*)&bsl)->GetCovariances_ptr()->size();
+			});
+	}
+}
+
 
 UINT32 CDnaGpsPointCluster::CalcBinaryRecordCount() const
 {
@@ -1377,7 +1407,7 @@ void CDnaGpsPointCluster::PopulateMsr(pvstn_t bstRecords, uint32_uint32_map* blo
 //}
 	
 
-UINT32 CDnaGpsPointCluster::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr)
+UINT32 CDnaGpsPointCluster::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr, it_vdbid_t& dbidmap, bool dbidSet)
 {
 	m_lclusterID = it_msr->clusterID;
 	m_MSmeasurementStations = (MEASUREMENT_STATIONS)it_msr->measurementStations;
@@ -1400,13 +1430,17 @@ UINT32 CDnaGpsPointCluster::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t
 	for (UINT32 i=0; i<m_lRecordedTotal; i++)
 	{
 		if (i > 0)
-			it_msr++;		
+		{
+			it_msr++;
+			if (dbidSet)
+				dbidmap++;
+		}
 
 		m_strType = it_msr->measType;
 		m_bIgnore = it_msr->ignore;
 		SetCoordType(it_msr->coordType);
 		
-		m_vGpsPoints.at(i).SetMeasurementRec(binaryStn, it_msr);
+		m_vGpsPoints.at(i).SetMeasurementRec(binaryStn, it_msr, dbidmap, dbidSet);
 	}
 
 	return measrecordCount - 1;	

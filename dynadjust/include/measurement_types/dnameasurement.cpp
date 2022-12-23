@@ -308,7 +308,7 @@ void CDnaCovariance::SimulateMsr(vdnaStnPtr*, const CDnaEllipsoid*)
 //}
 	
 
-UINT32 CDnaCovariance::SetMeasurementRec(const vstn_t&, it_vmsr_t& it_msr)
+UINT32 CDnaCovariance::SetMeasurementRec(const vstn_t&, it_vmsr_t& it_msr, it_vdbid_t& dbidmap, bool dbidSet)
 {
 	// get data relating to Z, sigmaZZ, sigmaXZ, sigmaYZ
 	it_msr++;
@@ -607,6 +607,19 @@ void CDnaMeasurement::SetMeasurementDBID(const string& str)
 void CDnaMeasurement::SetClusterDBID(const string& str)
 {
 	m_msr_db_map.cluster_id = LongFromString<UINT32>(str);
+	m_databaseIdSet = true;
+}
+
+void CDnaMeasurement::SetMeasurementDBID(const UINT32& u, bool dbidSet) 
+{
+	m_msr_db_map.msr_id = u;
+	m_databaseIdSet = dbidSet;
+}
+
+void CDnaMeasurement::SetClusterDBID(const UINT32& u, bool dbidSet) 
+{
+	m_msr_db_map.cluster_id = u;
+	m_databaseIdSet = dbidSet;
 }
 
 void CDnaMeasurement::SetType(const string& str)
@@ -621,6 +634,14 @@ void CDnaMeasurement::SetDatabaseMap(const msr_database_id_map& dbidmap, bool db
 	if (dbidSet)
 		m_msr_db_map = dbidmap;
 }
+
+void CDnaMeasurement::SetDatabaseMaps(it_vdbid_t& it_dbidmap, bool dbidSet)
+{
+	m_databaseIdSet = dbidSet;
+	if (dbidSet)
+		m_msr_db_map = *it_dbidmap;
+}
+	
 
 void CDnaMeasurement::SerialiseDatabaseMap(std::ofstream* os)
 {
