@@ -129,25 +129,31 @@ void dna_io_tbu::read_tbu_header(std::ifstream* ptr, string& version, INPUT_DATA
 	}
 
 	string type;
+	stringstream ssError;
+	ssError << "  File type has not been provided in the header:" << endl <<
+		"  " << sBuf << endl;
+
+	if (sBuf.length() < 15)
+		throw boost::enable_current_exception(runtime_error(ssError.str()));
+
 	// Attempt to get the file's type
 	try {
 		type = trimstr(sBuf.substr(12, 3));
 	}
 	catch (const runtime_error& e) {
-		stringstream ssError;
-		ssError << "- Error: File type has not been provided in the header" << endl <<
-			sBuf << endl << e.what() << endl;
+		ssError << "  " << e.what() << endl;
 		throw boost::enable_current_exception(runtime_error(ssError.str()));
 	}
 
-	// Station file
+	// Check this is a Type B file
 	if (iequals(type, "tbu"))
 		idt = tbu_data;
 	else
 	{
 		idt = unknown;
 		stringstream ssError;
-		ssError << "The supplied filetype '" << type << "' is not recognised" << endl;
+		ssError << "  The supplied filetype '" << type << "' is not recognised:" << endl <<
+			"  " << sBuf << endl;
 		throw boost::enable_current_exception(runtime_error(ssError.str()));
 	}
 }
