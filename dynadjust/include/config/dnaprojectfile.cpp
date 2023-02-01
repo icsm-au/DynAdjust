@@ -1074,7 +1074,33 @@ void CDnaProjectFile::LoadSettingReftran(const string& var, string& val)
 		if (val.empty())
 			return;
 		settings_.r.epoch = val;
-	}	
+	}
+	else if (iequals(var, TECTONIC_PLATE_MODEL_OPTION))
+	{
+		if (val.empty())
+			return;
+		settings_.r.plate_model_option = lexical_cast<UINT16, string>(val);
+	}
+	else if (iequals(var, TECTONIC_PLATE_BDY_FILE))
+	{
+		if (val.empty())
+			return;
+		settings_.r.tpb_file = val;
+
+		if (!exists(val))
+			if (exists(formPath<string>(settings_.g.input_folder, val)))
+				settings_.r.tpb_file = formPath<string>(settings_.g.input_folder, val);
+	}
+	else if (iequals(var, TECTONIC_PLATE_POLE_FILE))
+	{
+		if (val.empty())
+			return;
+		settings_.r.tpp_file = val;
+
+		if (!exists(val))
+			if (exists(formPath<string>(settings_.g.input_folder, val)))
+				settings_.r.tpp_file = formPath<string>(settings_.g.input_folder, val);
+	}
 }
 	
 void CDnaProjectFile::LoadSettingGeoid(const string& var, string& val)
@@ -1346,6 +1372,22 @@ void CDnaProjectFile::LoadSettingAdjust(const string& var, string& val)
 		if (val.empty())
 			return;
 		settings_.a.purge_stage_files = yesno_uint<UINT16, string>(val) == 1;
+	}
+	else if (iequals(var, TYPE_B_GLOBAL))
+	{
+		if (val.empty())
+			return;
+		settings_.a.type_b_global = val;
+	}
+	else if (iequals(var, TYPE_B_FILE))
+	{
+		if (val.empty())
+			return;
+		settings_.a.type_b_file = val;
+
+		if (!exists(val))
+			if (exists(formPath<string>(settings_.g.input_folder, val)))
+				settings_.a.type_b_file = formPath<string>(settings_.g.input_folder, val);
 	}
 }
 	
@@ -1777,6 +1819,10 @@ void CDnaProjectFile::PrintProjectFile()
 	PrintRecord(dnaproj_file, REFERENCE_FRAME, settings_.r.reference_frame);
 	PrintRecord(dnaproj_file, EPOCH, settings_.r.epoch);
 
+	PrintRecord(dnaproj_file, TECTONIC_PLATE_MODEL_OPTION, settings_.r.plate_model_option);					// Plate motion model option
+	PrintRecord(dnaproj_file, TECTONIC_PLATE_BDY_FILE, leafStr<string>(settings_.r.tpb_file));				// Tectonic plate boundary file
+	PrintRecord(dnaproj_file, TECTONIC_PLATE_POLE_FILE, leafStr<string>(settings_.r.tpp_file));				// Tectonic plate pole file
+	
 	dnaproj_file << endl;
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1855,6 +1901,9 @@ void CDnaProjectFile::PrintProjectFile()
 		yesno_string(settings_.a.recreate_stage_files));									// Recreate stage files
 	PrintRecord(dnaproj_file, PURGE_STAGE_FILES, 
 		yesno_string(settings_.a.purge_stage_files));										// Purge stage files
+
+	PrintRecord(dnaproj_file, TYPE_B_GLOBAL, settings_.a.type_b_global);					// Global Type B uncertainties
+	PrintRecord(dnaproj_file, TYPE_B_FILE, leafStr<string>(settings_.a.type_b_file));		// Type B uncertainty file
 	
 	dnaproj_file << endl;
 

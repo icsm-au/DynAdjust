@@ -73,6 +73,13 @@ bool is_number(const T& s)
 		s.find_first_not_of("0123456789") == std::string::npos);
 }
 
+template <typename T>
+bool is_floatingpoint(const T& s)
+{
+	return (
+		s.find_first_not_of("0123456789.") == std::string::npos);
+}
+
 #if defined(_WIN32) || defined(__WIN32__)
 #if (_MSC_VER < 1600)
 // copy_if is not in the C++ standaard!!!
