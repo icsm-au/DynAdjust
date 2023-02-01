@@ -42,6 +42,8 @@ const UINT16 GDA2020_i_xyz =	7842;		// XYZ
 const UINT16 GDA2020_i =		7843;		// LatLonEht
 const UINT16 GDA2020_i_2d =		7844;		// LatLon
 
+const UINT16 ITRF2020_i_xyz =   9988;		// XYZ
+const UINT16 ITRF2020_i =       9989;		// LatLonEht
 const UINT16 ITRF2014_i_xyz =	7789;		// XYZ
 const UINT16 ITRF2014_i =		7912;		// LatLonEht
 const UINT16 ITRF2008_i_xyz =	5332;		// XYZ
