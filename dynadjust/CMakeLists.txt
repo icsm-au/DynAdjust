@@ -403,7 +403,7 @@ if (BUILD_TESTING)
     add_test (NAME adjust-dbid-03 COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --report-results --output-adj-msr --output-pos-uncertainty --output-apu-vcv-units 1 --constraints "236300210,CCC")
     add_test (NAME adjust-dbid-04 COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --comments "This is a comment that is quite lengthy in content and is relatively meaningless.  Feel free to delete this comment.")
     add_test (NAME adjust-dbid-05 COMMAND $<TARGET_FILE:dnaadjustwrapper> -p dbid.dnaproj)
-    add_test (NAME adjust-dbid-05 COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --type-b-sd-glob "0.01,0.01,0.035" --type-b-sd-file ${CMAKE_SOURCE_DIR}/../sampleData/dsg.typeb --output-pos)
+    add_test (NAME adjust-dbid-06 COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --type-b-sd-glob "0.01,0.01,0.035" --type-b-sd-file ${CMAKE_SOURCE_DIR}/../sampleData/dsg.typeb --output-pos)
 
     # 13. Renaming, no export of flagged stations, no network name, non-contiguous networks, import block, nearby stations
     add_test (NAME import-misc-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-ignored.msr --stn-renaming-file ${CMAKE_SOURCE_DIR}/../sampleData/dsg.renaming --export-xml)
