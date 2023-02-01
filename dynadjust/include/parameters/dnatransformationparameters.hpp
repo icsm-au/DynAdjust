@@ -152,12 +152,6 @@ typedef vector<transformation_parameter_set> vtransparams;
 
 
 ////////////////////////////////////////////////////////////////////////////////////
-// TODO - This file uses hard-coded values for defining transformation parameters!
-// The most suitable approach is to load transformation parameters from an
-// authoritative file.
-////////////////////////////////////////////////////////////////////////////////////
-
-////////////////////////////////////////////////////////////////////////////////////
 //             SPECIAL NOTE ON ROTATION RATES FOR IERS PARAMETERS
 //         ----------------------------------------------------------
 //
@@ -232,7 +226,7 @@ const T _itrf2000_to_itrf1997_<T, U>::transformationParameters[14] =
 	 0.01,		// scale rate (ppb p/yr)
 	 0.00,		// x rotation rate (milli-arc-seconds p/yr)
 	 0.00,		// y rotation rate (milli-arc-seconds p/yr)
-	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED
+	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED (SEE SPECIAL NOTE ABOVE)
 };
 
 template <class T, class U>
@@ -273,7 +267,7 @@ const T _itrf2000_to_itrf1996_<T, U>::transformationParameters[14] =
 	 0.01,		// scale rate (ppb p/yr)
 	 0.00,		// x rotation rate (milli-arc-seconds p/yr)
 	 0.00,		// y rotation rate (milli-arc-seconds p/yr)
-	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED
+	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED (SEE SPECIAL NOTE ABOVE)
 };
 
 template <class T, class U>
@@ -314,7 +308,7 @@ const T _itrf2000_to_itrf1994_<T, U>::transformationParameters[14] =
 	 0.01,		// scale rate (ppb p/yr)
 	 0.00,		// x rotation rate (milli-arc-seconds p/yr)
 	 0.00,		// y rotation rate (milli-arc-seconds p/yr)
-	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED
+	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED (SEE SPECIAL NOTE ABOVE)
 };
 
 template <class T, class U>
@@ -345,17 +339,17 @@ const T _itrf2000_to_itrf1993_<T, U>::transformationParameters[14] =
 	  6.5,		// y translation (millimetres) - CONVERTED FROM CM
 	-20.9,		// z translation (millimetres) - CONVERTED FROM CM
 	 1.95,		// scale (ppb)
-	 0.39,		// x rotation (milli-arc-seconds) - REVERSED
-	-0.80,		// y rotation (milli-arc-seconds) - REVERSED
-	 1.14,		// z rotation (milli-arc-seconds) - REVERSED
+	 0.39,		// x rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
+	-0.80,		// y rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
+	 1.14,		// z rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
 
 	 -2.9,		// x translation rate (millimetres p/yr) - CONVERTED FROM CM
 	 -0.2,		// y translation rate (millimetres p/yr) - CONVERTED FROM CM
 	 -0.6,		// z translation rate (millimetres p/yr) - CONVERTED FROM CM
 	 0.01,		// scale rate (ppb p/yr)
-	 0.11,		// x rotation rate (milli-arc-seconds p/yr) - REVERSED
-	 0.19,		// y rotation rate (milli-arc-seconds p/yr) - REVERSED
-	-0.07		// z rotation rate (milli-arc-seconds p/yr) - REVERSED
+	 0.11,		// x rotation rate (milli-arc-seconds p/yr) - REVERSED (SEE SPECIAL NOTE ABOVE)
+	 0.19,		// y rotation rate (milli-arc-seconds p/yr) - REVERSED (SEE SPECIAL NOTE ABOVE)
+	-0.07		// z rotation rate (milli-arc-seconds p/yr) - REVERSED (SEE SPECIAL NOTE ABOVE)
 };
 
 template <class T, class U>
@@ -388,7 +382,7 @@ const T _itrf2000_to_itrf1992_<T, U>::transformationParameters[14] =
 	 0.75,		// scale (ppb)
 	 0.00,		// x rotation (milli-arc-seconds)
 	 0.00,		// y rotation (milli-arc-seconds)
-	 0.18,		// z rotation (milli-arc-seconds) - REVERSED
+	 0.18,		// z rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
 
 	  0.0,		// x translation rate (millimetres p/yr)
 	 -0.6,		// y translation rate (millimetres p/yr) - CONVERTED FROM CM
@@ -396,7 +390,7 @@ const T _itrf2000_to_itrf1992_<T, U>::transformationParameters[14] =
 	 0.01,		// scale rate (ppb p/yr)
 	 0.00,		// x rotation rate (milli-arc-seconds p/yr)
 	 0.00,		// y rotation rate (milli-arc-seconds p/yr)
-	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED
+	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED (SEE SPECIAL NOTE ABOVE)
 };
 
 template <class T, class U>
@@ -429,7 +423,7 @@ const T _itrf2000_to_itrf1991_<T, U>::transformationParameters[14] =
 	 2.15,		// scale (ppb)
 	 0.00,		// x rotation (milli-arc-seconds)
 	 0.00,		// y rotation (milli-arc-seconds)
-	 0.18,		// z rotation (milli-arc-seconds) - REVERSED
+	 0.18,		// z rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
 
 	  0.0,		// x translation rate (millimetres p/yr)
 	 -0.6,		// y translation rate (millimetres p/yr) - CONVERTED FROM CM
@@ -437,7 +431,7 @@ const T _itrf2000_to_itrf1991_<T, U>::transformationParameters[14] =
 	 0.01,		// scale rate (ppb p/yr)
 	 0.00,		// x rotation rate (milli-arc-seconds p/yr)
 	 0.00,		// y rotation rate (milli-arc-seconds p/yr)
-	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED
+	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED (SEE SPECIAL NOTE ABOVE)
 };
 
 template <class T, class U>
@@ -470,7 +464,7 @@ const T _itrf2000_to_itrf1990_<T, U>::transformationParameters[14] =
 	 2.45,		// scale (ppb)
 	 0.00,		// x rotation (milli-arc-seconds)
 	 0.00,		// y rotation (milli-arc-seconds)
-	 0.18,		// z rotation (milli-arc-seconds) - REVERSED
+	 0.18,		// z rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
 
 	  0.0,		// x translation rate (millimetres p/yr)
 	 -0.6,		// y translation rate (millimetres p/yr) - CONVERTED FROM CM
@@ -478,7 +472,7 @@ const T _itrf2000_to_itrf1990_<T, U>::transformationParameters[14] =
 	 0.01,		// scale rate (ppb p/yr)
 	 0.00,		// x rotation rate (milli-arc-seconds p/yr)
 	 0.00,		// y rotation rate (milli-arc-seconds p/yr)
-	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED
+	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED (SEE SPECIAL NOTE ABOVE)
 };
 
 template <class T, class U>
@@ -511,7 +505,7 @@ const T _itrf2000_to_itrf1989_<T, U>::transformationParameters[14] =
 	 5.85,		// scale (ppb)
 	 0.00,		// x rotation (milli-arc-seconds)
 	 0.00,		// y rotation (milli-arc-seconds)
-	 0.18,		// z rotation (milli-arc-seconds) - REVERSED
+	 0.18,		// z rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
 
 	  0.0,		// x translation rate (millimetres p/yr)
 	 -0.6,		// y translation rate (millimetres p/yr) - CONVERTED FROM CM
@@ -519,7 +513,7 @@ const T _itrf2000_to_itrf1989_<T, U>::transformationParameters[14] =
 	 0.01,		// scale rate (ppb p/yr)
 	 0.00,		// x rotation rate (milli-arc-seconds p/yr)
 	 0.00,		// y rotation rate (milli-arc-seconds p/yr)
-	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED
+	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED (SEE SPECIAL NOTE ABOVE)
 };
 
 template <class T, class U>
@@ -550,9 +544,9 @@ const T _itrf2000_to_itrf1988_<T, U>::transformationParameters[14] =
 	 11.5,		// y translation (millimetres) - CONVERTED FROM CM
 	-97.9,		// z translation (millimetres) - CONVERTED FROM CM
 	 8.95,		// scale (ppb)
-	-0.10,		// x rotation (milli-arc-seconds) - REVERSED
+	-0.10,		// x rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
 	 0.00,		// y rotation (milli-arc-seconds)
-	 0.18,		// z rotation (milli-arc-seconds) - REVERSED
+	 0.18,		// z rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
 
 	  0.0,		// x translation rate (millimetres p/yr)
 	 -0.6,		// y translation rate (millimetres p/yr) - CONVERTED FROM CM
@@ -560,7 +554,7 @@ const T _itrf2000_to_itrf1988_<T, U>::transformationParameters[14] =
 	 0.01,		// scale rate (ppb p/yr)
 	 0.00,		// x rotation rate (milli-arc-seconds p/yr)
 	 0.00,		// y rotation rate (milli-arc-seconds p/yr)
-	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED
+	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED (SEE SPECIAL NOTE ABOVE)
 };
 
 template <class T, class U>
@@ -572,7 +566,7 @@ public:
 ////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////////
-// ITRF2005 <-> ITRF2000
+// ITRF2005 <-> ITRF...
 // http://itrf.ensg.ign.fr/doc_ITRF/Transfo-ITRF2005_ITRF2000.txt
 
 // ITRF 2005 -> ITRF 2000
@@ -728,7 +722,7 @@ const T _itrf2008_to_itrf1997_<T, U>::transformationParameters[14] =
 	 2.92,		// scale (ppb)
 	 0.00,		// x rotation (milli-arc-seconds)
 	 0.00,		// y rotation (milli-arc-seconds)
-	-0.06,		// z rotation (milli-arc-seconds) - REVERSED
+	-0.06,		// z rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
 
 	  0.1,		// x translation rate (millimetres p/yr)
 	 -0.5,		// y translation rate (millimetres p/yr)
@@ -736,7 +730,7 @@ const T _itrf2008_to_itrf1997_<T, U>::transformationParameters[14] =
 	 0.09,		// scale rate (ppb p/yr)
 	 0.00,		// x rotation rate (milli-arc-seconds p/yr)
 	 0.00,		// y rotation rate (milli-arc-seconds p/yr)
-	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED
+	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED (SEE SPECIAL NOTE ABOVE)
 };
 
 template <class T, class U>
@@ -769,7 +763,7 @@ const T _itrf2008_to_itrf1996_<T, U>::transformationParameters[14] =
 	 2.92,		// scale (ppb)
 	 0.00,		// x rotation (milli-arc-seconds)
 	 0.00,		// y rotation (milli-arc-seconds)
-	-0.06,		// z rotation (milli-arc-seconds) - REVERSED
+	-0.06,		// z rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
 
 	  0.1,		// x translation rate (millimetres p/yr)
 	 -0.5,		// y translation rate (millimetres p/yr)
@@ -777,7 +771,7 @@ const T _itrf2008_to_itrf1996_<T, U>::transformationParameters[14] =
 	 0.09,		// scale rate (ppb p/yr)
 	 0.00,		// x rotation rate (milli-arc-seconds p/yr)
 	 0.00,		// y rotation rate (milli-arc-seconds p/yr)
-	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED
+	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED (SEE SPECIAL NOTE ABOVE)
 };
 
 template <class T, class U>
@@ -810,7 +804,7 @@ const T _itrf2008_to_itrf1994_<T, U>::transformationParameters[14] =
 	 2.92,		// scale (ppb)
 	 0.00,		// x rotation (milli-arc-seconds)
 	 0.00,		// y rotation (milli-arc-seconds)
-	-0.06,		// z rotation (milli-arc-seconds) - REVERSED
+	-0.06,		// z rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
 
 	  0.1,		// x translation rate (millimetres p/yr)
 	 -0.5,		// y translation rate (millimetres p/yr)
@@ -818,7 +812,7 @@ const T _itrf2008_to_itrf1994_<T, U>::transformationParameters[14] =
 	 0.09,		// scale rate (ppb p/yr)
 	 0.00,		// x rotation rate (milli-arc-seconds p/yr)
 	 0.00,		// y rotation rate (milli-arc-seconds p/yr)
-	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED
+	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED (SEE SPECIAL NOTE ABOVE)
 };
 
 template <class T, class U>
@@ -849,17 +843,17 @@ const T _itrf2008_to_itrf1993_<T, U>::transformationParameters[14] =
 	  2.4,		// y translation (millimetres)
 	-38.6,		// z translation (millimetres)
 	 3.41,		// scale (ppb)
-	 1.71,		// x rotation (milli-arc-seconds) - REVERSED
-	 1.48,		// y rotation (milli-arc-seconds) - REVERSED
-	 0.30,		// z rotation (milli-arc-seconds) - REVERSED
+	 1.71,		// x rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
+	 1.48,		// y rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
+	 0.30,		// z rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
 
 	 -2.8,		// x translation rate (millimetres p/yr)
 	 -0.1,		// y translation rate (millimetres p/yr)
 	 -2.4,		// z translation rate (millimetres p/yr)
 	 0.09,		// scale rate (ppb p/yr)
-	 0.11,		// x rotation rate (milli-arc-seconds p/yr) - REVERSED
-	 0.19,		// y rotation rate (milli-arc-seconds p/yr) - REVERSED
-	-0.07		// z rotation rate (milli-arc-seconds p/yr) - REVERSED
+	 0.11,		// x rotation rate (milli-arc-seconds p/yr) - REVERSED (SEE SPECIAL NOTE ABOVE)
+	 0.19,		// y rotation rate (milli-arc-seconds p/yr) - REVERSED (SEE SPECIAL NOTE ABOVE)
+	-0.07		// z rotation rate (milli-arc-seconds p/yr) - REVERSED (SEE SPECIAL NOTE ABOVE)
 };
 
 template <class T, class U>
@@ -892,7 +886,7 @@ const T _itrf2008_to_itrf1992_<T, U>::transformationParameters[14] =
 	 2.21,		// scale (ppb)
 	 0.00,		// x rotation (milli-arc-seconds)
 	 0.00,		// y rotation (milli-arc-seconds)
-	-0.06,		// z rotation (milli-arc-seconds) - REVERSED
+	-0.06,		// z rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
 
 	  0.1,		// x translation rate (millimetres p/yr)
 	 -0.5,		// y translation rate (millimetres p/yr)
@@ -900,7 +894,7 @@ const T _itrf2008_to_itrf1992_<T, U>::transformationParameters[14] =
 	 0.09,		// scale rate (ppb p/yr)
 	 0.00,		// x rotation rate (milli-arc-seconds p/yr)
 	 0.00,		// y rotation rate (milli-arc-seconds p/yr)
-	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED
+	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED (SEE SPECIAL NOTE ABOVE)
 };
 
 template <class T, class U>
@@ -933,7 +927,7 @@ const T _itrf2008_to_itrf1991_<T, U>::transformationParameters[14] =
 	 3.61,		// scale (ppb)
 	 0.00,		// x rotation (milli-arc-seconds)
 	 0.00,		// y rotation (milli-arc-seconds)
-	-0.06,		// z rotation (milli-arc-seconds) - REVERSED
+	-0.06,		// z rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
 
 	  0.1,		// x translation rate (millimetres p/yr)
 	 -0.5,		// y translation rate (millimetres p/yr)
@@ -941,7 +935,7 @@ const T _itrf2008_to_itrf1991_<T, U>::transformationParameters[14] =
 	 0.09,		// scale rate (ppb p/yr)
 	 0.00,		// x rotation rate (milli-arc-seconds p/yr)
 	 0.00,		// y rotation rate (milli-arc-seconds p/yr)
-	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED
+	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED (SEE SPECIAL NOTE ABOVE)
 };
 
 template <class T, class U>
@@ -974,7 +968,7 @@ const T _itrf2008_to_itrf1990_<T, U>::transformationParameters[14] =
 	 3.91,		// scale (ppb)
 	 0.00,		// x rotation (milli-arc-seconds)
 	 0.00,		// y rotation (milli-arc-seconds)
-	-0.06,		// z rotation (milli-arc-seconds) - REVERSED
+	-0.06,		// z rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
 
 	  0.1,		// x translation rate (millimetres p/yr)
 	 -0.5,		// y translation rate (millimetres p/yr)
@@ -982,7 +976,7 @@ const T _itrf2008_to_itrf1990_<T, U>::transformationParameters[14] =
 	 0.09,		// scale rate (ppb p/yr)
 	 0.00,		// x rotation rate (milli-arc-seconds p/yr)
 	 0.00,		// y rotation rate (milli-arc-seconds p/yr)
-	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED
+	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED (SEE SPECIAL NOTE ABOVE)
 };
 
 template <class T, class U>
@@ -1015,7 +1009,7 @@ const T _itrf2008_to_itrf1989_<T, U>::transformationParameters[14] =
 	 7.31,		// scale (ppb)
 	 0.00,		// x rotation (milli-arc-seconds)
 	 0.00,		// y rotation (milli-arc-seconds)
-	-0.06,		// z rotation (milli-arc-seconds) - REVERSED
+	-0.06,		// z rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
 
 	  0.1,		// x translation rate (millimetres p/yr)
 	 -0.5,		// y translation rate (millimetres p/yr)
@@ -1023,7 +1017,7 @@ const T _itrf2008_to_itrf1989_<T, U>::transformationParameters[14] =
 	 0.09,		// scale rate (ppb p/yr)
 	 0.00,		// x rotation rate (milli-arc-seconds p/yr)
 	 0.00,		// y rotation rate (milli-arc-seconds p/yr)
-	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED
+	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED (SEE SPECIAL NOTE ABOVE)
 };
 
 template <class T, class U>
@@ -1054,9 +1048,9 @@ const T _itrf2008_to_itrf1988_<T, U>::transformationParameters[14] =
 	  2.6,		// y translation (millimetres)
    -125.2,		// z translation (millimetres)
 	10.41,		// scale (ppb)
-	-0.10,		// x rotation (milli-arc-seconds) - REVERSED
+	-0.10,		// x rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
 	 0.00,		// y rotation (milli-arc-seconds)
-	-0.06,		// z rotation (milli-arc-seconds) - REVERSED
+	-0.06,		// z rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
 
 	  0.1,		// x translation rate (millimetres p/yr)
 	 -0.5,		// y translation rate (millimetres p/yr)
@@ -1064,7 +1058,7 @@ const T _itrf2008_to_itrf1988_<T, U>::transformationParameters[14] =
 	 0.09,		// scale rate (ppb p/yr)
 	 0.00,		// x rotation rate (milli-arc-seconds p/yr)
 	 0.00,		// y rotation rate (milli-arc-seconds p/yr)
-	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED
+	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED (SEE SPECIAL NOTE ABOVE)
 };
 
 template <class T, class U>
@@ -1076,7 +1070,7 @@ public:
 ////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////////
-// ITRF2014 <-> ITRF2008
+// ITRF2014 <-> ITRF...
 // http://itrf.ensg.ign.fr/doc_ITRF/Transfo-ITRF2014_ITRFs.txt
 
 // ITRF 2014 -> ITRF 2008
@@ -1226,7 +1220,7 @@ const T _itrf2014_to_itrf1997_<T, U>::transformationParameters[14] =
 	 3.80,		// scale (ppb)
 	 0.00,		// x rotation (milli-arc-seconds)
 	 0.00,		// y rotation (milli-arc-seconds)
-	-0.26,		// z rotation (milli-arc-seconds) - REVERSED
+	-0.26,		// z rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
 
 	  0.1,		// x translation rate (millimetres p/yr)
 	 -0.5,		// y translation rate (millimetres p/yr)
@@ -1234,7 +1228,7 @@ const T _itrf2014_to_itrf1997_<T, U>::transformationParameters[14] =
 	 0.12,		// scale rate (ppb p/yr)
 	 0.00,		// x rotation rate (milli-arc-seconds p/yr)
 	 0.00,		// y rotation rate (milli-arc-seconds p/yr)
-	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED
+	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED (SEE SPECIAL NOTE ABOVE)
 };
 
 template <class T, class U>
@@ -1267,7 +1261,7 @@ const T _itrf2014_to_itrf1996_<T, U>::transformationParameters[14] =
 	 3.80,		// scale (ppb)
 	 0.00,		// x rotation (milli-arc-seconds)
 	 0.00,		// y rotation (milli-arc-seconds)
-	-0.26,		// z rotation (milli-arc-seconds) - REVERSED
+	-0.26,		// z rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
 	 
 	  0.1,		// x translation rate (millimetres p/yr)
 	 -0.5,		// y translation rate (millimetres p/yr)
@@ -1275,7 +1269,7 @@ const T _itrf2014_to_itrf1996_<T, U>::transformationParameters[14] =
 	 0.12,		// scale rate (ppb p/yr)
 	 0.00,		// x rotation rate (milli-arc-seconds p/yr)
 	 0.00,		// y rotation rate (milli-arc-seconds p/yr)
-	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED
+	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED (SEE SPECIAL NOTE ABOVE)
 };
 
 template <class T, class U>
@@ -1308,7 +1302,7 @@ const T _itrf2014_to_itrf1994_<T, U>::transformationParameters[14] =
 	 3.80,		// scale (ppb)
 	 0.00,		// x rotation (milli-arc-seconds)
 	 0.00,		// y rotation (milli-arc-seconds)
-	-0.26,		// z rotation (milli-arc-seconds) - REVERSED
+	-0.26,		// z rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
 	 
 	  0.1,		// x translation rate (millimetres p/yr)
 	 -0.5,		// y translation rate (millimetres p/yr)
@@ -1316,7 +1310,7 @@ const T _itrf2014_to_itrf1994_<T, U>::transformationParameters[14] =
 	 0.12,		// scale rate (ppb p/yr)
 	 0.00,		// x rotation rate (milli-arc-seconds p/yr)
 	 0.00,		// y rotation rate (milli-arc-seconds p/yr)
-	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED
+	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED (SEE SPECIAL NOTE ABOVE)
 };
 
 template <class T, class U>
@@ -1347,17 +1341,17 @@ const T _itrf2014_to_itrf1993_<T, U>::transformationParameters[14] =
 	  3.3,		// y translation (millimetres)
 	-60.2,		// z translation (millimetres)
 	 4.29,		// scale (ppb)
-	 2.81,		// x rotation (milli-arc-seconds) - REVERSED
-	 3.38,		// y rotation (milli-arc-seconds) - REVERSED
-	-0.40,		// z rotation (milli-arc-seconds) - REVERSED
+	 2.81,		// x rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
+	 3.38,		// y rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
+	-0.40,		// z rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
 	 
 	 -2.8,		// x translation rate (millimetres p/yr)
 	 -0.1,		// y translation rate (millimetres p/yr)
 	 -2.5,		// z translation rate (millimetres p/yr)
 	 0.12,		// scale rate (ppb p/yr)
-	 0.11,		// x rotation rate (milli-arc-seconds p/yr) - REVERSED
-	 0.19,		// y rotation rate (milli-arc-seconds p/yr) - REVERSED
-	-0.07		// z rotation rate (milli-arc-seconds p/yr) - REVERSED
+	 0.11,		// x rotation rate (milli-arc-seconds p/yr) - REVERSED (SEE SPECIAL NOTE ABOVE)
+	 0.19,		// y rotation rate (milli-arc-seconds p/yr) - REVERSED (SEE SPECIAL NOTE ABOVE)
+	-0.07		// z rotation rate (milli-arc-seconds p/yr) - REVERSED (SEE SPECIAL NOTE ABOVE)
 };
 
 template <class T, class U>
@@ -1390,7 +1384,7 @@ const T _itrf2014_to_itrf1992_<T, U>::transformationParameters[14] =
 	 3.09,		// scale (ppb)
 	 0.00,		// x rotation (milli-arc-seconds)
 	 0.00,		// y rotation (milli-arc-seconds)
-	-0.26,		// z rotation (milli-arc-seconds) - REVERSED
+	-0.26,		// z rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
 	 
 	  0.1,		// x translation rate (millimetres p/yr)
 	 -0.5,		// y translation rate (millimetres p/yr)
@@ -1398,7 +1392,7 @@ const T _itrf2014_to_itrf1992_<T, U>::transformationParameters[14] =
 	 0.12,		// scale rate (ppb p/yr)
 	 0.00,		// x rotation rate (milli-arc-seconds p/yr)
 	 0.00,		// y rotation rate (milli-arc-seconds p/yr)
-	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED
+	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED (SEE SPECIAL NOTE ABOVE)
 };
 
 template <class T, class U>
@@ -1431,7 +1425,7 @@ const T _itrf2014_to_itrf1991_<T, U>::transformationParameters[14] =
 	 4.49,		// scale (ppb)
 	 0.00,		// x rotation (milli-arc-seconds)
 	 0.00,		// y rotation (milli-arc-seconds)
-	-0.26,		// z rotation (milli-arc-seconds) - REVERSED
+	-0.26,		// z rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
 	 
 	  0.1,		// x translation rate (millimetres p/yr)
 	 -0.5,		// y translation rate (millimetres p/yr)
@@ -1439,7 +1433,7 @@ const T _itrf2014_to_itrf1991_<T, U>::transformationParameters[14] =
 	 0.12,		// scale rate (ppb p/yr)
 	 0.00,		// x rotation rate (milli-arc-seconds p/yr)
 	 0.00,		// y rotation rate (milli-arc-seconds p/yr)
-	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED
+	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED (SEE SPECIAL NOTE ABOVE)
 };
 
 template <class T, class U>
@@ -1472,7 +1466,7 @@ const T _itrf2014_to_itrf1990_<T, U>::transformationParameters[14] =
 	 4.79,		// scale (ppb)
 	 0.00,		// x rotation (milli-arc-seconds)
 	 0.00,		// y rotation (milli-arc-seconds)
-	-0.26,		// z rotation (milli-arc-seconds) - REVERSED
+	-0.26,		// z rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
 	 
 	  0.1,		// x translation rate (millimetres p/yr)
 	 -0.5,		// y translation rate (millimetres p/yr)
@@ -1480,7 +1474,7 @@ const T _itrf2014_to_itrf1990_<T, U>::transformationParameters[14] =
 	 0.12,		// scale rate (ppb p/yr)
 	 0.00,		// x rotation rate (milli-arc-seconds p/yr)
 	 0.00,		// y rotation rate (milli-arc-seconds p/yr)
-	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED
+	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED (SEE SPECIAL NOTE ABOVE)
 };
 
 template <class T, class U>
@@ -1513,7 +1507,7 @@ const T _itrf2014_to_itrf1989_<T, U>::transformationParameters[14] =
 	  8.19,		// scale (ppb)
 	  0.00,		// x rotation (milli-arc-seconds)
 	  0.00,		// y rotation (milli-arc-seconds)
-	 -0.26,		// z rotation (milli-arc-seconds) - REVERSED
+	 -0.26,		// z rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
 	  
 	   0.1,		// x translation rate (millimetres p/yr)
 	  -0.5,		// y translation rate (millimetres p/yr)
@@ -1521,7 +1515,7 @@ const T _itrf2014_to_itrf1989_<T, U>::transformationParameters[14] =
 	  0.12,		// scale rate (ppb p/yr)
 	  0.00,		// x rotation rate (milli-arc-seconds p/yr)
 	  0.00,		// y rotation rate (milli-arc-seconds p/yr)
-	 -0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED
+	 -0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED (SEE SPECIAL NOTE ABOVE)
 };
 
 template <class T, class U>
@@ -1552,9 +1546,9 @@ const T _itrf2014_to_itrf1988_<T, U>::transformationParameters[14] =
 	  -0.5,		// y translation (millimetres)
 	-154.8,		// z translation (millimetres)
 	 11.29,		// scale (ppb)
-	 -0.10,		// x rotation (milli-arc-seconds) - REVERSED
+	 -0.10,		// x rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
 	  0.00,		// y rotation (milli-arc-seconds)
-	 -0.26,		// z rotation (milli-arc-seconds) - REVERSED
+	 -0.26,		// z rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
 	  
 	   0.1,		// x translation rate (millimetres p/yr)
 	  -0.5,		// y translation rate (millimetres p/yr)
@@ -1562,7 +1556,7 @@ const T _itrf2014_to_itrf1988_<T, U>::transformationParameters[14] =
 	  0.12,		// scale rate (ppb p/yr)
 	  0.00,		// x rotation rate (milli-arc-seconds p/yr)
 	  0.00,		// y rotation rate (milli-arc-seconds p/yr)
-	 -0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED
+	 -0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED (SEE SPECIAL NOTE ABOVE)
 };
 
 template <class T, class U>
@@ -1576,10 +1570,8 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////////
 // ITRF2014 <-> GDA2020
-// PCG In-confidence PowerPoint (Perth PGC FTF March 2016)
-// file://C:\Data\GEODESY\ICSM\DATUM\2016-03-09-pcg-perth\GDA94toGDA2020Transformation.pptx
 //
-// Replaced by ICSM Release note (March 2017)
+// ICSM Release note (March 2017)
 // 'file://C:\Data\GEODESY\ICSM\DATUM\GDA2020 media\GDA2020 Release Note.docx'
 
 // ITRF2014 -> GDA2020
@@ -1626,6 +1618,546 @@ class ITRF2014_GDA2020 : public _itrf2014_to_gda2020_<T, U>
 {
 public:
 };
+////////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////////
+// ITRF2020 <-> ITRF...
+// https://itrf.ign.fr/docs/solutions/itrf2020/Transfo-ITRF2020_TRFs.txt
+
+// ITRF 2020 -> ITRF 2014
+template <class T, class U>
+struct _itrf2020_to_itrf2014_
+{
+	static const U reference_frame;
+	static const T reference_epoch;
+	static const T transformationParameters[14];
+};
+
+template <class T, class U>
+const U _itrf2020_to_itrf2014_<T, U>::reference_frame = ITRF2020_i;
+
+template <class T, class U>
+const T _itrf2020_to_itrf2014_<T, U>::reference_epoch = 2015.0;
+
+template <class T, class U>
+const T _itrf2020_to_itrf2014_<T, U>::transformationParameters[14] =
+{
+	 -1.4,		// x translation (millimetres)
+	 -0.9,		// y translation (millimetres)
+	  1.4,		// z translation (millimetres)
+	-0.42,		// scale (ppb)
+	 0.00,		// x rotation (milli-arc-seconds)
+	 0.00,		// y rotation (milli-arc-seconds)
+	 0.00,		// z rotation (milli-arc-seconds)
+
+	  0.0,		// x translation rate (millimetres p/yr)
+	 -0.1,		// y translation rate (millimetres p/yr)
+	  0.2,		// z translation rate (millimetres p/yr)
+	 0.00,		// scale rate (ppb p/yr)
+	 0.00,		// x rotation rate (milli-arc-seconds p/yr)
+	 0.00,		// y rotation rate (milli-arc-seconds p/yr)
+	 0.00		// z rotation rate (milli-arc-seconds p/yr)
+};
+
+template <class T, class U>
+class ITRF2020_ITRF2014 : public _itrf2020_to_itrf2014_<T, U>
+{
+public:
+};
+
+// ITRF 2020 -> ITRF 2008
+template <class T, class U>
+struct _itrf2020_to_itrf2008_
+{
+	static const U reference_frame;
+	static const T reference_epoch;
+	static const T transformationParameters[14];
+};
+
+template <class T, class U>
+const U _itrf2020_to_itrf2008_<T, U>::reference_frame = ITRF2020_i;
+
+template <class T, class U>
+const T _itrf2020_to_itrf2008_<T, U>::reference_epoch = 2015.0;
+
+template <class T, class U>
+const T _itrf2020_to_itrf2008_<T, U>::transformationParameters[14] =
+{
+	  0.2,		// x translation (millimetres)
+	  1.0,		// y translation (millimetres)
+	  3.3,		// z translation (millimetres)
+	-0.29,		// scale (ppb)
+	 0.00,		// x rotation (milli-arc-seconds)
+	 0.00,		// y rotation (milli-arc-seconds)
+	 0.00,		// z rotation (milli-arc-seconds)
+
+	  0.0,		// x translation rate (millimetres p/yr)
+	 -0.1,		// y translation rate (millimetres p/yr)
+	  0.1,		// z translation rate (millimetres p/yr)
+	 0.03,		// scale rate (ppb p/yr)
+	 0.00,		// x rotation rate (milli-arc-seconds p/yr)
+	 0.00,		// y rotation rate (milli-arc-seconds p/yr)
+	 0.00		// z rotation rate (milli-arc-seconds p/yr)
+};
+
+template <class T, class U>
+class ITRF2020_ITRF2008 : public _itrf2020_to_itrf2008_<T, U>
+{
+public:
+};
+
+// ITRF 2020 -> ITRF 2005
+template <class T, class U>
+struct _itrf2020_to_itrf2005_
+{
+	static const U reference_frame;
+	static const T reference_epoch;
+	static const T transformationParameters[14];
+};
+
+template <class T, class U>
+const U _itrf2020_to_itrf2005_<T, U>::reference_frame = ITRF2020_i;
+
+template <class T, class U>
+const T _itrf2020_to_itrf2005_<T, U>::reference_epoch = 2015.0;
+
+template <class T, class U>
+const T _itrf2020_to_itrf2005_<T, U>::transformationParameters[14] =
+{
+	  2.7,		// x translation (millimetres)
+	  0.1,		// y translation (millimetres)
+	 -1.4,		// z translation (millimetres)
+	 0.65,		// scale (ppb)
+	 0.00,		// x rotation (milli-arc-seconds)
+	 0.00,		// y rotation (milli-arc-seconds)
+	 0.00,		// z rotation (milli-arc-seconds)
+
+	  0.3,		// x translation rate (millimetres p/yr)
+	 -0.1,		// y translation rate (millimetres p/yr)
+	  0.1,		// z translation rate (millimetres p/yr)
+	 0.03,		// scale rate (ppb p/yr)
+	 0.00,		// x rotation rate (milli-arc-seconds p/yr)
+	 0.00,		// y rotation rate (milli-arc-seconds p/yr)
+	 0.00		// z rotation rate (milli-arc-seconds p/yr)
+};
+
+template <class T, class U>
+class ITRF2020_ITRF2005 : public _itrf2020_to_itrf2005_<T, U>
+{
+public:
+};
+
+// ITRF 2020 -> ITRF 2000
+template <class T, class U>
+struct _itrf2020_to_itrf2000_
+{
+	static const U reference_frame;
+	static const T reference_epoch;
+	static const T transformationParameters[14];
+};
+
+template <class T, class U>
+const U _itrf2020_to_itrf2000_<T, U>::reference_frame = ITRF2020_i;
+
+template <class T, class U>
+const T _itrf2020_to_itrf2000_<T, U>::reference_epoch = 2015.0;
+
+template <class T, class U>
+const T _itrf2020_to_itrf2000_<T, U>::transformationParameters[14] =
+{
+	 -0.2,		// x translation (millimetres)
+	  0.8,		// y translation (millimetres)
+	-34.2,		// z translation (millimetres)
+	 2.25,		// scale (ppb)
+	 0.00,		// x rotation (milli-arc-seconds)
+	 0.00,		// y rotation (milli-arc-seconds)
+	 0.00,		// z rotation (milli-arc-seconds)
+
+	  0.1,		// x translation rate (millimetres p/yr)
+	  0.0,		// y translation rate (millimetres p/yr)
+	 -1.7,		// z translation rate (millimetres p/yr)
+	 0.11,		// scale rate (ppb p/yr)
+	 0.00,		// x rotation rate (milli-arc-seconds p/yr)
+	 0.00,		// y rotation rate (milli-arc-seconds p/yr)
+	 0.00		// z rotation rate (milli-arc-seconds p/yr)
+};
+
+template <class T, class U>
+class ITRF2020_ITRF2000 : public _itrf2020_to_itrf2000_<T, U>
+{
+public:
+};
+
+// ITRF 2020 -> ITRF 1997
+template <class T, class U>
+struct _itrf2020_to_itrf1997_
+{
+	static const U reference_frame;
+	static const T reference_epoch;
+	static const T transformationParameters[14];
+};
+
+template <class T, class U>
+const U _itrf2020_to_itrf1997_<T, U>::reference_frame = ITRF2020_i;
+
+template <class T, class U>
+const T _itrf2020_to_itrf1997_<T, U>::reference_epoch = 2015.0;
+
+template <class T, class U>
+const T _itrf2020_to_itrf1997_<T, U>::transformationParameters[14] =
+{
+	  6.5,		// x translation (millimetres)
+	 -3.9,		// y translation (millimetres)
+	-77.9,		// z translation (millimetres)
+	 3.98,		// scale (ppb)
+	 0.00,		// x rotation (milli-arc-seconds)
+	 0.00,		// y rotation (milli-arc-seconds)
+	-0.36,		// z rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
+
+	  0.1,		// x translation rate (millimetres p/yr)
+	 -0.6,		// y translation rate (millimetres p/yr)
+	 -3.1,		// z translation rate (millimetres p/yr)
+	 0.12,		// scale rate (ppb p/yr)
+	 0.00,		// x rotation rate (milli-arc-seconds p/yr)
+	 0.00,		// y rotation rate (milli-arc-seconds p/yr)
+	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED (SEE SPECIAL NOTE ABOVE)
+};
+
+template <class T, class U>
+class ITRF2020_ITRF1997 : public _itrf2020_to_itrf1997_<T, U>
+{
+public:
+};
+
+// ITRF 2020 -> ITRF 1996
+template <class T, class U>
+struct _itrf2020_to_itrf1996_
+{
+	static const U reference_frame;
+	static const T reference_epoch;
+	static const T transformationParameters[14];
+};
+
+template <class T, class U>
+const U _itrf2020_to_itrf1996_<T, U>::reference_frame = ITRF2020_i;
+
+template <class T, class U>
+const T _itrf2020_to_itrf1996_<T, U>::reference_epoch = 2015.0;
+
+template <class T, class U>
+const T _itrf2020_to_itrf1996_<T, U>::transformationParameters[14] =
+{
+	  6.5,		// x translation (millimetres)
+	 -3.9,		// y translation (millimetres)
+	-77.9,		// z translation (millimetres)
+	 3.98,		// scale (ppb)
+	 0.00,		// x rotation (milli-arc-seconds)
+	 0.00,		// y rotation (milli-arc-seconds)
+	-0.36,		// z rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
+
+	  0.1,		// x translation rate (millimetres p/yr)
+	 -0.6,		// y translation rate (millimetres p/yr)
+	 -3.1,		// z translation rate (millimetres p/yr)
+	 0.12,		// scale rate (ppb p/yr)
+	 0.00,		// x rotation rate (milli-arc-seconds p/yr)
+	 0.00,		// y rotation rate (milli-arc-seconds p/yr)
+	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED (SEE SPECIAL NOTE ABOVE)
+};
+
+template <class T, class U>
+class ITRF2020_ITRF1996 : public _itrf2020_to_itrf1996_<T, U>
+{
+public:
+};
+
+// ITRF 2020 -> ITRF 1994
+template <class T, class U>
+struct _itrf2020_to_itrf1994_
+{
+	static const U reference_frame;
+	static const T reference_epoch;
+	static const T transformationParameters[14];
+};
+
+template <class T, class U>
+const U _itrf2020_to_itrf1994_<T, U>::reference_frame = ITRF2020_i;
+
+template <class T, class U>
+const T _itrf2020_to_itrf1994_<T, U>::reference_epoch = 2015.0;
+
+template <class T, class U>
+const T _itrf2020_to_itrf1994_<T, U>::transformationParameters[14] =
+{
+	  6.5,		// x translation (millimetres)
+	 -3.9,		// y translation (millimetres)
+	-77.9,		// z translation (millimetres)
+	 3.98,		// scale (ppb)
+	 0.00,		// x rotation (milli-arc-seconds)
+	 0.00,		// y rotation (milli-arc-seconds)
+	-0.36,		// z rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
+
+	  0.1,		// x translation rate (millimetres p/yr)
+	 -0.6,		// y translation rate (millimetres p/yr)
+	 -3.1,		// z translation rate (millimetres p/yr)
+	 0.12,		// scale rate (ppb p/yr)
+	 0.00,		// x rotation rate (milli-arc-seconds p/yr)
+	 0.00,		// y rotation rate (milli-arc-seconds p/yr)
+	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED (SEE SPECIAL NOTE ABOVE)
+};
+
+template <class T, class U>
+class ITRF2020_ITRF1994 : public _itrf2020_to_itrf1994_<T, U>
+{
+public:
+};
+
+// ITRF 2020 -> ITRF 1993
+template <class T, class U>
+struct _itrf2020_to_itrf1993_
+{
+	static const U reference_frame;
+	static const T reference_epoch;
+	static const T transformationParameters[14];
+};
+
+template <class T, class U>
+const U _itrf2020_to_itrf1993_<T, U>::reference_frame = ITRF2014_i;
+
+template <class T, class U>
+const T _itrf2020_to_itrf1993_<T, U>::reference_epoch = 2015.0;
+
+template <class T, class U>
+const T _itrf2020_to_itrf1993_<T, U>::transformationParameters[14] =
+{
+	-65.8,		// x translation (millimetres)
+	  1.9,		// y translation (millimetres)
+	-71.3,		// z translation (millimetres)
+	 4.47,		// scale (ppb)
+	 3.36,		// x rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
+	 4.33,		// y rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
+	-0.75,		// z rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
+
+	 -2.8,		// x translation rate (millimetres p/yr)
+	 -0.2,		// y translation rate (millimetres p/yr)
+	 -2.3,		// z translation rate (millimetres p/yr)
+	 0.12,		// scale rate (ppb p/yr)
+	 0.11,		// x rotation rate (milli-arc-seconds p/yr) - REVERSED (SEE SPECIAL NOTE ABOVE)
+	 0.19,		// y rotation rate (milli-arc-seconds p/yr) - REVERSED (SEE SPECIAL NOTE ABOVE)
+	-0.07		// z rotation rate (milli-arc-seconds p/yr) - REVERSED (SEE SPECIAL NOTE ABOVE)
+};
+
+template <class T, class U>
+class ITRF2020_ITRF1993 : public _itrf2020_to_itrf1993_<T, U>
+{
+public:
+};
+
+// ITRF 2020 -> ITRF 1992
+template <class T, class U>
+struct _itrf2020_to_itrf1992_
+{
+	static const U reference_frame;
+	static const T reference_epoch;
+	static const T transformationParameters[14];
+};
+
+template <class T, class U>
+const U _itrf2020_to_itrf1992_<T, U>::reference_frame = ITRF2020_i;
+
+template <class T, class U>
+const T _itrf2020_to_itrf1992_<T, U>::reference_epoch = 2015.0;
+
+template <class T, class U>
+const T _itrf2020_to_itrf1992_<T, U>::transformationParameters[14] =
+{
+	 14.5,		// x translation (millimetres)
+	 -1.9,		// y translation (millimetres)
+	-85.9,		// z translation (millimetres)
+	 3.27,		// scale (ppb)
+	 0.00,		// x rotation (milli-arc-seconds)
+	 0.00,		// y rotation (milli-arc-seconds)
+	-0.36,		// z rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
+
+	  0.1,		// x translation rate (millimetres p/yr)
+	 -0.6,		// y translation rate (millimetres p/yr)
+	 -3.1,		// z translation rate (millimetres p/yr)
+	 0.12,		// scale rate (ppb p/yr)
+	 0.00,		// x rotation rate (milli-arc-seconds p/yr)
+	 0.00,		// y rotation rate (milli-arc-seconds p/yr)
+	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED (SEE SPECIAL NOTE ABOVE)
+};
+
+template <class T, class U>
+class ITRF2020_ITRF1992 : public _itrf2020_to_itrf1992_<T, U>
+{
+public:
+};
+
+// ITRF 2020 -> ITRF 1991
+template <class T, class U>
+struct _itrf2020_to_itrf1991_
+{
+	static const U reference_frame;
+	static const T reference_epoch;
+	static const T transformationParameters[14];
+};
+
+template <class T, class U>
+const U _itrf2020_to_itrf1991_<T, U>::reference_frame = ITRF2020_i;
+
+template <class T, class U>
+const T _itrf2020_to_itrf1991_<T, U>::reference_epoch = 2015.0;
+
+template <class T, class U>
+const T _itrf2020_to_itrf1991_<T, U>::transformationParameters[14] =
+{
+	 26.5,		// x translation (millimetres)
+	 12.1,		// y translation (millimetres)
+	-91.9,		// z translation (millimetres)
+	 4.67,		// scale (ppb)
+	 0.00,		// x rotation (milli-arc-seconds)
+	 0.00,		// y rotation (milli-arc-seconds)
+	-0.36,		// z rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
+
+	  0.1,		// x translation rate (millimetres p/yr)
+	 -0.6,		// y translation rate (millimetres p/yr)
+	 -3.1,		// z translation rate (millimetres p/yr)
+	 0.12,		// scale rate (ppb p/yr)
+	 0.00,		// x rotation rate (milli-arc-seconds p/yr)
+	 0.00,		// y rotation rate (milli-arc-seconds p/yr)
+	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED (SEE SPECIAL NOTE ABOVE)
+};
+
+template <class T, class U>
+class ITRF2020_ITRF1991 : public _itrf2020_to_itrf1991_<T, U>
+{
+public:
+};
+
+// ITRF 2020 -> ITRF 1990
+template <class T, class U>
+struct _itrf2020_to_itrf1990_
+{
+	static const U reference_frame;
+	static const T reference_epoch;
+	static const T transformationParameters[14];
+};
+
+template <class T, class U>
+const U _itrf2020_to_itrf1990_<T, U>::reference_frame = ITRF2020_i;
+
+template <class T, class U>
+const T _itrf2020_to_itrf1990_<T, U>::reference_epoch = 2015.0;
+
+template <class T, class U>
+const T _itrf2020_to_itrf1990_<T, U>::transformationParameters[14] =
+{
+	 24.5,		// x translation (millimetres)
+	  8.1,		// y translation (millimetres)
+   -107.9,		// z translation (millimetres)
+	 4.97,		// scale (ppb)
+	 0.00,		// x rotation (milli-arc-seconds)
+	 0.00,		// y rotation (milli-arc-seconds)
+	-0.36,		// z rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
+
+	  0.1,		// x translation rate (millimetres p/yr)
+	 -0.6,		// y translation rate (millimetres p/yr)
+	 -3.1,		// z translation rate (millimetres p/yr)
+	 0.12,		// scale rate (ppb p/yr)
+	 0.00,		// x rotation rate (milli-arc-seconds p/yr)
+	 0.00,		// y rotation rate (milli-arc-seconds p/yr)
+	-0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED (SEE SPECIAL NOTE ABOVE)
+};
+
+template <class T, class U>
+class ITRF2020_ITRF1990 : public _itrf2020_to_itrf1990_<T, U>
+{
+public:
+};
+
+// ITRF 2020 -> ITRF 1989
+template <class T, class U>
+struct _itrf2020_to_itrf1989_
+{
+	static const U reference_frame;
+	static const T reference_epoch;
+	static const T transformationParameters[14];
+};
+
+template <class T, class U>
+const U _itrf2020_to_itrf1989_<T, U>::reference_frame = ITRF2020_i;
+
+template <class T, class U>
+const T _itrf2020_to_itrf1989_<T, U>::reference_epoch = 2015.0;
+
+template <class T, class U>
+const T _itrf2020_to_itrf1989_<T, U>::transformationParameters[14] =
+{
+	  29.5,		// x translation (millimetres)
+	  32.1,		// y translation (millimetres)
+	-145.9,		// z translation (millimetres)
+	  8.37,		// scale (ppb)
+	  0.00,		// x rotation (milli-arc-seconds)
+	  0.00,		// y rotation (milli-arc-seconds)
+	 -0.36,		// z rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
+
+	   0.1,		// x translation rate (millimetres p/yr)
+	  -0.6,		// y translation rate (millimetres p/yr)
+	  -3.1,		// z translation rate (millimetres p/yr)
+	  0.12,		// scale rate (ppb p/yr)
+	  0.00,		// x rotation rate (milli-arc-seconds p/yr)
+	  0.00,		// y rotation rate (milli-arc-seconds p/yr)
+	 -0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED (SEE SPECIAL NOTE ABOVE)
+};
+
+template <class T, class U>
+class ITRF2020_ITRF1989 : public _itrf2020_to_itrf1989_<T, U>
+{
+public:
+};
+
+// ITRF 2020 -> ITRF 1988
+template <class T, class U>
+struct _itrf2020_to_itrf1988_
+{
+	static const U reference_frame;
+	static const T reference_epoch;
+	static const T transformationParameters[14];
+};
+
+template <class T, class U>
+const U _itrf2020_to_itrf1988_<T, U>::reference_frame = ITRF2020_i;
+
+template <class T, class U>
+const T _itrf2020_to_itrf1988_<T, U>::reference_epoch = 2015.0;
+
+template <class T, class U>
+const T _itrf2020_to_itrf1988_<T, U>::transformationParameters[14] =
+{
+	  24.5,		// x translation (millimetres)
+	  -3.9,		// y translation (millimetres)
+	-169.9,		// z translation (millimetres)
+	 11.47,		// scale (ppb)
+	 -0.10,		// x rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
+	  0.00,		// y rotation (milli-arc-seconds)
+	 -0.36,		// z rotation (milli-arc-seconds) - REVERSED (SEE SPECIAL NOTE ABOVE)
+
+	   0.1,		// x translation rate (millimetres p/yr)
+	  -0.6,		// y translation rate (millimetres p/yr)
+	  -3.1,		// z translation rate (millimetres p/yr)
+	  0.12,		// scale rate (ppb p/yr)
+	  0.00,		// x rotation rate (milli-arc-seconds p/yr)
+	  0.00,		// y rotation rate (milli-arc-seconds p/yr)
+	 -0.02		// z rotation rate (milli-arc-seconds p/yr) - REVERSED (SEE SPECIAL NOTE ABOVE)
+};
+
+template <class T, class U>
+class ITRF2020_ITRF1988 : public _itrf2020_to_itrf1988_<T, U>
+{
+public:
+};
+
+////////////////////////////////////////////////////////////////////////////////////
 
 
 ////////////////////////////////////////////////////////////////////////////////////
