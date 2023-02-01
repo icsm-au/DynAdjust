@@ -396,13 +396,14 @@ if (BUILD_TESTING)
     add_test (NAME dyn-help-02 COMMAND $<TARGET_FILE:dynadjust> --help-module generic)
     add_test (NAME dyn-version-01 COMMAND $<TARGET_FILE:dynadjust> --version)
 
-    # 13. Handle database id, output measurement to stations, output adjustment information on each iteration, scale normals to unity, report results
+    # 13. Handle database id, output measurement to stations, output adjustment information on each iteration, scale normals to unity, report results, type-b
     add_test (NAME import-dbid COMMAND $<TARGET_FILE:dnaimportwrapper> -n dbid ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-ignored.msr) 
     add_test (NAME adjust-dbid-01 COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --output-adj-msr --output-database-ids --output-ignored-msrs --sort-adj-msr-field 6 --output-msr-to-stn --sort-msr-to-stn-field 1 --output-iter-adj-stn --output-iter-adj-stat --output-iter-adj-msr --output-iter-cmp-msr)
     add_test (NAME adjust-dbid-02 COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --scale-normals-to-unity)
     add_test (NAME adjust-dbid-03 COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --report-results --output-adj-msr --output-pos-uncertainty --output-apu-vcv-units 1 --constraints "236300210,CCC")
     add_test (NAME adjust-dbid-04 COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --comments "This is a comment that is quite lengthy in content and is relatively meaningless.  Feel free to delete this comment.")
     add_test (NAME adjust-dbid-05 COMMAND $<TARGET_FILE:dnaadjustwrapper> -p dbid.dnaproj)
+    add_test (NAME adjust-dbid-05 COMMAND $<TARGET_FILE:dnaadjustwrapper> dbid --type-b-sd-glob "0.01,0.01,0.035" --type-b-sd-file ${CMAKE_SOURCE_DIR}/../sampleData/dsg.typeb --output-pos)
 
     # 13. Renaming, no export of flagged stations, no network name, non-contiguous networks, import block, nearby stations
     add_test (NAME import-misc-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n misc ${CMAKE_SOURCE_DIR}/../sampleData/dsg.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr ${CMAKE_SOURCE_DIR}/../sampleData/dsg-ignored.msr --stn-renaming-file ${CMAKE_SOURCE_DIR}/../sampleData/dsg.renaming --export-xml)
