@@ -11,8 +11,8 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>09139 -r gda94 --verb 2</LocalDebuggerCommandArguments>
-    <LocalDebuggerWorkingDirectory>$(dist)\_git_issues\wgs84</LocalDebuggerWorkingDirectory>
+    <LocalDebuggerCommandArguments>itrf2014 -r itrf2020 -e 25.10.2017 --export-dna</LocalDebuggerCommandArguments>
+    <LocalDebuggerWorkingDirectory>$(dist)\transformation-paramaters\sample-data</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

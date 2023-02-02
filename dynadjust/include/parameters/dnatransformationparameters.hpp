@@ -2159,6 +2159,57 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////////
 
+////////////////////////////////////////////////////////////////////////////////////
+// ITRF2020 <-> GDA2020
+//
+// Computed by:
+//   1. Propagating ITRF2020 parameters to reference epoch 2020.0
+//   2. Adding AU PMM rates to ITRF2020 rates
+// 
+
+// ITRF2020 -> GDA2020
+template <class T, class U>
+struct _itrf2020_to_gda2020_
+{
+	static const U reference_frame;
+	static const T reference_epoch;
+	static const T transformationParameters[14];
+};
+
+template <class T, class U>
+const U _itrf2020_to_gda2020_<T, U>::reference_frame = ITRF2020_i;
+
+template <class T, class U>
+const T _itrf2020_to_gda2020_<T, U>::reference_epoch = 2020.0;
+
+template <class T, class U>
+const T _itrf2020_to_gda2020_<T, U>::transformationParameters[14] =
+{
+	   -1.4,	// x translation (millimetres)
+	   -1.4,	// y translation (millimetres)
+		2.4,	// z translation (millimetres)
+	  -0.42,	// scale (ppb)
+		0.0,	// x rotation (milli-arc-seconds)
+		0.0,	// y rotation (milli-arc-seconds)
+		0.0,	// z rotation (milli-arc-seconds)
+
+		// ITRF2020 translation rates:
+		0.0,	// x translation rate (millimetres p/yr)
+	   -0.1,	// y translation rate (millimetres p/yr)
+		0.2,	// z translation rate (millimetres p/yr)
+		0.0,	// scale rate (ppb p/yr)
+		// AU PMM rotation rates:
+		1.50379,	// x rotation rate (milli-arc-seconds p/yr)
+		1.18346,	// y rotation rate (milli-arc-seconds p/yr)
+		1.20716		// z rotation rate (milli-arc-seconds p/yr)
+};
+
+template <class T, class U>
+class ITRF2020_GDA2020 : public _itrf2020_to_gda2020_<T, U>
+{
+public:
+};
+////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////////
 // PLATE MOTION MODELS
