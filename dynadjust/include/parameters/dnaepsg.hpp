@@ -128,6 +128,8 @@ U epsgCodeFromName(const S& datumName)
 	if (iequals(datumName, GDA2020_s))
 		return GDA2020_i_xyz;
 	// ITRF
+	if (iequals(datumName, ITRF2020_s))
+		return ITRF2020_i_xyz;
 	if (iequals(datumName, ITRF2014_s))
 		return ITRF2014_i_xyz;
 	if (iequals(datumName, ITRF2008_s))
@@ -210,6 +212,9 @@ S epsgStringFromName(const S& datumName)
 	case GDA2020_i_xyz:
 		return GDA2020_c;
 	// ITRF
+	case ITRF2020_i:
+	case ITRF2020_i_xyz:
+		return ITRF2020_c;
 	case ITRF2014_i:
 	case ITRF2014_i_xyz:
 		return ITRF2014_c;
@@ -333,7 +338,9 @@ bool isEpsgDatumStatic(const U& epsgCode)
 	case ITRF2008_i_xyz:
 	case ITRF2014_i:
 	case ITRF2014_i_xyz:
-	// WGS84 @ epoch
+	case ITRF2020_i:
+	case ITRF2020_i_xyz:
+		// WGS84 @ epoch
 	case WGS84_transit_i_xyz:
 	case WGS84_transit_i:
 	case WGS84_G730_i_xyz:
@@ -412,6 +419,8 @@ void spheroidFromEpsgCode(const U& epsgCode, epsg_spheroid& ellipsoid)
 	case ITRF2008_i:
 	case ITRF2014_i_xyz:
 	case ITRF2014_i:
+	case ITRF2020_i_xyz:
+	case ITRF2020_i:
 		// authority
 		ellipsoid.authority_.first = "EPSG";
 		ellipsoid.authority_.second = "7019";
@@ -514,7 +523,10 @@ string referenceepochFromEpsgCode(const U& epsgCode)
 	case ITRF2014_i_xyz:
 	case ITRF2014_i:
 		return ITRF2014_epoch;
-	// WGS84
+	case ITRF2020_i_xyz:
+	case ITRF2020_i:
+		return ITRF2020_epoch;
+		// WGS84
 	case WGS84_transit_i_xyz:
 	case WGS84_transit_i:
 		return WGS84_transit_epoch;
@@ -610,6 +622,9 @@ S datumFromEpsgCode(const U& epsgCode)
 	case ITRF2014_i_xyz:
 	case ITRF2014_i:
 		return ITRF2014_s;
+	case ITRF2020_i_xyz:
+	case ITRF2020_i:
+		return ITRF2020_s;
 	case WGS84_i_xyz:
 	case WGS84_i:
 		return WGS84_s;
@@ -705,6 +720,9 @@ bool validateEpsgCode(const U& epsgCode)
 	// ITRF2014
 	case ITRF2014_i_xyz:
 	case ITRF2014_i:
+	// ITRF2020
+	case ITRF2020_i_xyz:
+	case ITRF2020_i:
 	// WGS84
 	case WGS84_i_xyz:
 	case WGS84_i:
