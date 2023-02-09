@@ -160,6 +160,12 @@ void determineGDA94Parameters(transformation_parameter_set& tParam)
 		tParam.paramDirection_ = __paramReverse__;
 		tParam.reverse();
 		break;
+	// GDA94-to-ITRF2020
+	case ITRF2020_i_xyz:
+	case ITRF2020_i:
+		// No direct parameters exist!
+		throw RefTranException(message_parameters_undefined<string, UINT32>(tParam.from_to_.first, tParam.from_to_.second),
+			REFTRAN_DIRECT_PARAMS_UNAVAILABLE);
 	// GDA94-to-WGS84
 	case WGS84_i_xyz:
 	case WGS84_i:
@@ -286,6 +292,15 @@ void determineGDA2020Parameters(transformation_parameter_set& tParam)
 		tParam.paramDirection_ = __paramReverse__;
 		tParam.reverse();
 		break;
+	// GDA2020-to-ITRF2020
+	case ITRF2020_i_xyz:
+	case ITRF2020_i:
+		memcpy(&tParam.parameters_, ITRF2020_GDA2020<double, UINT32>::transformationParameters, sizeof(double) * 14);
+		tParam.reference_epoch_ = ITRF2020_GDA2020<double, UINT32>::reference_epoch;
+		tParam.reference_frame_ = ITRF2020_GDA2020<double, UINT32>::reference_frame;
+		tParam.paramDirection_ = __paramReverse__;
+		tParam.reverse();
+		break;
 	// GDA2020-to-WGS84
 	case WGS84_i_xyz:
 	case WGS84_i:
@@ -386,6 +401,15 @@ void determineITRF1988Parameters(transformation_parameter_set& tParam)
 		memcpy(&tParam.parameters_, ITRF2014_ITRF1988<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2014_ITRF1988<double, UINT32>::reference_epoch;
 		tParam.reference_frame_ = ITRF2014_ITRF1988<double, UINT32>::reference_frame;
+		tParam.paramDirection_ = __paramReverse__;
+		tParam.reverse();
+		break;
+	// ITRF1988-to-ITRF2020
+	case ITRF2020_i_xyz:
+	case ITRF2020_i:
+		memcpy(&tParam.parameters_, ITRF2020_ITRF1988<double, UINT32>::transformationParameters, sizeof(double) * 14);
+		tParam.reference_epoch_ = ITRF2020_ITRF1988<double, UINT32>::reference_epoch;
+		tParam.reference_frame_ = ITRF2020_ITRF1988<double, UINT32>::reference_frame;
 		tParam.paramDirection_ = __paramReverse__;
 		tParam.reverse();
 		break;
@@ -491,6 +515,15 @@ void determineITRF1989Parameters(transformation_parameter_set& tParam)
 		tParam.paramDirection_ = __paramReverse__;
 		tParam.reverse();
 		break;
+	// ITRF1989-to-ITRF2020
+	case ITRF2020_i_xyz:
+	case ITRF2020_i:
+		memcpy(&tParam.parameters_, ITRF2020_ITRF1989<double, UINT32>::transformationParameters, sizeof(double) * 14);
+		tParam.reference_epoch_ = ITRF2020_ITRF1989<double, UINT32>::reference_epoch;
+		tParam.reference_frame_ = ITRF2020_ITRF1989<double, UINT32>::reference_frame;
+		tParam.paramDirection_ = __paramReverse__;
+		tParam.reverse();
+		break;
 	// ITRF1989-to-WGS84
 	case WGS84_i_xyz:
 	case WGS84_i:
@@ -593,7 +626,16 @@ void determineITRF1990Parameters(transformation_parameter_set& tParam)
 		tParam.paramDirection_ = __paramReverse__;
 		tParam.reverse();
 		break;
-	// ITRF1990-to-IWGS84
+	// ITRF1990-to-ITRF2020
+	case ITRF2020_i_xyz:
+	case ITRF2020_i:
+		memcpy(&tParam.parameters_, ITRF2020_ITRF1990<double, UINT32>::transformationParameters, sizeof(double) * 14);
+		tParam.reference_epoch_ = ITRF2020_ITRF1990<double, UINT32>::reference_epoch;
+		tParam.reference_frame_ = ITRF2020_ITRF1990<double, UINT32>::reference_frame;
+		tParam.paramDirection_ = __paramReverse__;
+		tParam.reverse();
+		break;
+	// ITRF1990-to-WGS84
 	case WGS84_i_xyz:
 	case WGS84_i:
 	case WGS84_transit_i_xyz:
@@ -692,6 +734,15 @@ void determineITRF1991Parameters(transformation_parameter_set& tParam)
 		memcpy(&tParam.parameters_, ITRF2014_ITRF1991<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2014_ITRF1991<double, UINT32>::reference_epoch;
 		tParam.reference_frame_ = ITRF2014_ITRF1991<double, UINT32>::reference_frame;
+		tParam.paramDirection_ = __paramReverse__;
+		tParam.reverse();
+		break;
+	// ITRF1991-to-ITRF2020
+	case ITRF2020_i_xyz:
+	case ITRF2020_i:
+		memcpy(&tParam.parameters_, ITRF2020_ITRF1991<double, UINT32>::transformationParameters, sizeof(double) * 14);
+		tParam.reference_epoch_ = ITRF2020_ITRF1991<double, UINT32>::reference_epoch;
+		tParam.reference_frame_ = ITRF2020_ITRF1991<double, UINT32>::reference_frame;
 		tParam.paramDirection_ = __paramReverse__;
 		tParam.reverse();
 		break;
@@ -797,6 +848,15 @@ void determineITRF1992Parameters(transformation_parameter_set& tParam)
 		tParam.paramDirection_ = __paramReverse__;
 		tParam.reverse();
 		break;
+	// ITRF1992-to-ITRF2020
+	case ITRF2020_i_xyz:
+	case ITRF2020_i:
+		memcpy(&tParam.parameters_, ITRF2020_ITRF1992<double, UINT32>::transformationParameters, sizeof(double) * 14);
+		tParam.reference_epoch_ = ITRF2020_ITRF1992<double, UINT32>::reference_epoch;
+		tParam.reference_frame_ = ITRF2020_ITRF1992<double, UINT32>::reference_frame;
+		tParam.paramDirection_ = __paramReverse__;
+		tParam.reverse();
+		break;
 	// ITRF1992-to-WGS84
 	case WGS84_i_xyz:
 	case WGS84_i:
@@ -899,6 +959,15 @@ void determineITRF1993Parameters(transformation_parameter_set& tParam)
 		tParam.paramDirection_ = __paramReverse__;
 		tParam.reverse();
 		break;
+	// ITRF1993-to-ITRF2020
+	case ITRF2020_i_xyz:
+	case ITRF2020_i:
+		memcpy(&tParam.parameters_, ITRF2020_ITRF1993<double, UINT32>::transformationParameters, sizeof(double) * 14);
+		tParam.reference_epoch_ = ITRF2020_ITRF1993<double, UINT32>::reference_epoch;
+		tParam.reference_frame_ = ITRF2020_ITRF1993<double, UINT32>::reference_frame;
+		tParam.paramDirection_ = __paramReverse__;
+		tParam.reverse();
+		break;
 	// ITRF1993-to-WGS84
 	case WGS84_i_xyz:
 	case WGS84_i:
@@ -998,6 +1067,15 @@ void determineITRF1994Parameters(transformation_parameter_set& tParam)
 		memcpy(&tParam.parameters_, ITRF2014_ITRF1994<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2014_ITRF1994<double, UINT32>::reference_epoch;
 		tParam.reference_frame_ = ITRF2014_ITRF1994<double, UINT32>::reference_frame;
+		tParam.paramDirection_ = __paramReverse__;
+		tParam.reverse();
+		break;
+	// ITRF1994-to-ITRF2020
+	case ITRF2020_i_xyz:
+	case ITRF2020_i:
+		memcpy(&tParam.parameters_, ITRF2020_ITRF1994<double, UINT32>::transformationParameters, sizeof(double) * 14);
+		tParam.reference_epoch_ = ITRF2020_ITRF1994<double, UINT32>::reference_epoch;
+		tParam.reference_frame_ = ITRF2020_ITRF1994<double, UINT32>::reference_frame;
 		tParam.paramDirection_ = __paramReverse__;
 		tParam.reverse();
 		break;
@@ -1111,6 +1189,15 @@ void determineITRF1996Parameters(transformation_parameter_set& tParam)
 		tParam.paramDirection_ = __paramReverse__;
 		tParam.reverse();
 		break;
+	// ITRF1996-to-ITRF2020
+	case ITRF2020_i_xyz:
+	case ITRF2020_i:
+		memcpy(&tParam.parameters_, ITRF2020_ITRF1996<double, UINT32>::transformationParameters, sizeof(double) * 14);
+		tParam.reference_epoch_ = ITRF2020_ITRF1996<double, UINT32>::reference_epoch;
+		tParam.reference_frame_ = ITRF2020_ITRF1996<double, UINT32>::reference_frame;
+		tParam.paramDirection_ = __paramReverse__;
+		tParam.reverse();
+		break;
 	// ITRF1996-to-WGS84
 	case WGS84_i_xyz:
 	case WGS84_i:
@@ -1218,6 +1305,15 @@ void determineITRF1997Parameters(transformation_parameter_set& tParam)
 		memcpy(&tParam.parameters_, ITRF2014_ITRF1997<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2014_ITRF1997<double, UINT32>::reference_epoch;
 		tParam.reference_frame_ = ITRF2014_ITRF1997<double, UINT32>::reference_frame;
+		tParam.paramDirection_ = __paramReverse__;
+		tParam.reverse();
+		break;
+	// ITRF1997-to-ITRF2020
+	case ITRF2020_i_xyz:
+	case ITRF2020_i:
+		memcpy(&tParam.parameters_, ITRF2020_ITRF1997<double, UINT32>::transformationParameters, sizeof(double) * 14);
+		tParam.reference_epoch_ = ITRF2020_ITRF1997<double, UINT32>::reference_epoch;
+		tParam.reference_frame_ = ITRF2020_ITRF1997<double, UINT32>::reference_frame;
 		tParam.paramDirection_ = __paramReverse__;
 		tParam.reverse();
 		break;
@@ -1364,6 +1460,15 @@ void determineITRF2000Parameters(transformation_parameter_set& tParam)
 		tParam.paramDirection_ = __paramReverse__;
 		tParam.reverse();
 		break;
+	// ITRF2000-to-ITRF2020
+	case ITRF2020_i_xyz:
+	case ITRF2020_i:
+		memcpy(&tParam.parameters_, ITRF2020_ITRF2000<double, UINT32>::transformationParameters, sizeof(double) * 14);
+		tParam.reference_epoch_ = ITRF2020_ITRF2000<double, UINT32>::reference_epoch;
+		tParam.reference_frame_ = ITRF2020_ITRF2000<double, UINT32>::reference_frame;
+		tParam.paramDirection_ = __paramReverse__;
+		tParam.reverse();
+		break;
 	// ITRF2000-to-WGS84
 	case WGS84_i_xyz:
 	case WGS84_i:
@@ -1469,6 +1574,15 @@ void determineITRF2005Parameters(transformation_parameter_set& tParam)
 		memcpy(&tParam.parameters_, ITRF2014_ITRF2005<double, UINT32>::transformationParameters, sizeof(double) * 14);
 		tParam.reference_epoch_ = ITRF2014_ITRF2005<double, UINT32>::reference_epoch;
 		tParam.reference_frame_ = ITRF2014_ITRF2005<double, UINT32>::reference_frame;
+		tParam.paramDirection_ = __paramReverse__;
+		tParam.reverse();
+		break;
+	// ITRF2005-to-ITRF2020
+	case ITRF2020_i_xyz:
+	case ITRF2020_i:
+		memcpy(&tParam.parameters_, ITRF2020_ITRF2005<double, UINT32>::transformationParameters, sizeof(double) * 14);
+		tParam.reference_epoch_ = ITRF2020_ITRF2005<double, UINT32>::reference_epoch;
+		tParam.reference_frame_ = ITRF2020_ITRF2005<double, UINT32>::reference_frame;
 		tParam.paramDirection_ = __paramReverse__;
 		tParam.reverse();
 		break;
@@ -1595,6 +1709,13 @@ void determineITRF2008Parameters(transformation_parameter_set& tParam)
 		tParam.reference_epoch_ = ITRF2008_ITRF2005<double, UINT32>::reference_epoch;
 		tParam.reference_frame_ = ITRF2008_ITRF2005<double, UINT32>::reference_frame;
 		break;
+	// ITRF2008-to-ITRF2008
+	case ITRF2008_i_xyz:
+	case ITRF2008_i:
+		// not a transformation of frame, but a shift in epoch only
+		// Not defined yet - requires interpolation from the ITRF2008 velocity model
+		throw RefTranException("A transformation between different epochs on the same frame is required.", 
+			REFTRAN_TRANS_ON_PLATE_REQUIRED);
 	// ITRF2008-to-ITRF2014
 	case ITRF2014_i_xyz:
 	case ITRF2014_i:
@@ -1604,13 +1725,15 @@ void determineITRF2008Parameters(transformation_parameter_set& tParam)
 		tParam.paramDirection_ = __paramReverse__;
 		tParam.reverse();
 		break;
-	// ITRF2008-to-ITRF2008
-	case ITRF2008_i_xyz:
-	case ITRF2008_i:
-		// not a transformation of frame, but a shift in epoch only
-		// Not defined yet - requires interpolation from the ITRF2008 velocity model
-		throw RefTranException("A transformation between different epochs on the same frame is required.", 
-			REFTRAN_TRANS_ON_PLATE_REQUIRED);
+	// ITRF2008-to-ITRF2020
+	case ITRF2020_i_xyz:
+	case ITRF2020_i:
+		memcpy(&tParam.parameters_, ITRF2020_ITRF2008<double, UINT32>::transformationParameters, sizeof(double) * 14);
+		tParam.reference_epoch_ = ITRF2020_ITRF2008<double, UINT32>::reference_epoch;
+		tParam.reference_frame_ = ITRF2020_ITRF2008<double, UINT32>::reference_frame;
+		tParam.paramDirection_ = __paramReverse__;
+		tParam.reverse();
+		break;
 	// ITRF2008-to-WGS84
 	case WGS84_i_xyz:
 	case WGS84_i:
@@ -1724,9 +1847,9 @@ void determineITRF2014Parameters(transformation_parameter_set& tParam)
 	// ITRF2014-to-ITRF2000
 	case ITRF2000_i_xyz:
 	case ITRF2000_i:
-		memcpy(&tParam.parameters_, ITRF2014_ITRF2005<double, UINT32>::transformationParameters, sizeof(double) * 14);
-		tParam.reference_epoch_ = ITRF2014_ITRF2005<double, UINT32>::reference_epoch;
-		tParam.reference_frame_ = ITRF2014_ITRF2005<double, UINT32>::reference_frame;
+		memcpy(&tParam.parameters_, ITRF2014_ITRF2000<double, UINT32>::transformationParameters, sizeof(double) * 14);
+		tParam.reference_epoch_ = ITRF2014_ITRF2000<double, UINT32>::reference_epoch;
+		tParam.reference_frame_ = ITRF2014_ITRF2000<double, UINT32>::reference_frame;
 		break;
 	// ITRF2014-to-ITRF2005
 	case ITRF2005_i_xyz:
@@ -1749,6 +1872,15 @@ void determineITRF2014Parameters(transformation_parameter_set& tParam)
 		// Not defined yet - requires interpolation from the ITRF2014 velocity model
 		throw RefTranException("A transformation between different epochs on the same frame is required.",
 			REFTRAN_TRANS_ON_PLATE_REQUIRED);
+	// ITRF2014-to-ITRF2020
+	case ITRF2020_i_xyz:
+	case ITRF2020_i:
+		memcpy(&tParam.parameters_, ITRF2020_ITRF2014<double, UINT32>::transformationParameters, sizeof(double) * 14);
+		tParam.reference_epoch_ = ITRF2020_ITRF2014<double, UINT32>::reference_epoch;
+		tParam.reference_frame_ = ITRF2020_ITRF2014<double, UINT32>::reference_frame;
+		tParam.paramDirection_ = __paramReverse__;
+		tParam.reverse();
+		break;
 	// ITRF2014-to-WGS84
 	case WGS84_i_xyz:
 	case WGS84_i:
@@ -1768,6 +1900,150 @@ void determineITRF2014Parameters(transformation_parameter_set& tParam)
 	case WGS84_G2139_i:
 	default:
 		throw boost::enable_current_exception(runtime_error("determineITRF2014Parameters(): "));
+	}
+}
+
+template <typename U>
+void determineITRF2020Parameters(transformation_parameter_set& tParam)
+{
+	// Which 'to' datum?
+	switch (tParam.from_to_.second)
+	{
+	//////////////////////////////////
+	// ITRF2020-to-GDA2020
+	case GDA2020_i_xyz:
+	case GDA2020_i_2d:
+	case GDA2020_i:
+		memcpy(&tParam.parameters_, ITRF2020_GDA2020<double, UINT32>::transformationParameters, sizeof(double) * 14);
+		tParam.reference_epoch_ = ITRF2020_GDA2020<double, UINT32>::reference_epoch;
+		tParam.reference_frame_ = ITRF2020_GDA2020<double, UINT32>::reference_frame;
+		break;
+	// ITRF2020-to-GDA94
+	case GDA94_i_xyz:
+	case GDA94_i_2d:
+	case GDA94_i:
+		// No direct parameters exist!
+		throw RefTranException(message_parameters_undefined<string, UINT32>(tParam.from_to_.first, tParam.from_to_.second),
+			REFTRAN_DIRECT_PARAMS_UNAVAILABLE);
+		break;
+	//////////////////////////////////
+	// ITRF2020-to-ITRF1988
+	case ITRF1988_i_xyz:
+	case ITRF1988_i:
+		memcpy(&tParam.parameters_, ITRF2020_ITRF1988<double, UINT32>::transformationParameters, sizeof(double) * 14);
+		tParam.reference_epoch_ = ITRF2020_ITRF1988<double, UINT32>::reference_epoch;
+		tParam.reference_frame_ = ITRF2020_ITRF1988<double, UINT32>::reference_frame;
+		break;
+	// ITRF2020-to-ITRF1989
+	case ITRF1989_i_xyz:
+	case ITRF1989_i:
+		memcpy(&tParam.parameters_, ITRF2020_ITRF1989<double, UINT32>::transformationParameters, sizeof(double) * 14);
+		tParam.reference_epoch_ = ITRF2020_ITRF1989<double, UINT32>::reference_epoch;
+		tParam.reference_frame_ = ITRF2020_ITRF1989<double, UINT32>::reference_frame;
+		break;
+	// ITRF2020-to-ITRF1990
+	case ITRF1990_i_xyz:
+	case ITRF1990_i:
+		memcpy(&tParam.parameters_, ITRF2020_ITRF1990<double, UINT32>::transformationParameters, sizeof(double) * 14);
+		tParam.reference_epoch_ = ITRF2020_ITRF1990<double, UINT32>::reference_epoch;
+		tParam.reference_frame_ = ITRF2020_ITRF1990<double, UINT32>::reference_frame;
+		break;
+	// ITRF2020-to-ITRF1991
+	case ITRF1991_i_xyz:
+	case ITRF1991_i:
+		memcpy(&tParam.parameters_, ITRF2020_ITRF1991<double, UINT32>::transformationParameters, sizeof(double) * 14);
+		tParam.reference_epoch_ = ITRF2020_ITRF1991<double, UINT32>::reference_epoch;
+		tParam.reference_frame_ = ITRF2020_ITRF1991<double, UINT32>::reference_frame;
+		break;
+	// ITRF2020-to-ITRF1992
+	case ITRF1992_i_xyz:
+	case ITRF1992_i:
+		memcpy(&tParam.parameters_, ITRF2020_ITRF1992<double, UINT32>::transformationParameters, sizeof(double) * 14);
+		tParam.reference_epoch_ = ITRF2020_ITRF1992<double, UINT32>::reference_epoch;
+		tParam.reference_frame_ = ITRF2020_ITRF1992<double, UINT32>::reference_frame;
+		break;
+	// ITRF2020-to-ITRF1993
+	case ITRF1993_i_xyz:
+	case ITRF1993_i:
+		memcpy(&tParam.parameters_, ITRF2020_ITRF1993<double, UINT32>::transformationParameters, sizeof(double) * 14);
+		tParam.reference_epoch_ = ITRF2020_ITRF1993<double, UINT32>::reference_epoch;
+		tParam.reference_frame_ = ITRF2020_ITRF1993<double, UINT32>::reference_frame;
+		break;
+	// ITRF2020-to-ITRF1994
+	case ITRF1994_i_xyz:
+	case ITRF1994_i:
+		memcpy(&tParam.parameters_, ITRF2020_ITRF1994<double, UINT32>::transformationParameters, sizeof(double) * 14);
+		tParam.reference_epoch_ = ITRF2020_ITRF1994<double, UINT32>::reference_epoch;
+		tParam.reference_frame_ = ITRF2020_ITRF1994<double, UINT32>::reference_frame;
+		break;
+	// ITRF2020-to-ITRF1996
+	case ITRF1996_i_xyz:
+	case ITRF1996_i:
+		memcpy(&tParam.parameters_, ITRF2020_ITRF1996<double, UINT32>::transformationParameters, sizeof(double) * 14);
+		tParam.reference_epoch_ = ITRF2020_ITRF1996<double, UINT32>::reference_epoch;
+		tParam.reference_frame_ = ITRF2020_ITRF1996<double, UINT32>::reference_frame;
+		break;
+	// ITRF2020-to-ITRF1997
+	case ITRF1997_i_xyz:
+	case ITRF1997_i:
+		memcpy(&tParam.parameters_, ITRF2020_ITRF1997<double, UINT32>::transformationParameters, sizeof(double) * 14);
+		tParam.reference_epoch_ = ITRF2020_ITRF1997<double, UINT32>::reference_epoch;
+		tParam.reference_frame_ = ITRF2020_ITRF1997<double, UINT32>::reference_frame;
+		break;
+	// ITRF2020-to-ITRF2000
+	case ITRF2000_i_xyz:
+	case ITRF2000_i:
+		memcpy(&tParam.parameters_, ITRF2020_ITRF2000<double, UINT32>::transformationParameters, sizeof(double) * 14);
+		tParam.reference_epoch_ = ITRF2020_ITRF2000<double, UINT32>::reference_epoch;
+		tParam.reference_frame_ = ITRF2020_ITRF2000<double, UINT32>::reference_frame;
+		break;
+	// ITRF2020-to-ITRF2005
+	case ITRF2005_i_xyz:
+	case ITRF2005_i:
+		memcpy(&tParam.parameters_, ITRF2020_ITRF2005<double, UINT32>::transformationParameters, sizeof(double) * 14);
+		tParam.reference_epoch_ = ITRF2020_ITRF2005<double, UINT32>::reference_epoch;
+		tParam.reference_frame_ = ITRF2020_ITRF2005<double, UINT32>::reference_frame;
+		break;
+	// ITRF2020-to-ITRF2008
+	case ITRF2008_i_xyz:
+	case ITRF2008_i:
+		memcpy(&tParam.parameters_, ITRF2020_ITRF2008<double, UINT32>::transformationParameters, sizeof(double) * 14);
+		tParam.reference_epoch_ = ITRF2020_ITRF2008<double, UINT32>::reference_epoch;
+		tParam.reference_frame_ = ITRF2020_ITRF2008<double, UINT32>::reference_frame;
+		break;
+	// ITRF2020-to-ITRF2014
+	case ITRF2014_i_xyz:
+	case ITRF2014_i:
+		memcpy(&tParam.parameters_, ITRF2020_ITRF2014<double, UINT32>::transformationParameters, sizeof(double) * 14);
+		tParam.reference_epoch_ = ITRF2020_ITRF2014<double, UINT32>::reference_epoch;
+		tParam.reference_frame_ = ITRF2020_ITRF2014<double, UINT32>::reference_frame;
+		break;
+	// ITRF2020-to-ITRF2020
+	case ITRF2020_i_xyz:
+	case ITRF2020_i:
+		// not a transformation of frame, but a shift in epoch only
+		// Not defined yet - requires interpolation from the ITRF2014 velocity model
+		throw RefTranException("A transformation between different epochs on the same frame is required.",
+			REFTRAN_TRANS_ON_PLATE_REQUIRED);
+	// ITRF2014-to-WGS84
+	case WGS84_i_xyz:
+	case WGS84_i:
+	case WGS84_transit_i_xyz:
+	case WGS84_transit_i:
+	case WGS84_G730_i_xyz:
+	case WGS84_G730_i:
+	case WGS84_G873_i_xyz:
+	case WGS84_G873_i:
+	case WGS84_G1150_i_xyz:
+	case WGS84_G1150_i:
+	case WGS84_G1674_i_xyz:
+	case WGS84_G1674_i:
+	case WGS84_G1762_i_xyz:
+	case WGS84_G1762_i:
+	case WGS84_G2139_i_xyz:
+	case WGS84_G2139_i:
+	default:
+		throw boost::enable_current_exception(runtime_error("determineITRF2020Parameters(): "));
 	}
 }
 
@@ -1891,6 +2167,11 @@ void determineHelmertParameters(transformation_parameter_set& tParam)
 		case ITRF2014_i_xyz:
 		case ITRF2014_i:
 			determineITRF2014Parameters<U>(tParam);
+			break;
+		// ITRF2020
+		case ITRF2020_i_xyz:
+		case ITRF2020_i:
+			determineITRF2020Parameters<U>(tParam);
 			break;
 		// WGS84
 		case WGS84_i_xyz:
