@@ -241,8 +241,8 @@ private:
 	string ParseEpochValue(const string& sBuf, const string& calling_function);
 
 	void ParseDatabaseIds(const string& sBuf, const string& calling_function, const char msrType);
-	string ParseDatabaseClusterId(const string& sBuf, const string& calling_function);
-	string ParseDatabaseMsrId(const string& sBuf, const string& calling_function);
+	void ParseDatabaseClusterId(const string& sBuf, const string& calling_function);
+	void ParseDatabaseMsrId(const string& sBuf, const string& calling_function);
 
 	void LoadNetworkFiles(pvstn_t binaryStn, pvmsr_t binaryMsr, const project_settings& projectSettings, bool loadSegmentFile);
 	void LoadBinaryFiles(pvstn_t binaryStn, pvmsr_t binaryMsr);

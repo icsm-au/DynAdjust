@@ -134,7 +134,8 @@ void CDnaHeight::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comm
 	*dynaml_stream << "    <Value>" << fixed << setprecision(4) << m_dValue << "</Value>" << endl;
 	*dynaml_stream << "    <StdDev>" << scientific << setprecision(6) << m_dStdDev << "</StdDev>" << endl;
 	if (m_databaseIdSet)
-		*dynaml_stream << "    <MeasurementID>" << m_msr_db_map.msr_id << "</MeasurementID>" << endl;
+		if (m_msr_db_map.is_msr_id_set)
+			*dynaml_stream << "    <MeasurementID>" << m_msr_db_map.msr_id << "</MeasurementID>" << endl;
 	*dynaml_stream << "  </DnaMeasurement>" << endl;
 }
 	

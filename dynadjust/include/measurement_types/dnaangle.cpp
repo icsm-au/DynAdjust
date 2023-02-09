@@ -150,7 +150,8 @@ void CDnaAngle::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comme
 	*dynaml_stream << "    <Value>" << setprecision(8) << fixed << RadtoDms(m_drValue) << "</Value>" << endl;
 	*dynaml_stream << "    <StdDev>" << scientific << setprecision(6) << Seconds(m_dStdDev) << "</StdDev>" << endl;
 	if (m_databaseIdSet)
-		*dynaml_stream << "    <MeasurementID>" << m_msr_db_map.msr_id << "</MeasurementID>" << endl;
+		if (m_msr_db_map.is_msr_id_set)
+			*dynaml_stream << "    <MeasurementID>" << m_msr_db_map.msr_id << "</MeasurementID>" << endl;
 	*dynaml_stream << "  </DnaMeasurement>" << endl;
 }
 	

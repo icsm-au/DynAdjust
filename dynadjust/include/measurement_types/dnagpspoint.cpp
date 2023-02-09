@@ -350,7 +350,8 @@ void CDnaGpsPoint::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string&, b
 	*dynaml_stream << "      <Z>" << setprecision(4) << m_dZ << "</Z>" << endl;
 
 	if (m_databaseIdSet)
-		*dynaml_stream << "      <MeasurementID>" << m_msr_db_map.msr_id << "</MeasurementID>" << endl;
+		if (m_msr_db_map.is_msr_id_set)
+			*dynaml_stream << "      <MeasurementID>" << m_msr_db_map.msr_id << "</MeasurementID>" << endl;
 	
 	*dynaml_stream << "      <SigmaXX>" << scientific << setprecision(13) << m_dSigmaXX << "</SigmaXX>" << endl;
 	*dynaml_stream << "      <SigmaXY>" << m_dSigmaXY << "</SigmaXY>" << endl;
@@ -1296,7 +1297,8 @@ void CDnaGpsPointCluster::WriteDynaMLMsr(std::ofstream* dynaml_stream, const str
 	*dynaml_stream << "    <Hscale>" << m_dHscale << "</Hscale>" << endl;
 	
 	if (m_databaseIdSet)
-		*dynaml_stream << "    <ClusterID>" << m_msr_db_map.cluster_id << "</ClusterID>" << endl;
+		if (m_msr_db_map.is_cls_id_set)
+			*dynaml_stream << "    <ClusterID>" << m_msr_db_map.cluster_id << "</ClusterID>" << endl;
 	
 	*dynaml_stream << "    <Coords>" << m_strCoordType << "</Coords>" << endl;
 	*dynaml_stream << "    <Total>" << pntCount << "</Total>" << endl;

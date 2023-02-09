@@ -45,11 +45,14 @@ using namespace dynadjust::exception;
 // without having to store the index to the measurement in either binary 
 // measurement vector or the database ID vector.
 typedef struct msr_database_t {
-	UINT32 msr_id;
-	UINT32 cluster_id;
+	UINT32	msr_id;
+	UINT32	cluster_id;
+	bool	is_msr_id_set;
+	bool	is_cls_id_set;
 
-	msr_database_t ()
-		: msr_id(0), cluster_id(0) {}
+	msr_database_t()
+		: msr_id(0), cluster_id(0)
+		, is_msr_id_set(false), is_cls_id_set(false) {}
 
 } msr_database_id_map;
 
