@@ -2348,14 +2348,15 @@ void dna_import::ParseDNAMSRCovariance(CDnaCovariance& cov)
 void dna_import::ParseDatabaseIds(const string& sBuf, const string& calling_function, const char msrType)
 {
 	m_databaseIdSet = false;
+	m_msr_db_map.is_msr_id_set = false;
+	m_msr_db_map.is_cls_id_set = false;
 
 	// No msr id?
 	if (sBuf.length() <= dml_.msr_id_msr)
 		return;
 
 	// all measurement types: capture msr id 
-	if (ParseDatabaseMsrId(sBuf, calling_function).empty())
-		return;
+	ParseDatabaseMsrId(sBuf, calling_function);
 
 	m_databaseIdSet = true;
 	
@@ -2375,20 +2376,22 @@ void dna_import::ParseDatabaseIds(const string& sBuf, const string& calling_func
 	case 'X':
 	case 'Y':
 		if (sBuf.length() > dml_.msr_id_cluster)
-			if (ParseDatabaseClusterId(sBuf, calling_function).empty())
-				return;
+			ParseDatabaseClusterId(sBuf, calling_function);
 	}
 }
 	
 
-string dna_import::ParseDatabaseClusterId(const string& sBuf, const string& calling_function)
+void dna_import::ParseDatabaseClusterId(const string& sBuf, const string& calling_function)
 {
 	string parsed_value;
 	// Cluster ID
 	try {
 		parsed_value = trimstr(sBuf.substr(dml_.msr_id_cluster));
 		if (!parsed_value.empty())
-			m_msr_db_map.cluster_id = LongFromString<UINT32>(parsed_value);
+		{
+			m_msr_db_map.cluster_id = val_uint<UINT32, string>(parsed_value);
+			m_msr_db_map.is_cls_id_set = true;
+		}
 	}
 	catch (runtime_error& e) {
 		stringstream ss;
@@ -2396,19 +2399,20 @@ string dna_import::ParseDatabaseClusterId(const string& sBuf, const string& call
 			endl << "  " << e.what();
 		SignalExceptionParseDNA(ss.str(), sBuf, dml_.msr_id_msr);
 	}
-
-	return parsed_value;
 }
 	
 
-string dna_import::ParseDatabaseMsrId(const string& sBuf, const string& calling_function)
+void dna_import::ParseDatabaseMsrId(const string& sBuf, const string& calling_function)
 {
 	string parsed_value;
 	// Measurement ID
 	try {
 		parsed_value = trimstr(sBuf.substr(dml_.msr_id_msr, dmw_.msr_id_msr));
 		if (!parsed_value.empty())
-			m_msr_db_map.msr_id = LongFromString<UINT32>(parsed_value);
+		{
+			m_msr_db_map.msr_id = val_uint<UINT32, string>(parsed_value);
+			m_msr_db_map.is_msr_id_set = true;
+		}
 	}
 	catch (runtime_error& e) {
 		stringstream ss;
@@ -2416,7 +2420,6 @@ string dna_import::ParseDatabaseMsrId(const string& sBuf, const string& calling_
 			endl << "  " << e.what();
 		SignalExceptionParseDNA(ss.str(), sBuf, dml_.msr_id_msr);
 	}
-	return parsed_value;
 }
 	
 
