@@ -333,8 +333,10 @@ void CDnaDirectionSet::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string
 	*dynaml_stream << "    <StdDev>" << scientific << setprecision(6) << Seconds(m_dStdDev) << "</StdDev>" << endl;
 	if (m_databaseIdSet)
 	{
-		*dynaml_stream << "    <MeasurementID>" << m_msr_db_map.msr_id << "</MeasurementID>" << endl;
-		*dynaml_stream << "    <ClusterID>" << m_msr_db_map.cluster_id << "</ClusterID>" << endl;
+		if (m_msr_db_map.is_msr_id_set)
+			*dynaml_stream << "    <MeasurementID>" << m_msr_db_map.msr_id << "</MeasurementID>" << endl;
+		if (m_msr_db_map.is_cls_id_set)
+			*dynaml_stream << "    <ClusterID>" << m_msr_db_map.cluster_id << "</ClusterID>" << endl;
 	}
 	*dynaml_stream << "    <Total>" << dirCount << "</Total>" << endl;
 	

@@ -645,8 +645,14 @@ void CDnaMeasurement::SetDatabaseMaps(it_vdbid_t& it_dbidmap, bool dbidSet)
 
 void CDnaMeasurement::SerialiseDatabaseMap(std::ofstream* os)
 {
+	UINT16 val;
+
 	os->write(reinterpret_cast<const char *>(&m_msr_db_map.msr_id), sizeof(UINT32));
 	os->write(reinterpret_cast<const char *>(&m_msr_db_map.cluster_id), sizeof(UINT32));
+	val = static_cast<UINT16>(m_msr_db_map.is_msr_id_set);
+	os->write(reinterpret_cast<const char*>(&val), sizeof(UINT16));
+	val = static_cast<UINT16>(m_msr_db_map.is_cls_id_set);
+	os->write(reinterpret_cast<const char*>(&val), sizeof(UINT16));
 }
 
 void CDnaMeasurement::SetEpoch(const string& epoch)

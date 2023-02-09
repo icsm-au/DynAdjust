@@ -168,7 +168,8 @@ void CDnaDistance::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& co
 	}
 		
 	if (m_databaseIdSet)
-		*dynaml_stream << "    <MeasurementID>" << m_msr_db_map.msr_id << "</MeasurementID>" << endl;
+		if (m_msr_db_map.is_msr_id_set)
+			*dynaml_stream << "    <MeasurementID>" << m_msr_db_map.msr_id << "</MeasurementID>" << endl;
 	*dynaml_stream << "  </DnaMeasurement>" << endl;
 }
 	

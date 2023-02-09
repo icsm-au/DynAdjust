@@ -2523,12 +2523,18 @@ void dna_adjust::LoadDatabaseId()
 		dbid_file.read(reinterpret_cast<char *>(&recordCount), sizeof(UINT32));
 		v_msr_db_map_.reserve(recordCount);
 		
-		for (r=0; r<recordCount; r++)
+		UINT16 val;
+
+		for (r = 0; r < recordCount; r++)
 		{
 			// Read data
 			dbid_file.read(reinterpret_cast<char *>(&rec.msr_id), sizeof(UINT32));
 			dbid_file.read(reinterpret_cast<char *>(&rec.cluster_id), sizeof(UINT32));
-		
+			dbid_file.read(reinterpret_cast<char*>(&val), sizeof(UINT16));
+			rec.is_msr_id_set = val_uint<bool, UINT16>(val);
+			dbid_file.read(reinterpret_cast<char*>(&val), sizeof(UINT16));
+			rec.is_cls_id_set = val_uint<bool, UINT16>(val);
+			
 			// push back
 			v_msr_db_map_.push_back(rec);
 		}
@@ -13227,7 +13233,10 @@ void dna_adjust::PrintMeasurementDatabaseID(const it_vmsr_t& _it_msr)
 		_it_dbid = v_msr_db_map_.begin() + dbindex;
 
 		// Print measurement id
-		adj_file << setw(STDDEV) << right << _it_dbid->msr_id;
+		if (_it_dbid->is_msr_id_set)
+			adj_file << setw(STDDEV) << right << _it_dbid->msr_id;
+		else
+			adj_file << setw(STDDEV) << " ";
 
 		// Print cluster id?
 		switch (_it_msr->measType)
@@ -13236,7 +13245,10 @@ void dna_adjust::PrintMeasurementDatabaseID(const it_vmsr_t& _it_msr)
 		case 'G':
 		case 'X':
 		case 'Y':
-			adj_file << setw(STDDEV) << right << _it_dbid->cluster_id;
+			if (_it_dbid->is_cls_id_set)
+				adj_file << setw(STDDEV) << right << _it_dbid->cluster_id;
+			else
+				adj_file << setw(STDDEV) << " ";
 		}
 	}
 }
