@@ -768,7 +768,10 @@ int main(int argc, char* argv[])
 //		rft_file << ss_msg.str();
 //	}
 
-	cout << endl;
+	if (!p.g.quiet)
+	{
+		cout << endl;
+	}
 
 	// Look for a project file.  If it exists, open and load it.
 	// Update the import settings.
