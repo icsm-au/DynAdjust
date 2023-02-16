@@ -1,0 +1,14 @@
+!#=DNA 3.01 STN    16.02.2023       GDA2020    01.01.2020         7
+* Created by:   dnaInterop.dll, File import and format exchange library. 
+* Version:      1.2.7, Release (64-bit). 
+* Build:        Feb 10 2023, 12:16:48 (MSVC++ 1934)
+* File type:    Station file
+* Project name: simulate
+* Source files: ps2.stn 
+205600420           FFF LLH      -36.2004001901      141.4027057864            177.8007    NHILL WT PM
+236700040           FFF LLH      -36.2946586258      141.3302417632            213.7080    WHIMPEY
+246000120           FFF LLH      -36.2909249873      141.4704711109            218.4849    LITTLE DESERT
+264800271           FFF LLH      -36.2225322403      141.5258525924            136.3028    GERANG GRNG 89
+275800150           FFF LLH      -36.0314983189      142.0230827480            150.6000    ELLAM SILO
+298100312           FFF LLH      -36.2358711925      141.2822507670            221.3014    LAWLOIT ECC C
+341900080           FFF LLH      -36.1424381711      141.3844495624            175.3966    PROPODOLLAH
