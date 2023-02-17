@@ -809,11 +809,11 @@ int main(int argc, char* argv[])
 			if (!p.n.bst_file.empty())
 			{
 				cout << setw(PRINT_VAR_PAD) << left << "  Binary station file: " << p.n.bst_file << endl;
-				cout << setw(PRINT_VAR_PAD) << left << "  Convert orthometric heights: ";
-				if (p.n.convert_heights)
-					cout << "Yes" << endl;
-				else
-					cout << "No" << endl;
+				//cout << setw(PRINT_VAR_PAD) << left << "  Convert orthometric heights: ";
+				//if (p.n.convert_heights)
+				//	cout << "Yes" << endl;
+				//else
+				//	cout << "No" << endl;
 			}
 
 			if (!p.n.input_file.empty())
@@ -912,8 +912,10 @@ int main(int argc, char* argv[])
 		cout << endl;
 
 		if (vm.count(CONVERT_BST_HT))
-			cout << "- Warning: The '" << CONVERT_BST_HT << "' argument has been deprecated. Orthometric" << endl <<
-				"  heights in the binary file will be converted to ellipsoidal by default." << endl; 
+			cout << "- Warning: The '--" << CONVERT_BST_HT << "' option has been deprecated. Orthometric" << endl <<
+				"  heights in the binary file will be converted to ellipsoidal by default, " << endl <<
+			    "  unless the transformation direction has been modified by supplying the " << endl << 
+			    "  '--" << DIRECTION << "' option with an argument of 1." << endl;
 
 		cout << endl;
 	

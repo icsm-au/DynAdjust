@@ -1838,8 +1838,8 @@ void CDnaProjectFile::PrintProjectFile()
 	PrintRecord(dnaproj_file, METHOD, settings_.n.interpolation_method);
 	PrintRecord(dnaproj_file, DDEG_FORMAT, settings_.n.coordinate_format);
 	PrintRecord(dnaproj_file, DIRECTION, settings_.n.ellipsoid_to_ortho);
-	PrintRecord(dnaproj_file, CONVERT_BST_HT,
-		yesno_string(settings_.n.convert_heights));
+	//PrintRecord(dnaproj_file, CONVERT_BST_HT,
+	//	yesno_string(settings_.n.convert_heights));
 	PrintRecord(dnaproj_file, EXPORT_GEO_FILE,
 		yesno_string(settings_.n.export_dna_geo_file));
 	
