@@ -240,11 +240,10 @@ public:
 
 	inline virtual UINT32 CalcBinaryRecordCount() const { return 3; }
 	void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex, const string& epsgCode, const string& epoch) const;
-	virtual UINT32 SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr, it_vdbid_t& dbidmap, bool dbidSet);
+	virtual UINT32 SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr);
 	virtual void WriteDynaMLMsr(std::ofstream* dynaml_stream) const;
 	virtual void WriteDNAMsr(std::ofstream* dna_stream, 
-		const dna_msr_fields& dmw, const dna_msr_fields& dml, 
-		const msr_database_id_map& dbidmap, bool dbidSet) const;
+		const dna_msr_fields& dmw, const dna_msr_fields& dml) const;
 	virtual void SimulateMsr(vdnaStnPtr*, const CDnaEllipsoid*);
 	
 	void SerialiseDatabaseMap(std::ofstream* os, const UINT32& msr_id, const UINT32& cluster_id);

@@ -187,8 +187,7 @@ void CDnaCovariance::WriteDynaMLMsr(std::ofstream* dynaml_stream) const
 	
 
 void CDnaCovariance::WriteDNAMsr(std::ofstream* dna_stream, 
-	const dna_msr_fields& dmw, const dna_msr_fields&, 
-	const msr_database_id_map& dbidmap, bool dbidSet) const
+	const dna_msr_fields& dmw, const dna_msr_fields&) const
 {
 	UINT32 pad(dmw.msr_type + dmw.msr_ignore + dmw.msr_inst + dmw.msr_targ1 + dmw.msr_targ2 + dmw.msr_gps);
 	// X
@@ -287,7 +286,7 @@ void CDnaCovariance::SimulateMsr(vdnaStnPtr*, const CDnaEllipsoid*)
 //}
 	
 
-UINT32 CDnaCovariance::SetMeasurementRec(const vstn_t&, it_vmsr_t& it_msr, it_vdbid_t& dbidmap, bool dbidSet)
+UINT32 CDnaCovariance::SetMeasurementRec(const vstn_t&, it_vmsr_t& it_msr)
 {
 	// get data relating to Z, sigmaZZ, sigmaXZ, sigmaYZ
 	it_msr++;

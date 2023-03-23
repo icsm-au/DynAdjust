@@ -486,8 +486,7 @@ void CDnaGpsBaseline::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_field
 	// write GPSBaseline covariances (not supported by DNA format)
 	vector<CDnaCovariance>::const_iterator _it_cov = m_vGpsCovariances.begin();
 	for (_it_cov=m_vGpsCovariances.begin(); _it_cov!=m_vGpsCovariances.end(); ++_it_cov)
-		_it_cov->WriteDNAMsr(dna_stream, dmw, dml, 
-			m_msr_db_map, m_databaseIdSet);
+		_it_cov->WriteDNAMsr(dna_stream, dmw, dml);
 }
 	
 
@@ -642,7 +641,7 @@ UINT32 CDnaGpsBaseline::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it
 	// now covariances
 	vector<CDnaCovariance>::iterator _it_cov = m_vGpsCovariances.begin();
 	for (; _it_cov!=m_vGpsCovariances.end(); ++_it_cov)
-		_it_cov->SetMeasurementRec(binaryStn, it_msr, dbidmap, dbidSet);
+		_it_cov->SetMeasurementRec(binaryStn, it_msr);
 
 	return it_msr->vectorCount1;
 }
