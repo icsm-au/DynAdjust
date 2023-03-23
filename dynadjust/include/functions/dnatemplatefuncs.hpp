@@ -154,26 +154,26 @@ void strip_duplicates(T* t)
 template <class T>
 void outputObject(T t, ostream &os) { os << t; }
 
-// template functor for equality of (type)value
-template <class C, typename T, typename OP>
-class operator_on_mem_t : public binary_function<C, T, bool>
-{
-public:
-	explicit operator_on_mem_t(T C:: *m, OP Op)
-		: m_Value(m), m_Operator(Op) {}
-	bool operator() (const C& cObject, const T& tValue) const {
-		return m_Operator(cObject.*m_Value, tValue); }
-private:
-	T C::*m_Value;
-	OP m_Operator;
-};
-
-// template functor helper
-template <class C, typename T, typename OP>
-operator_on_mem_t<C, T, OP> operator_on_mem(T C::*m_Value, OP op)
-{
-	return operator_on_mem_t<C, T, OP>(m_Value, op);
-}
+//// template functor for equality of (type)value
+//template <class C, typename T, typename OP>
+//class operator_on_mem_t : public binary_function<C, T, bool>
+//{
+//public:
+//	explicit operator_on_mem_t(T C:: *m, OP Op)
+//		: m_Value(m), m_Operator(Op) {}
+//	bool operator() (const C& cObject, const T& tValue) const {
+//		return m_Operator(cObject.*m_Value, tValue); }
+//private:
+//	T C::*m_Value;
+//	OP m_Operator;
+//};
+//
+//// template functor helper
+//template <class C, typename T, typename OP>
+//operator_on_mem_t<C, T, OP> operator_on_mem(T C::*m_Value, OP op)
+//{
+//	return operator_on_mem_t<C, T, OP>(m_Value, op);
+//}
 
 /* function object to check the value of a map element */
 template <class K, typename V>

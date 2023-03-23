@@ -93,7 +93,7 @@ public:
 	
 	void AddDirection(const CDnaMeasurement* pDirection);
 	void ClearDirections();
-	bool IsRepeatedDirection(string);
+	//bool IsRepeatedDirection(string);
 
 	virtual UINT32 CalcBinaryRecordCount() const;
 	virtual void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) const;

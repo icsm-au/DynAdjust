@@ -243,16 +243,16 @@ void CDnaDirectionSet::ClearDirections()
 }
 
 
-bool CDnaDirectionSet::IsRepeatedDirection(string strTarget)
-{
-	if (m_vTargetDirections.empty())
-		return false;
-
-	if (find_if(m_vTargetDirections.begin(), m_vTargetDirections.end(),
-		bind2nd(operator_on_mem(&CDnaDirection::m_strTarget, std::equal_to<string>()), strTarget)) != m_vTargetDirections.end())
-		return true;
-	return false;
-}
+//bool CDnaDirectionSet::IsRepeatedDirection(string strTarget)
+//{
+//	if (m_vTargetDirections.empty())
+//		return false;
+//
+//	if (find_if(m_vTargetDirections.begin(), m_vTargetDirections.end(),
+//		bind2nd(operator_on_mem(&CDnaDirection::m_strTarget, std::equal_to<string>()), strTarget)) != m_vTargetDirections.end())
+//		return true;
+//	return false;
+//}
 	
 
 void CDnaDirectionSet::SerialiseDatabaseMap(std::ofstream* os)
