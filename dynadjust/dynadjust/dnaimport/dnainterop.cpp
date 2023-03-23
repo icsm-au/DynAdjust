@@ -2024,6 +2024,14 @@ void dna_import::ParseDNAMSRGPSBaselines(string& sBuf, dnaMsrPtr& msr_ptr, bool 
 
 			// Target station
 			bslTmp.SetTarget(ParseTargetValue(sBuf, "ParseDNAMSRGPSBaselines"));
+
+			// No need to read database ID for simulation
+			if (!projectSettings_.i.simulate_measurements)
+			{
+				// Capture msr_id (for database referencing)
+				ParseDatabaseIds(sBuf, "ParseDNAMSRGPSBaselines", msr_ptr->GetTypeC());
+				bslTmp.SetDatabaseMap(m_msr_db_map, m_databaseIdSet);
+			}
 		}
 
 		first_run = false;
@@ -2249,6 +2257,14 @@ void dna_import::ParseDNAMSRGPSPoints(string& sBuf, dnaMsrPtr& msr_ptr, bool ign
 			// Instrument station
 			msr_ptr->SetFirst(ParseInstrumentValue(sBuf, "ParseDNAMSRGPSPoints"));
 			pntTmp.SetFirst(msr_ptr->GetFirst());
+
+			// No need to read database ID for simulation
+			if (!projectSettings_.i.simulate_measurements)
+			{
+				// Capture msr_id (for database referencing)
+				ParseDatabaseIds(sBuf, "ParseDNAMSRGPSPoints", msr_ptr->GetTypeC());
+				pntTmp.SetDatabaseMap(m_msr_db_map, m_databaseIdSet);
+			}
 		}
 
 		first_run = false;
