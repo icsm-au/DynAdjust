@@ -312,14 +312,16 @@ void CDnaDirection::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields&
 		width = 0;
 	}
 
-	if (m_databaseIdSet)
+	if (m_databaseIdSet && m_msr_db_map.is_msr_id_set)
 	{
 		if (width)
 			*dna_stream << setw(width) << " ";
-		*dna_stream << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
+		if (m_msr_db_map.is_msr_id_set)
+			*dna_stream << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
 
 		if (bSubMeasurement)
-			*dna_stream << setw(dmw.msr_id_cluster) << m_msr_db_map.cluster_id;
+			if (m_msr_db_map.is_cls_id_set)
+				*dna_stream << setw(dmw.msr_id_cluster) << m_msr_db_map.cluster_id;
 	}
 
 	*dna_stream << endl;

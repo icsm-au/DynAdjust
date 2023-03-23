@@ -175,9 +175,8 @@ void CDnaAngle::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw
 	*dna_stream << setw(dmw.msr_gps_epoch) << m_epoch;
 
 	if (m_databaseIdSet)
-	{ 
-		*dna_stream << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
-	}
+		if (m_msr_db_map.is_msr_id_set)
+			*dna_stream << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
 	
 	*dna_stream << endl;
 }

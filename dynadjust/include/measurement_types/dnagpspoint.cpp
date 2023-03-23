@@ -406,8 +406,10 @@ void CDnaGpsPoint::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& 
 		// print database ids
 		if (m_databaseIdSet)
 		{
-			*dna_stream << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id <<
-				setw(dmw.msr_id_cluster) << m_msr_db_map.cluster_id;
+			if (m_msr_db_map.is_msr_id_set)
+				*dna_stream << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
+			if (m_msr_db_map.is_cls_id_set)
+				*dna_stream << setw(dmw.msr_id_cluster) << m_msr_db_map.cluster_id;
 		}
 	}
 	else
@@ -415,9 +417,11 @@ void CDnaGpsPoint::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& 
 		// print database ids
 		if (m_databaseIdSet)
 		{
-			*dna_stream << setw(dml.msr_id_msr - dml.msr_targ1) << " ";
-			*dna_stream << right << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id <<
-				setw(dmw.msr_id_cluster) << m_msr_db_map.cluster_id;
+			if (m_msr_db_map.is_msr_id_set)
+				*dna_stream << setw(dml.msr_id_msr - dml.msr_targ1) << " " <<
+					right << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
+			if (m_msr_db_map.is_cls_id_set)
+				*dna_stream << setw(dmw.msr_id_cluster) << m_msr_db_map.cluster_id;
 		}
 	}
 
@@ -437,15 +441,6 @@ void CDnaGpsPoint::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& 
 		*dna_stream << right << setw(dmw.msr_gps) << fixed << setprecision(precision) << m_dX;
 
 	*dna_stream << right << setw(dmw.msr_gps_vcv_1) << scientific << setprecision(13) << m_dSigmaXX;
-
-	// print database ids
-	if (m_databaseIdSet)
-	{
-		*dna_stream << setw(dml.msr_id_msr - dml.msr_gps_vcv_2) << " ";
-		*dna_stream << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id <<
-			setw(dmw.msr_id_cluster) << m_msr_db_map.cluster_id;
-	}
-
 	*dna_stream << endl;
 
 	// Y
@@ -458,15 +453,6 @@ void CDnaGpsPoint::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& 
 	*dna_stream << 
 		right << setw(dmw.msr_gps_vcv_1) << scientific << setprecision(13) << m_dSigmaXY << 
 		right << setw(dmw.msr_gps_vcv_2) << m_dSigmaYY;
-
-	// print database ids
-	if (m_databaseIdSet)
-	{
-		*dna_stream << setw(dml.msr_id_msr - dml.msr_gps_vcv_3) << " ";
-		*dna_stream << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id <<
-			setw(dmw.msr_id_cluster) << m_msr_db_map.cluster_id;
-	}
-
 	*dna_stream << endl;
 
 	// Z
@@ -477,14 +463,6 @@ void CDnaGpsPoint::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& 
 		right << setw(dmw.msr_gps_vcv_1) << scientific << setprecision(13) << m_dSigmaXZ <<
 		right << setw(dmw.msr_gps_vcv_2) << m_dSigmaYZ << 
 		right << setw(dmw.msr_gps_vcv_3) << m_dSigmaZZ;
-
-	// print database ids
-	if (m_databaseIdSet)
-	{
-		*dna_stream << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id <<
-			setw(dmw.msr_id_cluster) << m_msr_db_map.cluster_id;
-	}
-
 	*dna_stream << endl;
 
 	// write GPSPoint covariances (not supported by DNA format)
