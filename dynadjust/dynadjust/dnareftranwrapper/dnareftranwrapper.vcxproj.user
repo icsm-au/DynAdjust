@@ -11,8 +11,8 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>itrf2014 -r itrf2020 -e 25.10.2017 --export-dna</LocalDebuggerCommandArguments>
-    <LocalDebuggerWorkingDirectory>$(dist)\transformation-paramaters\sample-data</LocalDebuggerWorkingDirectory>
+    <LocalDebuggerCommandArguments>vic2ex -r gda2020 --export-xml</LocalDebuggerCommandArguments>
+    <LocalDebuggerWorkingDirectory>$(dist)\_git_issues\measurement-id</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

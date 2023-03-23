@@ -197,13 +197,6 @@ void CDnaCovariance::WriteDNAMsr(std::ofstream* dna_stream,
 		right << setw(dmw.msr_gps_vcv_1) << scientific << setprecision(13) << m_dM11 <<
 		right << setw(dmw.msr_gps_vcv_2) << m_dM12 <<
 		right << setw(dmw.msr_gps_vcv_3) << m_dM13;
-
-	if (dbidSet)
-	{
-		*dna_stream << setw(dmw.msr_id_msr) << dbidmap.msr_id;
-		*dna_stream << setw(dmw.msr_id_cluster) << dbidmap.cluster_id;
-	}
-
 	*dna_stream << endl;
 		
 	// Y
@@ -212,13 +205,6 @@ void CDnaCovariance::WriteDNAMsr(std::ofstream* dna_stream,
 		right << setw(dmw.msr_gps_vcv_1) << scientific << setprecision(13) << m_dM21 <<
 		right << setw(dmw.msr_gps_vcv_2) << m_dM22 <<
 		right << setw(dmw.msr_gps_vcv_3) << m_dM23;
-
-	if (dbidSet)
-	{
-		*dna_stream << setw(dmw.msr_id_msr) << dbidmap.msr_id;
-		*dna_stream << setw(dmw.msr_id_cluster) << dbidmap.cluster_id;
-	}
-
 	*dna_stream << endl;
 
 	// Z
@@ -227,13 +213,6 @@ void CDnaCovariance::WriteDNAMsr(std::ofstream* dna_stream,
 		right << setw(dmw.msr_gps_vcv_1) << scientific << setprecision(13) << m_dM31 <<
 		right << setw(dmw.msr_gps_vcv_2) << m_dM32 <<
 		right << setw(dmw.msr_gps_vcv_3) << m_dM33;
-
-	if (dbidSet)
-	{
-		*dna_stream << setw(dmw.msr_id_msr) << dbidmap.msr_id;
-		*dna_stream << setw(dmw.msr_id_cluster) << dbidmap.cluster_id;
-	}
-
 	*dna_stream << endl;
 }
 	
@@ -601,24 +580,28 @@ void CDnaMeasurement::coutMeasurement(ostream& os) const
 void CDnaMeasurement::SetMeasurementDBID(const string& str)
 {
 	m_msr_db_map.msr_id = LongFromString<UINT32>(str);
+	m_msr_db_map.is_msr_id_set = true;
 	m_databaseIdSet = true;
 }
 
 void CDnaMeasurement::SetClusterDBID(const string& str)
 {
 	m_msr_db_map.cluster_id = LongFromString<UINT32>(str);
+	m_msr_db_map.is_cls_id_set = true;
 	m_databaseIdSet = true;
 }
 
 void CDnaMeasurement::SetMeasurementDBID(const UINT32& u, bool dbidSet) 
 {
 	m_msr_db_map.msr_id = u;
+	m_msr_db_map.is_msr_id_set = true;
 	m_databaseIdSet = dbidSet;
 }
 
 void CDnaMeasurement::SetClusterDBID(const UINT32& u, bool dbidSet) 
 {
 	m_msr_db_map.cluster_id = u;
+	m_msr_db_map.is_cls_id_set = true;
 	m_databaseIdSet = dbidSet;
 }
 

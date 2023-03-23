@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>dsg --type-b-sd-glob "0.006,0.006,0.012" --type-b-sd-file ./dsg.typeb --output-pos</LocalDebuggerCommandArguments>
-    <LocalDebuggerWorkingDirectory>$(DIST)_git_issues\type-b</LocalDebuggerWorkingDirectory>
+    <LocalDebuggerCommandArguments>vic2ex --staged --create --output-adj-msr --output-database-id</LocalDebuggerCommandArguments>
+    <LocalDebuggerWorkingDirectory>$(DIST)_git_issues\measurement-id</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>
