@@ -360,17 +360,27 @@ void CDnaCovariance::WriteBinaryMsr(std::ofstream *binary_stream, PUINT32 msrInd
 	binary_stream->write(reinterpret_cast<char *>(&measRecord), sizeof(measurement_t));
 }
 
-void CDnaCovariance::SerialiseDatabaseMap(std::ofstream* os, const UINT32& msr_id, const UINT32& cluster_id)
+void CDnaCovariance::SerialiseDatabaseMap(std::ofstream* os, const msr_database_id_map& dbid)
 {
+	UINT16 msr, cls;
+	msr = static_cast<UINT16>(dbid.is_msr_id_set);
+	cls = static_cast<UINT16>(dbid.is_cls_id_set);
+	
 	// X
-	os->write(reinterpret_cast<const char *>(&msr_id), sizeof(UINT32));
-	os->write(reinterpret_cast<const char *>(&cluster_id), sizeof(UINT32));
+	os->write(reinterpret_cast<const char *>(&dbid.msr_id), sizeof(UINT32));
+	os->write(reinterpret_cast<const char *>(&dbid.cluster_id), sizeof(UINT32));
+	os->write(reinterpret_cast<const char *>(&msr), sizeof(UINT16));
+	os->write(reinterpret_cast<const char *>(&cls), sizeof(UINT16));
 	// Y
-	os->write(reinterpret_cast<const char *>(&msr_id), sizeof(UINT32));
-	os->write(reinterpret_cast<const char *>(&cluster_id), sizeof(UINT32));
+	os->write(reinterpret_cast<const char *>(&dbid.msr_id), sizeof(UINT32));
+	os->write(reinterpret_cast<const char *>(&dbid.cluster_id), sizeof(UINT32));
+	os->write(reinterpret_cast<const char *>(&msr), sizeof(UINT16));
+	os->write(reinterpret_cast<const char *>(&cls), sizeof(UINT16));
 	// Z
-	os->write(reinterpret_cast<const char *>(&msr_id), sizeof(UINT32));
-	os->write(reinterpret_cast<const char *>(&cluster_id), sizeof(UINT32));
+	os->write(reinterpret_cast<const char *>(&dbid.msr_id), sizeof(UINT32));
+	os->write(reinterpret_cast<const char *>(&dbid.cluster_id), sizeof(UINT32));
+	os->write(reinterpret_cast<const char *>(&msr), sizeof(UINT16));
+	os->write(reinterpret_cast<const char *>(&cls), sizeof(UINT16));
 }
 
 void CDnaCovariance::SetM11(const string& str)
@@ -629,8 +639,8 @@ void CDnaMeasurement::SerialiseDatabaseMap(std::ofstream* os)
 {
 	UINT16 val;
 
-	os->write(reinterpret_cast<const char *>(&m_msr_db_map.msr_id), sizeof(UINT32));
-	os->write(reinterpret_cast<const char *>(&m_msr_db_map.cluster_id), sizeof(UINT32));
+	os->write(reinterpret_cast<const char*>(&m_msr_db_map.msr_id), sizeof(UINT32));
+	os->write(reinterpret_cast<const char*>(&m_msr_db_map.cluster_id), sizeof(UINT32));
 	val = static_cast<UINT16>(m_msr_db_map.is_msr_id_set);
 	os->write(reinterpret_cast<const char*>(&val), sizeof(UINT16));
 	val = static_cast<UINT16>(m_msr_db_map.is_cls_id_set);

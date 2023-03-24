@@ -246,7 +246,7 @@ public:
 		const dna_msr_fields& dmw, const dna_msr_fields& dml) const;
 	virtual void SimulateMsr(vdnaStnPtr*, const CDnaEllipsoid*);
 	
-	void SerialiseDatabaseMap(std::ofstream* os, const UINT32& msr_id, const UINT32& cluster_id);
+	void SerialiseDatabaseMap(std::ofstream* os, const msr_database_id_map& dbid);
 
 	inline void SetClusterID(const UINT32& id) { m_lclusterID = id; }
 	inline void SetStn1Index(const UINT32& stn) { m_lstn1Index = stn; }

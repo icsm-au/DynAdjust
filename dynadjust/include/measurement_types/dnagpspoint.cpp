@@ -794,7 +794,7 @@ void CDnaGpsPoint::SerialiseDatabaseMap(std::ofstream* os)
 
 	for_each(m_vPointCovariances.begin(), m_vPointCovariances.end(),
 		[this, os](const CDnaCovariance& cov) {
-		((CDnaCovariance*)&cov)->SerialiseDatabaseMap(os, m_msr_db_map.msr_id, m_msr_db_map.cluster_id);
+		((CDnaCovariance*)&cov)->SerialiseDatabaseMap(os, m_msr_db_map);
 	});
 }
 	

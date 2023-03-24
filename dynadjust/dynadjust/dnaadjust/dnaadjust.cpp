@@ -2530,9 +2530,9 @@ void dna_adjust::LoadDatabaseId()
 			// Read data
 			dbid_file.read(reinterpret_cast<char *>(&rec.msr_id), sizeof(UINT32));
 			dbid_file.read(reinterpret_cast<char *>(&rec.cluster_id), sizeof(UINT32));
-			dbid_file.read(reinterpret_cast<char*>(&val), sizeof(UINT16));
+			dbid_file.read(reinterpret_cast<char *>(&val), sizeof(UINT16));
 			rec.is_msr_id_set = val_uint<bool, UINT16>(val);
-			dbid_file.read(reinterpret_cast<char*>(&val), sizeof(UINT16));
+			dbid_file.read(reinterpret_cast<char *>(&val), sizeof(UINT16));
 			rec.is_cls_id_set = val_uint<bool, UINT16>(val);
 			
 			// push back
