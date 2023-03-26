@@ -11,7 +11,7 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>vic2ex -r gda2020 --export-xml</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>vic2ex -r gda2020 --export-dna</LocalDebuggerCommandArguments>
     <LocalDebuggerWorkingDirectory>$(dist)\_git_issues\measurement-id</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>

@@ -1896,11 +1896,17 @@ void dna_reftran::LoadDatabaseId()
 		dbid_file.read(reinterpret_cast<char*>(&recordCount), sizeof(UINT32));
 		v_msr_db_map_.reserve(recordCount);
 
+		UINT16 val;
+
 		for (r = 0; r < recordCount; r++)
 		{
 			// Read data
 			dbid_file.read(reinterpret_cast<char*>(&rec.msr_id), sizeof(UINT32));
 			dbid_file.read(reinterpret_cast<char*>(&rec.cluster_id), sizeof(UINT32));
+			dbid_file.read(reinterpret_cast<char*>(&val), sizeof(UINT16));
+			rec.is_msr_id_set = val_uint<bool, UINT16>(val);
+			dbid_file.read(reinterpret_cast<char*>(&val), sizeof(UINT16));
+			rec.is_cls_id_set = val_uint<bool, UINT16>(val);
 
 			// push back
 			v_msr_db_map_.push_back(rec);
