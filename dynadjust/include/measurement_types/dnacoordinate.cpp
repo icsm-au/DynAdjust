@@ -37,42 +37,7 @@ CDnaCoordinate::~CDnaCoordinate(void)
 {
 
 }
-
-
-//CDnaCoordinate::CDnaCoordinate(const CDnaCoordinate& newDistance)
-//{
-//	m_strFirst = newDistance.m_strFirst;
-//	m_drValue = newDistance.m_drValue;
-//	m_dStdDev = newDistance.m_dStdDev;
-//	m_bIgnore = newDistance.m_bIgnore;
-//	m_MSmeasurementStations = newDistance.m_MSmeasurementStations;
-//
-//}
-
-
-//CDnaCoordinate::CDnaCoordinate(const bool bIgnore, const string& strFirst, const double& dValue, const double& dStdDev)
-//{
-//	m_strFirst = strFirst;
-//	m_bIgnore = bIgnore;
-//	m_drValue = dValue;
-//	m_dStdDev = dStdDev;
-//}
-
-
-//CDnaCoordinate& CDnaCoordinate::operator= (const CDnaCoordinate& rhs)
-//{
-//	// check for assignment to self!
-//	if (this == &rhs)
-//		return *this;
-//
-//	CDnaMeasurement::operator=(rhs);
-//	m_drValue = rhs.m_drValue;
-//	m_dStdDev = rhs.m_dStdDev;
-//	m_MSmeasurementStations = rhs.m_MSmeasurementStations;
-//
-//	return *this;
-//}
-
+	
 
 bool CDnaCoordinate::operator== (const CDnaCoordinate& rhs) const
 {
@@ -214,29 +179,6 @@ void CDnaCoordinate::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid*)
 
 	m_epoch = "01.10.1985";
 }
-	
-
-//UINT32 CDnaCoordinate::SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord)
-//{
-//	char stationName[STN_NAME_WIDTH];
-//	m_strType = measRecord->measType;
-//	m_bIgnore = measRecord->ignore;
-//	m_MSmeasurementStations = (MEASUREMENT_STATIONS)measRecord->measurementStations;
-//
-//	m_lstn1Index = measRecord->station1;
-//	ifs_stns->seekg(sizeof(UINT32) + measRecord->station1 * sizeof(station_t), ios::beg);
-//	ifs_stns->read(reinterpret_cast<char *>(&stationName), sizeof(stationName));
-//	m_strFirst = stationName;
-//	
-//	m_measAdj = measRecord->measAdj;
-//	m_measCorr = measRecord->measCorr;
-//	m_measAdjPrec = measRecord->measAdjPrec;
-//	m_residualPrec = measRecord->residualPrec;
-//	m_preAdjCorr = measRecord->preAdjCorr;
-//	m_drValue = measRecord->term1;
-//	m_dStdDev = sqrt(measRecord->term2);
-//	return 0;
-//}
 	
 
 UINT32 CDnaCoordinate::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr, it_vdbid_t& dbidmap)

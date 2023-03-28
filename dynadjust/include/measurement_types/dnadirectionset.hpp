@@ -79,13 +79,11 @@ public:
 	inline double GetStdDev() const { return m_dStdDev; }
 	
 	inline size_t GetNumDirections() const { return m_vTargetDirections.size(); }
-	//inline vector<CDnaDirection> GetDirections() const { return m_vTargetDirections; }
 	inline vector<CDnaDirection>* GetDirections_ptr() { return &m_vTargetDirections; }
 
 	inline void SetClusterID(const UINT32& id) { m_lsetID = id; }
 	inline void SetTarget(const string& str) { m_strTarget = trimstr(str); }
 	inline void SetTotal(const UINT32& l) { m_lRecordedTotal = l; }
-	//inline void SetDirections(const vector<CDnaDirection>& d) { m_vTargetDirections = d; }
 
 	void SetTotal(const string& str);
 	void SetValue(const string& str);

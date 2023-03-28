@@ -454,7 +454,6 @@ public:
 	void SetMeasurementDBID(const string& str);
 	void SetClusterDBID(const string& str);
 	
-	void SetMeasurementDBID(const UINT32& u);
 	void SetClusterDBID(const UINT32& u, bool s);
 
 	inline UINT32 GetClusterDBID() { return m_msr_db_map.cluster_id; }

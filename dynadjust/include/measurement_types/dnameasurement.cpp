@@ -97,51 +97,7 @@ CDnaCovariance& CDnaCovariance::operator= (CDnaCovariance&& rhs)
 
 	return *this;
 }
-
-//// copy constructor
-//CDnaCovariance::CDnaCovariance(const CDnaCovariance& newCovariance)
-//{
-//	m_bIgnore = newCovariance.m_bIgnore;
-//	m_lstn1Index = newCovariance.m_lstn1Index;
-//	m_lstn2Index = newCovariance.m_lstn2Index;
-//	m_strType = newCovariance.m_strType;
-//	m_dM11 = newCovariance.m_dM11;
-//	m_dM12 = newCovariance.m_dM12;
-//	m_dM13 = newCovariance.m_dM13;
-//	m_dM21 = newCovariance.m_dM21;
-//	m_dM22 = newCovariance.m_dM22;
-//	m_dM23 = newCovariance.m_dM23;
-//	m_dM31 = newCovariance.m_dM31;
-//	m_dM32 = newCovariance.m_dM32;
-//	m_dM33 = newCovariance.m_dM33;
-//	m_lclusterID = newCovariance.m_lclusterID;
-//}
-
-
-//// assignment operator
-//CDnaCovariance& CDnaCovariance::operator= (const CDnaCovariance& rhs)
-//{
-//	// check for assignment to self!
-//	if (this == &rhs)
-//		return *this;
-//
-//	m_bIgnore = rhs.m_bIgnore;
-//	m_lstn1Index = rhs.m_lstn1Index;
-//	m_lstn2Index = rhs.m_lstn2Index;
-//	m_strType = rhs.m_strType;
-//	m_dM11 = rhs.m_dM11;
-//	m_dM12 = rhs.m_dM12;
-//	m_dM13 = rhs.m_dM13;
-//	m_dM21 = rhs.m_dM21;
-//	m_dM22 = rhs.m_dM22;
-//	m_dM23 = rhs.m_dM23;
-//	m_dM31 = rhs.m_dM31;
-//	m_dM32 = rhs.m_dM32;
-//	m_dM33 = rhs.m_dM33;
-//	m_lclusterID = rhs.m_lclusterID;
-//
-//	return *this;
-//}
+	
 
 bool CDnaCovariance::operator== (const CDnaCovariance& rhs) const
 {
@@ -228,62 +184,6 @@ void CDnaCovariance::SimulateMsr(vdnaStnPtr*, const CDnaEllipsoid*)
 	m_dM32 = 0.0;
 	m_dM33 = 0.0;
 }
-
-//UINT32 CDnaCovariance::SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord)
-//{
-//	UINT32 measrecordCount = 0;
-//
-//	m_lstn1Index = measRecord->station1;
-//	m_lstn2Index = measRecord->station2;
-//	m_strType = measRecord->measType;
-//
-//	// get data relating to Z, sigmaZZ, sigmaXZ, sigmaYZ
-//	if (ifs_msrs->eof() || !ifs_msrs->good())
-//		throw XMLInteropException("SetMeasurementRec(): Errors were encountered when reading from the binary measurement file.", 0);
-//	ifs_msrs->read(reinterpret_cast<char *>(measRecord), sizeof(measurement_t));
-//	
-//	// check integrity of the binary file (see WriteBinaryMsr())
-//	if (measRecord->measType != 'X' && measRecord->measType != 'Y')
-//		throw XMLInteropException("SetMeasurementRec(): Errors were encountered when attempting to read the next GpsPoint Covariance element.", 0);
-//		
-//	m_dM11 = measRecord->term1;
-//	m_dM12 = measRecord->term2;
-//	m_dM13 = measRecord->term3;
-//
-//	m_lclusterID = measRecord->clusterID;
-//
-//	measrecordCount++;
-//
-//	// get data relating to Z, sigmaZZ, sigmaXZ, sigmaYZ
-//	if (ifs_msrs->eof() || !ifs_msrs->good())
-//		throw XMLInteropException("SetMeasurementRec(): Errors were encountered when reading from the binary measurement file.", 0);
-//	ifs_msrs->read(reinterpret_cast<char *>(measRecord), sizeof(measurement_t));
-//	
-//	// check integrity of the binary file (see WriteBinaryMsr())
-//	if (measRecord->measType != 'X' && measRecord->measType != 'Y')
-//		throw XMLInteropException("SetMeasurementRec(): Errors were encountered when attempting to read the next GpsPoint Covariance element.", 0);
-//	
-//	m_lstn1Index = measRecord->station1;
-//	m_lstn2Index = measRecord->station2;
-//	m_dM21 = measRecord->term1;
-//	m_dM22 = measRecord->term2;
-//	m_dM23 = measRecord->term3;
-//	
-//	measrecordCount++;
-//
-//	// get data relating to Z, sigmaZZ, sigmaXZ, sigmaYZ
-//	if (ifs_msrs->eof() || !ifs_msrs->good())
-//		throw XMLInteropException("SetMeasurementRec(): Errors were encountered when reading from the binary measurement file.", 0);
-//	ifs_msrs->read(reinterpret_cast<char *>(measRecord), sizeof(measurement_t));
-//	
-//	m_lstn1Index = measRecord->station1;
-//	m_lstn2Index = measRecord->station2;
-//	m_dM31 = measRecord->term1;
-//	m_dM32 = measRecord->term2;
-//	m_dM33 = measRecord->term3;
-//	
-//	return ++measrecordCount;
-//}
 	
 
 UINT32 CDnaCovariance::SetMeasurementRec(const vstn_t&, it_vmsr_t& it_msr)
@@ -520,61 +420,7 @@ CDnaMeasurement& CDnaMeasurement::operator= (CDnaMeasurement&& rhs)
 
 	return *this;
 }
-
-//// copy constructor
-//CDnaMeasurement::CDnaMeasurement(const CDnaMeasurement& newMeasurement)
-//{
-//	m_strType = newMeasurement.m_strType;
-//	m_bIgnore = newMeasurement.m_bIgnore;
-//	m_strFirst = newMeasurement.m_strFirst;
-//	m_MSmeasurementStations = newMeasurement.m_MSmeasurementStations;
-//	m_lmeasurementIndex = newMeasurement.m_lmeasurementIndex;
-//	m_lstn1Index = newMeasurement.m_lstn1Index;
-//	m_lstn2Index = newMeasurement.m_lstn2Index;
-//	m_lstn3Index = newMeasurement.m_lstn3Index;
-//
-//	m_measAdj = newMeasurement.m_measAdj;
-//	m_measCorr = newMeasurement.m_measCorr;
-//	m_measAdjPrec = newMeasurement.m_measAdjPrec;
-//	m_residualPrec = newMeasurement.m_residualPrec;
-//	m_preAdjCorr = newMeasurement.m_preAdjCorr;
-//
-//	m_epsgCode = newMeasurement.m_epsgCode;
-//
-//	m_msr_db_map = newMeasurement.m_msr_db_map;
-//}
-
-
-// assignment operator
-//CDnaMeasurement& CDnaMeasurement::operator= (const CDnaMeasurement& rhs)
-//{
-//	// check for assignment to self!
-//	if (this == &rhs)
-//		return *this;
-//
-//	m_strFirst = rhs.m_strFirst;
-//	m_MSmeasurementStations = rhs.m_MSmeasurementStations;
-//	m_strType = rhs.m_strType;
-//	m_bIgnore = rhs.m_bIgnore;
-//	m_lmeasurementIndex = rhs.m_lmeasurementIndex;
-//	m_lstn1Index = rhs.m_lstn1Index;
-//	m_lstn2Index = rhs.m_lstn2Index;
-//	m_lstn3Index = rhs.m_lstn3Index;
-//
-//	m_measAdj = rhs.m_measAdj;
-//	m_measCorr = rhs.m_measCorr;
-//	m_measAdjPrec = rhs.m_measAdjPrec;
-//	m_residualPrec = rhs.m_residualPrec;
-//	m_preAdjCorr = rhs.m_preAdjCorr;
-//
-//	m_epsgCode = rhs.m_epsgCode;
-//
-//	m_msr_db_map = rhs.m_msr_db_map;
-//
-//	return *this;
-//}
-
-// virtual functions
+	
 
 void CDnaMeasurement::coutMeasurement(ostream& os) const
 {
@@ -607,12 +453,6 @@ void CDnaMeasurement::SetClusterDBID(const string& str)
 		m_msr_db_map.cluster_id = LongFromString<UINT32>(str);
 		m_msr_db_map.is_cls_id_set = true;
 	}
-}
-
-void CDnaMeasurement::SetMeasurementDBID(const UINT32& u) 
-{
-	m_msr_db_map.msr_id = u;
-	m_msr_db_map.is_msr_id_set = true;
 }
 
 void CDnaMeasurement::SetClusterDBID(const UINT32& u, bool s) 

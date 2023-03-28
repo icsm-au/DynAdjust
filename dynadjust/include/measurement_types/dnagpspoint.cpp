@@ -143,97 +143,7 @@ CDnaGpsPoint& CDnaGpsPoint::operator= (CDnaGpsPoint&& rhs)
 
 	return *this;
 }
-
-// copy constructor (disabled)
-//CDnaGpsPoint::CDnaGpsPoint(const CDnaGpsPoint& newGpsPoint)
-//{
-//	m_strType = newGpsPoint.m_strType;
-//	m_strFirst = newGpsPoint.m_strFirst;
-//	m_lRecordedTotal = newGpsPoint.m_lRecordedTotal;
-//	m_bIgnore = newGpsPoint.m_bIgnore;
-//
-//	m_referenceFrame = newGpsPoint.m_referenceFrame;
-//	m_epsgCode = newGpsPoint.m_epsgCode;
-//	m_epoch = newGpsPoint.m_epoch;
-//
-//	m_dX = newGpsPoint.m_dX;
-//	m_dY = newGpsPoint.m_dY;
-//	m_dZ = newGpsPoint.m_dZ;
-//	m_dSigmaXX = newGpsPoint.m_dSigmaXX;
-//	m_dSigmaXY = newGpsPoint.m_dSigmaXY;
-//	m_dSigmaXZ = newGpsPoint.m_dSigmaXZ;
-//	m_dSigmaYY = newGpsPoint.m_dSigmaYY;
-//	m_dSigmaYZ = newGpsPoint.m_dSigmaYZ;
-//	m_dSigmaZZ = newGpsPoint.m_dSigmaZZ;
-//
-//	m_dPscale = newGpsPoint.m_dPscale;
-//	m_dLscale = newGpsPoint.m_dLscale;
-//	m_dHscale = newGpsPoint.m_dHscale;
-//	m_dVscale = newGpsPoint.m_dVscale;
-//
-//	SetCoordType(newGpsPoint.m_strCoordType);
-//	
-//	m_lclusterID = newGpsPoint.m_lclusterID;
-//	m_MSmeasurementStations = newGpsPoint.m_MSmeasurementStations;
-//
-//	m_msr_db_map = newGpsPoint.m_msr_db_map;
-//
-//	m_vPointCovariances = newGpsPoint.m_vPointCovariances;
-//}
-
-
-//CDnaGpsPoint::CDnaGpsPoint(const bool bIgnore, const string& strType, const string& strFirstStation)
-//{
-//	m_strType = strType;
-//	m_strFirst = strFirstStation;
-//	m_bIgnore = bIgnore;
-//
-//	m_referenceFrame = DEFAULT_DATUM;
-//	m_epoch = DEFAULT_EPOCH;
-//	SetEpsg(epsgStringFromName<string>(m_referenceFrame));
-//}
-
-// assignment operator (disabled)
-//CDnaGpsPoint& CDnaGpsPoint::operator= (const CDnaGpsPoint& rhs)
-//{
-//	// check for assignment to self!
-//	if (this == &rhs)
-//		return *this;
-//
-//	CDnaMeasurement::operator=(rhs);
-//	m_lRecordedTotal = rhs.m_lRecordedTotal;
-//
-//	m_referenceFrame = rhs.m_referenceFrame;
-//	m_epsgCode = rhs.m_epsgCode;
-//	m_epoch = rhs.m_epoch;
-//
-//	m_dX = rhs.m_dX;
-//	m_dY = rhs.m_dY;
-//	m_dZ = rhs.m_dZ;
-//	m_dSigmaXX = rhs.m_dSigmaXX;
-//	m_dSigmaXY = rhs.m_dSigmaXY;
-//	m_dSigmaXZ = rhs.m_dSigmaXZ;
-//	m_dSigmaYY = rhs.m_dSigmaYY;
-//	m_dSigmaYZ = rhs.m_dSigmaYZ;
-//	m_dSigmaZZ = rhs.m_dSigmaZZ;
-//
-//	m_dPscale = rhs.m_dPscale;
-//	m_dLscale = rhs.m_dLscale;
-//	m_dHscale = rhs.m_dHscale;
-//	m_dVscale = rhs.m_dVscale;
-//
-//	SetCoordType(rhs.m_strCoordType);
-//	
-//	m_lclusterID = rhs.m_lclusterID;
-//	m_MSmeasurementStations = rhs.m_MSmeasurementStations;
-//
-//	m_msr_db_map = rhs.m_msr_db_map;
-//
-//	m_vPointCovariances = rhs.m_vPointCovariances;
-//
-//	return *this;
-//}
-
+	
 
 bool CDnaGpsPoint::operator== (const CDnaGpsPoint& rhs) const
 {
@@ -297,19 +207,11 @@ void CDnaGpsPoint::SetCoordType(const string& sType) {
 _COORD_TYPE_ CDnaGpsPoint::GetMyCoordTypeC()
 {
 	return CDnaStation::GetCoordTypeC(m_strCoordType);
-	//// case insensitive
-	//if (iequals(m_strCoordType, XYZ_type))
-	//	return XYZ_type_i;
-	//if (iequals(m_strCoordType, UTM_type))
-	//	return UTM_type_i;
-	//return LLH_type_i;	// default
 }
 	
 
 void CDnaGpsPoint::AddPointCovariance(const CDnaCovariance* pGpsCovariance)
 {
-	//CDnaCovariance vcv = (CDnaCovariance&)*pGpsCovariance;
-	//m_vPointCovariances.push_back(vcv);
 	m_vPointCovariances.push_back(std::move((CDnaCovariance&)*pGpsCovariance));
 }
 	
@@ -561,82 +463,6 @@ void CDnaGpsPoint::PopulateMsr(pvstn_t bstRecords, uint32_uint32_map* blockStati
 		++_it_cov;
 	}
 }
-
-	
-
-//UINT32 CDnaGpsPoint::SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord)
-//{
-//	char stationName[STN_NAME_WIDTH];
-//
-//	// get first station name 
-//	m_lstn1Index = measRecord->station1;
-//	ifs_stns->seekg(sizeof(UINT32) + measRecord->station1 * sizeof(station_t), ios::beg);
-//	ifs_stns->read(reinterpret_cast<char *>(&stationName), sizeof(stationName));
-//	m_strFirst = stationName;
-//
-//	m_dPscale = measRecord->scale1;
-//	m_dLscale = measRecord->scale2;
-//	m_dHscale = measRecord->scale3;
-//	m_dVscale = measRecord->scale4;
-//
-//	m_epoch = measRecord->epoch;
-//	m_epsgCode = measRecord->epsgCode;
-//	m_referenceFrame = datumFromEpsgCode<string, UINT32>(LongFromString<UINT32>(measRecord->epsgCode));
-//
-//	m_lclusterID = measRecord->clusterID;
-//	m_MSmeasurementStations = (MEASUREMENT_STATIONS)measRecord->measurementStations;
-//	
-//	// X, sigmaXX
-//	m_bIgnore = measRecord->ignore;
-//	m_strType = measRecord->measType;
-//	m_dX = measRecord->term1;
-//	m_dSigmaXX = measRecord->term2;
-//	m_lRecordedTotal = measRecord->vectorCount1;
-//	SetCoordType(measRecord->coordType);
-//	
-//	UINT32 measrecordCount = 0;
-//	
-//	// get data relating to Y, sigmaYY, sigmaXY
-//	if (ifs_msrs->eof() || !ifs_msrs->good())
-//		throw XMLInteropException("SetMeasurementRec(): Errors were encountered when reading from the binary measurement file.", 0);
-//	ifs_msrs->read(reinterpret_cast<char *>(measRecord), sizeof(measurement_t));
-//	
-//	// check integrity of the binary file (see WriteBinaryMsr())
-//	if (measRecord->measType != 'Y')
-//		throw XMLInteropException("SetMeasurementRec(): Errors were encountered when attempting to read the next GpsPoint element (Y block).", 0);
-//	
-//	m_dY = measRecord->term1;
-//	m_dSigmaXY = measRecord->term2;
-//	m_dSigmaYY = measRecord->term3;
-//
-//	measrecordCount++;
-//
-//	// get data relating to Z, sigmaZZ, sigmaXZ, sigmaYZ
-//	if (ifs_msrs->eof() || !ifs_msrs->good())
-//		throw XMLInteropException("SetMeasurementRec(): Errors were encountered when reading from the binary measurement file.", 0);
-//	ifs_msrs->read(reinterpret_cast<char *>(measRecord), sizeof(measurement_t));
-//	
-//	// check integrity of the binary file (see WriteBinaryMsr())
-//	if (measRecord->measType != 'Y')
-//		throw XMLInteropException("SetMeasurementRec(): Errors were encountered when attempting to read the next GpsPoint element (Z block).", 0);
-//	
-//	m_dZ = measRecord->term1;
-//	m_dSigmaXZ = measRecord->term2;
-//	m_dSigmaYZ = measRecord->term3;
-//	m_dSigmaZZ = measRecord->term4;
-//
-//	measrecordCount++;
-//
-//	m_vPointCovariances.clear();
-//	m_vPointCovariances.resize(measRecord->vectorCount2);
-//
-//	// now covariances
-//	vector<CDnaCovariance>::iterator _it_cov = m_vPointCovariances.begin();
-//	for (; _it_cov!=m_vPointCovariances.end(); ++_it_cov)
-//		measrecordCount += _it_cov->SetMeasurementRec(ifs_stns, ifs_msrs, measRecord);
-//
-//	return measrecordCount;
-//}
 	
 
 UINT32 CDnaGpsPoint::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr, it_vdbid_t& dbidmap)
@@ -787,40 +613,6 @@ void CDnaGpsPoint::SerialiseDatabaseMap(std::ofstream* os)
 }
 	
 
-//void CDnaGpsPoint::coutPointData(ostream &os) const
-//{
-//	os << left << setw(4) << " " << setw(INST_WIDTH) << m_strFirst;
-//	os << setw(TARG_WIDTH) << " ";
-//	string ignoreFlag = " ";
-//	if (m_bIgnore)
-//		ignoreFlag = "*";
-//	bool bCoords_in_XYZ = true;
-//	if (m_strCoordType.compare(LLH_type))
-//		bCoords_in_XYZ = false;
-//
-//	size_t j = m_vPointCovariances.size();
-//	os << left << setw(2) << ignoreFlag << setw(8) << setprecision(3) << fixed << m_dPscale << setw(2) << (bCoords_in_XYZ ? "X" : "P") << setw(MSR2_WIDTH) << right << m_dX << setw(VAR_WIDTH) << scientific << m_dSigmaXX << setw(VAR_WIDTH) << m_dSigmaXY << setw(VAR_WIDTH) << m_dSigmaXZ;
-//	for (size_t i=0; i<j; i++)
-//		os << setw(COV_WIDTH) << m_vPointCovariances[i].GetM11() << setw(COV_WIDTH) << m_vPointCovariances[i].GetM12() << setw(COV_WIDTH) << m_vPointCovariances[i].GetM13();
-//	os << endl;
-//	os << setw(28) << " " << left << setw(2) << ignoreFlag << setw(8) << fixed << m_dLscale << setw(2) << (bCoords_in_XYZ ? "Y" : "L") << setw(MSR2_WIDTH) << right << m_dY << setw(VAR_WIDTH) << " " << setw(VAR_WIDTH) << scientific << m_dSigmaYY << setw(VAR_WIDTH) << m_dSigmaYZ;
-//	for (size_t i=0; i<j; i++)
-//		os << setw(COV_WIDTH) << m_vPointCovariances[i].GetM21() << setw(COV_WIDTH) << m_vPointCovariances[i].GetM22() << setw(COV_WIDTH) << m_vPointCovariances[i].GetM23();
-//	os << endl;
-//	os << setw(28) << " " << left << setw(2) << ignoreFlag << setw(8) << fixed << m_dHscale << setw(2) << (bCoords_in_XYZ ? "Z" : "H")  << setw(MSR2_WIDTH) << right << m_dZ << setw(VAR_WIDTH) << " " << setw(VAR_WIDTH) << " " << setw(VAR_WIDTH) << scientific << m_dSigmaZZ;
-//	for (size_t i=0; i<j; i++)
-//		os << setw(COV_WIDTH) << m_vPointCovariances[i].GetM31() << setw(COV_WIDTH) << m_vPointCovariances[i].GetM32() << setw(COV_WIDTH) << m_vPointCovariances[i].GetM33();
-//	os << endl;
-//}
-
-
-// moved to dnameasurement.cpp
-//void CDnaGpsPoint::SetEpoch(const string& epoch) 
-//{
-//	m_epoch = epoch;
-//}
-
-
 void CDnaGpsPoint::SetEpsg(const string& epsg) 
 {
 	m_epsgCode = epsg;
@@ -832,27 +624,7 @@ void CDnaGpsPoint::SetReferenceFrame(const string& refFrame)
 	m_referenceFrame = refFrame;
 	SetEpsg(epsgStringFromName<string>(refFrame));
 }
-
-
-//void CDnaGpsPoint::SetPscale(const string& str)
-//{
-//	DoubleFromString(m_dPscale, trimstr(str));
-//}
-
-//void CDnaGpsPoint::SetLscale(const string& str)
-//{
-//	DoubleFromString(m_dLscale, trimstr(str));
-//}
-
-//void CDnaGpsPoint::SetHscale(const string& str)
-//{
-//	DoubleFromString(m_dHscale, trimstr(str));
-//}
-
-//void CDnaGpsPoint::SetVscale(const string& str)
-//{
-//	DoubleFromString(m_dVscale, trimstr(str));
-//}
+	
 
 void CDnaGpsPoint::SetX(const string& str)
 {
@@ -1017,37 +789,7 @@ CDnaGpsPointCluster& CDnaGpsPointCluster::operator= (CDnaGpsPointCluster&& rhs)
 
 	return *this;
 }
-
-// copy constructor (disabled)
-//CDnaGpsPointCluster::CDnaGpsPointCluster(const CDnaGpsPointCluster& newGpsPointCluster)
-//{
-//	m_strType = newGpsPointCluster.m_strType;
-//	m_bIgnore = newGpsPointCluster.m_bIgnore;
-//	m_lRecordedTotal = newGpsPointCluster.m_lRecordedTotal;
-//	SetCoordType(newGpsPointCluster.m_strCoordType);
-//	m_vGpsPoints = newGpsPointCluster.m_vGpsPoints;
-//
-//	m_dPscale = newGpsPointCluster.m_dPscale;
-//	m_dLscale = newGpsPointCluster.m_dLscale;
-//	m_dHscale = newGpsPointCluster.m_dHscale;
-//	m_dVscale = newGpsPointCluster.m_dVscale;
-//
-//	m_lclusterID = newGpsPointCluster.m_lclusterID;
-//	m_MSmeasurementStations = newGpsPointCluster.m_MSmeasurementStations;
-//
-//	m_referenceFrame = newGpsPointCluster.m_referenceFrame;
-//	m_epsgCode = newGpsPointCluster.m_epsgCode;
-//	m_epoch = newGpsPointCluster.m_epoch;
-//
-//	m_msr_db_map = newGpsPointCluster.m_msr_db_map;
-//}
-
-
-//CDnaGpsPointCluster::CDnaGpsPointCluster(const bool bIgnore, const string& strType, const string& strFirstStation)
-//{
-//	m_strType = strType;
-//	m_bIgnore = bIgnore;
-//}
+	
 
 CDnaGpsPointCluster::CDnaGpsPointCluster(const UINT32 lclusterID, const string& referenceframe, const string& epoch)
 	: m_lRecordedTotal(0)
@@ -1067,37 +809,6 @@ CDnaGpsPointCluster::CDnaGpsPointCluster(const UINT32 lclusterID, const string& 
 	m_MSmeasurementStations = ONE_STATION;	
 }
 	
-
-// assignment operator (disabled)
-//CDnaGpsPointCluster& CDnaGpsPointCluster::operator= (const CDnaGpsPointCluster& rhs)
-//{
-//	// check for assignment to self!
-//	if (this == &rhs)
-//		return *this;
-//
-//	CDnaMeasurement::operator=(rhs);
-//	m_lRecordedTotal = rhs.m_lRecordedTotal;
-//	SetCoordType(rhs.m_strCoordType);
-//
-//	m_referenceFrame = rhs.m_referenceFrame;
-//	m_epsgCode = rhs.m_epsgCode;
-//	m_epoch = rhs.m_epoch;
-//
-//	m_dPscale = rhs.m_dPscale;
-//	m_dLscale = rhs.m_dLscale;
-//	m_dHscale = rhs.m_dHscale;
-//	m_dVscale = rhs.m_dVscale;
-//
-//	m_lclusterID = rhs.m_lclusterID;
-//	m_MSmeasurementStations = rhs.m_MSmeasurementStations;
-//
-//	m_msr_db_map = rhs.m_msr_db_map;
-//
-//	m_vGpsPoints = rhs.m_vGpsPoints;
-//
-//	return *this;
-//}
-
 
 bool CDnaGpsPointCluster::operator== (const CDnaGpsPointCluster& rhs) const
 {
@@ -1147,37 +858,13 @@ void CDnaGpsPointCluster::SetCoordType(const string& sType) {
 _COORD_TYPE_ CDnaGpsPointCluster::GetMyCoordTypeC()
 {
 	return CDnaStation::GetCoordTypeC(m_strCoordType);
-	//// case insensitive
-	//if (iequals(m_strCoordType, XYZ_type))
-	//	return XYZ_type_i;
-	//if (iequals(m_strCoordType, UTM_type))
-	//	return UTM_type_i;
-	//return LLH_type_i;	// default
 }
 	
 
 void CDnaGpsPointCluster::AddGpsPoint(const CDnaMeasurement* pGpsPoint)
 {
-	//CDnaGpsPoint pnt = (CDnaGpsPoint&)*pGpsPoint;
-	//m_vGpsPoints.push_back(pnt);
 	m_vGpsPoints.push_back(std::move((CDnaGpsPoint&)*pGpsPoint));
 }
-
-
-//void CDnaGpsPointCluster::ClearPoints()
-//{
-//	m_vGpsPoints.clear();
-//}
-	
-
-// void CDnaGpsPointCluster::SetDatabaseMap_bmsIndex(const UINT32& bmsIndex) 
-// { 
-// 	UINT32 i(bmsIndex);
-// 	for_each(m_vGpsPoints.begin(), m_vGpsPoints.end(),
-// 		[this, &i](const CDnaGpsPoint& pnt) {
-// 			((CDnaMeasurement*)&pnt)->SetDatabaseMap_bmsIndex(i++);
-// 	});
-// }
 	
 
 void CDnaGpsPointCluster::SerialiseDatabaseMap(std::ofstream* os)
@@ -1311,55 +998,7 @@ void CDnaGpsPointCluster::PopulateMsr(pvstn_t bstRecords, uint32_uint32_map* blo
 		++_it_pnt;
 	}
 }
-	
-
-
-//UINT32 CDnaGpsPointCluster::SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord)
-//{
-//	m_lclusterID = measRecord->clusterID;
-//	m_MSmeasurementStations = (MEASUREMENT_STATIONS)measRecord->measurementStations;
-//	m_lRecordedTotal = measRecord->vectorCount1;
-//	m_vGpsPoints.clear();
-//	m_vGpsPoints.resize(m_lRecordedTotal);
-//
-//	m_referenceFrame = datumFromEpsgCode<string, UINT32>(LongFromString<UINT32>(measRecord->epsgCode));
-//	m_epoch = measRecord->epoch;
-//	m_epsgCode = measRecord->epsgCode;
-//
-//	m_dPscale = measRecord->scale1;
-//	m_dLscale = measRecord->scale2;
-//	m_dHscale = measRecord->scale3;
-//	m_dVscale = measRecord->scale4;
-//
-//	UINT32 measrecordCount = 0;
-//
-//	// read remaining GpsPoint data and all Covariances from file
-//	for (UINT32 i=0; i<m_lRecordedTotal; i++)
-//	{
-//		if (i > 0)
-//		{
-//			// get data relating to Y, sigmaYY, sigmaXY
-//			if (ifs_msrs->eof() || !ifs_msrs->good())
-//				throw XMLInteropException("SetMeasurementRec(): Errors were encountered when reading from the binary measurement file.", 0);
-//			ifs_msrs->read(reinterpret_cast<char *>(measRecord), sizeof(measurement_t));
-//			
-//			// check integrity of the binary file (see WriteBinaryMsr())
-//			if (measRecord->measType != 'Y')
-//				throw XMLInteropException("SetMeasurementRec(): Errors were encountered when attempting to read the next GpsPoint element (X block).", 0);
-//		}
-//
-//		measrecordCount++;
-//
-//		m_strType = measRecord->measType;
-//		m_bIgnore = measRecord->ignore;
-//		SetCoordType(measRecord->coordType);
-//	
-//		measrecordCount += m_vGpsPoints.at(i).SetMeasurementRec(ifs_stns, ifs_msrs, measRecord);
-//	}
-//
-//	return measrecordCount - 1;	
-//}
-	
+		
 
 UINT32 CDnaGpsPointCluster::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr, it_vdbid_t& dbidmap)
 {
@@ -1411,35 +1050,16 @@ void CDnaGpsPointCluster::WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 m
 	//		p.WriteBinaryMsr(binary_stream, msrIndex); 
 	//});
 }
-
-
-// moved to dnameasurement.cpp
-//void CDnaGpsPointCluster::SetEpoch(const string& epoch) 
-//{
-//	//for_each(m_vGpsPoints.begin(), m_vGpsPoints.end(),
-//	//	[this, &epoch] (CDnaGpsPoint &p) {
-//	//		p.SetEpoch(epoch); 
-//	//});
-//	m_epoch = epoch;
-//}
-
+	
 
 void CDnaGpsPointCluster::SetEpsg(const string& epsg) 
 {
-	//for_each(m_vGpsPoints.begin(), m_vGpsPoints.end(),
-	//	[this, &epsg] (CDnaGpsPoint &p) {
-	//		p.SetEpsg(epsg); 
-	//});
 	m_epsgCode = epsg;
 }
 
 
 void CDnaGpsPointCluster::SetReferenceFrame(const string& refFrame) 
 {
-	//for_each(m_vGpsPoints.begin(), m_vGpsPoints.end(),
-	//	[this, &refFrame] (CDnaGpsPoint &p) {
-	//		p.SetReferenceFrame(refFrame); 
-	//});
 	m_referenceFrame = refFrame;
 	SetEpsg(epsgStringFromName<string>(refFrame));
 }

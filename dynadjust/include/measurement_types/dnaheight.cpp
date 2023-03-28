@@ -38,43 +38,7 @@ CDnaHeight::~CDnaHeight(void)
 {
 
 }
-
-// copy constructor (disallowed)
-//CDnaHeight::CDnaHeight(const CDnaHeight& newHeight)
-//{
-//	m_strFirst = newHeight.m_strFirst;
-//	m_strType = newHeight.m_strType;
-//	m_bIgnore = newHeight.m_bIgnore;
-//	m_dValue = newHeight.m_dValue;
-//	m_dStdDev = newHeight.m_dStdDev;
-//	m_MSmeasurementStations = newHeight.m_MSmeasurementStations;
-//}
-
-
-//CDnaHeight::CDnaHeight(const bool bIgnore, const string& strType, const string& strFirst, const double& dValue, const double& dStdDev)
-//{
-//	m_strFirst = strFirst;
-//	m_strType = strType;
-//	m_bIgnore = bIgnore;
-//	m_dValue = dValue;
-//	m_dStdDev = dStdDev;
-//}
-
-
-//CDnaHeight& CDnaHeight::operator= (const CDnaHeight& rhs)
-//{
-//	// check for assignment to self!
-//	if (this == &rhs)
-//		return *this;
-//
-//	CDnaMeasurement::operator=(rhs);
-//	m_dValue = rhs.m_dValue;
-//	m_dStdDev = rhs.m_dStdDev;
-//	m_MSmeasurementStations = rhs.m_MSmeasurementStations;
-//
-//	return *this;
-//}
-
+	
 
 bool CDnaHeight::operator== (const CDnaHeight& rhs) const
 {
@@ -198,28 +162,6 @@ void CDnaHeight::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* ellipso
 	m_epoch = "01.10.1985";
 }
 	
-
-//UINT32 CDnaHeight::SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord)
-//{
-//	char stationName[STN_NAME_WIDTH];
-//	m_strType = measRecord->measType;
-//	m_bIgnore = measRecord->ignore;
-//	m_MSmeasurementStations = (MEASUREMENT_STATIONS)measRecord->measurementStations;
-//	
-//	m_lstn1Index = measRecord->station1;
-//	ifs_stns->seekg(sizeof(UINT32) + measRecord->station1 * sizeof(station_t), ios::beg);
-//	ifs_stns->read(reinterpret_cast<char *>(&stationName), sizeof(stationName));
-//	m_strFirst = stationName;
-//	
-//	m_measAdj = measRecord->measAdj;
-//	m_measCorr = measRecord->measCorr;
-//	m_measAdjPrec = measRecord->measAdjPrec;
-//	m_residualPrec = measRecord->residualPrec;
-//	m_preAdjCorr = measRecord->preAdjCorr;
-//	m_dValue = measRecord->term1;
-//	m_dStdDev = sqrt(measRecord->term2);
-//	return 0;
-//}
 
 UINT32 CDnaHeight::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr, it_vdbid_t& dbidmap)
 {
