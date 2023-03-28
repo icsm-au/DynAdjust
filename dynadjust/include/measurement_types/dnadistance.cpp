@@ -167,9 +167,9 @@ void CDnaDistance::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& co
 		break;
 	}
 		
-	if (m_databaseIdSet)
-		if (m_msr_db_map.is_msr_id_set)
-			*dynaml_stream << "    <MeasurementID>" << m_msr_db_map.msr_id << "</MeasurementID>" << endl;
+	if (m_msr_db_map.is_msr_id_set)
+		*dynaml_stream << "    <MeasurementID>" << m_msr_db_map.msr_id << "</MeasurementID>" << endl;
+	
 	*dynaml_stream << "  </DnaMeasurement>" << endl;
 }
 	
@@ -205,9 +205,8 @@ void CDnaDistance::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& 
 	*dna_stream << setw(width) << " ";
 	*dna_stream << setw(dmw.msr_gps_epoch) << m_epoch;
 
-	if (m_databaseIdSet)
-		if (m_msr_db_map.is_msr_id_set)
-			*dna_stream << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
+	if (m_msr_db_map.is_msr_id_set)
+		*dna_stream << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
 
 	*dna_stream << endl;
 }
@@ -325,7 +324,7 @@ void CDnaDistance::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* ellip
 //}
 	
 
-UINT32 CDnaDistance::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr, it_vdbid_t& dbidmap, bool dbidSet)
+UINT32 CDnaDistance::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr, it_vdbid_t& dbidmap)
 {
 	m_bIgnore = it_msr->ignore;
 	m_MSmeasurementStations = (MEASUREMENT_STATIONS)it_msr->measurementStations;
@@ -357,8 +356,7 @@ UINT32 CDnaDistance::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_ms
 
 	m_epoch = it_msr->epoch;
 
-	if (dbidSet)
-		CDnaMeasurement::SetDatabaseMap(*dbidmap, dbidSet);
+	CDnaMeasurement::SetDatabaseMap(*dbidmap);
 
 	return 0;
 }

@@ -1789,9 +1789,8 @@ void dna_import::ParseDNAMSRLinear(const string& sBuf, dnaMsrPtr& msr_ptr)
 	msr_ptr->SetEpoch(ParseEpochValue(sBuf, "ParseDNAMSRLinear"));
 
 	// Capture msr_id and cluster_id (for database referencing)
-	m_databaseIdSet = false;
 	ParseDatabaseIds(sBuf, "ParseDNAMSRLinear", msr_ptr->GetTypeC());
-	msr_ptr->SetDatabaseMap(m_msr_db_map, m_databaseIdSet);
+	msr_ptr->SetDatabaseMap(m_msr_db_map);
 
 	// instrument and target heights only make sense for 
 	// slope distances, vertical angles and zenith distances
@@ -1858,9 +1857,8 @@ void dna_import::ParseDNAMSRCoordinate(const string& sBuf, dnaMsrPtr& msr_ptr)
 
 	// Capture msr_id and cluster_id (for database referencing), then set
 	// database id info
-	m_databaseIdSet = false;
 	ParseDatabaseIds(sBuf, "ParseDNAMSRCoordinate", msr_ptr->GetTypeC());
-	msr_ptr->SetDatabaseMap(m_msr_db_map, m_databaseIdSet);
+	msr_ptr->SetDatabaseMap(m_msr_db_map);
 }
 	
 
@@ -1892,10 +1890,9 @@ void dna_import::ParseDNAMSRGPSBaselines(string& sBuf, dnaMsrPtr& msr_ptr, bool 
 	if (!projectSettings_.i.simulate_measurements)
 	{
 		// Capture msr_id and cluster_id (for database referencing)
-		m_databaseIdSet = false;
 		ParseDatabaseIds(sBuf, "ParseDNAMSRGPSBaselines", msr_ptr->GetTypeC());
-		msr_ptr->SetDatabaseMap(m_msr_db_map, m_databaseIdSet);
-		bslTmp.SetDatabaseMap(m_msr_db_map, m_databaseIdSet);
+		msr_ptr->SetDatabaseMap(m_msr_db_map);
+		bslTmp.SetDatabaseMap(m_msr_db_map);
 		bslTmp.SetClusterID(msr_ptr->GetClusterID());
 		covTmp.SetClusterID(msr_ptr->GetClusterID());
 	}
@@ -2030,7 +2027,7 @@ void dna_import::ParseDNAMSRGPSBaselines(string& sBuf, dnaMsrPtr& msr_ptr, bool 
 			{
 				// Capture msr_id (for database referencing)
 				ParseDatabaseIds(sBuf, "ParseDNAMSRGPSBaselines", msr_ptr->GetTypeC());
-				bslTmp.SetDatabaseMap(m_msr_db_map, m_databaseIdSet);
+				bslTmp.SetDatabaseMap(m_msr_db_map);
 			}
 		}
 
@@ -2114,10 +2111,9 @@ void dna_import::ParseDNAMSRGPSPoints(string& sBuf, dnaMsrPtr& msr_ptr, bool ign
 	if (!projectSettings_.i.simulate_measurements)
 	{
 		// Capture msr_id and cluster_id (for database referencing)
-		m_databaseIdSet = false;
 		ParseDatabaseIds(sBuf, "ParseDNAMSRGPSPoints", msr_ptr->GetTypeC());
-		msr_ptr->SetDatabaseMap(m_msr_db_map, m_databaseIdSet);
-		pntTmp.SetDatabaseMap(m_msr_db_map, m_databaseIdSet);
+		msr_ptr->SetDatabaseMap(m_msr_db_map);
+		pntTmp.SetDatabaseMap(m_msr_db_map);
 		pntTmp.SetClusterID(msr_ptr->GetClusterID());
 		covTmp.SetClusterID(msr_ptr->GetClusterID());
 	}
@@ -2263,7 +2259,7 @@ void dna_import::ParseDNAMSRGPSPoints(string& sBuf, dnaMsrPtr& msr_ptr, bool ign
 			{
 				// Capture msr_id (for database referencing)
 				ParseDatabaseIds(sBuf, "ParseDNAMSRGPSPoints", msr_ptr->GetTypeC());
-				pntTmp.SetDatabaseMap(m_msr_db_map, m_databaseIdSet);
+				pntTmp.SetDatabaseMap(m_msr_db_map);
 			}
 		}
 
@@ -2363,7 +2359,6 @@ void dna_import::ParseDNAMSRCovariance(CDnaCovariance& cov)
 
 void dna_import::ParseDatabaseIds(const string& sBuf, const string& calling_function, const char msrType)
 {
-	m_databaseIdSet = false;
 	m_msr_db_map.is_msr_id_set = false;
 	m_msr_db_map.is_cls_id_set = false;
 
@@ -2374,8 +2369,6 @@ void dna_import::ParseDatabaseIds(const string& sBuf, const string& calling_func
 	// all measurement types: capture msr id 
 	ParseDatabaseMsrId(sBuf, calling_function);
 
-	m_databaseIdSet = true;
-	
 	// Initialise bms index.  This member will be set
 	// in SerialiseBms() 
 	//m_msr_db_map.bms_index = 0;
@@ -2828,9 +2821,8 @@ void dna_import::ParseDNAMSRAngular(const string& sBuf, dnaMsrPtr& msr_ptr)
 
 	// Capture msr_id and cluster_id (for database referencing), then set
 	// database id info
-	m_databaseIdSet = false;
 	ParseDatabaseIds(sBuf, "ParseDNAMSRAngular", msr_ptr->GetTypeC());
-	msr_ptr->SetDatabaseMap(m_msr_db_map, m_databaseIdSet);
+	msr_ptr->SetDatabaseMap(m_msr_db_map);
 
 	// instrument and target heights only make sense for 
 	// slope distances, vertical angles and zenith distances
@@ -2907,9 +2899,8 @@ UINT32 dna_import::ParseDNAMSRDirections(string& sBuf, dnaMsrPtr& msr_ptr, bool 
 		msr_ptr->SetEpoch(ParseEpochValue(sBuf, "ParseDNAMSRDirections"));
 
 		// Capture msr_id and cluster_id (for database referencing)
-		m_databaseIdSet = false;
 		ParseDatabaseIds(sBuf, "ParseDNAMSRDirections", msr_ptr->GetTypeC());
-		msr_ptr->SetDatabaseMap(m_msr_db_map, m_databaseIdSet);
+		msr_ptr->SetDatabaseMap(m_msr_db_map);
 		dirnTmp.SetClusterID(msr_ptr->GetClusterID());
 	}
 
@@ -2965,7 +2956,7 @@ UINT32 dna_import::ParseDNAMSRDirections(string& sBuf, dnaMsrPtr& msr_ptr, bool 
 
 			// Capture msr_id and cluster_id (for database referencing)
 			ParseDatabaseIds(sBuf, "ParseDNAMSRDirections", msr_ptr->GetTypeC());
-			dirnTmp.SetDatabaseMap(m_msr_db_map, m_databaseIdSet);
+			dirnTmp.SetDatabaseMap(m_msr_db_map);
 		}
 
 		// add the direction
@@ -3900,7 +3891,7 @@ void dna_import::ImportStnsMsrsFromBlock(vdnaStnPtr* vStations, vdnaMsrPtr* vMea
 			break;
 		}
 
-		if ((advanceBy = msrPtr->SetMeasurementRec(binaryStn, it_msr, it_dbid, false)) > 0)
+		if ((advanceBy = msrPtr->SetMeasurementRec(binaryStn, it_msr, it_dbid)) > 0)
 			std::advance(_it_data, advanceBy);
 		vMeasurements->push_back(msrPtr);
 	}	

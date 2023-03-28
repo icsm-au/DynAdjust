@@ -2131,7 +2131,7 @@ void dna_reftran::SerialiseDynaMLMsr(std::ofstream* xml_file)
 			_it_dbid = v_msr_db_map_.begin() + dbindex;
 		}
 
-		msrPtr->SetMeasurementRec(bstBinaryRecords_, _it_msr, _it_dbid, databaseIDsSet_);
+		msrPtr->SetMeasurementRec(bstBinaryRecords_, _it_msr, _it_dbid);
 		msrPtr->WriteDynaMLMsr(xml_file, comment);
 	}
 }

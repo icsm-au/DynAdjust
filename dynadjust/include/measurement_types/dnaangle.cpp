@@ -149,9 +149,10 @@ void CDnaAngle::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comme
 	*dynaml_stream << "    <Third>" << m_strTarget2 << "</Third>" << endl;
 	*dynaml_stream << "    <Value>" << setprecision(8) << fixed << RadtoDms(m_drValue) << "</Value>" << endl;
 	*dynaml_stream << "    <StdDev>" << scientific << setprecision(6) << Seconds(m_dStdDev) << "</StdDev>" << endl;
-	if (m_databaseIdSet)
-		if (m_msr_db_map.is_msr_id_set)
-			*dynaml_stream << "    <MeasurementID>" << m_msr_db_map.msr_id << "</MeasurementID>" << endl;
+	
+	if (m_msr_db_map.is_msr_id_set)
+		*dynaml_stream << "    <MeasurementID>" << m_msr_db_map.msr_id << "</MeasurementID>" << endl;
+	
 	*dynaml_stream << "  </DnaMeasurement>" << endl;
 }
 	
@@ -174,9 +175,8 @@ void CDnaAngle::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw
 	*dna_stream << setw(dml.msr_gps_epoch - dml.msr_inst_ht) << " ";
 	*dna_stream << setw(dmw.msr_gps_epoch) << m_epoch;
 
-	if (m_databaseIdSet)
-		if (m_msr_db_map.is_msr_id_set)
-			*dna_stream << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
+	if (m_msr_db_map.is_msr_id_set)
+		*dna_stream << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
 	
 	*dna_stream << endl;
 }
@@ -298,7 +298,7 @@ void CDnaAngle::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid*)
 //}
 	
 
-UINT32 CDnaAngle::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr, it_vdbid_t& dbidmap, bool dbidSet)
+UINT32 CDnaAngle::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr, it_vdbid_t& dbidmap)
 {
 	m_strType = it_msr->measType;
 	m_bIgnore = it_msr->ignore;
@@ -326,8 +326,7 @@ UINT32 CDnaAngle::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr, 
 	
 	m_epoch = it_msr->epoch;
 
-	if (dbidSet)
-		CDnaMeasurement::SetDatabaseMap(*dbidmap, dbidSet);
+	CDnaMeasurement::SetDatabaseMap(*dbidmap);
 
 	return 0;
 }

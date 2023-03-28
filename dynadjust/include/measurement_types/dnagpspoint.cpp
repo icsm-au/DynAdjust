@@ -98,7 +98,6 @@ CDnaGpsPoint::CDnaGpsPoint(CDnaGpsPoint&& p)
 	m_lclusterID = p.m_lclusterID;
 	m_MSmeasurementStations = p.m_MSmeasurementStations;
 
-	m_databaseIdSet = p.m_databaseIdSet;
 	m_msr_db_map = p.m_msr_db_map;
 
 	m_vPointCovariances = std::move(p.m_vPointCovariances);
@@ -138,7 +137,6 @@ CDnaGpsPoint& CDnaGpsPoint::operator= (CDnaGpsPoint&& rhs)
 	m_lclusterID = rhs.m_lclusterID;
 	m_MSmeasurementStations = rhs.m_MSmeasurementStations;
 
-	m_databaseIdSet = rhs.m_databaseIdSet;
 	m_msr_db_map = rhs.m_msr_db_map;
 
 	m_vPointCovariances = std::move(rhs.m_vPointCovariances);
@@ -178,7 +176,6 @@ CDnaGpsPoint& CDnaGpsPoint::operator= (CDnaGpsPoint&& rhs)
 //	m_lclusterID = newGpsPoint.m_lclusterID;
 //	m_MSmeasurementStations = newGpsPoint.m_MSmeasurementStations;
 //
-//	m_databaseIdSet = newGpsPoint.m_databaseIdSet;
 //	m_msr_db_map = newGpsPoint.m_msr_db_map;
 //
 //	m_vPointCovariances = newGpsPoint.m_vPointCovariances;
@@ -230,7 +227,6 @@ CDnaGpsPoint& CDnaGpsPoint::operator= (CDnaGpsPoint&& rhs)
 //	m_lclusterID = rhs.m_lclusterID;
 //	m_MSmeasurementStations = rhs.m_MSmeasurementStations;
 //
-//	m_databaseIdSet = rhs.m_databaseIdSet;
 //	m_msr_db_map = rhs.m_msr_db_map;
 //
 //	m_vPointCovariances = rhs.m_vPointCovariances;
@@ -349,9 +345,8 @@ void CDnaGpsPoint::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string&, b
 
 	*dynaml_stream << "      <Z>" << setprecision(4) << m_dZ << "</Z>" << endl;
 
-	if (m_databaseIdSet)
-		if (m_msr_db_map.is_msr_id_set)
-			*dynaml_stream << "      <MeasurementID>" << m_msr_db_map.msr_id << "</MeasurementID>" << endl;
+	if (m_msr_db_map.is_msr_id_set)
+		*dynaml_stream << "      <MeasurementID>" << m_msr_db_map.msr_id << "</MeasurementID>" << endl;
 	
 	*dynaml_stream << "      <SigmaXX>" << scientific << setprecision(13) << m_dSigmaXX << "</SigmaXX>" << endl;
 	*dynaml_stream << "      <SigmaXY>" << m_dSigmaXY << "</SigmaXY>" << endl;
@@ -404,25 +399,19 @@ void CDnaGpsPoint::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& 
 			right << setw(dmw.msr_gps_epoch) << m_epoch;
 
 		// print database ids
-		if (m_databaseIdSet)
-		{
-			if (m_msr_db_map.is_msr_id_set)
-				*dna_stream << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
-			if (m_msr_db_map.is_cls_id_set)
-				*dna_stream << setw(dmw.msr_id_cluster) << m_msr_db_map.cluster_id;
-		}
+		if (m_msr_db_map.is_msr_id_set)
+			*dna_stream << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
+		if (m_msr_db_map.is_cls_id_set)
+			*dna_stream << setw(dmw.msr_id_cluster) << m_msr_db_map.cluster_id;
 	}
 	else
 	{
 		// print database ids
-		if (m_databaseIdSet)
-		{
-			if (m_msr_db_map.is_msr_id_set)
-				*dna_stream << setw(dml.msr_id_msr - dml.msr_targ1) << " " <<
-					right << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
-			if (m_msr_db_map.is_cls_id_set)
-				*dna_stream << setw(dmw.msr_id_cluster) << m_msr_db_map.cluster_id;
-		}
+		if (m_msr_db_map.is_msr_id_set)
+			*dna_stream << setw(dml.msr_id_msr - dml.msr_targ1) << " " <<
+				right << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
+		if (m_msr_db_map.is_cls_id_set)
+			*dna_stream << setw(dmw.msr_id_cluster) << m_msr_db_map.cluster_id;
 	}
 
 	*dna_stream << endl;
@@ -650,7 +639,7 @@ void CDnaGpsPoint::PopulateMsr(pvstn_t bstRecords, uint32_uint32_map* blockStati
 //}
 	
 
-UINT32 CDnaGpsPoint::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr, it_vdbid_t& dbidmap, bool dbidSet)
+UINT32 CDnaGpsPoint::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr, it_vdbid_t& dbidmap)
 {
 	// first station
 	m_lstn1Index = it_msr->station1;
@@ -694,8 +683,7 @@ UINT32 CDnaGpsPoint::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_ms
 	m_vPointCovariances.clear();
 	m_vPointCovariances.resize(it_msr->vectorCount2);
 
-	if (dbidSet)
-		CDnaMeasurement::SetDatabaseMap(*dbidmap, dbidSet);
+	CDnaMeasurement::SetDatabaseMap(*dbidmap);
 
 	// now covariances
 	vector<CDnaCovariance>::iterator _it_cov = m_vPointCovariances.begin();
@@ -993,7 +981,6 @@ CDnaGpsPointCluster::CDnaGpsPointCluster(CDnaGpsPointCluster&& p)
 	m_epsgCode = p.m_epsgCode;
 	m_epoch = p.m_epoch;
 
-	m_databaseIdSet = p.m_databaseIdSet;
 	m_msr_db_map = p.m_msr_db_map;
 
 	m_dbidmap = p.m_dbidmap;
@@ -1022,12 +1009,8 @@ CDnaGpsPointCluster& CDnaGpsPointCluster::operator= (CDnaGpsPointCluster&& rhs)
 	m_lclusterID = rhs.m_lclusterID;
 	m_MSmeasurementStations = rhs.m_MSmeasurementStations;
 
-	m_databaseIdSet = rhs.m_databaseIdSet;
-	m_msr_db_map = rhs.m_msr_db_map;
-
 	m_vGpsPoints = std::move(rhs.m_vGpsPoints);
 
-	m_databaseIdSet = rhs.m_databaseIdSet;
 	m_msr_db_map = rhs.m_msr_db_map;
 
 	m_dbidmap = rhs.m_dbidmap;
@@ -1056,7 +1039,6 @@ CDnaGpsPointCluster& CDnaGpsPointCluster::operator= (CDnaGpsPointCluster&& rhs)
 //	m_epsgCode = newGpsPointCluster.m_epsgCode;
 //	m_epoch = newGpsPointCluster.m_epoch;
 //
-//	m_databaseIdSet = newGpsPointCluster.m_databaseIdSet;
 //	m_msr_db_map = newGpsPointCluster.m_msr_db_map;
 //}
 
@@ -1109,7 +1091,6 @@ CDnaGpsPointCluster::CDnaGpsPointCluster(const UINT32 lclusterID, const string& 
 //	m_lclusterID = rhs.m_lclusterID;
 //	m_MSmeasurementStations = rhs.m_MSmeasurementStations;
 //
-//	m_databaseIdSet = rhs.m_databaseIdSet;
 //	m_msr_db_map = rhs.m_msr_db_map;
 //
 //	m_vGpsPoints = rhs.m_vGpsPoints;
@@ -1208,22 +1189,17 @@ void CDnaGpsPointCluster::SerialiseDatabaseMap(std::ofstream* os)
 }
 	
 
-void CDnaGpsPointCluster::SetDatabaseMaps(it_vdbid_t& dbidmap, bool dbidSet)
+void CDnaGpsPointCluster::SetDatabaseMaps(it_vdbid_t& dbidmap)
 {
-	m_databaseIdSet = dbidSet;
+	m_dbidmap = dbidmap;
 
-	if (dbidSet)
-	{
-		m_dbidmap = dbidmap;
+	CDnaMeasurement::SetDatabaseMap(*m_dbidmap);
 
-		CDnaMeasurement::SetDatabaseMap(*m_dbidmap, m_databaseIdSet);
-
-		for_each(m_vGpsPoints.begin(), m_vGpsPoints.end(),
-			[this](const CDnaGpsPoint& bsl) {
-				((CDnaGpsPoint*)&bsl)->SetDatabaseMap(*m_dbidmap, m_databaseIdSet);
-		m_dbidmap += ((CDnaGpsPoint*)&bsl)->GetCovariances_ptr()->size();
-			});
-	}
+	for_each(m_vGpsPoints.begin(), m_vGpsPoints.end(),
+		[this](const CDnaGpsPoint& bsl) {
+			((CDnaGpsPoint*)&bsl)->SetDatabaseMap(*m_dbidmap);
+	m_dbidmap += ((CDnaGpsPoint*)&bsl)->GetCovariances_ptr()->size();
+		});
 }
 
 
@@ -1273,9 +1249,8 @@ void CDnaGpsPointCluster::WriteDynaMLMsr(std::ofstream* dynaml_stream, const str
 	*dynaml_stream << "    <Lscale>" << m_dLscale << "</Lscale>" << endl;
 	*dynaml_stream << "    <Hscale>" << m_dHscale << "</Hscale>" << endl;
 	
-	if (m_databaseIdSet)
-		if (m_msr_db_map.is_cls_id_set)
-			*dynaml_stream << "    <ClusterID>" << m_msr_db_map.cluster_id << "</ClusterID>" << endl;
+	if (m_msr_db_map.is_cls_id_set)
+		*dynaml_stream << "    <ClusterID>" << m_msr_db_map.cluster_id << "</ClusterID>" << endl;
 	
 	*dynaml_stream << "    <Coords>" << m_strCoordType << "</Coords>" << endl;
 	*dynaml_stream << "    <Total>" << pntCount << "</Total>" << endl;
@@ -1386,7 +1361,7 @@ void CDnaGpsPointCluster::PopulateMsr(pvstn_t bstRecords, uint32_uint32_map* blo
 //}
 	
 
-UINT32 CDnaGpsPointCluster::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr, it_vdbid_t& dbidmap, bool dbidSet)
+UINT32 CDnaGpsPointCluster::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr, it_vdbid_t& dbidmap)
 {
 	m_lclusterID = it_msr->clusterID;
 	m_MSmeasurementStations = (MEASUREMENT_STATIONS)it_msr->measurementStations;
@@ -1411,15 +1386,14 @@ UINT32 CDnaGpsPointCluster::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t
 		if (i > 0)
 		{
 			it_msr++;
-			if (dbidSet)
-				dbidmap++;
+			dbidmap++;
 		}
 
 		m_strType = it_msr->measType;
 		m_bIgnore = it_msr->ignore;
 		SetCoordType(it_msr->coordType);
 		
-		m_vGpsPoints.at(i).SetMeasurementRec(binaryStn, it_msr, dbidmap, dbidSet);
+		m_vGpsPoints.at(i).SetMeasurementRec(binaryStn, it_msr, dbidmap);
 	}
 
 	return measrecordCount - 1;	

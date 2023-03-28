@@ -601,7 +601,7 @@ void dna_io_dna::write_msr_file(const vstn_t& vbinary_stn, pvmsr_t vbinary_msr, 
 				_it_dbid = pv_msr_db_map_->begin() + dbindex;
 			}
 
-			msrPtr->SetMeasurementRec(vbinary_stn, _it_msr, _it_dbid, m_databaseIDsSet_);
+			msrPtr->SetMeasurementRec(vbinary_stn, _it_msr, _it_dbid);
 			msrPtr->WriteDNAMsr(&dna_msr_file, dmw_, dml_);
 		}
 
@@ -634,14 +634,12 @@ void dna_io_dna::write_msr_file(vdnaMsrPtr* vMeasurements, const string& msrfile
 		// print measurements
 		for (_it_msr = vMeasurements->begin(); _it_msr != vMeasurements->end(); _it_msr++)
 		{
-			// Database IDs
-			if (m_databaseIDsSet_)
-			{
-				dbindex = std::distance(vMeasurements->begin(), _it_msr);
-				_it_dbid = pv_msr_db_map_->begin() + dbindex;
-				_it_msr->get()->SetDatabaseMaps(_it_dbid, m_databaseIDsSet_);
-			}
+			// Get database IDs
+			dbindex = std::distance(vMeasurements->begin(), _it_msr);
+			_it_dbid = pv_msr_db_map_->begin() + dbindex;
+			_it_msr->get()->SetDatabaseMaps(_it_dbid);
 
+			// Write
 			_it_msr->get()->WriteDNAMsr(&dna_msr_file, dmw_, dml_);
 		}
 		

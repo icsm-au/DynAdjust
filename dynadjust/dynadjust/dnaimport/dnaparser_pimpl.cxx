@@ -40,9 +40,11 @@ void Clusterpoint_pimpl::pre()
 	
 	_dnaGpsPoint->SetReferenceFrame(_parent_dnaGpsPointCluster->GetReferenceFrame());
 	_dnaGpsPoint->SetEpoch(_parent_dnaGpsPointCluster->GetEpoch()); 
-	
-	//_parent_dnaGpsPointCluster->SetFirst("");
-	//_parent_dnaGpsPointCluster->SetTarget("");
+		
+	_dnaGpsPoint->SetClusterDBID(
+		_parent_dnaGpsPointCluster->GetClusterDBID(),
+		_parent_dnaGpsPointCluster->GetClusterDBIDset());
+
 }
 
 void Clusterpoint_pimpl::X (const ::std::string& X)
@@ -76,8 +78,8 @@ void Clusterpoint_pimpl::MeasurementDBID(const ::std::string& MeasurementID)
 {
 	_dnaGpsPoint->SetMeasurementDBID(MeasurementID);
 	_dnaGpsPoint->SetClusterDBID(
-		_parent_dnaGpsPointCluster->GetClusterDBID(), 
-		_parent_dnaGpsPointCluster->GetDBIDSet());
+		_parent_dnaGpsPointCluster->GetClusterDBID(),
+		_parent_dnaGpsPointCluster->GetClusterDBIDset());
 }
 
 
@@ -167,7 +169,7 @@ void Directions_pimpl::MeasurementDBID(const ::std::string& MeasurementID)
 	_dnaDirection->SetMeasurementDBID(MeasurementID);
 	_dnaDirection->SetClusterDBID(
 		_parent_dnaDirectionSet->GetClusterDBID(),
-		_parent_dnaDirectionSet->GetDBIDSet());
+		_parent_dnaDirectionSet->GetClusterDBIDset());
 }
 	
 
@@ -950,13 +952,10 @@ void GPSBaseline_pimpl::pre()
 
 	_dnaGpsBaseline->SetClusterDBID(
 		_parent_dnaGpsBaselineCluster->GetClusterDBID(),
-		_parent_dnaGpsBaselineCluster->GetDBIDSet());
-
+		_parent_dnaGpsBaselineCluster->GetClusterDBIDset());
+	
 	if (_parent_dnaGpsBaselineCluster->GetType().empty())
 		throw XMLInteropException("\"Type\" element must be provided before \"GPSBaseline\" element.", 0);
-
-	//_parent_dnaGpsBaselineCluster->SetFirst("");
-	//_parent_dnaGpsBaselineCluster->SetTarget("");
 
 	// Is this a 'G' measurement
 	if (_parent_dnaGpsBaselineCluster->GetTypeC() != 'X')
@@ -1033,7 +1032,7 @@ void GPSBaseline_pimpl::MeasurementDBID(const ::std::string& MeasurementID)
 	_dnaGpsBaseline->SetMeasurementDBID(MeasurementID);
 	_dnaGpsBaseline->SetClusterDBID(
 		_parent_dnaGpsBaselineCluster->GetClusterDBID(),
-		_parent_dnaGpsBaselineCluster->GetDBIDSet());
+		_parent_dnaGpsBaselineCluster->GetClusterDBIDset());
 }
 
 void GPSBaseline_pimpl::SigmaXX(const ::std::string& SigmaXX)

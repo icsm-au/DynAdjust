@@ -359,8 +359,7 @@ public:
 	// pure virtual functions overridden by specialised classes
 	virtual UINT32 CalcBinaryRecordCount() const = 0;
 	virtual void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) const = 0;
-	//virtual UINT32 SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord) = 0;
-	virtual UINT32 SetMeasurementRec(const vstn_t&, it_vmsr_t& it_msr, it_vdbid_t& dbidmap, bool dbidSet) = 0;
+	virtual UINT32 SetMeasurementRec(const vstn_t&, it_vmsr_t& it_msr, it_vdbid_t& dbidmap) = 0;
 	virtual void WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool bSubMeasurement = false) const = 0;
 	virtual void WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool bSubMeasurement = false) const = 0;
 	virtual void SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* ellipsoid) = 0;
@@ -455,18 +454,14 @@ public:
 	void SetMeasurementDBID(const string& str);
 	void SetClusterDBID(const string& str);
 	
-	void SetMeasurementDBID(const UINT32& u, bool dbidSet);
-	void SetClusterDBID(const UINT32& u, bool dbidSet);
+	void SetMeasurementDBID(const UINT32& u);
+	void SetClusterDBID(const UINT32& u, bool s);
 
 	inline UINT32 GetClusterDBID() { return m_msr_db_map.cluster_id; }
-	inline UINT32 GetMeasurementDBID() { return m_msr_db_map.msr_id; }
-	inline bool GetDBIDSet() { return m_databaseIdSet; }
-
-	//virtual inline UINT32 GetClusterDBID() const { return 0; }
-	//virtual inline UINT32 GetMeasurementDBID() const { return 0; }
-
-	void SetDatabaseMap(const msr_database_id_map& dbidmap, bool dbidSet);
-	virtual void SetDatabaseMaps(it_vdbid_t& it_dbidmap, bool dbidSet);
+	inline bool GetClusterDBIDset() { return m_msr_db_map.is_cls_id_set; }
+	
+	void SetDatabaseMap(const msr_database_id_map& dbidmap);
+	virtual void SetDatabaseMaps(it_vdbid_t& it_dbidmap);
 
 	virtual void SerialiseDatabaseMap(std::ofstream* os);
 
@@ -498,7 +493,6 @@ protected:
 	string	m_epoch;
 	
 	msr_database_id_map		m_msr_db_map;
-	bool					m_databaseIdSet;
 };
 
 // In the event a new measurement type is added, ensure SUPPORTED_MSR_COUNT is

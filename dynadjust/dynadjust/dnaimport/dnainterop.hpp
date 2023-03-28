@@ -355,7 +355,6 @@ private:
 	_INPUT_DATA_TYPE_ m_idt;
 
 	msr_database_id_map		m_msr_db_map;
-	bool					m_databaseIdSet;
 
 	v_discontinuity_tuple	stn_discontinuities_;
 	bool					m_discontsSortedbyName;

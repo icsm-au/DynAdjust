@@ -76,7 +76,6 @@ CDnaDirectionSet::CDnaDirectionSet(CDnaDirectionSet&& d)
 	m_strType = "D";
 	m_vTargetDirections = std::move(d.m_vTargetDirections);
 
-	m_databaseIdSet = d.m_databaseIdSet;
 	m_msr_db_map = d.m_msr_db_map;
 
 	m_dbidmap = d.m_dbidmap;
@@ -100,7 +99,6 @@ CDnaDirectionSet& CDnaDirectionSet::operator= (CDnaDirectionSet&& rhs)
 	
 	m_vTargetDirections = std::move(rhs.m_vTargetDirections);
 	
-	m_databaseIdSet = rhs.m_databaseIdSet;
 	m_msr_db_map = rhs.m_msr_db_map;
 
 	m_dbidmap = rhs.m_dbidmap;
@@ -125,7 +123,6 @@ CDnaDirectionSet& CDnaDirectionSet::operator= (CDnaDirectionSet&& rhs)
 //	m_strType = "D";
 //	m_vTargetDirections = newDirectionSet.m_vTargetDirections;
 //
-//	m_databaseIdSet = newDirectionSet.m_databaseIdSet;
 //}
 
 
@@ -158,7 +155,6 @@ CDnaDirectionSet& CDnaDirectionSet::operator= (CDnaDirectionSet&& rhs)
 //	m_MSmeasurementStations = rhs.m_MSmeasurementStations;
 //	m_vTargetDirections = rhs.m_vTargetDirections;
 //	
-//	m_databaseIdSet = rhs.m_databaseIdSet;
 //	m_msr_db_map = rhs.m_msr_db_map;
 //
 //	return *this;
@@ -180,8 +176,6 @@ CDnaDirectionSet& CDnaDirectionSet::operator= (CDnaDirectionSet&& rhs)
 //	m_MSmeasurementStations = rhs->m_MSmeasurementStations;
 //	m_vTargetDirections = rhs->m_vTargetDirections;
 //	
-//	m_databaseIdSet = rhs->m_databaseIdSet;
-//
 //	return this;
 //}
 
@@ -266,22 +260,18 @@ void CDnaDirectionSet::SerialiseDatabaseMap(std::ofstream* os)
 }
 	
 
-void CDnaDirectionSet::SetDatabaseMaps(it_vdbid_t& dbidmap, bool dbidSet)
+void CDnaDirectionSet::SetDatabaseMaps(it_vdbid_t& dbidmap)
 {
-	m_databaseIdSet = dbidSet;
+	m_dbidmap = dbidmap;
 
-	if (dbidSet)
-	{
-		m_dbidmap = dbidmap;
+	CDnaMeasurement::SetDatabaseMap(*m_dbidmap);
 
-		CDnaMeasurement::SetDatabaseMap(*m_dbidmap, m_databaseIdSet);
-
-		for_each(m_vTargetDirections.begin(), m_vTargetDirections.end(),
-			[this](const CDnaDirection& dir) {
-				((CDnaMeasurement*)&dir)->SetDatabaseMap(*m_dbidmap, m_databaseIdSet);
-		m_dbidmap++;
-			});
-	}
+	for_each(m_vTargetDirections.begin(), m_vTargetDirections.end(),
+		[this](const CDnaDirection& dir) {
+			((CDnaMeasurement*)&dir)->SetDatabaseMap(*m_dbidmap);
+	m_dbidmap++;
+		});
+	
 }
 
 
@@ -331,13 +321,12 @@ void CDnaDirectionSet::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string
 	*dynaml_stream << "    <Second>" << m_strTarget << "</Second>" << endl;
 	*dynaml_stream << "    <Value>" << setprecision(8) << fixed << RadtoDms(m_drValue) << "</Value>" << endl;
 	*dynaml_stream << "    <StdDev>" << scientific << setprecision(6) << Seconds(m_dStdDev) << "</StdDev>" << endl;
-	if (m_databaseIdSet)
-	{
-		if (m_msr_db_map.is_msr_id_set)
-			*dynaml_stream << "    <MeasurementID>" << m_msr_db_map.msr_id << "</MeasurementID>" << endl;
-		if (m_msr_db_map.is_cls_id_set)
-			*dynaml_stream << "    <ClusterID>" << m_msr_db_map.cluster_id << "</ClusterID>" << endl;
-	}
+	
+	if (m_msr_db_map.is_msr_id_set)
+		*dynaml_stream << "    <MeasurementID>" << m_msr_db_map.msr_id << "</MeasurementID>" << endl;
+	if (m_msr_db_map.is_cls_id_set)
+		*dynaml_stream << "    <ClusterID>" << m_msr_db_map.cluster_id << "</ClusterID>" << endl;
+	
 	*dynaml_stream << "    <Total>" << dirCount << "</Total>" << endl;
 	
 	// write directions
@@ -370,13 +359,10 @@ void CDnaDirectionSet::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fiel
 	*dna_stream << setw(dml.msr_gps_epoch - dml.msr_inst_ht) << " ";
 	*dna_stream << setw(dmw.msr_gps_epoch) << m_epoch;
 
-	if (m_databaseIdSet)
-	{
-		if (m_msr_db_map.is_msr_id_set)
-			*dna_stream << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
-		if (m_msr_db_map.is_cls_id_set)
-			*dna_stream << setw(dmw.msr_id_cluster) << m_msr_db_map.cluster_id;
-	}
+	if (m_msr_db_map.is_msr_id_set)
+		*dna_stream << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
+	if (m_msr_db_map.is_cls_id_set)
+		*dna_stream << setw(dmw.msr_id_cluster) << m_msr_db_map.cluster_id;
 	
 	*dna_stream << endl;
 	
@@ -493,7 +479,7 @@ void CDnaDirectionSet::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* e
 //}
 	
 
-UINT32 CDnaDirectionSet::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr, it_vdbid_t& dbidmap, bool dbidSet)
+UINT32 CDnaDirectionSet::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr, it_vdbid_t& dbidmap)
 {
 	m_strType = it_msr->measType;
 	m_bIgnore = it_msr->ignore;
@@ -528,19 +514,17 @@ UINT32 CDnaDirectionSet::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& i
 
 	UINT32 it_msrCount = m_lRecordedTotal;	
 
-	if (dbidSet)
-		CDnaMeasurement::SetDatabaseMap(*dbidmap, dbidSet);
+	CDnaMeasurement::SetDatabaseMap(*dbidmap);
 
 	// now covariances
 	vector<CDnaDirection>::iterator _it_dir = m_vTargetDirections.begin();
 	for (; _it_dir!=m_vTargetDirections.end(); ++_it_dir)
 	{
 		it_msr++;
-		if (dbidSet)
-			dbidmap++;
+		dbidmap++;
 		_it_dir->SetType(m_strType);
 		_it_dir->SetFirst(m_strFirst);
-		_it_dir->SetMeasurementRec(binaryStn, it_msr, dbidmap, dbidSet);
+		_it_dir->SetMeasurementRec(binaryStn, it_msr, dbidmap);
 	}
 
 	return it_msrCount;

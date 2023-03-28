@@ -459,7 +459,6 @@ CDnaMeasurement::CDnaMeasurement()
 	, m_preAdjCorr(0)
 	, m_epsgCode(DEFAULT_EPSG_S)
 	, m_epoch("")
-	, m_databaseIdSet(false)
 {
 }
 	
@@ -490,7 +489,6 @@ CDnaMeasurement::CDnaMeasurement(CDnaMeasurement&& m)
 	m_epsgCode = m.m_epsgCode;
 
 	m_msr_db_map = m.m_msr_db_map;
-	m_databaseIdSet = m.m_databaseIdSet;
 }
 
 // move assignment operator
@@ -519,7 +517,6 @@ CDnaMeasurement& CDnaMeasurement::operator= (CDnaMeasurement&& rhs)
 	m_epsgCode = rhs.m_epsgCode;
 
 	m_msr_db_map = rhs.m_msr_db_map;
-	m_databaseIdSet = rhs.m_databaseIdSet;
 
 	return *this;
 }
@@ -545,7 +542,6 @@ CDnaMeasurement& CDnaMeasurement::operator= (CDnaMeasurement&& rhs)
 //	m_epsgCode = newMeasurement.m_epsgCode;
 //
 //	m_msr_db_map = newMeasurement.m_msr_db_map;
-//	m_databaseIdSet = newMeasurement.m_databaseIdSet;
 //}
 
 
@@ -574,7 +570,6 @@ CDnaMeasurement& CDnaMeasurement::operator= (CDnaMeasurement&& rhs)
 //	m_epsgCode = rhs.m_epsgCode;
 //
 //	m_msr_db_map = rhs.m_msr_db_map;
-//	m_databaseIdSet = rhs.m_databaseIdSet;
 //
 //	return *this;
 //}
@@ -588,30 +583,42 @@ void CDnaMeasurement::coutMeasurement(ostream& os) const
 
 void CDnaMeasurement::SetMeasurementDBID(const string& str)
 {
-	m_msr_db_map.msr_id = LongFromString<UINT32>(str);
-	m_msr_db_map.is_msr_id_set = true;
-	m_databaseIdSet = true;
+	if (str.empty())
+	{
+		m_msr_db_map.msr_id = 0;
+		m_msr_db_map.is_msr_id_set = false;
+	}
+	else
+	{
+		m_msr_db_map.msr_id = LongFromString<UINT32>(str);
+		m_msr_db_map.is_msr_id_set = true;
+	}
 }
 
 void CDnaMeasurement::SetClusterDBID(const string& str)
 {
-	m_msr_db_map.cluster_id = LongFromString<UINT32>(str);
-	m_msr_db_map.is_cls_id_set = true;
-	m_databaseIdSet = true;
+	if (str.empty())
+	{
+		m_msr_db_map.cluster_id = 0;
+		m_msr_db_map.is_cls_id_set = false;
+	}
+	else
+	{
+		m_msr_db_map.cluster_id = LongFromString<UINT32>(str);
+		m_msr_db_map.is_cls_id_set = true;
+	}
 }
 
-void CDnaMeasurement::SetMeasurementDBID(const UINT32& u, bool dbidSet) 
+void CDnaMeasurement::SetMeasurementDBID(const UINT32& u) 
 {
 	m_msr_db_map.msr_id = u;
 	m_msr_db_map.is_msr_id_set = true;
-	m_databaseIdSet = dbidSet;
 }
 
-void CDnaMeasurement::SetClusterDBID(const UINT32& u, bool dbidSet) 
+void CDnaMeasurement::SetClusterDBID(const UINT32& u, bool s) 
 {
 	m_msr_db_map.cluster_id = u;
-	m_msr_db_map.is_cls_id_set = true;
-	m_databaseIdSet = dbidSet;
+	m_msr_db_map.is_cls_id_set = s;
 }
 
 void CDnaMeasurement::SetType(const string& str)
@@ -620,18 +627,14 @@ void CDnaMeasurement::SetType(const string& str)
 	str_toupper<int>(m_strType);
 }
 
-void CDnaMeasurement::SetDatabaseMap(const msr_database_id_map& dbidmap, bool dbidSet) 
+void CDnaMeasurement::SetDatabaseMap(const msr_database_id_map& dbidmap) 
 {
-	m_databaseIdSet = dbidSet;
-	if (dbidSet)
-		m_msr_db_map = dbidmap;
+	m_msr_db_map = dbidmap;
 }
 
-void CDnaMeasurement::SetDatabaseMaps(it_vdbid_t& it_dbidmap, bool dbidSet)
+void CDnaMeasurement::SetDatabaseMaps(it_vdbid_t& it_dbidmap)
 {
-	m_databaseIdSet = dbidSet;
-	if (dbidSet)
-		m_msr_db_map = *it_dbidmap;
+	m_msr_db_map = *it_dbidmap;
 }
 	
 
