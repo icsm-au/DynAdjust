@@ -127,6 +127,10 @@ void Directions_pimpl::pre()
 {
 	_dnaDirection.reset(new CDnaDirection);
 	_dnaDirection->SetClusterID(_parent_dnaDirectionSet->GetClusterID());
+
+	_dnaDirection->SetClusterDBID(
+		_parent_dnaDirectionSet->GetClusterDBID(),
+		_parent_dnaDirectionSet->GetClusterDBIDset());
 }
 
 void Directions_pimpl::Ignore(const ::std::string& Ignore)
@@ -164,9 +168,6 @@ void Directions_pimpl::StdDev(const ::std::string& StdDev)
 void Directions_pimpl::MeasurementDBID(const ::std::string& MeasurementID)
 {
 	_dnaDirection->SetMeasurementDBID(MeasurementID);
-	_dnaDirection->SetClusterDBID(
-		_parent_dnaDirectionSet->GetClusterDBID(),
-		_parent_dnaDirectionSet->GetClusterDBIDset());
 }
 	
 
