@@ -510,6 +510,8 @@ UINT32 CDnaGpsPoint::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_ms
 	m_vPointCovariances.resize(it_msr->vectorCount2);
 
 	CDnaMeasurement::SetDatabaseMap(*dbidmap);
+	dbidmap += 2;
+	dbidmap += (it_msr->vectorCount2 * 3);
 
 	// now covariances
 	vector<CDnaCovariance>::iterator _it_cov = m_vPointCovariances.begin();
@@ -885,7 +887,7 @@ void CDnaGpsPointCluster::SetDatabaseMaps(it_vdbid_t& dbidmap)
 	for_each(m_vGpsPoints.begin(), m_vGpsPoints.end(),
 		[this](const CDnaGpsPoint& bsl) {
 			((CDnaGpsPoint*)&bsl)->SetDatabaseMap(*m_dbidmap);
-	m_dbidmap += ((CDnaGpsPoint*)&bsl)->GetCovariances_ptr()->size();
+			m_dbidmap += ((CDnaGpsPoint*)&bsl)->GetCovariances_ptr()->size();
 		});
 }
 

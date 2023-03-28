@@ -401,6 +401,8 @@ UINT32 CDnaGpsBaseline::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it
 	m_vGpsCovariances.resize(it_msr->vectorCount2);
 
 	CDnaMeasurement::SetDatabaseMap(*dbidmap);
+	dbidmap += 2;
+	dbidmap += (it_msr->vectorCount2 * 3);
 
 	// now covariances
 	vector<CDnaCovariance>::iterator _it_cov = m_vGpsCovariances.begin();
