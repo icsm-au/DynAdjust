@@ -316,6 +316,7 @@ if (BUILD_TESTING)
     add_test (NAME ref-gnss11-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r itrf1994)
     add_test (NAME ref-gnss12-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r itrf1996)
     add_test (NAME ref-gnss13-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r itrf1997)
+    add_test (NAME ref-gnss14-network COMMAND $<TARGET_FILE:dnareftranwrapper> gnss -r itrf2020)
 
     # 9. gnss reference frame transformations with plate motion model
     add_test (NAME ref-itrf-pmm-01 COMMAND $<TARGET_FILE:dnaimportwrapper> -n itrf05_itrf1997_a -r itrf2005 ${CMAKE_SOURCE_DIR}/../sampleData/TEST_ITRF05.SNX)
