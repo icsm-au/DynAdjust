@@ -77,9 +77,6 @@ void Clusterpoint_pimpl::Z (const ::std::string& Z)
 void Clusterpoint_pimpl::MeasurementDBID(const ::std::string& MeasurementID)
 {
 	_dnaGpsPoint->SetMeasurementDBID(MeasurementID);
-	_dnaGpsPoint->SetClusterDBID(
-		_parent_dnaGpsPointCluster->GetClusterDBID(),
-		_parent_dnaGpsPointCluster->GetClusterDBIDset());
 }
 
 
@@ -1030,9 +1027,6 @@ void GPSBaseline_pimpl::Z(const ::std::string& Z)
 void GPSBaseline_pimpl::MeasurementDBID(const ::std::string& MeasurementID)
 {
 	_dnaGpsBaseline->SetMeasurementDBID(MeasurementID);
-	_dnaGpsBaseline->SetClusterDBID(
-		_parent_dnaGpsBaselineCluster->GetClusterDBID(),
-		_parent_dnaGpsBaselineCluster->GetClusterDBIDset());
 }
 
 void GPSBaseline_pimpl::SigmaXX(const ::std::string& SigmaXX)
