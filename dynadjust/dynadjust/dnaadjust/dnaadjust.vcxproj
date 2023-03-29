@@ -221,6 +221,7 @@
     <ClInclude Include="..\..\include\io\dnaiomap.hpp" />
     <ClInclude Include="..\..\include\io\dnaioseg.hpp" />
     <ClInclude Include="..\..\include\io\dnaiosnx.hpp" />
+    <ClInclude Include="..\..\include\io\dnaiotbu.hpp" />
     <ClInclude Include="..\..\include\math\dnamatrix_contiguous.hpp" />
     <ClInclude Include="..\..\include\measurement_types\dnagpspoint.hpp" />
     <ClInclude Include="..\..\include\measurement_types\dnameasurement.hpp" />
@@ -245,6 +246,7 @@
     <ClCompile Include="..\..\include\io\dnaiomap.cpp" />
     <ClCompile Include="..\..\include\io\dnaioseg.cpp" />
     <ClCompile Include="..\..\include\io\dnaiosnxwrite.cpp" />
+    <ClCompile Include="..\..\include\io\dnaiotbu.cpp" />
     <ClCompile Include="..\..\include\math\dnamatrix_contiguous.cpp" />
     <ClCompile Include="..\..\include\measurement_types\dnagpspoint.cpp" />
     <ClCompile Include="..\..\include\measurement_types\dnameasurement.cpp" />

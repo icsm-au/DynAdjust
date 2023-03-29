@@ -1,0 +1,7 @@
+!#=DNA 1.00 TBU
+* Type B uncertainties for specific sites
+* Uncertainties are in the local reference frame, in metres at 68%
+* e.g.
+*station name (20)  east (13)    north (13)   up (13)
+261907650           0.010        0.010        0.020
+302513640           0.015        0.015        0.050

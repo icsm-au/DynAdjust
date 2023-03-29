@@ -62,6 +62,7 @@ using namespace boost::filesystem;
 #include <include/functions/dnastrmanipfuncs.hpp>
 #include <include/functions/dnatemplatematrixfuncs.hpp>
 #include <include/functions/dnatransparamfuncs.hpp>
+#include <include/functions/dnafilepathfuncs.hpp>
 
 #include <include/parameters/dnaepsg.hpp>
 #include <include/parameters/dnaellipsoid.hpp>
@@ -235,6 +236,13 @@ private:
 
 	std::ofstream* 					rft_file;
 	_INPUT_DATA_TYPE_ 				data_type_;					// stations or measurements
+
+	// Database management
+	v_msr_database_id_map	v_msr_db_map_;
+	bool					databaseIDsLoaded_;
+	bool					databaseIDsSet_;
+
+	void LoadDatabaseId();
 };
 
 }	// namespace referenceframe

@@ -532,8 +532,12 @@ void dna_geoid_interpolation::ProcessDatFile(std::ifstream* f_in, std::ofstream*
 			// A height was supplied...
 			// Print the 'original' height
 			*f_out << setw(9) << setprecision(3) << fixed << right << original_height;
-			// Print the 'transformed' height
-			*f_out << setw(9) << setprecision(3) << fixed << right << apPt.cVar.dHeight;
+
+			// Print the 'transformed' height, unless there is no N value (-999.000)
+			if (apPt.gVar.dN_value < -998.0)
+				*f_out << setw(9) << setprecision(3) << fixed << right << original_height;
+			else
+				*f_out << setw(9) << setprecision(3) << fixed << right << apPt.cVar.dHeight;
 		}
 		else
 		{

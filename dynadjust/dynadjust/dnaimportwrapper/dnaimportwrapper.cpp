@@ -514,80 +514,39 @@ void ExportStationsandMeasurements(dna_import* parserDynaML, const project_setti
 
 	// DynaML file format
 	if (p.i.export_dynaml && (stnCount > 0 || msrCount > 0)) 
-	{
-		//// The export from binary files here is merely to test functionality and to
-		//// diagnose problems.  It is somewhat excessive to allow the user to choose 
-		//// the source from which XML files should be exported
-		//if (p.i.export_from_bfiles)
-		//{
-		//	if (p.i.export_single_xml_file)
-		//	{
-		//		// Single output file
-		//		if (!p.g.quiet)
-		//		{
-		//			cout << "+ Exporting stations and measurements to " << leafStr<string>(p.i.xml_outfile) << "... ";
-		//			cout.flush();
-		//		}
-		//		*imp_file << "+ Exporting stations and measurements to " << leafStr<string>(p.i.xml_outfile) << "... ";
-		//		parserDynaML->SerialiseDynaMLfromBinary(
-		//			p.i.xml_outfile, p, vinput_file_meta,
-		//			(p.i.flag_unused_stn ? true : false));
-		//	}
-		//	else
-		//	{
-		//		// Separate output files (default)
-		//		if (!p.g.quiet)
-		//		{
-		//			cout << "+ Exporting stations and measurements to " << leafStr<string>(p.i.xml_stnfile) << " and " << leafStr<string>(p.i.xml_msrfile) << "... ";
-		//			cout.flush();
-		//		}
-		//		*imp_file << "+ Exporting stations and measurements to " << leafStr<string>(p.i.xml_stnfile) << " and " << leafStr<string>(p.i.xml_msrfile) << "... ";
-		//		parserDynaML->SerialiseDynaMLSepfromBinary(
-		//			p.i.xml_stnfile, p.i.xml_msrfile, p, vinput_file_meta,
-		//			(p.i.flag_unused_stn ? true : false));	
-		//	}
-		//	if (!p.g.quiet)
-		//	{
-		//		cout << "Done." << endl;
-		//		cout.flush();
-		//	}
-		//	*imp_file << "Done." << endl;
-		//}
-		//else
-		//{
-			if (p.i.export_single_xml_file)
-			{
-				// Single output file
-				if (!p.g.quiet)
-				{
-					cout << "+ Exporting stations and measurements to " << leafStr<string>(p.i.xml_outfile) << "... ";
-					cout.flush();
-				}
-				*imp_file << "+ Exporting stations and measurements to " << leafStr<string>(p.i.xml_outfile) << "... ";
-				parserDynaML->SerialiseDynaMLfromMemory(
-					vstationsTotal, vmeasurementsTotal, 
-					p.i.xml_outfile, p, vinput_file_meta, (p.i.flag_unused_stn ? true : false));
-			}	
-			else
-			{
-				// Separate output files (default)
-				if (!p.g.quiet)
-				{
-					cout << "+ Exporting stations and measurements to " << leafStr<string>(p.i.xml_stnfile) << " and " << leafStr<string>(p.i.xml_msrfile) << "... ";
-					cout.flush();
-				}
-				*imp_file << "+ Exporting stations and measurements to " << leafStr<string>(p.i.xml_stnfile) << " and " << leafStr<string>(p.i.xml_msrfile) << "... ";
-				parserDynaML->SerialiseDynaMLSepfromMemory(
-					vstationsTotal, vmeasurementsTotal, 
-					p.i.xml_stnfile, p.i.xml_msrfile, p, vinput_file_meta, (p.i.flag_unused_stn ? true : false));
-			}
+	{		
+		if (p.i.export_single_xml_file)
+		{
+			// Single output file
 			if (!p.g.quiet)
 			{
-				cout << "Done." << endl;
+				cout << "+ Exporting stations and measurements to " << leafStr<string>(p.i.xml_outfile) << "... ";
 				cout.flush();
 			}
-			*imp_file << "Done." << endl;
-		//}		
+			*imp_file << "+ Exporting stations and measurements to " << leafStr<string>(p.i.xml_outfile) << "... ";
+			parserDynaML->SerialiseDynaMLfromMemory(
+				vstationsTotal, vmeasurementsTotal, 
+				p.i.xml_outfile, p, vinput_file_meta, (p.i.flag_unused_stn ? true : false));
+		}
+		else
+		{
+			// Separate output files (default)
+			if (!p.g.quiet)
+			{
+				cout << "+ Exporting stations and measurements to " << leafStr<string>(p.i.xml_stnfile) << " and " << leafStr<string>(p.i.xml_msrfile) << "... ";
+				cout.flush();
+			}
+			*imp_file << "+ Exporting stations and measurements to " << leafStr<string>(p.i.xml_stnfile) << " and " << leafStr<string>(p.i.xml_msrfile) << "... ";
+			parserDynaML->SerialiseDynaMLSepfromMemory(
+				vstationsTotal, vmeasurementsTotal,
+				p.i.xml_stnfile, p.i.xml_msrfile, p, vinput_file_meta, (p.i.flag_unused_stn ? true : false));
+		}
+		if (!p.g.quiet)
+		{
+			cout << "Done." << endl;
+			cout.flush();
+		}
+		*imp_file << "Done." << endl;		
 	}
 
 	// DNA file format

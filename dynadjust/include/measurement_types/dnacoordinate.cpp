@@ -37,42 +37,7 @@ CDnaCoordinate::~CDnaCoordinate(void)
 {
 
 }
-
-
-//CDnaCoordinate::CDnaCoordinate(const CDnaCoordinate& newDistance)
-//{
-//	m_strFirst = newDistance.m_strFirst;
-//	m_drValue = newDistance.m_drValue;
-//	m_dStdDev = newDistance.m_dStdDev;
-//	m_bIgnore = newDistance.m_bIgnore;
-//	m_MSmeasurementStations = newDistance.m_MSmeasurementStations;
-//
-//}
-
-
-//CDnaCoordinate::CDnaCoordinate(const bool bIgnore, const string& strFirst, const double& dValue, const double& dStdDev)
-//{
-//	m_strFirst = strFirst;
-//	m_bIgnore = bIgnore;
-//	m_drValue = dValue;
-//	m_dStdDev = dStdDev;
-//}
-
-
-//CDnaCoordinate& CDnaCoordinate::operator= (const CDnaCoordinate& rhs)
-//{
-//	// check for assignment to self!
-//	if (this == &rhs)
-//		return *this;
-//
-//	CDnaMeasurement::operator=(rhs);
-//	m_drValue = rhs.m_drValue;
-//	m_dStdDev = rhs.m_dStdDev;
-//	m_MSmeasurementStations = rhs.m_MSmeasurementStations;
-//
-//	return *this;
-//}
-
+	
 
 bool CDnaCoordinate::operator== (const CDnaCoordinate& rhs) const
 {
@@ -146,8 +111,10 @@ void CDnaCoordinate::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& 
 	*dynaml_stream << "</Value>" << endl;
 	
 	*dynaml_stream << "    <StdDev>" << scientific << setprecision(6) << Seconds(m_dStdDev) << "</StdDev>" << endl;
-	if (m_databaseIdSet)
+		
+	if (m_msr_db_map.is_msr_id_set)
 		*dynaml_stream << "    <MeasurementID>" << m_msr_db_map.msr_id << "</MeasurementID>" << endl;
+	
 	*dynaml_stream << "  </DnaMeasurement>" << endl;
 }
 	
@@ -169,10 +136,8 @@ void CDnaCoordinate::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields
 	*dna_stream << setw(dml.msr_gps_epoch - dml.msr_inst_ht) << " ";
 	*dna_stream << setw(dmw.msr_gps_epoch) << m_epoch;
 
-	if (m_databaseIdSet)
-	{
+	if (m_msr_db_map.is_msr_id_set)
 		*dna_stream << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
-	}
 
 	*dna_stream << endl;
 }
@@ -216,30 +181,7 @@ void CDnaCoordinate::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid*)
 }
 	
 
-//UINT32 CDnaCoordinate::SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord)
-//{
-//	char stationName[STN_NAME_WIDTH];
-//	m_strType = measRecord->measType;
-//	m_bIgnore = measRecord->ignore;
-//	m_MSmeasurementStations = (MEASUREMENT_STATIONS)measRecord->measurementStations;
-//
-//	m_lstn1Index = measRecord->station1;
-//	ifs_stns->seekg(sizeof(UINT32) + measRecord->station1 * sizeof(station_t), ios::beg);
-//	ifs_stns->read(reinterpret_cast<char *>(&stationName), sizeof(stationName));
-//	m_strFirst = stationName;
-//	
-//	m_measAdj = measRecord->measAdj;
-//	m_measCorr = measRecord->measCorr;
-//	m_measAdjPrec = measRecord->measAdjPrec;
-//	m_residualPrec = measRecord->residualPrec;
-//	m_preAdjCorr = measRecord->preAdjCorr;
-//	m_drValue = measRecord->term1;
-//	m_dStdDev = sqrt(measRecord->term2);
-//	return 0;
-//}
-	
-
-UINT32 CDnaCoordinate::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr)
+UINT32 CDnaCoordinate::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr, it_vdbid_t& dbidmap)
 {
 	m_strType = it_msr->measType;
 	m_bIgnore = it_msr->ignore;
@@ -257,6 +199,8 @@ UINT32 CDnaCoordinate::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_
 	m_dStdDev = sqrt(it_msr->term2);
 
 	m_epoch = it_msr->epoch;
+
+	CDnaMeasurement::SetDatabaseMap(*dbidmap);
 
 	return 0;
 }

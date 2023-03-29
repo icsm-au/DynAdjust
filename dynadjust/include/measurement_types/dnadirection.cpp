@@ -61,7 +61,6 @@ CDnaDirection::CDnaDirection(CDnaDirection&& d)
 
 	m_strType = "D";
 
-	m_databaseIdSet = d.m_databaseIdSet;
 	m_msr_db_map = d.m_msr_db_map;
 
 	m_epoch = d.m_epoch;
@@ -84,7 +83,6 @@ CDnaDirection& CDnaDirection::operator= (CDnaDirection&& rhs)
 	m_lsetID = rhs.m_lsetID;
 	m_MSmeasurementStations = rhs.m_MSmeasurementStations;
 
-	m_databaseIdSet = rhs.m_databaseIdSet;
 	m_msr_db_map = rhs.m_msr_db_map;
 
 	return *this;
@@ -111,7 +109,6 @@ CDnaDirection& CDnaDirection::operator= (CDnaDirection&& rhs)
 //
 //	m_strType = "D";
 //
-//	m_databaseIdSet = newDirection.m_databaseIdSet;
 //	m_msr_db_map = newDirection.m_msr_db_map;
 //}
 
@@ -145,7 +142,6 @@ CDnaDirection& CDnaDirection::operator= (CDnaDirection&& rhs)
 //	m_lsetID = rhs.m_lsetID;
 //	m_MSmeasurementStations = rhs.m_MSmeasurementStations;
 //
-//	m_databaseIdSet = rhs.m_databaseIdSet;
 //	m_msr_db_map = rhs.m_msr_db_map;
 //
 //	return *this;
@@ -212,8 +208,10 @@ void CDnaDirection::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& c
 		*dynaml_stream << "      <Value>" << setprecision(8) << fixed 
 			<< RadtoDms(m_drValue) << "</Value>" << endl;
 		*dynaml_stream << "      <StdDev>" << scientific << setprecision(6) << Seconds(m_dStdDev) << "</StdDev>" << endl;	
-		if (m_databaseIdSet)
+		
+		if (m_msr_db_map.is_msr_id_set)
 			*dynaml_stream << "      <MeasurementID>" << m_msr_db_map.msr_id << "</MeasurementID>" << endl;
+		
 		*dynaml_stream << "    </Directions>" << endl;
 	}
 	else
@@ -254,8 +252,9 @@ void CDnaDirection::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& c
 			break;
 		}
 		
-		if (m_databaseIdSet)
+		if (m_msr_db_map.is_msr_id_set)
 			*dynaml_stream << "    <MeasurementID>" << m_msr_db_map.msr_id << "</MeasurementID>" << endl;
+		
 		*dynaml_stream << "  </DnaMeasurement>" << endl;
 	}
 }
@@ -269,7 +268,7 @@ void CDnaDirection::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields&
 		*dna_stream << setw(dmw.msr_ignore) << " ";
 
 	// database id width
-	UINT32 width(dml.msr_gps_epoch - dml.msr_inst_ht);
+	UINT32 width(dml.msr_id_msr - dml.msr_stddev - dmw.msr_stddev);
 
 	if (bSubMeasurement)
 	{
@@ -292,6 +291,7 @@ void CDnaDirection::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields&
 		*dna_stream << setw(dmw.msr_ang_d + dmw.msr_ang_m + dmw.msr_ang_s) << 
 			right << FormatDnaDmsString(RadtoDms(m_drValue), 8);
 		*dna_stream << setw(dmw.msr_stddev) << fixed << setprecision(3) << Seconds(m_dStdDev);
+		width = dml.msr_gps_epoch - dml.msr_inst_ht;
 
 		// Zenith distance, vertical angle
 		switch (GetTypeC())
@@ -309,14 +309,15 @@ void CDnaDirection::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields&
 		width = 0;
 	}
 
-	if (m_databaseIdSet)
+	if (m_msr_db_map.is_msr_id_set)
 	{
 		if (width)
 			*dna_stream << setw(width) << " ";
 		*dna_stream << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
 
 		if (bSubMeasurement)
-			*dna_stream << setw(dmw.msr_id_cluster) << m_msr_db_map.cluster_id;
+			if (m_msr_db_map.is_cls_id_set)
+				*dna_stream << setw(dmw.msr_id_cluster) << m_msr_db_map.cluster_id;
 	}
 
 	*dna_stream << endl;
@@ -556,7 +557,7 @@ void CDnaDirection::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid*)
 //}
 	
 
-UINT32 CDnaDirection::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr)
+UINT32 CDnaDirection::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr, it_vdbid_t& dbidmap)
 {
 	m_bIgnore = it_msr->ignore;
 	m_lsetID = it_msr->clusterID;
@@ -590,6 +591,8 @@ UINT32 CDnaDirection::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_m
 	m_dStdDev = sqrt(it_msr->term2);
 
 	m_epoch = it_msr->epoch;
+
+	CDnaMeasurement::SetDatabaseMap(*dbidmap);
 	
 	return 0;
 }

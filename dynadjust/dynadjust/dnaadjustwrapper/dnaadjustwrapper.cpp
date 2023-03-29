@@ -314,7 +314,7 @@ void UpdateBinaryFiles(dna_adjust* netAdjust, const project_settings* p)
 	// Update bst and bms files with adjustment results
 	if (!p->g.quiet)
 	{
-		cout << "+ Updating binary station and measurment files...";
+		cout << "+ Updating binary station and measurement files...";
 		cout.flush();
 	}
 	netAdjust->UpdateBinaryFiles();
@@ -587,6 +587,10 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 		p.a.purge_stage_files = 1;
 	if (vm.count(RECREATE_STAGE_FILES))
 		p.a.recreate_stage_files = 1;
+	if (vm.count(TYPE_B_GLOBAL))
+		p.o._apply_type_b_global = 1;
+	if (vm.count(TYPE_B_FILE))
+		p.o._apply_type_b_file = 1;
 
 	p.s.asl_file = formPath<string>(p.g.output_folder, p.g.network_name, "asl");	// associated stations list
 	p.s.aml_file = formPath<string>(p.g.output_folder, p.g.network_name, "aml");	// associated measurements list
@@ -816,6 +820,10 @@ int main(int argc, char* argv[])
 				StringFromT(p.a.fixed_std_dev, 6)+string("m.")).c_str())
 			(SCALE_NORMAL_UNITY,
 				"Scale adjustment normal matrices to unity prior to computing inverse to minimise loss of precision caused by tight variances placed on constraint stations.")
+			(TYPE_B_GLOBAL, value<string>(&p.a.type_b_global),
+				"Type b uncertainties to be added to each computed uncertainty. arg is a comma delimited string that provides 1D, 2D or 3D uncertainties in the local reference frame (e.g. \"up\" or \"e,n\" or \"e,n,up\").")
+			(TYPE_B_FILE, value<string>(&p.a.type_b_file),
+				"Type b uncertainties file name. Full path to a file containing Type b uncertainties to be added to the computed uncertainty for specific sites.")
 			;
 
 		staged_adj_options.add_options()

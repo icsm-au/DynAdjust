@@ -49,7 +49,7 @@ const char* const SEGMENT_MODULE_CONFIG = "Configuration options";
 const char* const GEOID_MODULE_NTV2 = "NTv2 creation options";
 const char* const GEOID_MODULE_INTERPOLATE = "Interpolation options";
 const char* const GEOID_MODULE_INTERACTIVE = "Interactive interpolation options";
-const char* const GEOID_MODULE_FILE = "File interpolation options";
+const char* const GEOID_MODULE_FILE = "Text file interpolation options";
 
 const char* const REFTRAN_MODULE_TRANSFORM = "Transformation options";
 
@@ -122,6 +122,9 @@ const char* const OUTPUT_POS_UNCERTAINTY = "output-pos-uncertainty";
 const char* const OUTPUT_APU_CORRELATIONS = "output-all-covariances";
 const char* const OUTPUT_APU_UNITS = "output-apu-vcv-units";
 const char* const OUTPUT_MSR_TO_STN = "output-msr-to-stn";
+
+const char* const TYPE_B_GLOBAL = "type-b-sd-global";
+const char* const TYPE_B_FILE = "type-b-sd-file";
 
 const char* const OUTPUT_ADJ_MSR_SORTBY = "sort-adj-msr-field";
 const char* const OUTPUT_MSR_TO_STN_SORTBY = "sort-msr-to-stn-field";

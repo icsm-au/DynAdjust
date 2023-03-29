@@ -396,8 +396,11 @@ void dna_segment::VerifyStationsandBuildBlock(bool validationOnly)
 		if (vfreeStnAvailability_.at(_it_stnmap->second).isfree())
 		{			
 			// Ok, find it and remove it
+			//if ((_it_freeisl = find_if(vfreeStnList_.begin(), vfreeStnList_.end(),
+			//	bind1st(std::equal_to<UINT32>(), _it_stnmap->second))) != vfreeStnList_.end())
 			if ((_it_freeisl = find_if(vfreeStnList_.begin(), vfreeStnList_.end(),
-				bind1st(std::equal_to<UINT32>(), _it_stnmap->second))) != vfreeStnList_.end())
+				[&_it_stnmap](const UINT32& freeStn) {
+					return freeStn == _it_stnmap->second; } )) != vfreeStnList_.end())
 			{
 				if (!validationOnly)
 					MoveFreeStnToInnerList(_it_freeisl, _it_stnmap->second);
@@ -986,15 +989,21 @@ void dna_segment::AddtoJunctionStnList(const vUINT32& msrStations)
 	for (_it_stn=msrStations.begin(); _it_stn!=msrStations.end(); ++_it_stn)
 	{
 		// If First station is not already in the junction list...
+		//if (find_if(vCurrJunctStnList_.begin(), vCurrJunctStnList_.end(),
+		//	bind1st(equal_to<UINT32>(), *_it_stn)) == vCurrJunctStnList_.end())
 		if (find_if(vCurrJunctStnList_.begin(), vCurrJunctStnList_.end(),
-			bind1st(equal_to<UINT32>(), *_it_stn)) == vCurrJunctStnList_.end())
+			[&_it_stn](const UINT32& junctionStn) {
+				return junctionStn == *_it_stn; }) == vCurrJunctStnList_.end())
 		{
 			// If the first station is available, get an iterator to it and move it
 			if (vfreeStnAvailability_.at(*_it_stn).isfree())
 			{
 				// Move it to the list of junctions
+				//if ((_it_freeisl = find_if(vfreeStnList_.begin(), vfreeStnList_.end(),
+				//	bind1st(equal_to<UINT32>(), *_it_stn))) != vfreeStnList_.end())
 				if ((_it_freeisl = find_if(vfreeStnList_.begin(), vfreeStnList_.end(),
-					bind1st(equal_to<UINT32>(), *_it_stn))) != vfreeStnList_.end())
+					[&_it_stn](const UINT32& freeStn) {
+						return freeStn == *_it_stn; })) != vfreeStnList_.end())
 				{
 					MoveFreeStnToJunctionList(_it_freeisl, *_it_stn);
 				}

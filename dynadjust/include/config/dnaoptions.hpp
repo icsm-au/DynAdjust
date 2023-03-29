@@ -420,7 +420,8 @@ public:
 		, purge_stage_files(false), recreate_stage_files(false)
 		, iteration_threshold((float)0.0005), free_std_dev(10.0), fixed_std_dev(PRECISION_1E6), station_constraints("")
 		, map_file(""), bst_file(""), bms_file(""), seg_file(""), comments("") 
-		, command_line_arguments("") {}
+		, command_line_arguments("")
+		, type_b_global (""), type_b_file ("") {}
 
 private:
 	// Disallow use of compiler generated equality operator.
@@ -471,6 +472,8 @@ public:
 	string		seg_file;				// Segmentation file
 	string		comments;				// General comments about the adjustment, printed to the adj file.
 	string		command_line_arguments;
+	string      type_b_global;          // Comma delimited string containing Type b uncertainties to be applied to all uncertainties computed from an adjustment
+	string      type_b_file;            // File path to Type b uncertainties to be applied to specific site uncertainties computed from an adjustment
 };
 
 // datum and geoid settings
@@ -490,6 +493,7 @@ public:
 		, _stn_coord_types("PLHhXYZ"), _angular_type_stn(DMS)
 		, _precision_seconds_stn(5), _precision_metres_stn(4), _precision_seconds_msr(4), _precision_metres_msr(4)
 		, _angular_type_msr(DMS), _dms_format_msr(SEPARATED)
+		, _apply_type_b_global(0), _apply_type_b_file(0)
 		
 	{}
 
@@ -570,6 +574,8 @@ public:
 	UINT16			_precision_metres_msr;	// Precision of linear measurement values given in seconds
 	UINT16			_angular_type_msr;		// Type of angular measurements (dms or ddeg)
 	UINT16			_dms_format_msr;		// Format of dms measurements (sep fields or hp notation)
+	UINT16			_apply_type_b_global;	// Apply global type b uncertainties to the output
+	UINT16			_apply_type_b_file;		// Apply site-specific type b uncertainties to the output
 };
 
 // plot settings

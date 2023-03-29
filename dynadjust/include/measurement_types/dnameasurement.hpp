@@ -240,15 +240,13 @@ public:
 
 	inline virtual UINT32 CalcBinaryRecordCount() const { return 3; }
 	void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex, const string& epsgCode, const string& epoch) const;
-	//virtual UINT32 SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord);
 	virtual UINT32 SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr);
 	virtual void WriteDynaMLMsr(std::ofstream* dynaml_stream) const;
 	virtual void WriteDNAMsr(std::ofstream* dna_stream, 
-		const dna_msr_fields& dmw, const dna_msr_fields& dml, 
-		const msr_database_id_map& dbidmap, bool dbidSet) const;
+		const dna_msr_fields& dmw, const dna_msr_fields& dml) const;
 	virtual void SimulateMsr(vdnaStnPtr*, const CDnaEllipsoid*);
 	
-	void SerialiseDatabaseMap(std::ofstream* os, const UINT32& msr_id, const UINT32& cluster_id);
+	void SerialiseDatabaseMap(std::ofstream* os, const msr_database_id_map& dbid);
 
 	inline void SetClusterID(const UINT32& id) { m_lclusterID = id; }
 	inline void SetStn1Index(const UINT32& stn) { m_lstn1Index = stn; }
@@ -361,8 +359,7 @@ public:
 	// pure virtual functions overridden by specialised classes
 	virtual UINT32 CalcBinaryRecordCount() const = 0;
 	virtual void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) const = 0;
-	//virtual UINT32 SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord) = 0;
-	virtual UINT32 SetMeasurementRec(const vstn_t&, it_vmsr_t& it_msr) = 0;
+	virtual UINT32 SetMeasurementRec(const vstn_t&, it_vmsr_t& it_msr, it_vdbid_t& dbidmap) = 0;
 	virtual void WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool bSubMeasurement = false) const = 0;
 	virtual void WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool bSubMeasurement = false) const = 0;
 	virtual void SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* ellipsoid) = 0;
@@ -457,17 +454,14 @@ public:
 	void SetMeasurementDBID(const string& str);
 	void SetClusterDBID(const string& str);
 	
-	inline void SetClusterDBID(const UINT32& u) { m_msr_db_map.cluster_id = u; }
-	inline void SetMeasurementDBID(const UINT32& u) { m_msr_db_map.msr_id = u; }
-	
-	inline UINT32 GetClusterDBID() { return m_msr_db_map.cluster_id; }
-	inline UINT32 GetMeasurementDBID() { return m_msr_db_map.msr_id; }
-	//virtual inline UINT32 GetClusterDBID() const { return 0; }
-	//virtual inline UINT32 GetMeasurementDBID() const { return 0; }
+	void SetClusterDBID(const UINT32& u, bool s);
 
-	void SetDatabaseMap(const msr_database_id_map& dbidmap, bool dbidSet);
-	//virtual inline void SetDatabaseMap_bmsIndex(const UINT32& bmsIndex) { m_msr_db_map.bms_index = bmsIndex; }
+	inline UINT32 GetClusterDBID() { return m_msr_db_map.cluster_id; }
+	inline bool GetClusterDBIDset() { return m_msr_db_map.is_cls_id_set; }
 	
+	void SetDatabaseMap(const msr_database_id_map& dbidmap);
+	virtual void SetDatabaseMaps(it_vdbid_t& it_dbidmap);
+
 	virtual void SerialiseDatabaseMap(std::ofstream* os);
 
 protected:
@@ -498,7 +492,6 @@ protected:
 	string	m_epoch;
 	
 	msr_database_id_map		m_msr_db_map;
-	bool					m_databaseIdSet;
 };
 
 // In the event a new measurement type is added, ensure SUPPORTED_MSR_COUNT is

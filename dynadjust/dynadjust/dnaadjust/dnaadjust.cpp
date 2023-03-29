@@ -286,6 +286,9 @@ void dna_adjust::PrepareAdjustment(const project_settings& projectSettings)
 	// Load network files
 	LoadNetworkFiles();
 
+	// Load type b uncertainties, method handler, and the station map
+	InitialiseTypeBUncertainties();
+
 	isFirstTimeAdjustment_ = !bms_meta_.reduced;
 
 	// Resizes matrix vectors using blockCount_.  
@@ -2413,8 +2416,8 @@ void dna_adjust::PrintAdjustedNetworkStations()
 	switch (projectSettings_.a.adjust_mode)
 	{
 	case SimultaneousMode:
-		PrintAdjStations(adj_file, 0, &v_estimatedStations_.at(0), &v_rigorousVariances_.at(0), false, true, true, printHeader);
-		PrintAdjStations(xyz_file, 0, &v_estimatedStations_.at(0), &v_rigorousVariances_.at(0), false, false, false, printHeader);
+		PrintAdjStations(adj_file, 0, &v_estimatedStations_.at(0), &v_rigorousVariances_.at(0), false, true, true, printHeader, true);
+		PrintAdjStations(xyz_file, 0, &v_estimatedStations_.at(0), &v_rigorousVariances_.at(0), false, false, false, printHeader, false);
 		break;
 	case PhasedMode:
 	case Phased_Block_1Mode:
@@ -2424,11 +2427,11 @@ void dna_adjust::PrintAdjustedNetworkStations()
 			PrintAdjStationsUniqueList(adj_file,
 				&v_rigorousStations_,
 				&v_rigorousVariances_,
-				true, true);
+				true, true, true);
 			PrintAdjStationsUniqueList(xyz_file,
 				&v_rigorousStations_,
 				&v_rigorousVariances_,
-				true, true);
+				true, true, false);
 			return;
 		}
 
@@ -2450,12 +2453,12 @@ void dna_adjust::PrintAdjustedNetworkStations()
 			PrintAdjStations(adj_file, block,
 				&v_rigorousStations_.at(block),
 				&v_rigorousVariances_.at(block),
-				true, true, true, printHeader);
+				true, true, true, printHeader, true);
 			// xyz file
 			PrintAdjStations(xyz_file, block,
 				&v_rigorousStations_.at(block),
 				&v_rigorousVariances_.at(block),
-				true, false, false, printHeader);
+				true, false, false, printHeader, false);
 
 			printHeader = false;
 
@@ -2520,12 +2523,18 @@ void dna_adjust::LoadDatabaseId()
 		dbid_file.read(reinterpret_cast<char *>(&recordCount), sizeof(UINT32));
 		v_msr_db_map_.reserve(recordCount);
 		
-		for (r=0; r<recordCount; r++)
+		UINT16 val;
+
+		for (r = 0; r < recordCount; r++)
 		{
 			// Read data
 			dbid_file.read(reinterpret_cast<char *>(&rec.msr_id), sizeof(UINT32));
 			dbid_file.read(reinterpret_cast<char *>(&rec.cluster_id), sizeof(UINT32));
-		
+			dbid_file.read(reinterpret_cast<char *>(&val), sizeof(UINT16));
+			rec.is_msr_id_set = val_uint<bool, UINT16>(val);
+			dbid_file.read(reinterpret_cast<char *>(&val), sizeof(UINT16));
+			rec.is_cls_id_set = val_uint<bool, UINT16>(val);
+			
 			// push back
 			v_msr_db_map_.push_back(rec);
 		}
@@ -2559,15 +2568,19 @@ void dna_adjust::PrintPositionalUncertainty()
 	
 	apu_file << setw(PRINT_VAR_PAD) << left << "File name:" << system_complete(projectSettings_.o._apu_file).string() << endl << endl;
 	
-	apu_file << setw(PRINT_VAR_PAD) << left << "PU confidence interval" << setprecision(1) << fixed << 
+	apu_file << setw(PRINT_VAR_PAD) << left << "PU confidence interval:" << setprecision(1) << fixed << 
 		// projectSettings_.a.confidence_interval << "%" << endl;
 		// the SP1 standard for PU is 95% and the formula is designed to achieve that end,
 		// irrespective of the adjustment confidence interval
 		95.0 << "%" << endl;	
 		
+	apu_file << setw(PRINT_VAR_PAD) << left << "Error ellipse axes:" << setprecision(1) << fixed <<
+		68.3 << "% (1 sigma)" << endl;
+
+	apu_file << setw(PRINT_VAR_PAD) << left << "Variances:" << setprecision(1) << fixed <<
+		68.3 << "% (1 sigma)" << endl;
 	
-	
-	apu_file << setw(PRINT_VAR_PAD) << left << "Stations printed in blocks";
+	apu_file << setw(PRINT_VAR_PAD) << left << "Stations printed in blocks:";
 	if (projectSettings_.a.adjust_mode != SimultaneousMode)
 	{
 		if (projectSettings_.o._output_stn_blocks)
@@ -2583,7 +2596,7 @@ void dna_adjust::PrintPositionalUncertainty()
 	else
 		apu_file << left << "No" << endl;
 
-	apu_file << setw(PRINT_VAR_PAD) << left << "Variance matrix units";
+	apu_file << setw(PRINT_VAR_PAD) << left << "Variance matrix units:";
 	switch (projectSettings_.o._apu_vcv_units)
 	{
 	case ENU_apu_ui:
@@ -2596,11 +2609,22 @@ void dna_adjust::PrintPositionalUncertainty()
 	}
 
 	apu_file <<
-		setw(PRINT_VAR_PAD) << left << "Full covariance matrix";
+		setw(PRINT_VAR_PAD) << left << "Full covariance matrix:";
 	if (projectSettings_.o._output_pu_covariances)
 		apu_file << left << "Yes" << endl;
 	else
 		apu_file << left << "No" << endl;
+
+	if (projectSettings_.o._apply_type_b_file || projectSettings_.o._apply_type_b_global)
+	{
+		if (projectSettings_.o._apply_type_b_global)
+			apu_file << setw(PRINT_VAR_PAD) << left << "Type B uncertainties:" <<
+				projectSettings_.a.type_b_global << endl;
+
+		if (projectSettings_.o._apply_type_b_file)
+			apu_file << setw(PRINT_VAR_PAD) << left << "Type B uncertainty file:" <<
+				system_complete(projectSettings_.a.type_b_file).string() << endl;
+	}
 
 	apu_file << OUTPUTLINE << endl << endl;
 
@@ -2613,7 +2637,7 @@ void dna_adjust::PrintPositionalUncertainty()
 	{
 	case SimultaneousMode:
 		PrintPosUncertainties(apu_file, 0, 
-			&v_normals_.at(0));
+			&v_rigorousVariances_.at(0));
 		break;
 	case PhasedMode:
 		// Output phased blocks as a single block?
@@ -2669,7 +2693,7 @@ void dna_adjust::PrintNetworkStationCorrections()
 	print_file_header(cor_file, "DYNADJUST CORRECTIONS OUTPUT FILE");
 	cor_file << setw(PRINT_VAR_PAD) << left << "File name:" << system_complete(projectSettings_.o._cor_file).string() << endl << endl;
 
-	cor_file << setw(PRINT_VAR_PAD) << left << "Stations printed in blocks";
+	cor_file << setw(PRINT_VAR_PAD) << left << "Stations printed in blocks:";
 	if (projectSettings_.a.adjust_mode != SimultaneousMode &&
 		projectSettings_.o._output_stn_blocks)
 			cor_file << "Yes" << endl << endl;
@@ -3455,7 +3479,7 @@ void dna_adjust::AdjustSimultaneous()
 		if (projectSettings_.o._adj_stn_iteration)
 			// computes geographic coordinates if required
 			PrintAdjStations(adj_file, 0, &v_estimatedStations_.at(0), &v_normals_.at(0), 
-				false, !v_msrTally_.at(0).ContainsNonGPS(), !v_msrTally_.at(0).ContainsNonGPS(), true);
+				false, !v_msrTally_.at(0).ContainsNonGPS(), !v_msrTally_.at(0).ContainsNonGPS(), true, false);
 
 		// Update normals and measured-computed matrices for the next iteration.
 		UpdateAdjustment(iterate);
@@ -4076,7 +4100,7 @@ void dna_adjust::CarryForwardJunctions(const UINT32 thisBlock, const UINT32 next
 
 		PrintAdjStations(adj_file, thisBlock, 
 			&v_estimatedStations_.at(thisBlock), &v_normals_.at(thisBlock), 
-			false, true, false, true);
+			false, true, false, true, false);
 		adj_file_mutex.unlock();
 	}
 
@@ -4714,7 +4738,7 @@ void dna_adjust::UpdateEstimatesReverse(const UINT32 currentBlock, bool MT_Rever
 		
 		PrintAdjStations(adj_file, currentBlock, 
 			estimatedStations, aposterioriVariances, 
-			false, true, false, true);
+			false, true, false, true, false);
 		adj_file_mutex.unlock();
 	}
 	
@@ -4832,7 +4856,7 @@ void dna_adjust::UpdateEstimatesFinal(const UINT32 currentBlock)
 
 		PrintAdjStations(adj_file, currentBlock, 
 			&v_rigorousStations_.at(currentBlock), &v_rigorousVariances_.at(currentBlock), 
-			false, true, false, true);		// update coordinates
+			false, true, false, true, false);		// update coordinates
 
 #ifdef MULTI_THREAD_ADJUST
 		adj_file_mutex.unlock();
@@ -9471,6 +9495,7 @@ void dna_adjust::PrintOutputFileHeaderInfo()
 	adj_file << setw(PRINT_VAR_PAD) << left << "Iteration threshold:" << projectSettings_.a.iteration_threshold << endl;
 	adj_file << setw(PRINT_VAR_PAD) << left << "Maximum iterations:" << setprecision(0) << fixed << projectSettings_.a.max_iterations << endl;
 	adj_file << setw(PRINT_VAR_PAD) << left << "Test confidence interval:" << setprecision(1) << fixed << projectSettings_.a.confidence_interval << "%" << endl;
+	adj_file << setw(PRINT_VAR_PAD) << left << "Uncertainties SD(e,n,up):" << setprecision(1) << "68.3% (1 sigma)" << endl;
 	
 	if (!projectSettings_.a.station_constraints.empty())
 		adj_file << setw(PRINT_VAR_PAD) << left << "Station constraints:" << projectSettings_.a.station_constraints << endl;
@@ -9503,6 +9528,25 @@ void dna_adjust::PrintOutputFileHeaderInfo()
 			"Yes" << endl;
 		xyz_file << setw(PRINT_VAR_PAD) << left << "Station coordinate corrections:" <<
 			"Yes" << endl;
+	}
+
+	if (projectSettings_.o._apply_type_b_file || projectSettings_.o._apply_type_b_global)
+	{
+		if (projectSettings_.o._apply_type_b_global)
+		{
+			adj_file << setw(PRINT_VAR_PAD) << left << "Type B uncertainties:" <<
+				projectSettings_.a.type_b_global << endl;
+			xyz_file << setw(PRINT_VAR_PAD) << left << "Type B uncertainties:" <<
+				projectSettings_.a.type_b_global << endl;
+		}
+
+		if (projectSettings_.o._apply_type_b_file)
+		{
+			adj_file << setw(PRINT_VAR_PAD) << left << "Type B uncertainty file:" <<
+				system_complete(projectSettings_.a.type_b_file).string() << endl;
+			xyz_file << setw(PRINT_VAR_PAD) << left << "Type B uncertainty file:" <<
+				system_complete(projectSettings_.a.type_b_file).string() << endl;
+		}
 	}
 
 	// Print user-supplied comments.
@@ -9651,8 +9695,9 @@ void dna_adjust::PrintCorStation(ostream& os,
 
 void dna_adjust::PrintAdjStation(ostream& os, 
 	const UINT32& block, const UINT32& stn, const UINT32& mat_idx,
-	const matrix_2d* stationEstimates, const matrix_2d* stationVariances,
-	bool recomputeGeographicCoords, bool updateGeographicCoords)
+	const matrix_2d* stationEstimates, matrix_2d* stationVariances,
+	bool recomputeGeographicCoords, bool updateGeographicCoords,
+	bool reapplyTypeBUncertainties)
 {
 	double estLatitude, estLongitude, estHeight, E, N, Zo(-1.);
 
@@ -9794,7 +9839,47 @@ void dna_adjust::PrintAdjStation(ostream& os,
 
 	// Standard deviation in local reference frame
 	matrix_2d var_local(3, 3), var_cart(3, 3);
+
+	// To minimise re-computation when printing to .xyz, .adj and .apu, the type b uncertainties are 
+	// added to the estimated variances held in memory. This is not a problem since, if adjust is 
+	// re-run and the user does not supply type b uncertainties, the variances held in memory will be 
+	// re-estimated which will overwrite the type b values that were previously applied.
+
+	// Add type B uncertainties (if required)
+	if (reapplyTypeBUncertainties &&
+		(projectSettings_.o._apply_type_b_global || projectSettings_.o._apply_type_b_file))
+	{
+		if (v_typeBUncertaintyMethod_.at(stn).apply)
+		{
+			// apply local first
+			if (v_typeBUncertaintyMethod_.at(stn).method == type_b_local)
+			{
+				// Add the cartesian type b variances 
+				// Note: Cartesian variances for this station were computed in dna_io_tbu::reduce_uncertainties_local(...)
+				//var_cart.add(v_typeBUncertaintiesLocal_.at(v_stationTypeBMap_.at(stn).second).type_b);
+				stationVariances->blockadd(mat_idx, mat_idx,
+					v_typeBUncertaintiesLocal_.at(v_stationTypeBMap_.at(stn).second).type_b,
+					0, 0, 3, 3);
+			}
+			else if (v_typeBUncertaintyMethod_.at(stn).method == type_b_global)
+			{
+				// Compute cartesian variances for this station from the global uncertainty
+				// Note: this needs to be done for each site from the global type b uncertainties entered 
+				// via the command line
+				matrix_2d var_cart_typeb(3, 3);
+				PropagateVariances_LocalCart<double>(typeBUncertaintyGlobal_.type_b, var_cart_typeb,
+					estLatitude, estLongitude, true);
+
+				// Add the cartesian type b variances 
+				//var_cart.add(var_cart_typeb);
+				stationVariances->blockadd(mat_idx, mat_idx,
+					var_cart_typeb, 0, 0, 3, 3);
+			}	
+		}
+	}
+
 	var_cart.copyelements(0, 0, stationVariances, mat_idx, mat_idx, 3, 3);
+
 	PropagateVariances_LocalCart(var_cart, var_local, 
 		estLatitude, estLongitude, false);
 	
@@ -9836,8 +9921,9 @@ void dna_adjust::PrintAdjStation(ostream& os,
 }
 
 void dna_adjust::PrintAdjStations(ostream& os, const UINT32& block,
-	const matrix_2d* stationEstimates, const matrix_2d* stationVariances, bool printBlockID,
-	bool recomputeGeographicCoords, bool updateGeographicCoords, bool printHeader)
+	const matrix_2d* stationEstimates, matrix_2d* stationVariances, bool printBlockID,
+	bool recomputeGeographicCoords, bool updateGeographicCoords, bool printHeader,
+	bool reapplyTypeBUncertainties)
 {
 	vUINT32 v_blockStations(v_parameterStationList_.at(block));
 
@@ -9903,7 +9989,8 @@ void dna_adjust::PrintAdjStations(ostream& os, const UINT32& block,
 
 		PrintAdjStation(os, block, stn, mat_idx,
 			stationEstimates, stationVariances, 
-				recomputeGeographicCoords, updateGeographicCoords);
+			recomputeGeographicCoords, updateGeographicCoords,
+			reapplyTypeBUncertainties);
 	}
 
 	os << endl;
@@ -9914,8 +10001,9 @@ void dna_adjust::PrintAdjStations(ostream& os, const UINT32& block,
 }
 
 void dna_adjust::PrintAdjStationsUniqueList(ostream& os,
-	const v_mat_2d* stationEstimates, const v_mat_2d* stationVariances,
-	bool recomputeGeographicCoords, bool updateGeographicCoords)
+	const v_mat_2d* stationEstimates, v_mat_2d* stationVariances,
+	bool recomputeGeographicCoords, bool updateGeographicCoords,
+	bool reapplyTypeBUncertainties)
 {
 	try {
 		// Print header info and columns to adj file.  Throws runtime_error on failure.
@@ -9996,7 +10084,8 @@ void dna_adjust::PrintAdjStationsUniqueList(ostream& os,
 		PrintAdjStation(*outstream, 
 			block, stn, mat_index, 
 			&stationEstimates->at(block), &stationVariances->at(block), 
-			recomputeGeographicCoords, updateGeographicCoords);
+			recomputeGeographicCoords, updateGeographicCoords,
+			reapplyTypeBUncertainties);
 
 		if (projectSettings_.a.stage)
 		{		
@@ -13144,7 +13233,10 @@ void dna_adjust::PrintMeasurementDatabaseID(const it_vmsr_t& _it_msr)
 		_it_dbid = v_msr_db_map_.begin() + dbindex;
 
 		// Print measurement id
-		adj_file << setw(STDDEV) << right << _it_dbid->msr_id;
+		if (_it_dbid->is_msr_id_set)
+			adj_file << setw(STDDEV) << right << _it_dbid->msr_id;
+		else
+			adj_file << setw(STDDEV) << " ";
 
 		// Print cluster id?
 		switch (_it_msr->measType)
@@ -13153,7 +13245,10 @@ void dna_adjust::PrintMeasurementDatabaseID(const it_vmsr_t& _it_msr)
 		case 'G':
 		case 'X':
 		case 'Y':
-			adj_file << setw(STDDEV) << right << _it_dbid->cluster_id;
+			if (_it_dbid->is_cls_id_set)
+				adj_file << setw(STDDEV) << right << _it_dbid->cluster_id;
+			else
+				adj_file << setw(STDDEV) << " ";
 		}
 	}
 }
@@ -14222,6 +14317,99 @@ void dna_adjust::AddDiscontinuitySites(vstring& constraintStns)
 
 	// restore original sort order
 	sort(bstBinaryRecords_.begin(), bstBinaryRecords_.end(), CompareStnName<station_t>());
+}
+
+// Take user-supplied type B uncertainties and compute relevant elements for
+// application to the output results
+void dna_adjust::InitialiseTypeBUncertainties()
+{
+	if (!projectSettings_.o._apply_type_b_global && !projectSettings_.o._apply_type_b_file)
+		return;
+
+	dna_io_tbu tbu;
+
+	// Apply global type B uncertainties to all sites
+	if (projectSettings_.o._apply_type_b_global)
+	{
+		// Load the typeb argument. The typeb argument contains type b uncertainties to be 
+		// applied (by default) to all sies
+		try {
+			
+			tbu.load_tbu_argument(projectSettings_.a.type_b_global, typeBUncertaintyGlobal_);
+		}
+		catch (const runtime_error& e) {
+			SignalExceptionAdjustment(e.what(), 0);
+		}
+		catch (...) {
+			return;
+		}		
+	}
+
+	// Apply (or overwrite) type B uncertainties to specific sites
+	if (projectSettings_.o._apply_type_b_file)
+	{
+		// load station map
+		v_string_uint32_pair vStnsMap;
+		if (projectSettings_.a.map_file.empty())
+			projectSettings_.a.map_file = projectSettings_.g.input_folder + FOLDER_SLASH + projectSettings_.g.network_name + ".map";
+		LoadStationMap(&vStnsMap, projectSettings_.a.map_file);
+
+		// Load the typeb file. The typeb file contains site-specific type b uncertainties
+		try {
+
+			tbu.load_tbu_file(projectSettings_.a.type_b_file, v_typeBUncertaintiesLocal_, vStnsMap);
+			sort(v_typeBUncertaintiesLocal_.begin(), v_typeBUncertaintiesLocal_.end());
+
+			// reduce to the cartesian reference frame
+			tbu.reduce_uncertainties_local(v_typeBUncertaintiesLocal_, bstBinaryRecords_);
+		}
+		catch (const std::ifstream::failure& f) {
+			SignalExceptionAdjustment(f.what(), 0);
+		}
+		catch (const runtime_error& e) {
+			SignalExceptionAdjustment(e.what(), 0);
+		}
+	}
+
+	// Now, set the method of application
+	UINT32 stn(0);
+	it_pair_type_b_uncertainty it_tbu;
+
+	// Create a vector of elements (with a size equal to the station count) that manages how
+	// type b uncertainties are to be applied.
+	v_typeBUncertaintyMethod_.resize(bstBinaryRecords_.size());
+	// Create a map between station ID and the type b uncertainties vector
+	v_stationTypeBMap_.resize(bstBinaryRecords_.size());
+
+	for (stn = 0; stn < bstBinaryRecords_.size(); ++stn)
+	{
+		v_typeBUncertaintyMethod_.at(stn).station_id = stn;
+		v_stationTypeBMap_.at(stn).first = stn;
+		v_stationTypeBMap_.at(stn).second = 0;
+
+		// set method to be global by default
+		if (projectSettings_.o._apply_type_b_global)
+		{
+			v_typeBUncertaintyMethod_.at(stn).apply = true;
+			v_typeBUncertaintyMethod_.at(stn).method = type_b_global;
+		}
+
+		// overwrite global with site specific type b
+		if (projectSettings_.o._apply_type_b_file)
+		{
+			it_tbu = equal_range(v_typeBUncertaintiesLocal_.begin(), v_typeBUncertaintiesLocal_.end(), 
+				stn, CompareTypeBStationID<UINT32, type_b_uncertainty>());
+			if (it_tbu.first != it_tbu.second)
+			{
+				v_typeBUncertaintyMethod_.at(stn).apply = true;
+				v_typeBUncertaintyMethod_.at(stn).method = type_b_local;
+
+				// map the local uncertainty index
+				v_stationTypeBMap_.at(stn).second = static_cast<UINT32>(std::distance(v_typeBUncertaintiesLocal_.begin(), it_tbu.first));
+			}
+		}
+
+	}
 }
 
 // Take any additional user-supplied constraints (CCC,CCF,etc) and 
