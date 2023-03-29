@@ -216,7 +216,7 @@ private:
 
 	void ParseDNAMSRAngular(const string& sBuf, dnaMsrPtr& msr_ptr);
 	void ParseDNAMSRCoordinate(const string& sBuf, dnaMsrPtr& msr_ptr);
-	void ParseDNAMSRDirections(string& sBuf, dnaMsrPtr& msr_ptr, bool ignoreMsr);
+	UINT32 ParseDNAMSRDirections(string& sBuf, dnaMsrPtr& msr_ptr, bool ignoreMsr);
 	void ParseDNAMSRGPSBaselines(string& sBuf, dnaMsrPtr& msr_ptr, bool ignoreMsr);
 	void ParseDNAMSRGPSPoints(string& sBuf, dnaMsrPtr& msr_ptr, bool ignoreMsr);
 	void ParseDNAMSRLinear(const string& sBuf, dnaMsrPtr& msr_ptr);
@@ -241,8 +241,8 @@ private:
 	string ParseEpochValue(const string& sBuf, const string& calling_function);
 
 	void ParseDatabaseIds(const string& sBuf, const string& calling_function, const char msrType);
-	string ParseDatabaseClusterId(const string& sBuf, const string& calling_function);
-	string ParseDatabaseMsrId(const string& sBuf, const string& calling_function);
+	void ParseDatabaseClusterId(const string& sBuf, const string& calling_function);
+	void ParseDatabaseMsrId(const string& sBuf, const string& calling_function);
 
 	void LoadNetworkFiles(pvstn_t binaryStn, pvmsr_t binaryMsr, const project_settings& projectSettings, bool loadSegmentFile);
 	void LoadBinaryFiles(pvstn_t binaryStn, pvmsr_t binaryMsr);
@@ -355,7 +355,6 @@ private:
 	_INPUT_DATA_TYPE_ m_idt;
 
 	msr_database_id_map		m_msr_db_map;
-	bool					m_databaseIdSet;
 
 	v_discontinuity_tuple	stn_discontinuities_;
 	bool					m_discontsSortedbyName;

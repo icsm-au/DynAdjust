@@ -24,23 +24,6 @@
 
 using namespace dynadjust;
 
-void PrintHelp(string message, const options_description* options)
-{
-	string title;
-	fileproc_help_header(&title);
-
-	cout << endl << title << endl << message << endl << endl << *options << endl;
-}
-	
-
-void PrintVersion()
-{
-	string version;
-	fileproc_help_header(&version);
-	cout << version << endl;
-}
-	
-
 bool CreateNTv2Grid(dna_geoid_interpolation* g, const char* dat_gridfilePath, const n_file_par* grid)
 {
 	// example:
@@ -533,10 +516,12 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 	if (vm.count(DDEG_FORMAT))
 		p.n.coordinate_format = DDEG;
 	
-	if (vm.count(CONVERT_BST_HT))
-		p.n.convert_heights = 1;
-	else
-		p.n.convert_heights = 0;
+	// Change behaviour of geoid to always convert orthometric heights to ellipsoid
+	// deprecate this command
+	//if (vm.count(CONVERT_BST_HT))
+	p.n.convert_heights = 1;
+	//else
+	//	p.n.convert_heights = 0;
 
 	return EXIT_SUCCESS;
 }
@@ -589,9 +574,14 @@ int main(int argc, char* argv[])
 		interpolate_options.add_options()
 			(INTERACTIVE_E, "Interpolate geoid information using coordinates provided on the command line.")
 			(INPUT_FILE_T, value<string>(&p.n.input_file),
-				"Interpolate geoid information using a file of coordinates. arg is the path of the input text file.")
+				"Interpolate geoid information using coordinates contained in a text file. "
+				"arg is the path of the input text file. "
+				"The supported text file formats include formatted text (*.txt) and comma separated values (*.csv) files. "
+				"Refer to the User's Guide for file format information.")
 			(METHOD_M, value<UINT16>(&p.n.interpolation_method),
 				"Interpolation method.\n  0  Bi-linear\n  1  Bi-cubic (default)")
+			(CONVERT_BST_HT, 
+				"DEPRECATED. If a user-supplied height in the binary file is orthometric, the height will be converted to ellipsoidal automatically.")
 			(DDEG_FORMAT, "Specify input coordinates in decimal degrees (dd.dddddd).  Default is degrees, minutes and seconds (dd.mmssss).")
 			(CREATE_NTV2_C, "Create NTv2 grid file from standard DAT file.")
 			(NTV2_FILEPATH_G, value<string>(&p.n.ntv2_geoid_file), "Full file path of the NTv2 grid file.")
@@ -637,9 +627,7 @@ int main(int argc, char* argv[])
 
 		file_interpolate_options.add_options()
 			(DIRECTION_R, value<UINT16>(&p.n.ellipsoid_to_ortho), 
-				"Conversion of heights:\n  0  Orthometric to ellispoid\n  1  Ellispoid to orthometric (default)")
-			(CONVERT_BST_HT, 
-				"If a user-supplied height in the binary file is orthometric, the height is converted to ellipsoidal.")
+				"Conversion of heights:\n  0  Orthometric to ellipsoid (default)\n  1  Ellipsoid to orthometric")
 			;
 
 		// Declare a group of options that will be 
@@ -656,7 +644,7 @@ int main(int argc, char* argv[])
 
 		generic_options.add_options()
 			(VERBOSE, value<UINT16>(&p.g.verbose),
-				string("Give detailed information about what ").append(__BINARY_NAME__).append(" is doing.\n  0: No information (default)\n  1: Helpful information\n  2: Extended information\n  3: Debug level information").c_str())
+				string("When importing geoid information into a project, print the stations for which an N-value could not be interpolated to a log (*.int) file.\n  0: No information (default)\n  1: Helpful information\n  2: Extended information").c_str())
 				(QUIET,
 					string("Suppresses all explanation of what ").append(__BINARY_NAME__).append(" is doing unless an error occurs").c_str())
 					(VERSION_V, "Display the current program version")
@@ -821,11 +809,11 @@ int main(int argc, char* argv[])
 			if (!p.n.bst_file.empty())
 			{
 				cout << setw(PRINT_VAR_PAD) << left << "  Binary station file: " << p.n.bst_file << endl;
-				cout << setw(PRINT_VAR_PAD) << left << "  Convert orthometric heights: ";
-				if (p.n.convert_heights)
-					cout << "Yes" << endl;
-				else
-					cout << "No" << endl;
+				//cout << setw(PRINT_VAR_PAD) << left << "  Convert orthometric heights: ";
+				//if (p.n.convert_heights)
+				//	cout << "Yes" << endl;
+				//else
+				//	cout << "No" << endl;
 			}
 
 			if (!p.n.input_file.empty())
@@ -907,10 +895,27 @@ int main(int argc, char* argv[])
 				cout << "Decimal degrees" << endl;
 			else
 				cout << "Degrees minutes seconds" << endl;
+			
+			if (!vm.count(INTERACTIVE))
+			{
+				cout << setw(PRINT_VAR_PAD) << left << "  Transformation direction: ";
+				if (p.n.ellipsoid_to_ortho == 0)
+					cout << "Orthometric to ellipsoid" << endl;
+				else
+					cout << "Ellipsoid to orthometric" << endl;
+			}
 		}
 
 		if (p.n.export_dna_geo_file)
 			cout << setw(PRINT_VAR_PAD) << left << "  Export to DNA geoid file: " << "Yes" << endl;
+
+		cout << endl;
+
+		if (vm.count(CONVERT_BST_HT))
+			cout << "- Warning: The '--" << CONVERT_BST_HT << "' option has been deprecated. Orthometric" << endl <<
+				"  heights in the binary file will be converted to ellipsoidal by default, " << endl <<
+			    "  unless the transformation direction has been modified by supplying the " << endl << 
+			    "  '--" << DIRECTION << "' option with an argument of 1." << endl;
 
 		cout << endl;
 	
@@ -1124,7 +1129,7 @@ int main(int argc, char* argv[])
 				}
 				else
 					cout << "To view the list of stations " << endl <<
-						"  for which a height could not be interpolated, call " << __BINARY_NAME__ << " with --verbose-level 1." << endl;
+						"  for which an N-value could not be interpolated, call " << __BINARY_NAME__ << " with --verbose-level 1." << endl;
 			}
 			// If this point is reached, then this wrapper must have been called
 			// to interpolate points in interactive mode.

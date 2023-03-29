@@ -45,8 +45,8 @@
 #include <include/functions/dnatemplatecalcfuncs.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/spirit/include/qi.hpp>
-#include <boost/spirit/include/phoenix_core.hpp>
-#include <boost/spirit/include/phoenix_operator.hpp>
+#include <boost/phoenix/core.hpp>
+#include <boost/phoenix/operator.hpp>
 
 using namespace std;
 using boost::spirit::qi::double_;

@@ -57,6 +57,14 @@
 #include <boost/math/distributions/normal.hpp>
 #include <boost/exception_ptr.hpp>
 
+#include <include/config/dnaexports.hpp>
+#include <include/config/dnaversion.hpp>
+#include <include/config/dnaconsts.hpp>
+#include <include/config/dnatypes.hpp>
+#include <include/config/dnatypes-gui.hpp>
+#include <include/config/dnaoptions-interface.hpp>
+#include <include/exception/dnaexception.hpp>
+
 #include <include/io/dnaiobst.hpp>
 #include <include/io/dnaiobms.hpp>
 #include <include/io/dnaiomap.hpp>
@@ -65,14 +73,7 @@
 #include <include/io/dnaioseg.hpp>
 #include <include/io/dnaioadj.hpp>
 #include <include/io/dnaiosnx.hpp>
-
-#include <include/config/dnaexports.hpp>
-#include <include/config/dnaversion.hpp>
-#include <include/config/dnaconsts.hpp>
-#include <include/config/dnatypes.hpp>
-#include <include/config/dnatypes-gui.hpp>
-#include <include/config/dnaoptions-interface.hpp>
-#include <include/exception/dnaexception.hpp>
+#include <include/io/dnaiotbu.hpp>
 
 #include <include/functions/dnatemplatematrixfuncs.hpp>
 #include <include/functions/dnatemplatestnmsrfuncs.hpp>
@@ -469,6 +470,7 @@ private:
 	void RemoveInvalidISLStations(vUINT32& v_ISLTemp);
 	void RemoveNonMeasurements(const UINT32& block);
 	void RemoveDuplicateStations(vUINT32& vStns);
+	void InitialiseTypeBUncertainties();
 	
 	// Adjusted measurement sorting
 	void SortMeasurementsbyType(v_uint32_u32u32_pair& msr_block);
@@ -794,10 +796,10 @@ private:
 	void PrintAdjMeasurements_YLLH(it_vmsr_t& _it_msr);
 	void ReduceYLLHMeasurementsforPrinting(vmsr_t& y_msr, matrix_2d& mpositions, printMeasurementsMode print_mode);
 
-	void PrintAdjStation(ostream& os, const UINT32& block, const UINT32& stn, const UINT32& mat_idx, const matrix_2d* stationEstimates, const matrix_2d* stationVariances, bool recomputeGeographicCoords, bool updateGeographicCoords);
-	void PrintAdjStations(ostream& os, const UINT32& block, const matrix_2d* stationEstimates, const matrix_2d* stationVariances, 
-		bool printBlockID, bool recomputeGeographicCoords, bool updateGeographicCoords, bool printHeader);
-	void PrintAdjStationsUniqueList(ostream& os, const v_mat_2d* stationEstimates, const v_mat_2d* stationVariances, bool recomputeGeographicCoords, bool updateGeographicCoords);
+	void PrintAdjStation(ostream& os, const UINT32& block, const UINT32& stn, const UINT32& mat_idx, const matrix_2d* stationEstimates, matrix_2d* stationVariances, bool recomputeGeographicCoords, bool updateGeographicCoords, bool reapplyTypeBUncertainties);
+	void PrintAdjStations(ostream& os, const UINT32& block, const matrix_2d* stationEstimates, matrix_2d* stationVariances, 
+		bool printBlockID, bool recomputeGeographicCoords, bool updateGeographicCoords, bool printHeader, bool reapplyTypeBUncertainties);
+	void PrintAdjStationsUniqueList(ostream& os, const v_mat_2d* stationEstimates, v_mat_2d* stationVariances, bool recomputeGeographicCoords, bool updateGeographicCoords, bool reapplyTypeBUncertainties);
 	
 	void PrintCorStations(ostream &cor_file, const UINT32& block);
 	void PrintCorStationsUniqueList(ostream& cor_file);
@@ -910,6 +912,11 @@ private:
 	vv_stn_appear			v_paramStnAppearance_;		// The appearance of stations in blocks
 	vUINT32					v_parameterStationCount_;
 	vvUINT32				v_parameterStationList_;	// Inner and Junction stations, sorted. See LoadSegmentationFile()
+
+	type_b_uncertainty		typeBUncertaintyGlobal_;	// Type B uncertainties to be applied to all stations
+	v_type_b_uncertainty	v_typeBUncertaintiesLocal_;	// Type B uncertainties to be applied to selected stations
+	v_type_b_method			v_typeBUncertaintyMethod_;	// How Type B uncertainties are to be handled for each station
+	v_uint32_uint32_pair	v_stationTypeBMap_;			// Maps station ID to the index of the local type B uncertainties vector
 	
 	// ----------------------------------------------
 	// Adjustment matrices for phased adjustment

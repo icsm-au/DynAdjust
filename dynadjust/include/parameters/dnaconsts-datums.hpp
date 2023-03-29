@@ -42,6 +42,8 @@ const UINT16 GDA2020_i_xyz =	7842;		// XYZ
 const UINT16 GDA2020_i =		7843;		// LatLonEht
 const UINT16 GDA2020_i_2d =		7844;		// LatLon
 
+const UINT16 ITRF2020_i_xyz =   9988;		// XYZ
+const UINT16 ITRF2020_i =       9989;		// LatLonEht
 const UINT16 ITRF2014_i_xyz =	7789;		// XYZ
 const UINT16 ITRF2014_i =		7912;		// LatLonEht
 const UINT16 ITRF2008_i_xyz =	5332;		// XYZ
@@ -98,6 +100,7 @@ const char* const GDA2020_c =		"7843";
 const char* const GDA2020_c_2d =	"7844";
 
 // epsg strings for ITRF provide XYZ definition only
+const char* const ITRF2020_c =		"9988";
 const char* const ITRF2014_c =		"7789";
 const char* const ITRF2008_c =		"5332";
 const char* const ITRF2005_c =		"4896";
@@ -127,6 +130,7 @@ const char* const AGD66_epoch =		"1.1.1966";
 const char* const AGD84_epoch =		"1.1.1984";
 const char* const GDA94_epoch =		"1.1.1994";
 const char* const GDA2020_epoch =	"1.1.2020";
+const char* const ITRF2020_epoch =	"1.1.2020";
 const char* const ITRF2014_epoch =	"1.1.2010";
 const char* const ITRF2008_epoch =	"1.1.2008";
 const char* const ITRF2005_epoch =	"1.1.2005";
@@ -156,6 +160,7 @@ const char* const AGD66_s =			"AGD66";
 const char* const AGD84_s =			"AGD84";
 const char* const GDA94_s =			"GDA94";
 const char* const GDA2020_s =		"GDA2020";
+const char* const ITRF2020_s =		"ITRF2020";
 const char* const ITRF2014_s =		"ITRF2014";
 const char* const ITRF2008_s =		"ITRF2008";
 const char* const ITRF2005_s =		"ITRF2005";

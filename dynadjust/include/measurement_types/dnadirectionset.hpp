@@ -48,9 +48,13 @@ public:
 	CDnaDirectionSet(void);
 	virtual ~CDnaDirectionSet(void);
 
+	// move constructor and move assignment operator
+	CDnaDirectionSet(CDnaDirectionSet&& d);
+	CDnaDirectionSet& operator=(CDnaDirectionSet&& rhs);
+
 private:
-	// disallowed in CDnaMeasurement
-	//CDnaDirectionSet(const CDnaDirectionSet&) {};
+	// disallow copying
+	//CDnaDirectionSet(const CDnaDirectionSet&);
 	//CDnaDirectionSet& operator=(const CDnaDirectionSet& rhs);
 
 public:
@@ -75,13 +79,11 @@ public:
 	inline double GetStdDev() const { return m_dStdDev; }
 	
 	inline size_t GetNumDirections() const { return m_vTargetDirections.size(); }
-	//inline vector<CDnaDirection> GetDirections() const { return m_vTargetDirections; }
 	inline vector<CDnaDirection>* GetDirections_ptr() { return &m_vTargetDirections; }
 
 	inline void SetClusterID(const UINT32& id) { m_lsetID = id; }
 	inline void SetTarget(const string& str) { m_strTarget = trimstr(str); }
 	inline void SetTotal(const UINT32& l) { m_lRecordedTotal = l; }
-	//inline void SetDirections(const vector<CDnaDirection>& d) { m_vTargetDirections = d; }
 
 	void SetTotal(const string& str);
 	void SetValue(const string& str);
@@ -89,19 +91,18 @@ public:
 	
 	void AddDirection(const CDnaMeasurement* pDirection);
 	void ClearDirections();
-	bool IsRepeatedDirection(string);
+	//bool IsRepeatedDirection(string);
 
 	virtual UINT32 CalcBinaryRecordCount() const;
 	virtual void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) const;
-	//virtual UINT32 SetMeasurementRec(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, measurement_t* measRecord);
-	virtual UINT32 SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr);
+	virtual UINT32 SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr, it_vdbid_t& dbidmap);
 	virtual void WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool) const;
 	virtual void WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool) const;
 	virtual void SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* ellipsoid);
 
 	virtual void SerialiseDatabaseMap(std::ofstream* os);
 
-	//virtual void SetDatabaseMap_bmsIndex(const UINT32& bmsIndex);
+	void SetDatabaseMaps(it_vdbid_t& dbidmap);
 
 	string m_strTarget;
 
@@ -111,6 +112,8 @@ protected:
 	UINT32 m_lRecordedTotal;
 	vector<CDnaDirection> m_vTargetDirections;
 	UINT32 m_lsetID;
+
+	it_vdbid_t m_dbidmap;
 };
 
 }	// namespace measurements

@@ -80,8 +80,6 @@ namespace po = boost::program_options;
 
 using namespace dynadjust::geoidinterpolation;
 
-void PrintHelp(string message, const options_description* options);
-void PrintVersion();
 bool CreateNTv2Grid(dna_geoid_interpolation* g, const char* dat_gridfilePath, const n_file_par* grid);
 bool createGridIndex(dna_geoid_interpolation* g, const char* gridfilePath, const char* gridfileType, const int& quiet);
 bool reportGridProperties(dna_geoid_interpolation* g, const char* gridfilePath, const char* gridfileType);

@@ -40,9 +40,11 @@ void Clusterpoint_pimpl::pre()
 	
 	_dnaGpsPoint->SetReferenceFrame(_parent_dnaGpsPointCluster->GetReferenceFrame());
 	_dnaGpsPoint->SetEpoch(_parent_dnaGpsPointCluster->GetEpoch()); 
-	
-	//_parent_dnaGpsPointCluster->SetFirst("");
-	//_parent_dnaGpsPointCluster->SetTarget("");
+		
+	_dnaGpsPoint->SetClusterDBID(
+		_parent_dnaGpsPointCluster->GetClusterDBID(),
+		_parent_dnaGpsPointCluster->GetClusterDBIDset());
+
 }
 
 void Clusterpoint_pimpl::X (const ::std::string& X)
@@ -75,7 +77,6 @@ void Clusterpoint_pimpl::Z (const ::std::string& Z)
 void Clusterpoint_pimpl::MeasurementDBID(const ::std::string& MeasurementID)
 {
 	_dnaGpsPoint->SetMeasurementDBID(MeasurementID);
-	_dnaGpsPoint->SetClusterDBID(_parent_dnaGpsPointCluster->GetClusterDBID());
 }
 
 
@@ -126,6 +127,10 @@ void Directions_pimpl::pre()
 {
 	_dnaDirection.reset(new CDnaDirection);
 	_dnaDirection->SetClusterID(_parent_dnaDirectionSet->GetClusterID());
+
+	_dnaDirection->SetClusterDBID(
+		_parent_dnaDirectionSet->GetClusterDBID(),
+		_parent_dnaDirectionSet->GetClusterDBIDset());
 }
 
 void Directions_pimpl::Ignore(const ::std::string& Ignore)
@@ -163,7 +168,6 @@ void Directions_pimpl::StdDev(const ::std::string& StdDev)
 void Directions_pimpl::MeasurementDBID(const ::std::string& MeasurementID)
 {
 	_dnaDirection->SetMeasurementDBID(MeasurementID);
-	_dnaDirection->SetClusterDBID(_parent_dnaDirectionSet->GetClusterDBID());
 }
 	
 
@@ -177,8 +181,14 @@ void Directions_pimpl::post_Directions(const UINT32& total)
 	else
 	{
 		UINT32 t = _parent_dnaDirectionSet->GetTotal() - 1;
+		_parent_dnaDirectionSet->SetTotal(t);
+
 		if (t == 0)
 		{
+			// Is the entire direction set ignored?
+			if (_parent_dnaDirectionSet->GetIgnore())
+				return;
+
 			stringstream ss, ss2;
 			ss << 
 				"<Directions>...</Directions>',  total of " << total << " element(s)" << endl <<
@@ -187,9 +197,7 @@ void Directions_pimpl::post_Directions(const UINT32& total)
 			throw ::xsd::cxx::parser::expected_element< char >(
 				ss.str(), ss2.str());
 		}
-		_parent_dnaDirectionSet->SetTotal(t);
 	}
-
 }
 
 // DnaMeasurement_pimpl
@@ -696,10 +704,21 @@ void DnaMeasurement_pimpl::post_DnaMeasurement()
 	if (!_dnaCurrentMsr)
 		throw XMLInteropException("\"Type\" element must be the first element within \"DnaMeasurement\".", 0);
 
+	UINT32 total, found;
+
+	// Is the direction set empty and ignored?
+	// If so, do nothing.
+	switch (_dnaCurrentMsr->GetTypeC())
+	{
+	case 'D':
+		total = _dnaCurrentMsr->GetTotal();
+		if (total == 0 && _dnaCurrentMsr->GetIgnore())
+			return;
+		break;
+	}
+
 	// Now that the measurement has completed, capture all essential elements
 	_vParentMsrs->push_back(_dnaCurrentMsr);
-
-	UINT32 total, found;
 
 	// set "First" to be that of the first in the set
 	switch (_dnaCurrentMsr->GetTypeC())
@@ -929,13 +948,12 @@ void GPSBaseline_pimpl::pre()
 	
 	_dnaGpsBaseline->SetClusterID(_parent_dnaGpsBaselineCluster->GetClusterID());
 
-	_dnaGpsBaseline->SetClusterDBID(_parent_dnaGpsBaselineCluster->GetClusterDBID());
-
+	_dnaGpsBaseline->SetClusterDBID(
+		_parent_dnaGpsBaselineCluster->GetClusterDBID(),
+		_parent_dnaGpsBaselineCluster->GetClusterDBIDset());
+	
 	if (_parent_dnaGpsBaselineCluster->GetType().empty())
 		throw XMLInteropException("\"Type\" element must be provided before \"GPSBaseline\" element.", 0);
-
-	//_parent_dnaGpsBaselineCluster->SetFirst("");
-	//_parent_dnaGpsBaselineCluster->SetTarget("");
 
 	// Is this a 'G' measurement
 	if (_parent_dnaGpsBaselineCluster->GetTypeC() != 'X')
@@ -1010,7 +1028,6 @@ void GPSBaseline_pimpl::Z(const ::std::string& Z)
 void GPSBaseline_pimpl::MeasurementDBID(const ::std::string& MeasurementID)
 {
 	_dnaGpsBaseline->SetMeasurementDBID(MeasurementID);
-	_dnaGpsBaseline->SetClusterDBID(_parent_dnaGpsBaselineCluster->GetClusterDBID());
 }
 
 void GPSBaseline_pimpl::SigmaXX(const ::std::string& SigmaXX)

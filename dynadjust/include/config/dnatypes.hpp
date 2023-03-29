@@ -326,7 +326,8 @@ typedef enum _INPUT_DATA_TYPE_
 	stn_msr_data = 2,
 	geo_data = 3,
 	ren_data = 4,
-	unknown = 5
+	tbu_data = 5,
+	unknown = 6
 } INPUT_DATA_TYPE;
 
 typedef enum _TIMER_TYPE_

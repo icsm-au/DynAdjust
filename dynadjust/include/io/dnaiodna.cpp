@@ -31,22 +31,22 @@ namespace dynadjust {
 namespace iostreams {
 
 void dna_io_dna::write_dna_files(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, 
-			const string& stnfilename, const string& msrfilename, 
+			const string& stnfilename, const string& msrfilename, const string& networkname,
 			const CDnaDatum& datum, const CDnaProjection& projection, bool flagUnused,
 			const string& stn_comment, const string& msr_comment)
 {
 
-	write_stn_file(vStations, stnfilename, datum, projection, flagUnused, stn_comment);
-	write_msr_file(vMeasurements, msrfilename, datum, msr_comment);
+	write_stn_file(vStations, stnfilename, networkname, datum, projection, flagUnused, stn_comment);
+	write_msr_file(vMeasurements, msrfilename, networkname, datum, msr_comment);
 }
 
 void dna_io_dna::write_dna_files(pvstn_t vbinary_stn, pvmsr_t vbinary_msr, 
-			const string& stnfilename, const string& msrfilename, 
+			const string& stnfilename, const string& msrfilename, const string& networkname,
 			const CDnaDatum& datum, const CDnaProjection& projection, bool flagUnused,
 			const string& stn_comment, const string& msr_comment)
 {
-	write_stn_file(vbinary_stn, stnfilename, datum, projection, flagUnused, stn_comment);
-	write_msr_file(*vbinary_stn, vbinary_msr, msrfilename, datum, msr_comment);
+	write_stn_file(vbinary_stn, stnfilename, networkname, datum, projection, flagUnused, stn_comment);
+	write_msr_file(*vbinary_stn, vbinary_msr, msrfilename, networkname, datum, msr_comment);
 }
 	
 void dna_io_dna::create_file_stn(std::ofstream* ptr, const string& filename)
@@ -91,7 +91,21 @@ void dna_io_dna::open_file_pointer(std::ifstream* ptr, const string& filename)
 	}
 }
 
-void dna_io_dna::write_stn_header(std::ofstream* ptr, vdnaStnPtr* vStations, 
+void dna_io_dna::write_stn_header_data(std::ofstream* ptr, const string& networkname, const string& datum,
+	const string& epoch, const size_t& count, const string& comment)
+{
+	// Write version line
+	dna_header(*ptr, "3.01", "STN", datum, epoch, count);
+
+	// Write comments
+	dna_comment(*ptr, "File type:    Station file");
+	dna_comment(*ptr, "Project name: " + networkname);
+
+	// Write header comment line, e.g. "Coordinates exported from reftran."
+	dna_comment(*ptr, comment);
+}
+
+void dna_io_dna::write_stn_header(std::ofstream* ptr, vdnaStnPtr* vStations, const string& networkname,
 			const CDnaDatum& datum, bool flagUnused, const string& comment)
 {
 	// print stations
@@ -109,15 +123,12 @@ void dna_io_dna::write_stn_header(std::ofstream* ptr, vdnaStnPtr* vStations,
 	else
 		count = vStations->size();
 
-	// Write version line
-	dna_header(*ptr, "3.01", "STN", datum.GetName(), datum.GetEpoch_s(), count);
-
-	// Write header comment line, e.g. "Coordinates exported from reftran."
-	dna_comment(*ptr, comment);
+	// write header
+	write_stn_header_data(ptr, networkname, datum.GetName(), datum.GetEpoch_s(), count, comment);	
 }
 	
 
-void dna_io_dna::write_stn_header(std::ofstream* ptr, pvstn_t vbinary_stn, 
+void dna_io_dna::write_stn_header(std::ofstream* ptr, pvstn_t vbinary_stn, const string& networkname,
 			const CDnaDatum& datum, bool flagUnused, const string& comment)
 {
 	// print stations
@@ -135,11 +146,8 @@ void dna_io_dna::write_stn_header(std::ofstream* ptr, pvstn_t vbinary_stn,
 	else
 		count = vbinary_stn->size();
 
-	// Write version line
-	dna_header(*ptr, "3.01", "STN", datum.GetName(), datum.GetEpoch_s(), count);
-
-	// Write header comment line, e.g. "Coordinates exported from reftran."
-	dna_comment(*ptr, comment);
+	// write header
+	write_stn_header_data(ptr, networkname, datum.GetName(), datum.GetEpoch_s(), count, comment);
 }
 	
 
@@ -210,7 +218,7 @@ void dna_io_dna::read_ren_data(std::ifstream* ptr, pv_string_vstring_pair stnRen
 			boost::enable_current_exception(runtime_error(ss.str()));
 		}		
 
-		// Alernative names
+		// Alternative names
 		altStnNames.clear();
 		UINT32 positionEndName(dsw_.stn_name+dsw_.stn_name);
 		UINT32 positionNextName(dsw_.stn_name);
@@ -425,7 +433,7 @@ void dna_io_dna::read_dna_header(std::ifstream* ptr, string& version, INPUT_DATA
 }
 
 
-void dna_io_dna::write_stn_file(pvstn_t vbinary_stn, const string& stnfilename,  
+void dna_io_dna::write_stn_file(pvstn_t vbinary_stn, const string& stnfilename, const string& networkname,
 				const CDnaDatum& datum, const CDnaProjection& projection, bool flagUnused,
 				const string& comment)
 {
@@ -437,7 +445,7 @@ void dna_io_dna::write_stn_file(pvstn_t vbinary_stn, const string& stnfilename,
 		create_file_stn(&dna_stn_file, stnfilename);
 
 		// Write header and comment
-		write_stn_header(&dna_stn_file, vbinary_stn, datum, flagUnused, comment);
+		write_stn_header(&dna_stn_file, vbinary_stn, networkname, datum, flagUnused, comment);
 
 		// Sort on original file order
 		prepare_sort_list(static_cast<UINT32>(vbinary_stn->size()));
@@ -482,7 +490,7 @@ void dna_io_dna::write_stn_file(pvstn_t vbinary_stn, const string& stnfilename,
 }
 	
 
-void dna_io_dna::write_stn_file(vdnaStnPtr* vStations, const string& stnfilename,  
+void dna_io_dna::write_stn_file(vdnaStnPtr* vStations, const string& stnfilename, const string& networkname,
 			const CDnaDatum& datum, const CDnaProjection& projection, bool flagUnused,
 			const string& comment)
 {
@@ -494,7 +502,7 @@ void dna_io_dna::write_stn_file(vdnaStnPtr* vStations, const string& stnfilename
 		create_file_stn(&dna_stn_file, stnfilename);
 
 		// Write header and comment
-		write_stn_header(&dna_stn_file, vStations, datum, flagUnused, comment);
+		write_stn_header(&dna_stn_file, vStations, networkname, datum, flagUnused, comment);
 
 		// Sort on original file order
 		sort(vStations->begin(), vStations->end(), CompareStnFileOrder_CDnaStn<CDnaStation>());
@@ -530,30 +538,39 @@ void dna_io_dna::write_stn_file(vdnaStnPtr* vStations, const string& stnfilename
 	}	
 }
 
-void dna_io_dna::write_msr_header(std::ofstream* ptr, vdnaMsrPtr* vMeasurements, 
-	const CDnaDatum& datum, const string& comment)
+void dna_io_dna::write_msr_header_data(std::ofstream* ptr, const string& networkname, const string& datum,
+	const string& epoch, const size_t& count, const string& comment)
 {
 	// Write version line
-	dna_header(*ptr, "3.01", "MSR", datum.GetName(), datum.GetEpoch_s(), vMeasurements->size());
+	dna_header(*ptr, "3.01", "MSR", datum, epoch, count);
+
+	// Write comments
+	dna_comment(*ptr, "File type:    Measurement file");
+	dna_comment(*ptr, "Project name: " + networkname);
 
 	// Write header comment line
 	dna_comment(*ptr, comment);
 
+}
+
+
+void dna_io_dna::write_msr_header(std::ofstream* ptr, vdnaMsrPtr* vMeasurements, const string& networkname,
+	const CDnaDatum& datum, const string& comment)
+{
+	// write header
+	write_msr_header_data(ptr, networkname, datum.GetName(), datum.GetEpoch_s(), vMeasurements->size(), comment);
 }
 	
 
-void dna_io_dna::write_msr_header(std::ofstream* ptr, pvmsr_t vbinary_msrn, 
+void dna_io_dna::write_msr_header(std::ofstream* ptr, pvmsr_t vbinary_msrn, const string& networkname,
 	const CDnaDatum& datum, const string& comment)
 {
-	// Write version line
-	dna_header(*ptr, "3.01", "MSR", datum.GetName(), datum.GetEpoch_s(), vbinary_msrn->size());
-
-	// Write header comment line
-	dna_comment(*ptr, comment);
+	// write header
+	write_msr_header_data(ptr, networkname, datum.GetName(), datum.GetEpoch_s(), vbinary_msrn->size(), comment);
 }
 
 
-void dna_io_dna::write_msr_file(const vstn_t& vbinary_stn, pvmsr_t vbinary_msr, const string& msrfilename, 
+void dna_io_dna::write_msr_file(const vstn_t& vbinary_stn, pvmsr_t vbinary_msr, const string& msrfilename, const string& networkname,
 	const CDnaDatum& datum, const string& comment)
 {
 	// Print DNA measurements	
@@ -562,19 +579,29 @@ void dna_io_dna::write_msr_file(const vstn_t& vbinary_stn, pvmsr_t vbinary_msr, 
 
 	it_vmsr_t _it_msr(vbinary_msr->begin());
 	dnaMsrPtr msrPtr;
+	size_t dbindex;
+	it_vdbid_t _it_dbid;
 
 	try {
 		// Create file pointer
 		create_file_msr(&dna_msr_file, msrfilename);
 
 		// Write header and comment
-		write_msr_header(&dna_msr_file, vbinary_msr, datum, comment);
+		write_msr_header(&dna_msr_file, vbinary_msr, networkname, datum, comment);
 
 		// print measurements
 		for (_it_msr=vbinary_msr->begin(); _it_msr!=vbinary_msr->end(); ++_it_msr)
 		{
 			ResetMeasurementPtr<char>(&msrPtr, _it_msr->measType);
-			msrPtr->SetMeasurementRec(vbinary_stn, _it_msr);
+
+			// Database IDs
+			if (m_databaseIDsSet_)
+			{
+				dbindex = std::distance(vbinary_msr->begin(), _it_msr);
+				_it_dbid = pv_msr_db_map_->begin() + dbindex;
+			}
+
+			msrPtr->SetMeasurementRec(vbinary_stn, _it_msr, _it_dbid);
 			msrPtr->WriteDNAMsr(&dna_msr_file, dmw_, dml_);
 		}
 
@@ -586,7 +613,7 @@ void dna_io_dna::write_msr_file(const vstn_t& vbinary_stn, pvmsr_t vbinary_msr, 
 	}
 }
 	
-void dna_io_dna::write_msr_file(vdnaMsrPtr* vMeasurements, const string& msrfilename, 
+void dna_io_dna::write_msr_file(vdnaMsrPtr* vMeasurements, const string& msrfilename, const string& networkname,
 	const CDnaDatum& datum,	const string& comment)
 {
 	// Print DNA measurements	
@@ -594,17 +621,27 @@ void dna_io_dna::write_msr_file(vdnaMsrPtr* vMeasurements, const string& msrfile
 	std::ofstream dna_msr_file;
 	
 	_it_vdnamsrptr _it_msr(vMeasurements->begin());
+	size_t dbindex;
+	it_vdbid_t _it_dbid;
 	
 	try {
 		// Create file pointer
 		create_file_msr(&dna_msr_file, msrfilename);
 
 		// Write header and comment
-		write_msr_header(&dna_msr_file, vMeasurements, datum, comment);
+		write_msr_header(&dna_msr_file, vMeasurements, networkname, datum, comment);
 
 		// print measurements
-		for (_it_msr=vMeasurements->begin(); _it_msr!=vMeasurements->end(); _it_msr++)
+		for (_it_msr = vMeasurements->begin(); _it_msr != vMeasurements->end(); _it_msr++)
+		{
+			// Get database IDs
+			dbindex = std::distance(vMeasurements->begin(), _it_msr);
+			_it_dbid = pv_msr_db_map_->begin() + dbindex;
+			_it_msr->get()->SetDatabaseMaps(_it_dbid);
+
+			// Write
 			_it_msr->get()->WriteDNAMsr(&dna_msr_file, dmw_, dml_);
+		}
 		
 		dna_msr_file.close();
 		
@@ -614,6 +651,15 @@ void dna_io_dna::write_msr_file(vdnaMsrPtr* vMeasurements, const string& msrfile
 	}
 	
 
+}
+
+void dna_io_dna::set_dbid_ptr(pv_msr_database_id_map pv_msr_db_map)
+{
+	pv_msr_db_map_ = pv_msr_db_map;
+	if (pv_msr_db_map->size() > 0)
+		m_databaseIDsSet_ = true;
+	else
+		m_databaseIDsSet_ = false;
 }
 
 
