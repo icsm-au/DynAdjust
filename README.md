@@ -1,6 +1,6 @@
 [![gitHub license](https://img.shields.io/badge/license-Apache-blue.svg)](https://raw.githubusercontent.com/icsm-au/DynAdjust/master/LICENSE)
 [![github releases](https://img.shields.io/github/v/release/icsm-au/DynAdjust)](https://github.com/icsm-au/DynAdjust/releases)
-[![github downloads](https://img.shields.io/github/downloads/icsm-au/DynAdjust/total)](https://github.com/icsm-au/DynAdjust/releases)
+[![github downloads](https://img.shields.io/github/downloads/icsm-au/DynAdjust/total)](https://tooomm.github.io/github-release-stats/?username=icsm-au&repository=DynAdjust&target=_blank)
 [![documentation (user's guide)](https://img.shields.io/badge/docs-usersguide-red.svg)](https://github.com/icsm-au/DynAdjust/raw/master/resources/DynAdjust%20Users%20Guide.pdf)
 [![lines of code](https://img.shields.io/tokei/lines/github/icsm-au/DynAdjust)](https://github.com/icsm-au/DynAdjust/tree/master/dynadjust)
 [![github issues](https://img.shields.io/github/issues/icsm-au/DynAdjust.svg)](https://github.com/icsm-au/DynAdjust/issues)
