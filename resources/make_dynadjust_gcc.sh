@@ -99,10 +99,10 @@ done
 # opt installation folder
 OPT_DYNADJUST_PATH=/opt/dynadjust
 OPT_DYNADJUST_GCC_PATH=/opt/dynadjust/gcc
-DYNADJUST_INSTALL_PATH=/opt/dynadjust/gcc/1_2_7
+DYNADJUST_INSTALL_PATH=/opt/dynadjust/gcc/1_2_8
 
 # version info
-_version="1.2.7"
+_version="1.2.8"
 
 echo -e "\n==========================================================================="
 echo -e "DynAdjust $_version build configuration options..."
