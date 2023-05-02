@@ -1207,13 +1207,13 @@ void CDnaProjectFile::LoadSettingSegment(const string& var, string& val)
 	{
 		if (val.empty())
 			return;
-		settings_.s.min_inner_stations = lexical_cast<UINT16, string>(val);
+		settings_.s.min_inner_stations = lexical_cast<UINT32, string>(val);
 	}
 	else if (iequals(var, SEG_THRESHOLD_STNS))
 	{
 		if (val.empty())
 			return;
-		settings_.s.max_total_stations = lexical_cast<UINT16, string>(val);
+		settings_.s.max_total_stations = lexical_cast<UINT32, string>(val);
 	}
 	else if (iequals(var, SEG_FORCE_CONTIGUOUS))
 	{

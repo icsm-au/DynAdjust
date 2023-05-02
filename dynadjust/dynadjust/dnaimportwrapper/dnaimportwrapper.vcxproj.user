@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>-n vic2ex vic2ex.orig.stn vic2ex.orig.msr -r gda94</LocalDebuggerCommandArguments>
-    <LocalDebuggerWorkingDirectory>$(DIST)_git_issues\measurement-id</LocalDebuggerWorkingDirectory>
+    <LocalDebuggerCommandArguments>-n testnet --import-contiguous-stn-msr 0</LocalDebuggerCommandArguments>
+    <LocalDebuggerWorkingDirectory>$(DIST)dcmp\new-plan-zone</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

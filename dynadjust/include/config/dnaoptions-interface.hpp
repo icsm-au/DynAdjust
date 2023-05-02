@@ -218,10 +218,12 @@ const char* const TEST_NEARBY_STNS = "search-nearby-stn";
 const char* const TEST_NEARBY_STN_DIST = "nearby-stn-buffer";
 const char* const TEST_SIMILAR_MSRS = "search-similar-msr";
 const char* const TEST_SIMILAR_GNSS_MSRS = "search-similar-gnss-msr";
+const char* const EXCLUDE_INSUFFICIENT_MSRS = "exclude-insufficient-msrs";
 const char* const IGNORE_SIMILAR_MSRS = "ignore-similar-msr";
 const char* const REMOVE_IGNORED_MSRS = "remove-ignored-msr";
 const char* const FLAG_UNUSED_STNS = "flag-unused-stations";
 const char* const IMPORT_SEG_BLOCK = "import-block-stn-msr";
+const char* const IMPORT_CONTIG_NET = "import-contiguous-stn-msr";
 
 const char* const PLOT_MSRS = "plot-msr-types";
 const char* const PLOT_MSRS_IGNORED = "plot-ignored-msrs";

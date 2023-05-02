@@ -332,6 +332,8 @@ public:
 	inline string GetEpsg() const { return m_epsgCode; }
 	inline string GetSource() const { return m_sourceFile; }
 
+	inline bool GetInsufficient() const { return m_bInsufficient; }
+
 	void SetType(const string& str);
 	inline void SetIgnore(const bool bval) { m_bIgnore = bval; }
 	inline void SetFirst(const string& str) { m_strFirst = trimstr(str); }
@@ -339,6 +341,8 @@ public:
 	inline void SetEpsg(const string& e) { m_epsgCode = trimstr(e); }
 	inline void SetSource(const string& source) { m_sourceFile = source; }
 	
+	inline void SetInsufficient(const bool bval) { m_bInsufficient = bval; }
+
 	inline void SetMsrIndex(const UINT32& order) { m_lmeasurementIndex = order; }
 	inline void SetStn1Index(const UINT32& order) { m_lstn1Index = order; }
 	inline void SetStn2Index(const UINT32& order) { m_lstn2Index = order; }
@@ -492,6 +496,8 @@ protected:
 	string	m_epoch;
 	
 	msr_database_id_map		m_msr_db_map;
+
+	bool	m_bInsufficient;
 };
 
 // In the event a new measurement type is added, ensure SUPPORTED_MSR_COUNT is

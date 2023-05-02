@@ -67,6 +67,9 @@ void PrintOutputFileHeaderInfo(std::ofstream* f_out, const string& out_file, pro
 		*f_out << setw(PRINT_VAR_PAD) << left << "Strip all measurements except:" << p->i.include_msrs << endl;
 	else if (!p->i.exclude_msrs.empty())
 		*f_out << setw(PRINT_VAR_PAD) << left << "Strip measurement types:" << p->i.exclude_msrs << endl;
+
+	if (p->i.exclude_insufficient_msrs == 1)
+		*f_out << setw(PRINT_VAR_PAD) << left << "Exclude insufficient measurements:" << "yes" << endl;
 	
 	if (p->i.search_nearby_stn)
 		*f_out << setw(PRINT_VAR_PAD) << left << "Search for nearby stations:" << "tolerance = " << p->i.search_stn_radius << "m" << endl;
@@ -93,11 +96,13 @@ void PrintOutputFileHeaderInfo(std::ofstream* f_out, const string& out_file, pro
 	}
 
 	if (!p->i.seg_file.empty())
-	{
 		*f_out << setw(PRINT_VAR_PAD) << left << "Segmentation file:" << system_complete(p->i.seg_file).string() << endl;
-		*f_out << setw(PRINT_VAR_PAD) << left << "Import stns & msrs from block: " << p->i.import_block_number << endl;
-	}
 
+	if (p->i.import_block)
+		*f_out << setw(PRINT_VAR_PAD) << left << "Import stns & msrs from block: " << p->i.import_block_number << endl;
+	else if (p->i.import_network)
+		*f_out << setw(PRINT_VAR_PAD) << left << "Import stns & msrs from network: " << p->i.import_network_number << endl;
+	
 	*f_out << OUTPUTLINE << endl << endl;
 }
 	
@@ -130,7 +135,7 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 		return EXIT_FAILURE;
 	}
 
-	if (!vm.count(IMPORT_FILE) && !vm.count(IMPORT_SEG_BLOCK) && !vm.count(SEG_FILE))
+	if (!vm.count(IMPORT_FILE) && !vm.count(IMPORT_SEG_BLOCK) && !vm.count(IMPORT_CONTIG_NET) && !vm.count(SEG_FILE))
 	{
 		cout << endl << "- Nothing to do - no files specified. " << endl << endl;  
 		return EXIT_FAILURE;
@@ -211,10 +216,25 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 	if (vm.count(SPLIT_CLUSTERS))
 		p.i.split_clusters = 1;
 
-	// User supplied segmentation file
-	if (vm.count(IMPORT_SEG_BLOCK))
-		p.i.import_block = 1;
+	if (vm.count(IMPORT_SEG_BLOCK) && vm.count(IMPORT_CONTIG_NET))
+	{
+		cout << endl << "- Error: Cannot import stations and measurements using both options" << endl << "  --" << IMPORT_SEG_BLOCK << " and --" << IMPORT_CONTIG_NET << "." << endl <<
+			"  Please supply only one option." << endl << endl;
+		return EXIT_FAILURE;
+	}
 
+	// Import stations and measurements from a block
+	if (vm.count(IMPORT_SEG_BLOCK))
+	{
+		p.i.import_block = 1;
+		if (p.i.import_block_number < 1)
+			p.i.import_block_number = 1;
+	}
+
+	// Import stations and measurements from a contiguous network
+	if (vm.count(IMPORT_CONTIG_NET))
+		p.i.import_network = 1;
+	
 	// User supplied segmentation file
 	if (vm.count(SEG_FILE))
 	{
@@ -239,6 +259,9 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 
 	if (vm.count(IGNORE_SIMILAR_MSRS))
 		p.i.ignore_similar_msr = 1;
+
+	if (vm.count(EXCLUDE_INSUFFICIENT_MSRS))
+		p.i.exclude_insufficient_msrs = 1;
 
 	if (vm.count(REMOVE_IGNORED_MSRS))
 		p.i.remove_ignored_msr = 1;
@@ -272,13 +295,19 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 
 	p.o._m2s_file = formPath<string>(p.g.output_folder, p.g.network_name, "m2s");	// measurement to stations table
 
-	// Create file name based on the provided block
+	// Create file name based on the provided block number or contiguous network number
 	string fileName(p.g.network_name);
 	if (p.i.import_block)
 	{
 		stringstream blk("");
 		blk << ".block-" << p.i.import_block_number;
 		fileName += blk.str();
+	}
+	else if (p.i.import_network)
+	{
+		stringstream net("");
+		net << ".network-" << p.i.import_network_number;
+		fileName += net.str();
 	}
 
 	// Export to dynaml?
@@ -576,11 +605,10 @@ void ExportStationsandMeasurements(dna_import* parserDynaML, const project_setti
 	}
 }
 
-int ImportSegmentedBlock(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, 
-		StnTally* parsestnTally, MsrTally* parsemsrTally, project_settings& p)
-{	
+int PrepareImportSegmentedData(project_settings& p, bool& userSuppliedSegFile)
+{
 	// Form default seg file path
-	bool userSuppliedSegFile(false);
+	userSuppliedSegFile = false;
 
 	// Has the user provided a segmentation file?
 	if (!p.i.seg_file.empty())
@@ -590,7 +618,7 @@ int ImportSegmentedBlock(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMs
 
 	if (!exists(p.i.seg_file))
 	{
-		cout << endl << "- Error: The required segmentation file does not exist:" << endl <<  
+		cout << endl << "- Error: The required segmentation file does not exist:" << endl <<
 			"         " << p.i.seg_file << endl << endl <<
 			"  Run  'segment " << p.g.network_name << "' to create a segmentation file" << endl << endl;
 		return EXIT_FAILURE;
@@ -598,14 +626,14 @@ int ImportSegmentedBlock(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMs
 
 	if (!exists(p.i.bst_file))
 	{
-		cout << endl << "- Error: The required binary station file does not exist:" << endl << 
+		cout << endl << "- Error: The required binary station file does not exist:" << endl <<
 			"         " << p.i.bst_file << endl << endl;
 		return EXIT_FAILURE;
 	}
 
 	if (!exists(p.i.bms_file))
 	{
-		cout << endl << "- Error: The required binary measurement file does not exist:" << endl << 
+		cout << endl << "- Error: The required binary measurement file does not exist:" << endl <<
 			"         " << p.i.bms_file << endl << endl;
 		return EXIT_FAILURE;
 	}
@@ -615,7 +643,7 @@ int ImportSegmentedBlock(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMs
 	{
 		if (last_write_time(p.i.seg_file) < last_write_time(p.i.bst_file) ||
 			last_write_time(p.i.seg_file) < last_write_time(p.i.bms_file))
-		{			
+		{
 			// Has import been run after the segmentation file was created?
 			binary_file_meta_t bst_meta, bms_meta;
 			dna_io_bst bst;
@@ -628,11 +656,11 @@ int ImportSegmentedBlock(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMs
 			bool bms_meta_import(iequals(bms_meta.modifiedBy, __import_app_name__) ||
 				iequals(bms_meta.modifiedBy, __import_dll_name__));
 
-			if ((bst_meta_import && (last_write_time(p.i.seg_file) < last_write_time(p.i.bst_file))) || 
+			if ((bst_meta_import && (last_write_time(p.i.seg_file) < last_write_time(p.i.bst_file))) ||
 				(bms_meta_import && (last_write_time(p.i.seg_file) < last_write_time(p.i.bms_file))))
 			{
 
-				cout << endl << endl << 
+				cout << endl << endl <<
 					"- Error: The raw stations and measurements have been imported after" << endl <<
 					"  the segmentation file was created:" << endl;
 
@@ -642,12 +670,24 @@ int ImportSegmentedBlock(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMs
 				cout << "   " << leafStr<string>(p.i.bst_file) << "  last modified on  " << ctime(&t_bst);
 				cout << "   " << leafStr<string>(p.i.bms_file) << "  last modified on  " << ctime(&t_bms) << endl;
 				cout << "   " << leafStr<string>(p.i.seg_file) << "  created on  " << ctime(&t_seg) << endl;
-				cout << "  Run 'segment " << p.g.network_name << " [options]' to re-create the segmentation file, or re-run" << endl << 
+				cout << "  Run 'segment " << p.g.network_name << " [options]' to re-create the segmentation file, or re-run" << endl <<
 					"  the import using the " << SEG_FILE << " option if this segmentation file must\n  be used." << endl << endl;
 				return EXIT_FAILURE;
 			}
 		}
 	}
+
+	return EXIT_SUCCESS;
+}
+
+int ImportSegmentedBlock(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, 
+		StnTally* parsestnTally, MsrTally* parsemsrTally, project_settings& p)
+{	
+	// Form default seg file path
+	bool userSuppliedSegFile(false);
+
+	if (PrepareImportSegmentedData(p, userSuppliedSegFile) != EXIT_SUCCESS)
+		return EXIT_FAILURE;
 
 	// Import stations and measurements from a particular block
 	if (!p.g.quiet)
@@ -664,6 +704,32 @@ int ImportSegmentedBlock(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMs
 
 	return EXIT_SUCCESS;
 }
+
+int ImportContiguousNetwork(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements,
+	StnTally* parsestnTally, MsrTally* parsemsrTally, project_settings& p)
+{
+	// Form default seg file path
+	bool userSuppliedSegFile(false);
+
+	if (PrepareImportSegmentedData(p, userSuppliedSegFile) != EXIT_SUCCESS)
+		return EXIT_FAILURE;
+
+	// Import stations and measurements from a particular block
+	if (!p.g.quiet)
+		cout << endl << "+ Importing stations and measurements from contiguous network " << p.i.import_network_number << " of\n  " << p.i.seg_file << "... ";
+	parserDynaML.ImportStnsMsrsFromNetwork(vStations, vMeasurements, p);
+	*parsestnTally += parserDynaML.GetStnTally();
+	*parsemsrTally += parserDynaML.GetMsrTally();
+	if (!p.g.quiet)
+		cout << "Done. " << endl;
+
+	// Restore seg_file to null
+	if (!userSuppliedSegFile)
+		p.i.seg_file = "";
+
+	return EXIT_SUCCESS;
+}
+	
 
 int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements,
 		vdnaStnPtr* vstationsTotal, vdnaMsrPtr* vmeasurementsTotal,
@@ -938,6 +1004,8 @@ int main(int argc, char* argv[])
 				"Allow bounding-box or get-stns-and-assoc-msrs to split GNSS point and baseline cluster measurements.")
 			(IMPORT_SEG_BLOCK, value<UINT32>(&p.i.import_block_number),
 				"Extract stations and measurements from this block.")
+			(IMPORT_CONTIG_NET, value<UINT32>(&p.i.import_network_number),
+				"Extract stations and measurements from this contiguous network.")
 			(SEG_FILE, value<string>(&p.i.seg_file),
 				"Network segmentation input file. Filename overrides network name.")
 			(PREFER_X_MSR_AS_G,
@@ -959,6 +1027,8 @@ int main(int argc, char* argv[])
 				"Search and provide warnings for GNSS baselines (G) and baseline clusters (X) which appear to have been derived from the same source data.")
 			(TEST_SIMILAR_MSRS,
 				"Search and provide warnings for similar measurements.")
+			(EXCLUDE_INSUFFICIENT_MSRS,
+				"Exclude measurements which do not sufficiently constrain a station in two dimensions.")
 			(IGNORE_SIMILAR_MSRS,
 				"Ignore similar measurements.")
 			(REMOVE_IGNORED_MSRS,
@@ -1215,8 +1285,15 @@ int main(int argc, char* argv[])
 		
 		if (p.i.import_block)
 		{
-			cout << setw(PRINT_VAR_PAD) << left << "  Segmentation file: " << p.i.seg_file << endl;
+			if (!p.i.seg_file.empty())
+				cout << setw(PRINT_VAR_PAD) << left << "  Segmentation file: " << p.i.seg_file << endl;
 			cout << setw(PRINT_VAR_PAD) << left << "  Import stns & msrs from block: " << p.i.import_block_number << endl;
+		}
+		else if (p.i.import_network)
+		{
+			if (!p.i.seg_file.empty())
+				cout << setw(PRINT_VAR_PAD) << left << "  Segmentation file: " << p.i.seg_file << endl;
+			cout << setw(PRINT_VAR_PAD) << left << "  Import stns & msrs from network: " << p.i.import_network_number << endl;
 		}
 
 		if (!p.i.scalar_file.empty())
@@ -1314,9 +1391,26 @@ int main(int argc, char* argv[])
 	// Import network information based on a segmentation block?
 	if (p.i.import_block)
 	{
+		imp_file << "+ Extracting stations and measurements from segmented block " << 
+			p.i.import_block_number << "... ";
+		
 		if (ImportSegmentedBlock(parserDynaML, &vstationsTotal, &vmeasurementsTotal, 
 			&parsestnTally, &parsemsrTally, p) != EXIT_SUCCESS)
 			return EXIT_FAILURE;
+
+		imp_file << "Done." << endl;
+	}
+	// Import network information based on a contiguous network?
+	else if (p.i.import_network)
+	{
+		imp_file << "+ Extracting stations and measurements from contiguous network " <<
+			p.i.import_network_number << "... ";
+		
+		if (ImportContiguousNetwork(parserDynaML, &vstationsTotal, &vmeasurementsTotal,
+			&parsestnTally, &parsemsrTally, p) != EXIT_SUCCESS)
+			return EXIT_FAILURE;
+
+		imp_file << "Done." << endl;
 	}
 	// Import data as normal
 	else
@@ -1341,6 +1435,74 @@ int main(int argc, char* argv[])
 		ss << "- Error: ";
 		cout << ss.str() << e.what() << endl;
 		return EXIT_FAILURE;
+	}
+
+	vstring vPoorlyConstrainedStns;
+
+	// Exclude measurements that do not sufficiently (in themselves) allow for a station to be estimated
+	if (p.i.exclude_insufficient_msrs == 1)
+	{
+		size_t msrCount = vmeasurementsTotal.size();
+		if (!p.g.quiet)
+		{
+			cout << "+ Identifying stations with insufficient measurements";
+			cout.flush();
+		}
+		imp_file << "+ Identifying stations with insufficient measurements...";
+		parserDynaML.IgnoreInsufficientMeasurements(&vstationsTotal, &vmeasurementsTotal, &vPoorlyConstrainedStns);
+		if (!p.g.quiet)
+		{
+			cout << " Done. " << endl;
+			if (msrCount > vmeasurementsTotal.size())
+				cout << "+ Removed " << (msrCount - vmeasurementsTotal.size()) << " measurements which alone do not sufficiently allow for" << endl <<
+					"  the estimation of 2D coordinates." << endl;
+
+		}
+		imp_file << " Done. " << endl;
+		if (msrCount > vmeasurementsTotal.size())
+			imp_file << "+ Removed " << (msrCount - vmeasurementsTotal.size()) << " measurements which alone do not sufficiently allow for" << endl <<
+				"  the estimation of 2D coordinates." << endl;
+
+		if (!vPoorlyConstrainedStns.empty())
+		{
+			if (vPoorlyConstrainedStns.size() == 1)
+			{
+				if (p.g.verbose > 2)
+				{
+					if (!p.g.quiet)
+						cout << "- Warning: station " << vPoorlyConstrainedStns.at(0) << " is not associated with sufficient measurements." << endl;
+					imp_file << "- Warning: station " << vPoorlyConstrainedStns.at(0) << " is not associated with sufficient measurements." << endl;
+				}
+				else
+				{
+					if (!p.g.quiet)
+						cout << "- Warning: 1 station is not associated with sufficient measurements." << endl;
+					imp_file << "- Warning: 1 station is not associated with sufficient measurements." << endl;
+				}
+			}
+			else
+			{
+				if (p.g.verbose > 2)
+				{
+					if (!p.g.quiet)
+						cout << "- Warning: The following " << vPoorlyConstrainedStns.size() << " stations are not associated with sufficient measurements." << endl;
+					imp_file << "- Warning: The following " << vPoorlyConstrainedStns.size() << " stations are not associated with sufficient measurements." << endl;
+					_it_vstr poorly;
+					for (poorly = vPoorlyConstrainedStns.begin(); poorly != vPoorlyConstrainedStns.end(); poorly++)
+					{
+						if (!p.g.quiet)
+							outputObject(string("  - " + *poorly + "\n"), cout);
+						outputObject(string("  - " + *poorly + "\n"), imp_file);
+					}
+				}
+				else
+				{
+					if (!p.g.quiet)
+						cout << "- Warning: " << vPoorlyConstrainedStns.size() << " stations are not associated with sufficient measurements." << endl;
+					imp_file << "- Warning: " << vPoorlyConstrainedStns.size() << " stations are not associated with sufficient measurements." << endl;
+				}
+			}
+		}
 	}
 
 	// Remove ignored measurements (if supplied)
@@ -1389,11 +1551,11 @@ int main(int argc, char* argv[])
 	}
 
 	// Reduce stations.
-	// But, only reduce stations if not importing for a segmentation block
-	// The reason stations are not reduced if IMPORT_SEG_BLOCK has been set is
+	// But, only reduce stations if not importing for a segmentation block or network
+	// The reason stations are not reduced if IMPORT_SEG_BLOCK or IMPORT_CONTIG_NET has been set is
 	// because stations in the binary file will have already been reduced
 	// on last import!
-	if (p.i.import_block == 0 && vstationsTotal.size())
+	if (p.i.import_block == 0 && p.i.import_network == 0 && vstationsTotal.size())
 	{
 		// reduce stations (e.g. convert from UTM to LLH)
 		try {
@@ -1552,7 +1714,7 @@ int main(int argc, char* argv[])
 	//
 	if ((stnCount + msrCount) > 0)
 	{
-		if (p.i.import_block)
+		if (p.i.import_block || p.i.import_network)
 		{
 			if (!p.g.quiet)
 				cout << "+ Binary file ";
@@ -1638,7 +1800,7 @@ int main(int argc, char* argv[])
 	}
 
 	// Apply GNSS scaling (if required)
-	if (p.i.import_block != 1 && p.i.apply_scaling)
+	if (p.i.import_block == 0 && p.i.import_network == 0 && p.i.apply_scaling)
 	{
 		// Apply scaling
 		try {
@@ -1675,38 +1837,46 @@ int main(int argc, char* argv[])
 		imp_file << endl << "- Warning: " << f.what() << endl;
 	}
 
-	// Prepare file names if importing from a segmentation block
-	if (p.i.import_block)
+	// Prepare file names if importing from a segmentation block or contiguous network
+	if (p.i.import_block == 1 || p.i.import_network == 1)
 	{
-		stringstream blk("");
-		blk << ".block-" << p.i.import_block_number;
+		stringstream modifier("");
+		if (p.i.import_block == 1)
+			modifier << ".block-" << p.i.import_block_number;
+		else if (p.i.import_network == 1)
+			modifier << ".network-" << p.i.import_network_number;
 
 		// create new output file names based on block number
 		// reform file name for each so as to preserve full path for each file
 		stringstream ss("");
 		ss << formPath<string>(path(p.i.bst_file).parent_path().generic_string(), path(p.i.bst_file).stem().generic_string());
-		ss << blk.str() << ".bst";
+		ss << modifier.str() << ".bst";
 		p.i.bst_file = ss.str();
 
 		ss.str("");
 		ss << formPath<string>(path(p.i.bms_file).parent_path().generic_string(), path(p.i.bms_file).stem().generic_string());
-		ss << blk.str() << ".bms";
+		ss << modifier.str() << ".bms";
 		p.i.bms_file = ss.str();
 
 		ss.str("");
 		ss << formPath<string>(path(p.i.asl_file).parent_path().generic_string(), path(p.i.asl_file).stem().generic_string());
-		ss << blk.str() << ".asl";
+		ss << modifier.str() << ".asl";
 		p.i.asl_file = ss.str();
 
 		ss.str("");
 		ss << formPath<string>(path(p.i.aml_file).parent_path().generic_string(), path(p.i.aml_file).stem().generic_string());
-		ss << blk.str() << ".aml";
+		ss << modifier.str() << ".aml";
 		p.i.aml_file = ss.str();
 
 		ss.str("");
 		ss << formPath<string>(path(p.i.map_file).parent_path().generic_string(), path(p.i.map_file).stem().generic_string());
-		ss << blk.str() << ".map";
+		ss << modifier.str() << ".map";
 		p.i.map_file = ss.str();
+
+		ss.str("");
+		ss << formPath<string>(path(p.i.map_file).parent_path().generic_string(), path(p.i.map_file).stem().generic_string());
+		ss << ".dbid";
+		p.i.dbid_file = ss.str();
 	}
 
 	// Remove duplicate stations. If required, test nearby stations
@@ -1909,7 +2079,7 @@ int main(int argc, char* argv[])
 	}
 
 	// Import DNA geoid file
-	if (p.i.import_geo_file && p.i.import_block == 0 && vstationsTotal.size())
+	if (p.i.import_geo_file && p.i.import_block == 0 && p.i.import_network == 0 && vstationsTotal.size())
 	{
 		if (!exists(p.i.geo_file))
 		{
@@ -1950,7 +2120,8 @@ int main(int argc, char* argv[])
 			}
 			imp_file << "+ Mapping measurements to stations... ";
 			
-			parserDynaML.MapMeasurementStations((vdnaMsrPtr*) &vmeasurementsTotal,	&associatedSL, &mapCount, &vunusedStations, &vignoredMeasurements);
+			parserDynaML.MapMeasurementStations((vdnaMsrPtr*) &vmeasurementsTotal,	&associatedSL, &mapCount, 
+				&vunusedStations, &vignoredMeasurements);
 			
 			if (!p.g.quiet)
 				cout << "Done." << endl;
@@ -2004,6 +2175,7 @@ int main(int argc, char* argv[])
 					}
 				}
 			}
+
 			if (msrRead < mapCount && vignoredMeasurements.empty())
 			{
 				if (!p.g.quiet)
@@ -2300,9 +2472,21 @@ int main(int argc, char* argv[])
 		return EXIT_FAILURE;
 	}
 
+
 	// Serialise database ids
-	string dbid_file = formPath<string>(p.g.output_folder, p.g.network_name, "dbid");
-	parserDynaML.SerialiseDatabaseId(dbid_file, &vmeasurementsTotal);
+	if (p.i.import_block == 1 || p.i.import_network == 1)
+	{
+		// dbid_file filename formed earlier
+		parserDynaML.SerialiseDatabaseId(p.i.dbid_file, &vmeasurementsTotal);
+	}
+	else
+	{
+		p.i.dbid_file = formPath<string>(p.g.output_folder, p.g.network_name, "dbid");
+		parserDynaML.SerialiseDatabaseId(p.i.dbid_file, &vmeasurementsTotal);
+	}
+
+
+	
 
 	// Export stations and measurements
 	try {
