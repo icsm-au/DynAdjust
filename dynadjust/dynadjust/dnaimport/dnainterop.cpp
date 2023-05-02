@@ -4052,7 +4052,7 @@ void dna_import::ImportStnsMsrsFromBlock(vdnaStnPtr* vStations, vdnaMsrPtr* vMea
 	it_vmsr_t it_msr;
 	size_t dbindex;
 	it_vdbid_t it_dbid;
-	UINT32 advanceBy(0), msr_no(0);
+	UINT32 msr_no(0);
 
 	RemoveNonMeasurements(p.i.import_block_number-1, &binaryMsr);
 
