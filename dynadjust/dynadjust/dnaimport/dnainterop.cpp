@@ -3892,7 +3892,7 @@ void dna_import::ImportStnsMsrsFromNetwork(vdnaStnPtr* vStations, vdnaMsrPtr* vM
 	it_vmsr_t it_msr;
 	size_t dbindex;
 	it_vdbid_t it_dbid;
-	UINT32 advanceBy(0), msr_no(0);
+	UINT32 msr_no(0);
 
 	segmentedBlock = 0;
 
