@@ -129,7 +129,10 @@ void CDnaHeightDifference::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_
 	*dna_stream << setw(dmw.msr_targ2) << " ";
 	*dna_stream << right << setw(dmw.msr_linear) << fixed << setprecision(4) << m_dValue;	// linear measurement value
 	*dna_stream << setw(dmw.msr_ang_d + dmw.msr_ang_m + dmw.msr_ang_s) << " ";
-	*dna_stream << setw(dmw.msr_stddev) << fixed << setprecision(6) << m_dStdDev;
+	
+	UINT32 m_stdDevPrec(3); // note change from 6 decimal places to 3
+	*dna_stream << setw(dmw.msr_stddev) << StringFromTW(m_dStdDev, dmw.msr_stddev, m_stdDevPrec);
+	//*dna_stream << setw(dmw.msr_stddev) << fixed << setprecision(6) << m_dStdDev;
 
 	*dna_stream << setw(dml.msr_gps_epoch - dml.msr_inst_ht) << " ";
 	*dna_stream << setw(dmw.msr_gps_epoch) << m_epoch;

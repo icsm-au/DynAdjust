@@ -121,8 +121,8 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 	if (vm.count(TEST_INTEGRITY))
 		p.i.test_integrity = 1;
 
-	if (vm.count(SEG_FORCE_CONTIGUOUS))
-		p.s.force_contiguous_blocks = 1;
+	//if (vm.count(SEG_FORCE_CONTIGUOUS))
+	//	p.s.force_contiguous_blocks = 1;
 
 	return EXIT_SUCCESS;
 }
@@ -176,10 +176,10 @@ int main(int argc, char* argv[])
 				"Look for a .net file containing stations to be incorporated within the first block.")
 			(SEG_STARTING_STN, value<string>(&p.s.seg_starting_stns),
 				"Additional stations to be incorporated within the first block. arg is a comma delimited string \"stn1, stn 2,stn3 , stn 4\".")
-			(SEG_MIN_INNER_STNS, value<UINT16>(&p.s.min_inner_stations),
+			(SEG_MIN_INNER_STNS, value<UINT32>(&p.s.min_inner_stations),
 				(string("Minimum number of inner stations within each block. Default is ")+
 					StringFromT(p.s.min_inner_stations)+string(".")).c_str())
-			(SEG_THRESHOLD_STNS, value<UINT16>(&p.s.max_total_stations),
+			(SEG_THRESHOLD_STNS, value<UINT32>(&p.s.max_total_stations),
 				(string("Threshold limit for maximum number of stations per block. Default is ")+
 					StringFromT(p.s.max_total_stations)+string(".")).c_str())
 			(SEG_FORCE_CONTIGUOUS, value<UINT16>(&p.s.force_contiguous_blocks),

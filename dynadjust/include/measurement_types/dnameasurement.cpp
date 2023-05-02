@@ -359,6 +359,7 @@ CDnaMeasurement::CDnaMeasurement()
 	, m_preAdjCorr(0)
 	, m_epsgCode(DEFAULT_EPSG_S)
 	, m_epoch("")
+	, m_bInsufficient(false)
 {
 }
 	
@@ -389,6 +390,8 @@ CDnaMeasurement::CDnaMeasurement(CDnaMeasurement&& m)
 	m_epsgCode = m.m_epsgCode;
 
 	m_msr_db_map = m.m_msr_db_map;
+
+	m_bInsufficient = m.m_bInsufficient;
 }
 
 // move assignment operator
@@ -417,6 +420,8 @@ CDnaMeasurement& CDnaMeasurement::operator= (CDnaMeasurement&& rhs)
 	m_epsgCode = rhs.m_epsgCode;
 
 	m_msr_db_map = rhs.m_msr_db_map;
+
+	m_bInsufficient = rhs.m_bInsufficient;
 
 	return *this;
 }

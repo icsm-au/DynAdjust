@@ -188,13 +188,13 @@ public:
 		, export_single_xml_file(0), prefer_single_x_as_g(0), export_asl_file(0), export_aml_file(0), export_map_file(0)
 		, export_dna_files(0), export_discont_file(0), import_geo_file(0), simulate_measurements(0), split_clusters(0), include_transcending_msrs(0)
 		, apply_scaling(0), map_file(""), asl_file(""), aml_file(""), bst_file(""), bms_file("")
-		, dst_file(""), dms_file(""), imp_file(""), geo_file(""), seg_file("")
+		, dst_file(""), dms_file(""), imp_file(""), geo_file(""), seg_file(""), dbid_file("")
 		, xml_outfile(""), xml_stnfile(""), xml_msrfile(""), dna_stnfile(""), dna_msrfile(""), stn_renamingfile("")
 		, stn_discontinuityfile(""), simulate_msrfile("")
 		, include_msrs(""), exclude_msrs(""), bounding_box(""), stn_associated_msr_include(""), stn_associated_msr_exclude("")
 		, rename_stations(0), apply_discontinuities(0), search_nearby_stn(0)
 		, search_similar_msr(0), search_similar_msr_gx(0), ignore_similar_msr(0), remove_ignored_msr(0)
-		, flag_unused_stn(0), import_block(0), import_block_number(0)
+		, flag_unused_stn(0), exclude_insufficient_msrs(0), import_block(0), import_block_number(0), import_network(0), import_network_number(0)
 		, cluster_id(0), msr_id(0), search_stn_radius(STN_SEARCH_RADIUS)
 		, vscale(1.), pscale(1.), lscale(1.), hscale(1.), scalar_file("")
 		, command_line_arguments("") 
@@ -258,6 +258,7 @@ public:
 	string		imp_file;					// import log file
 	string		geo_file;					// Geoid file to use on import
 	string		seg_file;					// Segmentation input file
+	string		dbid_file;					// Database ID file
 	string		xml_outfile;				// Create DynaML output file (combined stn and msr)
 	string		xml_stnfile;				// DynaML station file
 	string		xml_msrfile;				// DynaML measurement file
@@ -279,8 +280,11 @@ public:
 	UINT16		ignore_similar_msr;			// Ignore duplicate measurements
 	UINT16		remove_ignored_msr;			// Remove ignored measurements
 	UINT16		flag_unused_stn;			// Mark unused stations in binary file.  Stations marked will be excluded from any further processing.
+	UINT16		exclude_insufficient_msrs;	// Exclude measurements to stations which do not sufficiently constrain a station in 2D
 	UINT16		import_block;				// Import stations and measurements from a segmented block
 	UINT32		import_block_number;		// Import from this block
+	UINT16		import_network;				// Import stations and measurements from a contiguous network
+	UINT32		import_network_number;		// Import from this network ID (i.e. a contiguous network)
 	UINT32		cluster_id;					// Index of the first available cluster id 
 	UINT32		msr_id;						// Index of the first available measurement id
 	double		search_stn_radius;			// Radius of the circle within which to search for nearby stations
@@ -368,10 +372,10 @@ public:
 struct segment_settings : private boost::equality_comparable<segment_settings> {
 public:
 	segment_settings()
-		: test_integrity(0), min_inner_stations(5), max_total_stations(65), seg_search_level(0)
+		: test_integrity(0), min_inner_stations(150), max_total_stations(150), seg_search_level(0)
 		, display_block_network(1), view_block_on_segment(1), show_segment_summary(0), print_segment_debug(0)
 		, force_contiguous_blocks(1), map_file(""), asl_file(""), aml_file("")
-		, bst_file(""), bms_file(""), seg_file(""), sap_file(""), net_file(""), seg_starting_stns("") 
+		, bst_file(""), bms_file(""), seg_file(""), sap_file(""), net_file(""), seg_starting_stns("")
 		, command_line_arguments("") {}
 
 private:
@@ -390,8 +394,8 @@ private:
 
 public:
 	UINT16		test_integrity;				// Test integrity of network
-	UINT16		min_inner_stations;			// Minumum number of inner stations per block
-	UINT16		max_total_stations;			// Maxumum number of total stations per block
+	UINT32		min_inner_stations;			// Minumum number of inner stations per block
+	UINT32		max_total_stations;			// Maxumum number of total stations per block
 	UINT16		seg_search_level;			// Level to which searches should be conducted to look for lowest station count
 	UINT16		display_block_network;		// display block/network in GUI
 	UINT16		view_block_on_segment;		// view blocks after segmentation

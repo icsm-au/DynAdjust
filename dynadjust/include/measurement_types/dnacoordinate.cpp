@@ -131,7 +131,10 @@ void CDnaCoordinate::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields
 	*dna_stream << setw(dmw.msr_targ2) << " ";	// second target
 	*dna_stream << right << setw(dmw.msr_linear) << fixed << setprecision(9) << RadtoDms(m_drValue);	// linear measurement value
 	*dna_stream << setw(dmw.msr_ang_d + dmw.msr_ang_m + dmw.msr_ang_s) << " ";
-	*dna_stream << setw(dmw.msr_stddev) << fixed << setprecision(6) << Seconds(m_dStdDev);
+
+	UINT32 m_stdDevPrec(6);
+	*dna_stream << setw(dmw.msr_stddev) << StringFromTW(Seconds(m_dStdDev), dmw.msr_stddev, m_stdDevPrec);
+	//*dna_stream << setw(dmw.msr_stddev) << fixed << setprecision(6) << Seconds(m_dStdDev);
 
 	*dna_stream << setw(dml.msr_gps_epoch - dml.msr_inst_ht) << " ";
 	*dna_stream << setw(dmw.msr_gps_epoch) << m_epoch;

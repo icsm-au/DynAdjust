@@ -1230,6 +1230,37 @@ public:
 	}
 };
 
+// M = CDnaMeasurement, U = UINT32
+template<typename M>
+class CompareInsufficientClusterMeas
+{
+public:
+	CompareInsufficientClusterMeas() {}
+	bool operator()(const M& msr) {
+		return msr.GetInsufficient();
+	}
+	bool operator()(const M& lhs, const M& rhs) {
+		return lhs.GetInsufficient() < rhs.GetInsufficient();
+	}
+};
+
+
+// M = CDnaGpsPoint or CDnaGpsBaseline (derived from CDnaMeasurement), U = UINT32
+template<typename M>
+class CompareInsufficientMsr
+{
+public:
+	CompareInsufficientMsr() {}
+	bool operator()(const boost::shared_ptr<M> msr) {
+		return msr->GetInsufficient();
+	}
+	bool operator()(const boost::shared_ptr<M> lhs, const boost::shared_ptr<M> rhs) {
+		if (lhs->GetInsufficient() == rhs->GetInsufficient())
+			return lhs->GetFirst() < rhs->GetFirst();
+		return lhs->GetInsufficient() < rhs->GetInsufficient();
+	}
+};
+
 // M = CDnaGpsPoint or CDnaGpsBaseline (derived from CDnaMeasurement), U = UINT32
 template<typename M>
 class CompareEmptyClusterMeas

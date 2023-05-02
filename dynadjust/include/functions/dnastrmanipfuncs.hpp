@@ -210,7 +210,7 @@ string StringFromTW(const T& t, const U& width, const U& precision=0)
 		// scientific notation requires 6 or 5
 		// characters (e.g. -1e+00 or 1e+00), not
 		// including the fractional part
-		if (width < (t < 0. ? 6 : 5))
+		if (width < UINT32(t < 0. ? 6 : 5))
 		{
 			// insufficient space for scientific notation!!!
 			ss << setw(width) << string(width, '#');

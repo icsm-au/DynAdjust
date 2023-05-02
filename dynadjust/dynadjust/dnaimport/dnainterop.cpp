@@ -55,6 +55,8 @@ boost::mutex import_file_mutex;
 dna_import::dna_import()
 	: percentComplete_(-99.)
 	, isProcessing_(false)
+	, databaseIDsLoaded_(false)
+	, databaseIDsSet_(false)
 {
 	ifsInputFILE_ = 0;
 	g_fileOrder = 0;
@@ -3056,7 +3058,6 @@ void dna_import::IncludeMeasurementTypes(const string& includeMsrs, vdnaMsrPtr* 
 
 	*parsemsrTally = msrtallyTmp;
 }
-	
 
 void dna_import::ExcludeMeasurementTypes(const string& excludeMsrs, vdnaMsrPtr* vMeasurements, MsrTally* parsemsrTally)
 {
@@ -3727,7 +3728,7 @@ void dna_import::LoadNetworkFiles(pvstn_t binaryStn, pvmsr_t binaryMsr,
 
 	LoadBinaryFiles(binaryStn, binaryMsr);
 	if (loadSegmentFile)
-		LoadSegmentationFile();
+		LoadSegmentationFile(binaryMsr);
 }
 
 void dna_import::LoadBinaryFiles(pvstn_t binaryStn, pvmsr_t binaryMsr)
@@ -3749,7 +3750,7 @@ void dna_import::LoadBinaryFiles(pvstn_t binaryStn, pvmsr_t binaryMsr)
 	}	
 }
 
-void dna_import::LoadSegmentationFile()
+void dna_import::LoadSegmentationFile(pvmsr_t binaryMsr)
 {
 	UINT32 blockCount, blockThreshold, minInnerStns;
 
@@ -3759,13 +3760,246 @@ void dna_import::LoadSegmentationFile()
 		seg.load_seg_file(projectSettings_.i.seg_file, 
 			blockCount, blockThreshold, minInnerStns,
 			v_ISL_, v_JSL_, v_CML_,
-			false,
-			0, 0, 0, 0, 0);
+			true, binaryMsr,
+			&v_measurementCount_, &v_unknownsCount_, &v_ContiguousNetList_, &v_parameterStationCount_);
 	}
 	catch (const runtime_error& e) {
 		SignalExceptionInterop(e.what(), 0, NULL);
 	}
 }
+
+// First item in the file is a UINT32 value - the number of records in the file
+// All records are of type UINT32
+void dna_import::LoadDatabaseId()
+{
+	if (databaseIDsLoaded_)
+		return;
+
+	string dbid_filename = formPath<string>(projectSettings_.g.output_folder,
+		projectSettings_.g.network_name, "dbid");
+
+	stringstream ss;
+	v_msr_db_map_.clear();
+
+	std::ifstream dbid_file;
+	try {
+		// Create geoid file.  Throws runtime_error on failure.
+		file_opener(dbid_file, dbid_filename,
+			ios::in | ios::binary, binary);
+	}
+	catch (const runtime_error& e) {
+		ss << e.what();
+		throw boost::enable_current_exception(runtime_error(ss.str()));
+	}
+
+	UINT32 r, recordCount;
+	msr_database_id_map rec;
+
+	try {
+		// get size and reserve vector size
+		dbid_file.read(reinterpret_cast<char*>(&recordCount), sizeof(UINT32));
+		v_msr_db_map_.reserve(recordCount);
+
+		UINT16 val;
+
+		for (r = 0; r < recordCount; r++)
+		{
+			// Read data
+			dbid_file.read(reinterpret_cast<char*>(&rec.msr_id), sizeof(UINT32));
+			dbid_file.read(reinterpret_cast<char*>(&rec.cluster_id), sizeof(UINT32));
+			dbid_file.read(reinterpret_cast<char*>(&val), sizeof(UINT16));
+			rec.is_msr_id_set = val_uint<bool, UINT16>(val);
+			dbid_file.read(reinterpret_cast<char*>(&val), sizeof(UINT16));
+			rec.is_cls_id_set = val_uint<bool, UINT16>(val);
+
+			// push back
+			v_msr_db_map_.push_back(rec);
+		}
+
+		dbid_file.close();
+		databaseIDsLoaded_ = true;
+		if (v_msr_db_map_.size() > 0)
+			databaseIDsSet_ = true;
+		else
+			databaseIDsSet_ = false;
+	}
+	catch (const std::ifstream::failure& f) {
+		ss << f.what();
+		throw boost::enable_current_exception(runtime_error(ss.str()));
+	}
+}
+
+void dna_import::ImportStnsMsrsFromNetwork(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, const project_settings& p)
+{
+	vstn_t binaryStn;
+	vmsr_t binaryMsr;
+
+	LoadNetworkFiles(&binaryStn, &binaryMsr, p, true);
+
+	try {
+		// Load Database IDs
+		LoadDatabaseId();
+	}
+	catch (const runtime_error& e) {
+		throw XMLInteropException(e.what(), 0);
+	}
+
+	it_vUINT32 _it_data, _it_netid;
+	UINT32 segmentedBlock(0);
+
+	dnaStnPtr stnPtr(new CDnaStation(datum_.GetName(), datum_.GetEpoch_s()));
+
+	vStations->clear();
+
+	for (_it_netid = v_ContiguousNetList_.begin(); _it_netid != v_ContiguousNetList_.end(); ++_it_netid)
+	{
+		if (*_it_netid != p.i.import_network_number)
+		{
+			segmentedBlock++;
+			continue;
+		}
+
+		// get stations on ISL
+		for (_it_data = v_ISL_.at(segmentedBlock).begin();
+			_it_data != v_ISL_.at(segmentedBlock).end();
+			++_it_data)
+		{
+			stnPtr->SetStationRec(binaryStn.at(*_it_data));
+			vStations->push_back(stnPtr);
+			g_parsestn_tally.addstation(stnPtr->GetConstraints());
+			stnPtr.reset(new CDnaStation(datum_.GetName(), datum_.GetEpoch_s()));
+		}
+
+		// get stations on JSL
+		for (_it_data = v_JSL_.at(segmentedBlock).begin();
+			_it_data != v_JSL_.at(segmentedBlock).end();
+			++_it_data)
+		{
+			stnPtr->SetStationRec(binaryStn.at(*_it_data));
+			vStations->push_back(stnPtr);
+			g_parsestn_tally.addstation(stnPtr->GetConstraints());
+			stnPtr.reset(new CDnaStation(datum_.GetName(), datum_.GetEpoch_s()));
+		}
+
+		segmentedBlock++;
+	}
+
+	dnaMsrPtr msrPtr;
+	msrPtr.reset();
+
+	vMeasurements->clear();
+
+	it_vmsr_t it_msr;
+	size_t dbindex;
+	it_vdbid_t it_dbid;
+	UINT32 msr_no(0);
+
+	segmentedBlock = 0;
+
+	for (_it_netid = v_ContiguousNetList_.begin(); _it_netid != v_ContiguousNetList_.end(); ++_it_netid)
+	{
+		if (*_it_netid != p.i.import_network_number)
+		{
+			segmentedBlock++;
+			continue;
+		}
+
+		// remove measurements that are in a block other than those 
+		// belonging to network 0
+		RemoveNonMeasurements(segmentedBlock, &binaryMsr);
+
+		// get stations on CML
+		for (_it_data = v_CML_.at(segmentedBlock).begin();
+			_it_data != v_CML_.at(segmentedBlock).end();
+			++_it_data)
+		{
+			it_msr = binaryMsr.begin() + *_it_data;
+			ResetMeasurementPtr(&msrPtr, binaryMsr.at(*_it_data).measType);
+			msr_no++;
+
+			// build measurement tally - do determine whether measurements of a particular type
+			// have been supplied
+			switch (it_msr->measType)
+			{
+			case 'A': // Horizontal angle
+				g_parsemsr_tally.A++;
+				break;
+			case 'B': // Geodetic azimuth
+				g_parsemsr_tally.B++;
+				break;
+			case 'C': // Chord dist
+				g_parsemsr_tally.C++;
+				break;
+			case 'D': // Direction set
+				if (it_msr->measStart == xMeas)
+					g_parsemsr_tally.D += it_msr->vectorCount1;
+				break;
+			case 'E': // Ellipsoid arc
+				g_parsemsr_tally.E++;
+				break;
+			case 'G': // GPS Baseline
+				g_parsemsr_tally.G += 3;
+				break;
+			case 'H': // Orthometric height
+				g_parsemsr_tally.H++;
+				break;
+			case 'I': // Astronomic latitude
+				g_parsemsr_tally.I++;
+				break;
+			case 'J': // Astronomic longitude
+				g_parsemsr_tally.J++;
+				break;
+			case 'K': // Astronomic azimuth
+				g_parsemsr_tally.K++;
+				break;
+			case 'L': // Level difference
+				g_parsemsr_tally.L++;
+				break;
+			case 'M': // MSL arc
+				g_parsemsr_tally.M++;
+				break;
+			case 'P': // Geodetic latitude
+				g_parsemsr_tally.P++;
+				break;
+			case 'Q': // Geodetic longitude
+				g_parsemsr_tally.Q++;
+				break;
+			case 'R': // Ellipsoidal height
+				g_parsemsr_tally.R++;
+				break;
+			case 'S': // Slope distance
+				g_parsemsr_tally.S++;
+				break;
+			case 'V': // Zenith angle
+				g_parsemsr_tally.V++;
+				break;
+			case 'X': // GPS Baseline cluster
+				if (it_msr->measStart == xMeas)
+					g_parsemsr_tally.X += it_msr->vectorCount1 * 3;
+				break;
+			case 'Y': // GPS point cluster
+				if (it_msr->measStart == xMeas)
+					g_parsemsr_tally.Y += it_msr->vectorCount1 * 3;
+				break;
+			case 'Z': // Vertical angle
+				g_parsemsr_tally.Z++;
+				break;
+			}
+
+			if (databaseIDsSet_)
+			{
+				dbindex = std::distance(binaryMsr.begin(), it_msr);
+				it_dbid = v_msr_db_map_.begin() + dbindex;
+			}
+
+			msrPtr->SetMeasurementRec(binaryStn, it_msr, it_dbid);
+			vMeasurements->push_back(msrPtr);
+		}
+
+		segmentedBlock++;
+	}
+}
+	
 
 void dna_import::ImportStnsMsrsFromBlock(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, const project_settings& p)
 {
@@ -3773,6 +4007,14 @@ void dna_import::ImportStnsMsrsFromBlock(vdnaStnPtr* vStations, vdnaMsrPtr* vMea
 	vmsr_t binaryMsr;
 
 	LoadNetworkFiles(&binaryStn, &binaryMsr, p, true);
+
+	try {
+		// Load Database IDs
+		LoadDatabaseId();
+	}
+	catch (const runtime_error& e) {
+		throw XMLInteropException(e.what(), 0);
+	}
 
 	it_vUINT32 _it_data;
 
@@ -3808,11 +4050,13 @@ void dna_import::ImportStnsMsrsFromBlock(vdnaStnPtr* vStations, vdnaMsrPtr* vMea
 	vMeasurements->clear();
 
 	it_vmsr_t it_msr;
+	size_t dbindex;
 	it_vdbid_t it_dbid;
-	UINT32 advanceBy(0), msr_no(0);
+	UINT32 msr_no(0);
 
 	RemoveNonMeasurements(p.i.import_block_number-1, &binaryMsr);
 
+	
 	// get stations on CML
 	for (_it_data=v_CML_.at(p.i.import_block_number-1).begin();
 		_it_data!=v_CML_.at(p.i.import_block_number-1).end();
@@ -3891,8 +4135,13 @@ void dna_import::ImportStnsMsrsFromBlock(vdnaStnPtr* vStations, vdnaMsrPtr* vMea
 			break;
 		}
 
-		if ((advanceBy = msrPtr->SetMeasurementRec(binaryStn, it_msr, it_dbid)) > 0)
-			std::advance(_it_data, advanceBy);
+		if (databaseIDsSet_)
+		{
+			dbindex = std::distance(binaryMsr.begin(), it_msr);
+ 			it_dbid = v_msr_db_map_.begin() + dbindex;
+		}
+
+		msrPtr->SetMeasurementRec(binaryStn, it_msr, it_dbid);
 		vMeasurements->push_back(msrPtr);
 	}	
 }
@@ -5114,14 +5363,12 @@ UINT32 dna_import::FindSimilarGXMeasurements(vdnaMsrPtr* vMeasurements, vdnaMsrP
 	return similar_msrs_found;
 }
 
-
-void dna_import::FullSortandMapStations(vdnaStnPtr* vStations, pv_string_uint32_pair vStnsMap_sortName)
+void dna_import::SortandMapStations(vdnaStnPtr* vStations)
 {
 	size_t stnCount(vStations->size());
 	vStnsMap_sortName_.clear();
 	vStnsMap_sortName_.reserve(stnCount);
 
-	//stnsMap->clear();
 	UINT32 stnIndex(0);
 
 	// sort on station name (by string, not int!!!)
@@ -5130,7 +5377,7 @@ void dna_import::FullSortandMapStations(vdnaStnPtr* vStations, pv_string_uint32_
 
 	// Create the Station-Name / ID map
 	string_uint32_pair stnID;
-	for (stnIndex=0; stnIndex<stnCount; stnIndex++)
+	for (stnIndex = 0; stnIndex < stnCount; stnIndex++)
 	{
 		stnID.first = vStations->at(stnIndex)->GetName();
 		stnID.second = stnIndex;
@@ -5142,8 +5389,14 @@ void dna_import::FullSortandMapStations(vdnaStnPtr* vStations, pv_string_uint32_
 	sort(vStnsMap_sortName_.begin(), vStnsMap_sortName_.end(), StationNameIDCompareName());
 
 	if (vStnsMap_sortName_.size() < stnCount)
-		throw XMLInteropException("FullSortandMapStations(): Could not allocate sufficient memory for the Station map.", 0);
+		throw XMLInteropException("SortandMapStations(): Could not allocate sufficient memory for the Station map.", 0);
+}
 
+
+void dna_import::FullSortandMapStations(vdnaStnPtr* vStations, pv_string_uint32_pair vStnsMap_sortName)
+{
+	// Sort the stations list and develop the station map
+	SortandMapStations(vStations);
 	*vStnsMap_sortName = vStnsMap_sortName_;
 }
 	
@@ -5152,34 +5405,7 @@ void dna_import::SortStationsForExport(vdnaStnPtr* vStations)
 	// Sort on original file order
 	sort(vStations->begin(), vStations->end(), CompareStnFileOrder_CDnaStn<CDnaStation>());
 }
-	
-
-//void dna_import::SortandMapStations(vdnaStnPtr* vStations, pv_string_uint32_pair vStnsMap_sortName)
-//{
-//	UINT32 stnCount(static_cast<UINT32>(vStations->size()));
-//	vStnsMap_sortName->clear();
-//	vStnsMap_sortName->reserve(stnCount);
-//
-//	// Sort on station name (by string, not int!!!)
-//	sort(vStations->begin(), vStations->end());
-//	
-//	// Create the Station-Name / ID map
-//	string_uint32_pair stnID;
-//	for (UINT32 stnIndex=0; stnIndex<stnCount; stnIndex++)
-//	{
-//		stnID.first = vStations->at(stnIndex)->GetName();
-//		stnID.second = stnIndex;
-//		vStnsMap_sortName->push_back(stnID);
-//		vStations->at(stnIndex)->SetnameOrder(stnIndex);
-//	}
-//
-//	// sort on station name (i.e. first of the pair)
-//	sort(vStnsMap_sortName->begin(), vStnsMap_sortName->end(), StationNameIDCompareName());
-//
-//	if (vStnsMap_sortName->size() < stnCount)
-//		throw XMLInteropException("SortandMapStations(): Could not allocate sufficient memory for the Station map.", 0);
-//}
-	
+		
 
 void dna_import::ReduceStations(vdnaStnPtr* vStations, const CDnaProjection& projection)
 {
@@ -5592,13 +5818,197 @@ void dna_import::SimulateMSR(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements,
 }
 	
 
-void dna_import::MapMeasurementStations(vdnaMsrPtr* vMeasurements, pvASLPtr vAssocStnList, PUINT32 lMapCount, pvstring vUnusedStns, pvUINT32 vIgnoredMsrs)
+void dna_import::IgnoreInsufficientMeasurements(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements,
+	pvstring vPoorlyConstrainedStns)
+{
+	// This function requires the formation of a station map and the ASL file, which 
+	// is not normally formed until much later in the process.
+
+	// 1. Develop station map
+	SortandMapStations(vStations);
+
+	// 2. Develop ASL
+	vASLPtr vAssocStnList;
+	vstring vunusedStations;
+	vUINT32 vignoredMeasurements;
+	UINT32 lMapCount;
+
+	vPoorlyConstrainedStns->clear();
+	vstring vInsufficientMsr;
+	UINT32 d;
+	bool foundInsufficientMeasurement;
+
+	vector<CDnaDirection>* vdirns;
+
+#ifdef _MSDEBUG
+	string stn;
+#endif
+
+
+	do {
+
+		MapMeasurementStations(vMeasurements, &vAssocStnList, &lMapCount,
+			&vunusedStations, &vignoredMeasurements);
+
+		// 3. Detect insufficient measurements
+		vASLPtr::iterator _it_asl(vAssocStnList.begin()), _it_asl_begin(vAssocStnList.begin());
+		
+		foundInsufficientMeasurement = false;
+		vInsufficientMsr.clear();
+
+		// find stations for which there are insufficient measurements
+		for (_it_asl = vAssocStnList.begin(); _it_asl != vAssocStnList.end(); _it_asl++)
+		{
+			if (_it_asl->get()->GetAssocMsrCount() == 1)
+			{
+				foundInsufficientMeasurement = true;
+				d = static_cast<UINT32>(std::distance(_it_asl_begin, _it_asl));
+				vInsufficientMsr.push_back(vStnsMap_sortName_.at(d).first);
+
+#ifdef _MSDEBUG
+				stn = vStnsMap_sortName_.at(d).first;
+				if (stn.find("27293") != std::string::npos)
+					TRACE("Station %s\n", stn);
+				if (stn.find("27164") != std::string::npos)
+					TRACE("Station %s\n", stn);
+				if (stn.find("26899") != std::string::npos)
+					TRACE("Station %s\n", stn);
+				if (stn.find("27905") != std::string::npos)
+					TRACE("Station %s\n", stn);
+#endif
+			}
+		}
+
+		// Are there no stations with insufficient measurements?
+		if (!foundInsufficientMeasurement)
+			break;
+
+		if (!projectSettings_.g.quiet)
+			cout << ".";
+
+		// add the newly found insufficient measurements
+		vPoorlyConstrainedStns->insert(vPoorlyConstrainedStns->end(),
+			vInsufficientMsr.begin(), vInsufficientMsr.end());
+
+		UINT32 msrIndex(0);
+
+		// find measurements connected to these stations and ignore them
+		sort(vInsufficientMsr.begin(), vInsufficientMsr.end());
+		for_each(vMeasurements->begin(), vMeasurements->end(),
+			[&vInsufficientMsr, &vMeasurements, &msrIndex, &vdirns](dnaMsrPtr msr) {
+
+				switch (msr->GetTypeC())
+				{
+				// GNSS measurements do not qualify in this context.
+				// three station measurements
+				case 'A':	// Horizontal angle
+
+					if (binary_search(vInsufficientMsr.begin(),
+						vInsufficientMsr.end(), msr->GetTarget2()))
+					{
+						msr->SetInsufficient(true);
+						break;
+					}
+					[[fallthrough]];
+
+				// two station measurements
+				case 'B':	// Geodetic azimuth
+				case 'C':	// Chord dist
+				case 'E':	// Ellipsoid arc
+				case 'K':	// Astronomic azimuth
+				case 'L':	// Level difference
+				case 'M':	// MSL arc
+				case 'S':	// Slope distance
+				case 'V':	// Zenith angle
+				case 'Z':	// Vertical angle
+
+					if (binary_search(vInsufficientMsr.begin(),
+						vInsufficientMsr.end(), msr->GetTarget()))
+					{
+						msr->SetInsufficient(true);
+						break;
+					}
+					[[fallthrough]];
+
+				// one station measurements
+				case 'H':	// Orthometric height
+				case 'I':	// Astronomic latitude
+				case 'J':	// Astronomic longitude
+				case 'P':	// Geodetic latitude
+				case 'Q':	// Geodetic longitude
+				case 'R':	// Ellipsoidal height
+
+					if (binary_search(vInsufficientMsr.begin(),
+						vInsufficientMsr.end(), msr->GetFirst()))
+					{
+						msr->SetInsufficient(true);
+						break;
+					}
+					break;
+
+				case 'D':	// Direction set
+				
+					// test first station, which if found, ignore the entire measurement.
+					if (binary_search(vInsufficientMsr.begin(),
+						vInsufficientMsr.end(), msr->GetFirst()))
+					{
+						msr->SetInsufficient(true);
+						break;
+					}
+
+					// test the target, which if found, ignore the entire measurement
+					if (binary_search(vInsufficientMsr.begin(),
+						vInsufficientMsr.end(), msr->GetTarget()))
+					{
+						msr->SetInsufficient(true);
+						break;
+					}
+
+					vdirns = msr.get()->GetDirections_ptr();
+					vector< CDnaDirection >::iterator _it_dir;
+					for (_it_dir = vdirns->begin(); _it_dir != vdirns->end(); ++_it_dir)
+					{
+						// test the individual directions, which if found, remove the direction from the vector
+						if (binary_search(vInsufficientMsr.begin(),
+							vInsufficientMsr.end(), _it_dir->GetTarget()))
+						{
+							_it_dir->SetInsufficient(true);
+							break;
+						}
+					}
+
+					erase_if(vdirns, CompareInsufficientClusterMeas<CDnaDirection>());
+					(static_cast<CDnaDirectionSet*>(msr.get()))->SetTotal(static_cast<UINT32>(vdirns->size()));
+
+					// if there are no directions left as a result of erase_if, ignore the direction set
+					if (vdirns->size() == 0)
+						msr->SetIgnore(true);
+
+					break;
+				}
+
+				msrIndex++;
+
+			} // lambda
+		);
+
+		// remove insufficient measurements
+		erase_if(vMeasurements, CompareInsufficientMsr<CDnaMeasurement>());
+
+	} while (foundInsufficientMeasurement);
+
+	sort(vPoorlyConstrainedStns->begin(), vPoorlyConstrainedStns->end());
+
+}
+	
+
+void dna_import::MapMeasurementStations(vdnaMsrPtr* vMeasurements, pvASLPtr vAssocStnList, PUINT32 lMapCount, 
+	pvstring vUnusedStns, pvUINT32 vIgnoredMsrs)
 {
 	const size_t mapsize = vStnsMap_sortName_.size();
 	if (mapsize < 1)
 		throw XMLInteropException("A station map has not been created. Run \"SortStations\" to create a station map.", 0);
 	
-	//ASList.resize(mapsize);
 	g_map_tally.initialise();
 
 	ostringstream ss;
@@ -6076,8 +6486,6 @@ void dna_import::MapMeasurementStationsPnt(vector<CDnaGpsPoint>* vGpsPoints, pvA
 
 	for (_it_msr=vGpsPoints->begin(); _it_msr != vGpsPoints->end(); _it_msr++)
 	{
-		//msrs_per_cluster_row = 3 + static_cast<UINT32>(_it_msr->GetCovariances_ptr()->size() * 3);
-
 		// <First> station
 		station_name = _it_msr->GetFirst();
 		

@@ -120,6 +120,8 @@ public:
 	void RemoveIgnoredMeasurements(vdnaMsrPtr* vMeasurements, MsrTally* parsemsrTally);
 	void IncludeMeasurementTypes(const string& includeMsrs, vdnaMsrPtr* vMeasurements, MsrTally* parsemsrTally);
 	void ExcludeMeasurementTypes(const string& excludeMsrs, vdnaMsrPtr* vMeasurements, MsrTally* parsemsrTally);
+	void IgnoreInsufficientMeasurements(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, pvstring vPoorlyConstrainedStns);
+
 	void ExcludeAllOutsideBoundingBox(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, 
 		StnTally* parsestnTally, MsrTally* parsemsrTally, pvstring pvUnusedStns, const project_settings& p,
 		bool& splitXmsrs, bool& splitYmsrs);
@@ -127,6 +129,7 @@ public:
 		StnTally* parsestnTally, MsrTally* parsemsrTally, pvstring vExcludedStns, const project_settings& p,
 		bool& splitXmsrs, bool& splitYmsrs);
 	void ImportStnsMsrsFromBlock(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, const project_settings& p);
+	void ImportStnsMsrsFromNetwork(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, const project_settings& p);
 
 	UINT32 RemoveDuplicateStations(vdnaStnPtr* vStations, pvstring vduplicateStations, pv_stringstring_doubledouble_pair vnearbyStations);
 	UINT32 FindSimilarMeasurements(vdnaMsrPtr* vMeasurements, vdnaMsrPtr* vSimilarMeasurements);
@@ -246,7 +249,7 @@ private:
 
 	void LoadNetworkFiles(pvstn_t binaryStn, pvmsr_t binaryMsr, const project_settings& projectSettings, bool loadSegmentFile);
 	void LoadBinaryFiles(pvstn_t binaryStn, pvmsr_t binaryMsr);
-	void LoadSegmentationFile();
+	void LoadSegmentationFile(pvmsr_t binaryMsr);
 
 	void SplitClusterMsrsConnectedToStns(vdnaMsrPtr* vClusterMsrs, 
 		pvstring pvIncludedStns, pvstring pvExcludedStns, 
@@ -264,6 +267,8 @@ private:
 	void ExtractAssociatedStns_GX(vector<CDnaGpsBaseline>* vGpsBaselines, pvstring pvUsedStns);
 	void ExtractAssociatedStns_Y(vector<CDnaGpsPoint>* vGpsPoints, pvstring pvUsedStns);
 	void ExtractAssociatedStns_D(vector<CDnaDirection>* vDirections, pvstring pvUsedStns);
+
+	void SortandMapStations(vdnaStnPtr* vStations);
 
 	void MapMeasurementStationsBsl(vector<CDnaGpsBaseline>* vGpsBaselines,
 		pvASLPtr vAssocStnList, PUINT32 lMapCount);
@@ -361,9 +366,15 @@ private:
 
 	v_string_string_pair	stn_renamed_;
 
-	//v_msr_database_id_map	v_msr_db_map;
-	//UINT32					m_bmsIndex;
-	//char					m_msrStart;
+	// Database management
+	v_msr_database_id_map	v_msr_db_map_;
+	bool					databaseIDsLoaded_;
+	bool					databaseIDsSet_;
+
+	void LoadDatabaseId();
+
+	vUINT32 v_measurementCount_, v_unknownsCount_, v_ContiguousNetList_, v_parameterStationCount_;
+
 };
 
 }	// namespace dynamlinterop
