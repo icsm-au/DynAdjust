@@ -50,6 +50,7 @@ CDnaDirection::CDnaDirection(CDnaDirection&& d)
 {
 	m_strFirst = d.m_strFirst;
 	m_bIgnore = d.m_bIgnore;
+	m_bInsufficient = d.m_bInsufficient;
 	m_strTarget = d.m_strTarget;
 	m_drValue = d.m_drValue;
 	m_dStdDev = d.m_dStdDev;
@@ -74,6 +75,7 @@ CDnaDirection& CDnaDirection::operator= (CDnaDirection&& rhs)
 		return *this;
 
 	CDnaMeasurement::operator=(std::move(rhs));
+	m_bInsufficient = rhs.m_bInsufficient;
 	m_strTarget = rhs.m_strTarget;
 	m_drValue = rhs.m_drValue;
 	m_dStdDev = rhs.m_dStdDev;
@@ -279,7 +281,10 @@ void CDnaDirection::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields&
 		*dna_stream << setw(dmw.msr_linear) << " ";	// linear measurement value
 		*dna_stream << setw(dmw.msr_ang_d + dmw.msr_ang_m + dmw.msr_ang_s) << 
 			right << FormatDnaDmsString(RadtoDms(m_drValue), 8);
-		*dna_stream << setw(dmw.msr_stddev) << fixed << setprecision(3) << Seconds(m_dStdDev);
+		
+		UINT32 m_stdDevPrec(3);
+		*dna_stream << setw(dmw.msr_stddev) << StringFromTW(Seconds(m_dStdDev), dmw.msr_stddev, m_stdDevPrec);
+		//*dna_stream << setw(dmw.msr_stddev) << fixed << setprecision(3) << Seconds(m_dStdDev);
 	}
 	else
 	{
@@ -290,7 +295,10 @@ void CDnaDirection::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields&
 		*dna_stream << setw(dmw.msr_linear) << " ";	// linear measurement value
 		*dna_stream << setw(dmw.msr_ang_d + dmw.msr_ang_m + dmw.msr_ang_s) << 
 			right << FormatDnaDmsString(RadtoDms(m_drValue), 8);
-		*dna_stream << setw(dmw.msr_stddev) << fixed << setprecision(3) << Seconds(m_dStdDev);
+		
+		UINT32 m_stdDevPrec(3);
+		*dna_stream << setw(dmw.msr_stddev) << StringFromTW(Seconds(m_dStdDev), dmw.msr_stddev, m_stdDevPrec);
+		//*dna_stream << setw(dmw.msr_stddev) << fixed << setprecision(3) << Seconds(m_dStdDev);
 		width = dml.msr_gps_epoch - dml.msr_inst_ht;
 
 		// Zenith distance, vertical angle

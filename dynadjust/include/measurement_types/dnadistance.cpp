@@ -143,8 +143,11 @@ void CDnaDistance::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& 
 	*dna_stream << setw(dmw.msr_targ2) << " ";
 	*dna_stream << right << setw(dmw.msr_linear) << fixed << setprecision(4) << m_dValue;
 	*dna_stream << setw(dmw.msr_ang_d + dmw.msr_ang_m + dmw.msr_ang_s) << " ";
-	*dna_stream << setw(dmw.msr_stddev) << fixed << setprecision(3) << m_dStdDev;
-	
+
+	UINT32 m_stdDevPrec(3);
+	*dna_stream << setw(dmw.msr_stddev) << StringFromTW(m_dStdDev, dmw.msr_stddev, m_stdDevPrec);
+	//*dna_stream << setw(dmw.msr_stddev) << fixed << setprecision(3) << m_dStdDev;
+
 	// database id width
 	UINT32 width(dml.msr_gps_epoch - dml.msr_inst_ht);
 	
