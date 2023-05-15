@@ -68,8 +68,8 @@ void PrintOutputFileHeaderInfo(std::ofstream* f_out, const string& out_file, pro
 	else if (!p->i.exclude_msrs.empty())
 		*f_out << setw(PRINT_VAR_PAD) << left << "Strip measurement types:" << p->i.exclude_msrs << endl;
 
-	if (p->i.exclude_insufficient_msrs == 1)
-		*f_out << setw(PRINT_VAR_PAD) << left << "Exclude insufficient measurements:" << "yes" << endl;
+	if (p->i.ignore_insufficient_msrs == 1)
+		*f_out << setw(PRINT_VAR_PAD) << left << "Ignore insufficient measurements:" << "yes" << endl;
 	
 	if (p->i.search_nearby_stn)
 		*f_out << setw(PRINT_VAR_PAD) << left << "Search for nearby stations:" << "tolerance = " << p->i.search_stn_radius << "m" << endl;
@@ -260,8 +260,8 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 	if (vm.count(IGNORE_SIMILAR_MSRS))
 		p.i.ignore_similar_msr = 1;
 
-	if (vm.count(EXCLUDE_INSUFFICIENT_MSRS))
-		p.i.exclude_insufficient_msrs = 1;
+	if (vm.count(IGNORE_INSUFFICIENT_MSRS))
+		p.i.ignore_insufficient_msrs = 1;
 
 	if (vm.count(REMOVE_IGNORED_MSRS))
 		p.i.remove_ignored_msr = 1;
@@ -692,7 +692,17 @@ int ImportSegmentedBlock(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMs
 	// Import stations and measurements from a particular block
 	if (!p.g.quiet)
 		cout << endl << "+ Importing stations and measurements from block " << p.i.import_block_number << " of\n  " << p.i.seg_file << "... ";
-	parserDynaML.ImportStnsMsrsFromBlock(vStations, vMeasurements, p);
+
+	try {
+		parserDynaML.ImportStnsMsrsFromBlock(vStations, vMeasurements, p);
+	}
+	catch (const XMLInteropException& e) {
+		stringstream ss;
+		ss << endl << endl << "- Error: " << e.what();
+		cout << ss.str() << endl;
+		return EXIT_FAILURE;
+	}
+
 	*parsestnTally += parserDynaML.GetStnTally();
 	*parsemsrTally += parserDynaML.GetMsrTally();
 	if (!p.g.quiet)
@@ -717,7 +727,17 @@ int ImportContiguousNetwork(dna_import& parserDynaML, vdnaStnPtr* vStations, vdn
 	// Import stations and measurements from a particular block
 	if (!p.g.quiet)
 		cout << endl << "+ Importing stations and measurements from contiguous network " << p.i.import_network_number << " of\n  " << p.i.seg_file << "... ";
-	parserDynaML.ImportStnsMsrsFromNetwork(vStations, vMeasurements, p);
+
+	try {
+		parserDynaML.ImportStnsMsrsFromNetwork(vStations, vMeasurements, p);
+	}
+	catch (const XMLInteropException& e) {
+		stringstream ss;
+		ss << endl << endl << "- Error: " << e.what();
+		cout << ss.str() << endl;
+		return EXIT_FAILURE;
+	}
+
 	*parsestnTally += parserDynaML.GetStnTally();
 	*parsemsrTally += parserDynaML.GetMsrTally();
 	if (!p.g.quiet)
@@ -1027,8 +1047,8 @@ int main(int argc, char* argv[])
 				"Search and provide warnings for GNSS baselines (G) and baseline clusters (X) which appear to have been derived from the same source data.")
 			(TEST_SIMILAR_MSRS,
 				"Search and provide warnings for similar measurements.")
-			(EXCLUDE_INSUFFICIENT_MSRS,
-				"Exclude measurements which do not sufficiently constrain a station in two dimensions.")
+			(IGNORE_INSUFFICIENT_MSRS,
+				"Ignore measurements which do not sufficiently constrain a station in two dimensions.")
 			(IGNORE_SIMILAR_MSRS,
 				"Ignore similar measurements.")
 			(REMOVE_IGNORED_MSRS,
@@ -1439,8 +1459,8 @@ int main(int argc, char* argv[])
 
 	vstring vPoorlyConstrainedStns;
 
-	// Exclude measurements that do not sufficiently (in themselves) allow for a station to be estimated
-	if (p.i.exclude_insufficient_msrs == 1)
+	// Ignore measurements that do not sufficiently (in themselves) allow for a station to be estimated
+	if (p.i.ignore_insufficient_msrs == 1)
 	{
 		size_t msrCount = vmeasurementsTotal.size();
 		if (!p.g.quiet)

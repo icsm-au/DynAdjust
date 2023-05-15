@@ -194,7 +194,7 @@ public:
 		, include_msrs(""), exclude_msrs(""), bounding_box(""), stn_associated_msr_include(""), stn_associated_msr_exclude("")
 		, rename_stations(0), apply_discontinuities(0), search_nearby_stn(0)
 		, search_similar_msr(0), search_similar_msr_gx(0), ignore_similar_msr(0), remove_ignored_msr(0)
-		, flag_unused_stn(0), exclude_insufficient_msrs(0), import_block(0), import_block_number(0), import_network(0), import_network_number(0)
+		, flag_unused_stn(0), ignore_insufficient_msrs(0), import_block(0), import_block_number(0), import_network(0), import_network_number(0)
 		, cluster_id(0), msr_id(0), search_stn_radius(STN_SEARCH_RADIUS)
 		, vscale(1.), pscale(1.), lscale(1.), hscale(1.), scalar_file("")
 		, command_line_arguments("") 
@@ -280,7 +280,7 @@ public:
 	UINT16		ignore_similar_msr;			// Ignore duplicate measurements
 	UINT16		remove_ignored_msr;			// Remove ignored measurements
 	UINT16		flag_unused_stn;			// Mark unused stations in binary file.  Stations marked will be excluded from any further processing.
-	UINT16		exclude_insufficient_msrs;	// Exclude measurements to stations which do not sufficiently constrain a station in 2D
+	UINT16		ignore_insufficient_msrs;	// Ignore measurements to stations which do not sufficiently constrain a station in 2D
 	UINT16		import_block;				// Import stations and measurements from a segmented block
 	UINT32		import_block_number;		// Import from this block
 	UINT16		import_network;				// Import stations and measurements from a contiguous network

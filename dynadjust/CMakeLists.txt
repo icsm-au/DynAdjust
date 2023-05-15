@@ -474,7 +474,7 @@ if (BUILD_TESTING)
         ${CMAKE_SOURCE_DIR}/../sampleData/skye-tutorial.stn 
         ${CMAKE_SOURCE_DIR}/../sampleData/skye-tutorial.msr)
     add_test (NAME segment-misc-08 COMMAND $<TARGET_FILE:dnasegmentwrapper> contig --contiguous-blocks 0)
-    add_test (NAME import-misc-08a COMMAND $<TARGET_FILE:dnaimportwrapper> -n contig --import-block-stn-msr 5 --export-dna)
+    add_test (NAME import-misc-08a COMMAND $<TARGET_FILE:dnaimportwrapper> -n contig --import-block-stn-msr 1 --export-dna)
     add_test (NAME import-misc-08b COMMAND $<TARGET_FILE:dnaimportwrapper> -n contig --import-contiguous-stn-msr 0 --export-dna)
     
     # 14. Exceptions
@@ -504,9 +504,13 @@ if (BUILD_TESTING)
     add_test (NAME import-no-stns COMMAND $<TARGET_FILE:dnaimportwrapper> -n nostn ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn ${CMAKE_SOURCE_DIR}/../sampleData/dsg.msr)
     # no help module
     add_test (NAME import-no-help COMMAND $<TARGET_FILE:dnaimportwrapper> --help-module cplusplus)
+    # excessive block and network numbers
+    add_test (NAME import-misc-block-size COMMAND $<TARGET_FILE:dnaimportwrapper> -n contig --import-block-stn-msr 5000 --export-dna)
+    add_test (NAME import-misc-network-size COMMAND $<TARGET_FILE:dnaimportwrapper> -n contig --import-contiguous-stn-msr 5000 --export-dna)
 
     set_tests_properties(import-no-option import-invalid-option import-invalid-file import-nearby import-no-files import-no-frame 
         import-no-data import-no-xsd-file import-no-geoid import-no-project import-no-stns import-no-help
+        import-misc-block-size import-misc-network-size
         PROPERTIES WILL_FAIL TRUE)
 
     ### REFTRAN ###
