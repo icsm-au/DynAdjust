@@ -412,7 +412,7 @@ typedef enum _CONSTRAINT_TYPE_ {
 	custom_constraint = 4   // A custom constraint type that isn't necessarily
 } CONSTRAINT_TYPE;
 
-enum _AML_TYPE_ {
+typedef enum _AML_TYPE_ {
 	str_msr = 0,	// msr_t struct
 	cls_msr = 1		// CDnaMeasurement class
 } AML_TYPE;

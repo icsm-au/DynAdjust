@@ -5909,6 +5909,10 @@ void dna_import::IgnoreInsufficientMeasurements(vdnaStnPtr* vStations, vdnaMsrPt
 					case free_1D:				// CCF: 2D is constrained, one measurement is needed
 						// All good
 						continue;
+					case free_2D:				// FFC: 2D is free, two measurements are needed
+					case free_3D:				// FFF: 3D is free, three measurements are needed
+					case custom_constraint:		// Unsure: could be anything.
+						break;
 					}
 					// Insufficient vertical measurements
 					foundInsufficientMeasurement = true;
@@ -5924,11 +5928,16 @@ void dna_import::IgnoreInsufficientMeasurements(vdnaStnPtr* vStations, vdnaMsrPt
 					case constrained_3D:		// CCC: 3D is constrained, no measurements are needed
 						// All good.
 						continue;
+					case free_1D:				// CCF: 2D is constrained, one measurement is needed
+					case free_2D:				// FFC: 2D is free, two measurements are needed
+					case free_3D:				// FFF: 3D is free, three measurements are needed
+					case custom_constraint:		// Unsure: could be anything.
+						break;
 					}
 					// Insufficient horizontal measurements, because:
-					// - FFF needs three measurements
-					// - FFC needs two measurements
 					// - CCF needs one measurement in vertical (H, R, V, Z, L)
+					// - FFC needs two measurements
+					// - FFF needs three measurements
 					foundInsufficientMeasurement = true;					
 					vInsufficientMsrStns.push_back(vStnsMap_sortName_.at(stnIndex).first);
 					break;
@@ -7115,6 +7124,8 @@ void dna_import::CompleteASLGpsBaselines(vector<CDnaGpsBaseline>* vGpsBaselines,
 		// increment by 1 since a cluster of GNSS baselines is handled by a single measurement class instance
 		(*currentBmsFileIndex)++;
 		break;
+	case str_msr:
+		break;
 	}
 
 	// Strip duplicates from msrStations, then increment station count for each of the stations tied to this cluster
@@ -7178,6 +7189,8 @@ void dna_import::CompleteASLGpsPoints(vector<CDnaGpsPoint>* vGpsPoints, pvASLPtr
 	case cls_msr:
 		// increment by 1 since a cluster of GNSS points is handled by a single measurement class instance
 		(*currentBmsFileIndex) ++;
+		break;
+	case str_msr:
 		break;
 	}
 }
