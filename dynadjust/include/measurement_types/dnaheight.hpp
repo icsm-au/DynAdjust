@@ -51,7 +51,7 @@ public:
 	//CDnaHeight(const bool bIgnore, const string& strType, const string& strFirst, const double& dValue, const double& dStdDev);
 
 	bool operator==(const CDnaHeight& rhs) const;
-	virtual bool operator<(const CDnaHeight& rhs) const;
+	bool operator<(const CDnaHeight& rhs) const;
 
 	//inline CDnaHeight& operator[](int iIndex) { return this[iIndex]; }
 
