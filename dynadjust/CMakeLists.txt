@@ -25,7 +25,10 @@ if(UNIX)
 endif(UNIX)
 
 set (CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR};${CMAKE_MODULE_PATH}")
-set (CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED On)
+
+message(STATUS "C++ standard: ${CMAKE_CXX_STANDARD}")
 
 # ignore warnings if the return type of a function has a 
 # type qualifier such as const (e.g. std::exception::what())
