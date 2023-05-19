@@ -32,6 +32,8 @@
 #include <exception>
 #include <stdexcept>
 
+#include <include/measurement_types/dnageometries.hpp>
+
 #include <boost/shared_ptr.hpp>
 #include <boost/timer/timer.hpp>
 #include <boost/chrono/time_point.hpp>
@@ -74,7 +76,6 @@ using namespace boost::filesystem;
 
 #include <include/math/dnamatrix_contiguous.hpp>
 #include <include/measurement_types/dnameasurement.hpp>
-#include <include/measurement_types/dnageometries.hpp>
 
 using namespace dynadjust::measurements;
 using namespace dynadjust::exception;

@@ -262,8 +262,7 @@ bool dna_io_tpb::validate_plate_files(v_string_v_doubledouble_pair& global_plate
 	it_v_string_v_doubledouble_pair j = global_plates.begin();
 	
 	for (it_plate_motion_euler i = plate_pole_parameters.begin();
-		i != plate_pole_parameters.end(),
-		j != global_plates.end();
+		i != plate_pole_parameters.end() && j != global_plates.end();
 		++i, ++j)
 	{
 		if (!boost::equals(i->plate_name, j->first))
