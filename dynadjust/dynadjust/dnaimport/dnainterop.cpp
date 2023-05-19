@@ -6060,14 +6060,10 @@ void dna_import::IgnoreInsufficientMeasurements(vdnaStnPtr* vStations, vdnaMsrPt
 
 					if (insufficientMsrFound)
 					{
+						msr->SetInsufficient(true);
+						msr->SetIgnore(true);
+
 						vignMsr.push_back(msr);
-
-						erase_if(vdirns, CompareInsufficientClusterMeas<CDnaDirection>());
-						(static_cast<CDnaDirectionSet*>(msr.get()))->SetTotal(static_cast<UINT32>(vdirns->size()));
-
-						// if there are no directions left as a result of erase_if, ignore the direction set
-						if (vdirns->size() == 0)
-							msr->SetIgnore(true);						
 					}
 
 					break;
