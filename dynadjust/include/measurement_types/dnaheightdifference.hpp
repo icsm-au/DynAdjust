@@ -52,7 +52,7 @@ public:
 
 	//virtual inline CDnaHeightDifference* clone() const { return new CDnaHeightDifference(*this); }
 	bool operator==(const CDnaHeightDifference& rhs) const;
-	virtual bool operator<(const CDnaHeightDifference& rhs) const;
+	bool operator<(const CDnaHeightDifference& rhs) const;
 
 	//inline CDnaHeightDifference& operator[](int iIndex) { return this[iIndex]; }
 

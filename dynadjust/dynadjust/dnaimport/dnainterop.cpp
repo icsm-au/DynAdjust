@@ -3844,6 +3844,15 @@ void dna_import::ImportStnsMsrsFromNetwork(vdnaStnPtr* vStations, vdnaMsrPtr* vM
 		throw XMLInteropException(e.what(), 0);
 	}
 
+	if ((p.i.import_network_number + 1) > v_ContiguousNetList_.size())
+	{
+		stringstream ss;
+		ss << "The specified network ID " << p.i.import_network_number <<
+			" does not exist in the list of " << endl <<
+			"         identified contiguous Network IDs (0 to " << (v_ContiguousNetList_.size() - 1) << ").";
+		throw XMLInteropException(ss.str(), 0);
+	}
+
 	it_vUINT32 _it_data, _it_netid;
 	UINT32 segmentedBlock(0);
 
@@ -4014,6 +4023,15 @@ void dna_import::ImportStnsMsrsFromBlock(vdnaStnPtr* vStations, vdnaMsrPtr* vMea
 	}
 	catch (const runtime_error& e) {
 		throw XMLInteropException(e.what(), 0);
+	}
+
+	if (p.i.import_block_number > v_ISL_.size())
+	{
+		stringstream ss;
+		ss << "The specified block number " << p.i.import_block_number << 
+			" exceeds the total number of " << endl <<
+			"         segmented blocks (" << v_ISL_.size() << ").";
+		throw XMLInteropException(ss.str(), 0);
 	}
 
 	it_vUINT32 _it_data;
@@ -5827,55 +5845,103 @@ void dna_import::IgnoreInsufficientMeasurements(vdnaStnPtr* vStations, vdnaMsrPt
 	// 1. Develop station map
 	SortandMapStations(vStations);
 
-	// 2. Develop ASL
-	vASLPtr vAssocStnList;
+	vASLPtr vAssocStnList;		// Temporary ASL
+	vUINT32 vAssocMsrList;		// Temporary AML
+
 	vstring vunusedStations;
 	vUINT32 vignoredMeasurements;
 	UINT32 lMapCount;
 
 	vPoorlyConstrainedStns->clear();
-	vstring vInsufficientMsr;
-	UINT32 d;
+	vstring vInsufficientMsrStns;
+	UINT32 stnIndex, stnmsr_indexAML;
 	bool foundInsufficientMeasurement;
 
+	vdnaMsrPtr vignMsr, vignMsrTotal;
 	vector<CDnaDirection>* vdirns;
 
-#ifdef _MSDEBUG
-	string stn;
-#endif
-
+	vignMsrTotal.clear();
 
 	do {
 
+		// 2. Develop ASL
 		MapMeasurementStations(vMeasurements, &vAssocStnList, &lMapCount,
 			&vunusedStations, &vignoredMeasurements);
 
-		// 3. Detect insufficient measurements
+		// 3. Develop AML
+		CompleteAssociationLists(vMeasurements, &vAssocStnList, &vAssocMsrList, cls_msr);
+
+		// 4. Detect insufficient measurements
 		vASLPtr::iterator _it_asl(vAssocStnList.begin()), _it_asl_begin(vAssocStnList.begin());
 		
 		foundInsufficientMeasurement = false;
-		vInsufficientMsr.clear();
+		vInsufficientMsrStns.clear();
 
 		// find stations for which there are insufficient measurements
 		for (_it_asl = vAssocStnList.begin(); _it_asl != vAssocStnList.end(); _it_asl++)
 		{
+			// Is there only one measurement to this station?
 			if (_it_asl->get()->GetAssocMsrCount() == 1)
 			{
-				foundInsufficientMeasurement = true;
-				d = static_cast<UINT32>(std::distance(_it_asl_begin, _it_asl));
-				vInsufficientMsr.push_back(vStnsMap_sortName_.at(d).first);
+				stnIndex = static_cast<UINT32>(std::distance(_it_asl_begin, _it_asl));
 
-#ifdef _MSDEBUG
-				stn = vStnsMap_sortName_.at(d).first;
-				if (stn.find("27293") != std::string::npos)
-					TRACE("Station %s\n", stn);
-				if (stn.find("27164") != std::string::npos)
-					TRACE("Station %s\n", stn);
-				if (stn.find("26899") != std::string::npos)
-					TRACE("Station %s\n", stn);
-				if (stn.find("27905") != std::string::npos)
-					TRACE("Station %s\n", stn);
-#endif
+				stnmsr_indexAML = vAssocMsrList.at(_it_asl->get()->GetAMLStnIndex());				
+				switch (vMeasurements->at(stnmsr_indexAML)->GetTypeC())
+				{
+				case 'G':	// GPS Baseline (treat as single-baseline cluster)
+				case 'X':	// GPS Baseline cluster
+				case 'Y':	// GPS point cluster
+					// Continue if a GNSS measurement is found, since GNSS is able to 
+					// estimate station coordinates in 3D
+					continue;
+				case 'H':	// Orthometric height
+				case 'R':	// Ellipsoidal height
+				case 'V':	// Zenith angle
+				case 'Z':	// Vertical angle
+				case 'L':	// Level difference
+					// Continue if:
+					// - an ellipsoid/orthometric height or vertical/zenith angle is found, and either
+					// - the station is constrained in 3D, or
+					// - the station is constrained in 2D
+					switch (vStations->at(stnIndex)->GetConstraintType())
+					{
+					case constrained_3D:		// CCC: 3D is constrained, no measurements are needed
+					case free_1D:				// CCF: 2D is constrained, one measurement is needed
+						// All good
+						continue;
+					case free_2D:				// FFC: 2D is free, two measurements are needed
+					case free_3D:				// FFF: 3D is free, three measurements are needed
+					case custom_constraint:		// Unsure: could be anything.
+						break;
+					}
+					// Insufficient vertical measurements
+					foundInsufficientMeasurement = true;
+					vInsufficientMsrStns.push_back(vStnsMap_sortName_.at(stnIndex).first);
+					break;
+				default:	
+					// All other 2D measurement types, which, alone, do not 
+					// sufficiently constrain coordinates in 2D.  So, continue if:
+					// - a latitude or longitude or ellipsoid/orthometric height or vertical/zenith angle is found, and
+					// - the station is held constrained in two dimensions
+					switch (vStations->at(stnIndex)->GetConstraintType())
+					{
+					case constrained_3D:		// CCC: 3D is constrained, no measurements are needed
+						// All good.
+						continue;
+					case free_1D:				// CCF: 2D is constrained, one measurement is needed
+					case free_2D:				// FFC: 2D is free, two measurements are needed
+					case free_3D:				// FFF: 3D is free, three measurements are needed
+					case custom_constraint:		// Unsure: could be anything.
+						break;
+					}
+					// Insufficient horizontal measurements, because:
+					// - CCF needs one measurement in vertical (H, R, V, Z, L)
+					// - FFC needs two measurements
+					// - FFF needs three measurements
+					foundInsufficientMeasurement = true;					
+					vInsufficientMsrStns.push_back(vStnsMap_sortName_.at(stnIndex).first);
+					break;
+				}				
 			}
 		}
 
@@ -5888,14 +5954,17 @@ void dna_import::IgnoreInsufficientMeasurements(vdnaStnPtr* vStations, vdnaMsrPt
 
 		// add the newly found insufficient measurements
 		vPoorlyConstrainedStns->insert(vPoorlyConstrainedStns->end(),
-			vInsufficientMsr.begin(), vInsufficientMsr.end());
+			vInsufficientMsrStns.begin(), vInsufficientMsrStns.end());
 
-		UINT32 msrIndex(0);
+		vignMsr.clear();
 
 		// find measurements connected to these stations and ignore them
-		sort(vInsufficientMsr.begin(), vInsufficientMsr.end());
+		sort(vInsufficientMsrStns.begin(), vInsufficientMsrStns.end());
 		for_each(vMeasurements->begin(), vMeasurements->end(),
-			[&vInsufficientMsr, &vMeasurements, &msrIndex, &vdirns](dnaMsrPtr msr) {
+			[&vInsufficientMsrStns, &vMeasurements, 
+			&vdirns, &vignMsr](dnaMsrPtr msr) {
+
+				bool insufficientMsrFound(false);
 
 				switch (msr->GetTypeC())
 				{
@@ -5903,10 +5972,12 @@ void dna_import::IgnoreInsufficientMeasurements(vdnaStnPtr* vStations, vdnaMsrPt
 				// three station measurements
 				case 'A':	// Horizontal angle
 
-					if (binary_search(vInsufficientMsr.begin(),
-						vInsufficientMsr.end(), msr->GetTarget2()))
+					if (binary_search(vInsufficientMsrStns.begin(),
+						vInsufficientMsrStns.end(), msr->GetTarget2()))
 					{
 						msr->SetInsufficient(true);
+						msr->SetIgnore(true);
+						vignMsr.push_back(msr);
 						break;
 					}
 					[[fallthrough]];
@@ -5922,10 +5993,12 @@ void dna_import::IgnoreInsufficientMeasurements(vdnaStnPtr* vStations, vdnaMsrPt
 				case 'V':	// Zenith angle
 				case 'Z':	// Vertical angle
 
-					if (binary_search(vInsufficientMsr.begin(),
-						vInsufficientMsr.end(), msr->GetTarget()))
+					if (binary_search(vInsufficientMsrStns.begin(),
+						vInsufficientMsrStns.end(), msr->GetTarget()))
 					{
+						msr->SetIgnore(true);
 						msr->SetInsufficient(true);
+						vignMsr.push_back(msr);
 						break;
 					}
 					[[fallthrough]];
@@ -5938,10 +6011,12 @@ void dna_import::IgnoreInsufficientMeasurements(vdnaStnPtr* vStations, vdnaMsrPt
 				case 'Q':	// Geodetic longitude
 				case 'R':	// Ellipsoidal height
 
-					if (binary_search(vInsufficientMsr.begin(),
-						vInsufficientMsr.end(), msr->GetFirst()))
+					if (binary_search(vInsufficientMsrStns.begin(),
+						vInsufficientMsrStns.end(), msr->GetFirst()))
 					{
 						msr->SetInsufficient(true);
+						msr->SetIgnore(true);
+						vignMsr.push_back(msr);
 						break;
 					}
 					break;
@@ -5949,18 +6024,22 @@ void dna_import::IgnoreInsufficientMeasurements(vdnaStnPtr* vStations, vdnaMsrPt
 				case 'D':	// Direction set
 				
 					// test first station, which if found, ignore the entire measurement.
-					if (binary_search(vInsufficientMsr.begin(),
-						vInsufficientMsr.end(), msr->GetFirst()))
+					if (binary_search(vInsufficientMsrStns.begin(),
+						vInsufficientMsrStns.end(), msr->GetFirst()))
 					{
 						msr->SetInsufficient(true);
+						msr->SetIgnore(true);
+						insufficientMsrFound = true;
 						break;
 					}
 
 					// test the target, which if found, ignore the entire measurement
-					if (binary_search(vInsufficientMsr.begin(),
-						vInsufficientMsr.end(), msr->GetTarget()))
+					if (binary_search(vInsufficientMsrStns.begin(),
+						vInsufficientMsrStns.end(), msr->GetTarget()))
 					{
 						msr->SetInsufficient(true);
+						msr->SetIgnore(true);
+						insufficientMsrFound = true;
 						break;
 					}
 
@@ -5969,35 +6048,52 @@ void dna_import::IgnoreInsufficientMeasurements(vdnaStnPtr* vStations, vdnaMsrPt
 					for (_it_dir = vdirns->begin(); _it_dir != vdirns->end(); ++_it_dir)
 					{
 						// test the individual directions, which if found, remove the direction from the vector
-						if (binary_search(vInsufficientMsr.begin(),
-							vInsufficientMsr.end(), _it_dir->GetTarget()))
+						if (binary_search(vInsufficientMsrStns.begin(),
+							vInsufficientMsrStns.end(), _it_dir->GetTarget()))
 						{
 							_it_dir->SetInsufficient(true);
+							_it_dir->SetIgnore(true);
+							insufficientMsrFound = true;
 							break;
 						}
 					}
 
-					erase_if(vdirns, CompareInsufficientClusterMeas<CDnaDirection>());
-					(static_cast<CDnaDirectionSet*>(msr.get()))->SetTotal(static_cast<UINT32>(vdirns->size()));
-
-					// if there are no directions left as a result of erase_if, ignore the direction set
-					if (vdirns->size() == 0)
+					if (insufficientMsrFound)
+					{
+						msr->SetInsufficient(true);
 						msr->SetIgnore(true);
+
+						vignMsr.push_back(msr);
+					}
 
 					break;
 				}
 
-				msrIndex++;
-
 			} // lambda
 		);
 
-		// remove insufficient measurements
-		erase_if(vMeasurements, CompareInsufficientMsr<CDnaMeasurement>());
+		// Were any measurements found that contain stations in vInsufficientMsrStns? 
+		if (vignMsr.size() > 0)
+		{
+			// exclude insufficient measurements
+			erase_if(vMeasurements, CompareInsufficientMsr<CDnaMeasurement>());
+			
+			// capture the insufficient measurements
+			vignMsrTotal.insert(vignMsrTotal.end(), vignMsr.begin(), vignMsr.end());
+		}
+		else
+			foundInsufficientMeasurement = false;
 
 	} while (foundInsufficientMeasurement);
 
-	sort(vPoorlyConstrainedStns->begin(), vPoorlyConstrainedStns->end());
+	
+	if (vPoorlyConstrainedStns->size() > 0)
+		sort(vPoorlyConstrainedStns->begin(), vPoorlyConstrainedStns->end());
+
+	// add the insufficient measurements back to the final vector.
+	// Note, these were ignored as part of the process above
+	if (vignMsrTotal.size() > 0)
+		vMeasurements->insert(vMeasurements->end(), vignMsrTotal.begin(), vignMsrTotal.end());
 
 }
 	
@@ -6601,7 +6697,7 @@ void dna_import::MapMeasurementStationsDir(vector<CDnaDirection>* vDirections, p
 		vAssocStnList->at(*_it_stn).get()->IncrementMsrCount();
 }
 
-void dna_import::CompleteAssociationLists(vdnaMsrPtr* vMeasurements, pvASLPtr vAssocStnList, pvUINT32 vAssocMsrList)
+void dna_import::CompleteAssociationLists(vdnaMsrPtr* vMeasurements, pvASLPtr vAssocStnList, pvUINT32 vAssocMsrList, const _AML_TYPE_ aml_type)
 {
 	CAStationList* currentASL;
 	
@@ -6664,16 +6760,16 @@ void dna_import::CompleteAssociationLists(vdnaMsrPtr* vMeasurements, pvASLPtr vA
 		{
 		case 'D':	// Direction set
 			vDirns = _it_msr->get()->GetDirections_ptr();
-			CompleteASLDirections(_it_msr, vDirns, vAssocStnList, vAssocMsrList, &currentBmsFileIndex);
+			CompleteASLDirections(_it_msr, vDirns, vAssocStnList, vAssocMsrList, &currentBmsFileIndex, aml_type);
 			continue;
 		case 'G':	// GPS Baseline (treat as single-baseline cluster)
 		case 'X':	// GPS Baseline cluster
 			vGpsBsls = _it_msr->get()->GetBaselines_ptr();
-			CompleteASLGpsBaselines(vGpsBsls, vAssocStnList, vAssocMsrList, &currentBmsFileIndex);
+			CompleteASLGpsBaselines(vGpsBsls, vAssocStnList, vAssocMsrList, &currentBmsFileIndex, aml_type);
 			continue;
 		case 'Y':	// GPS point cluster
 			vGpsPnts = _it_msr->get()->GetPoints_ptr();
-			CompleteASLGpsPoints(vGpsPnts, vAssocStnList, vAssocMsrList, &currentBmsFileIndex);
+			CompleteASLGpsPoints(vGpsPnts, vAssocStnList, vAssocMsrList, &currentBmsFileIndex, aml_type);
 			continue;
 		}
 
@@ -6840,7 +6936,7 @@ void dna_import::CompleteAssociationLists(vdnaMsrPtr* vMeasurements, pvASLPtr vA
 	
 
 void dna_import::CompleteASLDirections(_it_vdnamsrptr _it_msr, vector<CDnaDirection>* vDirections, pvASLPtr vAssocStnList, 
-										 pvUINT32 vAssocMsrList, PUINT32 currentBmsFileIndex)
+										 pvUINT32 vAssocMsrList, PUINT32 currentBmsFileIndex, const _AML_TYPE_ aml_type)
 {
 	ostringstream ss;
 	
@@ -6892,8 +6988,10 @@ void dna_import::CompleteASLDirections(_it_vdnamsrptr _it_msr, vector<CDnaDirect
 
 	// Add to unique list of stations
 	msrStations.push_back(stn_indexAML);
-
-	// Increment binary measurement count for Inst->RO, then once per direction
+	
+	// Increment measurement count, same for aml_type=str_msr and aml_type=cls_msr:
+	// - Increment binary measurement count for Inst->RO, then once per direction
+	// - Increment by 1 since a cluster of directions is handled by a single measurement class instance
 	(*currentBmsFileIndex)++;
 
 	// Calc AML index for Station - Target directions
@@ -6924,7 +7022,16 @@ void dna_import::CompleteASLDirections(_it_vdnamsrptr _it_msr, vector<CDnaDirect
 		msrStations.push_back(stn_indexAML);
 
 		// increment file index for next measurement
-		(*currentBmsFileIndex)++;
+		switch (aml_type)
+		{
+		case cls_msr:		// CDnaMeasurement class
+			// do nothing, handled above.
+			break;
+		case str_msr:		// msr_t struct
+		default:
+			(*currentBmsFileIndex)++;
+			break;
+		}
 	}
 
 	// Strip duplicates from msrStations, then increment station count once
@@ -6935,7 +7042,7 @@ void dna_import::CompleteASLDirections(_it_vdnamsrptr _it_msr, vector<CDnaDirect
 }
 
 void dna_import::CompleteASLGpsBaselines(vector<CDnaGpsBaseline>* vGpsBaselines, pvASLPtr vAssocStnList,
-										   pvUINT32 vAssocMsrList, PUINT32 currentBmsFileIndex)
+										   pvUINT32 vAssocMsrList, PUINT32 currentBmsFileIndex, const _AML_TYPE_ aml_type)
 {
 	CAStationList* currentASL;
 
@@ -6991,10 +7098,30 @@ void dna_import::CompleteASLGpsBaselines(vector<CDnaGpsBaseline>* vGpsBaselines,
 
 		msrStations.push_back(stn_indexAML);
 
-		// add:
-		// - 3 for (X, X var); (Y, Y var, XY covar); (Z, Zvar, XZ, YZ covar), and
-		// - 3 for each covariance
-		(*currentBmsFileIndex) = (*currentBmsFileIndex) + 3 + static_cast<UINT32>(_it_msr->GetCovariances_ptr()->size() * 3);
+		// increment file index for next measurement
+		switch (aml_type)
+		{
+		case cls_msr:		// CDnaMeasurement class
+			// do nothing, handled later.
+			break;
+		case str_msr:		// msr_t struct
+		default:
+			// add:
+			// - 3 for (X, X var); (Y, Y var, XY covar); (Z, Zvar, XZ, YZ covar), and
+			// - 3 for each covariance
+			(*currentBmsFileIndex) = (*currentBmsFileIndex) + 3 + static_cast<UINT32>(_it_msr->GetCovariances_ptr()->size() * 3);
+			break;
+		}
+	}
+
+	switch (aml_type)
+	{
+	case cls_msr:
+		// increment by 1 since a cluster of GNSS baselines is handled by a single measurement class instance
+		(*currentBmsFileIndex)++;
+		break;
+	case str_msr:
+		break;
 	}
 
 	// Strip duplicates from msrStations, then increment station count for each of the stations tied to this cluster
@@ -7004,7 +7131,7 @@ void dna_import::CompleteASLGpsBaselines(vector<CDnaGpsBaseline>* vGpsBaselines,
 }
 
 void dna_import::CompleteASLGpsPoints(vector<CDnaGpsPoint>* vGpsPoints, pvASLPtr vAssocStnList, 
-										pvUINT32 vAssocMsrList, PUINT32 currentBmsFileIndex)
+										pvUINT32 vAssocMsrList, PUINT32 currentBmsFileIndex, const _AML_TYPE_ aml_type)
 {
 	CAStationList* currentASL;
 
@@ -7037,10 +7164,30 @@ void dna_import::CompleteASLGpsPoints(vector<CDnaGpsPoint>* vGpsPoints, pvASLPtr
 		// Increment the measurement count
 		currentASL->IncrementMsrCount();
 
-		// add:
-		// - 3 for (X, X var); (Y, Y var, XY covar); (Z, Zvar, XZ, YZ covar), and
-		// - 3 for each covariance
-		(*currentBmsFileIndex) += 3 + static_cast<UINT32>(_it_msr->GetCovariances_ptr()->size() * 3);
+		// increment file index for next measurement
+		switch (aml_type)
+		{
+		case cls_msr:		// CDnaMeasurement class
+			// do nothing, handled later.
+			break;
+		case str_msr:		// msr_t struct
+		default:
+			// add:
+			// - 3 for (X, X var); (Y, Y var, XY covar); (Z, Zvar, XZ, YZ covar), and
+			// - 3 for each covariance
+			(*currentBmsFileIndex) += 3 + static_cast<UINT32>(_it_msr->GetCovariances_ptr()->size() * 3);
+			break;
+		}
+	}
+
+	switch (aml_type)
+	{
+	case cls_msr:
+		// increment by 1 since a cluster of GNSS points is handled by a single measurement class instance
+		(*currentBmsFileIndex) ++;
+		break;
+	case str_msr:
+		break;
 	}
 }
 

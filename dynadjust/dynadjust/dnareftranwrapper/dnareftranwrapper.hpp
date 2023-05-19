@@ -37,6 +37,8 @@
 #include <string>
 #include <time.h>
 
+#include <dynadjust/dnareftran/dnareftran.hpp>
+
 #include <boost/timer/timer.hpp>
 #include <boost/date_time/local_time/local_time.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
@@ -60,7 +62,6 @@
 #include <include/functions/dnafilepathfuncs.hpp>
 #include <include/functions/dnastrmanipfuncs.hpp>
 
-#include <dynadjust/dnareftran/dnareftran.hpp>
 
 using namespace std;
 using namespace boost;

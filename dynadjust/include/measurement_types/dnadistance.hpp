@@ -51,7 +51,7 @@ public:
 	//CDnaDistance(const bool bIgnore, const string& strType, const string& strFirst, const string& strTarget, const double& dValue, const double& dStdDev);
 
 	bool operator==(const CDnaDistance& rhs) const;
-	virtual bool operator<(const CDnaDistance& rhs) const;
+	bool operator<(const CDnaDistance& rhs) const;
 
 	//inline CDnaDistance& operator[](int iIndex) { return this[iIndex]; }
 

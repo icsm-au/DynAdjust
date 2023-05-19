@@ -100,8 +100,6 @@ private:
 	// disallow copying
 	CAStationList(const CAStationList&);
 	CAStationList& operator=(const CAStationList& rhs);
-	//inline CAStationList* clone() const { return new CAStationList(*this); }
-	//inline CAStationList& operator[](int iIndex) { return this[iIndex]; }
 
 public:
 
@@ -173,6 +171,7 @@ public:
 	inline string GetName() const { return m_strName; }
 	inline string GetOriginalName() const { return m_strOriginalName; }
 	inline string GetConstraints() const { return m_strConstraints; }
+	inline CONSTRAINT_TYPE GetConstraintType() const { return m_constraintType; }
 	inline string GetCoordType() const { return m_strType; }
 
 	inline double GetXAxis() const { return m_dXAxis; }	// X, Easting, Latitude
@@ -250,22 +249,10 @@ public:
 	inline void SetStationUse(bool use) { m_unusedStation = use; }
 
 	void SetConstraints(const string& str);
-	//void SetConstraints(const char&, const char&, const char&);
-	//void SetConstraints(const double&, const double&, const double&);
-	//void SetConstraints(const double&, const double&);
-	//void SetConstraints(const double&);
-	//void SetLatConstraint(const char&);
-	//void SetLonConstraint(const char&);
-	//void SetHtConstraint(const char&);
 
 	void SetXAxisStdDev(const string& str);
 	void SetYAxisStdDev(const string& str);
 	void SetHeightStdDev(const string& str);
-
-	//void SetXAxis(const char&, string, string, string);
-	//void SetYAxis(const char&, string, string, string);
-
-	//void UpdateConstraintsString();
 
 	void PrepareStnData(double& lat_east_x,	double& lon_north_y, double& ht_zone_z,
 		string& hemisphereZone, string& coordinateType,
@@ -351,6 +338,8 @@ protected:
 	string	m_referenceFrame;
 	string	m_epsgCode;
 	string	m_epoch;
+
+	CONSTRAINT_TYPE m_constraintType;
 };
 	
 }	// namespace measurements

@@ -91,28 +91,6 @@ CAStationList& CAStationList::operator =(CAStationList&& rhs)
 }
 
 
-//CAStationList::CAStationList(const CAStationList& newAStnList)
-//{
-//	availMsrCount_ = newAStnList.availMsrCount_;
-//	assocMsrCount_ = newAStnList.assocMsrCount_;
-//	amlStnIndex_ = newAStnList.amlStnIndex_;
-//	validStation_ = newAStnList.validStation_;
-//}
-
-
-//CAStationList& CAStationList::operator =(const CAStationList& rhs)
-//{
-//	// check for assignment to self!
-//	if (this == &rhs)
-//		return *this;
-//
-//	availMsrCount_ = rhs.availMsrCount_;
-//	assocMsrCount_ = rhs.assocMsrCount_;
-//	amlStnIndex_ = rhs.amlStnIndex_;
-//	validStation_ = rhs.validStation_;
-//
-//	return *this;
-//}
 
 
 
@@ -139,6 +117,7 @@ CDnaStation::CDnaStation(const string& referenceframe, const string& epoch)
 	, m_lfileOrder(0), m_lnameOrder(0)
 	, m_zone(0), m_unusedStation(INVALID_STATION)
 	, m_referenceFrame(referenceframe), m_epoch(epoch)
+	, m_constraintType(free_3D)
 {
 	m_epsgCode = epsgStringFromName<string>(referenceframe);
 }
@@ -187,6 +166,8 @@ CDnaStation::CDnaStation(const CDnaStation& newStation)
 	m_referenceFrame = newStation.m_referenceFrame;
 	m_epsgCode = newStation.m_epsgCode;
 	m_epoch = newStation.m_epoch;
+
+	m_constraintType = newStation.m_constraintType;
 }
 
 CDnaStation::CDnaStation(const string& strName, const string& strConstraints, 
@@ -276,6 +257,8 @@ CDnaStation& CDnaStation::operator =(const CDnaStation& rhs)
 	m_referenceFrame = rhs.m_referenceFrame;
 	m_epsgCode = rhs.m_epsgCode;
 	m_epoch = rhs.m_epoch;
+
+	m_constraintType = rhs.m_constraintType;
 	
 	return *this;
 }
@@ -283,265 +266,41 @@ CDnaStation& CDnaStation::operator =(const CDnaStation& rhs)
 
 void CDnaStation::SetConstraints(const string& sConstraints)
 {
+	// capture string, trim whitespace
 	m_strConstraints = trimstr(sConstraints);
-	m_cLatConstraint = (char)(*sConstraints.substr(0, 1).c_str());
-	m_cLonConstraint = (char)(*sConstraints.substr(1, 1).c_str());
-	m_cHtConstraint = (char)(*sConstraints.substr(2, 1).c_str());
-
-}
-
-//void CDnaStation::SetConstraints(const char& cLatConstraint, const char& cLonConstraint, const char& cHtConstraint)
-//{
-//	m_cLatConstraint = cLatConstraint;
-//	m_cLonConstraint = cLonConstraint;
-//	m_cHtConstraint = cHtConstraint;
-//	UpdateConstraintsString();
-//}
-
-//void CDnaStation::SetLatConstraint(const char& cLatConstraint)
-//{
-//	m_cLatConstraint = cLatConstraint;
-//	UpdateConstraintsString();
-//}
-
-//void CDnaStation::SetLonConstraint(const char& cLonConstraint)
-//{
-//	m_cLonConstraint = cLonConstraint;
-//	UpdateConstraintsString();
-//}
-
-//void CDnaStation::SetHtConstraint(const char& cHtConstraint)
-//{
-//	m_cHtConstraint = cHtConstraint;
-//	UpdateConstraintsString();
-//}
-
-//void CDnaStation::SetConstraints(const double& dLatConstraint, const double& dLonConstraint, const double& dHtConstraint)
-//{
-//	if (dLatConstraint <= 0.1)
-//		m_cLatConstraint = 'C';
-//	else
-//		m_cLatConstraint = 'F';
-//
-//	if (dLonConstraint <= 0.1)
-//		m_cLonConstraint = 'C';
-//	else
-//		m_cLonConstraint = 'F';
-//
-//	if (dHtConstraint <= 0.1)
-//		m_cHtConstraint = 'C';
-//	else
-//		m_cHtConstraint = 'F';
-//
-//
-//	UpdateConstraintsString();
-//}
-
-//void CDnaStation::SetConstraints(const double& dLatConstraint, const double& dLonConstraint)
-//{
-//	if (dLatConstraint <= 0.1)
-//		m_cLatConstraint = 'C';
-//	else
-//		m_cLatConstraint = 'F';
-//
-//	if (dLonConstraint <= 0.1)
-//		m_cLonConstraint = 'C';
-//	else
-//		m_cLonConstraint = 'F';
-//
-//	UpdateConstraintsString();
-//}
-
-//void CDnaStation::SetConstraints(const double& dHtConstraint)
-//{
-//	if (dHtConstraint <= 0.1)
-//		m_cHtConstraint = 'C';
-//	else
-//		m_cHtConstraint = 'F';
-//
-//	UpdateConstraintsString();
-//}
-
-
-
-//void CDnaStation::UpdateConstraintsString()
-//{
-//	ostringstream stream;
-//	stream << m_cLatConstraint << m_cLonConstraint << m_cHtConstraint;
-//	m_strConstraints = stream.str();
-//	//m_strConstraints.Format("%c%c%c", m_cLatConstraint, m_cLonConstraint, m_cHtConstraint);
-//}
 	
+	// No string provided?  Fill with FFF
+	if (sConstraints.empty())
+		m_strConstraints = "FFF";
 
-//void CDnaStation::SetXAxis(const char& cHemi, string strLat, string strMin, string strSec)
-//{
-//	string strString;
-//	strLat = trimstrleft(strLat);
-//	strMin = trimstrleft(strMin);
-//	strSec = trimstrleft(strSec);
-//
-//	ostringstream s;
-//
-//	bool bNegative = false;
-//	int nDeg = LongFromString<UINT32>(strLat);
-//	int nMin = LongFromString<UINT32>(strMin);
-//	double dSec = DoubleFromString<double>(strSec);
-//
-//	// Hemisphere
-//	if (cHemi == ' ' || cHemi == 's' || cHemi == 'S')
-//		bNegative = true;
-//
-//	// Degrees
-//	if (nDeg == 0)
-//	{
-//		if (nMin < 10)
-//			s << "0.0" << nMin;		// strString.Format("0.0%1d", nMin);
-//		else
-//			s << "0." << nMin;		// strString.Format("0.%2d", nMin);
-//		strString = s.str();
-//	}
-//	else
-//	{
-//		if (nMin < 10)
-//			s << nDeg << ".0" << nMin;		// strString.Format("%2d.0%1d", nDeg, nMin);
-//		else
-//			s << nDeg << "." << nMin;		// strString.Format("%2d.%2d", nDeg, nMin);
-//		strString = s.str();
-//	}
-//
-//	strString = trimstr(strString);
-//
-//	if (bNegative)
-//		strString.insert(0, "-");
-//
-//	// Format seconds without decimal place
-//	// First, compute number of decimal places
-//	size_t nDecPlaces;
-//	size_t dp;
-//	s.precision(0);
-//
-//	if ((dp = strSec.find(".")) == string::npos)
-//	{
-//		if (dSec < 10.0)
-//			s << "0" << dSec;		// strSec.Format("0%1.0f�", dSec);
-//		else
-//			s << dSec;			// strSec.Format("%2.0f�", dSec);
-//	}
-//	else
-//	{
-//		nDecPlaces = dp;
-//		nDecPlaces = strSec.length() - nDecPlaces - 1;
-//
-//		// extract the decimal place
-//		double dFactor = pow(10., static_cast<int> (nDecPlaces));
-//		double dTemp = dFactor * dSec;
-//		double d1onFactor = 1.0 / dFactor;
-//
-//		if ((dSec + d1onFactor) < 1.0)
-//			s << "00" << dTemp;		// strSec.Format("00%.0f", dTemp);
-//		else if ((dSec + d1onFactor) < 10.0)
-//			s << "0" << dTemp;		// strSec.Format("0%.0f", dTemp);
-//		else
-//			s << dTemp;				// strSec.Format("%.0f", dTemp);
-//		strSec = s.str();
-//
-//		size_t nLength = strSec.length();
-//		if (nLength < nDecPlaces + 2)
-//		{
-//			string sPadding(2 + nDecPlaces - nLength, '0');
-//			strSec = sPadding + strSec;
-//		}
-//	}
-//
-//	strString += strSec;
-//	SetXAxis(strString);
-//}
+	// Greater than 3 characters?  Trim to 3 characters
+	if (m_strConstraints.length() > 3)
+		m_strConstraints = m_strConstraints.substr(0, 3);
+	
+	// Less than 3 characters?  Pad with 'F'
+	if (m_strConstraints.length() < 3)
+		m_strConstraints.append(size_t(3 - m_strConstraints.length()), 'F');
+	
+	m_cLatConstraint = (char)(*m_strConstraints.substr(0, 1).c_str());
+	m_cLonConstraint = (char)(*m_strConstraints.substr(1, 1).c_str());
+	m_cHtConstraint = (char)(*m_strConstraints.substr(2, 1).c_str());
 
-
-//void CDnaStation::SetYAxis(const char& cHemi, string strLon, string strMin, string strSec)
-//{
-//	string strString;
-//	strLon = trimstrleft(strLon);
-//	strMin = trimstrleft(strMin);
-//	strSec = trimstrleft(strSec);
-//
-//	ostringstream s;
-//
-//	bool bNegative = false;
-//	int nDeg = LongFromString<UINT32>(strLon);
-//	int nMin = LongFromString<UINT32>(strMin);
-//	double dSec = DoubleFromString<double>(strSec);
-//
-//	// Hemisphere
-//	if (cHemi == 'w' || cHemi == 'W')
-//		bNegative = true;
-//
-//	// Degrees
-//	if (nDeg == 0)
-//	{
-//		if (nMin < 10)
-//			s << "0.0" << nMin;		// strString.Format("0.0%1d", nMin);
-//		else
-//			s << "0." << nMin;		// strString.Format("0.%2d", nMin);
-//		strString = s.str();
-//	}
-//	else
-//	{
-//		if (nMin < 10)
-//			s << nDeg << ".0" << nMin;		// strString.Format("%3d.0%1d", nDeg, nMin);
-//		else
-//			s << nDeg << "." << nMin;		// strString.Format("%3d.%2d", nDeg, nMin);
-//		strString = s.str();
-//	}
-//
-//	strString = trimstr(strString);
-//
-//	if (bNegative)
-//		strString.insert(0, "-");
-//
-//	// Format seconds without decimal place
-//	// First, compute number of decimal places
-//	size_t nDecPlaces;
-//	size_t dp;
-//	s.precision(0);
-//
-//	if ((dp = strSec.find(".")) == string::npos)
-//	{
-//		if (dSec < 10.0)
-//			s << "0" << dSec;		// strSec.Format("0%1.0f�", dSec);
-//		else
-//			s << dSec;			// strSec.Format("%2.0f�", dSec);
-//	}
-//	else
-//	{
-//		nDecPlaces = dp;
-//		nDecPlaces = strSec.length() - nDecPlaces - 1;
-//
-//		// extract the decimal place
-//		double dFactor = pow(10., static_cast<int> (nDecPlaces));
-//		double dTemp = dFactor * dSec;
-//		double d1onFactor = 1.0 / dFactor;
-//
-//		if ((dSec + d1onFactor) < 1.0)
-//			s << "00" << dTemp;		// strSec.Format("00%.0f", dTemp);
-//		else if ((dSec + d1onFactor) < 10.0)
-//			s << "0" << dTemp;		// strSec.Format("0%.0f", dTemp);
-//		else
-//			s << dTemp;				// strSec.Format("%.0f", dTemp);
-//		strSec = s.str();
-//
-//		size_t nLength = strSec.length();
-//		if (nLength < nDecPlaces + 2)
-//		{
-//			string sPadding(2 + nDecPlaces - nLength, '0');
-//			strSec = sPadding + strSec;
-//		}
-//	}
-//
-//	strString += strSec;
-//	SetYAxis(strString);
-//}
-
+	// Free in all 3 dimensions
+	if (iequals(m_strConstraints, "FFF"))
+		m_constraintType = free_3D;
+	// Constrained in all 3 dimensions
+	else if (iequals(m_strConstraints, "CCC"))
+		m_constraintType = constrained_3D;
+	// Horizontal or 2D adjustment
+	else if (iequals(m_strConstraints, "FFC"))
+		m_constraintType = free_2D;
+	// Vertical or 1D adjustment
+	else if (iequals(m_strConstraints, "CCF"))
+		m_constraintType = free_1D;
+	else
+		m_constraintType = custom_constraint;
+}
+	
 
 void CDnaStation::SetCoordType(const string& sType) {
 	m_strType = trimstr(sType);

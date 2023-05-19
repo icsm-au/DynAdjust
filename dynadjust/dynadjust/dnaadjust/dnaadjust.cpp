@@ -9699,7 +9699,7 @@ void dna_adjust::PrintAdjStation(ostream& os,
 	bool recomputeGeographicCoords, bool updateGeographicCoords,
 	bool reapplyTypeBUncertainties)
 {
-	double estLatitude, estLongitude, estHeight, E, N, Zo(-1.);
+	double estLatitude, estLongitude, estHeight, E(0.), N(0.), Zo(-1.);
 
 	it_vstn_t stn_it(bstBinaryRecords_.begin());
 	stn_it += stn;

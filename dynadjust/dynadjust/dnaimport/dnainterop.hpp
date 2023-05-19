@@ -177,7 +177,7 @@ public:
 
 	void SerialiseDatabaseId(const string& dbid_filename, pvdnaMsrPtr vMeasurements);
 
-	void CompleteAssociationLists(vdnaMsrPtr* vMeasurements, pvASLPtr vAssocStnList, pvUINT32 vAssocMsrList);
+	void CompleteAssociationLists(vdnaMsrPtr* vMeasurements, pvASLPtr vAssocStnList, pvUINT32 vAssocMsrList, const _AML_TYPE_ aml_type = str_msr);
 
 	double GetProgress();
 	inline bool IsProcessing() const { return isProcessing_; }
@@ -283,11 +283,11 @@ private:
 	void RenameStationsDir(vector<CDnaDirection>* vDirections, v_string_vstring_pair& stnRenaming);
 	
 	void CompleteASLDirections(_it_vdnamsrptr _it_msr, vector<CDnaDirection>* vDirections, pvASLPtr vAssocStnList, 
-		pvUINT32 vAssocMsrList, PUINT32 currentBmsFileIndex);
+		pvUINT32 vAssocMsrList, PUINT32 currentBmsFileIndex, const _AML_TYPE_ aml_type);
 	void CompleteASLGpsBaselines(vector<CDnaGpsBaseline>* vGpsBaselines, pvASLPtr vAssocStnList, 
-		pvUINT32 vAssocMsrList, PUINT32 currentBmsFileIndex);
+		pvUINT32 vAssocMsrList, PUINT32 currentBmsFileIndex, const _AML_TYPE_ aml_type);
 	void CompleteASLGpsPoints(vector<CDnaGpsPoint>* vGpsPoints, pvASLPtr vAssocStnList, 
-		pvUINT32 vAssocMsrList, PUINT32 currentBmsFileIndex);
+		pvUINT32 vAssocMsrList, PUINT32 currentBmsFileIndex, const _AML_TYPE_ aml_type);
 
 	//void FindUnusedStationsInIgnoredMeasurements(vdnaMsrPtr* vMeasurements, pvASLPtr vAssocStnList, pvUINT32 vAssocMsrList, pvstring vUnusedStns, pvUINT32 vIgnoredMsrs);
 

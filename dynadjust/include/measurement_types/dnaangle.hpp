@@ -52,7 +52,7 @@ public:
 	//CDnaAngle(const bool strIgnore, const string& strFirst, const string& strTarget, const string& strTarget2, const double& drValue, const double& dStdDev);
 
 	bool operator==(const CDnaAngle& rhs) const;
-	virtual bool operator<(const CDnaAngle& rhs) const;
+	bool operator<(const CDnaAngle& rhs) const;
 
 	//inline CDnaAngle& operator[](int iIndex) { return this[iIndex]; }
 

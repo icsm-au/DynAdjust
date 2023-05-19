@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LocalDebuggerCommandArguments>-n testnet --import-contiguous-stn-msr 0</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>-n auto5 testnet.network-0.stn testnet.network-0.msr --output-msr-to-stn --sort-msr-to-stn-field 1 --exclude-insuff --flag --export-dna</LocalDebuggerCommandArguments>
     <LocalDebuggerWorkingDirectory>$(DIST)dcmp\new-plan-zone</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>

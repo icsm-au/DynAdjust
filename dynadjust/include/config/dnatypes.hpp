@@ -404,6 +404,19 @@ typedef enum _MEASUREMENT_START_ {
 	zCov = 5
 } MEASUREMENT_START;
 
+typedef enum _CONSTRAINT_TYPE_ {
+	free_3D = 0,			// FFF - positional or 3d adjustment
+	constrained_3D = 1,		// CCC
+	free_2D = 2,			// FFC - horizontal or 2d adjustment. Implies vertical is tightly constrained (or fixed).
+	free_1D = 3,			// CCF - vertical or 1d adjustment. Implies horizontal is tightly constrained (or fixed).
+	custom_constraint = 4   // A custom constraint type that isn't necessarily
+} CONSTRAINT_TYPE;
+
+typedef enum _AML_TYPE_ {
+	str_msr = 0,	// msr_t struct
+	cls_msr = 1		// CDnaMeasurement class
+} AML_TYPE;
+
 enum iosMode
 {
 	binary = 0,

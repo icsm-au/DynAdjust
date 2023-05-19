@@ -66,7 +66,7 @@ public:
 	//		const float& fInstrHeight, const float& fTargetHeight);
 
 	bool operator==(const CDnaDirectionSet& rhs) const;
-	virtual bool operator<(const CDnaDirectionSet& rhs) const;
+	bool operator<(const CDnaDirectionSet& rhs) const;
 
 	//inline CDnaDirectionSet& operator[](int iIndex) { return this[iIndex]; }
 

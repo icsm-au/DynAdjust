@@ -57,7 +57,7 @@ public:
 
 	//virtual inline CDnaGpsBaseline* clone() const { return new CDnaGpsBaseline(*this); }
 	bool operator==(const CDnaGpsBaseline& rhs) const;
-	virtual bool operator<(const CDnaGpsBaseline& rhs) const;
+	bool operator<(const CDnaGpsBaseline& rhs) const;
 
 	//inline CDnaGpsBaseline& operator[](int iIndex) { return this[iIndex]; }
 
@@ -169,7 +169,7 @@ public:
 
 	//virtual inline CDnaGpsBaselineCluster* clone() const { return new CDnaGpsBaselineCluster(*this); }
 	bool operator==(const CDnaGpsBaselineCluster& rhs) const;
-	virtual bool operator<(const CDnaGpsBaselineCluster& rhs) const;
+	bool operator<(const CDnaGpsBaselineCluster& rhs) const;
 
 	//inline CDnaGpsBaselineCluster& operator[](int iIndex) { return this[iIndex]; }
 

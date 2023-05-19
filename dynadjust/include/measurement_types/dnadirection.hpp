@@ -58,7 +58,7 @@ public:
 
 	//virtual inline CDnaDirection* clone() const { return new CDnaDirection(*this); }
 	bool operator==(const CDnaDirection& rhs) const;
-	virtual bool operator<(const CDnaDirection& rhs) const;
+	bool operator<(const CDnaDirection& rhs) const;
 
 	//inline CDnaDirection& operator[](int iIndex) { return this[iIndex]; }
 

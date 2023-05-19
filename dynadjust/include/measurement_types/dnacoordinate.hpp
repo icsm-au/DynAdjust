@@ -57,7 +57,7 @@ public:
 	//CDnaCoordinate(const bool, const string&, const double&, const double&);
 
 	bool operator==(const CDnaCoordinate& rhs) const;
-	virtual bool operator<(const CDnaCoordinate& rhs) const;
+	bool operator<(const CDnaCoordinate& rhs) const;
 
 	//inline CDnaCoordinate& operator[](int iIndex) { return this[iIndex]; }
 
