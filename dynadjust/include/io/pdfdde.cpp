@@ -27,7 +27,6 @@ Caveats:
 #include <ddeml.h>
 #include <dde.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <shellapi.h>
 
