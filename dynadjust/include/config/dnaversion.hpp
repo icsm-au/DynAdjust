@@ -308,6 +308,7 @@ const char* const __plot_dll_name__ = "libdnaplot.so";
 #define __COMPILER__ "HP C++"
 #define __COMPILER_VERSION__ __HP_aCC
 #elif defined(_MSC_VER)
+// https://learn.microsoft.com/en-us/cpp/overview/compiler-versions?view=msvc-170#version-macros
 #define __COMPILER__ "MSVC++"
 #if (_MSC_VER == 1100)	
 #define __COMPILER_VERSION__ "5.0"
@@ -375,8 +376,18 @@ const char* const __plot_dll_name__ = "libdnaplot.so";
 #define __COMPILER_VERSION__ "17.4, VS2022"
 #elif (_MSC_VER == 1935)
 #define __COMPILER_VERSION__ "17.5, VS2022"
+#elif (_MSC_VER == 1936)
+#define __COMPILER_VERSION__ "17.6, VS2022"
+#elif (_MSC_VER == 1937)
+#define __COMPILER_VERSION__ "17.7, VS2022"
+#elif (_MSC_VER == 1938)
+#define __COMPILER_VERSION__ "17.8, VS2022"
+#elif (_MSC_VER == 1939)
+#define __COMPILER_VERSION__ "17.9, VS2022"
+#elif (_MSC_VER == 1940)
+#define __COMPILER_VERSION__ "17.10, VS2022"
 
-#elif (_MSC_VER > 1935)
+#elif (_MSC_VER > 1940)
 #define __COMPILER_VERSION__ _MSC_VER
 #endif
 #else
