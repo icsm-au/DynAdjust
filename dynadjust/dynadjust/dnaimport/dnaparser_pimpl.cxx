@@ -867,7 +867,8 @@ void DnaStation_pimpl::post_DnaStation()
 // DnaXmlFormat_pimpl
 //
 
-DnaXmlFormat_pimpl::DnaXmlFormat_pimpl(std::ifstream* is, PUINT32 clusterID, const string& referenceframe, const string& epoch, bool userspecifiedreferenceframe, bool overridereferenceframe)
+DnaXmlFormat_pimpl::DnaXmlFormat_pimpl(std::ifstream* is, PUINT32 clusterID, const string& referenceframe, const string& epoch, 
+	bool firstFile, bool userspecifiedreferenceframe, bool overridereferenceframe)
 {
 	// capture pointer to file stream
 	is_ = is;
@@ -878,6 +879,9 @@ DnaXmlFormat_pimpl::DnaXmlFormat_pimpl(std::ifstream* is, PUINT32 clusterID, con
 	// capture default reference frame and epoch
 	_referenceframe = referenceframe;
 	_epoch = epoch;
+
+	// capture first file flag
+	_firstFile = firstFile;
 
 	// Has the user supplied a reference frame and should this be used to override all?
 	_userspecifiedreferenceframe = userspecifiedreferenceframe;
@@ -1306,34 +1310,46 @@ void referenceframe_pimpl::pre()
 // For DynaML.xsd, the following is specified:
 //     <xs:attribute name="referenceframe" type="xs:string" use="optional" default="GDA2020"/>
 // In this case, post_string() will return "GDA2020"
-void referenceframe_pimpl::post_type(string& referenceframe, bool userspecifiedreferenceframe, bool overridereferenceframe)
+void referenceframe_pimpl::post_type(string& referenceframe, string& fileEpsg, bool userspecifiedreferenceframe, bool overridereferenceframe, bool firstFile)
 {
-	// 1. Get the DnaXmlFormat referenceframe attribute value from the file
-	_referenceframe = trimstr(post_string());
 
-	// 2. Does the user want to override the default datum?
-	if (overridereferenceframe)
-		// Do nothing, just return as referenceframe will become 
-		// the default for all stations and measurements loaded
-		// from the file.
-		return;
-	
-	// 3. Does the user want the referenceframe attribute in the file to become the default?
-	if (!userspecifiedreferenceframe)
+	if (firstFile)
 	{
-		// Here, the assumption is, if the user did not specify a reference frame,
-		// then the user wants to adopt the DnaXmlFormat referenceframe attribute
+		// 1. Get the DnaXmlFormat referenceframe attribute value from the file
+		_referenceframe = trimstr(post_string());
+		fileEpsg = epsgStringFromName<string>(_referenceframe);
+
+		// 2. Does the user want to override the default datum?
+		if (overridereferenceframe)
+			// Do nothing, just return as referenceframe will become 
+			// the default for all stations and measurements loaded
+			// from the file.
+			return;
 		
-		// But, is this attribute value an empty string?  As long as a default value 
-		// is specified in DynaML.xsd, this value will never be empty, unless the user
-		// has inadvertently set in the xml file, e.g.:
-		//  <DnaXmlFormat referenceframe="" ... >
+		// 3. Does the user want the referenceframe attribute in the file to become the default?
+		if (!userspecifiedreferenceframe)
+		{
+			// Here, the assumption is, if the user did not specify a reference frame,
+			// then the user wants to adopt the DnaXmlFormat referenceframe attribute
+			
+			// But, is this attribute value an empty string?  As long as a default value 
+			// is specified in DynaML.xsd, this value will never be empty, unless the user
+			// has inadvertently set in the xml file, e.g.:
+			//  <DnaXmlFormat referenceframe="" ... >
+			if (!_referenceframe.empty())
+				// Set the DynaML parser reference frame to the file's DnaXmlFormat referenceframe attribute 
+				referenceframe = _referenceframe;
+			else
+				// Set to the default reference frame passed from import
+				_referenceframe = referenceframe;
+		}
+	}
+	else
+	{
 		if (_referenceframe.empty())
 			// Set to the default reference frame passed from import
 			_referenceframe = referenceframe;
-		else
-			// adopt the DnaXmlFormat referenceframe attribute 
-			referenceframe = _referenceframe;
+		fileEpsg = epsgStringFromName<string>(trimstr(post_string()));
 	}
 }
 
@@ -1349,22 +1365,48 @@ void epoch_pimpl::pre()
 // For DynaML.xsd, the following is specified:
 //     <xs:attribute name="epoch" type="xs:string" use="optional" default="01.01.1994"/>
 // In this case, post_string() will return "01.01.1994"
-void epoch_pimpl::post_type(string& epoch, bool overridereferenceframe)
+void epoch_pimpl::post_type(string& epoch, string& fileEpoch, bool userspecifiedreferenceframe, bool overridereferenceframe, bool firstFile)
 {
-	// 1. Get the DnaXmlFormat epoch attribute value from the file
-	_epoch = post_string();
+	if (firstFile)
+	{
+		// 1. Get the DnaXmlFormat epoch attribute value from the file
+		_epoch = trimstr(post_string());
+		fileEpoch = _epoch;
 
-	// 2. Does the user want to override the default datum?
-	if (overridereferenceframe)
-		// Do nothing, just return as epoch will become 
-		// the default for all stations and measurements loaded
-		// from the file.
-		return;
+		// 2. Does the user want to override the default datum?
+		if (overridereferenceframe)
+			// Do nothing, just return as epoch will become 
+			// the default for all stations and measurements loaded
+			// from the file.
+			return;
 
-	// Since import doesn't offer an option to capture epoch on the command line,
-	// take the epoch from the DnaXmlFormat referenceframe attribute 
-	if (_epoch.empty())
-		epoch = _epoch;	
+		// 3. Does the user want the epoch attribute in the file to become the default?
+		if (!userspecifiedreferenceframe)
+		{
+			// Here, the assumption is, if the user did not specify a reference frame,
+			// then the user wants to adopt the DnaXmlFormat epoch attribute
+
+			// But, is this attribute value an empty string?  As long as a default value 
+			// is specified in DynaML.xsd, this value will never be empty, unless the user
+			// has inadvertently set in the xml file, e.g.:
+			//  <DnaXmlFormat epoch="" ... >
+			if (!_epoch.empty())
+				// Set the DynaML parser epoch to the file's DnaXmlFormat epoch attribute 
+				epoch = _epoch;
+			else
+				// Set to the default epoch passed from import
+				_epoch = epoch;
+		}
+	}
+	else
+	{
+		// Since import doesn't offer an option to capture epoch on the command line,
+		// take the epoch from the DnaXmlFormat referenceframe attribute 
+		if (_epoch.empty())
+			// Set to the default reference frame passed from import
+			_epoch = epoch;
+		fileEpoch = trimstr(post_string());
+	}
 }
 
 // system_pimpl

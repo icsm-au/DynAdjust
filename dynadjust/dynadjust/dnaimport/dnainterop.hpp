@@ -112,7 +112,7 @@ public:
 	// Parse an xml file
 	_PARSE_STATUS_ ParseInputFile(const string& filename, vdnaStnPtr* vStations, PUINT32 stnCount, 
 		vdnaMsrPtr* vMeasurements, PUINT32 msrCount, 
-		PUINT32 clusterID, input_file_meta_t* input_file_meta,
+		PUINT32 clusterID, input_file_meta_t* input_file_meta, bool firstFILE,
 		string* success_msg, project_settings* p);
 
 	_PARSE_STATUS_ LoadDNAGeoidFile(const string& fileName, vdnaStnPtr* vStations);
@@ -187,8 +187,7 @@ public:
 	inline _PARSE_STATUS_ GetStatus() const { return parseStatus_; }
 
 	void inline ResetFileOrder() const { g_fileOrder = 0; }
-	void InitialiseDatum(const string& reference_frame);
-	void UpdateEpoch(const vifm_t* vinput_file_meta);
+	void InitialiseDatum(const string& reference_frame, const string epoch="");
 	
 	void PrintMeasurementsToStations(string& m2s_file, MsrTally* parsemsrTally,
 		string& bst_file, string& bms_file, string& aml_file, pvASLPtr vAssocStnList);
@@ -201,7 +200,7 @@ private:
 	// DynaML files
 	void ParseXML(const string& fileName, vdnaStnPtr* vStations, PUINT32 stnCount, 
 							   vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID, 
-							   string& fileEpsg, string& fileEpoch, string* success_msg);
+							   string& fileEpsg, string& fileEpoch, bool firstFile, string* success_msg);
 	
 	// SINEX files
 	void ParseSNX(const string& fileName, vdnaStnPtr* vStations, PUINT32 stnCount, 
@@ -211,7 +210,7 @@ private:
 	//void ParseDNAVersion(const INPUT_DATA_TYPE& idt);
 	void ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32 stnCount, 
 							   vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID, 
-							   string& fileEpsg, string& fileEpoch);
+							   string& fileEpsg, string& fileEpoch, bool firstFile);
 	void ParseDNASTN(vdnaStnPtr* vStations, PUINT32 stnCount);
 	void ParseDNAMSR(pvdnaMsrPtr vMeasurements, PUINT32 msrCount, PUINT32 clusterID);
 

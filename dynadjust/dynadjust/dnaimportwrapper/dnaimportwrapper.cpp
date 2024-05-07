@@ -61,7 +61,14 @@ void PrintOutputFileHeaderInfo(std::ofstream* f_out, const string& out_file, pro
 	}
 	
 	if (!p->i.reference_frame.empty())
-		*f_out << setw(PRINT_VAR_PAD) << left << "Default reference frame:" << p->i.reference_frame << endl;
+	{	
+		*f_out << setw(PRINT_VAR_PAD) << left << "Default reference frame:" << p->i.reference_frame;
+		if (p->i.user_supplied_frame)
+			*f_out << " (user supplied)";
+		else
+			*f_out << " (default)";
+		*f_out << endl;
+	}
 	
 	if (!p->i.include_msrs.empty())
 		*f_out << setw(PRINT_VAR_PAD) << left << "Strip all measurements except:" << p->i.include_msrs << endl;
@@ -528,9 +535,10 @@ void ExportStationsandMeasurements(dna_import* parserDynaML, const project_setti
 			if (!iequals(epsgCode, vinput_file_meta->at(i).epsgCode))
 			{
 				string inputFrame(datumFromEpsgString<string>(vinput_file_meta->at(i).epsgCode));
-				ssEpsgWarning << endl << "- Warning: The default reference frame (used for all exported files)" << endl << 
-					"  does not match the reference frame of one or more input files. To" << endl <<
-					"  suppress this warning, override the default reference frame using" << endl <<
+				ssEpsgWarning << endl << "- Warning: The default reference frame (" << p.i.reference_frame  << ")" << 
+					" used for all exported" << endl <<
+					"  files does not match the reference frame of one or more input files." << endl <<
+					"  To suppress this warning, override the default reference frame using" << endl <<
 					"  --reference-frame, or provide --override-input-ref-frame.";
 				displayEpsgWarning = true;
 				break;
@@ -780,9 +788,6 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 	//
 	UINT32 stnCount(0), msrCount(0), clusterID(0);
 	
-	// obtain the project reference frame
-	string epsgCode(epsgStringFromName<string>(p.i.reference_frame));
-	
 	size_t pos = string::npos;
 	size_t strlen_arg = 0;
 	for_each(p.i.input_files.begin(), p.i.input_files.end(),
@@ -794,7 +799,7 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 	strlen_arg += (6 + PROGRESS_PERCENT_04);
 
 	size_t i, nfiles(p.i.input_files.size());		// for each file...
-	string input_file, ss, status_msg;
+	string epsgCode, input_file, ss, status_msg;
 	vstring input_files;
 	ostringstream ss_time, ss_msg;
 	input_file_meta_t input_file_meta;
@@ -805,8 +810,13 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 		cout << "+ Parsing: " << endl;
 	*imp_file << "+ Parsing " << endl;
 
+	bool firstFile;
+
 	for (i=0; i<nfiles; i++)
 	{
+		// obtain the project reference frame
+		epsgCode = epsgStringFromName<string>(p.i.reference_frame);
+
 		stnCount = msrCount = 0;
 		input_file = p.i.input_files.at(i);
 		if (!exists(input_file))
@@ -826,12 +836,14 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 		*imp_file << "  " << setw(strlen_arg) << left << ss;
 
 		running = true;
+		firstFile = bool(i == 0);
+
 		thread_group ui_interop_threads;
 		if (!p.g.quiet)
 			ui_interop_threads.create_thread(dna_import_progress_thread(&parserDynaML, &p));
 		ui_interop_threads.create_thread(dna_import_thread(&parserDynaML, &p, input_file,
 			vStations, &stnCount, vMeasurements, &msrCount,
-			&clusterID, &input_file_meta, &status_msg,
+			&clusterID, &input_file_meta, firstFile, &status_msg,
 			&elapsed_time));
 		ui_interop_threads.join_all();
 
@@ -903,22 +915,69 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 			}
 			*imp_file << time_message << endl;
 
-			// Produce a warning if the input file's default reference frame
+			// Produce a info or warning if the input file's default reference frame
 			// is different to the project reference frame
-			string inputFileEpsg;
+			string inputFileEpsg, inputFileDatum, inputFileEpoch;
 			try {
-				inputFileEpsg = datumFromEpsgString<string>(input_file_meta.epsgCode);
+				inputFileDatum = datumFromEpsgString<string>(input_file_meta.epsgCode);
+				inputFileEpsg = input_file_meta.epsgCode;
+				inputFileEpoch = input_file_meta.epoch;
 			}
 			catch (...) {
+				inputFileDatum = epsgCode;
 				inputFileEpsg = epsgCode;
+			}
+
+			// Is this the first file?  If so, attempt to set the default datum from
+			// the input file (if applicable).
+			UINT32 epsgCodei;
+			bool referenceframeChanged(false);
+			if (firstFile)
+			{				
+				// If the user has not provided a reference frame, then inspect the file reference frame
+				// If the file does not contain a reference frame (eg SNX), fileEpsg will be empty. Thus,
+				// no change will occur.
+				if (!inputFileEpsg.empty() && !p.i.user_supplied_frame)
+				{
+					// Set the project defaults
+					referenceframeChanged = true;
+					epsgCodei = LongFromString<UINT32>(inputFileEpsg);
+					p.i.reference_frame = datumFromEpsgCode<string, UINT32>(epsgCodei);
+					p.r.reference_frame = p.i.reference_frame;					
+					
+					try {
+						// Initialise the 'default' datum (frame and epoch) for the project, from the first file.
+						parserDynaML.InitialiseDatum(p.i.reference_frame, trimstr(inputFileEpoch));
+					}
+					catch (const XMLInteropException& e) {
+						stringstream ss;
+						ss << "- Error: ";
+						cout << ss.str() << e.what() << endl;
+						return EXIT_FAILURE;
+					}
+				}
+
+				if (inputFileEpoch.empty())
+					p.r.epoch = referenceepochFromEpsgCode<UINT32>(epsgCodei);
+				else
+					p.r.epoch = inputFileEpoch;
 			}
 
 			if (!iequals(epsgCode, input_file_meta.epsgCode))
 			{
 				stringstream ssEpsgWarning;
-				
-				ssEpsgWarning << "- Warning: Input file reference frame (" << inputFileEpsg <<
-					") does not match the " << endl << "  default reference frame.";
+
+				if (referenceframeChanged)
+				{
+					ssEpsgWarning << "- Warning: The default reference frame (" << GDA2020_s << ") has been changed to " << endl <<
+						"  the default datum of " << leafStr<string>(p.i.input_files.at(i)) << " (" << inputFileDatum << ").";
+				}
+				else				
+				{
+					ssEpsgWarning << "- Warning: Input file reference frame (" << inputFileDatum <<
+						") does not match the " << endl << "  default reference frame (" << p.i.reference_frame << ").";
+				}
+
 				if (!p.g.quiet)
 					cout << ssEpsgWarning.str() << endl;
 				*imp_file << ssEpsgWarning.str() << endl;
@@ -1260,7 +1319,15 @@ int main(int argc, char* argv[])
 		cout << setw(PRINT_VAR_PAD) << left << "  Binary measurement output file: " << p.i.bms_file << endl;
 		
 		if (!p.i.reference_frame.empty())
-			cout << setw(PRINT_VAR_PAD) << left << "  Default reference frame:" << p.i.reference_frame << endl;
+		{
+			cout << setw(PRINT_VAR_PAD) << left << "  Default reference frame:" << p.i.reference_frame;
+			
+			if (p.i.user_supplied_frame)
+				cout << " (user supplied)";
+			else
+				cout << " (default)";
+			cout << endl;
+		}
 	
 		if (p.i.override_input_rfame)
 			cout << setw(PRINT_VAR_PAD) << left << "  Override input file ref frame:" << yesno_string(p.i.override_input_rfame) << endl;
@@ -1334,6 +1401,9 @@ int main(int argc, char* argv[])
 
 	// First things first!
 	// Set the 'default' reference frame for the binary station and measurement files
+	// At this point, the frame may be the hard-coded default, or a user-specified 
+	// frame via:   -r [--reference-frame] arg
+	// See comments in InitialiseDatum()
 	try {
 		// Initialise the 'default' datum for the project.
 		parserDynaML.InitialiseDatum(p.i.reference_frame);
@@ -1408,6 +1478,9 @@ int main(int argc, char* argv[])
 		}
 	}
 
+	// Now, set the 'default' epoch in the binary station and measurement files
+	string default_datum = p.i.reference_frame;
+
 	// Import network information based on a segmentation block?
 	if (p.i.import_block)
 	{
@@ -1444,18 +1517,6 @@ int main(int argc, char* argv[])
 
 	if (!p.g.quiet)
 		cout << endl;
-
-	// Now, set the 'default' epoch in the binary station and measurement files
-	try {
-		// Initialise the 'default' datum for the project.
-		parserDynaML.UpdateEpoch(&vinput_file_meta);
-	}
-	catch (const XMLInteropException& e) {
-		stringstream ss;
-		ss << "- Error: ";
-		cout << ss.str() << e.what() << endl;
-		return EXIT_FAILURE;
-	}
 
 	vstring vPoorlyConstrainedStns;
 
@@ -2505,9 +2566,6 @@ int main(int argc, char* argv[])
 		parserDynaML.SerialiseDatabaseId(p.i.dbid_file, &vmeasurementsTotal);
 	}
 
-
-	
-
 	// Export stations and measurements
 	try {
 		if (p.i.export_dynaml || p.i.export_dna_files)
@@ -2549,7 +2607,8 @@ int main(int argc, char* argv[])
 	
 	if (errorCount)
 	{
-		cout << "- Warning: some files were not parsed - please read the log file for more details." << endl;
+		if (!p.g.quiet)
+			cout << "- Warning: some files were not parsed - please read the log file for more details." << endl;
 		imp_file << "- Warning: some files were not parsed - please read the log file for more details." << endl;
 	}
 

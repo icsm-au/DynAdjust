@@ -90,11 +90,11 @@ class dna_import_thread
 public:
 	dna_import_thread(dna_import* dnaParse, project_settings* p, const string& filename,
 		vdnaStnPtr* vStations, PUINT32 stnCount, vdnaMsrPtr* vMeasurements, PUINT32 msrCount,
-		PUINT32 clusterID, input_file_meta_t* input_file_meta, string* status_msg,
+		PUINT32 clusterID, input_file_meta_t* input_file_meta, bool firstFile, string* status_msg,
 		milliseconds* ms)
 		: _dnaParse(dnaParse), _p(p), _filename(filename)
 		, _vStations(vStations), _stnCount(stnCount), _vMeasurements(vMeasurements), _msrCount(msrCount)
-		, _clusterID(clusterID), _input_file_meta(input_file_meta)
+		, _clusterID(clusterID), _input_file_meta(input_file_meta), _firstFile(firstFile)
 		, _status_msg(status_msg), _ms(ms) {};
 	void operator()()
 	{
@@ -103,7 +103,7 @@ public:
 			_dnaParse->ParseInputFile(_filename, 
 				_vStations, _stnCount, 
 				_vMeasurements, _msrCount, 
-				_clusterID, _input_file_meta,
+				_clusterID, _input_file_meta, _firstFile,
 				_status_msg, _p);
 			*_ms = milliseconds(time.elapsed().wall/MILLI_TO_NANO);
 		} 
@@ -123,7 +123,7 @@ public:
 	inline void SetFile(const string& file) { _filename = file; }
 
 private:
-	dna_import*		_dnaParse;
+	dna_import*			_dnaParse;
 	project_settings*	_p;
 	string				_filename;
 	vdnaStnPtr*			_vStations;
@@ -132,6 +132,7 @@ private:
 	PUINT32				_msrCount;
 	PUINT32				_clusterID;
 	input_file_meta_t*	_input_file_meta;
+	bool				_firstFile;
 	string*				_status_msg;
 	milliseconds*		_ms;
 };

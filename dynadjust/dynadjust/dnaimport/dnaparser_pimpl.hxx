@@ -117,6 +117,7 @@ class DnaXmlFormat_pimpl: public virtual DnaXmlFormat_pskel
 public:
 	DnaXmlFormat_pimpl(std::ifstream* is, PUINT32 clusterID, 
 		const string& referenceframe, const string& epoch,
+		bool firstFile,
 		bool userspecifiedreferenceframe, bool overridereferenceframe);
 	virtual void pre ();
 	virtual void DnaStation ();
@@ -131,6 +132,9 @@ public:
 	inline UINT32 NumStationsRead() const { return _station_count; }
 	inline UINT32 NumMeasurementsRead() const { return _measurement_count; }
 	inline UINT32 CurrentClusterID() const { return _clusterID; }
+
+	inline string FileEpsg() const { return _fileEpsg; }
+	inline string FileEpoch() const { return _fileEpoch; }
 
 protected:
 	string _parse_msg;
@@ -233,7 +237,7 @@ class referenceframe_pimpl: public virtual referenceframe_pskel,
 {
 public:
 	virtual void pre ();
-	virtual void post_type (string& referenceframe, bool userspecifiedreferenceframe, bool override_referenceframe);
+	virtual void post_type (string& referenceframe, string& fileEpsg, bool userspecifiedreferenceframe, bool override_referenceframe, bool firstFile);
 	inline const string str() { return _referenceframe; }
 
 protected:
@@ -246,7 +250,7 @@ class epoch_pimpl: public virtual epoch_pskel,
 {
 public:
 	virtual void pre ();
-	virtual void post_type (string& epoch, bool override_referenceframe);
+	virtual void post_type (string& epoch, string& fileEpoch, bool userspecifiedreferenceframe, bool override_referenceframe, bool firstFile);
 	inline const string str() { return _epoch; }
 
 protected:

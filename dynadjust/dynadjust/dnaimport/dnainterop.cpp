@@ -182,44 +182,13 @@ void dna_import::BuildExtractStationsList(const string& stnList, pvstring vstnLi
 }
 	
 
-void dna_import::UpdateEpoch(const vifm_t* vinput_file_meta)
-{
-	// Inspect the first file that was loaded.
-	// Assume that the epoch in that file is the desired epoch.
-
-	string epoch("");
-
-	if (vinput_file_meta->empty())
-		// Do nothing
-		return;
-
-	epoch = vinput_file_meta->at(0).epoch;
-
-	if (epoch.empty())
-		// Do nothing
-		return;
-
-	if (dateFromString<date>(epoch) == timeImmemorial<date>())
-		epoch = "";
-
-	m_strProjectDefaultEpoch = epoch;
-
-	// Set default epoch
-	datum_.SetEpoch(epoch);
-
-	// Update bst and bms files accordingly
-	sprintf(bst_meta_.epoch, "%s", epoch.substr(0, STN_EPOCH_WIDTH).c_str());
-	sprintf(bms_meta_.epoch, "%s", epoch.substr(0, STN_EPOCH_WIDTH).c_str());	
-}
-	
-
-void dna_import::InitialiseDatum(const string& reference_frame)
+void dna_import::InitialiseDatum(const string& reference_frame, const string epoch)
 {
 	try {
 		// Take the default reference frame, set either by the user or
 		// the datum_ constructor (GDA2020).  Epoch is that of the default
 		// reference frame (indicated by "")
-		datum_.SetDatumFromName(reference_frame, "");
+		datum_.SetDatumFromName(reference_frame, epoch);
 	}
 	catch (const runtime_error& e) {
 		stringstream ss;
@@ -236,13 +205,15 @@ void dna_import::InitialiseDatum(const string& reference_frame)
 		m_strProjectDefaultEpoch = "";
 
 	// Update binary file meta
-	// Note: the following rule applies each time a new file is loaded:
-	//	* This method (InitialiseDatum) is called (from dnaimportwrapper) before any files are loaded
-	//  * By default, the bst & bms meta is initialised with the reference frame and reference epoch.
-	//	* As each file is loaded, the frame and epoch from the files are captured from the header
-	//  * Once all files have been loaded, UpdateEpoch() is called to update the default epoch, with the
-	//    assumption that the first file contains the epoch that is to be used for the default, e.g. SINEX file.
-	//  * DynAdjust will not attempt to reconcile multiple default epochs found across the input files
+	// Note: the following rule applies each time a set of files is loaded via import:
+	//	* This method (InitialiseDatum) is called (from dnaimportwrapper) before any files are loaded.
+	//    By default, the bst & bms meta are initialised with the reference frame and reference epoch.
+	//  * The datum and epoch within the first file (if present) is used to set the default project 
+	//    datum. If a datum isn't provided in the first input file, e.g. SINEX file, the default datum
+	//    (GDA2020) is used. As each subsequent file is loaded, the default frame and epoch are assumed.
+	//  * After all files have been loaded, InitialiseDatum is called again to set the metadata.
+	//  * import does not attempt to reconcile multiple default datums and epochs found across the input
+	//    files. It will however produce a warning when something different to the default is discovered.
 	sprintf(bst_meta_.epsgCode, "%s", m_strProjectDefaultEpsg.substr(0, STN_EPSG_WIDTH).c_str());
 	sprintf(bms_meta_.epsgCode, "%s", m_strProjectDefaultEpsg.substr(0, STN_EPSG_WIDTH).c_str());
 	sprintf(bst_meta_.epoch, "%s", m_strProjectDefaultEpoch.substr(0, STN_EPOCH_WIDTH).c_str());
@@ -250,101 +221,9 @@ void dna_import::InitialiseDatum(const string& reference_frame)
 }
 	
 
-//   // DynaXML, dna v.1-2 and sinex file formats do not contain reference frame information, so
-//   // by default the reference frame for all stations is set to GDA2020.
-//   // This function is called to modify the default frame to a user-specified frame
-//   void dna_import::SetDefaultReferenceFrame(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements)
-//   {
-//   	// Default is GDA2020.
-//   	switch (m_ift)
-//   	{
-//   	case sinex:			// SNX	
-//   		// For sinex files, the default (or user input) reference frame is set in
-//   		// parse_sinex_msr and parse_sinex_stn.  The epoch of the sinex file is
-//   		// also set in these functions.  Hence, there is no need to override here.
-//   		return;
-//   
-//   	case dynaml:		// DynaML - *stn.xml and *msr.xml
-//   		// Reference frame is properly handled in and dnaparser_pskel.cxx dnaparser_pimpl.cxx
-//   	case dna:			// DNA - .stn and .msr
-//   		// Reference frame is properly handled in and ParseDNAMSR...
-//   		return;
-//   
-//   	//////////////////////////////////////////////////////////
-//   	// UNSUPPORTED OPTIONS
-//   
-//   	case geodesyml:		// GeodesyML - GML application schema
-//   	case csv:			// CSV
-//   	default:
-//   
-//   		//throw XMLInteropException("ParseInputFile(): Could not deduce file type from extension or contents.", 0);		
-//   		stringstream ss;
-//   		ss << "SetDefaultReferenceFrame(): unsupported file type.";
-//   		parseStatus_ = PARSE_UNRECOGNISED_FILE;
-//   		throw XMLInteropException(ss.str(), 0);
-//   
-//   
-//   		// Does the user want to override what is contained in the input files?
-//   		if (projectSettings_.i.override_input_rfame == 0)
-//   			// No, so don't override the reference frame found in the input files
-//   			return;
-//   		break;
-//   	}
-//   
-//   //////////////////////////////////////////////////////////
-//   // Unused code - comment out until required
-//   //
-//   //	// Yes, override what is contained in the input files.
-//   //
-//   //	// Get defaults
-//   //	string strEpsg(datum_.GetEpsgCode_s());
-//   //	string strEpoch(datum_.GetEpoch_s());
-//   //
-//   //	for_each(vStations->begin(), vStations->end(), 
-//   //		[this, &strEpsg, &strEpoch] (dnaStnPtr& s) {			
-//   //			s->SetReferenceFrame(projectSettings_.i.reference_frame);
-//   //			s->SetEpoch(strEpoch);
-//   //	});
-//   //
-//   //	// If only some dna records have frame and epoch, the default reference frame and epoch will be used.
-//   //	
-//   //	CDnaGpsBaselineCluster* bslCluster;
-//   //	CDnaGpsPointCluster* pntCluster;
-//   //
-//   //	for_each(vMeasurements->begin(), vMeasurements->end(),
-//   //		[this, &bslCluster, &pntCluster, &strEpsg, &strEpoch](dnaMsrPtr& m){
-//   //			
-//   //			// Set reference frame (and reference epoch) in the CDnaMeasurement (parent class)
-//   //			m->SetReferenceFrame(projectSettings_.i.reference_frame);
-//   //			m->SetEpoch(strEpoch);
-//   //
-//   //			switch (m->GetTypeC()) {
-//   //			case 'G': // Single Baseline (treat as a single-baseline cluster)
-//   //				bslCluster = (CDnaGpsBaselineCluster*) (m.get());
-//   //				bslCluster->SetReferenceFrame(projectSettings_.i.reference_frame);
-//   //				bslCluster->SetEpoch(strEpoch);
-//   //				break;
-//   //			case 'X': // GPS Baseline cluster
-//   //				bslCluster = (CDnaGpsBaselineCluster*) (m.get());
-//   //				bslCluster->SetReferenceFrame(projectSettings_.i.reference_frame);
-//   //				bslCluster->SetEpoch(strEpoch);
-//   //				break;
-//   //			case 'Y': // GPS point cluster
-//   //				pntCluster = (CDnaGpsPointCluster*) (m.get());
-//   //				pntCluster->SetReferenceFrame(projectSettings_.i.reference_frame);
-//   //				pntCluster->SetEpoch(strEpoch);
-//   //				break;
-//   //			default:
-//   //				break;
-//   //			}
-//   //			
-//   //	});
-//   }
-	
-
 _PARSE_STATUS_ dna_import::ParseInputFile(const string& fileName, vdnaStnPtr* vStations, PUINT32 stnCount, 
 							   vdnaMsrPtr* vMeasurements, PUINT32 msrCount, 
-							   PUINT32 clusterID, input_file_meta_t* input_file_meta,
+							   PUINT32 clusterID, input_file_meta_t* input_file_meta, bool firstFile,
 							   string* success_msg, project_settings* p)
 {
 	projectSettings_ = *p;
@@ -355,17 +234,6 @@ _PARSE_STATUS_ dna_import::ParseInputFile(const string& fileName, vdnaStnPtr* vS
 	percentComplete_ = -99.0;
 	isProcessing_ = true;
 	stringstream ss;
-
-	try
-	{
-		// Reset default datum for the input file
-		// Note, the following call assumes InitialiseDatum(...)
-		// has already been called, and set m_strEpsg and m_strEpoch.
-		datum_.SetDatumFromEpsg(m_strProjectDefaultEpsg, m_strProjectDefaultEpoch);
-	}
-	catch (const runtime_error& e) {
-		SignalExceptionParse(e.what(), 0);
-	}
 
 	try 
 	{
@@ -405,6 +273,7 @@ _PARSE_STATUS_ dna_import::ParseInputFile(const string& fileName, vdnaStnPtr* vS
 	char first_chars[PRINT_LINE_LENGTH+1];
 
 	string fileEpsg, fileEpoch;
+	fileEpsg = "";
 	
 	try
 	{
@@ -434,7 +303,7 @@ _PARSE_STATUS_ dna_import::ParseInputFile(const string& fileName, vdnaStnPtr* vS
 		m_ift = dynaml;
 		
 		// Parse the DynaML file
-		ParseXML(fileName, vStations, stnCount, vMeasurements, msrCount, clusterID, fileEpsg, fileEpoch, success_msg);
+		ParseXML(fileName, vStations, stnCount, vMeasurements, msrCount, clusterID, fileEpsg, fileEpoch, firstFile, success_msg);
 
 		if (fileEpsg.empty())
 			fileEpsg = m_strProjectDefaultEpsg;
@@ -459,6 +328,13 @@ _PARSE_STATUS_ dna_import::ParseInputFile(const string& fileName, vdnaStnPtr* vS
 		sprintf(input_file_meta->epsgCode, "%s", m_strProjectDefaultEpsg.substr(0, STN_EPSG_WIDTH).c_str());		
 		sprintf(input_file_meta->epoch, "%s", datum_.GetEpoch_s().substr(0, STN_EPOCH_WIDTH).c_str());
 
+		if (firstFile)
+		{
+			fileEpoch = input_file_meta->epoch;
+			if (!fileEpoch.empty())
+				m_strProjectDefaultEpoch = fileEpoch;
+		}
+
 		SignalComplete();
 	}
 	// STN or MSR
@@ -473,7 +349,7 @@ _PARSE_STATUS_ dna_import::ParseInputFile(const string& fileName, vdnaStnPtr* vS
 		m_ift = dna;
 
 		// Parse the DNA file
-		ParseDNA(fileName, vStations, stnCount, vMeasurements, msrCount, clusterID, fileEpsg, fileEpoch);
+		ParseDNA(fileName, vStations, stnCount, vMeasurements, msrCount, clusterID, fileEpsg, fileEpoch, firstFile);
 		
 		if (fileEpsg.empty())
 			fileEpsg = m_strProjectDefaultEpsg;
@@ -504,11 +380,6 @@ _PARSE_STATUS_ dna_import::ParseInputFile(const string& fileName, vdnaStnPtr* vS
 		if (p->i.apply_discontinuities)
 			ApplyDiscontinuities(vMeasurements);
 	}
-
-	// SetDefaultReferenceFrame is not needed.  Keep for potential file formats that require this to be set
-	//
-	// // Set default reference frame (if the file type does not specify it).
-	// SetDefaultReferenceFrame(vStations, vMeasurements);
 	
 	// Populate metadata
 	sprintf(input_file_meta->filename, "%s", fileName.c_str());
@@ -524,7 +395,7 @@ _PARSE_STATUS_ dna_import::ParseInputFile(const string& fileName, vdnaStnPtr* vS
 	
 void dna_import::ParseXML(const string& fileName, vdnaStnPtr* vStations, PUINT32 stnCount, 
 							   vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID, 
-							   string& fileEpsg, string& fileEpoch, string* success_msg)
+							   string& fileEpsg, string& fileEpoch, bool firstFile, string* success_msg)
 {
 
 	parseStatus_ = PARSE_SUCCESS;
@@ -543,6 +414,7 @@ void dna_import::ParseXML(const string& fileName, vdnaStnPtr* vStations, PUINT32
 			clusterID,											// pass cluster ID so that a unique number can be retained across multiple files
 			datum_.GetName(),									// pass the default reference frame
 			datum_.GetEpoch_s(),								// pass the default epoch
+			firstFile,											// is this the first file to be loaded?
 			projectSettings_.i.user_supplied_frame==1,			// Has a reference frame been supplied?
 			projectSettings_.i.override_input_rfame==1);		// Should this reference frame override all others?
 																		
@@ -605,25 +477,41 @@ void dna_import::ParseXML(const string& fileName, vdnaStnPtr* vStations, PUINT32
 
 		try
 		{
-			// Get the reference frame from the XML file (i.e. referenceframe attribute in DnaXmlFormat element)
-			string xml_referenceframe = referenceframe_p.str();
-			string xml_epoch = epoch_p.str();
-		
-			// Is this attribute value an empty string?  As long as a default value 
-			// is specified in DynaML.xsd, this value will never be empty, unless the user
-			// has inadvertently set in the xml file, e.g.:
-			//  <DnaXmlFormat referenceframe="" ... >
-			if (xml_referenceframe.empty())
-				// No, so get the epsg code from the default datum 
-				fileEpsg = datum_.GetEpsgCode_s();
-			else
-				fileEpsg = epsgStringFromName<string>(xml_referenceframe);
 
-			if (xml_epoch.empty())
-				// No, so get the epoch from the default datum 
-				fileEpoch = datum_.GetEpoch_s();
+			// Get the reference frame from the XML file (i.e. referenceframe attribute in DnaXmlFormat element)
+			fileEpsg = DnaXmlFormat_p.FileEpsg();
+			fileEpoch = DnaXmlFormat_p.FileEpoch();
+
+			if (firstFile)
+			{
+				if (fileEpsg.empty())
+					// Get the epsg code from the default datum 
+					fileEpsg = datum_.GetEpsgCode_s();
+
+				if (fileEpoch.empty())
+				{
+					// Get the epoch of the nominated epsg (whether default or from the file)
+					UINT32 u = LongFromString<UINT32>(fileEpsg);
+					fileEpoch = referenceepochFromEpsgCode<UINT32>(u);
+				}
+
+				if (!projectSettings_.i.override_input_rfame && !projectSettings_.i.user_supplied_frame)
+					datum_.SetDatumFromEpsg(fileEpsg, fileEpoch);
+			}
 			else
-				fileEpoch = xml_epoch;
+			{
+				// Is this attribute value an empty string?  As long as a default value 
+				// is specified in DynaML.xsd, this value will never be empty, unless the user
+				// has inadvertently set in the xml file, e.g.:
+				//  <DnaXmlFormat referenceframe="" ... >
+				if (fileEpsg.empty())
+					// No, so get the epsg code from the default datum 
+					fileEpsg = datum_.GetEpsgCode_s();
+
+				if (fileEpoch.empty())
+					// No, so get the epoch from the default datum 
+					fileEpoch = datum_.GetEpoch_s();
+			}
 		}
 		catch (...)
 		{
@@ -1128,51 +1016,11 @@ void dna_import::ApplyDiscontinuitiesMeasurements_D(vector<CDnaDirection>* vDire
 		}
 	}
 }
-
-
-//// Get version number and assign field widths/locations
-//void dna_import::ParseDNAVersion(const INPUT_DATA_TYPE& idt)
-//{
-//	string sBuf;
-//
-//	// Obtain exclusive use of the input file pointer
-//	import_file_mutex.lock();
-//	getline((*ifsInputFILE_), sBuf);
-//	// release file pointer mutex
-//	import_file_mutex.unlock();
-//
-//	// Set the default version
-//	string version("1.00");
-//
-//	// Attempt to get this file's version
-//	try {
-//		if (iequals("!#=DNA", sBuf.substr(0, 6)))
-//			version = trimstr(sBuf.substr(6, 6));
-//	}
-//	catch (...) {
-//		SignalExceptionParseDNA("ParseDNAVersion(): Could not extract file version from the record:  ",
-//			sBuf, 6);
-//	}	
-//
-//	stringstream ss;
-//	switch (idt)
-//	{
-//	case stn_data:
-//		determineDNASTNFieldParameters<UINT16>(version, dsl_, dsw_);
-//		break;
-//	case msr_data:
-//		determineDNAMSRFieldParameters<UINT16>(version, dml_, dmw_);
-//		break;
-//	default:
-//		ss << " Unknown file type." << endl;
-//		m_columnNo = 0;
-//		throw XMLInteropException(ss.str(), m_lineNo);
-//	}
-//}
+	
 
 void dna_import::ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32 stnCount, 
 							   vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID, 
-							   string& fileEpsg, string& fileEpoch)
+							   string& fileEpsg, string& fileEpoch, bool firstFile)
 {
 	parseStatus_ = PARSE_SUCCESS;
 
@@ -1203,7 +1051,8 @@ void dna_import::ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32
 		// reference frame based on the header and user preferences
 		dnaFile.read_dna_header(ifsInputFILE_, version, idt,			
 			datum_,											// default datum
-			projectSettings_.i.user_supplied_frame==1,			// Has a reference frame been supplied?
+			firstFile,										// is this the first file to be loaded?
+			projectSettings_.i.user_supplied_frame==1,		// Has a reference frame been supplied?
 			projectSettings_.i.override_input_rfame==1,		// does the user want to override the datum in the input files?
 			fileEpsg, fileEpoch, geoversion, count);
 		// release file pointer mutex
@@ -1218,8 +1067,7 @@ void dna_import::ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32
 	if (idt == stn_data ||
 		(pos = fileName.find(stn_file_type, 0)) != string::npos)
 	{
-		// Determine the file format version
-		//ParseDNAVersion(stn_data);
+		// set the column positions and widths (using version obtained from the header)
 		dsl_ = dnaFile.dna_stn_positions();
 		dsw_ = dnaFile.dna_stn_widths();
 		
@@ -4861,6 +4709,8 @@ void dna_import::SerialiseBms(const string& bms_filename, vdnaMsrPtr* vMeasureme
 		sprintf(bms_meta_.modifiedBy, "%s", __BINARY_NAME__);
 		bms_meta_.binCount = m_binaryRecordCount;
 		bms_meta_.inputFileCount = bms.create_msr_input_file_meta(vinput_file_meta, &(bms_meta_.inputFileMeta));
+		bms_meta_.reftran = false;
+		bms_meta_.geoid = false;
 		bms.write_bms_file(bms_filename, vMeasurements, bms_meta_);
 	}
 	catch (const runtime_error& e) {
@@ -4880,6 +4730,8 @@ void dna_import::SerialiseBst(const string& bst_filename, vdnaStnPtr* vStations,
 		bst_meta_.binCount = static_cast<UINT32>(vStations->size());
 		bst_meta_.inputFileCount = bst.create_stn_input_file_meta(vinput_file_meta, &(bst_meta_.inputFileMeta));
 		bst_meta_.reduced = true;
+		bst_meta_.reftran = false;
+		bst_meta_.geoid = false;
 		bst.write_bst_file(bst_filename, vStations, vUnusedStns, bst_meta_, flagUnused);
 	}
 	catch (const runtime_error& e) {

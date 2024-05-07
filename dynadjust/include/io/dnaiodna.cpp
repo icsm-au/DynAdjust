@@ -165,7 +165,7 @@ void dna_io_dna::read_ren_file(const string& filename, pv_string_vstring_pair st
 	UINT32 count(0);
 
 	// read header information
-	read_dna_header(&renaming_file, version, idt, datum, false, false, fileEpsg, fileEpoch, geoidVersion, count);
+	read_dna_header(&renaming_file, version, idt, datum, false, false, false, fileEpsg, fileEpoch, geoidVersion, count);
 
 	read_ren_data(&renaming_file, stnRenaming);
 
@@ -249,7 +249,7 @@ void dna_io_dna::read_ren_data(std::ifstream* ptr, pv_string_vstring_pair stnRen
 	
 
 void dna_io_dna::read_dna_header(std::ifstream* ptr, string& version, INPUT_DATA_TYPE& idt, 
-	CDnaDatum& referenceframe, bool user_supplied_frame, bool override_input_frame,
+	CDnaDatum& referenceframe, bool firstFile, bool user_supplied_frame, bool override_input_frame,
 	string& fileEpsg, string& fileEpoch, string& geoidversion, UINT32& count)
 {
 	string sBuf;
@@ -303,7 +303,7 @@ void dna_io_dna::read_dna_header(std::ifstream* ptr, string& version, INPUT_DATA
 	// Station file
 	if (iequals(type, "stn"))
 		idt = stn_data;
-	// MEasurement file
+	// Measurement file
 	else if (iequals(type, "msr"))
 		idt = msr_data;
 	// Geoid information file
@@ -357,51 +357,69 @@ void dna_io_dna::read_dna_header(std::ifstream* ptr, string& version, INPUT_DATA
 	}
 
 	// Try to get the reference frame
+	// For the first file, and unless the user has specified a reference frame,
+	// the reference frame will be used to set the frame for all other files.
 	try {
-		
 
 		switch (idt)
 		{
 		case stn_data:
 		case msr_data:
 
-			// Capture file epsg
-			if (file_referenceframe.empty())
-				// Get the epsg code from the default datum 
-				fileEpsg = referenceframe.GetEpsgCode_s();
-			else
-				fileEpsg = epsgStringFromName<string>(file_referenceframe);
-
-			if (epoch_version.empty())
-				// No, so get the epoch from the default datum 
-				fileEpoch = referenceframe.GetEpoch_s();
-			else
-				fileEpoch = epoch_version;
-
-			// Presently, the logic for handling default reference frame is duplicated for 
-			// each file type, here and in dnaparser_pimpl.cxx:
-			//     void referenceframe_pimpl::post_type(...)
-
-			// 2. Does the user want to override the default datum?
-			if (override_input_frame)
-				// Do nothing, just return as referenceframe will become 
-				// the default for all stations and measurements loaded
-				// from the file.
-				break;
-			
-			// 3. Does the user want the referenceframe attribute in the file to become the default?
-			if (!user_supplied_frame)
+			if (firstFile)
 			{
+				// Capture file epsg
+				if (file_referenceframe.empty())
+					// Get the epsg code from the default datum 
+					fileEpsg = referenceframe.GetEpsgCode_s();
+				else
+					fileEpsg = epsgStringFromName<string>(file_referenceframe);
+
+				// capture file epoch
+				if (epoch_version.empty())
+				{
+					// Get the epoch of the nominated epsg (whether default or from the file)
+					UINT32 u = LongFromString<UINT32>(fileEpsg);
+					fileEpoch = referenceepochFromEpsgCode<UINT32>(u);
+				}
+				else
+					fileEpoch = epoch_version;
+
+				// Presently, the logic for handling default reference frame is duplicated for 
+				// each file type, here and in dnaparser_pimpl.cxx:
+				//     void referenceframe_pimpl::post_type(...)
+
+				// 2. Does the user want to override the default datum?
+				if (override_input_frame)
+					// Do nothing, just return as referenceframe will become 
+					// the default for all stations and measurements loaded
+					// from the file.
+					break;
+
+				// 3. Does the user want the referenceframe attribute in the file to become the default?
+				if (!user_supplied_frame)
+				{
+					if (!file_referenceframe.empty())
+						// adopt the reference frame supplied in the file
+						referenceframe.SetDatumFromName(file_referenceframe, epoch_version);
+				}
+
+				// Since import doesn't offer an option to capture epoch on the command line,
+				// take the epoch from the file (if not empty).
+				referenceframe.SetEpoch(fileEpoch);
+			}
+			else
+			{
+				// Simply capture what was in the file
+				// 
+				// Capture file epsg
 				if (!file_referenceframe.empty())
-					// adopt the reference frame supplied in the file
-					referenceframe.SetDatumFromName(file_referenceframe, epoch_version);
+					fileEpsg = epsgStringFromName<string>(file_referenceframe);
+				// capture file epoch
+				if (!epoch_version.empty())
+					fileEpoch = epoch_version;
 			}
 
-			// Since import doesn't offer an option to capture epoch on the command line,
-			// take the epoch from the file (if not empty).
-			if (!epoch_version.empty())
-				referenceframe.SetEpoch(epoch_version);
-						
 			break;
 
 		case geo_data:
