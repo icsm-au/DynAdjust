@@ -612,9 +612,9 @@ typedef struct input_file_meta {
 
 typedef struct binary_file_meta {
 	binary_file_meta () 
-		: binCount(0), reduced(false), inputFileCount(0), inputFileMeta(NULL) {}
+		: binCount(0), reduced(false), reftran(false), geoid(false), inputFileCount(0), inputFileMeta(NULL) {}
 	binary_file_meta (const string& app_name) 
-		: binCount(0), reduced(false), inputFileCount(0), inputFileMeta(NULL) {
+		: binCount(0), reduced(false), reftran(false), geoid(false), inputFileCount(0), inputFileMeta(NULL) {
 			sprintf(modifiedBy, "%s", app_name.c_str());
 	}
 	~binary_file_meta() {
@@ -626,6 +626,8 @@ typedef struct binary_file_meta {
 	char				modifiedBy[MOD_NAME_WIDTH+1];	// the program that modified this file
 	char				epsgCode[STN_EPSG_WIDTH+1];		// epsg ID, i.e. NNNNN (where NNNNN is in the range 0-32767). "Mixed" if stations are on different reference frames
 	char				epoch[STN_EPOCH_WIDTH+1];		// date, i.e. "DD.MM.YYYY" (10 chars)
+	bool				reftran;						// the data has been transformed to another frame and/or epoch
+	bool				geoid;							// geoid separation values have been obtained
 	UINT16				inputFileCount;					// Number of source file metadata elements
 	input_file_meta_t*	inputFileMeta;					// Source file metadata
 } binary_file_meta_t;

@@ -727,6 +727,7 @@ void dna_geoid_interpolation::LoadBinaryStationFile(const string& bstnfileName)
 void dna_geoid_interpolation::WriteBinaryStationFile(const string& bstnfileName)
 {
 	sprintf(bst_meta_.modifiedBy, "%s", __BINARY_NAME__);
+	bst_meta_.geoid = true;
 	
 	try {
 		// write binary stations data.  Throws runtime_error on failure.

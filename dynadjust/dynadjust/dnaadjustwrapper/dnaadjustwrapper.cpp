@@ -1063,7 +1063,14 @@ int main(int argc, char* argv[])
 	LoadBinaryMeta(bst_meta, bms_meta, p, bst_meta_import, bms_meta_import);
 
 	// Capture datum set within project file
-	CDnaDatum datum(epsgStringFromName<string>(p.r.reference_frame), p.r.epoch);
+	CDnaDatum datum;
+	
+	// Inspect if reftran has been executed.  If so, select the appropriate 
+	// reference frame label
+	if (bst_meta.reftran)
+		datum.SetDatumFromName(p.r.reference_frame, p.r.epoch);
+	else
+		datum.SetDatumFromName(p.i.reference_frame, bst_meta.epoch);
 
 	if (vm.count(QUIET))
 		p.g.quiet = 1;

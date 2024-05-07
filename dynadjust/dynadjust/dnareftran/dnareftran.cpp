@@ -582,6 +582,7 @@ void dna_reftran::WriteBinaryStationFile(const string& bstfileName)
 	sprintf(bst_meta_.modifiedBy, "%s", __BINARY_NAME__);
 	sprintf(bst_meta_.epsgCode, "%s", strEpsg.substr(0, STN_EPSG_WIDTH).c_str());
 	sprintf(bst_meta_.epoch, "%s", strEpoch.substr(0, STN_EPOCH_WIDTH).c_str());
+	bst_meta_.reftran = true;
 	
 	try {
 		// write binary stations data.  Throws runtime_error on failure.
@@ -615,6 +616,7 @@ void dna_reftran::WriteBinaryMeasurementFile(const string& bmsfileName)
 	sprintf(bms_meta_.modifiedBy, "%s", __BINARY_NAME__);
 	sprintf(bms_meta_.epsgCode, "%s", strEpsg.substr(0, STN_EPSG_WIDTH).c_str());
 	sprintf(bms_meta_.epoch, "%s", strEpoch.substr(0, STN_EPOCH_WIDTH).c_str());
+	bms_meta_.reftran = true;
 	
 	try {
 		// write binary measurement data.  Throws runtime_error on failure.
