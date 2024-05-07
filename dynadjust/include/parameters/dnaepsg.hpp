@@ -206,11 +206,11 @@ S epsgStringFromName(const S& datumName)
 	case GDA94_i:
 	case GDA94_i_2d:
 	case GDA94_i_xyz:
-		return GDA94_c;
+		return GDA94_c_xyz;
 	case GDA2020_i:
 	case GDA2020_i_2d:
 	case GDA2020_i_xyz:
-		return GDA2020_c;
+		return GDA2020_c_xyz;
 	// ITRF
 	case ITRF2020_i:
 	case ITRF2020_i_xyz:
