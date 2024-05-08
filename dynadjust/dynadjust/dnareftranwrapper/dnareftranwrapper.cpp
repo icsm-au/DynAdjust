@@ -118,8 +118,18 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 	
 	if (!vm.count(REFERENCE_FRAME))
 	{
-		cout << endl << "- Nothing to do - reference frame was not supplied. " << endl << endl;  
-		return EXIT_FAILURE;
+		//cout << endl << "- Nothing to do - reference frame was not supplied. " << endl << endl;  
+		//return EXIT_FAILURE;
+		try
+		{
+			// Okay, no frame supplied, check the frame in the project settings.
+			// The following throws an exception if the frame is unknown
+			string epsg = epsgStringFromName<string>(p.r.reference_frame);
+		}
+		catch (const runtime_error& e) {
+			cout << endl << "- Error: " << e.what() << endl;
+			return EXIT_FAILURE;
+		}
 	}
 
 	if (!vm.count(EPOCH))
@@ -682,9 +692,13 @@ int main(int argc, char* argv[])
 				// Separate output files (default)
 				if (!p.g.quiet)
 				{
-					cout << "+ Exporting stations and measurements to " << leafStr<string>(p.i.xml_stnfile) << " and " << leafStr<string>(p.i.xml_msrfile) << "... ";
+					cout << "+ Exporting stations and measurements to:" << endl << 
+						"  " << leafStr<string>(p.i.xml_stnfile) << ", and" << endl <<
+						"  " << leafStr<string>(p.i.xml_msrfile) << "... ";
 					cout.flush();
-					rft_file << "+ Exporting stations and measurements to " << leafStr<string>(p.i.xml_stnfile) << " and " << leafStr<string>(p.i.xml_msrfile) << "... ";
+					rft_file << "+ Exporting stations and measurements to:" << endl <<
+						"  " << leafStr<string>(p.i.xml_stnfile) << ", and " << endl <<
+						"  " << leafStr<string>(p.i.xml_msrfile) << "... ";
 				}
 				refTran.SerialiseDynaML(
 					p.i.xml_stnfile, p.i.xml_msrfile, 
@@ -715,12 +729,14 @@ int main(int argc, char* argv[])
 			// Separate output files (default)
 			if (!p.g.quiet)
 			{
-				cout << "+ Exporting stations and measurements to " << 
-					leafStr<string>(p.i.dna_stnfile) << " and " << leafStr<string>(p.i.dna_msrfile) << "... ";
+				cout << "+ Exporting stations and measurements to:" << endl <<
+					"  " << leafStr<string>(p.i.dna_stnfile) << ", and" << endl <<
+					"  " << leafStr<string>(p.i.dna_msrfile) << "... ";
 				cout.flush();
 			}
-			rft_file << "+ Exporting stations and measurements to " << 
-				leafStr<string>(p.i.dna_stnfile) << " and " << leafStr<string>(p.i.dna_msrfile) << "... ";
+			rft_file << "+ Exporting stations and measurements to:" << endl <<
+				"  " << leafStr<string>(p.i.dna_stnfile) << ", and" << endl <<
+				"  " << leafStr<string>(p.i.dna_msrfile) << "... ";
 				
 			refTran.SerialiseDNA(
 				p.i.dna_stnfile, p.i.dna_msrfile, 

@@ -570,10 +570,14 @@ void ExportStationsandMeasurements(dna_import* parserDynaML, const project_setti
 			// Separate output files (default)
 			if (!p.g.quiet)
 			{
-				cout << "+ Exporting stations and measurements to " << leafStr<string>(p.i.xml_stnfile) << " and " << leafStr<string>(p.i.xml_msrfile) << "... ";
+				cout << "+ Exporting stations and measurements to:" << endl <<
+					"  " << leafStr<string>(p.i.xml_stnfile) << ", and" << endl <<
+					"  " << leafStr<string>(p.i.xml_msrfile) << "... ";
 				cout.flush();
 			}
-			*imp_file << "+ Exporting stations and measurements to " << leafStr<string>(p.i.xml_stnfile) << " and " << leafStr<string>(p.i.xml_msrfile) << "... ";
+			*imp_file << "+ Exporting stations and measurements to:" << endl <<
+				"  " << leafStr<string>(p.i.xml_stnfile) << ", and " << endl <<
+				"  " << leafStr<string>(p.i.xml_msrfile) << "... ";
 			parserDynaML->SerialiseDynaMLSepfromMemory(
 				vstationsTotal, vmeasurementsTotal,
 				p.i.xml_stnfile, p.i.xml_msrfile, p, vinput_file_meta, (p.i.flag_unused_stn ? true : false));
@@ -592,10 +596,14 @@ void ExportStationsandMeasurements(dna_import* parserDynaML, const project_setti
 		// Separate output files (default)
 		if (!p.g.quiet)
 		{
-			cout << "+ Exporting stations and measurements to " << leafStr<string>(p.i.dna_stnfile) << " and " << leafStr<string>(p.i.dna_msrfile) << "... ";
+			cout << "+ Exporting stations and measurements to:" << endl <<
+				"  " << leafStr<string>(p.i.dna_stnfile) << ", and" << endl <<
+				"  " << leafStr<string>(p.i.dna_msrfile) << "... ";
 			cout.flush();
 		}
-		*imp_file << "+ Exporting stations and measurements to " << leafStr<string>(p.i.dna_msrfile) << " and " << leafStr<string>(p.i.dna_msrfile) << "... ";
+		*imp_file << "+ Exporting stations and measurements to:" << endl <<
+			"  " << leafStr<string>(p.i.dna_stnfile) << ", and" << endl <<
+			"  " << leafStr<string>(p.i.dna_msrfile) << "... ";
 		parserDynaML->SerialiseDNA(
 			vstationsTotal, vmeasurementsTotal,
 			p.i.dna_stnfile, p.i.dna_msrfile, p, vinput_file_meta, (p.i.flag_unused_stn ? true : false));
