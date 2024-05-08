@@ -1116,7 +1116,7 @@ void dna_import::ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32
 		dmw_ = dnaFile.dna_msr_widths();
 		
 		try {
-			ParseDNAMSR(vMeasurements, msrCount, clusterID);
+			ParseDNAMSR(vMeasurements, msrCount, clusterID, fileEpsg, fileEpoch);
 			m_idt = msr_data;
 		}
 		catch (const ios_base::failure& f) {
@@ -1374,7 +1374,7 @@ void dna_import::ParseDNASTN(vdnaStnPtr* vStations, PUINT32 stnCount)
 }
 	
 
-void dna_import::ParseDNAMSR(pvdnaMsrPtr vMeasurements, PUINT32 msrCount, PUINT32 clusterID)
+void dna_import::ParseDNAMSR(pvdnaMsrPtr vMeasurements, PUINT32 msrCount, PUINT32 clusterID, const string& fileEpsg, const string& fileEpoch)
 {
 	string sBuf, tmp;
 
@@ -1504,7 +1504,9 @@ void dna_import::ParseDNAMSR(pvdnaMsrPtr vMeasurements, PUINT32 msrCount, PUINT3
 			break;
 		case 'G': // GPS Baseline (treat as single-baseline cluster)
 		case 'X': // GPS Baseline cluster
-			msr_ptr.reset(new CDnaGpsBaselineCluster(++(*clusterID), datum_.GetName(), datum_.GetEpoch_s()));
+			//msr_ptr.reset(new CDnaGpsBaselineCluster(++(*clusterID), datum_.GetName(), datum_.GetEpoch_s()));
+			// Default to the fileEpsg and fileEpoch (see read_dna_header(..) in ParseDNA)
+			msr_ptr.reset(new CDnaGpsBaselineCluster(++(*clusterID), datumFromEpsgString<string>(fileEpsg), fileEpoch));
 			ParseDNAMSRGPSBaselines(sBuf, msr_ptr, ignoreMsr);
 			(*msrCount) += static_cast<UINT32>(msr_ptr->GetBaselines_ptr()->size() * 3);
 			break;
@@ -1575,7 +1577,9 @@ void dna_import::ParseDNAMSR(pvdnaMsrPtr vMeasurements, PUINT32 msrCount, PUINT3
 			(*msrCount) += 1;
 			break;
 		case 'Y': // GPS point cluster
-			msr_ptr.reset(new CDnaGpsPointCluster(++(*clusterID), datum_.GetName(), datum_.GetEpoch_s()));
+			//msr_ptr.reset(new CDnaGpsPointCluster(++(*clusterID), datum_.GetName(), datum_.GetEpoch_s()));
+			// Default to the fileEpsg and fileEpoch (see read_dna_header(..) in ParseDNA)
+			msr_ptr.reset(new CDnaGpsPointCluster(++(*clusterID), datumFromEpsgString<string>(fileEpsg), fileEpoch));
 			ParseDNAMSRGPSPoints(sBuf, msr_ptr, ignoreMsr);
 			(*msrCount) += static_cast<UINT32>(msr_ptr->GetPoints_ptr()->size() * 3);
 			break;

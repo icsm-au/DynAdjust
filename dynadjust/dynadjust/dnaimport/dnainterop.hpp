@@ -212,7 +212,8 @@ private:
 							   vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID, 
 							   string& fileEpsg, string& fileEpoch, bool firstFile);
 	void ParseDNASTN(vdnaStnPtr* vStations, PUINT32 stnCount);
-	void ParseDNAMSR(pvdnaMsrPtr vMeasurements, PUINT32 msrCount, PUINT32 clusterID);
+	void ParseDNAMSR(pvdnaMsrPtr vMeasurements, PUINT32 msrCount, PUINT32 clusterID,
+								const string& fileEpsg, const string& fileEpoch);
 
 	//void SetDefaultReferenceFrame(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements);
 
