@@ -477,40 +477,47 @@ void dna_import::ParseXML(const string& fileName, vdnaStnPtr* vStations, PUINT32
 
 		try
 		{
-
+			// 1. Capture file epsg
 			// Get the reference frame from the XML file (i.e. referenceframe attribute in DnaXmlFormat element)
 			fileEpsg = DnaXmlFormat_p.FileEpsg();
-			fileEpoch = DnaXmlFormat_p.FileEpoch();
+			// Is this attribute value an empty string?  As long as a default value 
+			// is specified in DynaML.xsd, this value will never be empty, unless the user
+			// has inadvertently set in the xml file, e.g.:
+			//  <DnaXmlFormat referenceframe="" ... >
+			if (fileEpsg.empty())
+				// No, so get the epsg code from the default datum 
+				fileEpsg = datum_.GetEpsgCode_s();
 
+			fileEpoch = DnaXmlFormat_p.FileEpoch();
+			// Is this attribute value an empty string?  As long as a default value 
+			// is specified in DynaML.xsd, this value will never be empty, unless the user
+			// has inadvertently set in the xml file, e.g.:
+			//  <DnaXmlFormat epoch="" ... >
+			if (fileEpoch.empty())
+			{
+				// Get the epoch of the nominated epsg (whether default or from the file)
+				UINT32 u = LongFromString<UINT32>(fileEpsg);
+				fileEpoch = referenceepochFromEpsgCode<UINT32>(u);
+			}	
+
+			// Is this the first file?  If so, set the project datum from the file's datum
 			if (firstFile)
 			{
-				if (fileEpsg.empty())
-					// Get the epsg code from the default datum 
-					fileEpsg = datum_.GetEpsgCode_s();
-
-				if (fileEpoch.empty())
+				// 2. Does the user want to override the datum contained in the files with
+				//    the default?
+				if (!projectSettings_.i.override_input_rfame)
 				{
-					// Get the epoch of the nominated epsg (whether default or from the file)
-					UINT32 u = LongFromString<UINT32>(fileEpsg);
-					fileEpoch = referenceepochFromEpsgCode<UINT32>(u);
+					// 3. Does the user want the referenceframe attribute in the file to become the default?
+					if (!projectSettings_.i.user_supplied_frame)
+					{
+						// adopt the reference frame supplied in the file
+						datum_.SetDatumFromEpsg(fileEpsg, fileEpoch);
+					}
+					else
+						// Since import doesn't offer an option to capture epoch on the command line,
+						// take the epoch from the file (if not empty).
+						datum_.SetEpoch(fileEpoch);
 				}
-
-				if (!projectSettings_.i.override_input_rfame && !projectSettings_.i.user_supplied_frame)
-					datum_.SetDatumFromEpsg(fileEpsg, fileEpoch);
-			}
-			else
-			{
-				// Is this attribute value an empty string?  As long as a default value 
-				// is specified in DynaML.xsd, this value will never be empty, unless the user
-				// has inadvertently set in the xml file, e.g.:
-				//  <DnaXmlFormat referenceframe="" ... >
-				if (fileEpsg.empty())
-					// No, so get the epsg code from the default datum 
-					fileEpsg = datum_.GetEpsgCode_s();
-
-				if (fileEpoch.empty())
-					// No, so get the epoch from the default datum 
-					fileEpoch = datum_.GetEpoch_s();
 			}
 		}
 		catch (...)

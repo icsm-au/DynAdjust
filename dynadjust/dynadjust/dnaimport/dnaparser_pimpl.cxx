@@ -1312,16 +1312,19 @@ void referenceframe_pimpl::pre()
 // In this case, post_string() will return "GDA2020"
 void referenceframe_pimpl::post_type(string& referenceframe, string& fileEpsg, bool userspecifiedreferenceframe, bool overridereferenceframe, bool firstFile)
 {
+	// 1. Get the DnaXmlFormat referenceframe attribute value from the file
+	_referenceframe = trimstr(post_string());
+	if (_referenceframe.empty())
+		// Set to the default reference frame passed from import
+		_referenceframe = referenceframe;
+	fileEpsg = epsgStringFromName<string>(_referenceframe);
 
 	if (firstFile)
 	{
-		// 1. Get the DnaXmlFormat referenceframe attribute value from the file
-		_referenceframe = trimstr(post_string());
-		fileEpsg = epsgStringFromName<string>(_referenceframe);
-
-		// 2. Does the user want to override the default datum?
+		// 2. Does the user want to override the datum contained in the files with
+		//    the default?
 		if (overridereferenceframe)
-			// Do nothing, just return as referenceframe will become 
+			// If so, do nothing, just return as referenceframe will become 
 			// the default for all stations and measurements loaded
 			// from the file.
 			return;
@@ -1339,17 +1342,7 @@ void referenceframe_pimpl::post_type(string& referenceframe, string& fileEpsg, b
 			if (!_referenceframe.empty())
 				// Set the DynaML parser reference frame to the file's DnaXmlFormat referenceframe attribute 
 				referenceframe = _referenceframe;
-			else
-				// Set to the default reference frame passed from import
-				_referenceframe = referenceframe;
 		}
-	}
-	else
-	{
-		if (_referenceframe.empty())
-			// Set to the default reference frame passed from import
-			_referenceframe = referenceframe;
-		fileEpsg = epsgStringFromName<string>(trimstr(post_string()));
 	}
 }
 
@@ -1367,12 +1360,15 @@ void epoch_pimpl::pre()
 // In this case, post_string() will return "01.01.1994"
 void epoch_pimpl::post_type(string& epoch, string& fileEpoch, bool userspecifiedreferenceframe, bool overridereferenceframe, bool firstFile)
 {
+	// 1. Get the DnaXmlFormat epoch attribute value from the file
+	_epoch = trimstr(post_string());
+	if (_epoch.empty())
+		// Set to the default reference frame passed from import
+		_epoch = epoch;
+	fileEpoch = _epoch;
+
 	if (firstFile)
 	{
-		// 1. Get the DnaXmlFormat epoch attribute value from the file
-		_epoch = trimstr(post_string());
-		fileEpoch = _epoch;
-
 		// 2. Does the user want to override the default datum?
 		if (overridereferenceframe)
 			// Do nothing, just return as epoch will become 
@@ -1392,10 +1388,7 @@ void epoch_pimpl::post_type(string& epoch, string& fileEpoch, bool userspecified
 			//  <DnaXmlFormat epoch="" ... >
 			if (!_epoch.empty())
 				// Set the DynaML parser epoch to the file's DnaXmlFormat epoch attribute 
-				epoch = _epoch;
-			else
-				// Set to the default epoch passed from import
-				_epoch = epoch;
+				epoch = _epoch;			
 		}
 	}
 	else

@@ -383,6 +383,7 @@ void dna_io_dna::read_dna_header(std::ifstream* ptr, string& version, INPUT_DATA
 			else
 				fileEpoch = epoch_version;
 
+			// Is this the first file?  If so, set the project datum from the file's datum
 			if (firstFile)
 			{
 				// 2. Does the user want to override the datum contained in the files with
