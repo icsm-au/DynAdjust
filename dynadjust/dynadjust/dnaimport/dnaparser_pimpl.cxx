@@ -1324,10 +1324,17 @@ void referenceframe_pimpl::post_type(string& referenceframe, string& fileEpsg, b
 		// 2. Does the user want to override the datum contained in the files with
 		//    the default?
 		if (overridereferenceframe)
-			// If so, do nothing, just return as referenceframe will become 
-			// the default for all stations and measurements loaded
-			// from the file.
-			return;
+		{
+			// Has a reference frame been supplied?
+			if (userspecifiedreferenceframe)
+				// If so, do nothing, just return as referenceframe will become 
+				// the default for all stations and measurements loaded
+				// from the file.
+				return;
+
+			if (!_referenceframe.empty())
+				referenceframe = _referenceframe;
+		}
 		
 		// 3. Does the user want the referenceframe attribute in the file to become the default?
 		if (!userspecifiedreferenceframe)
@@ -1371,10 +1378,18 @@ void epoch_pimpl::post_type(string& epoch, string& fileEpoch, bool userspecified
 	{
 		// 2. Does the user want to override the default datum?
 		if (overridereferenceframe)
-			// Do nothing, just return as epoch will become 
-			// the default for all stations and measurements loaded
-			// from the file.
-			return;
+		{
+			// Has a reference frame been supplied?
+			if (userspecifiedreferenceframe)
+				// Do nothing, just return as epoch will become 
+				// the default for all stations and measurements loaded
+				// from the file.
+				return;
+
+			if (!_epoch.empty())
+				// Set the DynaML parser epoch to the file's DnaXmlFormat epoch attribute 
+				epoch = _epoch;
+		}
 
 		// 3. Does the user want the epoch attribute in the file to become the default?
 		if (!userspecifiedreferenceframe)

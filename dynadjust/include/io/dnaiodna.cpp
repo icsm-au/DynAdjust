@@ -392,7 +392,8 @@ void dna_io_dna::read_dna_header(std::ifstream* ptr, string& version, INPUT_DATA
 					// If so, do nothing, just return as referenceframe will become 
 					// the default for all stations and measurements loaded
 					// from the file.
-					break;
+					if (user_supplied_frame)
+						break;
 
 				// 3. Does the user want the referenceframe attribute in the file to become the default?
 				if (!user_supplied_frame)

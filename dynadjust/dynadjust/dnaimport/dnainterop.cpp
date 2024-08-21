@@ -1069,6 +1069,18 @@ void dna_import::ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32
 		import_file_mutex.unlock();
 		throw XMLInteropException(e.what(), 0);
 	}
+
+	if (projectSettings_.i.override_input_rfame && !projectSettings_.i.user_supplied_frame)
+	{
+		if (firstFile)
+		{
+			projectSettings_.i.reference_frame = datumFromEpsgString<string>(fileEpsg);
+			projectSettings_.r.reference_frame = projectSettings_.i.reference_frame;
+			projectSettings_.r.epoch = fileEpoch;
+			m_strProjectDefaultEpoch = fileEpoch;
+			m_strProjectDefaultEpsg = fileEpsg;
+		}
+	}
 		
 	// Station file
 	if (idt == stn_data ||
