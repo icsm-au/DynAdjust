@@ -693,12 +693,12 @@ int main(int argc, char* argv[])
 				if (!p.g.quiet)
 				{
 					cout << "+ Exporting stations and measurements to:" << endl << 
-						"  " << leafStr<string>(p.i.xml_stnfile) << ", and" << endl <<
-						"  " << leafStr<string>(p.i.xml_msrfile) << "... ";
+						"  - " << leafStr<string>(p.i.xml_stnfile) << endl <<
+						"  - " << leafStr<string>(p.i.xml_msrfile) << "... ";
 					cout.flush();
 					rft_file << "+ Exporting stations and measurements to:" << endl <<
-						"  " << leafStr<string>(p.i.xml_stnfile) << ", and " << endl <<
-						"  " << leafStr<string>(p.i.xml_msrfile) << "... ";
+						"  - " << leafStr<string>(p.i.xml_stnfile) << endl <<
+						"  - " << leafStr<string>(p.i.xml_msrfile) << "... ";
 				}
 				refTran.SerialiseDynaML(
 					p.i.xml_stnfile, p.i.xml_msrfile, 
@@ -730,13 +730,13 @@ int main(int argc, char* argv[])
 			if (!p.g.quiet)
 			{
 				cout << "+ Exporting stations and measurements to:" << endl <<
-					"  " << leafStr<string>(p.i.dna_stnfile) << ", and" << endl <<
-					"  " << leafStr<string>(p.i.dna_msrfile) << "... ";
+					"  - " << leafStr<string>(p.i.dna_stnfile) << endl <<
+					"  - " << leafStr<string>(p.i.dna_msrfile) << "... ";
 				cout.flush();
 			}
 			rft_file << "+ Exporting stations and measurements to:" << endl <<
-				"  " << leafStr<string>(p.i.dna_stnfile) << ", and" << endl <<
-				"  " << leafStr<string>(p.i.dna_msrfile) << "... ";
+				"  - " << leafStr<string>(p.i.dna_stnfile) << endl <<
+				"  - " << leafStr<string>(p.i.dna_msrfile) << "... ";
 				
 			refTran.SerialiseDNA(
 				p.i.dna_stnfile, p.i.dna_msrfile, 

@@ -571,13 +571,13 @@ void ExportStationsandMeasurements(dna_import* parserDynaML, const project_setti
 			if (!p.g.quiet)
 			{
 				cout << "+ Exporting stations and measurements to:" << endl <<
-					"  " << leafStr<string>(p.i.xml_stnfile) << ", and" << endl <<
-					"  " << leafStr<string>(p.i.xml_msrfile) << "... ";
+					"  - " << leafStr<string>(p.i.xml_stnfile) << endl <<
+					"  - " << leafStr<string>(p.i.xml_msrfile) << "... ";
 				cout.flush();
 			}
 			*imp_file << "+ Exporting stations and measurements to:" << endl <<
-				"  " << leafStr<string>(p.i.xml_stnfile) << ", and " << endl <<
-				"  " << leafStr<string>(p.i.xml_msrfile) << "... ";
+				"  - " << leafStr<string>(p.i.xml_stnfile) << endl <<
+				"  - " << leafStr<string>(p.i.xml_msrfile) << "... ";
 			parserDynaML->SerialiseDynaMLSepfromMemory(
 				vstationsTotal, vmeasurementsTotal,
 				p.i.xml_stnfile, p.i.xml_msrfile, p, vinput_file_meta, (p.i.flag_unused_stn ? true : false));
@@ -597,13 +597,13 @@ void ExportStationsandMeasurements(dna_import* parserDynaML, const project_setti
 		if (!p.g.quiet)
 		{
 			cout << "+ Exporting stations and measurements to:" << endl <<
-				"  " << leafStr<string>(p.i.dna_stnfile) << ", and" << endl <<
-				"  " << leafStr<string>(p.i.dna_msrfile) << "... ";
+				"  - " << leafStr<string>(p.i.dna_stnfile) << endl <<
+				"  - " << leafStr<string>(p.i.dna_msrfile) << "... ";
 			cout.flush();
 		}
 		*imp_file << "+ Exporting stations and measurements to:" << endl <<
-			"  " << leafStr<string>(p.i.dna_stnfile) << ", and" << endl <<
-			"  " << leafStr<string>(p.i.dna_msrfile) << "... ";
+			"  - " << leafStr<string>(p.i.dna_stnfile) << endl <<
+			"  - " << leafStr<string>(p.i.dna_msrfile) << "... ";
 		parserDynaML->SerialiseDNA(
 			vstationsTotal, vmeasurementsTotal,
 			p.i.dna_stnfile, p.i.dna_msrfile, p, vinput_file_meta, (p.i.flag_unused_stn ? true : false));
