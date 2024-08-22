@@ -828,23 +828,35 @@ public:
 		if (isCompoundMeasAll(_m->at(lhs.first).measType) && notCompoundMeasAll(_m->at(rhs.first).measType))
 		{
 			double lhsValue = 0.0;
+			U increment(0);
+			
+			UINT32 vector_count(_m->at(lhs.first).vectorCount1), covariance_count;
+
 			switch (_m->at(lhs.first).measType)
 			{
 			case 'G':
 			case 'X':
-			case 'Y':
-				//lhsValue = magnitude(_m->at(lhs.first).NStat, _m->at(lhs.first+1).NStat, _m->at(lhs.first+2).NStat);
-				lhsValue = max(fabs(_m->at(lhs.first).NStat), fabs(_m->at(lhs.first + 1).NStat));
-				lhsValue = max(lhsValue, fabs(_m->at(lhs.first + 2).NStat));
+			case 'Y':				
+				lhsValue = fabs(_m->at(lhs.first + increment).NStat);				// X
+				for (UINT32 g(0); g < vector_count; ++g)
+				{
+					covariance_count = _m->at(lhs.first + increment).vectorCount2;
+					if (fabs(_m->at(lhs.first + increment + 1).NStat) > lhsValue)	// Y
+						lhsValue = fabs(_m->at(lhs.first + increment + 1).NStat);
+					if (fabs(_m->at(lhs.first + increment + 2).NStat) > lhsValue)	// Z
+						lhsValue = fabs(_m->at(lhs.first + increment + 2).NStat);
+					increment += 3;							// move to covariances
+					increment += (covariance_count * 3);	// skip over covariances
+				}
 				break;
 			case 'D':
 				//TRACE("%.9f\n", radians_to_degrees_(_m->at(lhs.first).term1));
 				lhsValue = fabs(_m->at(lhs.first).NStat);
-				for (UINT32 d(1); d<_m->at(lhs.first).vectorCount1; ++d)
+				for (UINT32 d(1); d < vector_count; ++d)
 				{
 					//TRACE("%.9f\n", _m->at(lhs.first+d).term1);
-					if (fabs(_m->at(lhs.first+d).NStat) > lhsValue)
-						lhsValue = fabs( _m->at(lhs.first+d).NStat);
+					if (fabs(_m->at(lhs.first + d).NStat) > lhsValue)
+						lhsValue = fabs( _m->at(lhs.first + d).NStat);
 				}
 				break;
 			}
@@ -853,24 +865,36 @@ public:
 		}
 		else if (notCompoundMeasAll(_m->at(lhs.first).measType) && isCompoundMeasAll(_m->at(rhs.first).measType))
 		{			
-			double rhsValue = 0.0;
+			double rhsValue = 0.0;			
+			U increment(0);
+			
+			UINT32 vector_count(_m->at(rhs.first).vectorCount1), covariance_count;
+
 			switch (_m->at(rhs.first).measType)
 			{
 			case 'G':
 			case 'X':
-			case 'Y':
-				//rhsValue = magnitude(_m->at(rhs.first).NStat, _m->at(rhs.first+1).NStat, _m->at(rhs.first+2).NStat);
-				rhsValue = max(fabs(_m->at(rhs.first).NStat), fabs(_m->at(rhs.first + 1).NStat));
-				rhsValue = max(rhsValue, fabs(_m->at(rhs.first + 2).NStat));
+			case 'Y':				
+				rhsValue = fabs(_m->at(rhs.first + increment).NStat);				// X
+				for (UINT32 g(0); g < vector_count; ++g)
+				{
+					covariance_count = _m->at(rhs.first + increment).vectorCount2;
+					if (fabs(_m->at(rhs.first + increment + 1).NStat) > rhsValue)	// Y
+						rhsValue = fabs(_m->at(rhs.first + increment + 1).NStat);
+					if (fabs(_m->at(rhs.first + increment + 2).NStat) > rhsValue)	// Z
+						rhsValue = fabs(_m->at(rhs.first + increment + 2).NStat);
+					increment += 3;							// move to covariances
+					increment += (covariance_count * 3);	// skip over covariances
+				}
 				break;
 			case 'D':
 				//TRACE("%.9f\n", radians_to_degrees_(_m->at(rhs.first).term1));
 				rhsValue = fabs(_m->at(rhs.first).NStat);
-				for (UINT32 d(1); d<_m->at(rhs.first).vectorCount1; ++d)
+				for (UINT32 d(1); d < vector_count; ++d)
 				{
 					//TRACE("%.9f\n", _m->at(lhs.first+d).term1);
-					if (fabs(_m->at(rhs.first+d).NStat) > rhsValue)
-						rhsValue =  fabs(_m->at(rhs.first+d).NStat);
+					if (fabs(_m->at(rhs.first + d).NStat) > rhsValue)
+						rhsValue =  fabs(_m->at(rhs.first + d).NStat);
 				}
 				break;
 			}
@@ -880,19 +904,31 @@ public:
 		else if (isCompoundMeasAll(_m->at(lhs.first).measType) && isCompoundMeasAll(_m->at(rhs.first).measType))
 		{
 			double lhsValue = 0.0;
+			U increment(0);
+
+			UINT32 vector_count(_m->at(lhs.first).vectorCount1), covariance_count;
+
 			switch (_m->at(lhs.first).measType)
 			{
 			case 'G':
 			case 'X':
 			case 'Y':
-				//lhsValue = magnitude(_m->at(lhs.first).NStat, _m->at(lhs.first+1).NStat, _m->at(lhs.first+2).NStat);
-				lhsValue = max(fabs(_m->at(lhs.first).NStat), fabs(_m->at(lhs.first + 1).NStat));
-				lhsValue = max(lhsValue, fabs(_m->at(lhs.first + 2).NStat));
+				lhsValue = fabs(_m->at(lhs.first + increment).NStat);				// X
+				for (UINT32 g(0); g < vector_count; ++g)
+				{
+					covariance_count = _m->at(lhs.first + increment).vectorCount2;
+					if (fabs(_m->at(lhs.first + increment + 1).NStat) > lhsValue)	// Y
+						lhsValue = fabs(_m->at(lhs.first + increment + 1).NStat);
+					if (fabs(_m->at(lhs.first + increment + 2).NStat) > lhsValue)	// Z
+						lhsValue = fabs(_m->at(lhs.first + increment + 2).NStat);
+					increment += 3;							// move to covariances
+					increment += (covariance_count * 3);	// skip over covariances
+				}
 				break;
 			case 'D':
 				//TRACE("%.9f\n", radians_to_degrees_(_m->at(lhs.first).term1));
 				lhsValue = fabs(_m->at(lhs.first).NStat);
-				for (UINT32 d(1); d<_m->at(lhs.first).vectorCount1; ++d)
+				for (UINT32 d(1); d < vector_count; ++d)
 				{
 					//TRACE("%.9f\n", _m->at(lhs.first+d).term1);
 					if (fabs(_m->at(lhs.first+d).NStat) > lhsValue)
@@ -902,19 +938,30 @@ public:
 			}
 
 			double rhsValue = 0.0;
+			increment = 0;
+			vector_count = _m->at(rhs.first).vectorCount1;
+
 			switch (_m->at(rhs.first).measType)
 			{
 			case 'G':
 			case 'X':
 			case 'Y':
-				//rhsValue = magnitude(_m->at(rhs.first).NStat, _m->at(rhs.first+1).NStat, _m->at(rhs.first+2).NStat);
-				rhsValue = max(fabs(_m->at(rhs.first).NStat), fabs(_m->at(rhs.first + 1).NStat));
-				rhsValue = max(rhsValue, fabs(_m->at(rhs.first + 2).NStat));
+				rhsValue = fabs(_m->at(rhs.first + increment).NStat);				// X
+				for (UINT32 g(0); g < vector_count; ++g)
+				{
+					covariance_count = _m->at(rhs.first + increment).vectorCount2;
+					if (fabs(_m->at(rhs.first + increment + 1).NStat) > rhsValue)	// Y
+						rhsValue = fabs(_m->at(rhs.first + increment + 1).NStat);
+					if (fabs(_m->at(rhs.first + increment + 2).NStat) > rhsValue)	// Z
+						rhsValue = fabs(_m->at(rhs.first + increment + 2).NStat);
+					increment += 3;							// move to covariances
+					increment += (covariance_count * 3);	// skip over covariances
+				}
 				break;
 			case 'D':
 				//TRACE("%.9f\n", radians_to_degrees_(_m->at(rhs.first).term1));
 				rhsValue = fabs(_m->at(rhs.first).NStat);
-				for (UINT32 d(1); d<_m->at(rhs.first).vectorCount1; ++d)
+				for (UINT32 d(1); d < vector_count; ++d)
 				{
 					//TRACE("%.9f\n", _m->at(lhs.first+d).term1);
 					if (fabs(_m->at(rhs.first+d).NStat) > rhsValue)
