@@ -828,22 +828,23 @@ public:
 		if (isCompoundMeasAll(_m->at(lhs.first).measType) && notCompoundMeasAll(_m->at(rhs.first).measType))
 		{
 			double lhsValue = 0.0;
-			U increment(0);
-			
+			U increment(0);			
 			UINT32 vector_count(_m->at(lhs.first).vectorCount1), covariance_count;
 
+			// Get the largest LHS value from the cluster
 			switch (_m->at(lhs.first).measType)
 			{
 			case 'G':
 			case 'X':
 			case 'Y':				
-				lhsValue = fabs(_m->at(lhs.first + increment).NStat);				// X
 				for (UINT32 g(0); g < vector_count; ++g)
-				{
+				{					
 					covariance_count = _m->at(lhs.first + increment).vectorCount2;
-					if (fabs(_m->at(lhs.first + increment + 1).NStat) > lhsValue)	// Y
+					if (fabs(_m->at(lhs.first + increment).NStat) > lhsValue)				// X
+						lhsValue = fabs(_m->at(lhs.first + increment).NStat);				
+					if (fabs(_m->at(lhs.first + increment + 1).NStat) > lhsValue)			// Y
 						lhsValue = fabs(_m->at(lhs.first + increment + 1).NStat);
-					if (fabs(_m->at(lhs.first + increment + 2).NStat) > lhsValue)	// Z
+					if (fabs(_m->at(lhs.first + increment + 2).NStat) > lhsValue)			// Z
 						lhsValue = fabs(_m->at(lhs.first + increment + 2).NStat);
 					increment += 3;							// move to covariances
 					increment += (covariance_count * 3);	// skip over covariances
@@ -860,28 +861,29 @@ public:
 				}
 				break;
 			}
-			
+			//TRACE("LHS: %.2f; RHS: %.2f\n", fabs(lhsValue), fabs(_m->at(rhs.first).NStat));
 			return fabs(lhsValue) > fabs(_m->at(rhs.first).NStat);
 		}
 		else if (notCompoundMeasAll(_m->at(lhs.first).measType) && isCompoundMeasAll(_m->at(rhs.first).measType))
 		{			
 			double rhsValue = 0.0;			
-			U increment(0);
-			
+			U increment(0);			
 			UINT32 vector_count(_m->at(rhs.first).vectorCount1), covariance_count;
 
+			// Get the largest RHS value from the cluster
 			switch (_m->at(rhs.first).measType)
 			{
 			case 'G':
 			case 'X':
 			case 'Y':				
-				rhsValue = fabs(_m->at(rhs.first + increment).NStat);				// X
 				for (UINT32 g(0); g < vector_count; ++g)
 				{
 					covariance_count = _m->at(rhs.first + increment).vectorCount2;
-					if (fabs(_m->at(rhs.first + increment + 1).NStat) > rhsValue)	// Y
+					if (fabs(_m->at(rhs.first + increment).NStat) > rhsValue)				// X
+						rhsValue = fabs(_m->at(rhs.first + increment).NStat);				
+					if (fabs(_m->at(rhs.first + increment + 1).NStat) > rhsValue)			// Y
 						rhsValue = fabs(_m->at(rhs.first + increment + 1).NStat);
-					if (fabs(_m->at(rhs.first + increment + 2).NStat) > rhsValue)	// Z
+					if (fabs(_m->at(rhs.first + increment + 2).NStat) > rhsValue)			// Z
 						rhsValue = fabs(_m->at(rhs.first + increment + 2).NStat);
 					increment += 3;							// move to covariances
 					increment += (covariance_count * 3);	// skip over covariances
@@ -905,18 +907,19 @@ public:
 		{
 			double lhsValue = 0.0;
 			U increment(0);
-
 			UINT32 vector_count(_m->at(lhs.first).vectorCount1), covariance_count;
 
+			// Get the largest LHS value from the cluster
 			switch (_m->at(lhs.first).measType)
 			{
 			case 'G':
 			case 'X':
 			case 'Y':
-				lhsValue = fabs(_m->at(lhs.first + increment).NStat);				// X
 				for (UINT32 g(0); g < vector_count; ++g)
 				{
 					covariance_count = _m->at(lhs.first + increment).vectorCount2;
+					if (fabs(_m->at(lhs.first + increment).NStat) > lhsValue)		// X
+						lhsValue = fabs(_m->at(lhs.first + increment).NStat);			
 					if (fabs(_m->at(lhs.first + increment + 1).NStat) > lhsValue)	// Y
 						lhsValue = fabs(_m->at(lhs.first + increment + 1).NStat);
 					if (fabs(_m->at(lhs.first + increment + 2).NStat) > lhsValue)	// Z
@@ -941,18 +944,20 @@ public:
 			increment = 0;
 			vector_count = _m->at(rhs.first).vectorCount1;
 
+			// Get the largest RHS value from the cluster
 			switch (_m->at(rhs.first).measType)
 			{
 			case 'G':
 			case 'X':
-			case 'Y':
-				rhsValue = fabs(_m->at(rhs.first + increment).NStat);				// X
+			case 'Y':				
 				for (UINT32 g(0); g < vector_count; ++g)
 				{
 					covariance_count = _m->at(rhs.first + increment).vectorCount2;
-					if (fabs(_m->at(rhs.first + increment + 1).NStat) > rhsValue)	// Y
+					if (fabs(_m->at(rhs.first + increment).NStat) > rhsValue)				// X
+						rhsValue = fabs(_m->at(rhs.first + increment).NStat);
+					if (fabs(_m->at(rhs.first + increment + 1).NStat) > rhsValue)			// Y
 						rhsValue = fabs(_m->at(rhs.first + increment + 1).NStat);
-					if (fabs(_m->at(rhs.first + increment + 2).NStat) > rhsValue)	// Z
+					if (fabs(_m->at(rhs.first + increment + 2).NStat) > rhsValue)			// Z
 						rhsValue = fabs(_m->at(rhs.first + increment + 2).NStat);
 					increment += 3;							// move to covariances
 					increment += (covariance_count * 3);	// skip over covariances
