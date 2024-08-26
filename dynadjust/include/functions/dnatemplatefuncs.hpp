@@ -926,29 +926,164 @@ class CompareMeasAdjSD_PairFirst
 {
 public:
 	CompareMeasAdjSD_PairFirst(vector<M>* m)
-		:  _m(m) {}
+		: _m(m) {}
 	bool operator()(const pair<U, pair<U, U> >& lhs, const pair<U, pair<U, U> >& rhs) {
-		if (isCompoundMeas(_m->at(lhs.first).measType) && notCompoundMeas(_m->at(rhs.first).measType))
+		if (isCompoundMeasAll(_m->at(lhs.first).measType) && notCompoundMeasAll(_m->at(rhs.first).measType))
 		{
-			double lhsValue(magnitude(_m->at(lhs.first).measAdjPrec, _m->at(lhs.first+1).measAdjPrec, _m->at(lhs.first+2).measAdjPrec));
-			return lhsValue > _m->at(rhs.first).measAdjPrec;
+			double lhsValue = 0.0;
+			U increment(0);
+			UINT32 vector_count(_m->at(lhs.first).vectorCount1), covariance_count;
+
+			// Get the largest LHS value from the cluster
+			switch (_m->at(lhs.first).measType)
+			{
+			case 'G':
+			case 'X':
+			case 'Y':
+				for (UINT32 g(0); g < vector_count; ++g)
+				{
+					covariance_count = _m->at(lhs.first + increment).vectorCount2;
+					if (fabs(_m->at(lhs.first + increment).measAdjPrec) > lhsValue)				// X
+						lhsValue = fabs(_m->at(lhs.first + increment).measAdjPrec);
+					if (fabs(_m->at(lhs.first + increment + 1).measAdjPrec) > lhsValue)			// Y
+						lhsValue = fabs(_m->at(lhs.first + increment + 1).measAdjPrec);
+					if (fabs(_m->at(lhs.first + increment + 2).measAdjPrec) > lhsValue)			// Z
+						lhsValue = fabs(_m->at(lhs.first + increment + 2).measAdjPrec);
+					increment += 3;							// move to covariances
+					increment += (covariance_count * 3);	// skip over covariances
+				}
+				break;
+			case 'D':
+				//TRACE("%.9f\n", radians_to_degrees_(_m->at(lhs.first).term1));
+				lhsValue = fabs(_m->at(lhs.first).measAdjPrec);
+				for (UINT32 d(1); d < vector_count; ++d)
+				{
+					//TRACE("%.9f\n", _m->at(lhs.first+d).term1);
+					if (fabs(_m->at(lhs.first + d).measAdjPrec) > lhsValue)
+						lhsValue = fabs(_m->at(lhs.first + d).measAdjPrec);
+				}
+				break;
+			}
+			//TRACE("LHS: %.2f; RHS: %.2f\n", fabs(lhsValue), fabs(_m->at(rhs.first).measAdjPrec));
+			return fabs(lhsValue) > fabs(_m->at(rhs.first).measAdjPrec);
 		}
-		else if (notCompoundMeas(_m->at(lhs.first).measType) && isCompoundMeas(_m->at(rhs.first).measType))
+		else if (notCompoundMeasAll(_m->at(lhs.first).measType) && isCompoundMeasAll(_m->at(rhs.first).measType))
 		{
-			double rhsValue(magnitude(_m->at(rhs.first).measAdjPrec, _m->at(rhs.first+1).measAdjPrec, _m->at(rhs.first+2).measAdjPrec));
-			return _m->at(lhs.first).measAdjPrec > rhsValue;
+			double rhsValue = 0.0;
+			U increment(0);
+			UINT32 vector_count(_m->at(rhs.first).vectorCount1), covariance_count;
+
+			// Get the largest RHS value from the cluster
+			switch (_m->at(rhs.first).measType)
+			{
+			case 'G':
+			case 'X':
+			case 'Y':
+				for (UINT32 g(0); g < vector_count; ++g)
+				{
+					covariance_count = _m->at(rhs.first + increment).vectorCount2;
+					if (fabs(_m->at(rhs.first + increment).measAdjPrec) > rhsValue)				// X
+						rhsValue = fabs(_m->at(rhs.first + increment).measAdjPrec);
+					if (fabs(_m->at(rhs.first + increment + 1).measAdjPrec) > rhsValue)			// Y
+						rhsValue = fabs(_m->at(rhs.first + increment + 1).measAdjPrec);
+					if (fabs(_m->at(rhs.first + increment + 2).measAdjPrec) > rhsValue)			// Z
+						rhsValue = fabs(_m->at(rhs.first + increment + 2).measAdjPrec);
+					increment += 3;							// move to covariances
+					increment += (covariance_count * 3);	// skip over covariances
+				}
+				break;
+			case 'D':
+				//TRACE("%.9f\n", radians_to_degrees_(_m->at(rhs.first).term1));
+				rhsValue = fabs(_m->at(rhs.first).measAdjPrec);
+				for (UINT32 d(1); d < vector_count; ++d)
+				{
+					//TRACE("%.9f\n", _m->at(lhs.first+d).term1);
+					if (fabs(_m->at(rhs.first + d).measAdjPrec) > rhsValue)
+						rhsValue = fabs(_m->at(rhs.first + d).measAdjPrec);
+				}
+				break;
+			}
+
+			return fabs(_m->at(lhs.first).measAdjPrec) > fabs(rhsValue);
 		}
-		else if (isCompoundMeas(_m->at(lhs.first).measType) && isCompoundMeas(_m->at(rhs.first).measType))
+		else if (isCompoundMeasAll(_m->at(lhs.first).measType) && isCompoundMeasAll(_m->at(rhs.first).measType))
 		{
-			double lhsValue(magnitude(_m->at(lhs.first).measAdjPrec, _m->at(lhs.first+1).measAdjPrec, _m->at(lhs.first+2).measAdjPrec));
-			double rhsValue(magnitude(_m->at(rhs.first).measAdjPrec, _m->at(rhs.first+1).measAdjPrec, _m->at(rhs.first+2).measAdjPrec));
-			return lhsValue > rhsValue;
+			double lhsValue = 0.0;
+			U increment(0);
+			UINT32 vector_count(_m->at(lhs.first).vectorCount1), covariance_count;
+
+			// Get the largest LHS value from the cluster
+			switch (_m->at(lhs.first).measType)
+			{
+			case 'G':
+			case 'X':
+			case 'Y':
+				for (UINT32 g(0); g < vector_count; ++g)
+				{
+					covariance_count = _m->at(lhs.first + increment).vectorCount2;
+					if (fabs(_m->at(lhs.first + increment).measAdjPrec) > lhsValue)		// X
+						lhsValue = fabs(_m->at(lhs.first + increment).measAdjPrec);
+					if (fabs(_m->at(lhs.first + increment + 1).measAdjPrec) > lhsValue)	// Y
+						lhsValue = fabs(_m->at(lhs.first + increment + 1).measAdjPrec);
+					if (fabs(_m->at(lhs.first + increment + 2).measAdjPrec) > lhsValue)	// Z
+						lhsValue = fabs(_m->at(lhs.first + increment + 2).measAdjPrec);
+					increment += 3;							// move to covariances
+					increment += (covariance_count * 3);	// skip over covariances
+				}
+				break;
+			case 'D':
+				//TRACE("%.9f\n", radians_to_degrees_(_m->at(lhs.first).term1));
+				lhsValue = fabs(_m->at(lhs.first).measAdjPrec);
+				for (UINT32 d(1); d < vector_count; ++d)
+				{
+					//TRACE("%.9f\n", _m->at(lhs.first+d).term1);
+					if (fabs(_m->at(lhs.first + d).measAdjPrec) > lhsValue)
+						lhsValue = fabs(_m->at(lhs.first + d).measAdjPrec);
+				}
+				break;
+			}
+
+			double rhsValue = 0.0;
+			increment = 0;
+			vector_count = _m->at(rhs.first).vectorCount1;
+
+			// Get the largest RHS value from the cluster
+			switch (_m->at(rhs.first).measType)
+			{
+			case 'G':
+			case 'X':
+			case 'Y':
+				for (UINT32 g(0); g < vector_count; ++g)
+				{
+					covariance_count = _m->at(rhs.first + increment).vectorCount2;
+					if (fabs(_m->at(rhs.first + increment).measAdjPrec) > rhsValue)				// X
+						rhsValue = fabs(_m->at(rhs.first + increment).measAdjPrec);
+					if (fabs(_m->at(rhs.first + increment + 1).measAdjPrec) > rhsValue)			// Y
+						rhsValue = fabs(_m->at(rhs.first + increment + 1).measAdjPrec);
+					if (fabs(_m->at(rhs.first + increment + 2).measAdjPrec) > rhsValue)			// Z
+						rhsValue = fabs(_m->at(rhs.first + increment + 2).measAdjPrec);
+					increment += 3;							// move to covariances
+					increment += (covariance_count * 3);	// skip over covariances
+				}
+				break;
+			case 'D':
+				//TRACE("%.9f\n", radians_to_degrees_(_m->at(rhs.first).term1));
+				rhsValue = fabs(_m->at(rhs.first).measAdjPrec);
+				for (UINT32 d(1); d < vector_count; ++d)
+				{
+					//TRACE("%.9f\n", _m->at(lhs.first+d).term1);
+					if (fabs(_m->at(rhs.first + d).measAdjPrec) > rhsValue)
+						rhsValue = fabs(_m->at(rhs.first + d).measAdjPrec);
+				}
+			}
+
+			return fabs(lhsValue) > fabs(rhsValue);
 		}
 		else
-			return _m->at(lhs.first).measAdjPrec > _m->at(rhs.first).measAdjPrec;
+			return fabs(_m->at(lhs.first).measAdjPrec) > fabs(_m->at(rhs.first).measAdjPrec);
 	}
 private:
-	vector<M>*	_m;
+	vector<M>* _m;
 };
 
 
