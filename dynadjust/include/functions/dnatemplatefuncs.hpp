@@ -937,7 +937,7 @@ public:
 		{
 			double rhsValue(magnitude(_m->at(rhs.first).measAdjPrec, _m->at(rhs.first+1).measAdjPrec, _m->at(rhs.first+2).measAdjPrec));
 			return _m->at(lhs.first).measAdjPrec > rhsValue;
-				}
+		}
 		else if (isCompoundMeas(_m->at(lhs.first).measType) && isCompoundMeas(_m->at(rhs.first).measType))
 		{
 			double lhsValue(magnitude(_m->at(lhs.first).measAdjPrec, _m->at(lhs.first+1).measAdjPrec, _m->at(lhs.first+2).measAdjPrec));
