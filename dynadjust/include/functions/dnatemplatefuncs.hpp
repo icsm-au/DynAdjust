@@ -759,29 +759,164 @@ class CompareMeasResidual_PairFirst
 {
 public:
 	CompareMeasResidual_PairFirst(vector<M>* m)
-		:  _m(m) {}
+		: _m(m) {}
 	bool operator()(const pair<U, pair<U, U> >& lhs, const pair<U, pair<U, U> >& rhs) {
-		if (isCompoundMeas(_m->at(lhs.first).measType) && notCompoundMeas(_m->at(rhs.first).measType))
+		if (isCompoundMeasAll(_m->at(lhs.first).measType) && notCompoundMeasAll(_m->at(rhs.first).measType))
 		{
-			double lhsValue(magnitude(_m->at(lhs.first).measCorr, _m->at(lhs.first+1).measCorr, _m->at(lhs.first+2).measCorr));
-			return lhsValue > _m->at(rhs.first).measCorr;
+			double lhsValue = 0.0;
+			U increment(0);
+			UINT32 vector_count(_m->at(lhs.first).vectorCount1), covariance_count;
+
+			// Get the largest LHS value from the cluster
+			switch (_m->at(lhs.first).measType)
+			{
+			case 'G':
+			case 'X':
+			case 'Y':
+				for (UINT32 g(0); g < vector_count; ++g)
+				{
+					covariance_count = _m->at(lhs.first + increment).vectorCount2;
+					if (fabs(_m->at(lhs.first + increment).measCorr) > lhsValue)				// X
+						lhsValue = fabs(_m->at(lhs.first + increment).measCorr);
+					if (fabs(_m->at(lhs.first + increment + 1).measCorr) > lhsValue)			// Y
+						lhsValue = fabs(_m->at(lhs.first + increment + 1).measCorr);
+					if (fabs(_m->at(lhs.first + increment + 2).measCorr) > lhsValue)			// Z
+						lhsValue = fabs(_m->at(lhs.first + increment + 2).measCorr);
+					increment += 3;							// move to covariances
+					increment += (covariance_count * 3);	// skip over covariances
+				}
+				break;
+			case 'D':
+				//TRACE("%.9f\n", radians_to_degrees_(_m->at(lhs.first).term1));
+				lhsValue = fabs(_m->at(lhs.first).measCorr);
+				for (UINT32 d(1); d < vector_count; ++d)
+				{
+					//TRACE("%.9f\n", _m->at(lhs.first+d).term1);
+					if (fabs(_m->at(lhs.first + d).measCorr) > lhsValue)
+						lhsValue = fabs(_m->at(lhs.first + d).measCorr);
+				}
+				break;
+			}
+			//TRACE("LHS: %.2f; RHS: %.2f\n", fabs(lhsValue), fabs(_m->at(rhs.first).measCorr));
+			return fabs(lhsValue) > fabs(_m->at(rhs.first).measCorr);
 		}
-		else if (notCompoundMeas(_m->at(lhs.first).measType) && isCompoundMeas(_m->at(rhs.first).measType))
+		else if (notCompoundMeasAll(_m->at(lhs.first).measType) && isCompoundMeasAll(_m->at(rhs.first).measType))
 		{
-			double rhsValue(magnitude(_m->at(rhs.first).measCorr, _m->at(rhs.first+1).measCorr, _m->at(rhs.first+2).measCorr));
-			return _m->at(lhs.first).measCorr > rhsValue;
+			double rhsValue = 0.0;
+			U increment(0);
+			UINT32 vector_count(_m->at(rhs.first).vectorCount1), covariance_count;
+
+			// Get the largest RHS value from the cluster
+			switch (_m->at(rhs.first).measType)
+			{
+			case 'G':
+			case 'X':
+			case 'Y':
+				for (UINT32 g(0); g < vector_count; ++g)
+				{
+					covariance_count = _m->at(rhs.first + increment).vectorCount2;
+					if (fabs(_m->at(rhs.first + increment).measCorr) > rhsValue)				// X
+						rhsValue = fabs(_m->at(rhs.first + increment).measCorr);
+					if (fabs(_m->at(rhs.first + increment + 1).measCorr) > rhsValue)			// Y
+						rhsValue = fabs(_m->at(rhs.first + increment + 1).measCorr);
+					if (fabs(_m->at(rhs.first + increment + 2).measCorr) > rhsValue)			// Z
+						rhsValue = fabs(_m->at(rhs.first + increment + 2).measCorr);
+					increment += 3;							// move to covariances
+					increment += (covariance_count * 3);	// skip over covariances
+				}
+				break;
+			case 'D':
+				//TRACE("%.9f\n", radians_to_degrees_(_m->at(rhs.first).term1));
+				rhsValue = fabs(_m->at(rhs.first).measCorr);
+				for (UINT32 d(1); d < vector_count; ++d)
+				{
+					//TRACE("%.9f\n", _m->at(lhs.first+d).term1);
+					if (fabs(_m->at(rhs.first + d).measCorr) > rhsValue)
+						rhsValue = fabs(_m->at(rhs.first + d).measCorr);
+				}
+				break;
+			}
+
+			return fabs(_m->at(lhs.first).measCorr) > fabs(rhsValue);
 		}
-		else if (isCompoundMeas(_m->at(lhs.first).measType) && isCompoundMeas(_m->at(rhs.first).measType))
+		else if (isCompoundMeasAll(_m->at(lhs.first).measType) && isCompoundMeasAll(_m->at(rhs.first).measType))
 		{
-			double lhsValue(magnitude(_m->at(lhs.first).measCorr, _m->at(lhs.first+1).measCorr, _m->at(lhs.first+2).measCorr));
-			double rhsValue(magnitude(_m->at(rhs.first).measCorr, _m->at(rhs.first+1).measCorr, _m->at(rhs.first+2).measCorr));
-			return lhsValue > rhsValue;
+			double lhsValue = 0.0;
+			U increment(0);
+			UINT32 vector_count(_m->at(lhs.first).vectorCount1), covariance_count;
+
+			// Get the largest LHS value from the cluster
+			switch (_m->at(lhs.first).measType)
+			{
+			case 'G':
+			case 'X':
+			case 'Y':
+				for (UINT32 g(0); g < vector_count; ++g)
+				{
+					covariance_count = _m->at(lhs.first + increment).vectorCount2;
+					if (fabs(_m->at(lhs.first + increment).measCorr) > lhsValue)		// X
+						lhsValue = fabs(_m->at(lhs.first + increment).measCorr);
+					if (fabs(_m->at(lhs.first + increment + 1).measCorr) > lhsValue)	// Y
+						lhsValue = fabs(_m->at(lhs.first + increment + 1).measCorr);
+					if (fabs(_m->at(lhs.first + increment + 2).measCorr) > lhsValue)	// Z
+						lhsValue = fabs(_m->at(lhs.first + increment + 2).measCorr);
+					increment += 3;							// move to covariances
+					increment += (covariance_count * 3);	// skip over covariances
+				}
+				break;
+			case 'D':
+				//TRACE("%.9f\n", radians_to_degrees_(_m->at(lhs.first).term1));
+				lhsValue = fabs(_m->at(lhs.first).measCorr);
+				for (UINT32 d(1); d < vector_count; ++d)
+				{
+					//TRACE("%.9f\n", _m->at(lhs.first+d).term1);
+					if (fabs(_m->at(lhs.first + d).measCorr) > lhsValue)
+						lhsValue = fabs(_m->at(lhs.first + d).measCorr);
+				}
+				break;
+			}
+
+			double rhsValue = 0.0;
+			increment = 0;
+			vector_count = _m->at(rhs.first).vectorCount1;
+
+			// Get the largest RHS value from the cluster
+			switch (_m->at(rhs.first).measType)
+			{
+			case 'G':
+			case 'X':
+			case 'Y':
+				for (UINT32 g(0); g < vector_count; ++g)
+				{
+					covariance_count = _m->at(rhs.first + increment).vectorCount2;
+					if (fabs(_m->at(rhs.first + increment).measCorr) > rhsValue)				// X
+						rhsValue = fabs(_m->at(rhs.first + increment).measCorr);
+					if (fabs(_m->at(rhs.first + increment + 1).measCorr) > rhsValue)			// Y
+						rhsValue = fabs(_m->at(rhs.first + increment + 1).measCorr);
+					if (fabs(_m->at(rhs.first + increment + 2).measCorr) > rhsValue)			// Z
+						rhsValue = fabs(_m->at(rhs.first + increment + 2).measCorr);
+					increment += 3;							// move to covariances
+					increment += (covariance_count * 3);	// skip over covariances
+				}
+				break;
+			case 'D':
+				//TRACE("%.9f\n", radians_to_degrees_(_m->at(rhs.first).term1));
+				rhsValue = fabs(_m->at(rhs.first).measCorr);
+				for (UINT32 d(1); d < vector_count; ++d)
+				{
+					//TRACE("%.9f\n", _m->at(lhs.first+d).term1);
+					if (fabs(_m->at(rhs.first + d).measCorr) > rhsValue)
+						rhsValue = fabs(_m->at(rhs.first + d).measCorr);
+				}
+			}
+
+			return fabs(lhsValue) > fabs(rhsValue);
 		}
 		else
-			return _m->at(lhs.first).measCorr > _m->at(rhs.first).measCorr;
+			return fabs(_m->at(lhs.first).measCorr) > fabs(_m->at(rhs.first).measCorr);
 	}
 private:
-	vector<M>*	_m;
+	vector<M>* _m;
 };
 
 
@@ -802,7 +937,7 @@ public:
 		{
 			double rhsValue(magnitude(_m->at(rhs.first).measAdjPrec, _m->at(rhs.first+1).measAdjPrec, _m->at(rhs.first+2).measAdjPrec));
 			return _m->at(lhs.first).measAdjPrec > rhsValue;
-		}
+				}
 		else if (isCompoundMeas(_m->at(lhs.first).measType) && isCompoundMeas(_m->at(rhs.first).measType))
 		{
 			double lhsValue(magnitude(_m->at(lhs.first).measAdjPrec, _m->at(lhs.first+1).measAdjPrec, _m->at(lhs.first+2).measAdjPrec));
@@ -828,49 +963,75 @@ public:
 		if (isCompoundMeasAll(_m->at(lhs.first).measType) && notCompoundMeasAll(_m->at(rhs.first).measType))
 		{
 			double lhsValue = 0.0;
+			U increment(0);			
+			UINT32 vector_count(_m->at(lhs.first).vectorCount1), covariance_count;
+
+			// Get the largest LHS value from the cluster
 			switch (_m->at(lhs.first).measType)
 			{
 			case 'G':
 			case 'X':
-			case 'Y':
-				//lhsValue = magnitude(_m->at(lhs.first).NStat, _m->at(lhs.first+1).NStat, _m->at(lhs.first+2).NStat);
-				lhsValue = max(fabs(_m->at(lhs.first).NStat), fabs(_m->at(lhs.first + 1).NStat));
-				lhsValue = max(lhsValue, fabs(_m->at(lhs.first + 2).NStat));
+			case 'Y':				
+				for (UINT32 g(0); g < vector_count; ++g)
+				{					
+					covariance_count = _m->at(lhs.first + increment).vectorCount2;
+					if (fabs(_m->at(lhs.first + increment).NStat) > lhsValue)				// X
+						lhsValue = fabs(_m->at(lhs.first + increment).NStat);				
+					if (fabs(_m->at(lhs.first + increment + 1).NStat) > lhsValue)			// Y
+						lhsValue = fabs(_m->at(lhs.first + increment + 1).NStat);
+					if (fabs(_m->at(lhs.first + increment + 2).NStat) > lhsValue)			// Z
+						lhsValue = fabs(_m->at(lhs.first + increment + 2).NStat);
+					increment += 3;							// move to covariances
+					increment += (covariance_count * 3);	// skip over covariances
+				}
 				break;
 			case 'D':
 				//TRACE("%.9f\n", radians_to_degrees_(_m->at(lhs.first).term1));
 				lhsValue = fabs(_m->at(lhs.first).NStat);
-				for (UINT32 d(1); d<_m->at(lhs.first).vectorCount1; ++d)
+				for (UINT32 d(1); d < vector_count; ++d)
 				{
 					//TRACE("%.9f\n", _m->at(lhs.first+d).term1);
-					if (fabs(_m->at(lhs.first+d).NStat) > lhsValue)
-						lhsValue = fabs( _m->at(lhs.first+d).NStat);
+					if (fabs(_m->at(lhs.first + d).NStat) > lhsValue)
+						lhsValue = fabs( _m->at(lhs.first + d).NStat);
 				}
 				break;
 			}
-			
+			//TRACE("LHS: %.2f; RHS: %.2f\n", fabs(lhsValue), fabs(_m->at(rhs.first).NStat));
 			return fabs(lhsValue) > fabs(_m->at(rhs.first).NStat);
 		}
 		else if (notCompoundMeasAll(_m->at(lhs.first).measType) && isCompoundMeasAll(_m->at(rhs.first).measType))
 		{			
-			double rhsValue = 0.0;
+			double rhsValue = 0.0;			
+			U increment(0);			
+			UINT32 vector_count(_m->at(rhs.first).vectorCount1), covariance_count;
+
+			// Get the largest RHS value from the cluster
 			switch (_m->at(rhs.first).measType)
 			{
 			case 'G':
 			case 'X':
-			case 'Y':
-				//rhsValue = magnitude(_m->at(rhs.first).NStat, _m->at(rhs.first+1).NStat, _m->at(rhs.first+2).NStat);
-				rhsValue = max(fabs(_m->at(rhs.first).NStat), fabs(_m->at(rhs.first + 1).NStat));
-				rhsValue = max(rhsValue, fabs(_m->at(rhs.first + 2).NStat));
+			case 'Y':				
+				for (UINT32 g(0); g < vector_count; ++g)
+				{
+					covariance_count = _m->at(rhs.first + increment).vectorCount2;
+					if (fabs(_m->at(rhs.first + increment).NStat) > rhsValue)				// X
+						rhsValue = fabs(_m->at(rhs.first + increment).NStat);				
+					if (fabs(_m->at(rhs.first + increment + 1).NStat) > rhsValue)			// Y
+						rhsValue = fabs(_m->at(rhs.first + increment + 1).NStat);
+					if (fabs(_m->at(rhs.first + increment + 2).NStat) > rhsValue)			// Z
+						rhsValue = fabs(_m->at(rhs.first + increment + 2).NStat);
+					increment += 3;							// move to covariances
+					increment += (covariance_count * 3);	// skip over covariances
+				}
 				break;
 			case 'D':
 				//TRACE("%.9f\n", radians_to_degrees_(_m->at(rhs.first).term1));
 				rhsValue = fabs(_m->at(rhs.first).NStat);
-				for (UINT32 d(1); d<_m->at(rhs.first).vectorCount1; ++d)
+				for (UINT32 d(1); d < vector_count; ++d)
 				{
 					//TRACE("%.9f\n", _m->at(lhs.first+d).term1);
-					if (fabs(_m->at(rhs.first+d).NStat) > rhsValue)
-						rhsValue =  fabs(_m->at(rhs.first+d).NStat);
+					if (fabs(_m->at(rhs.first + d).NStat) > rhsValue)
+						rhsValue =  fabs(_m->at(rhs.first + d).NStat);
 				}
 				break;
 			}
@@ -880,19 +1041,32 @@ public:
 		else if (isCompoundMeasAll(_m->at(lhs.first).measType) && isCompoundMeasAll(_m->at(rhs.first).measType))
 		{
 			double lhsValue = 0.0;
+			U increment(0);
+			UINT32 vector_count(_m->at(lhs.first).vectorCount1), covariance_count;
+
+			// Get the largest LHS value from the cluster
 			switch (_m->at(lhs.first).measType)
 			{
 			case 'G':
 			case 'X':
 			case 'Y':
-				//lhsValue = magnitude(_m->at(lhs.first).NStat, _m->at(lhs.first+1).NStat, _m->at(lhs.first+2).NStat);
-				lhsValue = max(fabs(_m->at(lhs.first).NStat), fabs(_m->at(lhs.first + 1).NStat));
-				lhsValue = max(lhsValue, fabs(_m->at(lhs.first + 2).NStat));
+				for (UINT32 g(0); g < vector_count; ++g)
+				{
+					covariance_count = _m->at(lhs.first + increment).vectorCount2;
+					if (fabs(_m->at(lhs.first + increment).NStat) > lhsValue)		// X
+						lhsValue = fabs(_m->at(lhs.first + increment).NStat);			
+					if (fabs(_m->at(lhs.first + increment + 1).NStat) > lhsValue)	// Y
+						lhsValue = fabs(_m->at(lhs.first + increment + 1).NStat);
+					if (fabs(_m->at(lhs.first + increment + 2).NStat) > lhsValue)	// Z
+						lhsValue = fabs(_m->at(lhs.first + increment + 2).NStat);
+					increment += 3;							// move to covariances
+					increment += (covariance_count * 3);	// skip over covariances
+				}
 				break;
 			case 'D':
 				//TRACE("%.9f\n", radians_to_degrees_(_m->at(lhs.first).term1));
 				lhsValue = fabs(_m->at(lhs.first).NStat);
-				for (UINT32 d(1); d<_m->at(lhs.first).vectorCount1; ++d)
+				for (UINT32 d(1); d < vector_count; ++d)
 				{
 					//TRACE("%.9f\n", _m->at(lhs.first+d).term1);
 					if (fabs(_m->at(lhs.first+d).NStat) > lhsValue)
@@ -902,19 +1076,32 @@ public:
 			}
 
 			double rhsValue = 0.0;
+			increment = 0;
+			vector_count = _m->at(rhs.first).vectorCount1;
+
+			// Get the largest RHS value from the cluster
 			switch (_m->at(rhs.first).measType)
 			{
 			case 'G':
 			case 'X':
-			case 'Y':
-				//rhsValue = magnitude(_m->at(rhs.first).NStat, _m->at(rhs.first+1).NStat, _m->at(rhs.first+2).NStat);
-				rhsValue = max(fabs(_m->at(rhs.first).NStat), fabs(_m->at(rhs.first + 1).NStat));
-				rhsValue = max(rhsValue, fabs(_m->at(rhs.first + 2).NStat));
+			case 'Y':				
+				for (UINT32 g(0); g < vector_count; ++g)
+				{
+					covariance_count = _m->at(rhs.first + increment).vectorCount2;
+					if (fabs(_m->at(rhs.first + increment).NStat) > rhsValue)				// X
+						rhsValue = fabs(_m->at(rhs.first + increment).NStat);
+					if (fabs(_m->at(rhs.first + increment + 1).NStat) > rhsValue)			// Y
+						rhsValue = fabs(_m->at(rhs.first + increment + 1).NStat);
+					if (fabs(_m->at(rhs.first + increment + 2).NStat) > rhsValue)			// Z
+						rhsValue = fabs(_m->at(rhs.first + increment + 2).NStat);
+					increment += 3;							// move to covariances
+					increment += (covariance_count * 3);	// skip over covariances
+				}
 				break;
 			case 'D':
 				//TRACE("%.9f\n", radians_to_degrees_(_m->at(rhs.first).term1));
 				rhsValue = fabs(_m->at(rhs.first).NStat);
-				for (UINT32 d(1); d<_m->at(rhs.first).vectorCount1; ++d)
+				for (UINT32 d(1); d < vector_count; ++d)
 				{
 					//TRACE("%.9f\n", _m->at(lhs.first+d).term1);
 					if (fabs(_m->at(rhs.first+d).NStat) > rhsValue)
