@@ -1389,39 +1389,6 @@ private:
 };
 
 
-// M = measurement_t, U = UINT32, T = double
-template<typename M, typename U, typename T>
-class CompareMeasOutlier_PairFirst
-{
-public:
-	CompareMeasOutlier_PairFirst(vector<M>* m, const T t)
-		:  _m(m), _t(t) {}
-	bool operator()(const pair<U, pair<U, U> >& lhs, const pair<U, pair<U, U> >& rhs) {
-		if (isCompoundMeas(_m->at(lhs.first).measType) && notCompoundMeas(_m->at(rhs.first).measType))
-		{
-			bool lhs_pass((fabs(_m->at(lhs.first).NStat) < _t) || (fabs(_m->at(lhs.first+1).NStat) < _t) || (fabs(_m->at(lhs.first+2).NStat) < _t));
-			return (lhs_pass < (fabs(_m->at(rhs.first).NStat) < _t));
-		}
-		else if (notCompoundMeas(_m->at(lhs.first).measType) && isCompoundMeas(_m->at(rhs.first).measType))	
-		{
-			bool rhs_pass((fabs(_m->at(rhs.first).NStat) < _t) || (fabs(_m->at(rhs.first+1).NStat) < _t) || (fabs(_m->at(rhs.first+2).NStat) < _t));
-			return ((fabs(_m->at(lhs.first).NStat) < _t) < rhs_pass);
-		}
-		else if (isCompoundMeas(_m->at(lhs.first).measType) && isCompoundMeas(_m->at(rhs.first).measType))	
-		{
-			bool lhs_pass((fabs(_m->at(lhs.first).NStat) < _t) || (fabs(_m->at(lhs.first+1).NStat) < _t) || (fabs(_m->at(lhs.first+2).NStat) < _t));
-			bool rhs_pass((fabs(_m->at(rhs.first).NStat) < _t) || (fabs(_m->at(rhs.first+1).NStat) < _t) || (fabs(_m->at(rhs.first+2).NStat) < _t));
-			return lhs_pass < rhs_pass;
-		}
-		else
-			return ((fabs(_m->at(lhs.first).NStat) < _t) < (fabs(_m->at(rhs.first).NStat) < _t));
-	}
-private:
-	vector<M>*	_m;
-	T			_t;
-};
-
-
 // S = station_t, U = UINT32
 template<typename S, typename U>
 class CompareStnFileOrder

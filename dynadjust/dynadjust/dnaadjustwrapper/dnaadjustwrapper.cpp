@@ -871,8 +871,7 @@ int main(int argc, char* argv[])
 					StringFromT(meas_adj_msr_sort_ui) + ": Measurement value\n  " + 
 					StringFromT(corr_adj_msr_sort_ui) + ": Correction\n  " + 
 					StringFromT(a_sd_adj_msr_sort_ui) + ": Adjusted std. dev.\n  " + 
-					StringFromT(n_st_adj_msr_sort_ui) + ": N-statistic\n  " + 
-					StringFromT(outl_adj_msr_sort_ui) + ": Suspected outlier").c_str())
+					StringFromT(n_st_adj_msr_sort_ui) + ": N-statistic").c_str())
 			(OUTPUT_ADJ_STN_BLOCKS,
 				"For phased adjustments, output adjusted coordinates according to each block.")
 			(OUTPUT_ADJ_MSR_BLOCKS,

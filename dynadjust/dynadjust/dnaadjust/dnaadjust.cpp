@@ -12304,9 +12304,6 @@ void dna_adjust::PrintAdjMeasurements(v_uint32_u32u32_pair msr_block, bool print
 		// Should the adjusted measurements be sorted?
 		switch (projectSettings_.o._sort_adj_msr)
 		{
-		case orig_adj_msr_sort_ui:
-			sort(msr_block.begin(), msr_block.end());
-			break;
 		case type_adj_msr_sort_ui:
 			SortMeasurementsbyType(msr_block);
 			break;
@@ -12328,8 +12325,9 @@ void dna_adjust::PrintAdjMeasurements(v_uint32_u32u32_pair msr_block, bool print
 		case n_st_adj_msr_sort_ui:
 			SortMeasurementsbyNstat(msr_block);
 			break;
-		case outl_adj_msr_sort_ui:
-			SortMeasurementsbyOutlier(msr_block);
+		case orig_adj_msr_sort_ui:
+		default:
+			sort(msr_block.begin(), msr_block.end());
 			break;
 		}
 	}
@@ -12362,9 +12360,6 @@ void dna_adjust::PrintAdjMeasurements(v_uint32_u32u32_pair msr_block, bool print
 			break;
 		case n_st_adj_msr_sort_ui:
 			ss << "measurement n-statistic";
-			break;
-		case outl_adj_msr_sort_ui:
-			ss << "measurement outlier";
 			break;
 		}
 			
@@ -14936,14 +14931,6 @@ void dna_adjust::SortMeasurementsbyNstat(v_uint32_u32u32_pair& msr_block)
 	sort(msr_block.begin(), msr_block.end(), measnstatCompareFunc);
 }
 	
-
-void dna_adjust::SortMeasurementsbyOutlier(v_uint32_u32u32_pair& msr_block)
-{
-	if (msr_block.size() < 2)
-		return;
-	CompareMeasOutlier_PairFirst<measurement_t, UINT32, double> measoutlierCompareFunc(&bmsBinaryRecords_, criticalValue_);
-	sort(msr_block.begin(), msr_block.end(), measoutlierCompareFunc);
-}
 
 
 }	// namespace networkadjust

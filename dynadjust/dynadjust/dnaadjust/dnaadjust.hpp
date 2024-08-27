@@ -480,7 +480,6 @@ private:
 	void SortMeasurementsbyResidual(v_uint32_u32u32_pair& msr_block);
 	void SortMeasurementsbyAdjSD(v_uint32_u32u32_pair& msr_block);
 	void SortMeasurementsbyNstat(v_uint32_u32u32_pair& msr_block);
-	void SortMeasurementsbyOutlier(v_uint32_u32u32_pair& msr_block);
 
 	// Adjustment station sorting
 	void SortStationsbyFileOrder(vUINT32& v_blockStations);
