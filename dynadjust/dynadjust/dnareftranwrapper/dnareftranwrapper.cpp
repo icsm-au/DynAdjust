@@ -118,18 +118,18 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 	
 	if (!vm.count(REFERENCE_FRAME))
 	{
-		//cout << endl << "- Nothing to do - reference frame was not supplied. " << endl << endl;  
+		//cout << endl << "- Reference frame was not supplied.  Using project default (" << p.r.reference_frame << ")" << endl << endl;
 		//return EXIT_FAILURE;
-		try
-		{
-			// Okay, no frame supplied, check the frame in the project settings.
-			// The following throws an exception if the frame is unknown
-			string epsg = epsgStringFromName<string>(p.r.reference_frame);
-		}
-		catch (const runtime_error& e) {
-			cout << endl << "- Error: " << e.what() << endl;
-			return EXIT_FAILURE;
-		}
+		//try
+		//{
+		//	// Okay, no frame supplied, check the frame in the project settings.
+		//	// The following throws an exception if the frame is unknown
+		//	string epsg = epsgStringFromName<string>(p.r.reference_frame);
+		//}
+		//catch (const runtime_error& e) {
+		//	cout << endl << "- Error: " << e.what() << endl;
+		//	return EXIT_FAILURE;
+		//}
 	}
 
 	if (!vm.count(EPOCH))
@@ -439,7 +439,11 @@ int main(int argc, char* argv[])
 		cout << setw(PRINT_VAR_PAD) << left << "  Output folder: " << p.g.output_folder << endl;
 		cout << setw(PRINT_VAR_PAD) << left << "  Binary station file: " << p.r.bst_file << endl;
 		cout << setw(PRINT_VAR_PAD) << left << "  Binary measurement file: " << p.r.bms_file << endl;
-		cout << setw(PRINT_VAR_PAD) << left << "  Target reference frame: " << p.r.reference_frame << endl;
+		cout << setw(PRINT_VAR_PAD) << left << "  Target reference frame: " << p.r.reference_frame;
+		if (vm.count(REFERENCE_FRAME))
+			cout << " (user supplied)" << endl;
+		else
+			cout << " (project default)" << endl;
 
 		// try to parse user supplied string.  If this fails, then there's not much point in attempting
 		// to transform stations and measurements
