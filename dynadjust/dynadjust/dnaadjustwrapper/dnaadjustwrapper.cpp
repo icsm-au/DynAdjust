@@ -1244,7 +1244,22 @@ int main(int argc, char* argv[])
 		cout << endl;
 		
 		if (p.a.report_mode)
+		{
 			cout << "+ Report last adjustment results" << endl;
+
+			// Has report mode been requested as well as an argument to recreate stage files?
+			// If so, return an error message and exit as this will lead to reporting of 
+			// incorrect (zero!) results
+			if (p.a.recreate_stage_files)
+			{
+				cout << endl <<
+					"- Error: The option --" << RECREATE_STAGE_FILES << " cannot be used in Report results mode" << endl <<
+					"  as it will erase the results from the latest adjustment and create new stage" << endl <<
+					"  files initialised to zero." << endl << endl;
+				cout_mutex.unlock();
+				return EXIT_FAILURE;
+			}
+		}
 		
 		cout_mutex.unlock();
 	}
