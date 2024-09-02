@@ -260,11 +260,25 @@ fi
 
 cd "$_build_dir"
 
-# 3. copy files:
+# 3. copy cmake files:
 echo "Copying Find*.cmake files to build directory..."
 cp ../FindXercesC.cmake ./
 #cp ../FindMKL.cmake ./
 cp ../FindXSD.cmake ./
+
+# check if MKLROOT environment variable has been set, which means
+# intel MKL has been installed.
+if [ -z "$MKLROOT" ]
+then
+    # If not, find setvars.h and execute to set environment variables
+	if [ -e /opt/intel/oneapi/setvars.sh ]
+	then
+		echo "Setting environment variables for intel..."
+		source /opt/intel/oneapi/setvars.sh
+	fi
+else
+	echo "Intel root: $MKLROOT"
+fi
 
 REL_BUILD_TYPE="Release"
 DBG_BUILD_TYPE="Debug"
