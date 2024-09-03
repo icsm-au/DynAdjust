@@ -772,16 +772,16 @@ private:
 	void PrintMeasurementsAngular(const char cardinal, const double& measurement, const double& correction, const it_vmsr_t& _it_msr, bool printAdjMsr = true);
 	void PrintMeasurementsLinear(const char cardinal, const double& measurement, const double& correction, const it_vmsr_t& _it_msr, bool printAdjMsr = true);
 	void PrintMeasurementCorrection(const char cardinal, const it_vmsr_t& _it_msr);
-	void PrintMeasurementDatabaseID(const it_vmsr_t& _it_msr);
+	void PrintMeasurementDatabaseID(const it_vmsr_t& _it_msr, bool initialise_dbindex=true);
 
 	void FormUniqueMsrList();
 	void PrintAdjMeasurementsHeader(bool printHeader, const string& table_heading,
 		printMeasurementsMode printMode, UINT32 block, bool printBlocks = false);
 	void PrintAdjMeasurements(v_uint32_u32u32_pair msr_block, bool printHeader);
-	void PrintAdjMeasurementsAngular(const char cardinal, const it_vmsr_t& _it_msr);
-	void PrintAdjMeasurementsLinear(const char cardinal, const it_vmsr_t& _it_msr);
+	void PrintAdjMeasurementsAngular(const char cardinal, const it_vmsr_t& _it_msr, bool initialise_dbindex = true);
+	void PrintAdjMeasurementsLinear(const char cardinal, const it_vmsr_t& _it_msr, bool initialise_dbindex=true);
 	void PrintAdjGNSSAlternateUnits(it_vmsr_t& _it_msr, const uint32_uint32_pair& b_pam);
-	void PrintAdjMeasurementStatistics(const char cardinal, const it_vmsr_t& _it_msr);	
+	void PrintAdjMeasurementStatistics(const char cardinal, const it_vmsr_t& _it_msr, bool initialise_dbindex = true);
 	
 	void PrintIgnoredAdjMeasurements(bool printHeader);
 

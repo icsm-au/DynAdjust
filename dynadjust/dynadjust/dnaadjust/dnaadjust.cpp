@@ -10675,10 +10675,6 @@ void dna_adjust::PrintCompMeasurements(const UINT32& block, const string& type)
 
 	UINT32 design_row(0);
 
-	// Initialise database id iterator
-	if (projectSettings_.o._database_ids)
-		_it_dbid = v_msr_db_map_.begin();
-
 	for (_it_block_msr=v_CML_.at(block).begin(); _it_block_msr!=v_CML_.at(block).end(); ++_it_block_msr)
 	{
 		if (InitialiseandValidateMsrPointer(_it_block_msr, _it_msr))
@@ -12096,10 +12092,6 @@ void dna_adjust::PrintIgnoredAdjMeasurements(bool printHeader)
 		UpdateIgnoredMeasurements(&_it_msr, storeOriginalMeasurement);
 	}
 
-	// Initialise database id iterator
-	if (projectSettings_.o._database_ids)
-		_it_dbid = v_msr_db_map_.begin();
-
 	// Print measurements
 	for (_it_ign = ignored_msrs.begin(); _it_ign != ignored_msrs.end(); ++_it_ign)
 	{
@@ -12370,10 +12362,6 @@ void dna_adjust::PrintAdjMeasurements(v_uint32_u32u32_pair msr_block, bool print
 
 	UINT32 clusterID(MAX_UINT32_VALUE);
 
-	// Initialise database id iterator
-	if (projectSettings_.o._database_ids)
-		_it_dbid = v_msr_db_map_.begin();
-
 	for (_it_block_msr=msr_block.begin(); _it_block_msr!=msr_block.end(); ++_it_block_msr)
 	{
 		_it_msr = bmsBinaryRecords_.begin() + (_it_block_msr->first);
@@ -12462,7 +12450,8 @@ void dna_adjust::PrintCompMeasurementsAngular(const char cardinal, const double&
 	PrintMeasurementCorrection(cardinal, _it_msr);
 
 	// Print measurement database ids
-	PrintMeasurementDatabaseID(_it_msr);
+	if (projectSettings_.o._database_ids)
+		PrintMeasurementDatabaseID(_it_msr);
 
 	adj_file << endl;
 }
@@ -12485,7 +12474,8 @@ void dna_adjust::PrintCompMeasurementsLinear(const char cardinal, const double& 
 	PrintMeasurementCorrection(cardinal, _it_msr);
 
 	// Print measurement database ids
-	PrintMeasurementDatabaseID(_it_msr);
+	if (projectSettings_.o._database_ids)
+		PrintMeasurementDatabaseID(_it_msr);
 
 	adj_file << endl;
 }
@@ -12595,6 +12585,7 @@ void dna_adjust::PrintCompMeasurements_D(it_vmsr_t& _it_msr, UINT32& design_row)
 
 	adj_file << setw(PAD3) << left << ignoreFlag << setw(PAD2) << left << angle_count;
 
+	// Print measurement database ids
 	if (projectSettings_.o._database_ids)
 	{
 		// Measured + Computed + Correction + Meas SD + Pre Adj Corr
@@ -13040,23 +13031,23 @@ void dna_adjust::PrintMeasurementsAngular(const char cardinal, const double& mea
 }
 	
 
-void dna_adjust::PrintAdjMeasurementsAngular(const char cardinal, const it_vmsr_t& _it_msr)
+void dna_adjust::PrintAdjMeasurementsAngular(const char cardinal, const it_vmsr_t& _it_msr, bool initialise_dbindex)
 {
 	// Print adjusted angular measurements
 	PrintMeasurementsAngular(cardinal, _it_msr->measAdj, _it_msr->measCorr, _it_msr);
 
 	// Print adjusted statistics
-	PrintAdjMeasurementStatistics(cardinal, _it_msr);
+	PrintAdjMeasurementStatistics(cardinal, _it_msr, initialise_dbindex);
 }
 	
 
-void dna_adjust::PrintAdjMeasurementsLinear(const char cardinal, const it_vmsr_t& _it_msr)
+void dna_adjust::PrintAdjMeasurementsLinear(const char cardinal, const it_vmsr_t& _it_msr, bool initialise_dbindex)
 {
 	// Print adjusted linear measurements
 	PrintMeasurementsLinear(cardinal, _it_msr->measAdj, _it_msr->measCorr, _it_msr);
 	
 	// Print adjusted statistics
-	PrintAdjMeasurementStatistics(cardinal, _it_msr);
+	PrintAdjMeasurementStatistics(cardinal, _it_msr, initialise_dbindex);
 }
 	
 
@@ -13220,36 +13211,37 @@ void dna_adjust::PrintMeasurementCorrection(const char cardinal, const it_vmsr_t
 	
 }
 
-void dna_adjust::PrintMeasurementDatabaseID(const it_vmsr_t& _it_msr)
+void dna_adjust::PrintMeasurementDatabaseID(const it_vmsr_t& _it_msr, bool initialise_dbindex)
 {
-	if (projectSettings_.o._database_ids)
+	// set iterator to the database index
+	if (initialise_dbindex)
 	{
-		size_t dbindex = std::distance(bmsBinaryRecords_.begin(), _it_msr);
-		_it_dbid = v_msr_db_map_.begin() + dbindex;
+		size_t dbindx = std::distance(bmsBinaryRecords_.begin(), _it_msr);
+		_it_dbid = v_msr_db_map_.begin() + dbindx;
+	}
 
-		// Print measurement id
-		if (_it_dbid->is_msr_id_set)
-			adj_file << setw(STDDEV) << right << _it_dbid->msr_id;
+	// Print measurement id
+	if (_it_dbid->is_msr_id_set)
+		adj_file << setw(STDDEV) << right << _it_dbid->msr_id;
+	else
+		adj_file << setw(STDDEV) << " ";
+
+	// Print cluster id?
+	switch (_it_msr->measType)
+	{
+	case 'D':
+	case 'G':
+	case 'X':
+	case 'Y':
+		if (_it_dbid->is_cls_id_set)
+			adj_file << setw(STDDEV) << right << _it_dbid->cluster_id;
 		else
 			adj_file << setw(STDDEV) << " ";
-
-		// Print cluster id?
-		switch (_it_msr->measType)
-		{
-		case 'D':
-		case 'G':
-		case 'X':
-		case 'Y':
-			if (_it_dbid->is_cls_id_set)
-				adj_file << setw(STDDEV) << right << _it_dbid->cluster_id;
-			else
-				adj_file << setw(STDDEV) << " ";
-		}
 	}
 }
 	
 
-void dna_adjust::PrintAdjMeasurementStatistics(const char cardinal, const it_vmsr_t& _it_msr)
+void dna_adjust::PrintAdjMeasurementStatistics(const char cardinal, const it_vmsr_t& _it_msr, bool initialise_dbindex)
 {
 	UINT16 PRECISION_STAT(2);
 
@@ -13280,7 +13272,8 @@ void dna_adjust::PrintAdjMeasurementStatistics(const char cardinal, const it_vms
 		adj_file << setw(OUTLIER) << right << " ";
 
 	// Print measurement database ids
-	PrintMeasurementDatabaseID(_it_msr);
+	if (projectSettings_.o._database_ids)
+		PrintMeasurementDatabaseID(_it_msr, initialise_dbindex);
 
 	adj_file << endl;
 }
@@ -13738,6 +13731,7 @@ void dna_adjust::PrintAdjGNSSAlternateUnits(it_vmsr_t& _it_msr, const uint32_uin
 		bstBinaryRecords_.at(_it_msr->station1).currentLatitude,
 		bstBinaryRecords_.at(_it_msr->station1).currentLongitude);
 
+	// return iterator to the X component of the GNSS measurement
 	_it_msr -= 2;
 
 	switch (projectSettings_.o._adj_gnss_units)
@@ -13768,7 +13762,11 @@ void dna_adjust::PrintAdjGNSSAlternateUnits(it_vmsr_t& _it_msr, const uint32_uin
 		// Update Pelzer reliability, N-Stat, T-Stat
 		UpdateMsrRecordStats(_it_gnss_msr, _it_gnss_msr->term2);
 
-		PrintAdjMeasurementsLinear('e', _it_gnss_msr);
+		// Initialise database id iterator
+		if (projectSettings_.o._database_ids)
+			_it_dbid = v_msr_db_map_.begin() + std::distance(bmsBinaryRecords_.begin(), _it_msr);
+
+		PrintAdjMeasurementsLinear('e', _it_gnss_msr, false);
 	
 		// N
 		_it_msr++;
@@ -13784,7 +13782,11 @@ void dna_adjust::PrintAdjGNSSAlternateUnits(it_vmsr_t& _it_msr, const uint32_uin
 		// Update Pelzer reliability, N-Stat, T-Stat
 		UpdateMsrRecordStats(_it_gnss_msr, _it_gnss_msr->term3);
 
-		PrintAdjMeasurementsLinear('n', _it_gnss_msr);
+		// Initialise database id iterator
+		if (projectSettings_.o._database_ids)
+			_it_dbid = v_msr_db_map_.begin() + std::distance(bmsBinaryRecords_.begin(), _it_msr);
+
+		PrintAdjMeasurementsLinear('n', _it_gnss_msr, false);
 
 		// U
 		_it_msr++;
@@ -13800,7 +13802,11 @@ void dna_adjust::PrintAdjGNSSAlternateUnits(it_vmsr_t& _it_msr, const uint32_uin
 		// Update Pelzer reliability, N-Stat, T-Stat
 		UpdateMsrRecordStats(_it_gnss_msr, _it_gnss_msr->term4);
 
-		PrintAdjMeasurementsLinear('u', _it_gnss_msr);
+		// Initialise database id iterator
+		if (projectSettings_.o._database_ids)
+			_it_dbid = v_msr_db_map_.begin() + std::distance(bmsBinaryRecords_.begin(), _it_msr);
+
+		PrintAdjMeasurementsLinear('u', _it_gnss_msr, false);
 		break;
 	case AED_adj_gnss_ui:
 
@@ -13845,7 +13851,11 @@ void dna_adjust::PrintAdjGNSSAlternateUnits(it_vmsr_t& _it_msr, const uint32_uin
 		// Update Pelzer reliability, N-Stat, T-Stat
 		UpdateMsrRecordStats(_it_gnss_msr, _it_gnss_msr->term2);
 
-		PrintAdjMeasurementsAngular('a', _it_gnss_msr);
+		// Initialise database id iterator
+		if (projectSettings_.o._database_ids)
+			_it_dbid = v_msr_db_map_.begin() + std::distance(bmsBinaryRecords_.begin(), _it_msr);
+
+		PrintAdjMeasurementsAngular('a', _it_gnss_msr, false);
 	
 		// Print vertical angle
 		_it_msr++;
@@ -13861,7 +13871,11 @@ void dna_adjust::PrintAdjGNSSAlternateUnits(it_vmsr_t& _it_msr, const uint32_uin
 		// Update Pelzer reliability, N-Stat, T-Stat
 		UpdateMsrRecordStats(_it_gnss_msr, _it_gnss_msr->term3);
 
-		PrintAdjMeasurementsAngular('v', _it_gnss_msr);
+		// Initialise database id iterator
+		if (projectSettings_.o._database_ids)
+			_it_dbid = v_msr_db_map_.begin() + std::distance(bmsBinaryRecords_.begin(), _it_msr);
+
+		PrintAdjMeasurementsAngular('v', _it_gnss_msr, false);
 
 		// Print slope distance
 		_it_msr++;
@@ -13879,7 +13893,11 @@ void dna_adjust::PrintAdjGNSSAlternateUnits(it_vmsr_t& _it_msr, const uint32_uin
 		// Update Pelzer reliability, N-Stat, T-Stat
 		UpdateMsrRecordStats(_it_gnss_msr, _it_gnss_msr->term4);
 
-		PrintAdjMeasurementsLinear('s', _it_gnss_msr);
+		// Initialise database id iterator
+		if (projectSettings_.o._database_ids)
+			_it_dbid = v_msr_db_map_.begin() + std::distance(bmsBinaryRecords_.begin(), _it_msr);
+
+		PrintAdjMeasurementsLinear('s', _it_gnss_msr, false);
 		break;
 	case ADU_adj_gnss_ui:
 
@@ -13923,7 +13941,11 @@ void dna_adjust::PrintAdjGNSSAlternateUnits(it_vmsr_t& _it_msr, const uint32_uin
 		// Update Pelzer reliability, N-Stat, T-Stat
 		UpdateMsrRecordStats(_it_gnss_msr, _it_gnss_msr->term2);
 
-		PrintAdjMeasurementsAngular('a', _it_gnss_msr);
+		// Initialise database id iterator
+		if (projectSettings_.o._database_ids)
+			_it_dbid = v_msr_db_map_.begin() + std::distance(bmsBinaryRecords_.begin(), _it_msr);
+
+		PrintAdjMeasurementsAngular('a', _it_gnss_msr, false);
 	
 		// Print slope distance
 		_it_msr++;
@@ -13941,7 +13963,11 @@ void dna_adjust::PrintAdjGNSSAlternateUnits(it_vmsr_t& _it_msr, const uint32_uin
 		// Update Pelzer reliability, N-Stat, T-Stat
 		UpdateMsrRecordStats(_it_gnss_msr, _it_gnss_msr->term3);
 
-		PrintAdjMeasurementsLinear('s', _it_gnss_msr);
+		// Initialise database id iterator
+		if (projectSettings_.o._database_ids)
+			_it_dbid = v_msr_db_map_.begin() + std::distance(bmsBinaryRecords_.begin(), _it_msr);
+
+		PrintAdjMeasurementsLinear('s', _it_gnss_msr, false);
 
 		// Print up
 		_it_msr++;
@@ -13957,7 +13983,11 @@ void dna_adjust::PrintAdjGNSSAlternateUnits(it_vmsr_t& _it_msr, const uint32_uin
 		// Update Pelzer reliability, N-Stat, T-Stat
 		UpdateMsrRecordStats(_it_gnss_msr, _it_gnss_msr->term4);
 
-		PrintAdjMeasurementsLinear('u', _it_gnss_msr);
+		// Initialise database id iterator
+		if (projectSettings_.o._database_ids)
+			_it_dbid = v_msr_db_map_.begin() + std::distance(bmsBinaryRecords_.begin(), _it_msr);
+
+		PrintAdjMeasurementsLinear('u', _it_gnss_msr, false);
 		break;
 	}
 }
