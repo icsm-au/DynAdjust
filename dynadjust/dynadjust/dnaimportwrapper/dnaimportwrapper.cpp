@@ -808,7 +808,6 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 
 	size_t i, nfiles(p.i.input_files.size());		// for each file...
 	string epsgCode, input_file, ss, status_msg;
-	vstring input_files;
 	ostringstream ss_time, ss_msg;
 	input_file_meta_t input_file_meta;
 	milliseconds elapsed_time(milliseconds(0));
@@ -837,7 +836,6 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 			}
 		}
 			
-		input_files.push_back(input_file);
 		ss = leafStr<string>(p.i.input_files.at(i)) + "... ";
 		if (!p.g.quiet)
 			cout << "  " << setw(strlen_arg) << left << ss;
