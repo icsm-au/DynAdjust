@@ -116,28 +116,53 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 		return EXIT_FAILURE;
 	}
 	
+	p.g.project_file = formPath<string>(p.g.output_folder, p.g.network_name, "dnaproj");
+	p.r.rft_file = formPath<string>(p.g.output_folder, p.g.network_name, "rft");
+
+	bool frameSupplied(true);
+	project_settings tmp;
+
 	if (!vm.count(REFERENCE_FRAME))
 	{
+		if (exists(p.g.project_file))
+		{
+			try {
+				CDnaProjectFile projectFile(p.g.project_file, reftranSetting);
+				tmp = projectFile.GetSettings();
+				p.r.reference_frame = tmp.r.reference_frame;
+				frameSupplied = false;
+			}
+			catch (const runtime_error& e) {
+				cout << endl << "- Error: " << e.what() << endl;
+				return EXIT_FAILURE;
+			}
+		}
+
 		//cout << endl << "- Reference frame was not supplied.  Using project default (" << p.r.reference_frame << ")" << endl << endl;
-		//return EXIT_FAILURE;
-		//try
-		//{
-		//	// Okay, no frame supplied, check the frame in the project settings.
-		//	// The following throws an exception if the frame is unknown
-		//	string epsg = epsgStringFromName<string>(p.r.reference_frame);
-		//}
-		//catch (const runtime_error& e) {
-		//	cout << endl << "- Error: " << e.what() << endl;
-		//	return EXIT_FAILURE;
-		//}
+		
+		try
+		{
+			// Okay, no frame supplied, check the frame in the project settings.
+			// The following throws an exception if the frame is unknown
+			string epsg = epsgStringFromName<string>(p.r.reference_frame);
+		}
+		catch (const runtime_error& e) {
+			cout << endl << "- Error: " << e.what() << endl;
+			return EXIT_FAILURE;
+		}
 	}
 
 	if (!vm.count(EPOCH))
 	{
 		try
 		{
-			// Okay, no epoch supplied, so set the epoch to be the reference epoch of the reference frame
+			if (frameSupplied)
+				// Okay, frame supplied, but no epoch supplied.
+				// Set the epoch to be the reference epoch of the supplied reference frame
 				p.r.epoch = referenceepochFromEpsgCode<UINT32>(epsgCodeFromName<UINT32, string>(p.r.reference_frame));
+			else
+				// Take the epoch from the project file
+				p.r.epoch = tmp.r.epoch;
 		}
 		catch (const runtime_error& e) {
 			cout << endl << "- Error: " << e.what() << endl;
@@ -166,9 +191,6 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 			return EXIT_FAILURE;
 		}
 	}
-
-	p.g.project_file = formPath<string>(p.g.output_folder, p.g.network_name, "dnaproj");
-	p.r.rft_file = formPath<string>(p.g.output_folder, p.g.network_name, "rft");
 
 	// binary station file location (input)
 	if (vm.count(BIN_STN_FILE))
