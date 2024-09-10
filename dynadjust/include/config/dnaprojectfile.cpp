@@ -1699,7 +1699,7 @@ void CDnaProjectFile::PrintProjectFile()
 	stringstream ss;
 
 	// Write header line
-	dnaproj_header(dnaproj_file, settings_.g.network_name + " project file.");
+	dnaproj_header(dnaproj_file, settings_.g.network_name + " project file");
 	dnaproj_file << endl << endl;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
