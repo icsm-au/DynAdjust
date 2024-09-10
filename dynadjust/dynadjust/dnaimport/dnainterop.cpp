@@ -2800,19 +2800,14 @@ UINT32 dna_import::ParseDNAMSRDirections(string& sBuf, dnaMsrPtr& msr_ptr, bool 
 			dirnCountLessIgnored--;
 			if (dirnCountLessIgnored == 0)
 			{
-				// Is the entire direction set ignored?
-				// If so, return 0
-				if (ignoreMsr)
-					return 0;
-				
-				throw XMLInteropException("There aren't any non-ignored directions in the set.", m_lineNo);
+				// throw if the entire direction set is not ignored
+				if (!ignoreMsr)
+					throw XMLInteropException("There aren't any non-ignored directions in the set.", m_lineNo);
 			}
-			msr_ptr->SetTotal(dirnCountLessIgnored);
-			continue;
 		}
 
 		dirnTmp.SetFirst(msr_ptr->GetFirst());
-		dirnTmp.SetIgnore(ignoreMsr);
+		dirnTmp.SetIgnore(subignoreMsr);
 		g_parsemsr_tally.D++;
 
 		// Second target station
@@ -2835,6 +2830,8 @@ UINT32 dna_import::ParseDNAMSRDirections(string& sBuf, dnaMsrPtr& msr_ptr, bool 
 		// add the direction
 		msr_ptr->AddDirection(((CDnaMeasurement*)&dirnTmp));
 	}
+
+	msr_ptr->SetNonIgnoredDirns(dirnCountLessIgnored);
 
 	return dirnCount;
 }
@@ -6562,8 +6559,11 @@ void dna_import::MapMeasurementStationsDir(vector<CDnaDirection>* vDirections, p
 		
 		msrStations.push_back(to_station_index);
 		
-		(*lMapCount)++;
-		g_map_tally.D ++;
+		if (_it_msr->NotIgnored())
+		{
+			(*lMapCount)++;
+			g_map_tally.D++;
+		}
 	}
 
 	// Strip duplicates from msrStations, then increment station count for each of the stations tied to this cluster
@@ -6885,8 +6885,9 @@ void dna_import::CompleteASLDirections(_it_vdnamsrptr _it_msr, vector<CDnaDirect
 		
 		// All ASL entries are set to invalid on initial run of 
 		// CompleteAssociationLists, so this is vital so as to ensure a station 
-		// is to be included.
-		if (_it_dir->NotIgnored())
+		// is to be included.  But stations should only be included if the 
+		// parent direction set measurement is not ignored
+		if (_it_dir->NotIgnored() && _it_msr->get()->NotIgnored())
 			currentASL->SetValid();
 
 		// Set binary msr index for all stations in this cluster to the first element of the 

@@ -161,6 +161,7 @@ typedef struct msr_t {
 	UINT32	station3;				// record file.
 	UINT32	vectorCount1;			// number of directions, GpsPoints or GpsBaselines
 	UINT32	vectorCount2;			// number of covariances for GpsPoint or GpsBaseline
+									// number of non-ignored directions
 	UINT32	clusterID;				// cluster ID (which cluster this measurement belongs to)
 	UINT32	fileOrder;				// original file order
 	double	term1;					// measurement, X, Y, Z, dX, dY, dZ value
@@ -168,13 +169,13 @@ typedef struct msr_t {
 	double	term2;					// measurement, XX, XY or XZ variance
 									// direction variance
 	double	term3;					// instrument height, YY or YZ variance
-									// derived angle
 	double	term4;					// target height or ZZ variance
-									// derived angle variance
 	double	scale1;					// phi, n or X scalar
-									// derived angle covariance
+									// derived angle corrected for deflection of the vertical
 	double	scale2;					// lambda, e or Y scalar
+									// derived angle variance
 	double	scale3;					// height, up or Z scalar
+									// derived angle covariance
 	double	scale4;					// matrix scalar
 	double	measAdj;
 	double	measCorr;
@@ -409,6 +410,7 @@ public:
 	virtual void ResizeGpsCovariancesCount(const UINT32&) {}
 
 	virtual void SetRecordedTotal(const UINT32&) {}
+	virtual void SetNonIgnoredDirns(const UINT32&) {}
 	virtual void SetClusterID(const UINT32&) {}
 	virtual void SetCoordType(const string&) {}
 	virtual void SetHscale(const string&) {}

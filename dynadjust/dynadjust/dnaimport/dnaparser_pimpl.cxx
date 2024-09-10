@@ -150,12 +150,11 @@ void Directions_pimpl::Value(const ::std::string& Value)
 {
 	_dnaDirection->SetValue(Value);
 
-	if (_dnaDirection->NotIgnored())
-	{
+	//if (_dnaDirection->NotIgnored())
+	//{
 		// increment measurement counter
 		*(_pMeasurementCount) += 1;
-		g_parsemsr_tally.D++;
-	}
+	//}
 }
 
 void Directions_pimpl::StdDev(const ::std::string& StdDev)
@@ -175,29 +174,38 @@ void Directions_pimpl::post_Directions(const UINT32& total)
 {
 	if (!_parent_dnaDirectionSet)
 		return;
-
-	if (_dnaDirection->NotIgnored())
-		_parent_dnaDirectionSet->AddDirection(_dnaDirection.get());
-	else
+	
+	// Is the parent ignored? Add it to the ignored set
+	if (_parent_dnaDirectionSet->GetIgnore())
 	{
-		UINT32 t = _parent_dnaDirectionSet->GetTotal() - 1;
-		_parent_dnaDirectionSet->SetTotal(t);
-
-		if (t == 0)
-		{
-			// Is the entire direction set ignored?
-			if (_parent_dnaDirectionSet->GetIgnore())
-				return;
-
-			stringstream ss, ss2;
-			ss << 
-				"<Directions>...</Directions>',  total of " << total << " element(s)" << endl <<
-				"  - found 0 <Directions>, or there aren't any non-ignored directions in the set. '";
-			ss2 << " ~ <Total>" << total << "</Total>";
-			throw ::xsd::cxx::parser::expected_element< char >(
-				ss.str(), ss2.str());
-		}
+		_parent_dnaDirectionSet->AddDirection(_dnaDirection.get());
+		return;
 	}
+
+	// Is the parent not ignored, and the direction not ignored? Add it to the set
+	if (_dnaDirection->NotIgnored())
+	{
+		_parent_dnaDirectionSet->AddDirection(_dnaDirection.get());
+		return;
+	}
+
+	// At this point, the parent is not ignored, but a sub direction is.
+	// Test if this ignored sub direction will lead to a false direction
+	UINT32 t = _parent_dnaDirectionSet->GetTotal() - 1;
+
+	if (t == 0)
+	{
+		stringstream ss, ss2;
+		ss << 
+			"<Directions>...</Directions>',  total of " << total << " element(s)" << endl <<
+			"  - found 0 <Directions>, or there aren't any non-ignored directions in the set. '";
+		ss2 << " ~ <Total>" << total << "</Total>";
+		throw ::xsd::cxx::parser::expected_element< char >(
+			ss.str(), ss2.str());
+	}
+
+	_parent_dnaDirectionSet->AddDirection(_dnaDirection.get());
+	
 }
 
 // DnaMeasurement_pimpl
@@ -232,6 +240,7 @@ void DnaMeasurement_pimpl::Type(const ::std::string& Type)
 		_dnaCurrentMsr.reset(new CDnaDistance);
 		break;
 	case 'D': // Direction set
+		g_parsemsr_tally.D++;
 		_dnaCurrentMsr.reset(new CDnaDirectionSet(++(*(_pclusterID))));
 		break;
 	case 'E': // Ellipsoid arc
@@ -707,7 +716,7 @@ void DnaMeasurement_pimpl::post_DnaMeasurement()
 	UINT32 total, found;
 
 	// Is the direction set empty and ignored?
-	// If so, do nothing.
+	// If so, do nothing (an invalid measurement).
 	switch (_dnaCurrentMsr->GetTypeC())
 	{
 	case 'D':
@@ -738,7 +747,30 @@ void DnaMeasurement_pimpl::post_DnaMeasurement()
 				ss.str(), ss2.str());
 		}
 
-		// Okay, capture all the elements for this baseline (cluster)
+		found = 0;
+
+		// Test for non-ignored measurements
+		for_each(_dnaCurrentMsr->GetDirections_ptr()->begin(),
+			_dnaCurrentMsr->GetDirections_ptr()->end(),
+			[this, &found](CDnaDirection& d) {
+				if (d.NotIgnored())
+					found++;
+			});
+
+		if (found == 0 && _dnaCurrentMsr->NotIgnored())
+		{
+			stringstream ss, ss2;
+			ss <<
+				"<Directions>...</Directions>',  total of " << total << " element(s)" << endl <<
+				"  - There aren't any non-ignored directions in the set. ";
+			ss2 << " ~ <Total>" << total << "</Total>";
+			throw ::xsd::cxx::parser::expected_element< char >(
+				ss.str(), ss2.str());
+		}
+
+		_dnaCurrentMsr->SetNonIgnoredDirns(found);
+		
+		// Okay, capture all the elements for this direction set
 		for_each(_dnaCurrentMsr->GetDirections_ptr()->begin(),
 			_dnaCurrentMsr->GetDirections_ptr()->end(),
 			[this](CDnaDirection& d) {

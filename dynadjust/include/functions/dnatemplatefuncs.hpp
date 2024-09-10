@@ -573,6 +573,23 @@ public:
 	}
 };
 
+// used to sort nearby stations
+template <typename U, typename T = u32u32_uint32_pair>
+class CompareBlockStationMapUnique_Station {
+public:
+	bool operator()(const T& left, const T& right) {
+		return left.first.first < right.first.first;
+	}
+
+	bool operator()(const U& left, const T& right) {
+		return left < right.first.first;
+	}
+
+	bool operator()(const T& left, const U& right) {
+		return left.first.first < right;
+	}
+};
+
 
 // S = station_t, U = u32u32_double_pair
 template <typename S, typename U = u32u32_double_pair>

@@ -290,6 +290,8 @@ typedef v_u32u32_uint32_pair::iterator _it_u32u32_uint32_pair;
 typedef v_uint32_u32u32_pair::iterator _it_uint32_u32u32_pair;
 typedef v_uint32_uint32_pair::iterator _it_uint32_uint32_pair;
 
+typedef pair<_it_u32u32_uint32_pair, _it_u32u32_uint32_pair> _it_pair_u32u32_uint32;
+
 typedef vector<v_string_string_pair> vv_string_string_pair;
 
 typedef pair<it_vUINT32_const, it_vUINT32_const> _it_pair_vUINT32_const;

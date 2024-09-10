@@ -599,7 +599,7 @@ void MsrTally::CreateTally(const vmsr_t& vMeasurements, const vUINT32& CML)
 			break;
 		case 'D': // Direction set
 			if (vMeasurements.at(*_it_msr).measStart == xMeas)
-				D += vMeasurements.at(*_it_msr).vectorCount1 - 1;
+				D += vMeasurements.at(*_it_msr).vectorCount2 - 1;
 			break;
 		case 'E': // Ellipsoid arc
 			E++;
@@ -688,7 +688,7 @@ UINT32 MsrTally::CreateTally(const vmsr_t& vMeasurements, bool countValidOnly)
 			break;
 		case 'D': // Direction set
 			if (_it_msr->measStart == xMeas)
-				D += _it_msr->vectorCount1 - 1;
+				D += _it_msr->vectorCount2 - 1;
 			break;
 		case 'E': // Ellipsoid arc
 			E++;

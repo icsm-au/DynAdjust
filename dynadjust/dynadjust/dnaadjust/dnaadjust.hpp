@@ -762,7 +762,7 @@ private:
 	void PrintCompMeasurementsLinear(const char cardinal, const double& computed, const double& correction, const it_vmsr_t& _it_msr);
 	void PrintCompMeasurements_A(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode);
 	void PrintCompMeasurements_CELMS(it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode);
-	void PrintCompMeasurements_D(it_vmsr_t& _it_msr, UINT32& design_row);
+	void PrintCompMeasurements_D(it_vmsr_t& _it_msr, UINT32& design_row, bool printIgnored=false);
 	void PrintCompMeasurements_HR(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode);
 	void PrintCompMeasurements_IJPQ(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode);
 	void PrintCompMeasurements_BKVZ(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode);

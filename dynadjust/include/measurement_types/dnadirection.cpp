@@ -629,7 +629,6 @@ void CDnaDirection::WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrInde
 
 	measRecord.clusterID = m_lsetID;
 	// number of Directions in the parent cluster including the first
-	// measRecord.vectorCount1 = m_lRecordedTotal + 1;
 	measRecord.vectorCount1 = m_lRecordedTotal;
 	measRecord.measurementStations = m_MSmeasurementStations;
 	measRecord.fileOrder = ((*msrIndex)++);

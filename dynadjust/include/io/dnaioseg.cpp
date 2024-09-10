@@ -364,7 +364,7 @@ void dna_io_seg::load_seg_file(const string& seg_filename, UINT32& blockCount,
 							v_measurementCount->at(b) += bmsBinaryRecords->at(m).vectorCount1 * 3;
 							break;
 						case 'D':	// Direction set	
-							v_measurementCount->at(b) += bmsBinaryRecords->at(m).vectorCount1 - 1;
+							v_measurementCount->at(b) += bmsBinaryRecords->at(m).vectorCount2 - 1;
 							break;
 						case 'A':	// Horizontal angle
 						case 'B':	// Geodetic azimuth

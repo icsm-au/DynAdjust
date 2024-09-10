@@ -84,6 +84,7 @@ public:
 	inline void SetClusterID(const UINT32& id) { m_lsetID = id; }
 	inline void SetTarget(const string& str) { m_strTarget = trimstr(str); }
 	inline void SetTotal(const UINT32& l) { m_lRecordedTotal = l; }
+	inline void SetNonIgnoredDirns(const UINT32& n) { m_lNonIgnoredDirns = n; }
 
 	void SetTotal(const string& str);
 	void SetValue(const string& str);
@@ -110,6 +111,7 @@ protected:
 	double m_drValue;
 	double m_dStdDev;
 	UINT32 m_lRecordedTotal;
+	UINT32 m_lNonIgnoredDirns;
 	vector<CDnaDirection> m_vTargetDirections;
 	UINT32 m_lsetID;
 

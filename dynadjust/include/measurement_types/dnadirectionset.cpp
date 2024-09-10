@@ -32,6 +32,7 @@ CDnaDirectionSet::CDnaDirectionSet(void)
 	, m_drValue(0.)
 	, m_dStdDev(0.)
 	, m_lRecordedTotal(0)
+	, m_lNonIgnoredDirns(0)
 	, m_lsetID(0)
 {
 	m_strType = "D";
@@ -51,6 +52,7 @@ CDnaDirectionSet::CDnaDirectionSet(const UINT32 lsetID)
 	, m_drValue(0.)
 	, m_dStdDev(0.)
 	, m_lRecordedTotal(0)
+	, m_lNonIgnoredDirns(0)
 	, m_lsetID(lsetID)
 {
 	m_strType = "D";
@@ -70,6 +72,7 @@ CDnaDirectionSet::CDnaDirectionSet(CDnaDirectionSet&& d)
 	m_drValue = d.m_drValue;
 	m_dStdDev = d.m_dStdDev;
 	m_lRecordedTotal = d.m_lRecordedTotal;
+	m_lNonIgnoredDirns = d.m_lNonIgnoredDirns;
 	m_MSmeasurementStations = d.m_MSmeasurementStations;
 
 	m_lsetID = d.m_lsetID;
@@ -94,6 +97,7 @@ CDnaDirectionSet& CDnaDirectionSet::operator= (CDnaDirectionSet&& rhs)
 	m_drValue = rhs.m_drValue;
 	m_dStdDev = rhs.m_dStdDev;
 	m_lRecordedTotal = rhs.m_lRecordedTotal;
+	m_lNonIgnoredDirns = rhs.m_lNonIgnoredDirns;
 	
 	m_lsetID = rhs.m_lsetID;
 	m_MSmeasurementStations = rhs.m_MSmeasurementStations;
@@ -118,6 +122,7 @@ bool CDnaDirectionSet::operator== (const CDnaDirectionSet& rhs) const
 		m_drValue == rhs.m_drValue &&
 		m_dStdDev == rhs.m_dStdDev &&
 		m_lRecordedTotal == rhs.m_lRecordedTotal &&
+		m_lNonIgnoredDirns == rhs.m_lNonIgnoredDirns &&
 		m_vTargetDirections == rhs.m_vTargetDirections &&
 		m_epoch == rhs.m_epoch
 		);
@@ -221,9 +226,9 @@ void CDnaDirectionSet::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string
 	{
 		*dynaml_stream << "  <!-- Type " << measurement_name<char, string>(GetTypeC());
 		if (dirCount > 1)
-			*dynaml_stream << " (set of " << dirCount << ")" << endl;
+			*dynaml_stream << " (set of " << dirCount << ")";
 		else
-			*dynaml_stream << "  (single)" << endl;
+			*dynaml_stream << " (single)";
 		*dynaml_stream << " -->" << endl;
 	}
 	else
@@ -382,7 +387,10 @@ UINT32 CDnaDirectionSet::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& i
 	// it_msr holds the full number of measurement blocks, which is 
 	// the number of directions in the vector plus one for the RO
 	m_lRecordedTotal = it_msr->vectorCount1 - 1;
-
+	// Calculate afresh the number of non-ignored directions
+	if (it_msr->vectorCount2 > 0)
+		m_lNonIgnoredDirns = it_msr->vectorCount2 - 1;
+	
 	m_lsetID = it_msr->clusterID;
 
 	m_epoch = it_msr->epoch;
@@ -420,6 +428,9 @@ void CDnaDirectionSet::WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrI
 	
 	// number of Directions in the parent cluster including the first
 	measRecord.vectorCount1 = static_cast<UINT32>(m_vTargetDirections.size()) + 1;	
+	// number of non-ignored directions in the cluster including the first
+	if (!m_bIgnore && m_lNonIgnoredDirns > 0)
+		measRecord.vectorCount2 = m_lNonIgnoredDirns + 1;
 
 	measRecord.measAdj = m_measAdj;
 	measRecord.measCorr = m_measCorr;
@@ -428,7 +439,7 @@ void CDnaDirectionSet::WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrI
 	measRecord.preAdjCorr = m_preAdjCorr;
 	measRecord.term1 = m_drValue;
 	measRecord.term2 = m_dStdDev * m_dStdDev;	// convert to variance
-	
+
 	measRecord.clusterID = m_lsetID;
 	measRecord.measurementStations = m_MSmeasurementStations;
 	measRecord.fileOrder = ((*msrIndex)++);

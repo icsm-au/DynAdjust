@@ -1717,7 +1717,9 @@ void dna_adjust::UpdateNormals_A(const UINT32& stn1, const UINT32& stn2, const U
 void dna_adjust::UpdateNormals_D(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row,
 										 matrix_2d* normals, matrix_2d* design, matrix_2d* AtVinv)
 {
-	UINT32 row, col, a, angle_count(_it_msr->vectorCount1 - 1);
+	UINT32 row, col, a, angle_count(_it_msr->vectorCount2 - 1);
+	UINT32 skip(0), ignored(_it_msr->vectorCount1 - _it_msr->vectorCount2);
+
 	vector<UINT32> stations;
 	UINT32 stn1, stn2, stn3;
 
@@ -1731,6 +1733,18 @@ void dna_adjust::UpdateNormals_D(const UINT32& block, it_vmsr_t& _it_msr, UINT32
 	// stations to assist formulation of covariances
 	for (a=0; a<angle_count; ++a)																  // for each angle
 	{
+		// cater for ignored directions
+		if (_it_msr->ignore)
+		{
+			while (skip < ignored)
+			{
+				skip++;
+				_it_msr++;
+				if (!_it_msr->ignore)
+					break;
+			}
+		}
+
 		it_angle->station3 = _it_msr->station2;
 
 		stn1 = (v_blockStationsMap_.at(block)[it_angle->station1] * 3); 
@@ -1777,6 +1791,7 @@ void dna_adjust::UpdateNormals_D(const UINT32& block, it_vmsr_t& _it_msr, UINT32
 		// prepare for next angle
 		angleRec.push_back(*_it_msr);
 		it_angle = angleRec.end() - 1;
+
 		_it_msr++;	
 	}
 
@@ -3219,7 +3234,7 @@ void dna_adjust::FormUniqueMsrList()
 			break;
 		// Single row per subtended angle (# directions less 1)
 		case 'D':	// Direction set
-			precadjmsr_row += (_it_msr->vectorCount1 - 1);
+			precadjmsr_row += (_it_msr->vectorCount2 - 1);
 			break;
 		// Three rows (6 elements for upper triangular)
 		case 'G':	// GPS Baseline
@@ -4938,7 +4953,7 @@ void dna_adjust::FillDesignNormalMeasurementsMatrices(bool buildnewMatrices, con
 
 		// When a target direction is found, continue to next element.  
 		if (_it_msr->measType == 'D')
-			if (_it_msr->vectorCount1 < 1)
+			if (_it_msr->vectorCount2 < 1)
 				continue;
 
 		// Build AtVinv, Normals and Meas minus Comp vectors
@@ -5201,17 +5216,19 @@ void dna_adjust::LoadVarianceMatrix_D(it_vmsr_t _it_msr, matrix_2d* var_dirn, bo
 	// scale1 = derived angle corrected for deflection of the vertical
 	// scale2 = variance (angle)
 	// scale3 = covariance (angle)
+	// vectorCount2 = number of non-ignored directions
 	// preAdjMeas = original derived angle
 
-	UINT32 a, angle_count(_it_msr->vectorCount1 - 1);		// number of directions excluding the RO
+	UINT32 a, angle_count(_it_msr->vectorCount2 - 1);		// number of directions excluding the RO
 	
-	matrix_2d A(angle_count, _it_msr->vectorCount1);
-	matrix_2d AV(angle_count, _it_msr->vectorCount1);
+	matrix_2d A(angle_count, _it_msr->vectorCount2);
+	matrix_2d AV(angle_count, _it_msr->vectorCount2);
 	
 	var_dirn->redim(angle_count, angle_count);
 	var_dirn->zero();
 	
 	double previousVariance(_it_msr->term2);
+	UINT32 skip(0), ignored(_it_msr->vectorCount1 - _it_msr->vectorCount2);
 
 	if (projectSettings_.g.verbose > 5)
 		debug_file << endl << "Std dev " << scientific << setprecision(16) << _it_msr->term2 << " (" << fixed << setprecision(2) << Seconds(sqrt(_it_msr->term2)) << " seconds)" << endl;
@@ -5222,6 +5239,18 @@ void dna_adjust::LoadVarianceMatrix_D(it_vmsr_t _it_msr, matrix_2d* var_dirn, bo
 	try {
 		for (a=0; a<angle_count; ++a)
 		{
+			// cater for ignored directions
+			if (_it_msr->ignore)
+			{
+				while (skip < ignored)
+				{
+					skip++;
+					_it_msr++;
+					if (!_it_msr->ignore)
+						break;
+				}
+			}
+
 			// Fill design & variance matrices to propagate variances from directions to angles
 			A.put(a, a, -1);
 			A.put(a, a+1, 1);
@@ -6182,7 +6211,8 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_D(pit_vmsr_t _it_msr, UINT32& de
 	it_vmsr_t _it_msr_first(*_it_msr);
 	UINT32 design_row_begin(design_row);
 
-	UINT32 a, angle_count((*_it_msr)->vectorCount1 - 1);		// number of directions excluding the RO
+	UINT32 a, angle_count((*_it_msr)->vectorCount2 - 1);		// number of directions excluding the RO
+	UINT32 skip(0), ignored((*_it_msr)->vectorCount1 - (*_it_msr)->vectorCount2);
 	
 	vmsr_t angleRec;
 	angleRec.push_back(*(*_it_msr));
@@ -6201,6 +6231,7 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_D(pit_vmsr_t _it_msr, UINT32& de
 	// scale2 = variance (angle)
 	// scale3 = covariance (angle) - for the context of vmsr_t angleRec only, so as to 
 	//          properly form the normals from covariances formed from directions SDs
+	// vectorCount2 = number of non-ignored directions
 	// preAdjMeas = original derived angle
 	
 	if (projectSettings_.g.verbose > 6)
@@ -6210,6 +6241,18 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_D(pit_vmsr_t _it_msr, UINT32& de
 	{
 		for (a=0; a<angle_count; ++a)
 		{
+			// cater for ignored directions
+			if ((*_it_msr)->ignore)
+			{
+				while (skip < ignored)
+				{					
+					skip++;
+					(*_it_msr)++;
+					if (!(*_it_msr)->ignore)
+						break;						
+				}
+			}
+
 			it_angle->station3 = (*_it_msr)->station2;
 			
 			if (buildnewMatrices)
@@ -6255,8 +6298,13 @@ void dna_adjust::UpdateDesignNormalMeasMatrices_D(pit_vmsr_t _it_msr, UINT32& de
 				(*_it_msr)->preAdjCorr = it_angle->preAdjCorr;
 			}
 
-			if (a+1 == angle_count)
+			if (a + 1 == angle_count)
+			{
+				// check for any ignored directions
+				if (_it_msr_first->vectorCount1 != _it_msr_first->vectorCount2)
+					(*_it_msr) = _it_msr_first + _it_msr_first->vectorCount1;
 				break;
+			}
 
 			if (buildnewMatrices)
 				previousDirection = (*_it_msr)->term1;
@@ -8131,13 +8179,26 @@ void dna_adjust::ComputeAdjustedMsrPrecisions()
 	
 void dna_adjust::UpdateMsrTstatistic_D(it_vmsr_t& _it_msr)
 {
-	UINT32 a, angle_count(_it_msr->vectorCount1 - 1);
+	UINT32 a, angle_count(_it_msr->vectorCount2 - 1);
+	UINT32 skip(0), ignored(_it_msr->vectorCount1 - _it_msr->vectorCount2);
 
 	// move to first direction record which contains the derived angles
 	_it_msr++;
 
 	for (a=0; a<angle_count; ++a)		// for each angle
 	{
+		// cater for ignored directions
+		if (_it_msr->ignore)
+		{
+			while (skip < ignored)
+			{
+				skip++;
+				_it_msr++;
+				if (!_it_msr->ignore)
+					break;
+			}
+		}
+
 		if (fabs(sigmaZeroSqRt_ - 0.0) < PRECISION_1E10)
 			_it_msr->TStat = 0.0;
 		else
@@ -8764,8 +8825,9 @@ void dna_adjust::ComputePrecisionAdjMsrs_D(const UINT32& block, it_vmsr_t& _it_m
 											  UINT32& design_row, UINT32& precadjmsr_row)
 {
 	UINT32 stn1, stn2, stn3;
-	UINT32 a, angle_count(_it_msr->vectorCount1 - 1);		// number of directions excluding the RO
-	
+	UINT32 a, angle_count(_it_msr->vectorCount2 - 1);		// number of directions excluding the RO
+	UINT32 skip(0), ignored(_it_msr->vectorCount1 - _it_msr->vectorCount2);
+
 	for (a=0; a<angle_count; ++a)
 	{
 		// On the first time this loop is entered, the stn1 and stn2 will be instrument and RO
@@ -8773,6 +8835,19 @@ void dna_adjust::ComputePrecisionAdjMsrs_D(const UINT32& block, it_vmsr_t& _it_m
 		stn1 = GetBlkMatrixElemStn1(block, &_it_msr);
 		stn2 = GetBlkMatrixElemStn2(block, &_it_msr);
 		_it_msr++;
+
+		// cater for ignored directions
+		if (_it_msr->ignore)
+		{
+			while (skip < ignored)
+			{
+				skip++;
+				_it_msr++;
+				if (!_it_msr->ignore)
+					break;
+			}
+		}
+
 		stn3 = GetBlkMatrixElemStn2(block, &_it_msr);
 
 		ComputePrecisionAdjMsrs_A(block, stn1, stn2, stn3, 
@@ -8955,13 +9030,26 @@ void dna_adjust::UpdateMsrRecords(const UINT32& block)
 // store adjusted measurements and corrections
 void dna_adjust::UpdateMsrRecords_D(const UINT32& block, it_vmsr_t& _it_msr, UINT32& msr_row, UINT32& precadjmsr_row)
 {
-	UINT32 a, angle_count(_it_msr->vectorCount1 - 1);
-	
+	UINT32 a, angle_count(_it_msr->vectorCount2 - 1);
+	UINT32 skip(0), ignored(_it_msr->vectorCount1 - _it_msr->vectorCount2);
+
 	// move to first direction record which contains the derived angles
 	_it_msr++;
 	
 	for (a=0; a<angle_count; ++a)		// for each angle
 	{
+		// cater for ignored directions
+		if (_it_msr->ignore)
+		{
+			while (skip < ignored)
+			{
+				skip++;
+				_it_msr++;
+				if (!_it_msr->ignore)
+					break;
+			}
+		}
+
 		UpdateMsrRecord(block, _it_msr, msr_row, precadjmsr_row, _it_msr->scale2);
 		_it_msr++;
 		msr_row++;
@@ -9182,13 +9270,26 @@ void dna_adjust::ComputeGlobalPelzer()
 // Compute Pelzer's global reliability
 void dna_adjust::ComputeGlobalPelzer_D(it_vmsr_t& _it_msr, UINT32& numMsr, double& sum)
 {
-	UINT32 a, angle_count(_it_msr->vectorCount1 - 1);
+	UINT32 a, angle_count(_it_msr->vectorCount2 - 1);
+	UINT32 skip(0), ignored(_it_msr->vectorCount1 - _it_msr->vectorCount2);
 
 	// move to first direction record which contains the derived angles
 	_it_msr++;
 	
 	for (a=0; a<angle_count; ++a)		// for each angle
 	{
+		// cater for ignored directions
+		if (_it_msr->ignore)
+		{
+			while (skip < ignored)
+			{
+				skip++;
+				_it_msr++;
+				if (!_it_msr->ignore)
+					break;
+			}
+		}
+
 		if (_it_msr->PelzerRel > 0. && _it_msr->PelzerRel < UNRELIABLE)
 		{
 			sum += (_it_msr->PelzerRel * _it_msr->PelzerRel - 1.);
@@ -9248,13 +9349,26 @@ void dna_adjust::ComputeChiSquare_ABCEHIJKLMPQRSVZ(const it_vmsr_t& _it_msr, UIN
 
 void dna_adjust::ComputeChiSquare_D(it_vmsr_t& _it_msr, UINT32& measurement_index, matrix_2d* measMinusComp)
 {
-	UINT32 a, angle_count(_it_msr->vectorCount1 - 1);
+	UINT32 a, angle_count(_it_msr->vectorCount2 - 1);
+	UINT32 skip(0), ignored(_it_msr->vectorCount1 - _it_msr->vectorCount2);
 
 	// move to first direction record which contains the derived angles
 	_it_msr++;
 	
 	for (a=0; a<angle_count; ++a)		// for each angle
 	{
+		// cater for ignored directions
+		if (_it_msr->ignore)
+		{
+			while (skip < ignored)
+			{
+				skip++;
+				_it_msr++;
+				if (!_it_msr->ignore)
+					break;
+			}
+		}
+
 		chiSquared_ +=
 			measMinusComp->get(measurement_index, 0) * 
 			measMinusComp->get(measurement_index, 0) / _it_msr->scale2;		//variance (angle)
@@ -10856,23 +10970,62 @@ void dna_adjust::UpdateIgnoredMeasurements_A(pit_vmsr_t _it_msr, bool storeOrigi
 
 	// Use v_blockStationsMapUnique_ to get the correct block for each 
 	// station in the measurement
+	_it_pair_u32u32_uint32 it_stnmap_range;
 	_it_u32u32_uint32_pair _it_bsmu;
 
 	// Get estimated station coordinates matrix and index of the 
 	// station within the matrix for station 1
-	_it_bsmu = v_blockStationsMapUnique_.begin() + (*_it_msr)->station1;
+	it_stnmap_range = equal_range(v_blockStationsMapUnique_.begin(), v_blockStationsMapUnique_.end(),
+		(*_it_msr)->station1, CompareBlockStationMapUnique_Station<UINT32, u32u32_uint32_pair>());
+	if (it_stnmap_range.first == it_stnmap_range.second)
+	{
+		//TRACE("%d not found\n", (*_it_msr)->station1);
+		stringstream ss;
+		ss << "UpdateIgnoredMeasurements(): Station " << (*_it_msr)->station1 <<
+			" was not found in the station map." << endl;
+		SignalExceptionAdjustment(ss.str(), 0);
+	}
+
+	// Get the index of the station in the map
+	_it_bsmu = it_stnmap_range.first;
+
 	matrix_2d* estimatedStations_stn1(&v_estimatedStations_.at(_it_bsmu->second));
 	UINT32 stn1(GetBlkMatrixElemStn1(_it_bsmu->second, _it_msr));
 	
 	// Get estimated station coordinates matrix and index of the 
 	// station within the matrix for station 2
-	_it_bsmu = v_blockStationsMapUnique_.begin() + (*_it_msr)->station2;
+	it_stnmap_range = equal_range(v_blockStationsMapUnique_.begin(), v_blockStationsMapUnique_.end(),
+		(*_it_msr)->station2, CompareBlockStationMapUnique_Station<UINT32, u32u32_uint32_pair>());
+	if (it_stnmap_range.first == it_stnmap_range.second)
+	{
+		//TRACE("%d not found\n", (*_it_msr)->station2);
+		stringstream ss;
+		ss << "UpdateIgnoredMeasurements(): Station " << (*_it_msr)->station1 <<
+			" was not found in the station map." << endl;
+		SignalExceptionAdjustment(ss.str(), 0);
+	}
+	// Get the index of the station in the map
+	_it_bsmu = it_stnmap_range.first;
+
 	matrix_2d* estimatedStations_stn2(&v_estimatedStations_.at(_it_bsmu->second));
 	UINT32 stn2(GetBlkMatrixElemStn2(_it_bsmu->second, _it_msr));
 	
 	// Get estimated station coordinates matrix and index of the 
 	// station within the matrix for station 3
-	_it_bsmu = v_blockStationsMapUnique_.begin() + (*_it_msr)->station3;
+	it_stnmap_range = equal_range(v_blockStationsMapUnique_.begin(), v_blockStationsMapUnique_.end(),
+		(*_it_msr)->station3, CompareBlockStationMapUnique_Station<UINT32, u32u32_uint32_pair>());
+	if (it_stnmap_range.first == it_stnmap_range.second)
+	{
+		//TRACE("%d not found\n", (*_it_msr)->station3);
+		stringstream ss;
+		ss << "UpdateIgnoredMeasurements(): Station " << (*_it_msr)->station3 <<
+			" was not found in the station map." << endl;
+		SignalExceptionAdjustment(ss.str(), 0);
+	}
+
+	// Get the index of the station in the map
+	_it_bsmu = it_stnmap_range.first;
+
 	matrix_2d* estimatedStations_stn3(&v_estimatedStations_.at(_it_bsmu->second));
 	UINT32 stn3(GetBlkMatrixElemStn3(_it_bsmu->second, _it_msr));
 
@@ -11623,17 +11776,44 @@ void dna_adjust::UpdateIgnoredMeasurements_S(pit_vmsr_t _it_msr, bool storeOrigi
 
 	// Use v_blockStationsMapUnique_ to get the correct block for each 
 	// station in the measurement
+	_it_pair_u32u32_uint32 it_stnmap_range;
 	_it_u32u32_uint32_pair _it_bsmu;
 
 	// Get estimated station coordinates matrix and index of the 
 	// station within the matrix for station 1
-	_it_bsmu = v_blockStationsMapUnique_.begin() + (*_it_msr)->station1;
+	it_stnmap_range = equal_range(v_blockStationsMapUnique_.begin(), v_blockStationsMapUnique_.end(), 
+		(*_it_msr)->station1, CompareBlockStationMapUnique_Station<UINT32, u32u32_uint32_pair>());
+	if (it_stnmap_range.first == it_stnmap_range.second)
+	{
+		//TRACE("%d not found\n", (*_it_msr)->station1);
+		stringstream ss;
+		ss << "UpdateIgnoredMeasurements(): Station " << (*_it_msr)->station1  << 
+			" was not found in the station map." << endl;
+		SignalExceptionAdjustment(ss.str(), 0);
+	}	
+
+	// Get the index of the station in the map
+	_it_bsmu = it_stnmap_range.first;
+
 	matrix_2d* estimatedStations_stn1(&v_estimatedStations_.at(_it_bsmu->second));
 	UINT32 stn1(GetBlkMatrixElemStn1(_it_bsmu->second, _it_msr));
 	
 	// Get estimated station coordinates matrix and index of the 
 	// station within the matrix for station 2
-	_it_bsmu = v_blockStationsMapUnique_.begin() + (*_it_msr)->station2;
+	it_stnmap_range = equal_range(v_blockStationsMapUnique_.begin(), v_blockStationsMapUnique_.end(),
+		(*_it_msr)->station2, CompareBlockStationMapUnique_Station<UINT32, u32u32_uint32_pair>());
+	if (it_stnmap_range.first == it_stnmap_range.second)
+	{
+		//TRACE("%d not found\n", (*_it_msr)->station2);
+		stringstream ss;
+		ss << "UpdateIgnoredMeasurements(): Station " << (*_it_msr)->station2 <<
+			" was not found in the station map." << endl;
+		SignalExceptionAdjustment(ss.str(), 0);
+	}
+	
+	// Get the index of the station in the map
+	_it_bsmu = it_stnmap_range.first;
+
 	matrix_2d* estimatedStations_stn2(&v_estimatedStations_.at(_it_bsmu->second));
 	UINT32 stn2(GetBlkMatrixElemStn2(_it_bsmu->second, _it_msr));
 	
@@ -12083,6 +12263,8 @@ void dna_adjust::PrintIgnoredAdjMeasurements(bool printHeader)
 	if (_it_msr->measAdj == 0. && _it_msr->measCorr == 0. && _it_msr->preAdjCorr == 0. && _it_msr->preAdjMeas == 0.)
 		storeOriginalMeasurement = true;
 
+	sort(v_blockStationsMapUnique_.begin(), v_blockStationsMapUnique_.end());
+
 	// Reduce measurements and compute stats
 	for (_it_ign = ignored_msrs.begin(); _it_ign != ignored_msrs.end(); ++_it_ign)
 	{
@@ -12154,7 +12336,7 @@ void dna_adjust::PrintIgnoredAdjMeasurements(bool printHeader)
 			PrintCompMeasurements_CELMS(_it_msr, design_row, ignoredMsrs);
 			break;
 		case 'D':	// Direction set
-			PrintCompMeasurements_D(_it_msr, design_row);
+			PrintCompMeasurements_D(_it_msr, design_row, true);
 			break;
 		case 'H':	// Orthometric height
 		case 'R':	// Ellipsoidal height
@@ -12568,8 +12750,10 @@ void dna_adjust::PrintCompMeasurements_CELMS(it_vmsr_t& _it_msr, UINT32& design_
 // The estimation of parameters from direction clusters is handled by reducing the 
 // respective directions to angles.  Therefore, the "adjusted measurements" are
 // the adjusted angles.
-void dna_adjust::PrintCompMeasurements_D(it_vmsr_t& _it_msr, UINT32& design_row)
+void dna_adjust::PrintCompMeasurements_D(it_vmsr_t& _it_msr, UINT32& design_row, bool printIgnored)
 {
+	UINT32 skip(0), ignored(_it_msr->vectorCount1 - _it_msr->vectorCount2);
+	
 	// normal format
 	adj_file << left << setw(STATION) << bstBinaryRecords_.at(_it_msr->station1).stationName;
 	adj_file << left << setw(STATION) << bstBinaryRecords_.at(_it_msr->station2).stationName;
@@ -12581,7 +12765,11 @@ void dna_adjust::PrintCompMeasurements_D(it_vmsr_t& _it_msr, UINT32& design_row)
 	if (_it_msr->ignore)
 		ignoreFlag = "*";
 
-	UINT32 angle_count(_it_msr->vectorCount1 - 1);
+	UINT32 angle_count;
+	if (printIgnored)
+		angle_count = _it_msr->vectorCount1 - 1;
+	else
+		angle_count = _it_msr->vectorCount2 - 1;
 
 	adj_file << setw(PAD3) << left << ignoreFlag << setw(PAD2) << left << angle_count;
 
@@ -12600,6 +12788,20 @@ void dna_adjust::PrintCompMeasurements_D(it_vmsr_t& _it_msr, UINT32& design_row)
 
 	for (UINT32 a(0); a<angle_count; ++a)
 	{
+		// Skip over ignored directions if the direction set is not ignored.
+		// If the direction set is ignored, and --output-ignored-msrs option is supplied, then
+		// don't skip (i.e. continue with printing all ignored directions in the set)
+		if (_it_msr->ignore && !printIgnored)
+		{
+			while (skip < ignored)
+			{
+				skip++;
+				_it_msr++;
+				if (!_it_msr->ignore)
+					break;
+			}
+		}
+
 		computed = _it_msr->term1 + _it_msr->measCorr;
 
 		adj_file << left << setw(PAD2) << " ";						// measurement type
@@ -13329,7 +13531,8 @@ void dna_adjust::PrintAdjMeasurements_D(it_vmsr_t& _it_msr)
 	if (_it_msr->ignore)
 		ignoreFlag = "*";
 
-	UINT32 a, angle_count(_it_msr->vectorCount1 - 1);
+	UINT32 a, angle_count(_it_msr->vectorCount2 - 1);
+	UINT32 skip(0), ignored(_it_msr->vectorCount1 - _it_msr->vectorCount2);
 
 	adj_file << setw(PAD3) << left << ignoreFlag << setw(PAD2) << left << angle_count;
 
@@ -13349,6 +13552,18 @@ void dna_adjust::PrintAdjMeasurements_D(it_vmsr_t& _it_msr)
 
 	for (a=0; a<angle_count; ++a)
 	{
+		// cater for ignored directions
+		if (_it_msr->ignore)
+		{
+			while (skip < ignored)
+			{
+				skip++;
+				_it_msr++;
+				if (!_it_msr->ignore)
+					break;
+			}
+		}
+
 		adj_file << left << setw(PAD2) << " ";						// measurement type
 		adj_file << left << setw(STATION) << " ";					// station1	(Instrument)
 		adj_file << left << setw(STATION) << " ";					// station2 (RO)
@@ -14244,16 +14459,18 @@ void dna_adjust::LoadNetworkFiles()
 
 			if (_it_msr->measType == 'D')
 			{
-				// first direction holds number of target directions plus RO.  Since directions 
-				// are reduced to angles, subtract one.
+				// The first direction holds number of target directions plus RO.  But
+				// since it is possible for target directions to be ignored, take
+				// the number of non-ignored measurements (vectorCount2)								
+				// Since directions are reduced to angles, subtract one.
 				// Target directions are assigned zero vectorCount1
-				if (_it_msr->vectorCount1 > 0)
+				if (_it_msr->vectorCount2 > 0)
 				{
-					v_measurementCount_.at(0) += _it_msr->vectorCount1 - 1;
+					v_measurementCount_.at(0) += _it_msr->vectorCount2 - 1;
 					
 					// The following is needed if the upper triangular variance matrix
-					// for each GNSS measurement (as required for propagating)
-					v_measurementVarianceCount_.at(0) += _it_msr->vectorCount1 - 1;
+					// for each direction set measurement (as required for propagating)
+					v_measurementVarianceCount_.at(0) += _it_msr->vectorCount2 - 1;
 				}
 				continue;
 			}
