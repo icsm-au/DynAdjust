@@ -649,7 +649,7 @@ int main(int argc, char* argv[])
 					string("Suppresses all explanation of what ").append(__BINARY_NAME__).append(" is doing unless an error occurs").c_str())
 					(VERSION_V, "Display the current program version")
 			(HELP_H, "Show this help message")
-			(HELP_MODULE, value<string>(),
+			(HELP_MODULE_H, value<string>(),
 				"Provide help for a specific help category.")
 			;
 

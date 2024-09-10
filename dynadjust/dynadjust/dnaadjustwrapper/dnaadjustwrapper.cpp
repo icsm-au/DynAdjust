@@ -956,7 +956,7 @@ int main(int argc, char* argv[])
 				string("Suppresses all explanation of what ").append(__BINARY_NAME__).append(" is doing unless an error occurs").c_str())
 			(VERSION_V, "Display the current program version")
 			(HELP_H, "Show this help message")
-			(HELP_MODULE, value<string>(),
+			(HELP_MODULE_H, value<string>(),
 				"Provide help for a specific help category.")
 			;
 
@@ -1006,32 +1006,49 @@ int main(int argc, char* argv[])
 		cout << cmd_line_banner;
 		string original_text = vm[HELP_MODULE].as<string>();
 		string help_text = str_upper<string>(original_text);
+		bool module_found(false);
 
 		if (str_upper<string, char>(ALL_MODULE_STDOPT).find(help_text) != string::npos) {
 			cout << standard_options << endl;
+			module_found = true;
 		}
-		else if (str_upper<string, char>(ADJUST_MODULE_MODE).find(help_text) != string::npos) {
+
+		if (str_upper<string, char>(ADJUST_MODULE_MODE).find(help_text) != string::npos) {
 			cout << adj_mode_options << endl;
+			module_found = true;
 		} 
-		else if (str_upper<string, char>(ADJUST_MODULE_PHASED).find(help_text) != string::npos) {
+
+		if (str_upper<string, char>(ADJUST_MODULE_PHASED).find(help_text) != string::npos) {
 			cout << phased_adj_options << endl;
+			module_found = true;
 		} 
-		else if (str_upper<string, char>(ADJUST_MODULE_CONFIG).find(help_text) != string::npos) {
+
+		if (str_upper<string, char>(ADJUST_MODULE_CONFIG).find(help_text) != string::npos) {
 			cout << adj_config_options << endl;
+			module_found = true;
 		} 
-		else if (str_upper<string, char>(ADJUST_MODULE_STAGE).find(help_text) != string::npos) {
+
+		if (str_upper<string, char>(ADJUST_MODULE_STAGE).find(help_text) != string::npos) {
 			cout << staged_adj_options << endl;
+			module_found = true;
 		} 
-		else if (str_upper<string, char>(ALL_MODULE_OUTPUT).find(help_text) != string::npos) {
+
+		if (str_upper<string, char>(ALL_MODULE_OUTPUT).find(help_text) != string::npos) {
 			cout << output_options << endl;
+			module_found = true;
 		} 
-		else if (str_upper<string, char>(ALL_MODULE_EXPORT).find(help_text) != string::npos) {
+
+		if (str_upper<string, char>(ALL_MODULE_EXPORT).find(help_text) != string::npos) {
 			cout << export_options << endl;
+			module_found = true;
 		}
-		else if (str_upper<string, char>(ALL_MODULE_GENERIC).find(help_text) != string::npos) {
+
+		if (str_upper<string, char>(ALL_MODULE_GENERIC).find(help_text) != string::npos) {
 			cout << generic_options << endl;
+			module_found = true;
 		}
-		else {
+
+		if (!module_found) {
 			cout << endl << "- Error: Help module '" <<
 				original_text << "' is not in the list of options." << endl;
 			return EXIT_FAILURE;
