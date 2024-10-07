@@ -678,4 +678,28 @@ S formatStnMsrFileSourceString(const vifm_t* vfile_meta, const size_t& file_type
 	return source_files;
 }
 
+template <typename S=string>
+S FormatFileType(const size_t& file_type)
+{
+	switch (file_type)
+	{
+	case dna:
+		return "DNA";
+		break;
+	case sinex:
+		return "SNX";
+		break;
+	case geodesyml:
+		return "GML";
+		break;
+	case dynaml:
+		return "XML";
+		break;
+	case csv:
+		return "CSV";
+		break;
+	}
+	return "unknown";
+}
+
 #endif // DNATYPES_H_
