@@ -91,6 +91,9 @@ void dna_io_base::writeFileMetadata(std::ofstream& file_stream, binary_file_meta
 	file_stream.write(reinterpret_cast<char *>(file_meta.epsgCode), STN_EPSG_WIDTH);
 	file_stream.write(reinterpret_cast<char *>(file_meta.epoch), STN_EPOCH_WIDTH);
 
+	file_stream.write(reinterpret_cast<char*>(&file_meta.reftran), sizeof(bool));
+	file_stream.write(reinterpret_cast<char*>(&file_meta.geoid), sizeof(bool));
+
 	// Write file count and file meta
 	file_stream.write(reinterpret_cast<char *>(&file_meta.inputFileCount), sizeof(UINT16)); 
 	for (UINT16 i(0); i<file_meta.inputFileCount; ++i)
@@ -112,6 +115,9 @@ void dna_io_base::readFileMetadata(std::ifstream& file_stream, binary_file_meta_
 	// Read the epsg code and epoch
 	file_stream.read(reinterpret_cast<char *>(file_meta.epsgCode), STN_EPSG_WIDTH);
 	file_stream.read(reinterpret_cast<char *>(file_meta.epoch), STN_EPOCH_WIDTH);
+
+	file_stream.read(reinterpret_cast<char*>(&file_meta.reftran), sizeof(bool));
+	file_stream.read(reinterpret_cast<char*>(&file_meta.geoid), sizeof(bool));
 
 	// Read file count and file meta
 	file_stream.read(reinterpret_cast<char *>(&file_meta.inputFileCount), sizeof(UINT16));
