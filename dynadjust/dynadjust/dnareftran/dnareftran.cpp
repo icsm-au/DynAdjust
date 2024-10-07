@@ -88,23 +88,14 @@ void dna_reftran::TransformBinaryFiles(const string& bstFile, const string& bmsF
 	// coordinates are required)
 	TransformMeasurementRecords(newFrame, newEpoch);
 
-	// Were any measurements updated?
-	if (transformationPerformed_)
-	{
-		// write the binary measurement file
-		WriteBinaryMeasurementFile(bmsFile);
-	}
+	// write the binary measurement file
+	WriteBinaryMeasurementFile(bmsFile);
 
 	// 3. Transform stations
 	TransformStationRecords(newFrame, newEpoch);
 
-	// Were any coordinates updated?
-	if (transformationPerformed_)
-	{
-		// write the binary station file
-		WriteBinaryStationFile(bstFile);
-	}
-
+	// write the binary station file
+	WriteBinaryStationFile(bstFile);
 }
 	
 // Obtain the two-character ID for the tectonic plate on which each station lies, and assign
@@ -583,7 +574,7 @@ void dna_reftran::WriteBinaryStationFile(const string& bstfileName)
 	sprintf(bst_meta_.epsgCode, "%s", strEpsg.substr(0, STN_EPSG_WIDTH).c_str());
 	sprintf(bst_meta_.epoch, "%s", strEpoch.substr(0, STN_EPOCH_WIDTH).c_str());
 	bst_meta_.reftran = true;
-	
+
 	try {
 		// write binary stations data.  Throws runtime_error on failure.
 		dna_io_bst bst;
@@ -617,7 +608,7 @@ void dna_reftran::WriteBinaryMeasurementFile(const string& bmsfileName)
 	sprintf(bms_meta_.epsgCode, "%s", strEpsg.substr(0, STN_EPSG_WIDTH).c_str());
 	sprintf(bms_meta_.epoch, "%s", strEpoch.substr(0, STN_EPOCH_WIDTH).c_str());
 	bms_meta_.reftran = true;
-	
+
 	try {
 		// write binary measurement data.  Throws runtime_error on failure.
 		dna_io_bms bms;
