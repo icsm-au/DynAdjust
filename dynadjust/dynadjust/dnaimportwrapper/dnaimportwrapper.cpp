@@ -59,16 +59,20 @@ void PrintOutputFileHeaderInfo(std::ofstream* f_out, const string& out_file, pro
 			str = " ";
 		}
 	}
-	
-	if (!p->i.reference_frame.empty())
-	{	
-		*f_out << setw(PRINT_VAR_PAD) << left << "Default reference frame:" << p->i.reference_frame;
-		if (p->i.user_supplied_frame)
-			*f_out << " (user supplied)";
-		else
-			*f_out << " (default)";
-		*f_out << endl;
-	}
+
+	// If a reference frame has been supplied, report it.  
+	// If not, the assumption is, the project frame will be assumed from the first file and
+	// in this case, it will be reported later
+	if (p->i.user_supplied_frame)
+		*f_out << setw(PRINT_VAR_PAD) << left << "Project reference frame:" << p->i.reference_frame << " (user supplied)" << endl;
+	else
+		*f_out << setw(PRINT_VAR_PAD) << left << "Project reference frame:" << "To be assumed from the first input file" << endl;
+
+	if (p->i.override_input_rfame)
+		*f_out << setw(PRINT_VAR_PAD) << left << "Override input file ref frame:" << yesno_string(p->i.override_input_rfame) << endl;
+
+
+
 	
 	if (!p->i.include_msrs.empty())
 		*f_out << setw(PRINT_VAR_PAD) << left << "Strip all measurements except:" << p->i.include_msrs << endl;
@@ -975,13 +979,13 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 
 				if (referenceframeChanged)
 				{
-					ssEpsgWarning << "- Warning: The default reference frame (" << GDA2020_s << ") has been changed to " << endl <<
-						"  the default datum of " << leafStr<string>(p.i.input_files.at(i)) << " (" << inputFileDatum << ").";
+					ssEpsgWarning << "- Warning: The project reference frame has been set to the default" << endl <<
+						"  file datum of " << leafStr<string>(p.i.input_files.at(i)) << " (" << inputFileDatum << ").";
 				}
 				else				
 				{
 					ssEpsgWarning << "- Warning: Input file reference frame (" << inputFileDatum <<
-						") does not match the " << endl << "  default reference frame (" << p.i.reference_frame << ").";
+						") does not match the " << endl << "  project reference frame (" << p.i.reference_frame << ").";
 				}
 
 				if (!p.g.quiet)
@@ -1324,19 +1328,17 @@ int main(int argc, char* argv[])
 		cout << setw(PRINT_VAR_PAD) << left << "  Binary station output file: " << p.i.bst_file << endl;
 		cout << setw(PRINT_VAR_PAD) << left << "  Binary measurement output file: " << p.i.bms_file << endl;
 		
-		if (!p.i.reference_frame.empty())
-		{
-			cout << setw(PRINT_VAR_PAD) << left << "  Default reference frame:" << p.i.reference_frame;
-			
-			if (p.i.user_supplied_frame)
-				cout << " (user supplied)";
-			else
-				cout << " (default)";
-			cout << endl;
-		}
-	
+		// If a reference frame has been supplied, report it.  
+		// If not, the assumption is, the project frame will be assumed from the first file and
+		// in this case, it will be reported later
+		if (p.i.user_supplied_frame)
+			cout << setw(PRINT_VAR_PAD) << left << "  Project reference frame:" << p.i.reference_frame << " (user supplied)" << endl;
+		else
+			cout << setw(PRINT_VAR_PAD) << left << "  Project reference frame:" << "To be assumed from the first input file" << endl;
+		
 		if (p.i.override_input_rfame)
 			cout << setw(PRINT_VAR_PAD) << left << "  Override input file ref frame:" << yesno_string(p.i.override_input_rfame) << endl;
+
 
 		if (p.i.export_dynaml)
 		{
@@ -1523,6 +1525,7 @@ int main(int argc, char* argv[])
 
 	if (!p.g.quiet)
 		cout << endl;
+	imp_file << endl;
 
 	vstring vPoorlyConstrainedStns;
 
@@ -1664,7 +1667,7 @@ int main(int argc, char* argv[])
 			return EXIT_FAILURE;
 		}
 	}
-
+	
 	/////////////////////////////////////////////////////////////////////////
 	// Add discontinuity sites to vStations
 	//
@@ -1790,6 +1793,23 @@ int main(int argc, char* argv[])
 	UINT32 msrRead(parsemsrTally.TotalCount());
 	UINT32 stnCount(static_cast<UINT32>(vstationsTotal.size()));
 	UINT32 msrCount(static_cast<UINT32>(vmeasurementsTotal.size()));
+
+	if (!p.i.user_supplied_frame)
+	{
+		stringstream datumSource;
+		switch (vinput_file_meta.at(0).filetype)
+		{
+		case sinex:
+			datumSource << ". DynAdjust default (Frame not found in SNX)";
+			break;
+		default:
+			datumSource << ". From first file (" << FormatFileType<string>(vinput_file_meta.at(0).filetype) << ")";
+		}
+
+		if (!p.g.quiet)
+			cout << setw(PRINT_VAR_PAD) << left << "+ Project reference frame:" << p.i.reference_frame << datumSource.str() << endl;
+		imp_file << setw(PRINT_VAR_PAD) << left << "+ Project reference frame:" << p.i.reference_frame << datumSource.str() << endl;
+	}
 
 	if (!p.g.quiet)
 		cout << endl;
