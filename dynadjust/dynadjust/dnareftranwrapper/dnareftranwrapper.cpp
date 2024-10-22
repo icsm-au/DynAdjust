@@ -24,7 +24,7 @@
 
 using namespace dynadjust;
 
-void PrintOutputFileHeaderInfo(std::ofstream* f_out, const string& out_file, project_settings* p, const string& header)
+void PrintOutputFileHeaderInfo(std::ofstream* f_out, const string& out_file, project_settings* p, const string& header, UINT32& epsgCode)
 {
 	// Print formatted header
 	print_file_header(*f_out, header);
@@ -39,7 +39,8 @@ void PrintOutputFileHeaderInfo(std::ofstream* f_out, const string& out_file, pro
 	*f_out << setw(PRINT_VAR_PAD) << left << "Output folder: " << system_complete(p->g.output_folder).string() << endl;
 	*f_out << setw(PRINT_VAR_PAD) << left << "Stations file:" << system_complete(p->r.bst_file).string() << endl;
 	*f_out << setw(PRINT_VAR_PAD) << left << "Measurements file:" << system_complete(p->r.bms_file).string() << endl;
-	*f_out << setw(PRINT_VAR_PAD) << left << "Target reference frame:" << p->r.reference_frame << endl;
+	*f_out << setw(PRINT_VAR_PAD) << left << "Target reference frame:" << p->r.reference_frame << 
+		" (EPSG " << epsgCode << ")" << endl;
 
 	if (!p->r.epoch.empty())
 	{
@@ -47,8 +48,11 @@ void PrintOutputFileHeaderInfo(std::ofstream* f_out, const string& out_file, pro
 		if (p->r.epoch.rfind(".") == string::npos)
 			p->r.epoch.insert(0, "01.01.");
 
-		*f_out << setw(PRINT_VAR_PAD) << left << "Target Epoch: " << 
-			formattedDateStringFromNumericString<date>(p->r.epoch) << endl;
+		*f_out << setw(PRINT_VAR_PAD) << left << "Target Epoch: " <<
+			formattedDateStringFromNumericString<date>(p->r.epoch);
+		if (isEpsgDatumStatic(epsgCode))
+			*f_out << " (ignored: " << p->r.reference_frame << " is static)";
+		*f_out << endl;
 	}
 	
 	if (p->r.plate_model_option > 0)
@@ -81,7 +85,7 @@ void PrintOutputFileHeaderInfo(std::ofstream* f_out, const string& out_file, pro
 }
 
 
-int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& vm, project_settings& p)
+int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& vm, project_settings& p, UINT32& epsgCode)
 {
 	// capture command line arguments
 	for (int cmd_arg(0); cmd_arg<argc; ++cmd_arg)
@@ -150,6 +154,9 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 			cout << endl << "- Error: " << e.what() << endl;
 			return EXIT_FAILURE;
 		}
+
+		// update epsgCode
+		epsgCode = epsgCodeFromName<UINT32>(p.r.reference_frame);
 	}
 
 	if (!vm.count(EPOCH))
@@ -224,9 +231,12 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 	string fileName(p.g.network_name);
 	fileName.append(".").append(p.r.reference_frame);
 
-	if (iequals(p.r.epoch, "today"))
-		p.r.epoch = stringFromToday<date>();
-	fileName.append(".").append(p.r.epoch);	
+	if (!isEpsgDatumStatic(epsgCode))
+	{
+		if (iequals(p.r.epoch, "today"))
+			p.r.epoch = stringFromToday<date>();
+		fileName.append(".").append(p.r.epoch);
+	}
 
 	// Export to dynaml?
 	if (vm.count(EXPORT_XML_FILES))
@@ -433,7 +443,9 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	if (ParseCommandLineOptions(argc, argv, vm, p) != EXIT_SUCCESS)
+	UINT32 epsgCode(epsgCodeFromName<UINT32>(p.r.reference_frame));
+
+	if (ParseCommandLineOptions(argc, argv, vm, p, epsgCode) != EXIT_SUCCESS)
 		return EXIT_FAILURE;
 
 	std::ofstream rft_file;
@@ -450,7 +462,7 @@ int main(int argc, char* argv[])
 
 	if (vm.count(QUIET))
 		p.g.quiet = 1;
-	
+
 	if (!p.g.quiet)
 	{
 		cout << endl << cmd_line_banner;
@@ -477,8 +489,11 @@ int main(int argc, char* argv[])
 				if (p.r.epoch.rfind(".") == string::npos)
 					p.r.epoch.insert(0, "01.01.");
 
-				cout << setw(PRINT_VAR_PAD) << left << "  Target Epoch: " << 
-					formattedDateStringFromNumericString<date>(p.r.epoch) << endl;
+				cout << setw(PRINT_VAR_PAD) << left << "  Target Epoch: " <<
+					formattedDateStringFromNumericString<date>(p.r.epoch);
+				if (isEpsgDatumStatic(epsgCode))
+					cout << " (ignored: " << p.r.reference_frame << " is static)";
+				cout << endl;
 			}
 		}
 		catch (const runtime_error& e) {
@@ -526,7 +541,7 @@ int main(int argc, char* argv[])
 		cout << endl;
 	}
 
-	PrintOutputFileHeaderInfo(&rft_file, p.r.rft_file, &p, "DYNADJUST REFTRAN LOG FILE");
+	PrintOutputFileHeaderInfo(&rft_file, p.r.rft_file, &p, "DYNADJUST REFTRAN LOG FILE", epsgCode);
 
 	dna_reftran refTran(p, &rft_file);
 	stringstream ss_msg;
@@ -641,8 +656,11 @@ int main(int argc, char* argv[])
 			ss_msg << " stations were";
 
 		ss_msg << " already referenced to " << p.r.reference_frame;
-		if (!p.r.epoch.empty())
-			ss_msg << ", epoch " << p.r.epoch;
+		if (!isEpsgDatumStatic(epsgCode))
+		{
+			if (!p.r.epoch.empty())
+				ss_msg << ", epoch " << p.r.epoch;
+		}
 		ss_msg << endl;
 	}
 
@@ -685,8 +703,11 @@ int main(int argc, char* argv[])
 			ss_msg << " measurements were";
 
 		ss_msg << " already referenced to " << p.r.reference_frame;
-		if (!p.r.epoch.empty())
-			ss_msg << ", epoch " << p.r.epoch;
+		if (!isEpsgDatumStatic(epsgCode))
+		{
+			if (!p.r.epoch.empty())
+				ss_msg << ", epoch " << p.r.epoch;
+		}
 		ss_msg << endl;
 	}
 	
