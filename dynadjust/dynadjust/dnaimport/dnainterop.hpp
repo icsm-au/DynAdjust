@@ -186,7 +186,8 @@ public:
 
 	inline _PARSE_STATUS_ GetStatus() const { return parseStatus_; }
 
-	void inline ResetFileOrder() const { g_fileOrder = 0; }
+	inline void ResetFileOrder() const { g_fileOrder = 0; }
+	inline bool filespecifiedReferenceFrame() const { return _filespecifiedreferenceframe; }
 	void InitialiseDatum(const string& reference_frame, const string epoch="");
 	
 	void PrintMeasurementsToStations(string& m2s_file, MsrTally* parsemsrTally,
@@ -374,6 +375,8 @@ private:
 	void LoadDatabaseId();
 
 	vUINT32 v_measurementCount_, v_unknownsCount_, v_ContiguousNetList_, v_parameterStationCount_;
+
+	bool _filespecifiedreferenceframe;
 
 };
 

@@ -233,6 +233,7 @@ _PARSE_STATUS_ dna_import::ParseInputFile(const string& fileName, vdnaStnPtr* vS
 
 	percentComplete_ = -99.0;
 	isProcessing_ = true;
+	_filespecifiedreferenceframe = false;
 	stringstream ss;
 
 	try 
@@ -399,6 +400,7 @@ void dna_import::ParseXML(const string& fileName, vdnaStnPtr* vStations, PUINT32
 {
 
 	parseStatus_ = PARSE_SUCCESS;
+	_filespecifiedreferenceframe = false;
 	
 	try
 	{
@@ -474,6 +476,7 @@ void dna_import::ParseXML(const string& fileName, vdnaStnPtr* vStations, PUINT32
 		*stnCount = DnaXmlFormat_p.NumStationsRead();
 		*msrCount = DnaXmlFormat_p.NumMeasurementsRead();
 		*success_msg = DnaXmlFormat_p.DnaXmlParseMessage() + "\n";
+		_filespecifiedreferenceframe = DnaXmlFormat_p.filespecifiedreferenceframe();
 
 		try
 		{
@@ -1081,6 +1084,8 @@ void dna_import::ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32
 			m_strProjectDefaultEpsg = fileEpsg;
 		}
 	}
+
+	_filespecifiedreferenceframe = dnaFile.filespecifiedReferenceFrame();
 		
 	// Station file
 	if (idt == stn_data ||

@@ -973,10 +973,17 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 					p.r.epoch = inputFileEpoch;
 			}
 
-			if (!iequals(epsgCode, input_file_meta.epsgCode))
+			if (!parserDynaML.filespecifiedReferenceFrame())
 			{
 				stringstream ssEpsgWarning;
-
+				ssEpsgWarning << "- Warning: Input file reference frame empty. Assuming the default reference frame (" << inputFileDatum << ").";
+				if (!p.g.quiet)
+					cout << ssEpsgWarning.str() << endl;
+				*imp_file << ssEpsgWarning.str() << endl;
+			}
+			else if (!iequals(epsgCode, input_file_meta.epsgCode))
+			{
+				stringstream ssEpsgWarning;
 				if (referenceframeChanged)
 				{
 					ssEpsgWarning << "- Warning: The project reference frame has been set to the default" << endl <<
@@ -1800,10 +1807,10 @@ int main(int argc, char* argv[])
 		switch (vinput_file_meta.at(0).filetype)
 		{
 		case sinex:
-			datumSource << ". DynAdjust default (Frame not found in SNX)";
+			datumSource << ". DynAdjust default (frame not found in SNX)";
 			break;
 		default:
-			datumSource << ". From first file (" << FormatFileType<string>(vinput_file_meta.at(0).filetype) << ")";
+			datumSource << ". Taken from first file (" << FormatFileType<string>(vinput_file_meta.at(0).filetype) << ")";
 		}
 
 		if (!p.g.quiet)

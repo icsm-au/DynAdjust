@@ -2165,6 +2165,7 @@ bool DnaXmlFormat_pskel::_attribute_impl (const ::xml_schema::ro_string& ns,
 			this->referenceframe_parser_->_post_impl ();
 			this->referenceframe_parser_->post_type (_referenceframe, _fileEpsg, _userspecifiedreferenceframe,  _overridereferenceframe, _firstFile);
 			this->referenceframe ();
+			_filespecifiedreferenceframe = true;
 		}
 
 		return true;

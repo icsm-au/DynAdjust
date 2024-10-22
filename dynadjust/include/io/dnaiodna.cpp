@@ -255,6 +255,7 @@ void dna_io_dna::read_dna_header(std::ifstream* ptr, string& version, INPUT_DATA
 	string sBuf;
 	getline((*ptr), sBuf);
 	sBuf = trimstr(sBuf);
+	m_filespecifiedReferenceFrame_ = false;
 
 	// Set the default version
 	version = "1.00";
@@ -340,6 +341,9 @@ void dna_io_dna::read_dna_header(std::ifstream* ptr, string& version, INPUT_DATA
 		// datum not provided?
 		file_referenceframe = "";
 	}
+
+	if (!file_referenceframe.empty())
+		m_filespecifiedReferenceFrame_ = true;
 
 	string epoch_version;
 	// Attempt to get the default epoch / geoid version

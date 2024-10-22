@@ -824,6 +824,7 @@ protected:
 	string _fileEpoch;
 	bool _firstFile;
 	bool _userspecifiedreferenceframe;
+	bool _filespecifiedreferenceframe;
 	bool _overridereferenceframe;
 };
 
