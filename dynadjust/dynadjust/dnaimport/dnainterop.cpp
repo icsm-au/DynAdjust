@@ -2273,7 +2273,7 @@ void dna_import::ParseDatabaseClusterId(const string& sBuf, const string& callin
 	string parsed_value;
 	// Cluster ID
 	try {
-		parsed_value = trimstr(sBuf.substr(dml_.msr_id_cluster));
+		parsed_value = trimstr(sBuf.substr(dml_.msr_id_cluster, dmw_.msr_id_cluster));
 		if (!parsed_value.empty())
 		{
 			m_msr_db_map.cluster_id = val_uint<UINT32, string>(parsed_value);
