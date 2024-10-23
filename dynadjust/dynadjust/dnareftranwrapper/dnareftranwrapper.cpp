@@ -39,8 +39,7 @@ void PrintOutputFileHeaderInfo(std::ofstream* f_out, const string& out_file, pro
 	*f_out << setw(PRINT_VAR_PAD) << left << "Output folder: " << system_complete(p->g.output_folder).string() << endl;
 	*f_out << setw(PRINT_VAR_PAD) << left << "Stations file:" << system_complete(p->r.bst_file).string() << endl;
 	*f_out << setw(PRINT_VAR_PAD) << left << "Measurements file:" << system_complete(p->r.bms_file).string() << endl;
-	*f_out << setw(PRINT_VAR_PAD) << left << "Target reference frame:" << p->r.reference_frame << 
-		" (EPSG " << epsgCode << ")" << endl;
+	*f_out << setw(PRINT_VAR_PAD) << left << "Target reference frame:" << p->r.reference_frame << endl;
 
 	if (!p->r.epoch.empty())
 	{
@@ -48,7 +47,7 @@ void PrintOutputFileHeaderInfo(std::ofstream* f_out, const string& out_file, pro
 		if (p->r.epoch.rfind(".") == string::npos)
 			p->r.epoch.insert(0, "01.01.");
 
-		*f_out << setw(PRINT_VAR_PAD) << left << "Target Epoch: " <<
+		*f_out << setw(PRINT_VAR_PAD) << left << "Target epoch: " <<
 			formattedDateStringFromNumericString<date>(p->r.epoch);
 		if (isEpsgDatumStatic(epsgCode))
 			*f_out << " (ignored: " << p->r.reference_frame << " is static)";
@@ -489,7 +488,7 @@ int main(int argc, char* argv[])
 				if (p.r.epoch.rfind(".") == string::npos)
 					p.r.epoch.insert(0, "01.01.");
 
-				cout << setw(PRINT_VAR_PAD) << left << "  Target Epoch: " <<
+				cout << setw(PRINT_VAR_PAD) << left << "  Target epoch: " <<
 					formattedDateStringFromNumericString<date>(p.r.epoch);
 				if (isEpsgDatumStatic(epsgCode))
 					cout << " (ignored: " << p.r.reference_frame << " is static)";
