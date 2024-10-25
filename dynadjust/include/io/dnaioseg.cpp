@@ -380,7 +380,7 @@ void dna_io_seg::load_seg_file(const string& seg_filename, UINT32& blockCount,
 						case 'R':	// Ellipsoidal height
 						case 'M':	// MSL arc
 						case 'S':	// Slope distance
-						case 'V':	// Zenith angle
+						case 'V':	// Zenith distance
 						case 'Z':	// Vertical angle
 						default:
 							v_measurementCount->at(b)++;		// single measurement quantity

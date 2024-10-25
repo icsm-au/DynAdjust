@@ -1943,7 +1943,7 @@ public:
 		case 'M':	// MSL arc
 		case 'S':	// Slope distance
 		case 'L':	// Level difference
-		case 'V':	// Zenith angle
+		case 'V':	// Zenith distance
 		case 'Z':	// Vertical angle
 		case 'G':	// GPS Baseline (treat as single-baseline cluster)
 		case 'X':	// GPS Baseline cluster

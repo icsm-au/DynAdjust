@@ -55,7 +55,7 @@ void MsrTally::FillMsrList(vchar& msr_list)
 	msr_list.push_back('Q'); // Geodetic longitude
 	msr_list.push_back('R'); // Ellipsoidal height
 	msr_list.push_back('S'); // Slope distance
-	msr_list.push_back('V'); // Zenith angle
+	msr_list.push_back('V'); // Zenith distance
 	msr_list.push_back('X'); // GPS Baseline cluster
 	msr_list.push_back('Y'); // GPS point cluster
 	msr_list.push_back('Z'); // Vertical angle
@@ -423,7 +423,7 @@ UINT32 MsrTally::MeasurementCount(const char& msrType)
 		return R;
 	case 'S': // Slope distance
 		return S;
-	case 'V': // Zenith angle
+	case 'V': // Zenith distance
 		return V;
 	case 'X': // GPS Baseline cluster
 		return X;
@@ -496,7 +496,7 @@ void MsrTally::CreateTally(const vdnaMsrPtr& vMeasurements)
 		case 'S': // Slope distance
 			S++;
 			break;
-		case 'V': // Zenith angle
+		case 'V': // Zenith distance
 			V++;
 			break;
 		case 'Y': // GPS point cluster
@@ -565,7 +565,7 @@ void MsrTally::IncrementMsrType(const char& msrType, const UINT32& count)
 	case 'S': // Slope distance
 		S += count;
 		break;
-	case 'V': // Zenith angle
+	case 'V': // Zenith distance
 		V += count;
 		break;
 	case 'Y': // GPS point cluster
@@ -641,7 +641,7 @@ void MsrTally::CreateTally(const vmsr_t& vMeasurements, const vUINT32& CML)
 		case 'S': // Slope distance
 			S++;
 			break;
-		case 'V': // Zenith angle
+		case 'V': // Zenith distance
 			V++;
 			break;
 		case 'Y': // GPS point cluster
@@ -730,7 +730,7 @@ UINT32 MsrTally::CreateTally(const vmsr_t& vMeasurements, bool countValidOnly)
 		case 'S': // Slope distance
 			S++;
 			break;
-		case 'V': // Zenith angle
+		case 'V': // Zenith distance
 			V++;
 			break;
 		case 'Y': // GPS point cluster
@@ -769,7 +769,7 @@ _MEASUREMENT_STATIONS_ MsrTally::Stations(const char& measType)
 	case 'M':	// MSL arc
 	case 'S':	// Slope distance
 	case 'L':	// Level difference
-	case 'V':	// Zenith angle
+	case 'V':	// Zenith distance
 	case 'Z':	// Vertical angle
 		return TWO_STATION;
 		// triple station measurements

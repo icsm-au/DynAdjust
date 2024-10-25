@@ -1600,7 +1600,7 @@ void dna_reftran::TransformMeasurementRecords(const string& newFrame, const stri
 			case 'Q':	// Geodetic longitude
 			case 'R':	// Ellipsoidal height
 			case 'S':	// Slope distance
-			case 'V':	// Zenith angle
+			case 'V':	// Zenith distance
 			case 'Z':	// Vertical angle
 				continue;
 			}

@@ -704,7 +704,7 @@ public:
 		case 'L':	// Level difference
 		case 'B':	// Geodetic azimuth
 		case 'K':	// Astronomic azimuth
-		case 'V':	// Zenith angle
+		case 'V':	// Zenith distance
 		case 'Z':	// Vertical angle
 			return false;
 		}
@@ -770,7 +770,7 @@ void ResetMeasurementPtr(dnaMsrPtr* msrPtr, const T& cType)
 	case 'R': // Ellipsoidal height
 		msrPtr->reset(new CDnaHeight);
 		break;
-	case 'V': // Zenith angle
+	case 'V': // Zenith distance
 	case 'Z': // Vertical angle
 		msrPtr->reset(new CDnaDirection);
 		break;
@@ -857,7 +857,7 @@ public:
 					return *(dynamic_cast<const CDnaHeightDifference*>(&(*left))) < 
 						*(dynamic_cast<const CDnaHeightDifference*>(&(*right)));
 				
-				case 'V':	// Zenith angle
+				case 'V':	// Zenith distance
 				case 'Z':	// Vertical angle
 					return *(dynamic_cast<const CDnaDirection*>(&(*left))) < 
 						*(dynamic_cast<const CDnaDirection*>(&(*right)));

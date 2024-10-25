@@ -398,7 +398,7 @@ void dna_io_aml::write_aml_file_txt(const string& bms_filename, const string& am
 					case 'L': // Level difference
 					case 'M': // MSL arc
 					case 'S': // Slope distance
-					case 'V': // Zenith angle
+					case 'V': // Zenith distance
 					case 'Z': // Vertical angle
 						if (stn_index == binaryMsrRecords.at(*_it_msr).station2)
 							ss_aml << left << " (Second)";

@@ -325,7 +325,7 @@ void CDnaDirectionSet::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* e
 	// Deflections available?
 	if (fabs(stn1_it->get()->GetverticalDef()) > E4_SEC_DEFLECTION || fabs(stn1_it->get()->GetmeridianDef()) > E4_SEC_DEFLECTION)
 	{
-		// 1. compute zenith angle 
+		// 1. compute zenith distance 
 		double zenithDistance = ZenithDistance<double>(
 			stn1_it->get()->GetXAxis(), 
 			stn1_it->get()->GetYAxis(),

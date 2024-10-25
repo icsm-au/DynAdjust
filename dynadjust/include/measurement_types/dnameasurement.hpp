@@ -104,7 +104,7 @@ S measurement_name(const C& type)
 	case 'R':
 		return "(R) Ellipsoidal height";
 	case 'V':
-		return "(V) Zenith angle";
+		return "(V) Zenith distance";
 	case 'Z':
 		return "(Z) Vertical angle";
 	case 'Y':

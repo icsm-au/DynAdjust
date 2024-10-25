@@ -861,7 +861,7 @@ void dna_import::ApplyDiscontinuitiesMeasurements(vdnaMsrPtr* vMeasurements)
 		case 'L':	// Level difference
 		case 'M':	// MSL arc
 		case 'S':	// Slope distance
-		case 'V':	// Zenith angle
+		case 'V':	// Zenith distance
 		case 'Z':	// Vertical angle
 			continue;
 		}
@@ -1594,7 +1594,7 @@ void dna_import::ParseDNAMSR(pvdnaMsrPtr vMeasurements, PUINT32 msrCount, PUINT3
 			ParseDNAMSRLinear(sBuf, msr_ptr);
 			(*msrCount) += 1;
 			break;
-		case 'V': // Zenith angle
+		case 'V': // Zenith distance
 			g_parsemsr_tally.V++;
 			msr_ptr.reset(new CDnaDirection);
 			ParseDNAMSRAngular(sBuf, msr_ptr);
@@ -2914,7 +2914,7 @@ void dna_import::IncludeMeasurementTypes(const string& includeMsrs, vdnaMsrPtr* 
 		case 'S': // Slope distance
 			msrtallyTmp.S = parsemsrTally->S;
 			break;
-		case 'V': // Zenith angle
+		case 'V': // Zenith distance
 			msrtallyTmp.V = parsemsrTally->V;
 			break;
 		case 'X': // GPS Baseline cluster
@@ -2994,7 +2994,7 @@ void dna_import::ExcludeMeasurementTypes(const string& excludeMsrs, vdnaMsrPtr* 
 		case 'S': // Slope distance
 			parsemsrTally->S = 0;
 			break;
-		case 'V': // Zenith angle
+		case 'V': // Zenith distance
 			parsemsrTally->V = 0;
 			break;
 		case 'X': // GPS Baseline cluster
@@ -3573,7 +3573,7 @@ void dna_import::ExtractAssociatedStns(vdnaMsrPtr* vMeasurements, pvstring pvUse
 		case 'M':	// MSL arc
 		case 'S':	// Slope distance
 		case 'L':	// Level difference
-		case 'V':	// Zenith angle
+		case 'V':	// Zenith distance
 		case 'Z':	// Vertical angle
 			continue;
 		}
@@ -3852,7 +3852,7 @@ void dna_import::ImportStnsMsrsFromNetwork(vdnaStnPtr* vStations, vdnaMsrPtr* vM
 			case 'S': // Slope distance
 				g_parsemsr_tally.S++;
 				break;
-			case 'V': // Zenith angle
+			case 'V': // Zenith distance
 				g_parsemsr_tally.V++;
 				break;
 			case 'X': // GPS Baseline cluster
@@ -4010,7 +4010,7 @@ void dna_import::ImportStnsMsrsFromBlock(vdnaStnPtr* vStations, vdnaMsrPtr* vMea
 		case 'S': // Slope distance
 			g_parsemsr_tally.S++;
 			break;
-		case 'V': // Zenith angle
+		case 'V': // Zenith distance
 			g_parsemsr_tally.V++;
 			break;
 		case 'X': // GPS Baseline cluster
@@ -5089,7 +5089,7 @@ UINT32 dna_import::FindSimilarMeasurements(vdnaMsrPtr* vMeasurements, vdnaMsrPtr
 				continue;
 			break;
 				
-		case 'V':	// Zenith angle
+		case 'V':	// Zenith distance
 		case 'Z':	// Vertical angle
 			if (*(static_cast<const CDnaDirection*>(&(*_it_msr->get()))) ==
 				*(static_cast<const CDnaDirection*>(&(*_it_msrprev->get()))))
@@ -5773,11 +5773,11 @@ void dna_import::IgnoreInsufficientMeasurements(vdnaStnPtr* vStations, vdnaMsrPt
 					continue;
 				case 'H':	// Orthometric height
 				case 'R':	// Ellipsoidal height
-				case 'V':	// Zenith angle
+				case 'V':	// Zenith distance
 				case 'Z':	// Vertical angle
 				case 'L':	// Level difference
 					// Continue if:
-					// - an ellipsoid/orthometric height or vertical/zenith angle is found, and either
+					// - an ellipsoid/orthometric height or vertical angle/zenith distance is found, and either
 					// - the station is constrained in 3D, or
 					// - the station is constrained in 2D
 					switch (vStations->at(stnIndex)->GetConstraintType())
@@ -5798,7 +5798,7 @@ void dna_import::IgnoreInsufficientMeasurements(vdnaStnPtr* vStations, vdnaMsrPt
 				default:	
 					// All other 2D measurement types, which, alone, do not 
 					// sufficiently constrain coordinates in 2D.  So, continue if:
-					// - a latitude or longitude or ellipsoid/orthometric height or vertical/zenith angle is found, and
+					// - a latitude or longitude or ellipsoid/orthometric height or vertical angle/zenith distance is found, and
 					// - the station is held constrained in two dimensions
 					switch (vStations->at(stnIndex)->GetConstraintType())
 					{
@@ -5867,7 +5867,7 @@ void dna_import::IgnoreInsufficientMeasurements(vdnaStnPtr* vStations, vdnaMsrPt
 				case 'L':	// Level difference
 				case 'M':	// MSL arc
 				case 'S':	// Slope distance
-				case 'V':	// Zenith angle
+				case 'V':	// Zenith distance
 				case 'Z':	// Vertical angle
 
 					if (binary_search(vInsufficientMsrStns.begin(),
@@ -6064,7 +6064,7 @@ void dna_import::MapMeasurementStations(vdnaMsrPtr* vMeasurements, pvASLPtr vAss
 			case 'L':	// Level difference
 			case 'M':	// MSL arc
 			case 'S':	// Slope distance
-			case 'V':	// Zenith angle
+			case 'V':	// Zenith distance
 			case 'Z':	// Vertical angle
 				ss << " to " << _it_msr->get()->GetTarget();
 			}
@@ -6176,7 +6176,7 @@ void dna_import::MapMeasurementStations(vdnaMsrPtr* vMeasurements, pvASLPtr vAss
 			g_map_tally.L ++;
 			(*lMapCount)++;
 			continue;
-		case 'V':	// Zenith angle
+		case 'V':	// Zenith distance
 			g_map_tally.V ++;
 			(*lMapCount)++;
 			continue;
@@ -6301,7 +6301,7 @@ UINT32 dna_import::ComputeMeasurementCount(vdnaMsrPtr* vMeasurements, const vUIN
 		case 'S': // Slope distance
 			msr_tally.S++;
 			break;
-		case 'V': // Zenith angle
+		case 'V': // Zenith distance
 			msr_tally.V++;
 			break;
 		case 'Y': // GPS point cluster
@@ -6708,7 +6708,7 @@ void dna_import::CompleteAssociationLists(vdnaMsrPtr* vMeasurements, pvASLPtr vA
 		case 'M':	// MSL arc
 		case 'S':	// Slope distance
 		case 'L':	// Level difference
-		case 'V':	// Zenith angle
+		case 'V':	// Zenith distance
 		case 'Z':	// Vertical angle
 			currentBmsFileIndex ++;
 			continue;
@@ -6772,7 +6772,7 @@ void dna_import::CompleteAssociationLists(vdnaMsrPtr* vMeasurements, pvASLPtr vA
 //		case 'M':	// MSL arc
 //		case 'S':	// Slope distance
 //		case 'L':	// Level difference
-//		case 'V':	// Zenith angle
+//		case 'V':	// Zenith distance
 //		case 'Z':	// Vertical angle
 //			vIgnoredMsrStations.push_back(it_Dirns->GetStn2Index());
 //		case 'H':	// Orthometric height

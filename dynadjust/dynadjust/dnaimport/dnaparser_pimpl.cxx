@@ -302,7 +302,7 @@ void DnaMeasurement_pimpl::Type(const ::std::string& Type)
 		*(_pMeasurementCount) += 1;
 		_dnaCurrentMsr.reset(new CDnaDistance);
 		break;
-	case 'V': // Zenith angle
+	case 'V': // Zenith distance
 		g_parsemsr_tally.V++;
 		*(_pMeasurementCount) += 1;
 		_dnaCurrentMsr.reset(new CDnaDirection);
@@ -363,7 +363,7 @@ void DnaMeasurement_pimpl::Second(const ::std::string& Second)
 	case 'D': // Direction set
 	case 'G': // GPS Baseline
 	case 'L': // Level difference
-	case 'V': // Zenith angle
+	case 'V': // Zenith distance
 	case 'Z': // Vertical angle
 	case 'X': // GPS Baseline cluster
 		if (Second.empty())
@@ -417,7 +417,7 @@ void DnaMeasurement_pimpl::Value(const ::std::string& Value)
 	case 'P': // Geodetic latitude
 	case 'Q': // Geodetic longitude
 	case 'L': // Level difference
-	case 'V': // Zenith angle
+	case 'V': // Zenith distance
 	case 'Z': // Vertical angle
 		if (Value.empty())
 		{
@@ -452,7 +452,7 @@ void DnaMeasurement_pimpl::StdDev(const ::std::string& StdDev)
 	case 'P': // Geodetic latitude
 	case 'Q': // Geodetic longitude
 	case 'L': // Level difference
-	case 'V': // Zenith angle
+	case 'V': // Zenith distance
 	case 'Z': // Vertical angle
 		if (StdDev.empty())
 		{

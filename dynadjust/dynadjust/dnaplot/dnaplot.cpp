@@ -393,7 +393,7 @@ void dna_plot::ComputeMeasurementCount()
 			case 'S': // Slope distance
 				v_msr_tally_.at(block).S++;
 				break;
-			case 'V': // Zenith angle
+			case 'V': // Zenith distance
 				v_msr_tally_.at(block).V++;
 				break;
 			case 'Y': // GPS point cluster
@@ -2979,7 +2979,7 @@ void dna_plot::PrintMeasurementsDatFiles()
 	_combined_msr_list.push_back('Q'); // Geodetic longitude
 	_combined_msr_list.push_back('R'); // Ellipsoidal height
 	_combined_msr_list.push_back('S'); // Slope distance
-	_combined_msr_list.push_back('V'); // Zenith angle
+	_combined_msr_list.push_back('V'); // Zenith distance
 	_combined_msr_list.push_back('X'); // GPS Baseline cluster
 	_combined_msr_list.push_back('Y'); // GPS point cluster
 	_combined_msr_list.push_back('Z'); // Vertical angle
@@ -3143,7 +3143,7 @@ void dna_plot::PrintMeasurementsDatFileBlock(const UINT32& block, char msrType, 
 		case 'M': // MSL arc
 		case 'S': // Slope distance
 		case 'L': // Level difference
-		case 'V': // Zenith angle
+		case 'V': // Zenith distance
 		case 'Z': // Vertical angle
 			// Get the measurement indices involved in this measurement
 			GetMsrIndices<UINT32>(bmsBinaryRecords_, *_it_block_msr, msrIndices);
@@ -3289,7 +3289,7 @@ void dna_plot::PrintMeasurementsDatFile(char msrType, std::ofstream* msr_file_st
 		case 'M': // MSL arc
 		case 'S': // Slope distance
 		case 'L': // Level difference
-		case 'V': // Zenith angle
+		case 'V': // Zenith distance
 		case 'Z': // Vertical angle
 
 			if (!default_limits_)
@@ -3524,7 +3524,7 @@ void dna_plot::LoadBinaryFiles()
 			case 'S': // Slope distance
 				parsemsrTally_.S++;
 				break;
-			case 'V': // Zenith angle
+			case 'V': // Zenith distance
 				parsemsrTally_.V++;
 				break;
 			case 'X': // GPS Baseline cluster
@@ -4253,7 +4253,7 @@ void dna_plot::SignalExceptionPlot(const string& msg, const int& line_no, const 
 //		case 'M': // MSL arc
 //		case 'S': // Slope distance
 //		case 'L': // Level difference
-//		case 'V': // Zenith angle
+//		case 'V': // Zenith distance
 //		case 'Z': // Vertical angle
 //			// First
 //			it_stnmap_range = equal_range(stnsMap_.begin(), stnsMap_.end(), 
