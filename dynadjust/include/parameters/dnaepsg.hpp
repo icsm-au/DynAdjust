@@ -557,6 +557,12 @@ string referenceepochFromEpsgCode(const U& epsgCode)
 	}
 	return "";
 }
+	
+template <typename S>
+S referenceepochFromEpsgString(const S& epsgString)
+{
+	return referenceepochFromEpsgCode<UINT32>(LongFromString<UINT32>(epsgString));
+}
 
 template <typename S, typename U>
 S datumFromEpsgCode(const U& epsgCode)
