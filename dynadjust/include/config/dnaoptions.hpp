@@ -183,7 +183,7 @@ public:
 struct import_settings : private boost::equality_comparable<import_settings> {
 public:
 	import_settings()
-		: reference_frame(DEFAULT_DATUM), user_supplied_frame(0), override_input_rfame(0)
+		: reference_frame(DEFAULT_DATUM), epoch(DEFAULT_EPOCH), user_supplied_frame(0), user_supplied_epoch(0), override_input_rfame(0)
 		, test_integrity(0), verify_coordinates(0), export_dynaml(0), export_from_bfiles(0)
 		, export_single_xml_file(0), prefer_single_x_as_g(0), export_asl_file(0), export_aml_file(0), export_map_file(0)
 		, export_dna_files(0), export_discont_file(0), import_geo_file(0), simulate_measurements(0), split_clusters(0), include_transcending_msrs(0)
@@ -229,8 +229,10 @@ private:
 	//}
 
 public:
-	string		reference_frame;			// Default reference frame - used primarily for reductions on the ellipsoid.
+	string		reference_frame;			// Project reference frame - used primarily for reductions on the ellipsoid.
+	string		epoch;						// Project epoch
 	UINT16		user_supplied_frame;		// User has supplied a frame - use this to change the default frame
+	UINT16		user_supplied_epoch;		// User has supplied a epoch - use this to change the default epoch
 	UINT16		override_input_rfame;		// Override reference frame specified in input files using the default or user supplied frame.
 	UINT16		test_integrity;				// Test integrity of network
 	UINT16		verify_coordinates;			// Test integrity of coordinates

@@ -71,7 +71,10 @@ void PrintOutputFileHeaderInfo(std::ofstream* f_out, const string& out_file, pro
 	if (p->i.override_input_rfame)
 		*f_out << setw(PRINT_VAR_PAD) << left << "Override input file ref frame:" << yesno_string(p->i.override_input_rfame) << endl;
 
-
+	if (p->i.user_supplied_epoch)
+		*f_out << setw(PRINT_VAR_PAD) << left << "Project epoch:" << p->i.epoch << " (user supplied)" << endl;
+	else
+		*f_out << setw(PRINT_VAR_PAD) << left << "Project epoch:" << "To be assumed from the first input file" << endl;
 
 	
 	if (!p->i.include_msrs.empty())
@@ -152,6 +155,12 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 		return EXIT_FAILURE;
 	}
 
+	if (vm.count(EPOCH) && !vm.count(REFERENCE_FRAME))
+	{
+		cout << endl << "- A reference frame must be provided when providing an epoch. " << endl << endl;
+		return EXIT_FAILURE;
+	}
+
 	// Normalise files using input folder
 	for_each(p.i.input_files.begin(), p.i.input_files.end(),
 		[&p] (string& file) { 
@@ -208,7 +217,7 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 	p.i.asl_file = formPath<string>(p.g.output_folder, p.g.network_name, "asl");	// associated stations list
 	p.i.aml_file = formPath<string>(p.g.output_folder, p.g.network_name, "aml");	// associated measurements list
 	p.i.map_file = formPath<string>(p.g.output_folder, p.g.network_name, "map");	// station names map
-	p.i.dst_file = formPath<string>(p.g.output_folder, p.g.network_name, "dst");	// fuplicate stations
+	p.i.dst_file = formPath<string>(p.g.output_folder, p.g.network_name, "dst");	// duplicate stations
 	p.i.dms_file = formPath<string>(p.g.output_folder, p.g.network_name, "dms");	// duplicate measurements
 	p.i.imp_file = formPath<string>(p.g.output_folder, p.g.network_name, "imp");	// log
 	
@@ -217,7 +226,21 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 	if (vm.count(OVERRIDE_INPUT_FRAME))
 		p.i.override_input_rfame = 1;
 	if (vm.count(REFERENCE_FRAME))
+	{
+		p.i.reference_frame = str_upper<string>(p.i.reference_frame);
 		p.i.user_supplied_frame = 1;
+	}
+
+	if (vm.count(EPOCH))
+	{
+		// Get today's date?
+		if (iequals(p.i.epoch, "today"))
+			p.i.epoch = stringFromToday<date>();
+		// Has the user supplied the year only?
+		else if (p.i.epoch.rfind(".") == string::npos)
+			p.i.epoch.insert(0, "01.01.");
+		p.i.user_supplied_epoch = 1;
+	}
 
 	//////////////////////////////////////////////////////////////////////////////
 	// Data screening options
@@ -522,6 +545,57 @@ int SearchForSimilarMeasurements(dna_import* parserDynaML, project_settings* p, 
 	return EXIT_SUCCESS;
 
 }
+
+void ReportExportedData(const project_settings& p, std::ostream& out, const size_t& file_type,
+	const UINT32& stnCount, const UINT32& msrCount)
+{
+	string dataExported;
+	if (stnCount > 0 && msrCount == 0)
+		dataExported = "stations";
+	else if (stnCount == 0 && msrCount > 0)
+		dataExported = "measurements";
+	else if (stnCount > 0 && msrCount > 0)
+		dataExported = "stations and measurements";
+
+	string stn_file, msr_file, single_file;
+	bool print_single_xml = (p.i.export_single_xml_file && p.i.export_dynaml);
+
+	switch (file_type)
+	{
+	case dna:
+		stn_file =  leafStr<string>(p.i.dna_stnfile);
+		msr_file =  leafStr<string>(p.i.dna_msrfile);
+		break;
+	case dynaml:
+		if (print_single_xml)
+			single_file = leafStr<string>(p.i.xml_outfile);
+		else
+		{
+			stn_file = leafStr<string>(p.i.xml_stnfile);
+			msr_file = leafStr<string>(p.i.xml_msrfile);
+		}
+		break;
+	default:
+		break;
+	}
+
+	out << "+ Exporting " << dataExported << " to:" << endl;
+	if (file_type == dynaml && print_single_xml)
+		out << "  - " << single_file << "... ";
+	else
+	{
+		if (stnCount > 0)
+		{
+			out << "  - " << stn_file;
+			if (msrCount > 0)
+				out << endl;
+		}
+		if (msrCount > 0)
+			out << "  - " << msr_file;
+		out << "... ";
+	}
+	out.flush();
+}
 	
 
 void ExportStationsandMeasurements(dna_import* parserDynaML, const project_settings& p, std::ofstream* imp_file, vifm_t* vinput_file_meta,
@@ -555,16 +629,14 @@ void ExportStationsandMeasurements(dna_import* parserDynaML, const project_setti
 
 	// DynaML file format
 	if (p.i.export_dynaml && (stnCount > 0 || msrCount > 0)) 
-	{		
+	{
+		if (!p.g.quiet)
+			ReportExportedData(p, cout, dynaml, stnCount, msrCount);
+		ReportExportedData(p, *imp_file, dynaml, stnCount, msrCount);
+		
 		if (p.i.export_single_xml_file)
 		{
 			// Single output file
-			if (!p.g.quiet)
-			{
-				cout << "+ Exporting stations and measurements to " << leafStr<string>(p.i.xml_outfile) << "... ";
-				cout.flush();
-			}
-			*imp_file << "+ Exporting stations and measurements to " << leafStr<string>(p.i.xml_outfile) << "... ";
 			parserDynaML->SerialiseDynaMLfromMemory(
 				vstationsTotal, vmeasurementsTotal, 
 				p.i.xml_outfile, p, vinput_file_meta, (p.i.flag_unused_stn ? true : false));
@@ -572,16 +644,6 @@ void ExportStationsandMeasurements(dna_import* parserDynaML, const project_setti
 		else
 		{
 			// Separate output files (default)
-			if (!p.g.quiet)
-			{
-				cout << "+ Exporting stations and measurements to:" << endl <<
-					"  - " << leafStr<string>(p.i.xml_stnfile) << endl <<
-					"  - " << leafStr<string>(p.i.xml_msrfile) << "... ";
-				cout.flush();
-			}
-			*imp_file << "+ Exporting stations and measurements to:" << endl <<
-				"  - " << leafStr<string>(p.i.xml_stnfile) << endl <<
-				"  - " << leafStr<string>(p.i.xml_msrfile) << "... ";
 			parserDynaML->SerialiseDynaMLSepfromMemory(
 				vstationsTotal, vmeasurementsTotal,
 				p.i.xml_stnfile, p.i.xml_msrfile, p, vinput_file_meta, (p.i.flag_unused_stn ? true : false));
@@ -599,22 +661,16 @@ void ExportStationsandMeasurements(dna_import* parserDynaML, const project_setti
 	{
 		// Separate output files (default)
 		if (!p.g.quiet)
-		{
-			cout << "+ Exporting stations and measurements to:" << endl <<
-				"  - " << leafStr<string>(p.i.dna_stnfile) << endl <<
-				"  - " << leafStr<string>(p.i.dna_msrfile) << "... ";
-			cout.flush();
-		}
-		*imp_file << "+ Exporting stations and measurements to:" << endl <<
-			"  - " << leafStr<string>(p.i.dna_stnfile) << endl <<
-			"  - " << leafStr<string>(p.i.dna_msrfile) << "... ";
+			ReportExportedData(p, cout, dna, stnCount, msrCount);
+		ReportExportedData(p, *imp_file, dna, stnCount, msrCount);
+
 		parserDynaML->SerialiseDNA(
 			vstationsTotal, vmeasurementsTotal,
 			p.i.dna_stnfile, p.i.dna_msrfile, p, vinput_file_meta, (p.i.flag_unused_stn ? true : false));
+
 		if (!p.g.quiet)
 			cout << "Done." << endl;
 		*imp_file << "Done." << endl;
-
 	}
 
 	if (displayEpsgWarning)
@@ -811,7 +867,7 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 	strlen_arg += (6 + PROGRESS_PERCENT_04);
 
 	size_t i, nfiles(p.i.input_files.size());		// for each file...
-	string epsgCode, input_file, ss, status_msg;
+	string input_file, ss, status_msg;
 	ostringstream ss_time, ss_msg;
 	input_file_meta_t input_file_meta;
 	milliseconds elapsed_time(milliseconds(0));
@@ -823,11 +879,11 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 
 	bool firstFile;
 
+	// obtain the project reference frame epsg code
+	string projctEpsgCode(epsgStringFromName<string>(p.i.reference_frame));
+
 	for (i=0; i<nfiles; i++)
 	{
-		// obtain the project reference frame
-		epsgCode = epsgStringFromName<string>(p.i.reference_frame);
-
 		stnCount = msrCount = 0;
 		input_file = p.i.input_files.at(i);
 		if (!exists(input_file))
@@ -925,35 +981,40 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 			}
 			*imp_file << time_message << endl;
 
-			// Produce a info or warning if the input file's default reference frame
-			// is different to the project reference frame
-			string inputFileEpsg, inputFileDatum, inputFileEpoch;
+			// Capture the input file's default reference frame and set the
+			// project reference frame (if not specified on the command-line)
+			string inputFileEpsg(""), inputFileDatum(""), inputFileEpoch("");
 			try {
 				inputFileDatum = datumFromEpsgString<string>(input_file_meta.epsgCode);
 				inputFileEpsg = input_file_meta.epsgCode;
 				inputFileEpoch = input_file_meta.epoch;
 			}
-			catch (...) {
-				inputFileDatum = epsgCode;
-				inputFileEpsg = epsgCode;
+			catch (...) 
+			{
+				// Do nothing, revert to defaults
+				// p.i.reference_frame
+				// p.i.epoch
 			}
 
 			// Is this the first file?  If so, attempt to set the default datum from
 			// the input file (if applicable).
-			UINT32 epsgCodei;
+			UINT32 inputFileEpsgi;
 			bool referenceframeChanged(false);
+
 			if (firstFile)
-			{				
+			{
+				// Determine if the project reference frame needs to be changed
+
 				// If the user has not provided a reference frame, then inspect the file reference frame
-				// If the file does not contain a reference frame (eg SNX), fileEpsg will be empty. Thus,
-				// no change will occur.
+				// If the file does not contain a reference frame (e.g. SNX) or the user has left it blank, 
+				// fileEpsg will be empty. Thus, no change will occur (retain the default GDA2020).
 				if (!inputFileEpsg.empty() && !p.i.user_supplied_frame)
 				{
 					// Set the project defaults
 					referenceframeChanged = true;
-					epsgCodei = LongFromString<UINT32>(inputFileEpsg);
-					p.i.reference_frame = datumFromEpsgCode<string, UINT32>(epsgCodei);
-					p.r.reference_frame = p.i.reference_frame;					
+					inputFileEpsgi = LongFromString<UINT32>(inputFileEpsg);
+					p.i.reference_frame = inputFileDatum;
+					p.r.reference_frame = inputFileDatum;
 					
 					try {
 						// Initialise the 'default' datum (frame and epoch) for the project, from the first file.
@@ -968,31 +1029,42 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 				}
 
 				if (inputFileEpoch.empty())
-					p.r.epoch = referenceepochFromEpsgCode<UINT32>(epsgCodei);
+				{
+					// Has an epoch been provided but no frame?
+					if (inputFileEpsg.empty())
+						// revert to epoch of 
+						p.i.epoch = referenceepochFromEpsgCode<UINT32>(inputFileEpsgi);
+					else
+						p.i.epoch = referenceepochFromEpsgString<string>(projctEpsgCode);
+					p.r.epoch = p.i.epoch;
+				}
 				else
-					p.r.epoch = inputFileEpoch;
+				{
+					p.i.epoch = inputFileEpoch;
+					p.r.epoch = p.i.epoch;
+				}
 			}
 
 			if (!parserDynaML.filespecifiedReferenceFrame())
 			{
 				stringstream ssEpsgWarning;
-				ssEpsgWarning << "- Warning: Input file reference frame empty. Assuming the default reference frame (" << inputFileDatum << ").";
+				ssEpsgWarning << "  - Warning: Input file reference frame empty. Assuming the default reference frame (" << inputFileDatum << ").";
 				if (!p.g.quiet)
 					cout << ssEpsgWarning.str() << endl;
 				*imp_file << ssEpsgWarning.str() << endl;
 			}
-			else if (!iequals(epsgCode, input_file_meta.epsgCode))
+			else if (!iequals(projctEpsgCode, input_file_meta.epsgCode))
 			{
 				stringstream ssEpsgWarning;
 				if (referenceframeChanged)
 				{
-					ssEpsgWarning << "- Warning: The project reference frame has been set to the default" << endl <<
-						"  file datum of " << leafStr<string>(p.i.input_files.at(i)) << " (" << inputFileDatum << ").";
+					ssEpsgWarning << "  - Warning: The project reference frame has been set to the default" << endl <<
+						"    file datum of " << leafStr<string>(p.i.input_files.at(i)) << " (" << inputFileDatum << ").";
 				}
 				else				
 				{
-					ssEpsgWarning << "- Warning: Input file reference frame (" << inputFileDatum <<
-						") does not match the " << endl << "  project reference frame (" << p.i.reference_frame << ").";
+					ssEpsgWarning << "  - Warning: Input file reference frame (" << inputFileDatum << ") does not match the " << endl << 
+						"    project reference frame (" << p.i.reference_frame << ").";
 				}
 
 				if (!p.g.quiet)
@@ -1081,8 +1153,11 @@ int main(int argc, char* argv[])
 
 		ref_frame_options.add_options()
 			(REFERENCE_FRAME_R, value<string>(&p.i.reference_frame), 
-			(string("Default reference frame for all stations and measurements, and for preliminary reductions on the ellipsoid when input files do not specify a reference frame. Default is ") +
+			(string("Project reference frame for all stations, measurements, and preliminary reductions on the ellipsoid when input files do not specify a reference frame. Default is ") +
 				p.i.reference_frame + ".").c_str())
+			(EPOCH_E, value<string>(&p.i.epoch),
+			(string("Project epoch for all stations and measurements when input files do not specify an epoch. Default is ") +
+				p.i.epoch + ".").c_str())
 			(OVERRIDE_INPUT_FRAME,
 				"Override the reference frame specified for each measurement in input files.")
 			;
@@ -1321,7 +1396,7 @@ int main(int argc, char* argv[])
 
 	if (vm.count(QUIET))
 		p.g.quiet = 1;
-	
+
 	if (!p.g.quiet)
 	{
 		cout << endl << cmd_line_banner;
@@ -1335,8 +1410,8 @@ int main(int argc, char* argv[])
 		cout << setw(PRINT_VAR_PAD) << left << "  Binary station output file: " << p.i.bst_file << endl;
 		cout << setw(PRINT_VAR_PAD) << left << "  Binary measurement output file: " << p.i.bms_file << endl;
 		
-		// If a reference frame has been supplied, report it.  
-		// If not, the assumption is, the project frame will be assumed from the first file and
+		// If a reference frame and epoch have been supplied, report them.
+		// If not, the assumption is, the project frame and epoch will be assumed from the first file and
 		// in this case, it will be reported later
 		if (p.i.user_supplied_frame)
 			cout << setw(PRINT_VAR_PAD) << left << "  Project reference frame:" << p.i.reference_frame << " (user supplied)" << endl;
@@ -1346,6 +1421,10 @@ int main(int argc, char* argv[])
 		if (p.i.override_input_rfame)
 			cout << setw(PRINT_VAR_PAD) << left << "  Override input file ref frame:" << yesno_string(p.i.override_input_rfame) << endl;
 
+		if (p.i.user_supplied_epoch)
+			cout << setw(PRINT_VAR_PAD) << left << "  Project epoch:" << p.i.epoch << " (user supplied)" << endl;
+		else
+			cout << setw(PRINT_VAR_PAD) << left << "  Project epoch:" << "To be assumed from the first input file" << endl;
 
 		if (p.i.export_dynaml)
 		{
