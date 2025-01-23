@@ -1347,42 +1347,32 @@ void referenceframe_pimpl::post_type(string& referenceframe, string& fileEpsg, b
 {
 	// 1. Get the DnaXmlFormat referenceframe attribute value from the file
 	_referenceframe = trimstr(post_string());
+
+	// But, is this attribute value an empty string?  As long as a default value 
+	// is specified in DynaML.xsd, this value will never be empty, unless the user
+	// has inadvertently set in the xml file, e.g.:
+	//  <DnaXmlFormat referenceframe="" >
+	// Check anyway ...
 	if (_referenceframe.empty())
-		// Set to the default reference frame passed from import
+		// If the file doesn't contain reference frame, set
+		// to the default reference frame passed from import
 		_referenceframe = referenceframe;
+
+	// Capture epsg code for the file
 	fileEpsg = epsgStringFromName<string>(_referenceframe);
 
 	if (firstFile)
 	{
-		// 2. Does the user want to override the datum contained in the files with
-		//    the default?
-		if (overridereferenceframe)
-		{
-			// Has a reference frame been supplied?
-			if (userspecifiedreferenceframe)
-				// If so, do nothing, just return as referenceframe will become 
-				// the default for all stations and measurements loaded
-				// from the file.
-				return;
-
-			if (!_referenceframe.empty())
-				referenceframe = _referenceframe;
-		}
-		
-		// 3. Does the user want the referenceframe attribute in the file to become the default?
+		// If the user didn't specify a frame, take it from the file
 		if (!userspecifiedreferenceframe)
-		{
-			// Here, the assumption is, if the user did not specify a reference frame,
-			// then the user wants to adopt the DnaXmlFormat referenceframe attribute
-			
-			// But, is this attribute value an empty string?  As long as a default value 
-			// is specified in DynaML.xsd, this value will never be empty, unless the user
-			// has inadvertently set in the xml file, e.g.:
-			//  <DnaXmlFormat referenceframe="" ... >
-			if (!_referenceframe.empty())
-				// Set the DynaML parser reference frame to the file's DnaXmlFormat referenceframe attribute 
-				referenceframe = _referenceframe;
-		}
+			referenceframe = _referenceframe;
+	}
+	else
+	{
+		// If the user doesn't want to override the datum for all stations and measurements, 
+		// take it from the file
+		if (!overridereferenceframe)
+			referenceframe = _referenceframe;
 	}
 }
 
@@ -1402,51 +1392,31 @@ void epoch_pimpl::post_type(string& epoch, string& fileEpoch, bool userspecified
 {
 	// 1. Get the DnaXmlFormat epoch attribute value from the file
 	_epoch = trimstr(post_string());
+	
+	// But, is this attribute value an empty string?  As long as a default value 
+	// is specified in DynaML.xsd, this value will never be empty, unless the user
+	// has inadvertently set in the xml file, e.g.:
+	//  <DnaXmlFormat epoch="" >
+	// Check anyway ...
 	if (_epoch.empty())
-		// Set to the default reference frame passed from import
+		// Set to the default epoch passed from import
 		_epoch = epoch;
+
+	// Capture epoch for the file
 	fileEpoch = _epoch;
 
+	// Set the epoch, provided the user does not want to 
+	// override all epoch information
 	if (firstFile)
 	{
-		// 2. Does the user want to override the default datum?
-		if (overridereferenceframe)
-		{
-			// Has a reference frame been supplied?
-			if (userspecifiedreferenceframe)
-				// Do nothing, just return as epoch will become 
-				// the default for all stations and measurements loaded
-				// from the file.
-				return;
-
-			if (!_epoch.empty())
-				// Set the DynaML parser epoch to the file's DnaXmlFormat epoch attribute 
-				epoch = _epoch;
-		}
-
-		// 3. Does the user want the epoch attribute in the file to become the default?
+		// If the user didn't specify a frame, take it from the file
 		if (!userspecifiedreferenceframe)
-		{
-			// Here, the assumption is, if the user did not specify a reference frame,
-			// then the user wants to adopt the DnaXmlFormat epoch attribute
-
-			// But, is this attribute value an empty string?  As long as a default value 
-			// is specified in DynaML.xsd, this value will never be empty, unless the user
-			// has inadvertently set in the xml file, e.g.:
-			//  <DnaXmlFormat epoch="" ... >
-			if (!_epoch.empty())
-				// Set the DynaML parser epoch to the file's DnaXmlFormat epoch attribute 
-				epoch = _epoch;			
-		}
+			epoch = _epoch;
 	}
 	else
 	{
-		// Since import doesn't offer an option to capture epoch on the command line,
-		// take the epoch from the DnaXmlFormat referenceframe attribute 
-		if (_epoch.empty())
-			// Set to the default reference frame passed from import
-			_epoch = epoch;
-		fileEpoch = trimstr(post_string());
+		if (!overridereferenceframe)
+			epoch = _epoch;
 	}
 }
 

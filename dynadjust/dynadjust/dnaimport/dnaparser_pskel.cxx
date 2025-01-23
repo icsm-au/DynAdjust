@@ -2045,7 +2045,7 @@ bool DnaXmlFormat_pskel::_start_element_impl (const ::xml_schema::ro_string& ns,
 		{
 			this->DnaStation_parser_->InitparentStnVector(_pStns);
 			
-			// Set default reference frame and epoch for this measurement
+			// Set the default reference frame and epoch for this station
 			this->DnaStation_parser_->SetDefaultReferenceFrame(_referenceframe);
 			this->DnaStation_parser_->SetDefaultEpoch(_epoch);
 
