@@ -440,7 +440,7 @@ private:
 	void SetDefaultReferenceFrame();
 	void LoadNetworkFiles();
 	void CreateMsrToStnTally();
-	void CreateStationAppearanceList(const vUINT32& parameterStations);
+	//void CreateStationAppearanceList(const vUINT32& parameterStations);
 	
 	// Simultaneous adjustment
 	void AdjustSimultaneous();
