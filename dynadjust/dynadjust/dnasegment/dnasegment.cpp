@@ -21,11 +21,9 @@
 //============================================================================
 
 #include <dynadjust/dnasegment/dnasegment.hpp>
-#ifdef _MSDEBUG
-#include <include/ide/trace.hpp>
-#endif
 
-namespace dynadjust { namespace networksegment {
+namespace dynadjust { 
+namespace networksegment {
 
 dna_segment::dna_segment()
 	: isProcessing_(false)
