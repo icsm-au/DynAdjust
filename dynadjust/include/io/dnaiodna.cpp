@@ -379,9 +379,15 @@ void dna_io_dna::read_dna_header(std::ifstream* ptr, string& version, INPUT_DATA
 
 			// capture file epoch
 			if (epoch_version.empty())
+			{
 				// Empty?  Get the epoch of the nominated epsg, set from either 
 				// project or from the file
-				fileEpoch = referenceepochFromEpsgString<string>(fileEpsg);
+				if (user_supplied_frame)
+					fileEpoch = referenceframe.GetEpoch_s();
+				else
+					// take from file
+					fileEpoch = referenceepochFromEpsgString<string>(fileEpsg);
+			}
 			else
 				fileEpoch = epoch_version;
 
