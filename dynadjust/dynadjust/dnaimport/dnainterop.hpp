@@ -158,6 +158,8 @@ public:
 
 	// file handling
 	void SerialiseDNA(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, const string& stnfilename, const string& msrfilename, const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused=false);
+	void SerialiseMSR(vdnaMsrPtr* vMeasurements, const string& msrfilename, const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused = false);
+	void SerialiseSTN(vdnaStnPtr* vStations, const string& stnfilename, const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused = false);
 	//void SerialiseDynaMLfromBinary(const string& outfilename, const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused=false);
 	void SerialiseDynaMLfromMemory(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, const string& outfilename, const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused=false);
 	//void SerialiseDynaMLSepfromBinary(const string& stnfilename, const string& msrfilename, const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused=false);
@@ -212,7 +214,8 @@ private:
 	void ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32 stnCount, 
 							   vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID, 
 							   string& fileEpsg, string& fileEpoch, bool firstFile);
-	void ParseDNASTN(vdnaStnPtr* vStations, PUINT32 stnCount);
+	void ParseDNASTN(vdnaStnPtr* vStations, PUINT32 stnCount,
+								const string& fileEpsg, const string& fileEpoch);
 	void ParseDNAMSR(pvdnaMsrPtr vMeasurements, PUINT32 msrCount, PUINT32 clusterID,
 								const string& fileEpsg, const string& fileEpoch);
 

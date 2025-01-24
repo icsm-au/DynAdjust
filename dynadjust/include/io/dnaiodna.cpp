@@ -249,7 +249,7 @@ void dna_io_dna::read_ren_data(std::ifstream* ptr, pv_string_vstring_pair stnRen
 	
 
 void dna_io_dna::read_dna_header(std::ifstream* ptr, string& version, INPUT_DATA_TYPE& idt, 
-	CDnaDatum& referenceframe, bool firstFile, bool user_supplied_frame, bool override_input_frame,
+	CDnaDatum& referenceframe, bool firstFile, bool user_supplied_frame, bool user_supplied_epoch,
 	string& fileEpsg, string& fileEpoch, string& geoidversion, UINT32& count)
 {
 	string sBuf;
@@ -370,50 +370,22 @@ void dna_io_dna::read_dna_header(std::ifstream* ptr, string& version, INPUT_DATA
 		case stn_data:
 		case msr_data:
 			
-			// 1. Capture file epsg
+			// Capture file epsg
 			if (file_referenceframe.empty())
-				// Empty?  Get the epsg code from the default datum 
+				// Empty? Get the epsg code from the project datum
 				fileEpsg = referenceframe.GetEpsgCode_s();
 			else
 				fileEpsg = epsgStringFromName<string>(file_referenceframe);
 
 			// capture file epoch
 			if (epoch_version.empty())
-			{
-				// Empty?  Get the epoch of the nominated epsg (whether default or from the file)
-				UINT32 u = LongFromString<UINT32>(fileEpsg);
-				fileEpoch = referenceepochFromEpsgCode<UINT32>(u);
-			}
+				// Empty?  Get the epoch of the nominated epsg, set from either 
+				// project or from the file
+				fileEpoch = referenceepochFromEpsgString<string>(fileEpsg);
 			else
 				fileEpoch = epoch_version;
 
-			// Is this the first file?  If so, set the project datum from the file's datum
-			if (firstFile)
-			{
-				// 2. Does the user want to override the datum contained in the files with
-				//    the default?
-				if (override_input_frame)
-					// If so, do nothing, just return as referenceframe will become 
-					// the default for all stations and measurements loaded
-					// from the file.
-					if (user_supplied_frame)
-						break;
-
-				// 3. Does the user want the referenceframe attribute in the file to become the default?
-				if (!user_supplied_frame)
-				{
-					if (!file_referenceframe.empty())
-						// adopt the reference frame supplied in the file
-						referenceframe.SetDatumFromEpsg(fileEpsg, fileEpoch);
-				}
-				else
-					// Since import doesn't offer an option to capture epoch on the command line,
-					// take the epoch from the file (if not empty).
-					referenceframe.SetEpoch(fileEpoch);
-			}
-			
 			break;
-
 		case geo_data:
 			geoidversion = epoch_version;
 			break;

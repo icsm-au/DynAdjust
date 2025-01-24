@@ -499,8 +499,7 @@ void dna_import::ParseXML(const string& fileName, vdnaStnPtr* vStations, PUINT32
 			if (fileEpoch.empty())
 			{
 				// Get the epoch of the nominated epsg (whether default or from the file)
-				UINT32 u = LongFromString<UINT32>(fileEpsg);
-				fileEpoch = referenceepochFromEpsgCode<UINT32>(u);
+				fileEpoch = referenceepochFromEpsgString<string>(fileEpsg);
 			}	
 
 			// Is this the first file?  If so, set the project datum from the file's datum
@@ -1060,10 +1059,10 @@ void dna_import::ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32
 		// Read the dna file header, and set the
 		// reference frame based on the header and user preferences
 		dnaFile.read_dna_header(ifsInputFILE_, version, idt,			
-			datum_,											// default datum
+			datum_,											// project datum
 			firstFile,										// is this the first file to be loaded?
 			projectSettings_.i.user_supplied_frame==1,		// Has a reference frame been supplied?
-			projectSettings_.i.override_input_rfame==1,		// does the user want to override the datum in the input files?
+			projectSettings_.i.user_supplied_epoch==1,		// Has an epoch been supplied?
 			fileEpsg, fileEpoch, geoversion, count);
 		// release file pointer mutex
 		import_file_mutex.unlock();
@@ -1073,12 +1072,15 @@ void dna_import::ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32
 		throw XMLInteropException(e.what(), 0);
 	}
 
-	if (projectSettings_.i.override_input_rfame && !projectSettings_.i.user_supplied_frame)
+	// On reading the first file, set the project reference frame provided
+	// that the user has not supplied a frame on the command line
+	if (!projectSettings_.i.user_supplied_frame)
 	{
 		if (firstFile)
 		{
 			projectSettings_.i.reference_frame = datumFromEpsgString<string>(fileEpsg);
 			projectSettings_.r.reference_frame = projectSettings_.i.reference_frame;
+			projectSettings_.i.epoch = fileEpoch;
 			projectSettings_.r.epoch = fileEpoch;
 			m_strProjectDefaultEpoch = fileEpoch;
 			m_strProjectDefaultEpsg = fileEpsg;
@@ -1096,7 +1098,12 @@ void dna_import::ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32
 		dsw_ = dnaFile.dna_stn_widths();
 		
 		try {
-			ParseDNASTN(vStations, stnCount);
+			// Does the user want to override the datum provided in the file with the project
+			// datum?
+			if (projectSettings_.i.override_input_rfame)
+				ParseDNASTN(vStations, stnCount, datum_.GetEpsgCode_s(), datum_.GetEpoch_s());
+			else
+				ParseDNASTN(vStations, stnCount, fileEpsg, fileEpoch);
 			m_idt = stn_data;
 		}
 		catch (const ios_base::failure& f) {
@@ -1179,7 +1186,7 @@ void dna_import::ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32
 	}
 }
 	
-void dna_import::ParseDNASTN(vdnaStnPtr* vStations, PUINT32 stnCount)
+void dna_import::ParseDNASTN(vdnaStnPtr* vStations, PUINT32 stnCount, const string& epsg, const string& epoch)
 {
 	string sBuf, tmp;
 
@@ -1233,7 +1240,7 @@ void dna_import::ParseDNASTN(vdnaStnPtr* vStations, PUINT32 stnCount)
 			continue;
 		
 		// initialise new station
-		stn_ptr.reset(new CDnaStation(datum_.GetName(), datum_.GetEpoch_s()));
+		stn_ptr.reset(new CDnaStation(datumFromEpsgString<string>(epsg), epoch));
 
 		stn_ptr->SetfileOrder(g_fileOrder++);
 
@@ -1528,7 +1535,6 @@ void dna_import::ParseDNAMSR(pvdnaMsrPtr vMeasurements, PUINT32 msrCount, PUINT3
 			break;
 		case 'G': // GPS Baseline (treat as single-baseline cluster)
 		case 'X': // GPS Baseline cluster
-			//msr_ptr.reset(new CDnaGpsBaselineCluster(++(*clusterID), datum_.GetName(), datum_.GetEpoch_s()));
 			// Default to the fileEpsg and fileEpoch (see read_dna_header(..) in ParseDNA)
 			msr_ptr.reset(new CDnaGpsBaselineCluster(++(*clusterID), datumFromEpsgString<string>(fileEpsg), fileEpoch));
 			ParseDNAMSRGPSBaselines(sBuf, msr_ptr, ignoreMsr);
@@ -1601,7 +1607,6 @@ void dna_import::ParseDNAMSR(pvdnaMsrPtr vMeasurements, PUINT32 msrCount, PUINT3
 			(*msrCount) += 1;
 			break;
 		case 'Y': // GPS point cluster
-			//msr_ptr.reset(new CDnaGpsPointCluster(++(*clusterID), datum_.GetName(), datum_.GetEpoch_s()));
 			// Default to the fileEpsg and fileEpoch (see read_dna_header(..) in ParseDNA)
 			msr_ptr.reset(new CDnaGpsPointCluster(++(*clusterID), datumFromEpsgString<string>(fileEpsg), fileEpoch));
 			ParseDNAMSRGPSPoints(sBuf, msr_ptr, ignoreMsr);
@@ -4138,94 +4143,10 @@ void dna_import::SignalExceptionInterop(string msg, int i, const char *streamTyp
 	
 	throw XMLInteropException(msg, i);
 }
-	
 
-void dna_import::SerialiseDNA(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, 
-	const string& stnfilename, const string& msrfilename, 
+void dna_import::SerialiseMSR(vdnaMsrPtr* vMeasurements, const string& msrfilename, 
 	const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused)
 {
-	try
-	{
-		// Reset the default datum.
-		datum_.SetDatumFromEpsg(m_strProjectDefaultEpsg, m_strProjectDefaultEpoch);
-	}
-	catch (const runtime_error& e) {
-		SignalExceptionInterop(e.what(), 0, NULL);
-	}
-
-	// Stations
-	std::ofstream dna_stn_file;
-	try {
-		// Create DynAdjust STN file. 
-		file_opener(dna_stn_file, stnfilename);
-	}
-	catch (const runtime_error& e) {
-		SignalExceptionInterop(e.what(), 0, NULL);
-	}
-
-	determineDNASTNFieldParameters<UINT16>("3.01", dsl_, dsw_);
-	determineDNAMSRFieldParameters<UINT16>("3.01", dml_, dmw_);
-
-	_it_vdnastnptr _it_stn(vStations->begin());
-	CDnaProjection projection(UTM);
-
-	try {
-		// print stations
-		// Has the user specified --flag-unused-stations, in which case, do not
-		// print stations marked unused?
-		UINT32 count(0);
-		if (flagUnused) 
-		{
-			for_each(vStations->begin(), vStations->end(),
-				[&count](const dnaStnPtr& stn) {
-					if (stn.get()->IsNotUnused())
-						count++;
-			});
-		}
-		else
-			count = static_cast<UINT32>(vStations->size());
-
-		// Write version line
-		dna_header(dna_stn_file, "3.01", "STN", datum_.GetName(), datum_.GetEpoch_s(), count);
-
-		// Capture source files
-		string source_files(formatStnMsrFileSourceString<string>(vinput_file_meta, stn_data));
-
-		// Write header comment lines about this file
-		dna_comment(dna_stn_file, "File type:    Station file");
-		dna_comment(dna_stn_file, "Project name: " + p.g.network_name);
-		dna_comment(dna_stn_file, "Source files: " + source_files);
-
-		// print stations
-		// Has the user specified --flag-unused-stations, in wich case, do not
-		// print stations marked unused?
-		if (flagUnused) 
-		{
-			for (_it_stn=vStations->begin(); _it_stn!=vStations->end(); _it_stn++)
-				if (_it_stn->get()->IsNotUnused())
-					_it_stn->get()->WriteDNAXMLStnInitialEstimates(&dna_stn_file,
-					datum_.GetEllipsoidRef(), &projection,
-					dna, &dsw_);
-		}
-		else
-		{
-			// print all stations regardless of whether they are unused or not
-			for (_it_stn=vStations->begin(); _it_stn!=vStations->end(); _it_stn++)
-				_it_stn->get()->WriteDNAXMLStnInitialEstimates(&dna_stn_file,
-				datum_.GetEllipsoidRef(), &projection,
-				dna, &dsw_);
-		}
-
-		dna_stn_file.close();
-
-	}
-	catch (const std::ifstream::failure& f) {
-		SignalExceptionInterop(static_cast<string>(f.what()), 0, "o", &dna_stn_file);
-	}
-	catch (const XMLInteropException& e)  {
-		SignalExceptionInterop(static_cast<string>(e.what()), 0, "o", &dna_stn_file);
-	}
-
 	// Measurements
 	std::ofstream dna_msr_file;
 	try {
@@ -4251,7 +4172,7 @@ void dna_import::SerialiseDNA(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements,
 		dna_comment(dna_msr_file, "Source files: " + source_files);
 
 		// print measurements
-		for (_it_msr=vMeasurements->begin(); _it_msr!=vMeasurements->end(); _it_msr++)
+		for (_it_msr = vMeasurements->begin(); _it_msr != vMeasurements->end(); _it_msr++)
 			_it_msr->get()->WriteDNAMsr(&dna_msr_file, dmw_, dml_);
 
 		dna_msr_file.close();
@@ -4260,10 +4181,109 @@ void dna_import::SerialiseDNA(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements,
 	catch (const std::ifstream::failure& f) {
 		SignalExceptionInterop(static_cast<string>(f.what()), 0, "o", &dna_msr_file);
 	}
-	catch (const XMLInteropException& e)  {
+	catch (const XMLInteropException& e) {
 		SignalExceptionInterop(static_cast<string>(e.what()), 0, "o", &dna_msr_file);
 	}
+}
+	
 
+void dna_import::SerialiseSTN(vdnaStnPtr* vStations, const string& stnfilename, 
+	const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused)
+{
+	// Stations
+	std::ofstream dna_stn_file;
+	try {
+		// Create DynAdjust STN file. 
+		file_opener(dna_stn_file, stnfilename);
+	}
+	catch (const runtime_error& e) {
+		SignalExceptionInterop(e.what(), 0, NULL);
+	}
+
+	determineDNASTNFieldParameters<UINT16>("3.01", dsl_, dsw_);
+	determineDNAMSRFieldParameters<UINT16>("3.01", dml_, dmw_);
+
+	_it_vdnastnptr _it_stn(vStations->begin());
+	CDnaProjection projection(UTM);
+
+	try {
+		// print stations
+		// Has the user specified --flag-unused-stations, in which case, do not
+		// print stations marked unused?
+		UINT32 count(0);
+		if (flagUnused)
+		{
+			for_each(vStations->begin(), vStations->end(),
+				[&count](const dnaStnPtr& stn) {
+					if (stn.get()->IsNotUnused())
+						count++;
+				});
+		}
+		else
+			count = static_cast<UINT32>(vStations->size());
+
+		// Write version line
+		dna_header(dna_stn_file, "3.01", "STN", datum_.GetName(), datum_.GetEpoch_s(), count);
+
+		// Capture source files
+		string source_files(formatStnMsrFileSourceString<string>(vinput_file_meta, stn_data));
+
+		// Write header comment lines about this file
+		dna_comment(dna_stn_file, "File type:    Station file");
+		dna_comment(dna_stn_file, "Project name: " + p.g.network_name);
+		dna_comment(dna_stn_file, "Source files: " + source_files);
+
+		// print stations
+		// Has the user specified --flag-unused-stations, in wich case, do not
+		// print stations marked unused?
+		if (flagUnused)
+		{
+			for (_it_stn = vStations->begin(); _it_stn != vStations->end(); _it_stn++)
+				if (_it_stn->get()->IsNotUnused())
+					_it_stn->get()->WriteDNAXMLStnInitialEstimates(&dna_stn_file,
+						datum_.GetEllipsoidRef(), &projection,
+						dna, &dsw_);
+		}
+		else
+		{
+			// print all stations regardless of whether they are unused or not
+			for (_it_stn = vStations->begin(); _it_stn != vStations->end(); _it_stn++)
+				_it_stn->get()->WriteDNAXMLStnInitialEstimates(&dna_stn_file,
+					datum_.GetEllipsoidRef(), &projection,
+					dna, &dsw_);
+		}
+
+		dna_stn_file.close();
+
+	}
+	catch (const std::ifstream::failure& f) {
+		SignalExceptionInterop(static_cast<string>(f.what()), 0, "o", &dna_stn_file);
+	}
+	catch (const XMLInteropException& e) {
+		SignalExceptionInterop(static_cast<string>(e.what()), 0, "o", &dna_stn_file);
+	}
+}
+
+void dna_import::SerialiseDNA(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements,
+	const string& stnfilename, const string& msrfilename, 
+	const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused)
+{
+	try
+	{
+		// Reset the default datum.
+		datum_.SetDatumFromEpsg(m_strProjectDefaultEpsg, m_strProjectDefaultEpoch);
+	}
+	catch (const runtime_error& e) {
+		SignalExceptionInterop(e.what(), 0, NULL);
+	}
+
+	// Write stations (if present)
+	if (!vStations->empty())
+		SerialiseSTN(vStations, stnfilename, p, vinput_file_meta, flagUnused);
+
+	// Write measurements (if present)
+	if (!vMeasurements->empty())
+		SerialiseMSR(vMeasurements, msrfilename, p, vinput_file_meta, flagUnused);
 }
 	
 
