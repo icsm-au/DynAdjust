@@ -21,19 +21,19 @@
     <ClInclude Include="..\..\include\measurement_types\dnastation.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\ide\trace.hpp">
+    <ClInclude Include="..\..\include\io\dnaiobst.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\io\dnaiobst.hpp">
+    <ClInclude Include="..\..\include\io\dnaiobase.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\io\dnaiobms.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\io\dnaioaml.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\io\dnaioasl.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\io\dnaiobms.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\io\dnaiomap.hpp">
@@ -45,7 +45,7 @@
     <ClInclude Include="..\..\include\functions\dnastringfuncs.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\io\dnaiobase.hpp">
+    <ClInclude Include="..\..\include\ide\trace.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="precompile.h">
