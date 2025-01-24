@@ -150,12 +150,12 @@ private:
 	void IdentifyLowestStationAssociation(pvUINT32 vStnList, vUINT32& totalStations,const int currentLevel, const int maxLevel, pvUINT32 vStnCount);
 	void IdentifyInnerMsrsandAssociatedStns(const UINT32& innerStation, vUINT32& totalStations);
 	void AddtoJunctionStnList(const vUINT32& msrStations);
-	void AddtoJunctionStnList_sortedbyMsrCount(measurement_t* msr, const UINT32& innerStation);
-	void AddtoJunctionStnList_sortedbyName(measurement_t* msr, const UINT32& innerStation);
+	//void AddtoJunctionStnList_sortedbyMsrCount(measurement_t* msr, const UINT32& innerStation);
+	//void AddtoJunctionStnList_sortedbyName(measurement_t* msr, const UINT32& innerStation);
 	bool AddtoCurrentMsrList(const UINT32& amlindex, const vUINT32& msrStations);
 	UINT32 GetAvailableMsrCount(const UINT32& stn_index);
 	void FindCommonMeasurements();
-	void MoveJuncttoInnerStnList();
+	//void MoveJuncttoInnerStnList();
 	void MoveJunctiontoISL();
 	void SetAvailableMsrCount();
 	void RemoveDuplicateStations(pvstring vStations);
@@ -163,8 +163,8 @@ private:
 	//void RemoveNonMeasurements();
 	//void RemoveIgnoredMeasurements();
 	void BuildFreeStationAvailabilityList();
-	void BuildFreeStationAvailabilityList(vASL& assocStnList, v_freestn_pair& freeStnList);
-	void BuildStationAppearanceList();
+	//void BuildFreeStationAvailabilityList(vASL& assocStnList, v_freestn_pair& freeStnList);
+	//void BuildStationAppearanceList();
 	void CalculateAverageBlockSize();
 
 
