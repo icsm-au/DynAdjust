@@ -1072,18 +1072,41 @@ void dna_import::ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32
 		throw XMLInteropException(e.what(), 0);
 	}
 
-	// On reading the first file, set the project reference frame provided
-	// that the user has not supplied a frame on the command line
+	// Has the user supplied a reference frame on the command line (--reference-frame)?
 	if (!projectSettings_.i.user_supplied_frame)
 	{
+		// No frame supplied. Set the datum from the first file. 
+		// If the datum field is blank in the first file, the default will be used. See
+		// dnaFile.read_dna_header(..) for details.
 		if (firstFile)
 		{
 			projectSettings_.i.reference_frame = datumFromEpsgString<string>(fileEpsg);
 			projectSettings_.r.reference_frame = projectSettings_.i.reference_frame;
+			m_strProjectDefaultEpsg = fileEpsg;
+
+			// If the user has not provided a reference frame on the command line, then
+			// take the epoch from the first file.  In this case, do not take the epoch
+			// from the command line (dnaimportwrapper will throw in this scenario anyway)
 			projectSettings_.i.epoch = fileEpoch;
 			projectSettings_.r.epoch = fileEpoch;
 			m_strProjectDefaultEpoch = fileEpoch;
-			m_strProjectDefaultEpsg = fileEpsg;
+		}
+	}
+	else
+	{
+		// A frame has been supplied. Now check for epoch.
+
+		// Has the user supplied an epoch on the command line (--epoch)?
+		if (!projectSettings_.i.user_supplied_epoch)
+		{
+			// No epoch supplied. Take the epoch from the first file.
+			if (firstFile)
+			{
+				projectSettings_.i.epoch = fileEpoch;
+				projectSettings_.r.epoch = fileEpoch;
+				m_strProjectDefaultEpoch = fileEpoch;
+				datum_.SetEpoch(fileEpoch);
+			}
 		}
 	}
 
