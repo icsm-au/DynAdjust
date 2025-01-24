@@ -1073,7 +1073,24 @@ void dna_import::ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32
 	}
 
 	// Has the user supplied a reference frame on the command line (--reference-frame)?
-	if (!projectSettings_.i.user_supplied_frame)
+	if (projectSettings_.i.user_supplied_frame)
+	{
+		// A frame has been supplied. Now check for epoch.
+
+		// Has the user supplied an epoch on the command line (--epoch)?
+		if (!projectSettings_.i.user_supplied_epoch)
+		{
+			// No epoch supplied. Take the epoch from the first file.
+			if (firstFile)
+			{
+				projectSettings_.i.epoch = fileEpoch;
+				projectSettings_.r.epoch = fileEpoch;
+				m_strProjectDefaultEpoch = fileEpoch;
+				datum_.SetEpoch(fileEpoch);
+			}
+		}
+	}
+	else
 	{
 		// No frame supplied. Set the datum from the first file. 
 		// If the datum field is blank in the first file, the default will be used. See
@@ -1090,23 +1107,6 @@ void dna_import::ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32
 			projectSettings_.i.epoch = fileEpoch;
 			projectSettings_.r.epoch = fileEpoch;
 			m_strProjectDefaultEpoch = fileEpoch;
-		}
-	}
-	else
-	{
-		// A frame has been supplied. Now check for epoch.
-
-		// Has the user supplied an epoch on the command line (--epoch)?
-		if (!projectSettings_.i.user_supplied_epoch)
-		{
-			// No epoch supplied. Take the epoch from the first file.
-			if (firstFile)
-			{
-				projectSettings_.i.epoch = fileEpoch;
-				projectSettings_.r.epoch = fileEpoch;
-				m_strProjectDefaultEpoch = fileEpoch;
-				datum_.SetEpoch(fileEpoch);
-			}
 		}
 	}
 
@@ -1170,7 +1170,10 @@ void dna_import::ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32
 		dmw_ = dnaFile.dna_msr_widths();
 		
 		try {
-			ParseDNAMSR(vMeasurements, msrCount, clusterID, fileEpsg, fileEpoch);
+			if (projectSettings_.i.override_input_rfame)
+				ParseDNAMSR(vMeasurements, msrCount, clusterID, datum_.GetEpsgCode_s(), datum_.GetEpoch_s());
+			else
+				ParseDNAMSR(vMeasurements, msrCount, clusterID, fileEpsg, fileEpoch);
 			m_idt = msr_data;
 		}
 		catch (const ios_base::failure& f) {
