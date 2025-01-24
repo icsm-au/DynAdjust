@@ -1500,7 +1500,7 @@ int main(int argc, char* argv[])
 	// See comments in InitialiseDatum()
 	try {
 		// Initialise the 'default' datum for the project.
-		parserDynaML.InitialiseDatum(p.i.reference_frame);
+		parserDynaML.InitialiseDatum(p.i.reference_frame, p.i.epoch);
 	}
 	catch (const XMLInteropException& e) {
 		stringstream ss;
