@@ -385,7 +385,7 @@ void dna_io_dna::read_dna_header(std::ifstream* ptr, string& version, INPUT_DATA
 				if (user_supplied_frame)
 					fileEpoch = referenceframe.GetEpoch_s();
 				else
-					// take from file
+					// take from file's epsg's epoch
 					fileEpoch = referenceepochFromEpsgString<string>(fileEpsg);
 			}
 			else
