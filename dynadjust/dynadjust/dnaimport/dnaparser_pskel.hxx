@@ -826,6 +826,7 @@ protected:
 	bool _userspecifiedreferenceframe;
 	bool _filespecifiedreferenceframe;
 	bool _overridereferenceframe;
+	bool _userspecifiedepoch;
 };
 
 class GPSBaseline_pskel: public ::xml_schema::complex_content
@@ -1230,7 +1231,7 @@ public:
 	// pre ();
 
 	// string& referenceframe, bool user_specified, bool overridereferenceframe
-	virtual void post_type (string&, string&, bool, bool, bool);
+	virtual void post_type (string&, string&, bool, bool, bool, bool);
 };
 
 class epoch_pskel: public virtual ::xml_schema::string_pskel
@@ -1242,7 +1243,7 @@ public:
 	// pre ();
 
 	// string& referenceframe, bool overridereferenceframe
-	virtual void post_type (string&, string&, bool, bool, bool);
+	virtual void post_type (string&, string&, bool, bool, bool, bool);
 };
 
 class system_pskel: public virtual ::xml_schema::string_pskel

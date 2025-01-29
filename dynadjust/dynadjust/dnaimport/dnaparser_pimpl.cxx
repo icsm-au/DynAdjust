@@ -900,7 +900,9 @@ void DnaStation_pimpl::post_DnaStation()
 //
 
 DnaXmlFormat_pimpl::DnaXmlFormat_pimpl(std::ifstream* is, PUINT32 clusterID, const string& referenceframe, const string& epoch, 
-	bool firstFile, bool userspecifiedreferenceframe, bool overridereferenceframe)
+	bool firstFile, 
+	bool userspecifiedreferenceframe, bool userspecifiedepoch,
+	bool overridereferenceframe)
 {
 	// capture pointer to file stream
 	is_ = is;
@@ -919,6 +921,7 @@ DnaXmlFormat_pimpl::DnaXmlFormat_pimpl(std::ifstream* is, PUINT32 clusterID, con
 	_userspecifiedreferenceframe = userspecifiedreferenceframe;
 	_filespecifiedreferenceframe = false;
 	_overridereferenceframe = overridereferenceframe;
+	_userspecifiedepoch = userspecifiedepoch;
 }
 
 void DnaXmlFormat_pimpl::pre()
@@ -1343,7 +1346,9 @@ void referenceframe_pimpl::pre()
 // For DynaML.xsd, the following is specified:
 //     <xs:attribute name="referenceframe" type="xs:string" use="optional" default="GDA2020"/>
 // In this case, post_string() will return "GDA2020"
-void referenceframe_pimpl::post_type(string& referenceframe, string& fileEpsg, bool userspecifiedreferenceframe, bool overridereferenceframe, bool firstFile)
+void referenceframe_pimpl::post_type(string& referenceframe, string& fileEpsg, 
+	bool userspecifiedreferenceframe, bool userspecifiedepoch, 
+	bool overridereferenceframe, bool firstFile)
 {
 	// 1. Get the DnaXmlFormat referenceframe attribute value from the file
 	_referenceframe = trimstr(post_string());
@@ -1361,17 +1366,11 @@ void referenceframe_pimpl::post_type(string& referenceframe, string& fileEpsg, b
 	// Capture epsg code for the file
 	fileEpsg = epsgStringFromName<string>(_referenceframe);
 
-	if (firstFile)
+	if (!userspecifiedreferenceframe)
 	{
-		// If the user didn't specify a frame, take it from the file
-		if (!userspecifiedreferenceframe)
-			referenceframe = _referenceframe;
-	}
-	else
-	{
-		// If the user doesn't want to override the datum for all stations and measurements, 
-		// take it from the file
-		if (!overridereferenceframe)
+		// No frame supplied. Set the datum from the first file. 
+		// If the datum field is blank in the first file, the default will be used. 
+		if (firstFile)
 			referenceframe = _referenceframe;
 	}
 }
@@ -1388,7 +1387,9 @@ void epoch_pimpl::pre()
 // For DynaML.xsd, the following is specified:
 //     <xs:attribute name="epoch" type="xs:string" use="optional" default="01.01.1994"/>
 // In this case, post_string() will return "01.01.1994"
-void epoch_pimpl::post_type(string& epoch, string& fileEpoch, bool userspecifiedreferenceframe, bool overridereferenceframe, bool firstFile)
+void epoch_pimpl::post_type(string& epoch, string& fileEpoch, 
+	bool userspecifiedreferenceframe, bool userspecifiedepoch, 
+	bool overridereferenceframe, bool firstFile)
 {
 	// 1. Get the DnaXmlFormat epoch attribute value from the file
 	_epoch = trimstr(post_string());
@@ -1407,15 +1408,27 @@ void epoch_pimpl::post_type(string& epoch, string& fileEpoch, bool userspecified
 
 	// Set the epoch, provided the user does not want to 
 	// override all epoch information
-	if (firstFile)
+	// Note, epoch is contingent upon how the frame has been
+	// supplied
+	if (userspecifiedreferenceframe)
 	{
-		// If the user didn't specify a frame, take it from the file
-		if (!userspecifiedreferenceframe)
-			epoch = _epoch;
+		// A frame has been supplied. Now check for epoch.
+
+		// Has the user supplied an epoch on the command line (--epoch)?
+		if (!userspecifiedepoch)
+		{
+			// No epoch supplied. Take the epoch from the first file.
+			if (firstFile)
+				// If the user didn't specify a frame, take it from the file
+				epoch = _epoch;
+		}
+
 	}
 	else
 	{
-		if (!overridereferenceframe)
+		// No frame supplied. Set the datum from the first file. 
+		// If the datum field is blank in the first file, the default will be used. 
+		if (firstFile)
 			epoch = _epoch;
 	}
 }

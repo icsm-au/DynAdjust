@@ -418,6 +418,7 @@ void dna_import::ParseXML(const string& fileName, vdnaStnPtr* vStations, PUINT32
 			datum_.GetEpoch_s(),								// pass the default epoch
 			firstFile,											// is this the first file to be loaded?
 			projectSettings_.i.user_supplied_frame==1,			// Has a reference frame been supplied?
+			projectSettings_.i.user_supplied_epoch == 1,		// Has an epoch been supplied?
 			projectSettings_.i.override_input_rfame==1);		// Should this reference frame override all others?
 																		
 		::DnaStation_pimpl DnaStation_p;
