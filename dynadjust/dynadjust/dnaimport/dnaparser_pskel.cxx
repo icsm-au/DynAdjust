@@ -2147,7 +2147,7 @@ bool DnaXmlFormat_pskel::_attribute_impl (const ::xml_schema::ro_string& ns,
 			this->epoch_parser_->_post_impl ();
 			this->epoch_parser_->post_type (_epoch, _fileEpoch,
 				_userspecifiedreferenceframe, _userspecifiedepoch,
-				_overridereferenceframe, _firstFile);
+				_firstFile);
 			this->epoch();
 		}
 
@@ -2168,8 +2168,7 @@ bool DnaXmlFormat_pskel::_attribute_impl (const ::xml_schema::ro_string& ns,
 			this->referenceframe_parser_->_characters (v);
 			this->referenceframe_parser_->_post_impl ();
 			this->referenceframe_parser_->post_type (_referenceframe, _fileEpsg,
-				_userspecifiedreferenceframe, _userspecifiedepoch,
-				_overridereferenceframe, _firstFile);
+				_userspecifiedreferenceframe, _firstFile);
 			this->referenceframe ();
 			_filespecifiedreferenceframe = true;
 		}
@@ -3193,14 +3192,14 @@ void type_pskel::post_type ()
 
 // referenceframe_pskel
 // string& referenceframe, bool user_specified, bool override_referenceframe
-void referenceframe_pskel::post_type (string&, string&, bool, bool, bool, bool)
+void referenceframe_pskel::post_type (string&, string&, bool, bool)
 {
 
 }
 
 // epoch_pskel
 // string& epoch, bool override_referenceframe
-void epoch_pskel::post_type (string&, string&, bool, bool, bool, bool)
+void epoch_pskel::post_type (string&, string&, bool, bool, bool)
 {
 }
 
