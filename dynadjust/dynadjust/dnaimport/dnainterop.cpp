@@ -1078,9 +1078,7 @@ void dna_import::ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32
 		// reference frame based on the header and user preferences
 		dnaFile.read_dna_header(ifsInputFILE_, version, idt,			
 			datum_,											// project datum
-			firstFile,										// is this the first file to be loaded?
 			projectSettings_.i.user_supplied_frame==1,		// Has a reference frame been supplied?
-			projectSettings_.i.user_supplied_epoch==1,		// Has an epoch been supplied?
 			fileEpsg, fileEpoch, geoversion, count);
 		// release file pointer mutex
 		import_file_mutex.unlock();
@@ -4189,7 +4187,7 @@ void dna_import::SignalExceptionInterop(string msg, int i, const char *streamTyp
 }
 
 void dna_import::SerialiseMSR(vdnaMsrPtr* vMeasurements, const string& msrfilename, 
-	const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused)
+	const project_settings& p, vifm_t* vinput_file_meta)
 {
 	// Measurements
 	std::ofstream dna_msr_file;
@@ -4327,7 +4325,7 @@ void dna_import::SerialiseDNA(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements,
 
 	// Write measurements (if present)
 	if (!vMeasurements->empty())
-		SerialiseMSR(vMeasurements, msrfilename, p, vinput_file_meta, flagUnused);
+		SerialiseMSR(vMeasurements, msrfilename, p, vinput_file_meta);
 }
 	
 

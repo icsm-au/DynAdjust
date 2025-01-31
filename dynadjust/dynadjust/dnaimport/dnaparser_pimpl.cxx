@@ -1367,8 +1367,7 @@ void referenceframe_pimpl::pre()
 //     <xs:attribute name="referenceframe" type="xs:string" use="optional" default="GDA2020"/>
 // In this case, post_string() will return "GDA2020"
 void referenceframe_pimpl::post_type(string& referenceframe, string& fileEpsg,
-	bool userspecifiedreferenceframe, bool userspecifiedepoch, 
-	bool overridereferenceframe, bool firstFile)
+	bool userspecifiedreferenceframe, bool firstFile)
 {
 	// 1. Get the DnaXmlFormat referenceframe attribute value from the file
 	_referenceframe = trimstr(post_string());
@@ -1409,7 +1408,7 @@ void epoch_pimpl::pre()
 // In this case, post_string() will return "01.01.1994"
 void epoch_pimpl::post_type(string& epoch, string& fileEpoch,
 	bool userspecifiedreferenceframe, bool userspecifiedepoch, 
-	bool overridereferenceframe, bool firstFile)
+	bool firstFile)
 {
 	// 1. Get the DnaXmlFormat epoch attribute value from the file
 	_epoch = trimstr(post_string());

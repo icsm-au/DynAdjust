@@ -486,7 +486,7 @@ public:
 struct output_settings : private boost::equality_comparable<output_settings> {
 public:
 	output_settings()
-		: _datum(DEFAULT_DATUM), _m2s_file(""), _adj_file(""), _xyz_file("")
+		: _m2s_file(""), _adj_file(""), _xyz_file("")
 		, _snx_file(""), _xml_file(""), _cor_file(""), _apu_file("")
 		, _adj_stn_iteration(0), _adj_msr_iteration(0), _cmp_msr_iteration(0), _adj_stat_iteration(0)
 		, _adj_msr_final(0), _adj_msr_tstat(0), _database_ids(0), _print_ignored_msrs(0), _adj_gnss_units(0)
@@ -537,7 +537,6 @@ private:
 	//}
 
 public:
-	string			_datum;					// Datum switch.  Requires datum.conf and ellipsoid.conf.
 	string			_m2s_file;				// Measurement to stations file
 	string			_adj_file;				// Adjustment output
 	string			_xyz_file;				// Adjusted coordinate output

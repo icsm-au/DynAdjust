@@ -158,7 +158,7 @@ public:
 
 	// file handling
 	void SerialiseDNA(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, const string& stnfilename, const string& msrfilename, const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused=false);
-	void SerialiseMSR(vdnaMsrPtr* vMeasurements, const string& msrfilename, const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused = false);
+	void SerialiseMSR(vdnaMsrPtr* vMeasurements, const string& msrfilename, const project_settings& p, vifm_t* vinput_file_meta);
 	void SerialiseSTN(vdnaStnPtr* vStations, const string& stnfilename, const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused = false);
 	//void SerialiseDynaMLfromBinary(const string& outfilename, const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused=false);
 	void SerialiseDynaMLfromMemory(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, const string& outfilename, const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused=false);
