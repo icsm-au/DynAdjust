@@ -41,7 +41,7 @@ string dna_io_pdf::form_pdf_action_command_string(const string& pdf_filename, co
 	
 	char viewer_filepath[256];
 	FindExecutable(pdf_filename.c_str(), 0, viewer_filepath);
-	string viewer(basename(viewer_filepath));
+	string viewer(path(viewer_filepath).stem());
 
 	if (iequals(viewer, "AcroRd32") || iequals(viewer, "Acrobat"))
 	{
