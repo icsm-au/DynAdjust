@@ -477,6 +477,15 @@ public:
 	virtual void post_DnaMeasurement ();
 
 	// Initialisation
+
+	inline void InitfileEpsg(string& fileEpsg) {
+		_fileEpsg = fileEpsg;
+	}
+
+	inline void InitfileEpoch(string& fileEpoch) {
+		_fileEpoch = fileEpoch;
+	}
+
 	inline void SetDefaultReferenceFrame(string& referenceframe, bool overridereferenceframe) { 
 		_referenceframe = referenceframe;
 		_overridereferenceframe = overridereferenceframe;
@@ -635,8 +644,12 @@ protected:
 
 	PUINT32		_pMeasurementCount;
 	PUINT32		_pclusterID;
+	string		_fileEpoch;
+	string		_fileEpsg;
 	string		_epoch;
 	string		_referenceframe;
+	bool        _epochSupplied;
+	bool        _frameSupplied;
 	bool		_overridereferenceframe;
 
 	bool		_preferSingleXasG;

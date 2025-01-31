@@ -239,7 +239,7 @@ class referenceframe_pimpl: public virtual referenceframe_pskel,
 {
 public:
 	virtual void pre ();
-	virtual void post_type (string& referenceframe, string& fileEpsg, 
+	virtual void post_type (string& referenceframe, string& fileEpsg,
 		bool userspecifiedreferenceframe, bool userspecifiedepoch, bool override_referenceframe, bool firstFile);
 	inline const string str() { return _referenceframe; }
 
@@ -253,7 +253,7 @@ class epoch_pimpl: public virtual epoch_pskel,
 {
 public:
 	virtual void pre ();
-	virtual void post_type (string& epoch, string& fileEpoch, 
+	virtual void post_type (string& epoch, string& fileEpoch,
 		bool userspecifiedreferenceframe, bool userspecifiedepoch, bool override_referenceframe, bool firstFile);
 	inline const string str() { return _epoch; }
 

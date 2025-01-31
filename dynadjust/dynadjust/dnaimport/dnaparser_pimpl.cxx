@@ -214,6 +214,10 @@ void Directions_pimpl::post_Directions(const UINT32& total)
 void DnaMeasurement_pimpl::pre()
 {
 	_dnaCurrentMsr.reset();
+
+	// Initialise flags that will track whether Reference frame has been supplied
+	_frameSupplied = false;
+	_epochSupplied = false;
 }
 
 
@@ -221,6 +225,18 @@ void DnaMeasurement_pimpl::Type(const ::std::string& Type)
 {
 	if (Type.empty())
 		throw XMLInteropException("\"Type\" element cannot be empty.", 0);
+
+	string frame, epoch;
+
+	if (_frameSupplied)
+		frame = _referenceframe;
+	else
+		frame = datumFromEpsgString(_fileEpsg);
+
+	if (_epochSupplied)
+		epoch = _epoch;
+	else
+		epoch = _fileEpoch;
 
 	char cType = (Type.c_str())[0];
 	switch (cType) {
@@ -250,7 +266,7 @@ void DnaMeasurement_pimpl::Type(const ::std::string& Type)
 		break;
 	case 'G': // GPS Baseline (treat as single-baseline cluster)
 	case 'X': // GPS Baseline cluster
-		_dnaCurrentMsr.reset(new CDnaGpsBaselineCluster(++(*(_pclusterID)), _referenceframe, _epoch));
+		_dnaCurrentMsr.reset(new CDnaGpsBaselineCluster(++(*(_pclusterID)), frame, epoch));
 		break;
 	case 'H': // Orthometric height
 		g_parsemsr_tally.H++;
@@ -569,6 +585,7 @@ void DnaMeasurement_pimpl::Epoch(const ::std::string& Epoch)
 			return;
 
 		_dnaCurrentMsr->SetEpoch(Epoch);
+		_epochSupplied = true;
 	}
 	catch (const runtime_error& e) {
 		stringstream ss("");
@@ -605,6 +622,7 @@ void DnaMeasurement_pimpl::ReferenceFrame(const ::std::string& ReferenceFrame)
 
 		// Set the reference frame found for this measurement
 		_dnaCurrentMsr->SetReferenceFrame(ReferenceFrame);
+		_frameSupplied = true;
 	}
 	catch (const runtime_error& e) {
 		stringstream ss("");
@@ -620,6 +638,8 @@ void DnaMeasurement_pimpl::ReferenceFrame(const ::std::string& ReferenceFrame)
 
 void DnaMeasurement_pimpl::GPSBaseline()
 {
+	if (!_dnaCurrentMsr)
+		throw XMLInteropException("\"Type\" element must be the first element within \"DnaMeasurement\".", 0);
 }
 
 
@@ -1346,7 +1366,7 @@ void referenceframe_pimpl::pre()
 // For DynaML.xsd, the following is specified:
 //     <xs:attribute name="referenceframe" type="xs:string" use="optional" default="GDA2020"/>
 // In this case, post_string() will return "GDA2020"
-void referenceframe_pimpl::post_type(string& referenceframe, string& fileEpsg, 
+void referenceframe_pimpl::post_type(string& referenceframe, string& fileEpsg,
 	bool userspecifiedreferenceframe, bool userspecifiedepoch, 
 	bool overridereferenceframe, bool firstFile)
 {
@@ -1387,7 +1407,7 @@ void epoch_pimpl::pre()
 // For DynaML.xsd, the following is specified:
 //     <xs:attribute name="epoch" type="xs:string" use="optional" default="01.01.1994"/>
 // In this case, post_string() will return "01.01.1994"
-void epoch_pimpl::post_type(string& epoch, string& fileEpoch, 
+void epoch_pimpl::post_type(string& epoch, string& fileEpoch,
 	bool userspecifiedreferenceframe, bool userspecifiedepoch, 
 	bool overridereferenceframe, bool firstFile)
 {

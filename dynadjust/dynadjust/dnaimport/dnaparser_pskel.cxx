@@ -2065,6 +2065,8 @@ bool DnaXmlFormat_pskel::_start_element_impl (const ::xml_schema::ro_string& ns,
 			this->DnaMeasurement_parser_->InitparentMsrVector(_pMsrs);
 			this->DnaMeasurement_parser_->InitparentClusterID(&(_clusterID));
 			// Set default reference frame and epoch for this measurement
+			this->DnaMeasurement_parser_->InitfileEpsg(_fileEpsg);
+			this->DnaMeasurement_parser_->InitfileEpoch(_fileEpoch);
 			this->DnaMeasurement_parser_->SetDefaultReferenceFrame(_referenceframe, _overridereferenceframe);
 			this->DnaMeasurement_parser_->SetDefaultEpoch(_epoch);
 
@@ -2143,7 +2145,7 @@ bool DnaXmlFormat_pskel::_attribute_impl (const ::xml_schema::ro_string& ns,
 			this->epoch_parser_->_pre_impl ();
 			this->epoch_parser_->_characters (v);
 			this->epoch_parser_->_post_impl ();
-			this->epoch_parser_->post_type (_epoch, _fileEpoch, 
+			this->epoch_parser_->post_type (_epoch, _fileEpoch,
 				_userspecifiedreferenceframe, _userspecifiedepoch,
 				_overridereferenceframe, _firstFile);
 			this->epoch();
@@ -2165,7 +2167,7 @@ bool DnaXmlFormat_pskel::_attribute_impl (const ::xml_schema::ro_string& ns,
 			this->referenceframe_parser_->_pre_impl ();
 			this->referenceframe_parser_->_characters (v);
 			this->referenceframe_parser_->_post_impl ();
-			this->referenceframe_parser_->post_type (_referenceframe, _fileEpsg, 
+			this->referenceframe_parser_->post_type (_referenceframe, _fileEpsg,
 				_userspecifiedreferenceframe, _userspecifiedepoch,
 				_overridereferenceframe, _firstFile);
 			this->referenceframe ();
