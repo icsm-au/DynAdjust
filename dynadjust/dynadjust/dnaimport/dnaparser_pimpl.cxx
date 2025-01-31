@@ -216,8 +216,8 @@ void DnaMeasurement_pimpl::pre()
 	_dnaCurrentMsr.reset();
 
 	// Initialise flags that will track whether Reference frame has been supplied
-	_frameSupplied = false;
-	_epochSupplied = false;
+	_ReferenceframeTagSupplied = false;
+	_EpochTagSupplied = false;
 }
 
 
@@ -228,12 +228,12 @@ void DnaMeasurement_pimpl::Type(const ::std::string& Type)
 
 	string frame, epoch;
 
-	if (_frameSupplied)
+	if (_ReferenceframeTagSupplied || _overridereferenceframe)
 		frame = _referenceframe;
 	else
 		frame = datumFromEpsgString(_fileEpsg);
 
-	if (_epochSupplied)
+	if (_EpochTagSupplied || _overridereferenceframe)
 		epoch = _epoch;
 	else
 		epoch = _fileEpoch;
@@ -585,7 +585,7 @@ void DnaMeasurement_pimpl::Epoch(const ::std::string& Epoch)
 			return;
 
 		_dnaCurrentMsr->SetEpoch(Epoch);
-		_epochSupplied = true;
+		_EpochTagSupplied = true;
 	}
 	catch (const runtime_error& e) {
 		stringstream ss("");
@@ -622,7 +622,7 @@ void DnaMeasurement_pimpl::ReferenceFrame(const ::std::string& ReferenceFrame)
 
 		// Set the reference frame found for this measurement
 		_dnaCurrentMsr->SetReferenceFrame(ReferenceFrame);
-		_frameSupplied = true;
+		_ReferenceframeTagSupplied = true;
 	}
 	catch (const runtime_error& e) {
 		stringstream ss("");

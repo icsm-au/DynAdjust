@@ -501,25 +501,42 @@ void dna_import::ParseXML(const string& fileName, vdnaStnPtr* vStations, PUINT32
 			{
 				// Get the epoch of the nominated epsg (whether default or from the file)
 				fileEpoch = referenceepochFromEpsgString<string>(fileEpsg);
-			}	
+			}
 
-			// Is this the first file?  If so, set the project datum from the file's datum
-			if (firstFile)
+			// Has the user supplied a reference frame on the command line (--reference-frame)?
+			if (projectSettings_.i.override_input_rfame)
 			{
-				// 2. Does the user want to override the datum contained in the files with
-				//    the default?
-				if (!projectSettings_.i.override_input_rfame)
+				// A frame has been supplied. Now check for epoch.
+
+				// Has the user supplied an epoch on the command line (--epoch)?
+				if (!projectSettings_.i.user_supplied_epoch)
 				{
-					// 3. Does the user want the referenceframe attribute in the file to become the default?
-					if (!projectSettings_.i.user_supplied_frame)
+					// No epoch supplied. Take the epoch from the first file.
+					if (firstFile)
 					{
-						// adopt the reference frame supplied in the file
-						datum_.SetDatumFromEpsg(fileEpsg, fileEpoch);
-					}
-					else
-						// Since import doesn't offer an option to capture epoch on the command line,
-						// take the epoch from the file (if not empty).
+						projectSettings_.i.epoch = fileEpoch;
+						projectSettings_.r.epoch = fileEpoch;
+						m_strProjectDefaultEpoch = fileEpoch;
 						datum_.SetEpoch(fileEpoch);
+					}
+				}
+			}
+			else
+			{
+				// No frame supplied. Set the datum from the first file. 
+				// If the datum field is blank in the first file, the default will be used.
+				if (firstFile)
+				{
+					projectSettings_.i.reference_frame = datumFromEpsgString<string>(fileEpsg);
+					projectSettings_.r.reference_frame = projectSettings_.i.reference_frame;
+					m_strProjectDefaultEpsg = fileEpsg;
+
+					// If the user has not provided a reference frame on the command line, then
+					// take the epoch from the first file. In this case, do not take the epoch
+					// from the command line (dnaimportwrapper will throw in this scenario anyway)
+					projectSettings_.i.epoch = fileEpoch;
+					projectSettings_.r.epoch = fileEpoch;
+					m_strProjectDefaultEpoch = fileEpoch;
 				}
 			}
 		}

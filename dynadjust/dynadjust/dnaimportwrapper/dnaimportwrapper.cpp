@@ -1015,17 +1015,6 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 					inputFileEpsgi = LongFromString<UINT32>(inputFileEpsg);
 					p.i.reference_frame = inputFileDatum;
 					p.r.reference_frame = inputFileDatum;
-					
-					try {
-						// Initialise the 'default' datum (frame and epoch) for the project, from the first file.
-						parserDynaML.InitialiseDatum(p.i.reference_frame, trimstr(inputFileEpoch));
-					}
-					catch (const XMLInteropException& e) {
-						stringstream ss;
-						ss << "- Error: ";
-						cout << ss.str() << e.what() << endl;
-						return EXIT_FAILURE;
-					}
 				}
 
 				if (inputFileEpoch.empty())
@@ -1042,6 +1031,17 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 				{
 					p.i.epoch = inputFileEpoch;
 					p.r.epoch = p.i.epoch;
+				}
+
+				try {
+					// Initialise the 'default' datum (frame and epoch) for the project, from the first file.
+					parserDynaML.InitialiseDatum(p.i.reference_frame, p.i.epoch);
+				}
+				catch (const XMLInteropException& e) {
+					stringstream ss;
+					ss << "- Error: ";
+					cout << ss.str() << e.what() << endl;
+					return EXIT_FAILURE;
 				}
 			}
 

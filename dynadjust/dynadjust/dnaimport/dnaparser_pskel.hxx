@@ -648,8 +648,8 @@ protected:
 	string		_fileEpsg;
 	string		_epoch;
 	string		_referenceframe;
-	bool        _epochSupplied;
-	bool        _frameSupplied;
+	bool        _EpochTagSupplied;
+	bool        _ReferenceframeTagSupplied;
 	bool		_overridereferenceframe;
 
 	bool		_preferSingleXasG;
