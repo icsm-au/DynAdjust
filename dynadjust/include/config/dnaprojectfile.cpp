@@ -700,6 +700,12 @@ void CDnaProjectFile::LoadSettingImport(const settingMode mSetting, const string
 			return;
 		settings_.i.reference_frame = val;
 	}
+	else if (iequals(var, EPOCH))
+	{
+		if (val.empty())
+			return;
+		settings_.i.epoch = val;
+	}
 	else if (iequals(var, OVERRIDE_INPUT_FRAME))
 	{
 		if (val.empty())
@@ -950,6 +956,12 @@ void CDnaProjectFile::LoadSettingImport(const settingMode mSetting, const string
 			return;
 		settings_.i.search_similar_msr_gx = yesno_uint<UINT16, string>(val);
 	}
+	else if (iequals(var, IGNORE_INSUFFICIENT_MSRS))
+	{
+		if (val.empty())
+			return;
+		settings_.i.ignore_insufficient_msrs = yesno_uint<UINT16, string>(val);
+		}
 	else if (iequals(var, IGNORE_SIMILAR_MSRS))
 	{
 		if (val.empty())
@@ -1591,6 +1603,8 @@ void CDnaProjectFile::LoadSettingOutput(const string& var, string& val)
 			return;
 		settings_.o._export_snx_file = yesno_uint<UINT16, string>(val);
 	}
+	// ???
+	// EXPORT_DISCONT_FILE = "export-discont-file";
 	
 }
 	
@@ -1741,6 +1755,7 @@ void CDnaProjectFile::PrintProjectFile()
 
 	// reference frame settings
 	PrintRecord(dnaproj_file, REFERENCE_FRAME, settings_.i.reference_frame);
+	PrintRecord(dnaproj_file, EPOCH, settings_.i.epoch);
 	PrintRecord(dnaproj_file, OVERRIDE_INPUT_FRAME, 
 		yesno_string(settings_.i.override_input_rfame));
 
@@ -1771,10 +1786,12 @@ void CDnaProjectFile::PrintProjectFile()
 	PrintRecord(dnaproj_file, TEST_NEARBY_STNS,
 		yesno_string(settings_.i.search_nearby_stn));						
 	PrintRecord(dnaproj_file, TEST_NEARBY_STN_DIST, settings_.i.search_stn_radius);					
-	PrintRecord(dnaproj_file, TEST_SIMILAR_MSRS,
-		yesno_string(settings_.i.search_similar_msr));						
 	PrintRecord(dnaproj_file, TEST_SIMILAR_GNSS_MSRS,
 		yesno_string(settings_.i.search_similar_msr_gx));						
+	PrintRecord(dnaproj_file, TEST_SIMILAR_MSRS,
+		yesno_string(settings_.i.search_similar_msr));
+	PrintRecord(dnaproj_file, IGNORE_INSUFFICIENT_MSRS,
+		yesno_string(settings_.i.ignore_insufficient_msrs));
 	PrintRecord(dnaproj_file, IGNORE_SIMILAR_MSRS,
 		yesno_string(settings_.i.ignore_similar_msr));					
 	PrintRecord(dnaproj_file, REMOVE_IGNORED_MSRS,
