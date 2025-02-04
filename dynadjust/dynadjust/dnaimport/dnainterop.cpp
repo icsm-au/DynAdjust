@@ -1123,6 +1123,8 @@ void dna_import::ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32
 			projectSettings_.i.epoch = fileEpoch;
 			projectSettings_.r.epoch = fileEpoch;
 			m_strProjectDefaultEpoch = fileEpoch;
+
+			InitialiseDatum(projectSettings_.i.reference_frame, projectSettings_.i.epoch);
 		}
 	}
 

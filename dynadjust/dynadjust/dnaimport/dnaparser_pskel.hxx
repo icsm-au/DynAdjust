@@ -673,13 +673,22 @@ public:
 	virtual void post_DnaStation ();
 
 	// Initialisation
+	inline void InitfileEpsg(string& fileEpsg) {
+		_fileEpsg = fileEpsg;
+	}
+
+	inline void InitfileEpoch(string& fileEpoch) {
+		_fileEpoch = fileEpoch;
+	}
+
 	inline void InitparentStnVector(vdnaStnPtr* pStns)
 	{
 		_vParentStns = pStns;
 	}
 
-	inline void SetDefaultReferenceFrame(string& referenceframe) { 
+	inline void SetDefaultReferenceFrame(string& referenceframe, bool overridereferenceframe) {
 		_referenceframe = referenceframe;
+		_overridereferenceframe = overridereferenceframe;
 	}
 
 	inline void SetDefaultEpoch(string& epoch) { 
@@ -754,8 +763,11 @@ protected:
 	vdnaStnPtr* _vParentStns;
 	dnaStnPtr _dnaCurrentStn;
 
+	string		_fileEpoch;
+	string		_fileEpsg;
 	string		_epoch;
 	string		_referenceframe;
+	bool		_overridereferenceframe;
 };
 
 class DnaXmlFormat_pskel: public ::xml_schema::complex_content

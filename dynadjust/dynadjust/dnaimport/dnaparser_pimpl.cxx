@@ -874,7 +874,19 @@ void DnaMeasurement_pimpl::post_DnaMeasurement()
 
 void DnaStation_pimpl::pre()
 {
-	_dnaCurrentStn.reset(new CDnaStation(_referenceframe, _epoch));
+	string frame, epoch;
+
+	if (_overridereferenceframe)
+		frame = _referenceframe;
+	else
+		frame = datumFromEpsgString(_fileEpsg);
+
+	if (_overridereferenceframe)
+		epoch = _epoch;
+	else
+		epoch = _fileEpoch;
+
+	_dnaCurrentStn.reset(new CDnaStation(frame, epoch));
 	_dnaCurrentStn->SetfileOrder(g_fileOrder++);
 }
 
