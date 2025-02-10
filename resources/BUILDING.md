@@ -73,7 +73,7 @@ rem build b2 using VS 2022
 call bootstrap.bat vc143
 
 rem Directory to boost root
-set boost_dir=boost_1_78_0
+set boost_dir=boost_1_87_0
 
 rem Store compiled libraries in directories corresponding to 64-bit and 32-bit.
 set stage_64=C:\Data\boost\%boost_dir%\lib\x64
@@ -118,8 +118,8 @@ provides a convenient way to reference custom boost C++ file paths across the en
 
 By default, the boost paths are set as follows. Change these to match the location of the boost header files and libraries on your machine, making sure that `\lib\` contains two folders named `x64` and `Win32` if you need to build 64-bit and 32-bit binaries respectively.
 
-- **BoostIncludeDir:**  `C:\Data\boost\boost_1_78_0\include\`
-- **BoostLibDir:** `C:\Data\boost\boost_1_78_0\lib\$(Platform)`
+- **BoostIncludeDir:**  `C:\Data\boost\boost_1_87_0\include\`
+- **BoostLibDir:** `C:\Data\boost\boost_1_87_0\lib\$(Platform)`
 
 #### 1.3 Install CodeSynthesis XSD and Apache xerces-c headers and libraries
 
