@@ -444,7 +444,7 @@ int main(int argc, char* argv[])
 	
 	std::ostringstream ss_time, ss_msg;
 	boost::posix_time::milliseconds elapsed_time(boost::posix_time::milliseconds(0));
-	ptime pt;
+	boost::posix_time::ptime pt;
 
 	if (!p.g.quiet)
 	{
@@ -488,7 +488,7 @@ int main(int argc, char* argv[])
 
 		// Form output file path
 		std::stringstream ss_outputfile("");
-		ss_outputfile << path(input_file).stem().generic_string();
+		ss_outputfile << boost::filesystem::path(input_file).stem().generic_string();
 		ss_outputfile << ".edit.xml";
 		output_file = ss_outputfile.str();
 

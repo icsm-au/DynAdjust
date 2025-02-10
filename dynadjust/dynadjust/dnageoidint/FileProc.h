@@ -48,7 +48,7 @@ public:
 	CString BrowseForDialog(CString strMsg, HWND hwndOwner);
 
 	void ClearFileArrayMemory();
-	void BuildFileArray(const char* filedir, const vector<string>& filetype, const int& no_filetypes);
+	void BuildFileArray(const char* filedir, const std::vector<std::string>& filetype, const int& no_filetypes);
 	void EnterSingleFile(char *filename);
 
 	CString FileOpenSave(BOOL bOpen_Save, BOOL bMulti_Files, LPCTSTR lpszDir, char *cNewFile, LPCTSTR lpszTitle, LPCTSTR lpszExt, LPCTSTR strFilter, int iFileType);
