@@ -22,9 +22,8 @@
 #define _SECURE_ATL 1
 #endif
 
-#ifndef VC_EXTRALEAN
+#define WIN32_LEAN_AND_MEAN
 #define VC_EXTRALEAN            // Exclude rarely-used stuff from Windows headers
-#endif
 
 #define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS      // some CString constructors will be explicit
 

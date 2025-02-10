@@ -34,11 +34,13 @@
 #include <boost/thread.hpp>
 
 #if defined(_WIN32) || defined(__WIN32__)
-#include <windows.h>
 
-#ifndef VC_EXTRALEAN
+// prevent conflict with std::min(...) std::max(...)
+#define NOMINMAX
+#define WIN32_LEAN_AND_MEAN
 #define VC_EXTRALEAN            // Exclude rarely-used stuff from Windows headers
-#endif
+
+#include <windows.h>
 
 #endif
 

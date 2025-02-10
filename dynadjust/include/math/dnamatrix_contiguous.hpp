@@ -26,6 +26,11 @@
 #ifndef DNAMATRIX_CONTIGUOUS_H_
 #define DNAMATRIX_CONTIGUOUS_H_
 
+// prevent conflict with std::min(...) std::max(...)
+#ifdef _WIN32
+#define NOMINMAX
+#endif
+
 #if defined(_MSC_VER)
 	#if defined(LIST_INCLUDES_ON_BUILD) 
 		#pragma message("  " __FILE__) 

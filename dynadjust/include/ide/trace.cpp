@@ -20,14 +20,18 @@
 // Description  : Provides debug trace functionality when MFC is not used
 //============================================================================
 
+// prevent conflict with std::min(...) std::max(...)
+#ifdef _WIN32
+#define NOMINMAX
+#endif
+
 #ifdef _DEBUG
+#define WIN32_LEAN_AND_MEAN
+#define VC_EXTRALEAN            // Exclude rarely-used stuff from Windows headers
+
 #include <stdio.h>
 #include <stdarg.h>
 #include <windows.h>
-
-#ifndef VC_EXTRALEAN
-#define VC_EXTRALEAN            // Exclude rarely-used stuff from Windows headers
-#endif
 
 void _trace(const char *fmt, ...)
 {

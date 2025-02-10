@@ -30,13 +30,16 @@
 #endif
 
 #if defined(_WIN32) || defined(__WIN32__)
+	
+	// prevent conflict with std::min(...) std::max(...)
+	#define NOMINMAX
+
+	#define WIN32_LEAN_AND_MEAN
+	#define VC_EXTRALEAN            // Exclude rarely-used stuff from Windows headers
+	
 	#include <windows.h>
 	#include <winbase.h>
 	#include <ShellAPI.h>		// for FindExecutable
-
-	#ifndef VC_EXTRALEAN
-	#define VC_EXTRALEAN            // Exclude rarely-used stuff from Windows headers
-	#endif
 
 #elif defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
 	#include <unistd.h>
