@@ -3660,6 +3660,8 @@ void dna_plot::LoadPosUncertaintyFile()
 		apu_file.ignore(PRINT_LINE_LENGTH, '\n');		// File name
 		apu_file.ignore(PRINT_LINE_LENGTH, '\n');		// 
 		apu_file.ignore(PRINT_LINE_LENGTH, '\n');		// PU Confidence interval
+		apu_file.ignore(PRINT_LINE_LENGTH, '\n');		// Error ellipse axes
+		apu_file.ignore(PRINT_LINE_LENGTH, '\n');		// Variances
 
 		apu_file.getline(line, PRINT_LINE_LENGTH);		// Stations printed in blocks
 		strLine = trimstr(std::string(line));		
