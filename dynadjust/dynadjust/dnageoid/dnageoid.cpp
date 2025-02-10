@@ -2624,7 +2624,7 @@ int dna_geoid_interpolation::OpenGridFile(const char *filename, const char *file
 			ptheGrid->ptrIndex[i].dLonginc = boost::lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
 			getline(*pgrid_ifs, sBuf);
-			ptheGrid->ptrIndex[i].lGscount = boost::lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+			ptheGrid->ptrIndex[i].lGscount = boost::lexical_cast<long, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
 			// Save ASCII position in grid file for first record of lat & long shifts 
 			ptheGrid->ptrIndex[i].iGridPos = (int)pgrid_ifs->tellg();
