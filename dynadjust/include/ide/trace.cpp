@@ -22,12 +22,20 @@
 
 // prevent conflict with std::min(...) std::max(...)
 #ifdef _WIN32
+#ifndef NOMINMAX
 #define NOMINMAX
+#endif
 #endif
 
 #ifdef _DEBUG
+
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#endif
+
+#ifndef VC_EXTRALEAN
 #define VC_EXTRALEAN            // Exclude rarely-used stuff from Windows headers
+#endif
 
 #include <stdio.h>
 #include <stdarg.h>

@@ -28,7 +28,9 @@
 
 // prevent conflict with std::min(...) std::max(...)
 #ifdef _WIN32
+#ifndef NOMINMAX
 #define NOMINMAX
+#endif
 #endif
 
 #if defined(_MSC_VER)
