@@ -36,19 +36,17 @@
 #include <include/config/dnaversion.hpp>
 #include <include/config/dnaconsts.hpp>
 
-using namespace std;
-
 // Returns the number of fields with valid data
 int GetFields(char *line, char delim, bool multiple_delim_as_one, const char *fmt, ...);
-void fileproc_help_header(string* msg);
-void dynaml_header(ostream& os, const string& fileType, const string& referenceFrame, const string& epoch);
-void dynaml_footer(ostream& os);
-void dynaml_comment(ostream& os, const string& comment);
-void dna_header(ostream& os, const string& fileVersion, const string& fileType, const string& reference_frame, const string& epoch_version, const size_t& count);
-void dna_comment(ostream& os, const string& comment);
-void dnaproj_header(ostream& os, const string& comment);
-void dnaproj_comment(ostream& os, const string& comment);
+void fileproc_help_header(std::string* msg);
+void dynaml_header(std::ostream& os, const std::string& fileType, const std::string& referenceFrame, const std::string& epoch);
+void dynaml_footer(std::ostream& os);
+void dynaml_comment(std::ostream& os, const std::string& comment);
+void dna_header(std::ostream& os, const std::string& fileVersion, const std::string& fileType, const std::string& reference_frame, const std::string& epoch_version, const size_t& count);
+void dna_comment(std::ostream& os, const std::string& comment);
+void dnaproj_header(std::ostream& os, const std::string& comment);
+void dnaproj_comment(std::ostream& os, const std::string& comment);
 
-string snx_softwarehardware_text();
+std::string snx_softwarehardware_text();
 
 #endif // DNASTRINGFUNCS_HPP_

@@ -50,7 +50,7 @@ CDnaGpsBaseline::CDnaGpsBaseline(void)
 	, m_lclusterID(0)
 {
 	SetEpoch(DEFAULT_EPOCH);
-	SetEpsg(epsgStringFromName<string>(m_referenceFrame));
+	SetEpsg(epsgStringFromName<std::string>(m_referenceFrame));
 
 	m_vGpsCovariances.clear();
 	m_vGpsCovariances.reserve(0);
@@ -151,7 +151,7 @@ bool CDnaGpsBaseline::operator== (const CDnaGpsBaseline& rhs) const
 		fabs(m_dX - rhs.m_dX) < PRECISION_1E4 &&
 		fabs(m_dY - rhs.m_dY) < PRECISION_1E4 &&
 		fabs(m_dZ - rhs.m_dZ) < PRECISION_1E4 &&
-		iequals(m_referenceFrame, rhs.m_referenceFrame) &&
+		boost::iequals(m_referenceFrame, rhs.m_referenceFrame) &&
 		m_epoch == rhs.m_epoch
 		);
 }
@@ -206,55 +206,55 @@ void CDnaGpsBaseline::AddGpsCovariance(const CDnaCovariance* pGpsCovariance)
 UINT32 CDnaGpsBaseline::CalcBinaryRecordCount() const
 {
 	UINT32 RecordCount = 3;
-	vector<CDnaCovariance>::const_iterator _it_cov = m_vGpsCovariances.begin();
+	std::vector<CDnaCovariance>::const_iterator _it_cov = m_vGpsCovariances.begin();
 	for (; _it_cov!=m_vGpsCovariances.end(); ++_it_cov)
 		RecordCount += _it_cov->CalcBinaryRecordCount();
 	return RecordCount;
 }
 	
 
-void CDnaGpsBaseline::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string&, bool) const
+void CDnaGpsBaseline::WriteDynaMLMsr(std::ofstream* dynaml_stream, const std::string&, bool) const
 {
-	*dynaml_stream << "    <First>" << m_strFirst << "</First>" << endl;
-	*dynaml_stream << "    <Second>" << m_strTarget << "</Second>" << endl;
+	*dynaml_stream << "    <First>" << m_strFirst << "</First>" << std::endl;
+	*dynaml_stream << "    <Second>" << m_strTarget << "</Second>" << std::endl;
 
 	UINT32 precision = 4;
 	
-	*dynaml_stream << "    <GPSBaseline>" << endl;
-	*dynaml_stream << "      <X>" << fixed << setprecision(precision) << m_dX << "</X>" << endl;
-	*dynaml_stream << "      <Y>" << m_dY << "</Y>" << endl;
-	*dynaml_stream << "      <Z>" << m_dZ << "</Z>" << endl;
+	*dynaml_stream << "    <GPSBaseline>" << std::endl;
+	*dynaml_stream << "      <X>" << std::fixed << std::setprecision(precision) << m_dX << "</X>" << std::endl;
+	*dynaml_stream << "      <Y>" << m_dY << "</Y>" << std::endl;
+	*dynaml_stream << "      <Z>" << m_dZ << "</Z>" << std::endl;
 
 	if (m_msr_db_map.is_msr_id_set)
-		*dynaml_stream << "      <MeasurementID>" << m_msr_db_map.msr_id << "</MeasurementID>" << endl;
+		*dynaml_stream << "      <MeasurementID>" << m_msr_db_map.msr_id << "</MeasurementID>" << std::endl;
 
-	*dynaml_stream << "      <SigmaXX>" << scientific << setprecision(13) << m_dSigmaXX << "</SigmaXX>" << endl;
-	*dynaml_stream << "      <SigmaXY>" << m_dSigmaXY << "</SigmaXY>" << endl;
-	*dynaml_stream << "      <SigmaXZ>" << m_dSigmaXZ << "</SigmaXZ>" << endl;
-	*dynaml_stream << "      <SigmaYY>" << m_dSigmaYY << "</SigmaYY>" << endl;
-	*dynaml_stream << "      <SigmaYZ>" << m_dSigmaYZ << "</SigmaYZ>" << endl;
-	*dynaml_stream << "      <SigmaZZ>" << m_dSigmaZZ << "</SigmaZZ>" << endl;
+	*dynaml_stream << "      <SigmaXX>" << std::scientific << std::setprecision(13) << m_dSigmaXX << "</SigmaXX>" << std::endl;
+	*dynaml_stream << "      <SigmaXY>" << m_dSigmaXY << "</SigmaXY>" << std::endl;
+	*dynaml_stream << "      <SigmaXZ>" << m_dSigmaXZ << "</SigmaXZ>" << std::endl;
+	*dynaml_stream << "      <SigmaYY>" << m_dSigmaYY << "</SigmaYY>" << std::endl;
+	*dynaml_stream << "      <SigmaYZ>" << m_dSigmaYZ << "</SigmaYZ>" << std::endl;
+	*dynaml_stream << "      <SigmaZZ>" << m_dSigmaZZ << "</SigmaZZ>" << std::endl;
 
 	// write GPSPoint covariances
-	vector<CDnaCovariance>::const_iterator _it_cov = m_vGpsCovariances.begin();
+	std::vector<CDnaCovariance>::const_iterator _it_cov = m_vGpsCovariances.begin();
 	for (; _it_cov!=m_vGpsCovariances.end(); ++_it_cov)
 		_it_cov->WriteDynaMLMsr(dynaml_stream);
 
-	*dynaml_stream << "    </GPSBaseline>" << endl;
+	*dynaml_stream << "    </GPSBaseline>" << std::endl;
 
 }
 
 
 void CDnaGpsBaseline::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool) const
 {
-	*dna_stream << setw(dmw.msr_type) << m_strType;
+	*dna_stream << std::setw(dmw.msr_type) << m_strType;
 	if (m_bIgnore)
-		*dna_stream << setw(dmw.msr_ignore) << "*";
+		*dna_stream << std::setw(dmw.msr_ignore) << "*";
 	else
-		*dna_stream << setw(dmw.msr_ignore) << " ";
+		*dna_stream << std::setw(dmw.msr_ignore) << " ";
 
-	*dna_stream << left << setw(dmw.msr_inst) << m_strFirst;
-	*dna_stream << left << setw(dmw.msr_targ1) << m_strTarget;
+	*dna_stream << std::left << std::setw(dmw.msr_inst) << m_strFirst;
+	*dna_stream << std::left << std::setw(dmw.msr_targ1) << m_strTarget;
 
 	// Print header for G baseline and first X cluster baseline
 	bool printHeader(true);
@@ -267,69 +267,69 @@ void CDnaGpsBaseline::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_field
 
 			// print database ids
 			if (m_msr_db_map.is_msr_id_set)
-				*dna_stream << setw(dml.msr_id_msr - dml.msr_targ2) << " " <<
-					right << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
+				*dna_stream << std::setw(dml.msr_id_msr - dml.msr_targ2) << " " <<
+					std::right << std::setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
 			if (m_msr_db_map.is_cls_id_set)
-				*dna_stream << setw(dmw.msr_id_cluster) << m_msr_db_map.cluster_id;			
+				*dna_stream << std::setw(dmw.msr_id_cluster) << m_msr_db_map.cluster_id;			
 		}
 	}
 
 	if (printHeader)
 	{
 		if (GetTypeC() == 'X')
-			*dna_stream << left << setw(dmw.msr_targ2) << m_lRecordedTotal;
+			*dna_stream << std::left << std::setw(dmw.msr_targ2) << m_lRecordedTotal;
 		else
-			*dna_stream << right << setw(dmw.msr_targ2) << " ";
+			*dna_stream << std::right << std::setw(dmw.msr_targ2) << " ";
 		
 		// print scaling
 		*dna_stream << 
-			fixed << setprecision(2) << 
-			right << setw(dmw.msr_gps_vscale) << double_string_width<double, UINT32, string>(m_dVscale, dmw.msr_gps_vscale) <<
-			right << setw(dmw.msr_gps_pscale) << double_string_width<double, UINT32, string>(m_dPscale, dmw.msr_gps_vscale) <<
-			right << setw(dmw.msr_gps_lscale) << double_string_width<double, UINT32, string>(m_dLscale, dmw.msr_gps_vscale) <<
-			right << setw(dmw.msr_gps_hscale) << double_string_width<double, UINT32, string>(m_dHscale, dmw.msr_gps_vscale);
+			std::fixed << std::setprecision(2) << 
+			std::right << std::setw(dmw.msr_gps_vscale) << double_string_width<double, UINT32, std::string>(m_dVscale, dmw.msr_gps_vscale) <<
+			std::right << std::setw(dmw.msr_gps_pscale) << double_string_width<double, UINT32, std::string>(m_dPscale, dmw.msr_gps_vscale) <<
+			std::right << std::setw(dmw.msr_gps_lscale) << double_string_width<double, UINT32, std::string>(m_dLscale, dmw.msr_gps_vscale) <<
+			std::right << std::setw(dmw.msr_gps_hscale) << double_string_width<double, UINT32, std::string>(m_dHscale, dmw.msr_gps_vscale);
 
 		// print reference frame and epoch
 		*dna_stream <<
-			right << setw(dmw.msr_gps_reframe) << m_referenceFrame <<
-			right << setw(dmw.msr_gps_epoch) << m_epoch;
+			std::right << std::setw(dmw.msr_gps_reframe) << m_referenceFrame <<
+			std::right << std::setw(dmw.msr_gps_epoch) << m_epoch;
 
 		// print database ids
 		if (m_msr_db_map.is_msr_id_set)
-			*dna_stream << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
+			*dna_stream << std::setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
 		if (m_msr_db_map.is_cls_id_set)
-			*dna_stream << setw(dmw.msr_id_cluster) << m_msr_db_map.cluster_id;
+			*dna_stream << std::setw(dmw.msr_id_cluster) << m_msr_db_map.cluster_id;
 	}
 
-	*dna_stream << endl;
+	*dna_stream << std::endl;
 
 	UINT32 pad(dmw.msr_type + dmw.msr_ignore + dmw.msr_inst + dmw.msr_targ1 + dmw.msr_targ2);
 
 	// X
-	*dna_stream << setw(pad) << " ";
-	*dna_stream << right << setw(dmw.msr_gps) << fixed << setprecision(4) << m_dX;
-	*dna_stream << right << setw(dmw.msr_gps_vcv_1) << scientific << setprecision(13) << m_dSigmaXX;
-	*dna_stream << endl;
+	*dna_stream << std::setw(pad) << " ";
+	*dna_stream << std::right << std::setw(dmw.msr_gps) << std::fixed << std::setprecision(4) << m_dX;
+	*dna_stream << std::right << std::setw(dmw.msr_gps_vcv_1) << std::scientific << std::setprecision(13) << m_dSigmaXX;
+	*dna_stream << std::endl;
 		
 	// Y
-	*dna_stream << setw(pad) << " ";
-	*dna_stream << right << setw(dmw.msr_gps) << fixed << setprecision(4) << m_dY;
+	*dna_stream << std::setw(pad) << " ";
+	*dna_stream << std::right << std::setw(dmw.msr_gps) << std::fixed << std::setprecision(4) << m_dY;
 	*dna_stream << 
-		right << setw(dmw.msr_gps_vcv_1) << scientific << setprecision(13) << m_dSigmaXY << 
-		right << setw(dmw.msr_gps_vcv_2) << m_dSigmaYY;
-	*dna_stream << endl;
+		std::right << std::setw(dmw.msr_gps_vcv_1) << std::scientific << std::setprecision(13) << m_dSigmaXY << 
+		std::right << std::setw(dmw.msr_gps_vcv_2) << m_dSigmaYY;
+	*dna_stream << std::endl;
 
 	// Z
-	*dna_stream << setw(pad) << " ";
-	*dna_stream << right << setw(dmw.msr_gps) << fixed << setprecision(4) << m_dZ;
+	*dna_stream << std::setw(pad) << " ";
+	*dna_stream << std::right << std::setw(dmw.msr_gps) << std::fixed << std::setprecision(4) << m_dZ;
 	*dna_stream << 
-		right << setw(dmw.msr_gps_vcv_1) << scientific << setprecision(13) << m_dSigmaXZ <<
-		right << setw(dmw.msr_gps_vcv_2) << m_dSigmaYZ << 
-		right << setw(dmw.msr_gps_vcv_3) << m_dSigmaZZ;
-	*dna_stream << endl;
+		std::right << std::setw(dmw.msr_gps_vcv_1) << std::scientific << std::setprecision(13) << m_dSigmaXZ <<
+		std::right << std::setw(dmw.msr_gps_vcv_2) << m_dSigmaYZ << 
+		std::right << std::setw(dmw.msr_gps_vcv_3) << m_dSigmaZZ;
+	*dna_stream << std::endl;
 
 	// write GPSBaseline covariances (not supported by DNA format)
-	vector<CDnaCovariance>::const_iterator _it_cov = m_vGpsCovariances.begin();
+	std::vector<CDnaCovariance>::const_iterator _it_cov = m_vGpsCovariances.begin();
 	for (_it_cov=m_vGpsCovariances.begin(); _it_cov!=m_vGpsCovariances.end(); ++_it_cov)
 		_it_cov->WriteDNAMsr(dna_stream, dmw, dml);
 }
@@ -348,7 +348,7 @@ void CDnaGpsBaseline::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* el
 	m_dSigmaYZ = -2.035E-05;
 	m_dSigmaZZ = 6.803E-05;
 
-	vector<CDnaCovariance>::iterator _it_cov = m_vGpsCovariances.begin();
+	std::vector<CDnaCovariance>::iterator _it_cov = m_vGpsCovariances.begin();
 	for (_it_cov=m_vGpsCovariances.begin(); _it_cov!=m_vGpsCovariances.end(); ++_it_cov)
 		_it_cov->SimulateMsr(vStations, ellipsoid);
 }
@@ -371,7 +371,7 @@ UINT32 CDnaGpsBaseline::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it
 
 	m_epoch = it_msr->epoch;
 	m_epsgCode = it_msr->epsgCode;
-	m_referenceFrame = datumFromEpsgString<string>(it_msr->epsgCode);
+	m_referenceFrame = datumFromEpsgString<std::string>(it_msr->epsgCode);
 
 	m_lclusterID = it_msr->clusterID;
 	m_MSmeasurementStations = (MEASUREMENT_STATIONS)it_msr->measurementStations;
@@ -405,7 +405,7 @@ UINT32 CDnaGpsBaseline::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it
 	dbidmap += (it_msr->vectorCount2 * 3);
 
 	// now covariances
-	vector<CDnaCovariance>::iterator _it_cov = m_vGpsCovariances.begin();
+	std::vector<CDnaCovariance>::iterator _it_cov = m_vGpsCovariances.begin();
 	for (; _it_cov!=m_vGpsCovariances.end(); ++_it_cov)
 		_it_cov->SetMeasurementRec(binaryStn, it_msr);
 
@@ -480,7 +480,7 @@ void CDnaGpsBaseline::WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIn
 	binary_stream->write(reinterpret_cast<char *>(&measRecord), sizeof(measurement_t));
 
 	// now write covariance elements
-	vector<CDnaCovariance>::const_iterator _it_cov;
+	std::vector<CDnaCovariance>::const_iterator _it_cov;
 	for (_it_cov=m_vGpsCovariances.begin(); _it_cov!=m_vGpsCovariances.end(); ++_it_cov)
 		_it_cov->WriteBinaryMsr(binary_stream, msrIndex, m_epsgCode, m_epoch);
 }
@@ -504,96 +504,96 @@ void CDnaGpsBaseline::SerialiseDatabaseMap(std::ofstream* os)
 
 
 
-void CDnaGpsBaseline::SetX(const string& str)
+void CDnaGpsBaseline::SetX(const std::string& str)
 {
 	DoubleFromString(m_dX, trimstr(str));
 }
 
-void CDnaGpsBaseline::SetY(const string& str)
+void CDnaGpsBaseline::SetY(const std::string& str)
 {
 	DoubleFromString(m_dY, trimstr(str));
 }
 
-void CDnaGpsBaseline::SetZ(const string& str)
+void CDnaGpsBaseline::SetZ(const std::string& str)
 {
 	DoubleFromString(m_dZ, trimstr(str));
 }
 
-void CDnaGpsBaseline::SetSigmaXX(const string& str)
+void CDnaGpsBaseline::SetSigmaXX(const std::string& str)
 {
 	if (DoubleFromString_ZeroCheck(m_dSigmaXX, trimstr(str)))
 	{
-		stringstream ss;
+		std::stringstream ss;
 		ss << "SetSigmaXX(): Variances cannot be zero: " << str << ".";
 		throw XMLInteropException(ss.str(), 0);
 	}
 }
 
-void CDnaGpsBaseline::SetSigmaXY(const string& str)
+void CDnaGpsBaseline::SetSigmaXY(const std::string& str)
 {
 	DoubleFromString(m_dSigmaXY, trimstr(str));
 }
 
-void CDnaGpsBaseline::SetSigmaXZ(const string& str)
+void CDnaGpsBaseline::SetSigmaXZ(const std::string& str)
 {
 	DoubleFromString(m_dSigmaXZ, trimstr(str));
 }
 
-void CDnaGpsBaseline::SetSigmaYY(const string& str)
+void CDnaGpsBaseline::SetSigmaYY(const std::string& str)
 {
 	if (DoubleFromString_ZeroCheck(m_dSigmaYY, trimstr(str)))
 	{
-		stringstream ss;
+		std::stringstream ss;
 		ss << "SetSigmaYY(): Variances cannot be zero: " << str << ".";
 		throw XMLInteropException(ss.str(), 0);
 	}
 }
 
-void CDnaGpsBaseline::SetSigmaYZ(const string& str)
+void CDnaGpsBaseline::SetSigmaYZ(const std::string& str)
 {
 	DoubleFromString(m_dSigmaYZ, trimstr(str));
 }
 
-void CDnaGpsBaseline::SetSigmaZZ(const string& str)
+void CDnaGpsBaseline::SetSigmaZZ(const std::string& str)
 {
 	if (DoubleFromString_ZeroCheck(m_dSigmaZZ, trimstr(str)))
 	{
-		stringstream ss;
+		std::stringstream ss;
 		ss << "SetSigmaZZ(): Variances cannot be zero: " << str << ".";
 		throw XMLInteropException(ss.str(), 0);
 	}
 }
 	
 
-void CDnaGpsBaseline::SetEpsg(const string& epsg) 
+void CDnaGpsBaseline::SetEpsg(const std::string& epsg) 
 {
 	m_epsgCode = epsg;
 }
 
 
-void CDnaGpsBaseline::SetReferenceFrame(const string& refFrame) 
+void CDnaGpsBaseline::SetReferenceFrame(const std::string& refFrame) 
 {
 	m_referenceFrame = refFrame;
-	SetEpsg(epsgStringFromName<string>(refFrame));
+	SetEpsg(epsgStringFromName<std::string>(refFrame));
 }
 
 
-void CDnaGpsBaseline::SetPscale(const string& str)
+void CDnaGpsBaseline::SetPscale(const std::string& str)
 {
 	DoubleFromString(m_dPscale, trimstr(str));
 }
 
-void CDnaGpsBaseline::SetLscale(const string& str)
+void CDnaGpsBaseline::SetLscale(const std::string& str)
 {
 	DoubleFromString(m_dLscale, trimstr(str));
 }
 
-void CDnaGpsBaseline::SetHscale(const string& str)
+void CDnaGpsBaseline::SetHscale(const std::string& str)
 {
 	DoubleFromString(m_dHscale, trimstr(str));
 }
 
-void CDnaGpsBaseline::SetVscale(const string& str)
+void CDnaGpsBaseline::SetVscale(const std::string& str)
 {
 	DoubleFromString(m_dVscale, trimstr(str));
 }
@@ -617,7 +617,7 @@ CDnaGpsBaselineCluster::CDnaGpsBaselineCluster(void)
 	, m_lclusterID(0)
 {
 	SetEpoch(DEFAULT_EPOCH);
-	SetEpsg(epsgStringFromName<string>(m_referenceFrame));
+	SetEpsg(epsgStringFromName<std::string>(m_referenceFrame));
 
 	m_vGpsBaselines.clear();
 	m_vGpsBaselines.reserve(1);
@@ -690,7 +690,7 @@ CDnaGpsBaselineCluster& CDnaGpsBaselineCluster::operator= (CDnaGpsBaselineCluste
 }
 	
 
-CDnaGpsBaselineCluster::CDnaGpsBaselineCluster(const UINT32 lclusterID, const string& referenceframe, const string& epoch)
+CDnaGpsBaselineCluster::CDnaGpsBaselineCluster(const UINT32 lclusterID, const std::string& referenceframe, const std::string& epoch)
 	: m_strTarget("")
 	, m_lRecordedTotal(1)
 	, m_dPscale(1.)
@@ -701,7 +701,7 @@ CDnaGpsBaselineCluster::CDnaGpsBaselineCluster(const UINT32 lclusterID, const st
 	, m_lclusterID(lclusterID)
 {
 	SetEpoch(epoch);
-	SetEpsg(epsgStringFromName<string>(referenceframe));
+	SetEpsg(epsgStringFromName<std::string>(referenceframe));
 
 	m_vGpsBaselines.clear();
 	m_vGpsBaselines.reserve(1);
@@ -723,7 +723,7 @@ bool CDnaGpsBaselineCluster::operator== (const CDnaGpsBaselineCluster& rhs) cons
 		m_dHscale == rhs.m_dHscale &&
 		m_dVscale == rhs.m_dVscale &&
 		m_vGpsBaselines == rhs.m_vGpsBaselines &&
-		iequals(m_referenceFrame, rhs.m_referenceFrame) &&
+		boost::iequals(m_referenceFrame, rhs.m_referenceFrame) &&
 		m_epoch == rhs.m_epoch
 		);
 }
@@ -805,58 +805,58 @@ UINT32 CDnaGpsBaselineCluster::CalcBinaryRecordCount() const
 }
 
 
-void CDnaGpsBaselineCluster::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool) const
+void CDnaGpsBaselineCluster::WriteDynaMLMsr(std::ofstream* dynaml_stream, const std::string& comment, bool) const
 {
 	const size_t bslCount = m_vGpsBaselines.size();
 	char cType = GetTypeC();
 
 	if (comment.empty())
 	{
-		*dynaml_stream << "  <!-- Type " << measurement_name<char, string>(GetTypeC());
+		*dynaml_stream << "  <!-- Type " << measurement_name<char, std::string>(GetTypeC());
 		if (cType == 'X')
 		{
 			if (bslCount > 1)
-				*dynaml_stream << " (set of " << bslCount << ")" << endl;
+				*dynaml_stream << " (set of " << bslCount << ")" << std::endl;
 			else
-				*dynaml_stream << "  (single)" << endl;
+				*dynaml_stream << "  (single)" << std::endl;
 		}
-		*dynaml_stream << " -->" << endl;
+		*dynaml_stream << " -->" << std::endl;
 	}
 	else
-		*dynaml_stream << "  <!-- " << comment << " -->" << endl;
+		*dynaml_stream << "  <!-- " << comment << " -->" << std::endl;
 	
-	*dynaml_stream << "  <DnaMeasurement>" << endl;
-	*dynaml_stream << "    <Type>" << cType << "</Type>" << endl;
+	*dynaml_stream << "  <DnaMeasurement>" << std::endl;
+	*dynaml_stream << "    <Type>" << cType << "</Type>" << std::endl;
 	// Source file from which the measurement came
-	*dynaml_stream << "    <Source>" << m_sourceFile << "</Source>" << endl;
+	*dynaml_stream << "    <Source>" << m_sourceFile << "</Source>" << std::endl;
 	if (m_bIgnore)
-		*dynaml_stream << "    <Ignore>*</Ignore>" << endl;
+		*dynaml_stream << "    <Ignore>*</Ignore>" << std::endl;
 	else
-		*dynaml_stream << "    <Ignore/>" << endl;
+		*dynaml_stream << "    <Ignore/>" << std::endl;
 	
 	// Reference frame and epoch
-	*dynaml_stream << "    <ReferenceFrame>" << m_referenceFrame << "</ReferenceFrame>" << endl;
-	*dynaml_stream << "    <Epoch>" << m_epoch << "</Epoch>" << endl;
+	*dynaml_stream << "    <ReferenceFrame>" << m_referenceFrame << "</ReferenceFrame>" << std::endl;
+	*dynaml_stream << "    <Epoch>" << m_epoch << "</Epoch>" << std::endl;
 
 	// Scalars
-	*dynaml_stream << "    <Vscale>" << fixed << setprecision(3) << m_dVscale << "</Vscale>" << endl;
-	*dynaml_stream << "    <Pscale>" << m_dPscale << "</Pscale>" << endl;
-	*dynaml_stream << "    <Lscale>" << m_dLscale << "</Lscale>" << endl;
-	*dynaml_stream << "    <Hscale>" << m_dHscale << "</Hscale>" << endl;
+	*dynaml_stream << "    <Vscale>" << std::fixed << std::setprecision(3) << m_dVscale << "</Vscale>" << std::endl;
+	*dynaml_stream << "    <Pscale>" << m_dPscale << "</Pscale>" << std::endl;
+	*dynaml_stream << "    <Lscale>" << m_dLscale << "</Lscale>" << std::endl;
+	*dynaml_stream << "    <Hscale>" << m_dHscale << "</Hscale>" << std::endl;
 
 	if (m_msr_db_map.is_cls_id_set)
-		*dynaml_stream << "    <ClusterID>" << m_msr_db_map.cluster_id << "</ClusterID>" << endl;
+		*dynaml_stream << "    <ClusterID>" << m_msr_db_map.cluster_id << "</ClusterID>" << std::endl;
 
 	// baseline count
 	if (cType == 'X')
-		*dynaml_stream << "    <Total>" << bslCount << "</Total>" << endl;
+		*dynaml_stream << "    <Total>" << bslCount << "</Total>" << std::endl;
 
 	// write GpsBaselines
-	vector<CDnaGpsBaseline>::const_iterator _it_bsl;
+	std::vector<CDnaGpsBaseline>::const_iterator _it_bsl;
 	for (_it_bsl=m_vGpsBaselines.begin(); _it_bsl!=m_vGpsBaselines.end(); ++_it_bsl)
 		_it_bsl->WriteDynaMLMsr(dynaml_stream, comment, true);
 	
-	*dynaml_stream << "  </DnaMeasurement>" << endl;
+	*dynaml_stream << "  </DnaMeasurement>" << std::endl;
 
 }
 	
@@ -864,7 +864,7 @@ void CDnaGpsBaselineCluster::WriteDynaMLMsr(std::ofstream* dynaml_stream, const 
 void CDnaGpsBaselineCluster::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool) const
 {
 	// write GpsBaselines
-	vector<CDnaGpsBaseline>::const_iterator _it_bsl;
+	std::vector<CDnaGpsBaseline>::const_iterator _it_bsl;
 	for (_it_bsl=m_vGpsBaselines.begin(); _it_bsl!=m_vGpsBaselines.end(); ++_it_bsl)
 		_it_bsl->WriteDNAMsr(dna_stream, dmw, dml, true);
 }
@@ -872,7 +872,7 @@ void CDnaGpsBaselineCluster::WriteDNAMsr(std::ofstream* dna_stream, const dna_ms
 
 void CDnaGpsBaselineCluster::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* ellipsoid)
 {
-	vector<CDnaGpsBaseline>::iterator _it_bsl;
+	std::vector<CDnaGpsBaseline>::iterator _it_bsl;
 	for (_it_bsl=m_vGpsBaselines.begin(); _it_bsl!=m_vGpsBaselines.end(); ++_it_bsl)
 		_it_bsl->SimulateMsr(vStations, ellipsoid);
 }
@@ -886,7 +886,7 @@ UINT32 CDnaGpsBaselineCluster::SetMeasurementRec(const vstn_t& binaryStn, it_vms
 	m_vGpsBaselines.clear();
 	m_vGpsBaselines.resize(m_lRecordedTotal);
 
-	m_referenceFrame = datumFromEpsgString<string>(it_msr->epsgCode);
+	m_referenceFrame = datumFromEpsgString<std::string>(it_msr->epsgCode);
 	m_epoch = it_msr->epoch;
 	m_epsgCode = it_msr->epsgCode;
 
@@ -918,49 +918,49 @@ UINT32 CDnaGpsBaselineCluster::SetMeasurementRec(const vstn_t& binaryStn, it_vms
 
 void CDnaGpsBaselineCluster::WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) const
 {
-	vector<CDnaGpsBaseline>::const_iterator _it_bsl;
+	std::vector<CDnaGpsBaseline>::const_iterator _it_bsl;
 	for (_it_bsl=m_vGpsBaselines.begin(); _it_bsl!=m_vGpsBaselines.end(); ++_it_bsl)
 		_it_bsl->WriteBinaryMsr(binary_stream, msrIndex);
 }
 
 
-void CDnaGpsBaselineCluster::SetEpsg(const string& epsg) 
+void CDnaGpsBaselineCluster::SetEpsg(const std::string& epsg) 
 {
 	// m_epsgCode is a member of CDnaMeasurement
 	m_epsgCode = epsg;
 }
 
 
-void CDnaGpsBaselineCluster::SetReferenceFrame(const string& refFrame) 
+void CDnaGpsBaselineCluster::SetReferenceFrame(const std::string& refFrame) 
 {
 	// m_referenceFrame is a member of CDnaGpsBaselineCluster
 	m_referenceFrame = refFrame;
-	SetEpsg(epsgStringFromName<string>(refFrame));
+	SetEpsg(epsgStringFromName<std::string>(refFrame));
 }
 
 
-void CDnaGpsBaselineCluster::SetTotal(const string& str)
+void CDnaGpsBaselineCluster::SetTotal(const std::string& str)
 {
 	m_lRecordedTotal = LongFromString<UINT32>(trimstr(str));
 	m_vGpsBaselines.reserve(m_lRecordedTotal);
 }
 
-void CDnaGpsBaselineCluster::SetPscale(const string& str)
+void CDnaGpsBaselineCluster::SetPscale(const std::string& str)
 {
 	DoubleFromString(m_dPscale, trimstr(str));
 }
 
-void CDnaGpsBaselineCluster::SetLscale(const string& str)
+void CDnaGpsBaselineCluster::SetLscale(const std::string& str)
 {
 	DoubleFromString(m_dLscale, trimstr(str));
 }
 
-void CDnaGpsBaselineCluster::SetHscale(const string& str)
+void CDnaGpsBaselineCluster::SetHscale(const std::string& str)
 {
 	DoubleFromString(m_dHscale, trimstr(str));
 }
 
-void CDnaGpsBaselineCluster::SetVscale(const string& str)
+void CDnaGpsBaselineCluster::SetVscale(const std::string& str)
 {
 	DoubleFromString(m_dVscale, trimstr(str));
 }

@@ -31,8 +31,6 @@
 
 #include <math.h>
 
-using namespace std;
-
 #include <include/config/dnatypes.hpp>
 
 // GRS80 parameters

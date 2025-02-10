@@ -58,13 +58,6 @@
 
 #include <dynadjust/dnaplot/dnaplot.hpp>
 
-using namespace std;
-using namespace boost;
-using namespace boost::filesystem;
-using namespace boost::posix_time;
-using namespace boost::program_options;
-namespace po = boost::program_options;
-
 using namespace dynadjust::networkplot;
 using namespace dynadjust::exception;
 

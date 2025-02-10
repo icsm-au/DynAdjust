@@ -44,9 +44,6 @@
 #include <include/config/dnatypes.hpp>
 #include <include/measurement_types/dnameasurement.hpp>
 
-using namespace std;
-using namespace boost;
-
 using namespace dynadjust::datum_parameters;
 using namespace dynadjust::measurements;
 
@@ -119,7 +116,7 @@ void copy_if_all_occurrences(InputIterator begin, InputIterator end, Predicate p
 template <typename T, typename InputIterator, typename Predicate> 
 void erase_if_impl(T* t, InputIterator begin, InputIterator end, Predicate pred)
 {
-	t->erase(remove_if(begin, end, pred), end);
+	t->erase(std::remove_if(begin, end, pred), end);
 }
 
 template <typename T, typename Predicate> 
@@ -137,8 +134,8 @@ void erase_if(T* t, Predicate pred)
 template <typename T> 
 void strip_duplicates(T& t)
 {
-	sort(t.begin(), t.end());	
-	typename T::iterator it_newend(unique(t.begin(), t.end()));
+	std::sort(t.begin(), t.end());	
+	typename T::iterator it_newend(std::unique(t.begin(), t.end()));
 	if (it_newend != t.end())
 		t.resize(it_newend - t.begin());
 }
@@ -151,7 +148,7 @@ void strip_duplicates(T* t)
 
 // template function for output to file or cout
 template <class T>
-void outputObject(T t, ostream &os) { os << t; }
+void outputObject(T t, std::ostream &os) { os << t; }
 
 //// template functor for equality of (type)value
 //template <class C, typename T, typename OP>
@@ -184,7 +181,7 @@ public:
 	value_equals (const V& v) : value(v) {
 	}
 	// comparison
-	bool operator() (pair<const K, V> elem) {
+	bool operator() (std::pair<const K, V> elem) {
 		return elem.second == value;
 	}
 };
@@ -194,10 +191,10 @@ public:
 // Use of NSEW to indicate negative/positive hemispheres 
 // is not supported yet.
 template <class T>
-T ParseDmsString(const string& dmsString, const string& delimiter)
+T ParseDmsString(const std::string& dmsString, const std::string& delimiter)
 {
-	vector<string> tokenList;
-	SplitDelimitedString<string>(dmsString, delimiter, &tokenList);
+	std::vector<std::string> tokenList;
+	SplitDelimitedString<std::string>(dmsString, delimiter, &tokenList);
 
 	// "-38 43 28.24255"
 	// "-38"       -> 38.000000000
@@ -233,23 +230,23 @@ T ParseDmsString(const string& dmsString, const string& delimiter)
 	
 //symbols is only optional if withSpaces is true
 template <class T>
-string FormatDmsString(const T& dDegMinSec, const int precision, bool withSpaces, bool withSymbols)
+std::string FormatDmsString(const T& dDegMinSec, const int precision, bool withSpaces, bool withSymbols)
 {
-	stringstream ss;
-	ss << fixed << setprecision(precision) << dDegMinSec;
+	std::stringstream ss;
+	ss << std::fixed << std::setprecision(precision) << dDegMinSec;
 
-	// No symbols or spaces? return string
+	// No symbols or spaces? return std::string
 	if (!withSpaces && !withSymbols)
 		return ss.str();
 
-	string strNumber(ss.str()), strBuf(ss.str());
+	std::string strNumber(ss.str()), strBuf(ss.str());
 	
 	size_t decimal(0);
 	int precision_fmt(precision);
 	int minute_symbol_loc(withSymbols?4:3), second_symbol_loc(withSymbols?8:6);
 		
 	// Add symbols for degrees minutes and seconds
-	if ((decimal = strNumber.find('.')) != string::npos)
+	if ((decimal = strNumber.find('.')) != std::string::npos)
 	{
 		// found a decimal point!
 		if (decimal == 0)					// decimal point at start, ie >>   .0123
@@ -326,19 +323,19 @@ string FormatDmsString(const T& dDegMinSec, const int precision, bool withSpaces
 
 //symbols is only optional if withSpaces is true
 template <class T>
-string FormatDnaDmsString(const T& dDegMinSec, int precision)
+std::string FormatDnaDmsString(const T& dDegMinSec, int precision)
 {
-	stringstream ss;
+	std::stringstream ss;
 	if (precision < 4)
 		precision = 4;
-	ss << fixed << setprecision(precision) << dDegMinSec;
-	string strBuf(ss.str());
+	ss << std::fixed << std::setprecision(precision) << dDegMinSec;
+	std::string strBuf(ss.str());
 	
 	size_t decimal(0);
-	string d, m, s;
+	std::string d, m, s;
 		
 	// Format degrees minutes and seconds
-	if ((decimal = strBuf.find('.')) != string::npos)
+	if ((decimal = strBuf.find('.')) != std::string::npos)
 	{
 		// found a decimal point!
 		if (decimal == 0)					// decimal point at start, ie >>   .0123
@@ -380,7 +377,7 @@ string FormatDnaDmsString(const T& dDegMinSec, int precision)
 		}
 		
 		ss.str("");
-		ss << setw(3) << d << setw(3) << right << m << " " << setw(6) << s;
+		ss << std::setw(3) << d << std::setw(3) << std::right << m << " " << std::setw(6) << s;
 		strBuf = ss.str();
 	}
 
@@ -406,7 +403,7 @@ class CompareClusterID
 public:
 	CompareClusterID()
 		: _m(0), _id(0) {}
-	CompareClusterID(const vector<M>* m, const U& id=0)
+	CompareClusterID(const std::vector<M>* m, const U& id=0)
 		: _m(m), _id(id) {}
 	// used for lower_bound, upper_bound, etc...
 	bool operator()(const boost::shared_ptr<U> lhs, const U& rhs) {
@@ -433,11 +430,11 @@ public:
 	bool operator()(const U& id) {
 		return _m->at(id).clusterID == _id;
 	}
-	inline void SetAMLPointer(const vector<M>* m) { _m = m; }
+	inline void SetAMLPointer(const std::vector<M>* m) { _m = m; }
 	inline void SetClusterID(const U& id) { _id = id; }
 	inline bool IsAMLPointerNull() { return _m == NULL; }
 private:
-	const vector<M>*	_m;
+	const std::vector<M>*	_m;
 	U					_id;
 };
 
@@ -451,7 +448,7 @@ template<typename A, typename U>
 class CompareMeasCount
 {
 public:
-	CompareMeasCount(const vector<A>* a) : _a(a) {}
+	CompareMeasCount(const std::vector<A>* a) : _a(a) {}
 
 	// used for lower_bound, upper_bound, etc...
 	bool operator()(const boost::shared_ptr<U> lhs, const U& rhs) {
@@ -466,10 +463,10 @@ public:
 			return _a->at(lhs).GetAMLStnIndex() < _a->at(rhs).GetAMLStnIndex();
 		return _a->at(lhs).GetAssocMsrCount() < _a->at(rhs).GetAssocMsrCount();
 	}
-	inline void SetASLPointer(const vector<A>* a) { _a = a; }
+	inline void SetASLPointer(const std::vector<A>* a) { _a = a; }
 	inline bool IsASLPointerNull() { return _a == NULL; }
 private:
-	const vector<A>*	_a;
+	const std::vector<A>*	_a;
 };
 
 
@@ -477,7 +474,7 @@ template<typename A, typename U>
 class CompareMeasCount2
 {
 public:
-	CompareMeasCount2(const vector<A>* a) : _a(a) {}
+	CompareMeasCount2(const std::vector<A>* a) : _a(a) {}
 
 	bool operator()(const U& lhs, const U& rhs)
 	{
@@ -486,7 +483,7 @@ public:
 		return _a->at(lhs).get()->GetAssocMsrCount() < _a->at(rhs).get()->GetAssocMsrCount();
 	}
 private:
-	const vector<A>*	_a;
+	const std::vector<A>*	_a;
 };
 
 
@@ -494,7 +491,7 @@ template<typename A, typename U>
 class CompareValidity
 {
 public:
-	CompareValidity(const vector<A>* a, const UINT16& v) : _a(a), _v(v) {}
+	CompareValidity(const std::vector<A>* a, const UINT16& v) : _a(a), _v(v) {}
 
 	// used for lower_bound, upper_bound, etc...
 	bool operator()(const U& asl_index) {
@@ -505,7 +502,7 @@ public:
 		return _a->at(lhs).Validity() < _a->at(rhs).Validity();
 	}
 private:
-	const vector<A>*	_a;
+	const std::vector<A>*	_a;
 	const UINT16		_v;
 };
 
@@ -515,7 +512,7 @@ template<typename M, typename U>
 class CompareMeasStart
 {
 public:
-	CompareMeasStart(vector<M>* m, MEASUREMENT_START id=xMeas) 
+	CompareMeasStart(std::vector<M>* m, MEASUREMENT_START id=xMeas) 
 		:  _m(m), _id(id) {}
 	bool operator()(const U& freemsr_index) {
 		return _m->at(freemsr_index).measStart == _id;
@@ -524,7 +521,7 @@ public:
 		return _m->at(lhs).measStart < _m->at(rhs).measStart;
 	}
 private:
-	vector<M>*			_m;
+	std::vector<M>*			_m;
 	MEASUREMENT_START	_id;
 };
 
@@ -533,7 +530,7 @@ template<typename M, typename U>
 class CompareNonMeasStart
 {
 public:
-	CompareNonMeasStart(vector<M>* m, MEASUREMENT_START id=xMeas) 
+	CompareNonMeasStart(std::vector<M>* m, MEASUREMENT_START id=xMeas) 
 		:  _m(m), _id(id) {}
 	bool operator()(const U& freemsr_index) {
 		return _m->at(freemsr_index).measStart != _id;
@@ -542,7 +539,7 @@ public:
 		return _m->at(lhs).measStart < _m->at(rhs).measStart;
 	}
 private:
-	vector<M>*			_m;
+	std::vector<M>*			_m;
 	MEASUREMENT_START	_id;
 };
 
@@ -551,13 +548,13 @@ template<typename M, typename U>
 class CompareMsrFileOrder
 {
 public:
-	CompareMsrFileOrder(vector<M>* m)
+	CompareMsrFileOrder(std::vector<M>* m)
 		:  _m(m) {}
 	bool operator()(const U& lhs, const U& rhs) {
 		return _m->at(lhs).fileOrder < _m->at(rhs).fileOrder;
 	}
 private:
-	vector<M>*	_m;
+	std::vector<M>*	_m;
 };
 
 
@@ -595,13 +592,13 @@ public:
 template <typename S, typename U = u32u32_double_pair>
 class CompareBlockStationMapUnique_byFileOrder {
 public:
-	CompareBlockStationMapUnique_byFileOrder(vector<S>* s)
+	CompareBlockStationMapUnique_byFileOrder(std::vector<S>* s)
 		:  _s(s) {}
 	bool operator()(const U& left, const U& right) {
 		return _s->at(left.first.first).fileOrder < _s->at(right.first.first).fileOrder;
 	}
 private:
-	vector<S>*	_s;
+	std::vector<S>*	_s;
 };
 
 // M = measurement_t, U = UINT32
@@ -609,9 +606,9 @@ template<typename M, typename U>
 class CompareMeasType_PairFirst
 {
 public:
-	CompareMeasType_PairFirst(vector<M>* m)
+	CompareMeasType_PairFirst(std::vector<M>* m)
 		:  _m(m) {}
-	bool operator()(const pair<U, pair<U, U> >& lhs, const pair<U, pair<U, U> >& rhs) {
+	bool operator()(const std::pair<U, std::pair<U, U> >& lhs, const std::pair<U, std::pair<U, U> >& rhs) {
 		if (_m->at(lhs.first).measType == _m->at(rhs.first).measType)
 		{
 			if (_m->at(lhs.first).station1 == _m->at(rhs.first).station1)
@@ -626,7 +623,7 @@ public:
 		return _m->at(lhs.first).measType < _m->at(rhs.first).measType;
 	}
 private:
-	vector<M>*	_m;
+	std::vector<M>*	_m;
 };
 
 
@@ -635,9 +632,9 @@ template<typename M, typename U>
 class CompareMeasFromStn_PairFirst
 {
 public:
-	CompareMeasFromStn_PairFirst(vector<M>* m)
+	CompareMeasFromStn_PairFirst(std::vector<M>* m)
 		:  _m(m) {}
-	bool operator()(const pair<U, pair<U, U> >& lhs, const pair<U, pair<U, U> >& rhs) {
+	bool operator()(const std::pair<U, std::pair<U, U> >& lhs, const std::pair<U, std::pair<U, U> >& rhs) {
 		if (_m->at(lhs.first).station1 == _m->at(rhs.first).station1)
 		{
 			if (_m->at(lhs.first).measType == _m->at(rhs.first).measType)
@@ -652,7 +649,7 @@ public:
 		return _m->at(lhs.first).station1 < _m->at(rhs.first).station1;
 	}
 private:
-	vector<M>*	_m;
+	std::vector<M>*	_m;
 };
 
 
@@ -661,9 +658,9 @@ template<typename M, typename U>
 class CompareMeasToStn_PairFirst
 {
 public:
-	CompareMeasToStn_PairFirst(vector<M>* m)
+	CompareMeasToStn_PairFirst(std::vector<M>* m)
 		:  _m(m) {}
-	bool operator()(const pair<U, pair<U, U> >& lhs, const pair<U, pair<U, U> >& rhs) {
+	bool operator()(const std::pair<U, std::pair<U, U> >& lhs, const std::pair<U, std::pair<U, U> >& rhs) {
 		if (_m->at(lhs.first).station2 == _m->at(rhs.first).station2)
 		{
 			if (_m->at(lhs.first).measType == _m->at(rhs.first).measType)
@@ -678,7 +675,7 @@ public:
 		return _m->at(lhs.first).station2 < _m->at(rhs.first).station2;
 	}
 private:
-	vector<M>*	_m;
+	std::vector<M>*	_m;
 };
 
 
@@ -743,9 +740,9 @@ template<typename M, typename U>
 class CompareMeasValue_PairFirst
 {
 public:
-	CompareMeasValue_PairFirst(vector<M>* m)
+	CompareMeasValue_PairFirst(std::vector<M>* m)
 		:  _m(m) {}
-	bool operator()(const pair<U, pair<U, U> >& lhs, const pair<U, pair<U, U> >& rhs) {
+	bool operator()(const std::pair<U, std::pair<U, U> >& lhs, const std::pair<U, std::pair<U, U> >& rhs) {
 		if (isCompoundMeasAll(_m->at(lhs.first).measType) && notCompoundMeasAll(_m->at(rhs.first).measType))
 		{
 			double lhsValue = 0.0;
@@ -901,7 +898,7 @@ public:
 			return fabs(_m->at(lhs.first).term1) > fabs(_m->at(rhs.first).term1);
 	}
 private:
-	vector<M>*	_m;
+	std::vector<M>*	_m;
 };
 
 
@@ -910,9 +907,9 @@ template<typename M, typename U>
 class CompareMeasResidual_PairFirst
 {
 public:
-	CompareMeasResidual_PairFirst(vector<M>* m)
+	CompareMeasResidual_PairFirst(std::vector<M>* m)
 		: _m(m) {}
-	bool operator()(const pair<U, pair<U, U> >& lhs, const pair<U, pair<U, U> >& rhs) {
+	bool operator()(const std::pair<U, std::pair<U, U> >& lhs, const std::pair<U, std::pair<U, U> >& rhs) {
 		if (isCompoundMeasAll(_m->at(lhs.first).measType) && notCompoundMeasAll(_m->at(rhs.first).measType))
 		{
 			double lhsValue = 0.0;
@@ -1068,7 +1065,7 @@ public:
 			return fabs(_m->at(lhs.first).measCorr) > fabs(_m->at(rhs.first).measCorr);
 	}
 private:
-	vector<M>* _m;
+	std::vector<M>* _m;
 };
 
 
@@ -1077,9 +1074,9 @@ template<typename M, typename U>
 class CompareMeasAdjSD_PairFirst
 {
 public:
-	CompareMeasAdjSD_PairFirst(vector<M>* m)
+	CompareMeasAdjSD_PairFirst(std::vector<M>* m)
 		: _m(m) {}
-	bool operator()(const pair<U, pair<U, U> >& lhs, const pair<U, pair<U, U> >& rhs) {
+	bool operator()(const std::pair<U, std::pair<U, U> >& lhs, const std::pair<U, std::pair<U, U> >& rhs) {
 		if (isCompoundMeasAll(_m->at(lhs.first).measType) && notCompoundMeasAll(_m->at(rhs.first).measType))
 		{
 			double lhsValue = 0.0;
@@ -1235,7 +1232,7 @@ public:
 			return fabs(_m->at(lhs.first).measAdjPrec) > fabs(_m->at(rhs.first).measAdjPrec);
 	}
 private:
-	vector<M>* _m;
+	std::vector<M>* _m;
 };
 
 
@@ -1244,9 +1241,9 @@ template<typename M, typename U>
 class CompareMeasNstat_PairFirst
 {
 public:
-	CompareMeasNstat_PairFirst(vector<M>* m)
+	CompareMeasNstat_PairFirst(std::vector<M>* m)
 		:  _m(m) {}
-	bool operator()(const pair<U, pair<U, U> >& lhs, const pair<U, pair<U, U> >& rhs) {
+	bool operator()(const std::pair<U, std::pair<U, U> >& lhs, const std::pair<U, std::pair<U, U> >& rhs) {
 		if (isCompoundMeasAll(_m->at(lhs.first).measType) && notCompoundMeasAll(_m->at(rhs.first).measType))
 		{
 			double lhsValue = 0.0;
@@ -1402,7 +1399,7 @@ public:
 			return fabs(_m->at(lhs.first).NStat) > fabs(_m->at(rhs.first).NStat);
 	}
 private:
-	vector<M>*	_m;
+	std::vector<M>*	_m;
 };
 
 
@@ -1411,13 +1408,13 @@ template<typename S, typename U>
 class CompareStnFileOrder
 {
 public:
-	CompareStnFileOrder(vector<S>* s)
+	CompareStnFileOrder(std::vector<S>* s)
 		:  _s(s) {}
 	bool operator()(const U& lhs, const U& rhs) {
 		return _s->at(lhs).fileOrder < _s->at(rhs).fileOrder;
 	}
 private:
-	vector<S>*	_s;
+	std::vector<S>*	_s;
 };
 
 
@@ -1464,13 +1461,13 @@ template<typename S, typename U>
 class CompareStnFileOrder_StnBlockMap
 {
 public:
-	CompareStnFileOrder_StnBlockMap(vector<S>* s)
+	CompareStnFileOrder_StnBlockMap(std::vector<S>* s)
 		:  _s(s) {}
 	bool operator()(const U& lhs, const U& rhs) {
 		return _s->at(lhs.station_id).fileOrder < _s->at(rhs.station_id).fileOrder;
 	}
 private:
-	vector<S>*	_s;
+	std::vector<S>*	_s;
 };
 
 
@@ -1487,30 +1484,30 @@ public:
 };
 
 
-// T = station_t, S = string
+// T = station_t, S = std::string
 template<typename T>
 class CompareStnName
 {
 public:
 	bool operator()(const T& lhs, const T& rhs) {
-		return string(lhs.stationName) < string(rhs.stationName);
+		return std::string(lhs.stationName) < std::string(rhs.stationName);
 	}
 };
 
 
-// T = station_t, S = string
+// T = station_t, S = std::string
 template<typename T, typename S>
 class CompareStnOriginalName
 {
 public:
 	bool operator()(const T& lhs, const T& rhs) {
-		return string(lhs.stationNameOrig) < string(rhs.stationNameOrig);
+		return std::string(lhs.stationNameOrig) < std::string(rhs.stationNameOrig);
 	}
 	bool operator()(const T& lhs, const S& rhs) {
-		return string(lhs.stationNameOrig) < rhs;
+		return std::string(lhs.stationNameOrig) < rhs;
 	}
 	bool operator()(const S& lhs, const T& rhs) {
-		return lhs < string(rhs.stationNameOrig);
+		return lhs < std::string(rhs.stationNameOrig);
 	}
 };
 
@@ -1520,7 +1517,7 @@ template<typename S, typename U>
 class CompareStnLongitude
 {
 public:
-	CompareStnLongitude(vector<S>* s, bool leftToRight=true)
+	CompareStnLongitude(std::vector<S>* s, bool leftToRight=true)
 		:  _s(s)
 		, _leftToRight(leftToRight) {}
 	bool operator()(const U& lhs, const U& rhs) {
@@ -1530,7 +1527,7 @@ public:
 			return _s->at(lhs).initialLongitude > _s->at(rhs).initialLongitude;
 	}
 private:
-	vector<S>*	_s;
+	std::vector<S>*	_s;
 	bool		_leftToRight;
 };
 
@@ -1581,7 +1578,7 @@ public:
 	}
 };
 
-template<typename T = scalar_t, typename S = string>
+template<typename T = scalar_t, typename S = std::string>
 class CompareScalarStations
 {
 public:
@@ -1607,10 +1604,10 @@ template<typename M, typename U, typename C>
 class CompareValidFreeMeasType_vT
 {
 public:
-	CompareValidFreeMeasType_vT(vector<M>* msrs, vector<C>& vtypes) 
+	CompareValidFreeMeasType_vT(std::vector<M>* msrs, std::vector<C>& vtypes) 
 		: _msrs(msrs), _vtypes(vtypes) 
 	{
-		sort(vtypes.begin(), vtypes.end());
+		std::sort(vtypes.begin(), vtypes.end());
 	}
 	bool operator()(const U& msr_index) {
 		return _msrs->at(msr_index).ignore == false &&
@@ -1618,8 +1615,8 @@ public:
 	}
 
 private:
-	vector<M>*	_msrs;
-	vector<C> _vtypes;
+	std::vector<M>*	_msrs;
+	std::vector<C> _vtypes;
 };
 	
 
@@ -1628,7 +1625,7 @@ template<typename M, typename U>
 class CompareIgnoreedMeas
 {
 public:
-	CompareIgnoreedMeas(vector<M>* m) :  _m(m) {}
+	CompareIgnoreedMeas(std::vector<M>* m) :  _m(m) {}
 	bool operator()(const U& freemsr_index) {
 		return _m->at(freemsr_index).ignore;
 	}
@@ -1636,7 +1633,7 @@ public:
 		return _m->at(lhs).ignore < _m->at(rhs).ignore;
 	}
 private:
-	vector<M>*	_m;
+	std::vector<M>*	_m;
 };
 
 
@@ -1744,7 +1741,7 @@ template<typename M>
 class CompareMeasType
 {
 public:
-	CompareMeasType(const string& s) :  _s(s) {}
+	CompareMeasType(const std::string& s) :  _s(s) {}
 	inline void SetComparand(const char& s) { _s = s; }
 
 	bool operator()(boost::shared_ptr<M> m) {
@@ -1756,7 +1753,7 @@ public:
 	}
 
 private:
-	string				_s;
+	std::string				_s;
 	_it_str				_it_s;
 };
 
@@ -1765,8 +1762,8 @@ template<typename M>
 class CompareNonMeasType
 {
 public:
-	CompareNonMeasType(const string& s) :  _s(s), _bFd(false) {}
-	inline void SetComparand(const string& s) { _s = s; }
+	CompareNonMeasType(const std::string& s) :  _s(s), _bFd(false) {}
+	inline void SetComparand(const std::string& s) { _s = s; }
 
 	bool operator()(boost::shared_ptr<M> m) {
 		_bFd = true;
@@ -1777,7 +1774,7 @@ public:
 
 
 private:
-	string				_s;
+	std::string				_s;
 	_it_str				_it_s;
 	bool				_bFd;
 };
@@ -1787,12 +1784,12 @@ template<typename M, typename U>
 class CompareCovarianceStart
 {
 public:
-	CompareCovarianceStart(vector<M>* m) :  _m(m) {}
+	CompareCovarianceStart(std::vector<M>* m) :  _m(m) {}
 	bool operator()(const U& freemsr_index) {
 		return _m->at(freemsr_index).measStart > zMeas;
 	}
 private:
-	vector<M>*	_m;
+	std::vector<M>*	_m;
 };
 
 
@@ -1800,13 +1797,13 @@ template<typename T>
 class ComparePairSecond
 {
 public:
-	bool operator()(const pair<T, T>& lhs, const pair<T, T>& rhs) const {
+	bool operator()(const std::pair<T, T>& lhs, const std::pair<T, T>& rhs) const {
 		return pair_secondless(lhs.second, rhs.second);
 	}
-	bool operator()(const pair<T, T>& lhs, const T& rhs) {
+	bool operator()(const std::pair<T, T>& lhs, const T& rhs) {
 		return pair_secondless(lhs.second, rhs);
 	}
-	bool operator()(const T& lhs, const pair<T, T>& rhs) {
+	bool operator()(const T& lhs, const std::pair<T, T>& rhs) {
 		return pair_secondless(lhs, rhs.second);
 	}
 private:
@@ -1819,13 +1816,13 @@ template<typename T>
 class ComparePairFirst
 {
 public:
-	bool operator()(const pair<T, T>& lhs, const pair<T, T>& rhs) const {
+	bool operator()(const std::pair<T, T>& lhs, const std::pair<T, T>& rhs) const {
 		return pair_firstless(lhs.first, rhs.first);
 	}
-	bool operator()(const pair<T, T>& lhs, const T& rhs) {
+	bool operator()(const std::pair<T, T>& lhs, const T& rhs) {
 		return pair_firstless(lhs.first, rhs);
 	}
-	bool operator()(const T& lhs, const pair<T, T>& rhs) {
+	bool operator()(const T& lhs, const std::pair<T, T>& rhs) {
 		return pair_firstless(lhs, rhs.first);
 	}
 private:
@@ -1839,23 +1836,23 @@ template<typename T, typename U>
 class CompareOddPairFirst
 {
 public:
-	bool operator()(const pair<T, U>& lhs, const pair<T, U>& rhs) const {
+	bool operator()(const std::pair<T, U>& lhs, const std::pair<T, U>& rhs) const {
 		return lhs.first < rhs.first;
 	}
 };
 
-// S = station_t, T = UINT32, U = string
+// S = station_t, T = UINT32, U = std::string
 template<typename S, typename T, typename U>
 class CompareOddPairFirst_FileOrder
 {
 public:
-	CompareOddPairFirst_FileOrder(vector<S>* s)
+	CompareOddPairFirst_FileOrder(std::vector<S>* s)
 		:  _s(s) {}
-	bool operator()(const pair<T, U>& lhs, const pair<T, U>& rhs) {
+	bool operator()(const std::pair<T, U>& lhs, const std::pair<T, U>& rhs) {
 		return _s->at(lhs.first).fileOrder < _s->at(rhs.first).fileOrder;
 	}
 private:
-	vector<S>*	_s;
+	std::vector<S>*	_s;
 };
 
 
@@ -1864,7 +1861,7 @@ class ComparePairSecondf
 {
 public:
 	ComparePairSecondf(T t) :  _t(t) {}
-	bool operator()(const pair<T, T>& t) {
+	bool operator()(const std::pair<T, T>& t) {
 		return t.second == _t;
 	}
 	
@@ -1913,7 +1910,7 @@ template<typename U, typename M, typename C>
 class CompareFreeClusterAllStns
 {
 public:
-	CompareFreeClusterAllStns(vector<U>* u, vector<M>* m, const C& c) :  _u(u), _m(m), _c(c) {}
+	CompareFreeClusterAllStns(std::vector<U>* u, std::vector<M>* m, const C& c) :  _u(u), _m(m), _c(c) {}
 	bool operator()(const U& amlindex) {
 		// one-station measurement types
 		// is this station on the list?
@@ -1961,8 +1958,8 @@ public:
 		return false;
 	}
 private:
-	vector<U>*	_u;
-	vector<M>*	_m;
+	std::vector<U>*	_u;
+	std::vector<M>*	_m;
 	char		_c;
 };
 
@@ -1972,23 +1969,23 @@ template <typename T, typename U>
 class PairCompareFirst {
 public: //functions
 	// comparison func for sorting
-	//bool operator()(const pair<T, U>& lhs, const pair<T, U>& rhs) const {
+	//bool operator()(const std::pair<T, U>& lhs, const std::pair<T, U>& rhs) const {
 	bool operator()(const string_string_pair& lhs, const string_string_pair& rhs) const {
 		return keyLess(lhs.first, rhs.first);
 	}
 	// comparison func for lookups
-	//bool operator()(const pair<T, U>& lhs, const pair<T, U>::first_type& rhs) const {
+	//bool operator()(const std::pair<T, U>& lhs, const std::pair<T, U>::first_type& rhs) const {
 	bool operator()(const string_string_pair& lhs, const string_string_pair::first_type& rhs) const {
 		return keyLess(lhs.first, rhs);
 	}
 	// comparison func for lookups
-	//bool operator()(const pair<T, U>::first_type& lhs, const pair<T, U>& rhs) const {
+	//bool operator()(const std::pair<T, U>::first_type& lhs, const std::pair<T, U>& rhs) const {
 	bool operator()(const string_string_pair::first_type& lhs, const string_string_pair& rhs) const {
 		return keyLess(lhs, rhs.first);
 	}
 private:
 	// the "real" comparison function
-	//bool keyLess(const pair<T, U>::first_type& k1, const pair<T, U>::first_type& k2) const {
+	//bool keyLess(const std::pair<T, U>::first_type& k1, const std::pair<T, U>::first_type& k2) const {
 	bool keyLess(const string_string_pair::first_type& k1, const string_string_pair::first_type& k2) const {
 		return k1 < k2;
 	}

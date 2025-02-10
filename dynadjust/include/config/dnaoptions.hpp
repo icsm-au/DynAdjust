@@ -143,8 +143,6 @@ enum coastResolution
 	full = 4
 };
 
-using namespace boost;
-
 // general settings used by all programs
 struct general_settings : private boost::equality_comparable<general_settings> {
 public:
@@ -171,11 +169,11 @@ public:
 	UINT16					verbose;			// Give detailed information about what dnainterop is doing.\n0: No information (default)\n1: Helpful information\n2: Extended information\n3: Debug level information
 	UINT16					version;			// Display the current program version
 	UINT16      			interactive;		// whether to display a Qt Dialog or continue with command window
-	string					log_file;			// dynadjust log filename
-	string					project_file;		// project filename
-	string					network_name;		// network name
-	string					input_folder;		// Additional include folder containing input files (used for command line help only)
-	string					output_folder;		// Path for all output (intermediate) files
+	std::string					log_file;			// dynadjust log filename
+	std::string					project_file;		// project filename
+	std::string					network_name;		// network name
+	std::string					input_folder;		// Additional include folder containing input files (used for command line help only)
+	std::string					output_folder;		// Path for all output (intermediate) files
 	v_string_string_pair	variables;			// Shortcut tags to assist with file naming
 };
 
@@ -229,8 +227,8 @@ private:
 	//}
 
 public:
-	string		reference_frame;			// Project reference frame - used primarily for reductions on the ellipsoid.
-	string		epoch;						// Project epoch
+	std::string		reference_frame;			// Project reference frame - used primarily for reductions on the ellipsoid.
+	std::string		epoch;						// Project epoch
 	UINT16		user_supplied_frame;		// User has supplied a frame - use this to change the default frame
 	UINT16		user_supplied_epoch;		// User has supplied a epoch - use this to change the default epoch
 	UINT16		override_input_rfame;		// Override reference frame specified in input files using the default or user supplied frame.
@@ -250,30 +248,30 @@ public:
 	UINT16		split_clusters;				// Allow bounding box or station selection to split GNSS point and baseline clusters.
 	UINT16		include_transcending_msrs;	// Include measurements straddling bounding box.
 	UINT16		apply_scaling;				// Apply scaling?
-	string		map_file;					// Station map output file
-	string		asl_file;					// Associated stations output file
-	string		aml_file;					// Associated measurements output file
-	string		bst_file;					// Binary station output file
-	string		bms_file;					// Binary measurement output file
-	string		dst_file;					// Duplicate station output file
-	string		dms_file;					// Duplicate measurement output file
-	string		imp_file;					// import log file
-	string		geo_file;					// Geoid file to use on import
-	string		seg_file;					// Segmentation input file
-	string		dbid_file;					// Database ID file
-	string		xml_outfile;				// Create DynaML output file (combined stn and msr)
-	string		xml_stnfile;				// DynaML station file
-	string		xml_msrfile;				// DynaML measurement file
-	string		dna_stnfile;				// DNA station file
-	string		dna_msrfile;				// DNA measurement file
-	string		stn_renamingfile;			// Station renaming file
-	string		stn_discontinuityfile;		// Station discontinuity file (SINEX format)
-	string		simulate_msrfile;			// Simulation control file
-	string		include_msrs;				// Import the measurements corresponding to the user-supplied string of measurement types
-	string		exclude_msrs;				// Exclude the measurements corresponding to the user-supplied string of measurement types
-	string		bounding_box;				// Import stations and measurements within bounding box using comma delimited string \"lat1,lon1,lat2,lon2\" to define upper-left and lower-right limits.
-	string		stn_associated_msr_include;	// Include stations and all associated measurements. arg is a comma delimited string \"stn 1,stn 2,stn 3,...,stn N\" of the stations to include.
-	string		stn_associated_msr_exclude;	// Exclude stations and all associated measurements. arg is a comma delimited string \"stn 1,stn 2,stn 3,...,stn N\" of the stations to exclude.
+	std::string		map_file;					// Station map output file
+	std::string		asl_file;					// Associated stations output file
+	std::string		aml_file;					// Associated measurements output file
+	std::string		bst_file;					// Binary station output file
+	std::string		bms_file;					// Binary measurement output file
+	std::string		dst_file;					// Duplicate station output file
+	std::string		dms_file;					// Duplicate measurement output file
+	std::string		imp_file;					// import log file
+	std::string		geo_file;					// Geoid file to use on import
+	std::string		seg_file;					// Segmentation input file
+	std::string		dbid_file;					// Database ID file
+	std::string		xml_outfile;				// Create DynaML output file (combined stn and msr)
+	std::string		xml_stnfile;				// DynaML station file
+	std::string		xml_msrfile;				// DynaML measurement file
+	std::string		dna_stnfile;				// DNA station file
+	std::string		dna_msrfile;				// DNA measurement file
+	std::string		stn_renamingfile;			// Station renaming file
+	std::string		stn_discontinuityfile;		// Station discontinuity file (SINEX format)
+	std::string		simulate_msrfile;			// Simulation control file
+	std::string		include_msrs;				// Import the measurements corresponding to the user-supplied string of measurement types
+	std::string		exclude_msrs;				// Exclude the measurements corresponding to the user-supplied string of measurement types
+	std::string		bounding_box;				// Import stations and measurements within bounding box using comma delimited string \"lat1,lon1,lat2,lon2\" to define upper-left and lower-right limits.
+	std::string		stn_associated_msr_include;	// Include stations and all associated measurements. arg is a comma delimited string \"stn 1,stn 2,stn 3,...,stn N\" of the stations to include.
+	std::string		stn_associated_msr_exclude;	// Exclude stations and all associated measurements. arg is a comma delimited string \"stn 1,stn 2,stn 3,...,stn N\" of the stations to exclude.
 	UINT16		rename_stations;			// Rename stations using a station renaming file
 	UINT16		apply_discontinuities;		// Rename stations using discontinuities and measurement epochs
 	UINT16		search_nearby_stn;			// Search for nearby stations
@@ -294,8 +292,8 @@ public:
 	double		pscale;						// phi scalar
 	double		lscale;						// lambda scalar
 	double		hscale;						// height scalar
-	string		scalar_file;				// scalar file (individual scalars defined for measurements between specific stations)
-	string		command_line_arguments;
+	std::string		scalar_file;				// scalar file (individual scalars defined for measurements between specific stations)
+	std::string		command_line_arguments;
 	vstring		input_files;				// Default input arguments if no switch is provided.
 };
 
@@ -319,15 +317,15 @@ private:
 	//}
 
 public:
-	string		rft_file;					// reftran log file
-	string		bst_file;					// Binary station output file
-	string		bms_file;					// Binary measurement output file
-	string		reference_frame;			// Reference frame for all stations and measurements.  Requires datum.conf and ellipsoid.conf.
-	string		epoch;						// Epoch
-	string		tpb_file;					// Tectonic plate boundary file
-	string		tpp_file;					// Tectonic plate pole file
+	std::string		rft_file;					// reftran log file
+	std::string		bst_file;					// Binary station output file
+	std::string		bms_file;					// Binary measurement output file
+	std::string		reference_frame;			// Reference frame for all stations and measurements.  Requires datum.conf and ellipsoid.conf.
+	std::string		epoch;						// Epoch
+	std::string		tpb_file;					// Tectonic plate boundary file
+	std::string		tpp_file;					// Tectonic plate pole file
 	UINT16		plate_model_option;			// Informs reftran which plate model option to use
-	string		command_line_arguments;
+	std::string		command_line_arguments;
 };
 
 // geoid settings
@@ -362,12 +360,12 @@ public:
 	UINT16		coordinate_format;				// ddeg or dms (default)
 	UINT16		convert_heights;				// convert ortho binary station heights to ellipsoidal
 	UINT16		export_dna_geo_file;			// Export geoid information in DNA geoid file
-	string		rdat_geoid_file;				// raw dat geoid file
-	string		ntv2_geoid_file;				// ntv2 geoid file
-	string		input_file;						// input file
-	string		bst_file;						// bst file
-	string		geo_file;						// dna geo file
-	string		command_line_arguments;
+	std::string		rdat_geoid_file;				// raw dat geoid file
+	std::string		ntv2_geoid_file;				// ntv2 geoid file
+	std::string		input_file;						// input file
+	std::string		bst_file;						// bst file
+	std::string		geo_file;						// dna geo file
+	std::string		command_line_arguments;
 };
 
 // network segmentation settings
@@ -404,16 +402,16 @@ public:
 	UINT16		show_segment_summary;		// show segmentation summary dialog
 	UINT16		print_segment_debug;		// print segmentation debug information
 	UINT16		force_contiguous_blocks;	// force contiguous blocks
-	string		map_file;					// Station map file
-	string		asl_file;					// Associated stations file
-	string		aml_file;					// Associated measurements file
-	string		bst_file;					// Binary station file
-	string		bms_file;					// Binary measurement file
-	string		seg_file;					// Segmentation output file
-	string		sap_file;					// Station appearance list file
-	string		net_file;					// Starting stations output file
-	string		seg_starting_stns;			// Stations to be incorporated within the first block.
-	string		command_line_arguments;
+	std::string		map_file;					// Station map file
+	std::string		asl_file;					// Associated stations file
+	std::string		aml_file;					// Associated measurements file
+	std::string		bst_file;					// Binary station file
+	std::string		bms_file;					// Binary measurement file
+	std::string		seg_file;					// Segmentation output file
+	std::string		sap_file;					// Station appearance list file
+	std::string		net_file;					// Starting stations output file
+	std::string		seg_starting_stns;			// Stations to be incorporated within the first block.
+	std::string		command_line_arguments;
 };
 
 // network segmentation settings
@@ -446,7 +444,7 @@ private:
 	//}
 
 public:
-	inline void setFilenames(const string& name) {
+	inline void setFilenames(const std::string& name) {
 		map_file = name + ".map";
 		bst_file = name + ".bst";
 		bms_file = name + ".bms";
@@ -471,15 +469,15 @@ public:
 	float		iteration_threshold;	// Convergence limit
 	double		free_std_dev;			// SD for free stations
 	double		fixed_std_dev;			// SD for fixed stations
-	string		station_constraints;	// Station constraints.  Comma delimited string.
-	string		map_file;				// Station map file
-	string		bst_file;				// Binary station file
-	string		bms_file;				// Binary measurement file
-	string		seg_file;				// Segmentation file
-	string		comments;				// General comments about the adjustment, printed to the adj file.
-	string		command_line_arguments;
-	string      type_b_global;          // Comma delimited string containing Type b uncertainties to be applied to all uncertainties computed from an adjustment
-	string      type_b_file;            // File path to Type b uncertainties to be applied to specific site uncertainties computed from an adjustment
+	std::string		station_constraints;	// Station constraints.  Comma delimited string.
+	std::string		map_file;				// Station map file
+	std::string		bst_file;				// Binary station file
+	std::string		bms_file;				// Binary measurement file
+	std::string		seg_file;				// Segmentation file
+	std::string		comments;				// General comments about the adjustment, printed to the adj file.
+	std::string		command_line_arguments;
+	std::string      type_b_global;          // Comma delimited string containing Type b uncertainties to be applied to all uncertainties computed from an adjustment
+	std::string      type_b_file;            // File path to Type b uncertainties to be applied to specific site uncertainties computed from an adjustment
 };
 
 // datum and geoid settings
@@ -537,13 +535,13 @@ private:
 	//}
 
 public:
-	string			_m2s_file;				// Measurement to stations file
-	string			_adj_file;				// Adjustment output
-	string			_xyz_file;				// Adjusted coordinate output
-	string			_snx_file;				// Adjusted coordinate output in SINEX format
-	string			_xml_file;				// Estimated station coordinates and full variance matrix in DynaML (DynAdjust XML) format. Uses Y cluster.
-	string			_cor_file;				// Corrections to intial stations output
-	string			_apu_file;				// Adjusted positional uncertainty output
+	std::string			_m2s_file;				// Measurement to stations file
+	std::string			_adj_file;				// Adjustment output
+	std::string			_xyz_file;				// Adjusted coordinate output
+	std::string			_snx_file;				// Adjusted coordinate output in SINEX format
+	std::string			_xml_file;				// Estimated station coordinates and full variance matrix in DynaML (DynAdjust XML) format. Uses Y cluster.
+	std::string			_cor_file;				// Corrections to intial stations output
+	std::string			_apu_file;				// Adjusted positional uncertainty output
 	UINT16			_adj_stn_iteration;		// Outputs adjusted stations for each block within each iteration
 	UINT16			_adj_msr_iteration;		// Outputs adjusted measurements for each block within each iteration
 	UINT16			_cmp_msr_iteration;		// Outputs computed measurements for each block within each iteration
@@ -571,7 +569,7 @@ public:
 	UINT16			_export_snx_file;		// Create a sinex file from the adjustment
 	double			_hz_corr_threshold;		// Minimum horizontal threshold for station corrections
 	double			_vt_corr_threshold;		// Minimum vertical threshold for station corrections
-	string			_stn_coord_types;		// String defining the cooridnate types to be printed for each station
+	std::string			_stn_coord_types;		// String defining the cooridnate types to be printed for each station
 	UINT16			_angular_type_stn;		// Type of angular station coordinates (dms or ddeg)
 	UINT16			_precision_seconds_stn;	// Precision of angular station values given in seconds
 	UINT16			_precision_metres_stn;	// Precision of linear station values given in seconds
@@ -638,10 +636,10 @@ public:
 															//	4 Transverse Mercator
 															//	5 Albers conic equal-area
 															//	6 Lambert conformal
-	string					_gmt_cmd_file;					// GMT command file to create the eps
-	string					_gnuplot_cmd_file;				// Gnuplot command file to create the eps
-	string					_eps_file_name;					// The eps file generated either by gmt or gnuplot
-	string					_pdf_file_name;					// The PDF file generated either by gmt or gnuplot
+	std::string					_gmt_cmd_file;					// GMT command file to create the eps
+	std::string					_gnuplot_cmd_file;				// Gnuplot command file to create the eps
+	std::string					_eps_file_name;					// The eps file generated either by gmt or gnuplot
+	std::string					_pdf_file_name;					// The PDF file generated either by gmt or gnuplot
 	bool					_plot_phased_blocks;			// Plot the blocks of a segmented network.  Requires a corresponding segmentation file.
 	bool					_plot_station_labels;			// Plots the station labels
 	bool					_plot_ignored_msrs;				// Plot ignored measurements
@@ -663,8 +661,8 @@ public:
 	double					_msr_line_width;				// Measurement line width
 	double					_correction_scale;				// The amount by which to scale the size of correction arrows
 	double					_pu_ellipse_scale;				// The amount by which to scale the size of error ellipses and positional uncertainty cirlces
-	string					_plot_station_centre;			// Centre the map according to this station
-	string					_bounding_box;					// user defined bounding box for plot
+	std::string					_plot_station_centre;			// Centre the map according to this station
+	std::string					_bounding_box;					// user defined bounding box for plot
 	double					_plot_area_radius;				// Set the limits of the plot according to a radius
 	double					_plot_centre_latitude;			// Centre the map according to this latitude
 	double					_plot_centre_longitude;			// Centre the map according to this longitude
@@ -673,10 +671,10 @@ public:
 	double					_ground_width;					// ground width in metres
 	UINT32					_plot_block_number;				// Plots this block only
 	UINT16					_coasline_resolution;			// ncdf resolution
-	string					_title;							// Title of the plot
-	string					_title_block_name;				// Name of the unit to display in the title block
-	string					_title_block_subname;			// Name of the cub-unit to display in the title block
-	string					command_line_arguments;
+	std::string					_title;							// Title of the plot
+	std::string					_title_block_name;				// Name of the unit to display in the title block
+	std::string					_title_block_subname;			// Name of the cub-unit to display in the title block
+	std::string					command_line_arguments;
 	v_string_string_pair	_gmt_params;					// GMT parameters
 	vchar					_separate_msrs;					// A char vector of measurement types to be created individually	
 	v_string_string_pair	_msr_colours;					// A vector of measurement types and corresponding colours

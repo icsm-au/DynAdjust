@@ -37,9 +37,6 @@
 
 #include <include/config/dnatypes.hpp>
 
-using namespace std;
-using namespace boost;
-
 template<typename Iterator, typename Func>
 void parallel_for_each(Iterator first, Iterator last, Func f)
 {

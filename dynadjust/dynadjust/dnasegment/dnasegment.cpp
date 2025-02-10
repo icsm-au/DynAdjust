@@ -49,13 +49,13 @@ void dna_segment::LoadNetFile()
 	try {
 		// Load net file.  Throws runtime_error on failure.
 		file_opener(net_file, projectSettings_.s.net_file, 
-			ios::in, ascii, true);
+			std::ios::in, ascii, true);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		SignalExceptionSerialise(e.what(), 0, NULL);
 	}
 
-	string station;
+	std::string station;
 	char line[PROGRAM_OPTIONS_LINE_LENGTH];
 	
 	// read header lines
@@ -76,12 +76,12 @@ void dna_segment::LoadNetFile()
 			vinitialStns_.push_back(station);
 		}
 	}
-	catch (const ios_base::failure& f) {
+	catch (const std::ios_base::failure& f) {
 
 		if (!net_file.eof())
 		{
-			stringstream ss;
-			ss << "ParseStartingStations(): An error was encountered when reading " << projectSettings_.s.net_file << "." << endl << f.what();
+			std::stringstream ss;
+			ss << "ParseStartingStations(): An error was encountered when reading " << projectSettings_.s.net_file << "." << std::endl << f.what();
 			SignalExceptionSerialise(ss.str(), 0, "i", &net_file);	
 		}
 	}
@@ -95,7 +95,7 @@ void dna_segment::ParseStartingStations()
 	// Rememeber, calling app should make sure that 
 	// projectSettings_.s.net_file contains a valid path if
 	// the user wants to use a net file.
-	if (exists(projectSettings_.s.net_file.c_str()))
+	if (boost::filesystem::exists(projectSettings_.s.net_file.c_str()))
 		LoadNetFile();
 
 	// OK, now get the additionalstations on the command line
@@ -106,9 +106,9 @@ void dna_segment::ParseStartingStations()
 
 	try {
 		// Extract stations from comma delimited string
-		SplitDelimitedString<string>(
+		SplitDelimitedString<std::string>(
 			projectSettings_.s.seg_starting_stns,	// the comma delimited string
-			string(","),							// the delimiter
+			std::string(","),							// the delimiter
 			&cmd_line_stations);						// the respective values
 	}
 	catch (...) {
@@ -175,33 +175,33 @@ _SEGMENT_STATUS_ dna_segment::SegmentNetwork(project_settings* p)
 
 	if ((debug_level_ = p->g.verbose) > 2)
 	{
-		string s(p->s.seg_file + ".trace");
+		std::string s(p->s.seg_file + ".trace");
 		try {
 			// Create trace file.  Throws runtime_error on failure.
 			file_opener(trace_file, s);
 			print_file_header(trace_file, "DYNADJUST SEGMENTATION TRACE FILE");
-			trace_file << OUTPUTLINE << endl << endl;
+			trace_file << OUTPUTLINE << std::endl << std::endl;
 		}
-		catch (const runtime_error& e) {
+		catch (const std::runtime_error& e) {
 			SignalExceptionSerialise(e.what(), 0, NULL);
 		}
 	}
 	
 	if ((debug_level_ = p->g.verbose) > 1)
 	{
-		string s(p->s.seg_file + ".debug");
+		std::string s(p->s.seg_file + ".debug");
 			
 		try {
 			// Create debug file.  Throws runtime_error on failure.
 			file_opener(debug_file, s);
 		}
-		catch (const ios_base::failure& f) {
+		catch (const std::ios_base::failure& f) {
 			SignalExceptionSerialise(f.what(), 0, NULL);
 		}
 	}
 
 	segmentStatus_ = SEGMENT_SUCCESS;
-	ostringstream ss;
+	std::ostringstream ss;
 
 	if (debug_level_ > 2)
 		WriteFreeStnListSortedbyASLMsrCount();
@@ -209,9 +209,9 @@ _SEGMENT_STATUS_ dna_segment::SegmentNetwork(project_settings* p)
 	currentBlock_ = 1;
 
 	if (debug_level_ > 2)
-		trace_file << "Block " << currentBlock_ << "..." << endl;
+		trace_file << "Block " << currentBlock_ << "..." << std::endl;
 	
-	cpu_timer time;
+	boost::timer::cpu_timer time;
 
 	v_ContiguousNetList_.clear();
 	v_ContiguousNetList_.push_back(currentNetwork_ = 0);
@@ -238,7 +238,7 @@ _SEGMENT_STATUS_ dna_segment::SegmentNetwork(project_settings* p)
 		currentBlock_++;
 
 		if (debug_level_ > 2)
-			trace_file << "Block " << currentBlock_ << "..." << endl;
+			trace_file << "Block " << currentBlock_ << "..." << std::endl;
 
 		v_ContiguousNetList_.push_back(currentNetwork_);
 
@@ -251,9 +251,9 @@ _SEGMENT_STATUS_ dna_segment::SegmentNetwork(project_settings* p)
 			break;
 	}
 
-	milliseconds elapsed_time(milliseconds(0));
+	boost::posix_time::milliseconds elapsed_time(boost::posix_time::milliseconds(0));
 	if (debug_level_ > 1)
-		elapsed_time = milliseconds(time.elapsed().wall/MILLI_TO_NANO);
+		elapsed_time = boost::posix_time::milliseconds(time.elapsed().wall/MILLI_TO_NANO);
 	
 	isProcessing_ = false;	
 
@@ -265,16 +265,16 @@ _SEGMENT_STATUS_ dna_segment::SegmentNetwork(project_settings* p)
 	{
 		valid_stations = 1;
 		ss.str("");
-		ss << endl << "- Warning: The following stations were not used:" << endl;
+		ss << std::endl << "- Warning: The following stations were not used:" << std::endl;
 		ss << "  ";
 		it_vUINT32_const _it_freestn(vfreeStnList_.begin());
 		for (; _it_freestn!=vfreeStnList_.end(); ++_it_freestn)
 			ss << bstBinaryRecords_.at(*_it_freestn).stationName << " ";
-		ss << endl;
-		ss << "- Possible reasons why these stations were not used include:" << endl;
-		ss << "  - No measurements to these stations were found," << endl;
-		ss << "  - The network is made up of non-contiguous blocks," << endl;
-		ss << "  - There is a bug in this program." << endl;
+		ss << std::endl;
+		ss << "- Possible reasons why these stations were not used include:" << std::endl;
+		ss << "  - No measurements to these stations were found," << std::endl;
+		ss << "  - The network is made up of non-contiguous blocks," << std::endl;
+		ss << "  - There is a bug in this program." << std::endl;
 
 		if (debug_level_ > 1)
 			debug_file << ss.str();
@@ -282,8 +282,8 @@ _SEGMENT_STATUS_ dna_segment::SegmentNetwork(project_settings* p)
 
 	if (debug_level_ > 1)
 	{
-		debug_file << formatedElapsedTime<string>(&elapsed_time, "+ Network segmentation took ") <<
-			" The network is now ready for adjustment." << endl;
+		debug_file << formatedElapsedTime<std::string>(&elapsed_time, "+ Network segmentation took ") <<
+			" The network is now ready for adjustment." << std::endl;
 		debug_file.close();
 	}
 
@@ -315,7 +315,7 @@ void dna_segment::CalculateAverageBlockSize()
 }
 
 
-string dna_segment::DefaultStartingStation()
+std::string dna_segment::DefaultStartingStation()
 {
 	if (vfreeStnList_.empty())
 		return "";
@@ -375,7 +375,7 @@ void dna_segment::VerifyStationsandBuildBlock(bool validationOnly)
 		if (it_stnmap_range.first == it_stnmap_range.second)
 		{
 			// If this point is reached, _it_stnmap->second is not a known network station
-			stringstream ss;
+			std::stringstream ss;
 			ss << "VerifyStationsandBuildBlock(): " << *_it_name << " is not in the list of network stations.";
 			SignalExceptionSerialise(ss.str(), 0, NULL);
 		}
@@ -410,7 +410,7 @@ void dna_segment::VerifyStationsandBuildBlock(bool validationOnly)
 			{
 				// If this point is reached, _it_stnmap->second is a known network station but is 
 				// invalid or has no measurements connected to it.
-				stringstream ss;
+				std::stringstream ss;
 				ss << "VerifyStationsandBuildBlock(): " << bstBinaryRecords_.at(_it_stnmap->second).stationName << " does not have any measurements connected to it.";
 				SignalExceptionSerialise(ss.str(), 0, NULL);
 			}
@@ -434,10 +434,10 @@ UINT32 dna_segment::SelectInner()
 	UINT32 stn_index = *it_currjsl;
 
 	if (debug_level_ > 2)
-		trace_file << " + Inner '" << bstBinaryRecords_.at(stn_index).stationName << "'" << endl;
+		trace_file << " + Inner '" << bstBinaryRecords_.at(stn_index).stationName << "'" << std::endl;
 
 #ifdef _MSDEBUG
-	string station_name =  bstBinaryRecords_.at(stn_index).stationName;
+	std::string station_name =  bstBinaryRecords_.at(stn_index).stationName;
 #endif
 
 	// add this junction station to inner station list
@@ -468,14 +468,14 @@ it_vUINT32 dna_segment::MoveStation(vUINT32& fromList, it_vUINT32 it_from, vUINT
 }
 	
 
-void dna_segment::MoveFreeStn(it_vUINT32 it_freeisl, vUINT32& toList, const UINT32& stn_index, const string& type)
+void dna_segment::MoveFreeStn(it_vUINT32 it_freeisl, vUINT32& toList, const UINT32& stn_index, const std::string& type)
 {
 	if (debug_level_ > 2)
 		trace_file << " + New " << type << " station (" << stn_index << ") '" << 
-			bstBinaryRecords_.at(stn_index).stationName << "'" << endl;
+			bstBinaryRecords_.at(stn_index).stationName << "'" << std::endl;
 	
 #ifdef _MSDEBUG
-	string station_name =  bstBinaryRecords_.at(stn_index).stationName;
+	std::string station_name =  bstBinaryRecords_.at(stn_index).stationName;
 #endif
 
 	// Mark this station as unavailable
@@ -510,7 +510,7 @@ void dna_segment::BuildNextBlock()
 	vCurrMeasurementList_.clear();
 
 #ifdef _MSDEBUG
-	string station_name;
+	std::string station_name;
 #endif
 
 	// Select a new junction station if there are none on the JSL
@@ -522,9 +522,9 @@ void dna_segment::BuildNextBlock()
 
 		if (debug_level_ > 1)
 		{
-			debug_file << "+ Non-contiguous block found... creating a new block using " << bstBinaryRecords_.at(vfreeStnList_.at(0)).stationName << endl;
+			debug_file << "+ Non-contiguous block found... creating a new block using " << bstBinaryRecords_.at(vfreeStnList_.at(0)).stationName << std::endl;
 			if (debug_level_ > 2)
-				trace_file << " + Non-contiguous block found... creating a new block using " << bstBinaryRecords_.at(vfreeStnList_.at(0)).stationName << endl;
+				trace_file << " + Non-contiguous block found... creating a new block using " << bstBinaryRecords_.at(vfreeStnList_.at(0)).stationName << std::endl;
 		}
 
 		// Select a new junction from the free station list
@@ -587,9 +587,9 @@ void dna_segment::BuildNextBlock()
 	if (debug_level_ > 2)
 	{
 		if (block_threshold_reached)
-			trace_file << " + Block size threshold exceeded... finishing block." << endl;
+			trace_file << " + Block size threshold exceeded... finishing block." << std::endl;
 		else
-			trace_file << " + Block " << currentBlock_ << " complete." << endl;
+			trace_file << " + Block " << currentBlock_ << " complete." << std::endl;
 	}
 
 	FinaliseBlock();
@@ -601,8 +601,8 @@ void dna_segment::FinaliseBlock()
 	MoveJunctiontoISL();
 
 	// Sort lists
-	sort(vCurrInnerStnList_.begin(), vCurrInnerStnList_.end());
-	sort(vCurrJunctStnList_.begin(), vCurrJunctStnList_.end());
+	std::sort(vCurrInnerStnList_.begin(), vCurrInnerStnList_.end());
+	std::sort(vCurrJunctStnList_.begin(), vCurrJunctStnList_.end());
 	strip_duplicates(vCurrMeasurementList_);		// remove duplicates and sort
 
 	vISL_.push_back(vCurrInnerStnList_);
@@ -621,22 +621,22 @@ void dna_segment::FinaliseBlock()
 			currentTotalSize = currentISLSize + currentJSLSize;
 			currentMsrSize = static_cast<UINT32>(vCurrMeasurementList_.size());
 		
-			trace_file << " + Done." << endl;
-			trace_file << " + BLOCK " << currentBlock_ << " SUMMARY:" << endl;
+			trace_file << " + Done." << std::endl;
+			trace_file << " + BLOCK " << currentBlock_ << " SUMMARY:" << std::endl;
 			trace_file << "   - " << currentISLSize << " inner stations, " << currentJSLSize << " junction stations, ";
-			trace_file << currentTotalSize << " total stations, " << currentMsrSize << " measurements." << endl;
+			trace_file << currentTotalSize << " total stations, " << currentMsrSize << " measurements." << std::endl;
 		
-			trace_file << "   - Inners (" << currentISLSize << "):" << endl << "     ";
+			trace_file << "   - Inners (" << currentISLSize << "):" << std::endl << "     ";
 			it_vUINT32_const _it_freeisl(vfreeStnList_.end());
 			for (_it_freeisl=vCurrInnerStnList_.begin(); _it_freeisl!=vCurrInnerStnList_.end(); ++_it_freeisl)
 				trace_file << "'" << bstBinaryRecords_.at(*_it_freeisl).stationName << "' ";
-			trace_file << endl;
+			trace_file << std::endl;
 
-			trace_file << "   - Junctions (" << currentJSLSize << "):" << endl << "     ";
+			trace_file << "   - Junctions (" << currentJSLSize << "):" << std::endl << "     ";
 			for (_it_freeisl=vCurrJunctStnList_.begin(); _it_freeisl!=vCurrJunctStnList_.end(); ++_it_freeisl)
 				trace_file << "'" << bstBinaryRecords_.at(*_it_freeisl).stationName << "' ";
 		
-			trace_file << endl << " + ------------------------------------------" << endl;
+			trace_file << std::endl << " + ------------------------------------------" << std::endl;
 		}
 	}
 }
@@ -690,10 +690,10 @@ void dna_segment::FinaliseBlock()
 void dna_segment::GetInnerMeasurements(const UINT32& innerStation)
 {
 	if (debug_level_ > 2)
-		trace_file << " + GetInnerMeasurements()" << endl;
+		trace_file << " + GetInnerMeasurements()" << std::endl;
 		
 #ifdef _MSDEBUG
-	string from, to, to2;
+	std::string from, to, to2;
 #endif
 
 	measurement_t measRecord;
@@ -763,7 +763,7 @@ bool dna_segment::AddtoCurrentMsrList(const UINT32& amlIndex, const vUINT32& msr
 #ifdef _MSDEBUG
 	measurement_t msr(bmsBinaryRecords_.at(bmsrindex));
 	char measType(msr.measType);
-	string station;
+	std::string station;
 	UINT32 stn_index;
 #endif
 
@@ -824,7 +824,7 @@ bool dna_segment::AddtoCurrentMsrList(const UINT32& amlIndex, const vUINT32& msr
 	}	
 
 	if (debug_level_ > 2)
-		trace_file << endl;
+		trace_file << std::endl;
 
 	return true;
 }
@@ -840,17 +840,17 @@ void dna_segment::FindCommonMeasurements()
 	// Create a temporary vector
 	vUINT32 vCurrBlockStnList(vCurrJunctStnList_), msrStations;
 	
-	sort(vCurrBlockStnList.begin(), vCurrBlockStnList.end());
+	std::sort(vCurrBlockStnList.begin(), vCurrBlockStnList.end());
 
 	it_vUINT32 _it_stn, _it_mstn;
 	measurement_t measRecord;
 	bool inList;
 
 	if (debug_level_ > 2)
-		trace_file << " + FindCommonMeasurements()" << endl;
+		trace_file << " + FindCommonMeasurements()" << std::endl;
 
 #ifdef _MSDEBUG
-	string stn;
+	std::string stn;
 #endif
 
 	UINT32 m, msrCount, amlIndex;
@@ -933,10 +933,10 @@ void dna_segment::MoveJunctiontoISL()
 	// Move stations on the current junction station list to the inner station list if
 	// there are no more measurements tied to this station
 	if (debug_level_ > 2)
-		trace_file << " + MoveJunctiontoISL()" << endl;	
+		trace_file << " + MoveJunctiontoISL()" << std::endl;	
 	
 #ifdef _MSDEBUG
-	string station_name;
+	std::string station_name;
 #endif
 
 	it_vUINT32 _it_currjsl(vCurrJunctStnList_.begin());
@@ -956,7 +956,7 @@ void dna_segment::MoveJunctiontoISL()
 			if (debug_level_ > 2)
 				trace_file << "   - Junction station '" << 
 					bstBinaryRecords_.at(static_cast<UINT32>(stn_index)).stationName << 
-					"' was moved to inner list (no more available measurements)." << endl;
+					"' was moved to inner list (no more available measurements)." << std::endl;
 
 			// Move this station from the junctions list to inners list
 			_it_currjsl = MoveStation(vCurrJunctStnList_, _it_currjsl, 
@@ -1015,7 +1015,7 @@ void dna_segment::AddtoJunctionStnList(const vUINT32& msrStations)
 // Purpose:				Closes all files (if file pointers are passed in) and throws NetSegmentException
 // Called by:			Any
 // Calls:				NetSegmentException()
-void dna_segment::SignalExceptionSerialise(const string& msg, const int& i, const char *streamType, ...)
+void dna_segment::SignalExceptionSerialise(const std::string& msg, const int& i, const char *streamType, ...)
 {
 	isProcessing_ = false;
 	segmentStatus_ = SEGMENT_EXCEPTION_RAISED;
@@ -1059,7 +1059,7 @@ void dna_segment::SignalExceptionSerialise(const string& msg, const int& i, cons
 	throw NetSegmentException(msg, i);
 }
 
-void dna_segment::LoadAssociationFiles(const string& aslfileName, const string& amlfileName)
+void dna_segment::LoadAssociationFiles(const std::string& aslfileName, const std::string& amlfileName)
 {
 	UINT32 stn, stnCount(0);
 	
@@ -1067,7 +1067,7 @@ void dna_segment::LoadAssociationFiles(const string& aslfileName, const string& 
 		dna_io_asl asl;
 		stnCount = asl.load_asl_file(aslfileName, &vAssocStnList_, &vfreeStnList_);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		SignalExceptionSerialise(e.what(), 0, NULL);
 	}
 
@@ -1091,7 +1091,7 @@ void dna_segment::LoadAssociationFiles(const string& aslfileName, const string& 
 		dna_io_aml aml;
 		aml.load_aml_file(amlfileName, &vAssocFreeMsrList_, &bmsBinaryRecords_);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		SignalExceptionSerialise(e.what(), 0, NULL);
 	}
 
@@ -1100,18 +1100,18 @@ void dna_segment::LoadAssociationFiles(const string& aslfileName, const string& 
 }
 
 	
-void dna_segment::LoadStationMap(const string& stnmap_file)
+void dna_segment::LoadStationMap(const std::string& stnmap_file)
 {
 	try {
 		dna_io_map map;
 		map.load_map_file(stnmap_file, &stnsMap_);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		SignalExceptionSerialise(e.what(), 0, NULL);
 	}
 }
 
-void dna_segment::LoadBinaryFiles(const string& bstrfileName, const string& bmsrfileName)
+void dna_segment::LoadBinaryFiles(const std::string& bstrfileName, const std::string& bmsrfileName)
 {
 	binary_file_meta_t	bst_meta_, bms_meta_;
 	try {
@@ -1123,7 +1123,7 @@ void dna_segment::LoadBinaryFiles(const string& bstrfileName, const string& bmsr
 		dna_io_bms bms;
 		bms.load_bms_file(bmsrfileName, &bmsBinaryRecords_, bms_meta_);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		SignalExceptionSerialise(e.what(), 0, NULL);
 	}
 	
@@ -1137,9 +1137,9 @@ void dna_segment::LoadBinaryFiles(const string& bstrfileName, const string& bmsr
 	// throw an exception if no measurements are available	
 	if (m == 0)
 	{
-		stringstream ss;
-		ss << "No measurements were found." << endl << 
-			"  If measurements were successfully loaded on import, ensure that\n  all measurements have not been ignored." << endl;
+		std::stringstream ss;
+		ss << "No measurements were found." << std::endl << 
+			"  If measurements were successfully loaded on import, ensure that\n  all measurements have not been ignored." << std::endl;
 		SignalExceptionSerialise(ss.str(), 0, NULL);
 	}
 }
@@ -1251,7 +1251,7 @@ void dna_segment::SortbyMeasurementCount(pvUINT32 vStnList)
 		return;
 	// sort vStnList by number of measurements to each station (held by vAssocStnList
 	CompareMeasCount<CAStationList, UINT32> msrcountCompareFunc(&vAssocStnList_);
-	sort(vStnList->begin(), vStnList->end(), msrcountCompareFunc);
+	std::sort(vStnList->begin(), vStnList->end(), msrcountCompareFunc);
 
 	// Search lower level
 	if (projectSettings_.s.seg_search_level == 0)
@@ -1318,7 +1318,7 @@ void dna_segment::SetAvailableMsrCount()
 void dna_segment::RemoveInvalidFreeStations()
 {
 	CompareValidity<CAStationList, UINT32> aslValidityCompareFunc(&vAssocStnList_, FALSE);
-	sort(vfreeStnList_.begin(), vfreeStnList_.end(), aslValidityCompareFunc);
+	std::sort(vfreeStnList_.begin(), vfreeStnList_.end(), aslValidityCompareFunc);
 	erase_if(vfreeStnList_, aslValidityCompareFunc);
 }
 
@@ -1344,7 +1344,7 @@ void dna_segment::RemoveDuplicateStations(pvstring vStations)
 //	if (vfreeMsrList_.size() < 2)
 //		return;
 //	CompareNonMeasStart<measurement_t, UINT32> measstartCompareFunc(&bmsBinaryRecords_, xMeas);
-//	sort(vfreeMsrList_.begin(), vfreeMsrList_.end(), measstartCompareFunc);
+//	std::sort(vfreeMsrList_.begin(), vfreeMsrList_.end(), measstartCompareFunc);
 //	erase_if(vfreeMsrList_, measstartCompareFunc);
 //	
 //}
@@ -1355,7 +1355,7 @@ void dna_segment::RemoveDuplicateStations(pvstring vStations)
 //	if (vfreeMsrList_.size() < 2)
 //		return;
 //	CompareIgnoreedMeas<measurement_t, UINT32> ignoremeasCompareFunc(&bmsBinaryRecords_);
-//	sort(vfreeMsrList_.begin(), vfreeMsrList_.end(), ignoremeasCompareFunc);
+//	std::sort(vfreeMsrList_.begin(), vfreeMsrList_.end(), ignoremeasCompareFunc);
 //	erase_if(vfreeMsrList_, ignoremeasCompareFunc);
 //	
 //}
@@ -1363,17 +1363,17 @@ void dna_segment::RemoveDuplicateStations(pvstring vStations)
 
 void dna_segment::WriteFreeStnListSortedbyASLMsrCount()
 {
-	if (!exists(output_folder_))
+	if (!boost::filesystem::exists(output_folder_))
 	{
-		stringstream ss("WriteFreeStnListSortedbyASLMsrCount(): Path does not exist... \n\n    ");
+		std::stringstream ss("WriteFreeStnListSortedbyASLMsrCount(): Path does not exist... \n\n    ");
 		ss << output_folder_ << ".";
 		SignalExceptionSerialise(ss.str(), 0, NULL);
 	}
 
-	string file(output_folder_ + "/free_stn_sorted_by_msr_count.lst");
+	std::string file(output_folder_ + "/free_stn_sorted_by_msr_count.lst");
 	std::ofstream freestnlist(file.c_str());
 	UINT32 x(0);
-	string s;
+	std::string s;
 	UINT32 u, msrCount, m, amlindex;
 	for (; x<vfreeStnList_.size(); ++x)
 	{
@@ -1382,21 +1382,21 @@ void dna_segment::WriteFreeStnListSortedbyASLMsrCount()
 		s.insert(0, "'");
 		s += "'";
 		msrCount = vAssocStnList_.at(vfreeStnList_.at(x)).GetAssocMsrCount();
-		freestnlist << left << setw(10) << u << left << setw(14) << s << left << setw(5) << msrCount;
+		freestnlist << std::left << std::setw(10) << u << std::left << std::setw(14) << s << std::left << std::setw(5) << msrCount;
 
 		for (m=0; m<msrCount; m++)
 		{
 			// get the measurement record (holds other stations tied to this measurement)
 			amlindex = vAssocStnList_.at(vfreeStnList_.at(x)).GetAMLStnIndex() + m;	// get the AML index
-			freestnlist << left << setw(HEADER_20) << amlindex;
+			freestnlist << std::left << std::setw(HEADER_20) << amlindex;
 		}
-		freestnlist << endl;
+		freestnlist << std::endl;
 	}
 	freestnlist.close();
 }
 	
 
-void dna_segment::coutCurrentBlockSummary(ostream &os)
+void dna_segment::coutCurrentBlockSummary(std::ostream &os)
 {
 	try {
 		dna_io_seg seg;
@@ -1406,14 +1406,14 @@ void dna_segment::coutCurrentBlockSummary(ostream &os)
 			&bstBinaryRecords_, &bmsBinaryRecords_, 
 			true);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		SignalExceptionSerialise(e.what(), 0, NULL);
 	}
 	
 	if (!vfreeStnList_.empty())
-		os << "+ Free stations remaining:     " << setw(10) << right << vfreeStnList_.size() << endl;
+		os << "+ Free stations remaining:     " << std::setw(10) << std::right << vfreeStnList_.size() << std::endl;
 	if (!vfreeMsrList_.empty())
-		os << "+ Free measurements remaining: " << setw(10) << right<< vfreeMsrList_.size() << endl;
+		os << "+ Free measurements remaining: " << std::setw(10) << std::right << vfreeMsrList_.size() << std::endl;
 }
 	
 void dna_segment::coutSummary() const
@@ -1432,59 +1432,59 @@ void dna_segment::coutSummary() const
 	for (_it_isl = vISL_.begin(); _it_isl!=vISL_.end(); ++_it_isl)
 		stns += static_cast<UINT32>(_it_isl->size());
 
-	cout << "+ Segmentation summary:" << endl << endl;
-	cout << setw(BLOCK) << left << "  Block" << setw(JUNCT) << left << "Junction stns" << setw(INNER) << left << "Inner stns" << setw(MEASR) << left << "Measurements" << setw(TOTAL) << left << "Total stns"  << endl;
-	cout << "  ";
+	std::cout << "+ Segmentation summary:" << std::endl << std::endl;
+	std::cout << std::setw(BLOCK) << std::left << "  Block" << std::setw(JUNCT) << std::left << "Junction stns" << std::setw(INNER) << std::left << "Inner stns" << std::setw(MEASR) << std::left << "Measurements" << std::setw(TOTAL) << std::left << "Total stns"  << std::endl;
+	std::cout << "  ";
 	for (char dash=BLOCK+NETID+INNER+JUNCT+TOTAL+MEASR; dash>2; dash--)
-		cout << "-";
-	cout << endl;
+		std::cout << "-";
+	std::cout << std::endl;
 	UINT32 b = 1;
 	_it_jsl = vJSL_.begin();
 	_it_cml = vCML_.begin();
 	for (_it_isl=vISL_.begin(); _it_isl!=vISL_.end(); ++_it_isl)
 	{
 		// block
-		cout << "  " << setw(BLOCK-2) << left << b;
+		std::cout << "  " << std::setw(BLOCK-2) << std::left << b;
 
 		// junction stns
 		if (_it_jsl!=vJSL_.end())
-			cout << setw(JUNCT) << left << _it_jsl->size();
+			std::cout << std::setw(JUNCT) << std::left << _it_jsl->size();
 		else
-			cout << setw(JUNCT) << " ";
+			std::cout << std::setw(JUNCT) << " ";
 		
 		// inner stns
-		cout << setw(INNER) << left << _it_isl->size();
+		std::cout << std::setw(INNER) << std::left << _it_isl->size();
 		
 		// total measurements
 		if (_it_cml!=vCML_.end())
-			cout << setw(MEASR) << left << _it_cml->size();
+			std::cout << std::setw(MEASR) << std::left << _it_cml->size();
 		else
-			cout << setw(MEASR) << " ";
+			std::cout << std::setw(MEASR) << " ";
 
 		// total stns
 		if (_it_jsl!=vJSL_.end())
-			cout << setw(TOTAL) << left << (_it_isl->size() + _it_jsl->size());
+			std::cout << std::setw(TOTAL) << std::left << (_it_isl->size() + _it_jsl->size());
 		else
-			cout << setw(TOTAL) << left << _it_isl->size();
+			std::cout << std::setw(TOTAL) << std::left << _it_isl->size();
 		
-		cout << endl;
+		std::cout << std::endl;
 
 		++_it_jsl;
 		++_it_cml;
 		b++;
 	}
 
-	cout << endl;
+	std::cout << std::endl;
 
-	cout << "+ Stations used:       " << setw(10) << right << stns << endl;
-	cout << "+ Measurements used:   " << setw(10) << right << msrs << endl;
+	std::cout << "+ Stations used:       " << std::setw(10) << std::right << stns << std::endl;
+	std::cout << "+ Measurements used:   " << std::setw(10) << std::right << msrs << std::endl;
 	if (!vfreeStnList_.empty())
-		cout << "+ Unused stations:     " << setw(10) << right << vfreeStnList_.size() << endl;
+		std::cout << "+ Unused stations:     " << std::setw(10) << std::right << vfreeStnList_.size() << std::endl;
 	//if (!vfreeMsrList_.empty())
-	//	cout << "+ Unused measurements: " << setw(10) << right << vfreeMsrList_.size() << endl;
+	//	std::cout << "+ Unused measurements: " << std::setw(10) << std::right << vfreeMsrList_.size() << std::endl;
 }
 	
-void dna_segment::WriteSegmentedNetwork(const string& segfileName)
+void dna_segment::WriteSegmentedNetwork(const std::string& segfileName)
 {
 	if (bstBinaryRecords_.empty())
 		SignalExceptionSerialise("WriteSegmentedNetwork(): the binary stations file has not been loaded into memory yet.", 0, NULL);
@@ -1506,7 +1506,7 @@ void dna_segment::WriteSegmentedNetwork(const string& segfileName)
 			vISL_, vJSL_, vCML_,
 			v_ContiguousNetList_, &bstBinaryRecords_, &bmsBinaryRecords_);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		SignalExceptionSerialise(e.what(), 0, NULL);
 	}
 	catch (...) {
@@ -1529,7 +1529,7 @@ void dna_segment::VerifyStationConnections_Block(const UINT32& block)
 	vUINT32 unusedStns, msrStations, allmsrStations;
 
 #ifdef _MSDEBUG
-	string isl_stn_name;
+	std::string isl_stn_name;
 #endif
 
 	// get all stations connected with measurements
@@ -1564,12 +1564,12 @@ void dna_segment::VerifyStationConnections_Block(const UINT32& block)
 
 	if (!unusedStns.empty())
 	{
-		stringstream ss;
-		ss << "The following station(s) are not associated with any" << endl <<
-			"  measurements in block " << block+1 << ":" << endl;
+		std::stringstream ss;
+		ss << "The following station(s) are not associated with any" << std::endl <<
+			"  measurements in block " << block+1 << ":" << std::endl;
 		for_each(unusedStns.begin(), unusedStns.end(),
 			[this, &ss](UINT32& stn){
-				ss << "  " << bstBinaryRecords_.at(stn).stationName << " (" << stn << ")" << endl;
+				ss << "  " << bstBinaryRecords_.at(stn).stationName << " (" << stn << ")" << std::endl;
 		});
 		SignalExceptionSerialise(ss.str(), 0, NULL);
 	}

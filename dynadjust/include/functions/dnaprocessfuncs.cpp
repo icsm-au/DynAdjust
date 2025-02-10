@@ -24,9 +24,7 @@
 
 #include <boost/process.hpp>
 
-using namespace boost::process;
-
-bool run_command(const string& executable_path, const UINT16& quiet)
+bool run_command(const std::string& executable_path, const UINT16& quiet)
 {	
 	// use boost's platform independent code to invoke a process
 	// see https://www.boost.org/doc/libs/develop/doc/html/process.html

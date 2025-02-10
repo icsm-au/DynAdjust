@@ -48,10 +48,10 @@ public:
 	dna_io_bst& operator=(const dna_io_bst& rhs);
 
 	UINT16 create_stn_input_file_meta(vifm_t& vinput_file_meta, input_file_meta_t** input_file_meta);
-	void load_bst_file_meta(const string& bst_filename, binary_file_meta_t& bst_meta);
-	UINT32 load_bst_file(const string& bst_filename, pvstn_t vbinary_stn, binary_file_meta_t& bst_meta);
-	void write_bst_file(const string& bst_filename, pvstn_t vbinary_stn, binary_file_meta_t& bst_meta);
-	bool write_bst_file(const string& bst_filename, vdnaStnPtr* vStations, pvstring vUnusedStns, binary_file_meta_t& bst_meta, bool flagUnused);
+	void load_bst_file_meta(const std::string& bst_filename, binary_file_meta_t& bst_meta);
+	UINT32 load_bst_file(const std::string& bst_filename, pvstn_t vbinary_stn, binary_file_meta_t& bst_meta);
+	void write_bst_file(const std::string& bst_filename, pvstn_t vbinary_stn, binary_file_meta_t& bst_meta);
+	bool write_bst_file(const std::string& bst_filename, vdnaStnPtr* vStations, pvstring vUnusedStns, binary_file_meta_t& bst_meta, bool flagUnused);
 
 
 protected:

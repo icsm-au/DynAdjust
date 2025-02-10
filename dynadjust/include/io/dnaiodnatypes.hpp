@@ -32,9 +32,6 @@
 #include <sstream>
 #include <boost/algorithm/string/predicate.hpp>
 
-using namespace std;
-using namespace boost;
-
 #include <include/exception/dnaexception.hpp>
 
 using namespace dynadjust::exception;
@@ -56,7 +53,7 @@ typedef struct msr_database_t {
 
 } msr_database_id_map;
 
-typedef vector<msr_database_id_map> v_msr_database_id_map, *pv_msr_database_id_map;
+typedef std::vector<msr_database_id_map> v_msr_database_id_map, *pv_msr_database_id_map;
 typedef v_msr_database_id_map::iterator it_vdbid_t;
 
 typedef struct {
@@ -467,10 +464,10 @@ void assignDNASTNFieldParameters(const UINT16* locs, const UINT16* widths,
 	
 
 template <typename U>
-void determineDNASTNFieldParameters(const string& version, 
+void determineDNASTNFieldParameters(const std::string& version, 
 	dna_stn_fields& dflocs, dna_stn_fields& dfwidths)
 {
-	if (iequals(version, "3.01"))
+	if (boost::iequals(version, "3.01"))
 	{
 		assignDNASTNFieldParameters<U>(dna_stn_fields_301::_locations_,
 			dna_stn_fields_301::_widths_,
@@ -478,7 +475,7 @@ void determineDNASTNFieldParameters(const string& version,
 		return;
 	}
 
-	if (iequals(version, "3.00"))
+	if (boost::iequals(version, "3.00"))
 	{
 		assignDNASTNFieldParameters<U>(dna_stn_fields_300::_locations_,
 			dna_stn_fields_300::_widths_,
@@ -486,7 +483,7 @@ void determineDNASTNFieldParameters(const string& version,
 		return;
 	}
 
-	if (iequals(version, "1.00"))
+	if (boost::iequals(version, "1.00"))
 	{
 		assignDNASTNFieldParameters<U>(dna_stn_fields_100::_locations_,
 			dna_stn_fields_100::_widths_,
@@ -554,10 +551,10 @@ void assignDNAMSRFieldParameters(const UINT16* locs, const UINT16* widths,
 	
 
 template <typename U>
-void determineDNAMSRFieldParameters(const string& version, 
+void determineDNAMSRFieldParameters(const std::string& version, 
 	dna_msr_fields& dflocs, dna_msr_fields& dfwidths, const U u=0)
 {
-	if (iequals(version, "3.01"))
+	if (boost::iequals(version, "3.01"))
 	{
 		assignDNAMSRFieldParameters<U>(dna_msr_fields_301::_locations_,
 			dna_msr_fields_301::_widths_,
@@ -565,7 +562,7 @@ void determineDNAMSRFieldParameters(const string& version,
 		return;
 	}
 
-	if (iequals(version, "3.00"))
+	if (boost::iequals(version, "3.00"))
 	{
 		assignDNAMSRFieldParameters<U>(dna_msr_fields_300::_locations_,
 			dna_msr_fields_300::_widths_,
@@ -573,7 +570,7 @@ void determineDNAMSRFieldParameters(const string& version,
 		return;
 	}
 
-	if (iequals(version, "1.00"))
+	if (boost::iequals(version, "1.00"))
 	{
 		assignDNAMSRFieldParameters<U>(dna_msr_fields_100::_locations_,
 			dna_msr_fields_100::_widths_,
@@ -581,8 +578,8 @@ void determineDNAMSRFieldParameters(const string& version,
 		return;
 	}
 
-	stringstream ss;
-	ss << " Unknown file version: " << version << endl;
+	std::stringstream ss;
+	ss << " Unknown file version: " << version << std::endl;
 	throw XMLInteropException(ss.str(), u);
 }
 

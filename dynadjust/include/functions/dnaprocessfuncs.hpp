@@ -35,16 +35,23 @@
 
 #if defined(_WIN32) || defined(__WIN32__)
 #include <windows.h>
+
+#ifndef VC_EXTRALEAN
+#define VC_EXTRALEAN            // Exclude rarely-used stuff from Windows headers
 #endif
+
+#endif
+
+
 
 #include <include/config/dnaconsts.hpp>
 
-bool run_command(const string& executable_path, const UINT16& quiet = 0);
+bool run_command(const std::string& executable_path, const UINT16& quiet = 0);
 
 class dna_create_threaded_process
 {
 public:
-	dna_create_threaded_process(const string& command_path, const UINT16& quiet = 0)
+	dna_create_threaded_process(const std::string& command_path, const UINT16& quiet = 0)
 		: _command_path(command_path), _quiet(quiet)
 	{};
 
@@ -55,7 +62,7 @@ public:
 		run_command(_command_path, _quiet);
 	}
 private:
-	string		_command_path;
+	std::string		_command_path;
 	UINT16		_quiet;
 };
 

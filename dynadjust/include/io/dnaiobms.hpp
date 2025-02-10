@@ -48,10 +48,10 @@ public:
 	dna_io_bms& operator=(const dna_io_bms& rhs);
 
 	UINT16 create_msr_input_file_meta(vifm_t& vinput_file_meta, input_file_meta_t** input_file_meta);
-	void load_bms_file_meta(const string& bms_filename, binary_file_meta_t& bms_meta);
-	UINT32 load_bms_file(const string& bms_filename, pvmsr_t vbinary_msr, binary_file_meta_t& bms_meta);
-	void write_bms_file(const string& bms_filename, pvmsr_t vbinary_msr, binary_file_meta_t& bms_meta);
-	void write_bms_file(const string& bms_filename, vdnaMsrPtr* vMeasurements, binary_file_meta_t& bms_meta);
+	void load_bms_file_meta(const std::string& bms_filename, binary_file_meta_t& bms_meta);
+	UINT32 load_bms_file(const std::string& bms_filename, pvmsr_t vbinary_msr, binary_file_meta_t& bms_meta);
+	void write_bms_file(const std::string& bms_filename, pvmsr_t vbinary_msr, binary_file_meta_t& bms_meta);
+	void write_bms_file(const std::string& bms_filename, vdnaMsrPtr* vMeasurements, binary_file_meta_t& bms_meta);
 
 protected:
 

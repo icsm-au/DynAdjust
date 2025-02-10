@@ -25,6 +25,10 @@
 #include <stdarg.h>
 #include <windows.h>
 
+#ifndef VC_EXTRALEAN
+#define VC_EXTRALEAN            // Exclude rarely-used stuff from Windows headers
+#endif
+
 void _trace(const char *fmt, ...)
 {
 	char out[1024];

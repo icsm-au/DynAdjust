@@ -55,8 +55,6 @@
 
 #include <boost/shared_ptr.hpp>
 
-using namespace std;
-using namespace boost;
 using namespace dynadjust::datum_parameters;
 
 #define XML_INDENT_1 "    "
@@ -70,15 +68,15 @@ class CDnaStation;
 
 // station types
 typedef boost::shared_ptr<CDnaStation> dnaStnPtr;
-typedef vector<dnaStnPtr> vdnaStnPtr, * pvdnaStnPtr;		// vector of dnaStnPtr
+typedef std::vector<dnaStnPtr> vdnaStnPtr, * pvdnaStnPtr;		// vector of dnaStnPtr
 typedef vdnaStnPtr::iterator _it_vdnastnptr;
 typedef vdnaStnPtr::const_iterator _it_vdnastnptr_const;
-typedef pair<_it_vdnastnptr, _it_vdnastnptr> it_pair_dnastnptr;
+typedef std::pair<_it_vdnastnptr, _it_vdnastnptr> it_pair_dnastnptr;
 
-typedef vector<CAStationList> vASL, *pvASL;
+typedef std::vector<CAStationList> vASL, *pvASL;
 typedef vASL::iterator _it_vasl;
 typedef boost::shared_ptr<CAStationList> ASLPtr;
-typedef vector<ASLPtr> vASLPtr, *pvASLPtr;
+typedef std::vector<ASLPtr> vASLPtr, *pvASLPtr;
 
 
 #ifdef _MSC_VER
@@ -154,9 +152,9 @@ class CDnaStation
 #endif	
 {
 public:
-	CDnaStation(const string& referenceframe, const string& epoch);
+	CDnaStation(const std::string& referenceframe, const std::string& epoch);
 	CDnaStation(const CDnaStation&);
-	CDnaStation(const string& strName, const string& strConstraints, const string& strType, const double& dXAxis, const double& dYAxis, const double& dZAxis, const double& dHeight, const string& strHemisphereZone, const string& strDescription, const string& strComment);
+	CDnaStation(const std::string& strName, const std::string& strConstraints, const std::string& strType, const double& dXAxis, const double& dYAxis, const double& dZAxis, const double& dHeight, const std::string& strHemisphereZone, const std::string& strDescription, const std::string& strComment);
 	virtual ~CDnaStation();
 
 	CDnaStation& operator=(const CDnaStation& rhs);
@@ -167,12 +165,12 @@ public:
 	friend bool operator<(const CDnaStation& left, const CDnaStation& right);
 	friend bool operator<(const boost::shared_ptr<CDnaStation>& left, const boost::shared_ptr<CDnaStation>& right);
 	
-	inline int CompareStationName(const string& s) { return m_strName.compare(s); }
-	inline string GetName() const { return m_strName; }
-	inline string GetOriginalName() const { return m_strOriginalName; }
-	inline string GetConstraints() const { return m_strConstraints; }
+	inline int CompareStationName(const std::string& s) { return m_strName.compare(s); }
+	inline std::string GetName() const { return m_strName; }
+	inline std::string GetOriginalName() const { return m_strOriginalName; }
+	inline std::string GetConstraints() const { return m_strConstraints; }
 	inline CONSTRAINT_TYPE GetConstraintType() const { return m_constraintType; }
-	inline string GetCoordType() const { return m_strType; }
+	inline std::string GetCoordType() const { return m_strType; }
 
 	inline double GetXAxis() const { return m_dXAxis; }	// X, Easting, Latitude
 	inline double GetYAxis() const { return m_dYAxis; }	// Y, Northing, Longitude
@@ -182,9 +180,9 @@ public:
 	inline double GetEasting() const { return m_dXAxis; }
 	inline double GetNorthing() const { return m_dYAxis; }
 	inline double GetHeight() const { return m_dHeight; }
-	inline string GetHemisphereZone() const { return m_strHemisphereZone; }
-	inline string GetDescription() const { return m_strDescription; }
-	inline string GetComment() const { return m_strComment; }
+	inline std::string GetHemisphereZone() const { return m_strHemisphereZone; }
+	inline std::string GetDescription() const { return m_strDescription; }
+	inline std::string GetComment() const { return m_strComment; }
 
 	inline double GetcurrentLatitude() const { return m_dcurrentLatitude; }
 	inline double GetcurrentLongitude() const { return m_dcurrentLongitude; }
@@ -201,23 +199,23 @@ public:
 	inline bool IsUnused() const { return m_unusedStation; }
 	inline bool IsNotUnused() const { return m_unusedStation == false; }
 
-	static bool IsValidConstraint(const string& sConst);
-	static _COORD_TYPE_ GetCoordTypeC(const string& sType);
+	static bool IsValidConstraint(const std::string& sConst);
+	static _COORD_TYPE_ GetCoordTypeC(const std::string& sType);
 	_COORD_TYPE_ GetMyCoordTypeC() const;
-	_HEIGHT_SYSTEM_ GetHeightSystemC(const string& sType) const;
+	_HEIGHT_SYSTEM_ GetHeightSystemC(const std::string& sType) const;
 	_HEIGHT_SYSTEM_ GetMyHeightSystemC() const;
 	inline _HEIGHT_SYSTEM_ GetMyHeightSystem() const { return m_htType;	}
 	
-	void SetHeightSystem(const string& sType);
+	void SetHeightSystem(const std::string& sType);
 	void SetHeightSystem(const _HEIGHT_SYSTEM_& type_i);
 
 	void SetStationRec(const station_t& stationRecord);
 
-	void SetXAxis(const string& str);
-	void SetYAxis(const string& str);
-	void SetZAxis(const string& str);
-	void SetHeight(const string& str);
-	void SetCoordType(const string& sType);
+	void SetXAxis(const std::string& str);
+	void SetYAxis(const std::string& str);
+	void SetZAxis(const std::string& str);
+	void SetHeight(const std::string& str);
+	void SetCoordType(const std::string& sType);
 
 	void ReduceStations_LLH(const CDnaEllipsoid* m_eEllipsoid, const CDnaProjection* m_pProjection);
 	void ReduceStations_XYZ(const CDnaEllipsoid* m_eEllipsoid, const CDnaProjection* m_pProjection);
@@ -231,12 +229,12 @@ public:
 	inline void SetHeight_d(const double& dHeight) { m_dHeight = dHeight; }
 	inline void SetcurrentHeight_d(const double& dHeight) { m_dcurrentHeight = dHeight; }
 	
-	inline void SetName(const string& sName) { m_strName = trimstr(sName); }
-	inline void SetOriginalName(const string& sName) { m_strOriginalName = trimstr(sName); }
+	inline void SetName(const std::string& sName) { m_strName = trimstr(sName); }
+	inline void SetOriginalName(const std::string& sName) { m_strOriginalName = trimstr(sName); }
 	inline void SetOriginalName() { m_strOriginalName = m_strName; }
-	void SetHemisphereZone(const string& sHemisphereZone);
-	inline void SetDescription(const string& sDescription) { m_strDescription = trimstr(sDescription); }
-	inline void SetComment(const string& sComment) { m_strComment = trimstr(sComment); }
+	void SetHemisphereZone(const std::string& sHemisphereZone);
+	inline void SetDescription(const std::string& sDescription) { m_strDescription = trimstr(sDescription); }
+	inline void SetComment(const std::string& sComment) { m_strComment = trimstr(sComment); }
 
 	inline void SetfileOrder(const UINT32& order) { m_lfileOrder = order; }
 	inline void SetnameOrder(const UINT32& order) { m_lnameOrder = order; }
@@ -248,18 +246,18 @@ public:
 	inline void SetStationUnused() { m_unusedStation = true; }
 	inline void SetStationUse(bool use) { m_unusedStation = use; }
 
-	void SetConstraints(const string& str);
+	void SetConstraints(const std::string& str);
 
-	void SetXAxisStdDev(const string& str);
-	void SetYAxisStdDev(const string& str);
-	void SetHeightStdDev(const string& str);
+	void SetXAxisStdDev(const std::string& str);
+	void SetYAxisStdDev(const std::string& str);
+	void SetHeightStdDev(const std::string& str);
 
 	void PrepareStnData(double& lat_east_x,	double& lon_north_y, double& ht_zone_z,
-		string& hemisphereZone, string& coordinateType,
+		std::string& hemisphereZone, std::string& coordinateType,
 		UINT32& LEX_precision, UINT32& LNY_precision, UINT32& HZ_precision,
 		const CDnaEllipsoid* ellipsoid, const CDnaProjection* projection, bool writeCurrentEstimates);
 	
-	//void coutStationData(ostream &os, ostream &os2, const UINT16& uType = 0) const;
+	//void coutStationData(std::ostream &os, ostream &os2, const UINT16& uType = 0) const;
 	void WriteBinaryStn(std::ofstream* binary_stream, const UINT16 bUnused=0);
 		
 	void WriteDNAXMLStnCurrentEstimates(std::ofstream* dna_ofstream, 
@@ -275,30 +273,30 @@ public:
 		const double& lat_east_x, const double& lon_north_y, const double& ht_zone_z,
 		INPUT_FILE_TYPE t, const dna_stn_fields* dsw=0);
 
-	void WriteDNAStn(std::ofstream* dna_ofstream, const string& coordinateType, 
+	void WriteDNAStn(std::ofstream* dna_ofstream, const std::string& coordinateType, 
 		const double& lat_east_x, const double& lon_north_y, const double& ht_zone_z,
-		string& hemisphereZone, const dna_stn_fields& dsw);
+		std::string& hemisphereZone, const dna_stn_fields& dsw);
 
-	void WriteDynaMLStn(std::ofstream* xml_ofstream, const string& coordinateType, 
+	void WriteDynaMLStn(std::ofstream* xml_ofstream, const std::string& coordinateType, 
 		const double& lat_east_x, const double& lon_north_y, const double& ht_zone_z,
-		string& hemisphereZone);
+		std::string& hemisphereZone);
 
 	void WriteGeoidfile(std::ofstream* binary_stream);
 
-	static string CoordinateName(const char& c);
+	static std::string CoordinateName(const char& c);
 
-	inline string GetReferenceFrame() const { return m_referenceFrame; }
-	inline string GetEpoch() const { return m_epoch; }
+	inline std::string GetReferenceFrame() const { return m_referenceFrame; }
+	inline std::string GetEpoch() const { return m_epoch; }
 	
-	inline void SetReferenceFrame(const string& r) { m_referenceFrame = trimstr(r); }
-	inline void SetEpoch(const string& e) { m_epoch = trimstr(e); }
-	inline void SetEpsg(const string& e) { m_epsgCode = trimstr(e); }
+	inline void SetReferenceFrame(const std::string& r) { m_referenceFrame = trimstr(r); }
+	inline void SetEpoch(const std::string& e) { m_epoch = trimstr(e); }
+	inline void SetEpsg(const std::string& e) { m_epsgCode = trimstr(e); }
 
-	string m_strName;
+	std::string m_strName;
 
 protected:
 
-	string m_strOriginalName;
+	std::string m_strOriginalName;
 
 	double m_dXAxis;
 	double m_dYAxis;
@@ -310,11 +308,11 @@ protected:
 	double m_dStdDevZ;
 	double m_dStdDevHt;
 
-	string m_strConstraints;
-	string m_strType;
-	string m_strHemisphereZone;
-	string m_strDescription;
-	string m_strComment;
+	std::string m_strConstraints;
+	std::string m_strType;
+	std::string m_strHemisphereZone;
+	std::string m_strDescription;
+	std::string m_strComment;
 
 	char m_cLatConstraint;
 	char m_cLonConstraint;
@@ -335,9 +333,9 @@ protected:
 	UINT32 m_zone;
 	bool m_unusedStation;
 
-	string	m_referenceFrame;
-	string	m_epsgCode;
-	string	m_epoch;
+	std::string	m_referenceFrame;
+	std::string	m_epsgCode;
+	std::string	m_epoch;
 
 	CONSTRAINT_TYPE m_constraintType;
 };

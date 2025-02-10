@@ -29,7 +29,7 @@ void dna_io_tbu::assign_typeb_values_global(const vstring& typeBUncertainties, t
 {
 	double e(0.), n(0.), u(0.);
 	UINT32 i(0);
-	stringstream ss;
+	std::stringstream ss;
 
 	if (typeBUncertainties.size() > 2)
 	{
@@ -56,8 +56,8 @@ void dna_io_tbu::assign_typeb_values_global(const vstring& typeBUncertainties, t
 			u = DoubleFromString<double>(typeBUncertainties.at(i));
 	}
 	else {
-		ss << "  No Type b uncertainties provided." << endl;
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		ss << "  No Type b uncertainties provided." << std::endl;
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 
 	// assign
@@ -83,36 +83,36 @@ void dna_io_tbu::assign_typeb_values_local(const vstring& typeBUncertainties, ty
 }
 	
 
-void dna_io_tbu::validate_typeb_values(const string& argument, vstring& typeBUncertainties)
+void dna_io_tbu::validate_typeb_values(const std::string& argument, vstring& typeBUncertainties)
 {
-	stringstream ss;
+	std::stringstream ss;
 
 	if (typeBUncertainties.size() == 0)
 	{
-		ss << "  No Type b uncertainties provided:" << endl <<
-			"    " << argument << endl;
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		ss << "  No Type b uncertainties provided:" << std::endl <<
+			"    " << argument << std::endl;
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 
 	UINT32 i(0), j;
 
 	for (j = i; j < typeBUncertainties.size(); j++)
 	{
-		if (!is_floatingpoint<string>(typeBUncertainties.at(i)))
+		if (!is_floatingpoint<std::string>(typeBUncertainties.at(i)))
 		{
 			ss << "  Type b uncertainty '" << typeBUncertainties.at(i) <<
-				"' is not a number:" << endl <<
-				"    " << argument << endl;
-			throw boost::enable_current_exception(runtime_error(ss.str()));
+				"' is not a number:" << std::endl <<
+				"    " << argument << std::endl;
+			throw boost::enable_current_exception(std::runtime_error(ss.str()));
 		}
 		
 		i++;
 	}
 }
 
-void dna_io_tbu::read_tbu_header(std::ifstream* ptr, string& version, INPUT_DATA_TYPE& idt)
+void dna_io_tbu::read_tbu_header(std::ifstream* ptr, std::string& version, INPUT_DATA_TYPE& idt)
 {
-	string sBuf;
+	std::string sBuf;
 	getline((*ptr), sBuf);
 	sBuf = trimstr(sBuf);
 
@@ -121,52 +121,52 @@ void dna_io_tbu::read_tbu_header(std::ifstream* ptr, string& version, INPUT_DATA
 
 	// Attempt to get the file's version
 	try {
-		if (iequals("!#=DNA", sBuf.substr(0, 6)))
+		if (boost::iequals("!#=DNA", sBuf.substr(0, 6)))
 			version = trimstr(sBuf.substr(6, 6));
 	}
-	catch (const runtime_error& e) {
-		throw boost::enable_current_exception(runtime_error(e.what()));
+	catch (const std::runtime_error& e) {
+		throw boost::enable_current_exception(std::runtime_error(e.what()));
 	}
 
-	string type;
-	stringstream ssError;
-	ssError << "  File type has not been provided in the header:" << endl <<
-		"  " << sBuf << endl;
+	std::string type;
+	std::stringstream ssError;
+	ssError << "  File type has not been provided in the header:" << std::endl <<
+		"  " << sBuf << std::endl;
 
 	if (sBuf.length() < 15)
-		throw boost::enable_current_exception(runtime_error(ssError.str()));
+		throw boost::enable_current_exception(std::runtime_error(ssError.str()));
 
 	// Attempt to get the file's type
 	try {
 		type = trimstr(sBuf.substr(12, 3));
 	}
-	catch (const runtime_error& e) {
-		ssError << "  " << e.what() << endl;
-		throw boost::enable_current_exception(runtime_error(ssError.str()));
+	catch (const std::runtime_error& e) {
+		ssError << "  " << e.what() << std::endl;
+		throw boost::enable_current_exception(std::runtime_error(ssError.str()));
 	}
 
 	// Check this is a Type B file
-	if (iequals(type, "tbu"))
+	if (boost::iequals(type, "tbu"))
 		idt = tbu_data;
 	else
 	{
 		idt = unknown;
-		stringstream ssError;
-		ssError << "  The supplied filetype '" << type << "' is not recognised:" << endl <<
-			"  " << sBuf << endl;
-		throw boost::enable_current_exception(runtime_error(ssError.str()));
+		std::stringstream ssError;
+		ssError << "  The supplied filetype '" << type << "' is not recognised:" << std::endl <<
+			"  " << sBuf << std::endl;
+		throw boost::enable_current_exception(std::runtime_error(ssError.str()));
 	}
 }
 
-void dna_io_tbu::load_tbu_argument(const string& argument, type_b_uncertainty& type_b_uncertainties)
+void dna_io_tbu::load_tbu_argument(const std::string& argument, type_b_uncertainty& type_b_uncertainties)
 {
 	vstring typeBUncertainties;
 	typeBUncertainties.resize(3);
 
 	// Extract constraints from comma delimited string
-	SplitDelimitedString<string>(
+	SplitDelimitedString<std::string>(
 		argument,		// the comma delimited string
-		string(","),							// the delimiter
+		std::string(","),							// the delimiter
 		&typeBUncertainties);					// the respective values
 
 	// validate values. Throws on exception
@@ -178,18 +178,18 @@ void dna_io_tbu::load_tbu_argument(const string& argument, type_b_uncertainty& t
 }
 	
 
-void dna_io_tbu::identify_station_id(const string& stn_str, UINT32& stn_id, v_string_uint32_pair& vStnsMap)
+void dna_io_tbu::identify_station_id(const std::string& stn_str, UINT32& stn_id, v_string_uint32_pair& vStnsMap)
 {
 	it_pair_string_vUINT32 it_stnmap_range;
-	stringstream ss;
+	std::stringstream ss;
 
 	// find this station in the station map
 	it_stnmap_range = equal_range(vStnsMap.begin(), vStnsMap.end(), stn_str, StationNameIDCompareName());
 	if (it_stnmap_range.first == it_stnmap_range.second)
 	{
 		ss << "  Station '" << stn_str <<
-			"' is not included in the network." << endl;
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+			"' is not included in the network." << std::endl;
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 
 	stn_id = it_stnmap_range.first->second;
@@ -197,7 +197,7 @@ void dna_io_tbu::identify_station_id(const string& stn_str, UINT32& stn_id, v_st
 }
 	
 
-void dna_io_tbu::load_tbu_file(const string& tbu_filename, v_type_b_uncertainty& type_b_uncertainties, v_string_uint32_pair& vStnsMap)
+void dna_io_tbu::load_tbu_file(const std::string& tbu_filename, v_type_b_uncertainty& type_b_uncertainties, v_string_uint32_pair& vStnsMap)
 {
 	// Type B uncertainty file structure is as follows.
 	// Note - uncertainties are in metres, in the local reference frame (e,n,u)
@@ -208,33 +208,33 @@ void dna_io_tbu::load_tbu_file(const string& tbu_filename, v_type_b_uncertainty&
 	//   EOF
 
 	std::ifstream tbu_file;
-	stringstream ss;
-	ss << "load_tbu_file(): An error was encountered when opening " << tbu_filename << "." << endl;
+	std::stringstream ss;
+	ss << "load_tbu_file(): An error was encountered when opening " << tbu_filename << "." << std::endl;
 	
 	INPUT_DATA_TYPE idt;
-	string version;
+	std::string version;
 
 	try {
 		// open ascii plate boundaries file.  Throws runtime_error on failure.
-		file_opener(tbu_file, tbu_filename, ios::in, ascii, true);
+		file_opener(tbu_file, tbu_filename, std::ios::in, ascii, true);
 
 		// read header information
 		read_tbu_header(&tbu_file, version, idt);
 
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 
 	ss.str("");
-	ss << "load_tbu_file(): An error was encountered when reading from " << tbu_filename << "." << endl;
+	ss << "load_tbu_file(): An error was encountered when reading from " << tbu_filename << "." << std::endl;
 
 	UINT32 stn_id;
-	string record, stn_str;
+	std::string record, stn_str;
 	vstring typeb_values;
 	const UINT16 STDDEVn(STATION + STDDEV);
 	const UINT16 STDDEVu(STATION + STDDEV + STDDEV);
@@ -269,7 +269,7 @@ void dna_io_tbu::load_tbu_file(const string& tbu_filename, v_type_b_uncertainty&
 			try {
 				identify_station_id(stn_str, stn_id, vStnsMap);
 			}
-			catch (const runtime_error&) {
+			catch (const std::runtime_error&) {
 				// Can't find the station, ignore.
 				continue;
 			}
@@ -306,7 +306,7 @@ void dna_io_tbu::load_tbu_file(const string& tbu_filename, v_type_b_uncertainty&
 				// to the next set of values
 				validate_typeb_values(record, typeb_values);
 			}
-			catch (const runtime_error&) {
+			catch (const std::runtime_error&) {
 				continue;
 			}
 
@@ -321,18 +321,18 @@ void dna_io_tbu::load_tbu_file(const string& tbu_filename, v_type_b_uncertainty&
 		tbu_file.close();
 
 	}
-	catch (const ios_base::failure& f) {
+	catch (const std::ios_base::failure& f) {
 		if (tbu_file.eof())
 		{
 			tbu_file.close();
 			return;
 		}
 		ss << f.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
 		if (tbu_file.eof())
@@ -340,7 +340,7 @@ void dna_io_tbu::load_tbu_file(const string& tbu_filename, v_type_b_uncertainty&
 			tbu_file.close();
 			return;
 		}
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}	
 
 	return;

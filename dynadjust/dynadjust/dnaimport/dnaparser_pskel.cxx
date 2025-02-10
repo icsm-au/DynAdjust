@@ -42,7 +42,6 @@
 
 #include <include/io/DynaML-schema.hxx>
 
-using namespace std;
 using namespace dynadjust::measurements;
 
 // Clusterpoint_pskel
@@ -3193,15 +3192,15 @@ void type_pskel::post_type ()
 }
 
 // referenceframe_pskel
-// string& referenceframe, bool user_specified, bool override_referenceframe
-void referenceframe_pskel::post_type (string&, string&, bool, bool)
+// std::string& referenceframe, bool user_specified, bool override_referenceframe
+void referenceframe_pskel::post_type (std::string&, std::string&, bool, bool)
 {
 
 }
 
 // epoch_pskel
-// string& epoch, bool override_referenceframe
-void epoch_pskel::post_type (string&, string&, bool, bool, bool)
+// std::string& epoch, bool override_referenceframe
+void epoch_pskel::post_type (std::string&, std::string&, bool, bool, bool)
 {
 }
 

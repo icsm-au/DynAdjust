@@ -24,67 +24,67 @@
 
 using namespace dynadjust;
 
-void PrintOutputFileHeaderInfo(std::ofstream* f_out, const string& out_file, project_settings* p, const string& header, UINT32& epsgCode)
+void PrintOutputFileHeaderInfo(std::ofstream* f_out, const std::string& out_file, project_settings* p, const std::string& header, UINT32& epsgCode)
 {
 	// Print formatted header
 	print_file_header(*f_out, header);
 
-	*f_out << setw(PRINT_VAR_PAD) << left << "File name:" << system_complete(out_file).string() << endl << endl;
+	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "File name:" << boost::filesystem::system_complete(out_file).string() << std::endl << std::endl;
 	
-	*f_out << setw(PRINT_VAR_PAD) << left << "Command line arguments: ";
-	*f_out << p->r.command_line_arguments << endl << endl;
+	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Command line arguments: ";
+	*f_out << p->r.command_line_arguments << std::endl << std::endl;
 
-	*f_out << setw(PRINT_VAR_PAD) << left << "Network name:" <<  p->g.network_name << endl;
-	*f_out << setw(PRINT_VAR_PAD) << left << "Input folder: " << system_complete(p->g.input_folder).string() << endl;
-	*f_out << setw(PRINT_VAR_PAD) << left << "Output folder: " << system_complete(p->g.output_folder).string() << endl;
-	*f_out << setw(PRINT_VAR_PAD) << left << "Stations file:" << system_complete(p->r.bst_file).string() << endl;
-	*f_out << setw(PRINT_VAR_PAD) << left << "Measurements file:" << system_complete(p->r.bms_file).string() << endl;
-	*f_out << setw(PRINT_VAR_PAD) << left << "Target reference frame:" << p->r.reference_frame << endl;
+	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Network name:" <<  p->g.network_name << std::endl;
+	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Input folder: " << boost::filesystem::system_complete(p->g.input_folder).string() << std::endl;
+	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Output folder: " << boost::filesystem::system_complete(p->g.output_folder).string() << std::endl;
+	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Stations file:" << boost::filesystem::system_complete(p->r.bst_file).string() << std::endl;
+	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Measurements file:" << boost::filesystem::system_complete(p->r.bms_file).string() << std::endl;
+	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Target reference frame:" << p->r.reference_frame << std::endl;
 
 	if (!p->r.epoch.empty())
 	{
 		// Has the user supplied the year only?
-		if (p->r.epoch.rfind(".") == string::npos)
+		if (p->r.epoch.rfind(".") == std::string::npos)
 			p->r.epoch.insert(0, "01.01.");
 
-		*f_out << setw(PRINT_VAR_PAD) << left << "Target epoch: " <<
-			formattedDateStringFromNumericString<date>(p->r.epoch);
+		*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Target epoch: " <<
+			formattedDateStringFromNumericString<boost::gregorian::date>(p->r.epoch);
 		if (isEpsgDatumStatic(epsgCode))
 			*f_out << " (ignored: " << p->r.reference_frame << " is static)";
-		*f_out << endl;
+		*f_out << std::endl;
 	}
 	
 	if (p->r.plate_model_option > 0)
 	{
-		*f_out << setw(PRINT_VAR_PAD) << left << "Plate boundaries file: " << p->r.tpb_file << endl;
-		*f_out << setw(PRINT_VAR_PAD) << left << "Plate pole parameter file: " << p->r.tpp_file << endl;
+		*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Plate boundaries file: " << p->r.tpb_file << std::endl;
+		*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Plate pole parameter file: " << p->r.tpp_file << std::endl;
 	}
 	
 	if (p->i.export_dynaml)
 	{
 		if (p->i.export_single_xml_file)
-			*f_out << setw(PRINT_VAR_PAD) << left << "DynaML output file: " << p->i.xml_outfile << endl;
+			*f_out << std::setw(PRINT_VAR_PAD) << std::left << "DynaML output file: " << p->i.xml_outfile << std::endl;
 		else
 		{
-			*f_out << setw(PRINT_VAR_PAD) << left << "DynaML station file: " << p->i.xml_stnfile << endl;
-			*f_out << setw(PRINT_VAR_PAD) << left << "DynaML measurement file: " << p->i.xml_msrfile << endl;
+			*f_out << std::setw(PRINT_VAR_PAD) << std::left << "DynaML station file: " << p->i.xml_stnfile << std::endl;
+			*f_out << std::setw(PRINT_VAR_PAD) << std::left << "DynaML measurement file: " << p->i.xml_msrfile << std::endl;
 		}				
 	}
 	if (p->i.export_dna_files)
 	{
-		*f_out << setw(PRINT_VAR_PAD) << left << "DNA station file: " << p->i.dna_stnfile << endl;
-		*f_out << setw(PRINT_VAR_PAD) << left << "DNA measurement file: " << p->i.dna_msrfile << endl;
+		*f_out << std::setw(PRINT_VAR_PAD) << std::left << "DNA station file: " << p->i.dna_stnfile << std::endl;
+		*f_out << std::setw(PRINT_VAR_PAD) << std::left << "DNA measurement file: " << p->i.dna_msrfile << std::endl;
 	}
 
 //	if (p->o._export_snx_file)
-//		*f_out << setw(PRINT_VAR_PAD) << left << "SINEX file: " << p->o._snx_file << endl;
+//		*f_out << std::setw(PRINT_VAR_PAD) << std::left << "SINEX file: " << p->o._snx_file << std::endl;
 
 
-	*f_out << OUTPUTLINE << endl << endl;
+	*f_out << OUTPUTLINE << std::endl << std::endl;
 }
 
 
-int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& vm, project_settings& p, UINT32& epsgCode)
+int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_options::variables_map& vm, project_settings& p, UINT32& epsgCode)
 {
 	// capture command line arguments
 	for (int cmd_arg(0); cmd_arg<argc; ++cmd_arg)
@@ -95,39 +95,39 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 
 	if (vm.count(PROJECT_FILE))
 	{
-		if (exists(p.g.project_file))
+		if (boost::filesystem::exists(p.g.project_file))
 		{
 			try {
 				CDnaProjectFile projectFile(p.g.project_file, reftranSetting);
 				p = projectFile.GetSettings();
 			}
-			catch (const runtime_error& e) {
-				cout << endl << "- Error: " << e.what() << endl;
+			catch (const std::runtime_error& e) {
+				std::cout << std::endl << "- Error: " << e.what() << std::endl;
 				return EXIT_FAILURE;
 			}
 			
 			return EXIT_SUCCESS;
 		}
 
-		cout << endl << "- Error: project file " << p.g.project_file << " does not exist." << endl << endl;
+		std::cout << std::endl << "- Error: project file " << p.g.project_file << " does not exist." << std::endl << std::endl;
 		return EXIT_FAILURE;
 	}
 
 	if (!vm.count(NETWORK_NAME))
 	{
-		cout << endl << "- Nothing to do - no network name specified. " << endl << endl;  
+		std::cout << std::endl << "- Nothing to do - no network name specified. " << std::endl << std::endl;  
 		return EXIT_FAILURE;
 	}
 	
-	p.g.project_file = formPath<string>(p.g.output_folder, p.g.network_name, "dnaproj");
-	p.r.rft_file = formPath<string>(p.g.output_folder, p.g.network_name, "rft");
+	p.g.project_file = formPath<std::string>(p.g.output_folder, p.g.network_name, "dnaproj");
+	p.r.rft_file = formPath<std::string>(p.g.output_folder, p.g.network_name, "rft");
 
 	bool frameSupplied(true);
 	project_settings tmp;
 
 	if (!vm.count(REFERENCE_FRAME))
 	{
-		if (exists(p.g.project_file))
+		if (boost::filesystem::exists(p.g.project_file))
 		{
 			try {
 				CDnaProjectFile projectFile(p.g.project_file, reftranSetting);
@@ -135,22 +135,22 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 				p.r.reference_frame = tmp.r.reference_frame;
 				frameSupplied = false;
 			}
-			catch (const runtime_error& e) {
-				cout << endl << "- Error: " << e.what() << endl;
+			catch (const std::runtime_error& e) {
+				std::cout << std::endl << "- Error: " << e.what() << std::endl;
 				return EXIT_FAILURE;
 			}
 		}
 
-		//cout << endl << "- Reference frame was not supplied.  Using project default (" << p.r.reference_frame << ")" << endl << endl;
+		//cout << std::endl << "- Reference frame was not supplied.  Using project default (" << p.r.reference_frame << ")" << std::endl << std::endl;
 		
 		try
 		{
 			// Okay, no frame supplied, check the frame in the project settings.
 			// The following throws an exception if the frame is unknown
-			string epsg = epsgStringFromName<string>(p.r.reference_frame);
+			std::string epsg = epsgStringFromName<std::string>(p.r.reference_frame);
 		}
-		catch (const runtime_error& e) {
-			cout << endl << "- Error: " << e.what() << endl;
+		catch (const std::runtime_error& e) {
+			std::cout << std::endl << "- Error: " << e.what() << std::endl;
 			return EXIT_FAILURE;
 		}
 
@@ -165,58 +165,58 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 			if (frameSupplied)
 				// Okay, frame supplied, but no epoch supplied.
 				// Set the epoch to be the reference epoch of the supplied reference frame
-				p.r.epoch = referenceepochFromEpsgCode<UINT32>(epsgCodeFromName<UINT32, string>(p.r.reference_frame));
+				p.r.epoch = referenceepochFromEpsgCode<UINT32>(epsgCodeFromName<UINT32, std::string>(p.r.reference_frame));
 			else
 				// Take the epoch from the project file
 				p.r.epoch = tmp.r.epoch;
 		}
-		catch (const runtime_error& e) {
-			cout << endl << "- Error: " << e.what() << endl;
+		catch (const std::runtime_error& e) {
+			std::cout << std::endl << "- Error: " << e.what() << std::endl;
 			return EXIT_FAILURE;
 		}
 	}
 
 	if (vm.count(TECTONIC_PLATE_BDY_FILE))
 	{
-		if (!exists(p.r.tpb_file))
+		if (!boost::filesystem::exists(p.r.tpb_file))
 		{
-			cout << endl << "- Error: ";
-			cout << endl << "tectonic plate boundary file " << endl << "               ";
-			cout << p.r.tpb_file << " does not exist." << endl << endl;
+			std::cout << std::endl << "- Error: ";
+			std::cout << std::endl << "tectonic plate boundary file " << std::endl << "               ";
+			std::cout << p.r.tpb_file << " does not exist." << std::endl << std::endl;
 			return EXIT_FAILURE;
 		}
 	}
 
 	if (vm.count(TECTONIC_PLATE_POLE_FILE))
 	{
-		if (!exists(p.r.tpp_file))
+		if (!boost::filesystem::exists(p.r.tpp_file))
 		{
-			cout << endl << "- Error: ";
-			cout << endl << "Euler pole parameters file " << endl << "               ";
-			cout << p.r.tpp_file << " does not exist." << endl << endl;
+			std::cout << std::endl << "- Error: ";
+			std::cout << std::endl << "Euler pole parameters file " << std::endl << "               ";
+			std::cout << p.r.tpp_file << " does not exist." << std::endl << std::endl;
 			return EXIT_FAILURE;
 		}
 	}
 
 	// binary station file location (input)
 	if (vm.count(BIN_STN_FILE))
-		p.r.bst_file = formPath<string>(p.g.input_folder, p.r.bst_file);
+		p.r.bst_file = formPath<std::string>(p.g.input_folder, p.r.bst_file);
 	else
-		p.r.bst_file = formPath<string>(p.g.output_folder, p.g.network_name, "bst");
+		p.r.bst_file = formPath<std::string>(p.g.output_folder, p.g.network_name, "bst");
 
 	// binary station file location (input)
 	if (vm.count(BIN_MSR_FILE))
-		p.r.bms_file = formPath<string>(p.g.input_folder, p.r.bms_file);
+		p.r.bms_file = formPath<std::string>(p.g.input_folder, p.r.bms_file);
 	else
-		p.r.bms_file = formPath<string>(p.g.output_folder, p.g.network_name, "bms");
+		p.r.bms_file = formPath<std::string>(p.g.output_folder, p.g.network_name, "bms");
 
-	if (!exists(p.r.bst_file) || !exists(p.r.bms_file))
+	if (!boost::filesystem::exists(p.r.bst_file) || !boost::filesystem::exists(p.r.bms_file))
 	{
-		cout << endl << "- Nothing to do: ";  
+		std::cout << std::endl << "- Nothing to do: ";  
 			
 		if (p.g.network_name.empty())
-			cout << endl << "network name has not been specified specified, and " << endl << "               ";  
-		cout << p.r.bst_file << " and " << p.r.bms_file << " do not exist." << endl << endl;  
+			std::cout << std::endl << "network name has not been specified specified, and " << std::endl << "               ";  
+		std::cout << p.r.bst_file << " and " << p.r.bms_file << " do not exist." << std::endl << std::endl;  
 		return EXIT_FAILURE;
 	}
 
@@ -227,13 +227,13 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 	// Export options
 	
 	// Create file name based on the provided block
-	string fileName(p.g.network_name);
+	std::string fileName(p.g.network_name);
 	fileName.append(".").append(p.r.reference_frame);
 
 	if (!isEpsgDatumStatic(epsgCode))
 	{
-		if (iequals(p.r.epoch, "today"))
-			p.r.epoch = stringFromToday<date>();
+		if (boost::iequals(p.r.epoch, "today"))
+			p.r.epoch = stringFromToday<boost::gregorian::date>();
 		fileName.append(".").append(p.r.epoch);
 	}
 
@@ -246,16 +246,16 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 		if (vm.count(EXPORT_SINGLE_XML_FILE))
 		{
 			p.i.export_single_xml_file = 1;
-			p.i.xml_outfile = formPath<string>(p.g.output_folder, 
+			p.i.xml_outfile = formPath<std::string>(p.g.output_folder, 
 				fileName, "xml");
 		}
 		// unique files for stations and measurements
 		else
 		{
 			p.i.export_single_xml_file = 0;
-			p.i.xml_stnfile = formPath<string>(p.g.output_folder, 
+			p.i.xml_stnfile = formPath<std::string>(p.g.output_folder, 
 				fileName + "stn", "xml");
-			p.i.xml_msrfile = formPath<string>(p.g.output_folder, 
+			p.i.xml_msrfile = formPath<std::string>(p.g.output_folder, 
 				fileName + "msr", "xml");
 		}
 	}
@@ -264,9 +264,9 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 	if (vm.count(EXPORT_DNA_FILES))
 	{
 		p.i.export_dna_files = 1;		
-		p.i.dna_stnfile = formPath<string>(p.g.output_folder, 
+		p.i.dna_stnfile = formPath<std::string>(p.g.output_folder, 
 			fileName, "stn");
-		p.i.dna_msrfile = formPath<string>(p.g.output_folder, 
+		p.i.dna_msrfile = formPath<std::string>(p.g.output_folder, 
 			fileName, "msr");
 	}
 
@@ -274,7 +274,7 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 //	if (vm.count(EXPORT_SNX_FILE))
 //	{
 //		p.o._export_snx_file = 1;		
-//		p.o._snx_file = formPath<string>(p.g.output_folder, 
+//		p.o._snx_file = formPath<std::string>(p.g.output_folder, 
 //			fileName, "snx");
 //	}
 
@@ -284,57 +284,57 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 int main(int argc, char* argv[])
 {	
 	// create banner message
-	string cmd_line_banner;
+	std::string cmd_line_banner;
 	fileproc_help_header(&cmd_line_banner);
 
 	project_settings p;
 
-	variables_map vm;
-	positional_options_description positional_options;
+	boost::program_options::variables_map vm;
+	boost::program_options::positional_options_description positional_options;
 	
-	options_description standard_options("+ " + string(ALL_MODULE_STDOPT), PROGRAM_OPTIONS_LINE_LENGTH);
-	options_description transformation_options("+ " + string(REFTRAN_MODULE_TRANSFORM), PROGRAM_OPTIONS_LINE_LENGTH);
-	options_description export_options("+ " + string(ALL_MODULE_EXPORT), PROGRAM_OPTIONS_LINE_LENGTH);
-	options_description generic_options("+ " + string(ALL_MODULE_GENERIC), PROGRAM_OPTIONS_LINE_LENGTH);
+	boost::program_options::options_description standard_options("+ " + std::string(ALL_MODULE_STDOPT), PROGRAM_OPTIONS_LINE_LENGTH);
+	boost::program_options::options_description transformation_options("+ " + std::string(REFTRAN_MODULE_TRANSFORM), PROGRAM_OPTIONS_LINE_LENGTH);
+	boost::program_options::options_description export_options("+ " + std::string(ALL_MODULE_EXPORT), PROGRAM_OPTIONS_LINE_LENGTH);
+	boost::program_options::options_description generic_options("+ " + std::string(ALL_MODULE_GENERIC), PROGRAM_OPTIONS_LINE_LENGTH);
 
-	string cmd_line_usage("+ ");
+	std::string cmd_line_usage("+ ");
 	cmd_line_usage.append(__BINARY_NAME__).append(" usage:  ").append(__BINARY_NAME__).append(" ").append(NETWORK_NAME).append(" [options]");
-	options_description allowable_options(cmd_line_usage, PROGRAM_OPTIONS_LINE_LENGTH);
+	boost::program_options::options_description allowable_options(cmd_line_usage, PROGRAM_OPTIONS_LINE_LENGTH);
 
 	try {
 		// Declare a group of options that will be 
 		// allowed only on command line		
 		standard_options.add_options()
-			(PROJECT_FILE_P, value<string>(&p.g.project_file),
+			(PROJECT_FILE_P, boost::program_options::value<std::string>(&p.g.project_file),
 				"Project file name. Full path to project file. If none specified, a new file is created using input-folder and network-name.")
-			(NETWORK_NAME_N, value<string>(&p.g.network_name), 
+			(NETWORK_NAME_N, boost::program_options::value<std::string>(&p.g.network_name), 
 				"Network name. User defined name for all output files. Default is \"network#\".")
-			(INPUT_FOLDER_I, value<string>(&p.g.input_folder),
+			(INPUT_FOLDER_I, boost::program_options::value<std::string>(&p.g.input_folder),
 				"Path containing all input files")
-			(OUTPUT_FOLDER_O, value<string>(&p.g.output_folder),		// default is ./,
+			(OUTPUT_FOLDER_O, boost::program_options::value<std::string>(&p.g.output_folder),		// default is ./,
 				"Path for all output files")
-			(BIN_STN_FILE, value<string>(&p.r.bst_file),
+			(BIN_STN_FILE, boost::program_options::value<std::string>(&p.r.bst_file),
 				"Binary station file name. Overrides network name.")
-			(BIN_MSR_FILE, value<string>(&p.r.bms_file),
+			(BIN_MSR_FILE, boost::program_options::value<std::string>(&p.r.bms_file),
 				"Binary measurement file name. Overrides network name.")
 			;
 
 		transformation_options.add_options()
-			(REFERENCE_FRAME_R, value<string>(&p.r.reference_frame), 
+			(REFERENCE_FRAME_R, boost::program_options::value<std::string>(&p.r.reference_frame), 
 				"Target reference frame for all stations and datum-dependent measurements.")
-			(EPOCH_E, value<string>(&p.r.epoch),
+			(EPOCH_E, boost::program_options::value<std::string>(&p.r.epoch),
 				"Projected date for the transformed stations and measurements. arg is a dot delimited string \"dd.mm.yyyy\", or \"today\" if today's date is required. If no date is supplied, the reference epoch of the supplied reference frame will be used.")
-			(TECTONIC_PLATE_MODEL_OPTION, value<UINT16>(&p.r.plate_model_option),
-				string("Plate motion model option.\n"
+			(TECTONIC_PLATE_MODEL_OPTION, boost::program_options::value<UINT16>(&p.r.plate_model_option),
+				std::string("Plate motion model option.\n"
 					"  0: Assume all stations are on the Australian plate (default)\n"
 					"  1: Interpolate plate motion model parameters from a defined\n"
 					"     set of global tectonic plates. For this option, a global\n"
 					"     tectonic plate boundary file and corresponding Euler\n"
 					"     pole parameters file must be provided.").c_str())
-			(TECTONIC_PLATE_BDY_FILE_B, value<string>(&p.r.tpb_file),
-				string("Global tectonic plate boundaries.").c_str())
-			(TECTONIC_PLATE_POLE_FILE_M, value<string>(&p.r.tpp_file), 
-				string("Euler pole parameters corresponding to the global tectonic plate boundaries supplied with option --" +
+			(TECTONIC_PLATE_BDY_FILE_B, boost::program_options::value<std::string>(&p.r.tpb_file),
+				std::string("Global tectonic plate boundaries.").c_str())
+			(TECTONIC_PLATE_POLE_FILE_M, boost::program_options::value<std::string>(&p.r.tpp_file), 
+				std::string("Euler pole parameters corresponding to the global tectonic plate boundaries supplied with option --" +
 					StringFromT(TECTONIC_PLATE_BDY_FILE) +
 					".").c_str())
 			;
@@ -351,13 +351,13 @@ int main(int argc, char* argv[])
 			;
 
 		generic_options.add_options()
-			(VERBOSE, value<UINT16>(&p.g.verbose),
-				string("Give detailed information about what ").append(__BINARY_NAME__).append(" is doing.\n  0: No information (default)\n  1: Helpful information\n  2: Extended information\n  3: Debug level information").c_str())
+			(VERBOSE, boost::program_options::value<UINT16>(&p.g.verbose),
+				std::string("Give detailed information about what ").append(__BINARY_NAME__).append(" is doing.\n  0: No information (default)\n  1: Helpful information\n  2: Extended information\n  3: Debug level information").c_str())
 			(QUIET,
-				string("Suppresses all explanation of what ").append(__BINARY_NAME__).append(" is doing unless an error occurs").c_str())
+				std::string("Suppresses all explanation of what ").append(__BINARY_NAME__).append(" is doing unless an error occurs").c_str())
 			(VERSION_V, "Display the current program version")
 			(HELP_H, "Show this help message")
-			(HELP_MODULE_H, value<string>(),
+			(HELP_MODULE_H, boost::program_options::value<std::string>(),
 				"Provide help for a specific help category.")
 			;
 
@@ -366,61 +366,61 @@ int main(int argc, char* argv[])
 		// add "positional options" to handle command line tokens which have no option name
 		positional_options.add(NETWORK_NAME, -1);
 		
-		command_line_parser parser(argc, argv);
+		boost::program_options::command_line_parser parser(argc, argv);
 		store(parser.options(allowable_options).positional(positional_options).run(), vm);
 		notify(vm);
 	} 
 	catch (const std::exception& e) {
-		cout << "- Error: " << e.what() << endl;
-		cout << cmd_line_banner << allowable_options << endl;
+		std::cout << "- Error: " << e.what() << std::endl;
+		std::cout << cmd_line_banner << allowable_options << std::endl;
 		return EXIT_FAILURE;
 	}
 	catch (...) 
 	{
-		cout << "+ Exception of unknown type!\n";
+		std::cout << "+ Exception of unknown type!\n";
 		return EXIT_FAILURE;
 	}
 
 	if (argc < 2)
 	{
-		cout << endl << "- Nothing to do - no options provided. " << endl << endl;  
-		cout << cmd_line_banner << allowable_options << endl;
+		std::cout << std::endl << "- Nothing to do - no options provided. " << std::endl << std::endl;  
+		std::cout << cmd_line_banner << allowable_options << std::endl;
 		return EXIT_FAILURE;
 	}
 
 	if (vm.count(VERSION))
 	{
-		cout << cmd_line_banner << endl;
+		std::cout << cmd_line_banner << std::endl;
 		return EXIT_SUCCESS;
 	}
 
 	if (vm.count(HELP))
 	{
-		cout << cmd_line_banner << allowable_options << endl;
+		std::cout << cmd_line_banner << allowable_options << std::endl;
 		return EXIT_SUCCESS;
 	}
 
 	if (vm.count(HELP_MODULE))
 	{
-		cout << cmd_line_banner;
-		string original_text = vm[HELP_MODULE].as<string>();
-		string help_text = str_upper<string>(original_text);
+		std::cout << cmd_line_banner;
+		std::string original_text = vm[HELP_MODULE].as<std::string>();
+		std::string help_text = str_upper<std::string>(original_text);
 
-		if (str_upper<string, char>(ALL_MODULE_STDOPT).find(help_text) != string::npos) {
-			cout << standard_options << endl;
+		if (str_upper<std::string, char>(ALL_MODULE_STDOPT).find(help_text) != std::string::npos) {
+			std::cout << standard_options << std::endl;
 		}
-		else if (str_upper<string, char>(REFTRAN_MODULE_TRANSFORM).find(help_text) != string::npos) {
-			cout << transformation_options << endl;
+		else if (str_upper<std::string, char>(REFTRAN_MODULE_TRANSFORM).find(help_text) != std::string::npos) {
+			std::cout << transformation_options << std::endl;
 		}
-		else if (str_upper<string, char>(ALL_MODULE_EXPORT).find(help_text) != string::npos) {
-			cout << export_options << endl;
+		else if (str_upper<std::string, char>(ALL_MODULE_EXPORT).find(help_text) != std::string::npos) {
+			std::cout << export_options << std::endl;
 		}
-		else if (str_upper<string, char>(ALL_MODULE_GENERIC).find(help_text) != string::npos) {
-			cout << generic_options << endl;
+		else if (str_upper<std::string, char>(ALL_MODULE_GENERIC).find(help_text) != std::string::npos) {
+			std::cout << generic_options << std::endl;
 		}
 		else {
-			cout << endl << "- Error: Help module '" <<
-				original_text << "' is not in the list of options." << endl;
+			std::cout << std::endl << "- Error: Help module '" <<
+				original_text << "' is not in the list of options." << std::endl;
 			return EXIT_FAILURE;
 		}
 
@@ -431,13 +431,13 @@ int main(int argc, char* argv[])
 	{
 		if (!vm.count(TECTONIC_PLATE_BDY_FILE))
 		{
-			cout << endl << "- Error: A plate boundary file must be supplied in order to interpolate plate motion model parameters. See command line help for further information." << endl;
+			std::cout << std::endl << "- Error: A plate boundary file must be supplied in order to interpolate plate motion model parameters. See command line help for further information." << std::endl;
 			return EXIT_FAILURE;
 		}
 
 		if (!vm.count(TECTONIC_PLATE_POLE_FILE))
 		{
-			cout << endl << "- Error: A Euler pole parameters file must be supplied in order to interpolate plate motion model parameters. See command line help for further information." << endl;
+			std::cout << std::endl << "- Error: A Euler pole parameters file must be supplied in order to interpolate plate motion model parameters. See command line help for further information." << std::endl;
 			return EXIT_FAILURE;
 		}
 	}
@@ -452,10 +452,10 @@ int main(int argc, char* argv[])
 		// Create import log file.  Throws runtime_error on failure.
 		file_opener(rft_file, p.r.rft_file);
 	}
-	catch (const runtime_error& e) {
-		stringstream ss;
-		ss << "- Error: Could not open " << p.r.rft_file << ". \n  Check that the file exists and that the file is not already opened." << endl;
-		cout << ss.str() << e.what() << endl;
+	catch (const std::runtime_error& e) {
+		std::stringstream ss;
+		ss << "- Error: Could not open " << p.r.rft_file << ". \n  Check that the file exists and that the file is not already opened." << std::endl;
+		std::cout << ss.str() << e.what() << std::endl;
 		return EXIT_FAILURE;
 	}
 
@@ -464,19 +464,19 @@ int main(int argc, char* argv[])
 
 	if (!p.g.quiet)
 	{
-		cout << endl << cmd_line_banner;
+		std::cout << std::endl << cmd_line_banner;
 	
-		cout << "+ Options:" << endl; 
-		cout << setw(PRINT_VAR_PAD) << left << "  Network name: " <<  p.g.network_name << endl;
-		cout << setw(PRINT_VAR_PAD) << left << "  Input folder: " << p.g.input_folder << endl;
-		cout << setw(PRINT_VAR_PAD) << left << "  Output folder: " << p.g.output_folder << endl;
-		cout << setw(PRINT_VAR_PAD) << left << "  Binary station file: " << p.r.bst_file << endl;
-		cout << setw(PRINT_VAR_PAD) << left << "  Binary measurement file: " << p.r.bms_file << endl;
-		cout << setw(PRINT_VAR_PAD) << left << "  Target reference frame: " << p.r.reference_frame;
+		std::cout << "+ Options:" << std::endl; 
+		std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Network name: " <<  p.g.network_name << std::endl;
+		std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Input folder: " << p.g.input_folder << std::endl;
+		std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Output folder: " << p.g.output_folder << std::endl;
+		std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Binary station file: " << p.r.bst_file << std::endl;
+		std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Binary measurement file: " << p.r.bms_file << std::endl;
+		std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Target reference frame: " << p.r.reference_frame;
 		if (vm.count(REFERENCE_FRAME))
-			cout << " (user supplied)" << endl;
+			std::cout << " (user supplied)" << std::endl;
 		else
-			cout << " (project default)" << endl;
+			std::cout << " (project default)" << std::endl;
 
 		// try to parse user supplied string.  If this fails, then there's not much point in attempting
 		// to transform stations and measurements
@@ -485,65 +485,65 @@ int main(int argc, char* argv[])
 			if (!p.r.epoch.empty())
 			{
 				// Has the user supplied the year only?
-				if (p.r.epoch.rfind(".") == string::npos)
+				if (p.r.epoch.rfind(".") == std::string::npos)
 					p.r.epoch.insert(0, "01.01.");
 
-				cout << setw(PRINT_VAR_PAD) << left << "  Target epoch: " <<
-					formattedDateStringFromNumericString<date>(p.r.epoch);
+				std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Target epoch: " <<
+					formattedDateStringFromNumericString<boost::gregorian::date>(p.r.epoch);
 				if (isEpsgDatumStatic(epsgCode))
-					cout << " (ignored: " << p.r.reference_frame << " is static)";
-				cout << endl;
+					std::cout << " (ignored: " << p.r.reference_frame << " is static)";
+				std::cout << std::endl;
 			}
 		}
-		catch (const runtime_error& e) {
-			cout << endl << "- Error: " << e.what() << endl;
+		catch (const std::runtime_error& e) {
+			std::cout << std::endl << "- Error: " << e.what() << std::endl;
 			rft_file.close();
 			return EXIT_FAILURE;
 		}
 		catch (const RefTranException& e) {
-			cout << endl << "- Error: " << e.what() << endl;
+			std::cout << std::endl << "- Error: " << e.what() << std::endl;
 			rft_file.close();
 			return EXIT_FAILURE;
 		}
 		catch (...) {
-			cout << endl << "- Error: Unknown error." << endl;
+			std::cout << std::endl << "- Error: Unknown error." << std::endl;
 			rft_file.close();
 			return EXIT_FAILURE;
 		}
 
 		if (p.r.plate_model_option > 0)
 		{
-			cout << setw(PRINT_VAR_PAD) << left << "  Plate boundaries file: " << p.r.tpb_file << endl;
-			cout << setw(PRINT_VAR_PAD) << left << "  Plate pole parameter file: " << p.r.tpp_file << endl;
+			std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Plate boundaries file: " << p.r.tpb_file << std::endl;
+			std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Plate pole parameter file: " << p.r.tpp_file << std::endl;
 		}
 
 		// Export options
 		if (p.i.export_dynaml)
 		{
 			if (p.i.export_single_xml_file)
-				cout << setw(PRINT_VAR_PAD) << left << "  DynaML output file: " << p.i.xml_outfile << endl;
+				std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  DynaML output file: " << p.i.xml_outfile << std::endl;
 			else
 			{
-				cout << setw(PRINT_VAR_PAD) << left << "  DynaML station file: " << p.i.xml_stnfile << endl;
-				cout << setw(PRINT_VAR_PAD) << left << "  DynaML measurement file: " << p.i.xml_msrfile << endl;
+				std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  DynaML station file: " << p.i.xml_stnfile << std::endl;
+				std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  DynaML measurement file: " << p.i.xml_msrfile << std::endl;
 			}				
 		}
 		if (p.i.export_dna_files)
 		{
-			cout << setw(PRINT_VAR_PAD) << left << "  DNA station file: " << p.i.dna_stnfile << endl;
-			cout << setw(PRINT_VAR_PAD) << left << "  DNA measurement file: " << p.i.dna_msrfile << endl;
+			std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  DNA station file: " << p.i.dna_stnfile << std::endl;
+			std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  DNA measurement file: " << p.i.dna_msrfile << std::endl;
 		}
 
 //		if (p.o._export_snx_file)
-//			cout << setw(PRINT_VAR_PAD) << left << "  SINEX file: " << p.o._snx_file << endl;
+//			std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  SINEX file: " << p.o._snx_file << std::endl;
 
-		cout << endl;
+		std::cout << std::endl;
 	}
 
 	PrintOutputFileHeaderInfo(&rft_file, p.r.rft_file, &p, "DYNADJUST REFTRAN LOG FILE", epsgCode);
 
 	dna_reftran refTran(p, &rft_file);
-	stringstream ss_msg;
+	std::stringstream ss_msg;
 
 	// Load plate boundary and euler pole information
 	if (vm.count(TECTONIC_PLATE_MODEL_OPTION))
@@ -551,33 +551,33 @@ int main(int argc, char* argv[])
 		ss_msg << "+ Loading global tectonic plate boundaries and plate motion information... ";
 
 		if (!p.g.quiet)
-			cout << ss_msg.str();		
+			std::cout << ss_msg.str();		
 		rft_file << ss_msg.str();
 	
 		try
 		{
 			refTran.LoadTectonicPlateParameters(p.r.tpb_file, p.r.tpp_file);
 		}
-		catch (const runtime_error& e) {
-			cout << endl << "- Error: " << e.what() << endl;
-			rft_file << endl << "- Error: " << e.what() << endl;
+		catch (const std::runtime_error& e) {
+			std::cout << std::endl << "- Error: " << e.what() << std::endl;
+			rft_file << std::endl << "- Error: " << e.what() << std::endl;
 			rft_file.close();
 			return EXIT_FAILURE;
 		}
 
 		if (!p.g.quiet)
-			cout << "done." << endl;
+			std::cout << "done." << std::endl;
 
 		if (p.g.verbose == 0)
-			rft_file << "done." << endl;
+			rft_file << "done." << std::endl;
 		else
-			rft_file << endl << "+ Done." << endl << endl;
+			rft_file << std::endl << "+ Done." << std::endl << std::endl;
 	}
 
 	ss_msg.str("");
 	ss_msg << "+ Transforming stations and measurements... ";
 	if (!p.g.quiet)
-		cout << ss_msg.str();		
+		std::cout << ss_msg.str();		
 	rft_file << ss_msg.str();
 
 	ss_msg.str("");
@@ -588,9 +588,9 @@ int main(int argc, char* argv[])
 		refTran.TransformBinaryFiles(p.r.bst_file, p.r.bms_file,
 			p.r.reference_frame, p.r.epoch);
 	}
-	catch (const runtime_error& e) {
-		cout << endl << "- Error: " << e.what() << endl;
-		rft_file << endl << "- Error: " << e.what() << endl;
+	catch (const std::runtime_error& e) {
+		std::cout << std::endl << "- Error: " << e.what() << std::endl;
+		rft_file << std::endl << "- Error: " << e.what() << std::endl;
 		rft_file.close();
 		return EXIT_FAILURE;
 	}
@@ -600,25 +600,25 @@ int main(int argc, char* argv[])
 		case REFTRAN_WGS84_TRANS_UNSUPPORTED:
 			break;
 		}
-		cout << endl << endl << "- Error: " << e.what() << endl;
-		rft_file << endl << endl << "- Error: " << e.what() << endl;
+		std::cout << std::endl << std::endl << "- Error: " << e.what() << std::endl;
+		rft_file << std::endl << std::endl << "- Error: " << e.what() << std::endl;
 		rft_file.close();
 		return EXIT_FAILURE;
 	}
 	catch (...) {
-		cout << endl << "- Error: Unknown error." << endl;
-		rft_file << endl << "- Error: Unknown error." << endl;
+		std::cout << std::endl << "- Error: Unknown error." << std::endl;
+		rft_file << std::endl << "- Error: Unknown error." << std::endl;
 		rft_file.close();
 		return EXIT_FAILURE;
 	}
 	
 	if (!p.g.quiet)
-		cout << "done." << endl;
+		std::cout << "done." << std::endl;
 
 	if (p.g.verbose == 0)
-		rft_file << "done." << endl;
+		rft_file << "done." << std::endl;
 	else
-		rft_file << endl << "+ Done." << endl << endl;
+		rft_file << std::endl << "+ Done." << std::endl << std::endl;
 	
 	ss_msg.str("");
 
@@ -628,15 +628,15 @@ int main(int argc, char* argv[])
 		ss_msg << "+ Transformed " << refTran.StationsTransformed();
 	
 		if (refTran.StationsTransformed() == 1)
-			ss_msg << " station." << endl;
+			ss_msg << " station." << std::endl;
 		else
-			ss_msg << " stations." << endl;
+			ss_msg << " stations." << std::endl;
 	}
 	else
-		ss_msg << "+ No stations were transformed." << endl;
+		ss_msg << "+ No stations were transformed." << std::endl;
 	
 	if (!p.g.quiet)
-		cout << ss_msg.str();
+		std::cout << ss_msg.str();
 	rft_file << ss_msg.str();
 
 	ss_msg.str("");
@@ -660,11 +660,11 @@ int main(int argc, char* argv[])
 			if (!p.r.epoch.empty())
 				ss_msg << ", epoch " << p.r.epoch;
 		}
-		ss_msg << endl;
+		ss_msg << std::endl;
 	}
 
 	if (!p.g.quiet)
-		cout << ss_msg.str();
+		std::cout << ss_msg.str();
 	rft_file << ss_msg.str();
 
 	ss_msg.str("");
@@ -675,15 +675,15 @@ int main(int argc, char* argv[])
 		ss_msg << "+ Transformed " << refTran.MeasurementsTransformed();
 	
 		if (refTran.MeasurementsTransformed() == 1)
-			ss_msg << " measurement." << endl;
+			ss_msg << " measurement." << std::endl;
 		else
-			ss_msg << " measurements." << endl;
+			ss_msg << " measurements." << std::endl;
 	}
 	else
-		ss_msg << "+ No measurements were transformed." << endl;
+		ss_msg << "+ No measurements were transformed." << std::endl;
 
 	if (!p.g.quiet)
-		cout << ss_msg.str();
+		std::cout << ss_msg.str();
 	rft_file << ss_msg.str();
 
 	ss_msg.str("");
@@ -707,12 +707,12 @@ int main(int argc, char* argv[])
 			if (!p.r.epoch.empty())
 				ss_msg << ", epoch " << p.r.epoch;
 		}
-		ss_msg << endl;
+		ss_msg << std::endl;
 	}
 	
 	if (!p.g.quiet)
-		cout << ss_msg.str() << endl;
-	rft_file << ss_msg.str() << endl;
+		std::cout << ss_msg.str() << std::endl;
+	rft_file << ss_msg.str() << std::endl;
 
 	ss_msg.str("");
 
@@ -725,9 +725,9 @@ int main(int argc, char* argv[])
 				// Single output file
 				if (!p.g.quiet)
 				{
-					cout << "+ Exporting stations and measurements to " << leafStr<string>(p.i.xml_outfile) << "... ";
-					cout.flush();
-					rft_file << "+ Exporting stations and measurements to " << leafStr<string>(p.i.xml_outfile) << "... ";
+					std::cout << "+ Exporting stations and measurements to " << leafStr<std::string>(p.i.xml_outfile) << "... ";
+					std::cout.flush();
+					rft_file << "+ Exporting stations and measurements to " << leafStr<std::string>(p.i.xml_outfile) << "... ";
 				}
 				refTran.SerialiseDynaML(
 					p.i.xml_outfile, 
@@ -738,13 +738,13 @@ int main(int argc, char* argv[])
 				// Separate output files (default)
 				if (!p.g.quiet)
 				{
-					cout << "+ Exporting stations and measurements to:" << endl << 
-						"  - " << leafStr<string>(p.i.xml_stnfile) << endl <<
-						"  - " << leafStr<string>(p.i.xml_msrfile) << "... ";
-					cout.flush();
-					rft_file << "+ Exporting stations and measurements to:" << endl <<
-						"  - " << leafStr<string>(p.i.xml_stnfile) << endl <<
-						"  - " << leafStr<string>(p.i.xml_msrfile) << "... ";
+					std::cout << "+ Exporting stations and measurements to:" << std::endl << 
+						"  - " << leafStr<std::string>(p.i.xml_stnfile) << std::endl <<
+						"  - " << leafStr<std::string>(p.i.xml_msrfile) << "... ";
+					std::cout.flush();
+					rft_file << "+ Exporting stations and measurements to:" << std::endl <<
+						"  - " << leafStr<std::string>(p.i.xml_stnfile) << std::endl <<
+						"  - " << leafStr<std::string>(p.i.xml_msrfile) << "... ";
 				}
 				refTran.SerialiseDynaML(
 					p.i.xml_stnfile, p.i.xml_msrfile, 
@@ -753,17 +753,17 @@ int main(int argc, char* argv[])
 
 			if (!p.g.quiet)
 			{
-				cout << "done." << endl;
-				cout.flush();
+				std::cout << "done." << std::endl;
+				std::cout.flush();
 			}
 
-			rft_file << "done." << endl;
+			rft_file << "done." << std::endl;
 			
 		}
 		catch (const XMLInteropException& e) {
-			cout.flush();
-			cout << endl << "- Error: " << e.what() << endl;
-			rft_file << endl << "- Error: " << e.what() << endl;
+			std::cout.flush();
+			std::cout << std::endl << "- Error: " << e.what() << std::endl;
+			rft_file << std::endl << "- Error: " << e.what() << std::endl;
 			rft_file.close();
 			return EXIT_FAILURE;
 		}
@@ -775,27 +775,27 @@ int main(int argc, char* argv[])
 			// Separate output files (default)
 			if (!p.g.quiet)
 			{
-				cout << "+ Exporting stations and measurements to:" << endl <<
-					"  - " << leafStr<string>(p.i.dna_stnfile) << endl <<
-					"  - " << leafStr<string>(p.i.dna_msrfile) << "... ";
-				cout.flush();
+				std::cout << "+ Exporting stations and measurements to:" << std::endl <<
+					"  - " << leafStr<std::string>(p.i.dna_stnfile) << std::endl <<
+					"  - " << leafStr<std::string>(p.i.dna_msrfile) << "... ";
+				std::cout.flush();
 			}
-			rft_file << "+ Exporting stations and measurements to:" << endl <<
-				"  - " << leafStr<string>(p.i.dna_stnfile) << endl <<
-				"  - " << leafStr<string>(p.i.dna_msrfile) << "... ";
+			rft_file << "+ Exporting stations and measurements to:" << std::endl <<
+				"  - " << leafStr<std::string>(p.i.dna_stnfile) << std::endl <<
+				"  - " << leafStr<std::string>(p.i.dna_msrfile) << "... ";
 				
 			refTran.SerialiseDNA(
 				p.i.dna_stnfile, p.i.dna_msrfile, 
 				(p.i.flag_unused_stn ? true : false));
 			
 			if (!p.g.quiet)
-				cout << "Done." << endl;
-			rft_file << "Done." << endl;
+				std::cout << "Done." << std::endl;
+			rft_file << "Done." << std::endl;
 		}
 		catch (const XMLInteropException& e) {
-			cout.flush();
-			cout << endl << "- Error: " << e.what() << endl;
-			rft_file << endl << "- Error: " << e.what() << endl;
+			std::cout.flush();
+			std::cout << std::endl << "- Error: " << e.what() << std::endl;
+			rft_file << std::endl << "- Error: " << e.what() << std::endl;
 			rft_file.close();
 			return EXIT_FAILURE;
 		}
@@ -806,40 +806,40 @@ int main(int argc, char* argv[])
 //	{
 //		// Export to SINEX
 //		if (!p.g.quiet)
-//			cout << "+ Exporting stations and measurements to " << 
-//				leafStr<string>(p.o._snx_file) << "... ";
-//		cout.flush();
+//			std::cout << "+ Exporting stations and measurements to " << 
+//				leafStr<std::string>(p.o._snx_file) << "... ";
+//		std::cout.flush();
 //		rft_file << "+ Exporting stations and measurements to " << 
-//			leafStr<string>(p.o._snx_file) << "... ";
+//			leafStr<std::string>(p.o._snx_file) << "... ";
 //
 //		bool success(refTran.PrintTransformedStationCoordinatestoSNX());
 //
 //		// SomeFunc()
 //		if (!p.g.quiet)
-//			cout << " done." << endl;
-//		rft_file << " done." << endl;
+//			std::cout << " done." << std::endl;
+//		rft_file << " done." << std::endl;
 //
 //		ss_msg.str("");
 //
 //		if (!success)
 //		{
-//			ss_msg << "- Warning: The SINEX export process produced some warnings." << endl;
-//			ss_msg << "  See " << p.g.network_name << "*.snx.err for details." << endl; 
+//			ss_msg << "- Warning: The SINEX export process produced some warnings." << std::endl;
+//			ss_msg << "  See " << p.g.network_name << "*.snx.err for details." << std::endl; 
 //		}
-//		cout << ss_msg.str();
+//		std::cout << ss_msg.str();
 //		rft_file << ss_msg.str();
 //	}
 
 	if (!p.g.quiet)
 	{
-		cout << endl;
+		std::cout << std::endl;
 	}
 
 	// Look for a project file.  If it exists, open and load it.
 	// Update the import settings.
 	// Print the project file. If it doesn't exist, it will be created.
 	CDnaProjectFile projectFile;
-	if (exists(p.g.project_file))
+	if (boost::filesystem::exists(p.g.project_file))
 		projectFile.LoadProjectFile(p.g.project_file);
 	
 	projectFile.UpdateSettingsReftran(p);

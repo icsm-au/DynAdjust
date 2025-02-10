@@ -32,8 +32,6 @@
 
 #include <include/measurement_types/dnameasurement.hpp>
 
-using namespace std;
-
 namespace dynadjust {
 namespace measurements {
 
@@ -53,7 +51,7 @@ private:
 	//CDnaGpsBaseline& operator=(const CDnaGpsBaseline& rhs);
 
 public:
-	//CDnaGpsBaseline(const bool bIgnore, const string& strType, const string& strFirstStation, const string& strSecondStation);
+	//CDnaGpsBaseline(const bool bIgnore, const std::string& strType, const std::string& strFirstStation, const std::string& strSecondStation);
 
 	//virtual inline CDnaGpsBaseline* clone() const { return new CDnaGpsBaseline(*this); }
 	bool operator==(const CDnaGpsBaseline& rhs) const;
@@ -62,8 +60,8 @@ public:
 	//inline CDnaGpsBaseline& operator[](int iIndex) { return this[iIndex]; }
 
 	inline UINT32 GetClusterID() const { return m_lclusterID; }
-	inline string GetTarget() const { return m_strTarget; }
-	inline vector<CDnaCovariance>* GetCovariances_ptr() { return &m_vGpsCovariances; }
+	inline std::string GetTarget() const { return m_strTarget; }
+	inline std::vector<CDnaCovariance>* GetCovariances_ptr() { return &m_vGpsCovariances; }
 
 	void AddGpsCovariance(const CDnaCovariance* pGpsCovariance);
 
@@ -71,27 +69,27 @@ public:
 	void ResizeGpsCovariancesCount(const UINT32& size = 0);
 
 	inline void SetClusterID(const UINT32& id) { m_lclusterID = id; }
-	inline void SetTarget(const string& str) { m_strTarget = trimstr(str); }
-	void SetX(const string& str);
-	void SetY(const string& str);
-	void SetZ(const string& str);
-	void SetSigmaXX(const string& str);
-	void SetSigmaXY(const string& str);
-	void SetSigmaXZ(const string& str);
-	void SetSigmaYY(const string& str);
-	void SetSigmaYZ(const string& str);
-	void SetSigmaZZ(const string& str);
+	inline void SetTarget(const std::string& str) { m_strTarget = trimstr(str); }
+	void SetX(const std::string& str);
+	void SetY(const std::string& str);
+	void SetZ(const std::string& str);
+	void SetSigmaXX(const std::string& str);
+	void SetSigmaXY(const std::string& str);
+	void SetSigmaXZ(const std::string& str);
+	void SetSigmaYY(const std::string& str);
+	void SetSigmaYZ(const std::string& str);
+	void SetSigmaZZ(const std::string& str);
 	
-	void SetReferenceFrame(const string& refFrame);
-	//void SetEpoch(const string& epoch); //moved to CDnaMeasurement
-	void SetEpsg(const string& epsg);	
-	inline string GetReferenceFrame() const { return m_referenceFrame; }
-	//inline string GetEpoch() const { return m_epoch; } // moved to CDnaMeasurement
+	void SetReferenceFrame(const std::string& refFrame);
+	//void SetEpoch(const std::string& epoch); //moved to CDnaMeasurement
+	void SetEpsg(const std::string& epsg);	
+	inline std::string GetReferenceFrame() const { return m_referenceFrame; }
+	//inline std::string GetEpoch() const { return m_epoch; } // moved to CDnaMeasurement
 		
-	void SetPscale(const string& str);
-	void SetLscale(const string& str);
-	void SetHscale(const string& str);
-	void SetVscale(const string& str);
+	void SetPscale(const std::string& str);
+	void SetLscale(const std::string& str);
+	void SetHscale(const std::string& str);
+	void SetVscale(const std::string& str);
 
 	inline void SetPscale(const double& dbl) { m_dPscale = dbl; }
 	inline void SetLscale(const double& dbl) { m_dLscale = dbl; }
@@ -102,16 +100,16 @@ public:
 	inline void SetTotal(const UINT32& l) { m_lRecordedTotal = l; }
 
 	virtual UINT32 CalcBinaryRecordCount() const;
-	//void coutBaselineData(ostream &os, const int& pad, const UINT16& uType = 0) const;
+	//void coutBaselineData(std::ostream &os, const int& pad, const UINT16& uType = 0) const;
 	virtual void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) const;
 	virtual UINT32 SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr, it_vdbid_t& dbidmap);
-	virtual void WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool) const;
+	virtual void WriteDynaMLMsr(std::ofstream* dynaml_stream, const std::string& comment, bool) const;
 	virtual void WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool) const;
 	virtual void SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* ellipsoid);
 
 	virtual void SerialiseDatabaseMap(std::ofstream* os);
 
-	string m_strTarget;
+	std::string m_strTarget;
 
 	inline double GetVscale() const { return m_dVscale; }
 	inline double GetPscale() const { return m_dPscale; }
@@ -139,12 +137,12 @@ protected:
 	double m_dHscale;
 	double m_dVscale;
 
-	string	m_referenceFrame;
+	std::string	m_referenceFrame;
 	//string	m_epoch;
 
 	UINT32 m_lclusterID;
 
-	vector<CDnaCovariance> m_vGpsCovariances;
+	std::vector<CDnaCovariance> m_vGpsCovariances;
 };
 
 // used for Type G or X
@@ -164,8 +162,8 @@ private:
 	CDnaGpsBaselineCluster& operator=(const CDnaGpsBaselineCluster& rhs);
 
 public:
-	//CDnaGpsBaselineCluster(const bool bIgnore, const string& strType, const string& strFirstStation);
-	CDnaGpsBaselineCluster(const UINT32 lclusterID, const string& referenceframe, const string& epoch);
+	//CDnaGpsBaselineCluster(const bool bIgnore, const std::string& strType, const std::string& strFirstStation);
+	CDnaGpsBaselineCluster(const UINT32 lclusterID, const std::string& referenceframe, const std::string& epoch);
 
 	//virtual inline CDnaGpsBaselineCluster* clone() const { return new CDnaGpsBaselineCluster(*this); }
 	bool operator==(const CDnaGpsBaselineCluster& rhs) const;
@@ -174,31 +172,31 @@ public:
 	//inline CDnaGpsBaselineCluster& operator[](int iIndex) { return this[iIndex]; }
 
 	//inline UINT32 GetNumBaselinens() { return m_vGpsBaselines.size(); }
-	inline vector<CDnaGpsBaseline>& GetBaselines() { return m_vGpsBaselines; }
-	inline vector<CDnaGpsBaseline>* GetBaselines_ptr() { return &m_vGpsBaselines; }
+	inline std::vector<CDnaGpsBaseline>& GetBaselines() { return m_vGpsBaselines; }
+	inline std::vector<CDnaGpsBaseline>* GetBaselines_ptr() { return &m_vGpsBaselines; }
 
 	inline UINT32 GetClusterID() const { return m_lclusterID; }
-	inline string GetTarget() const { return m_strTarget; }
+	inline std::string GetTarget() const { return m_strTarget; }
 	inline UINT32 GetTotal() const { return m_lRecordedTotal; }
 	inline double GetPscale() const { return m_dPscale; }
 	inline double GetLscale() const { return m_dLscale; }
 	inline double GetHscale() const { return m_dHscale; }
 	inline double GetVscale() const { return m_dVscale; }
 
-	void SetReferenceFrame(const string& refFrame);
-	//void SetEpoch(const string& epoch);
-	void SetEpsg(const string& epsg);	
-	inline string GetReferenceFrame() const { return m_referenceFrame; }
-	//inline string GetEpoch() const { return m_epoch; } 
+	void SetReferenceFrame(const std::string& refFrame);
+	//void SetEpoch(const std::string& epoch);
+	void SetEpsg(const std::string& epsg);	
+	inline std::string GetReferenceFrame() const { return m_referenceFrame; }
+	//inline std::string GetEpoch() const { return m_epoch; } 
 		
-	inline void SetTarget(const string& str) { m_strTarget = trimstr(str); }
+	inline void SetTarget(const std::string& str) { m_strTarget = trimstr(str); }
 	inline void SetTotal(const UINT32& l) { m_lRecordedTotal = l; }
 
-	void SetTotal(const string& str);
-	void SetPscale(const string& str);
-	void SetLscale(const string& str);
-	void SetHscale(const string& str);
-	void SetVscale(const string& str);
+	void SetTotal(const std::string& str);
+	void SetPscale(const std::string& str);
+	void SetLscale(const std::string& str);
+	void SetHscale(const std::string& str);
+	void SetVscale(const std::string& str);
 	
 	inline void SetPscale(const double& dbl) { m_dPscale = dbl; }
 	inline void SetLscale(const double& dbl) { m_dLscale = dbl; }
@@ -214,7 +212,7 @@ public:
 	virtual UINT32 CalcBinaryRecordCount() const;
 	virtual void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) const;
 	virtual UINT32 SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr, it_vdbid_t& dbidmap);
-	virtual void WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool) const;
+	virtual void WriteDynaMLMsr(std::ofstream* dynaml_stream, const std::string& comment, bool) const;
 	virtual void WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool) const;
 	virtual void SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* ellipsoid);
 
@@ -224,17 +222,17 @@ public:
 
 protected:
 
-	string m_strTarget;
+	std::string m_strTarget;
 	UINT32 m_lRecordedTotal;
 	double m_dPscale;
 	double m_dLscale;
 	double m_dHscale;
 	double m_dVscale;
 
-	vector<CDnaGpsBaseline> m_vGpsBaselines;
+	std::vector<CDnaGpsBaseline> m_vGpsBaselines;
 
-	string	m_referenceFrame;
-	//string	m_epoch;
+	std::string	m_referenceFrame;
+	//std::string	m_epoch;
 
 	UINT32 m_lclusterID;
 

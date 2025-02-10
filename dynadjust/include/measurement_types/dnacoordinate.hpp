@@ -37,8 +37,6 @@ const int ASTRONOMIC_LONITUDE = 1;
 const int GEODETIC_LATITUDE = 2;
 const int GEODETIC_LONITUDE = 3;
 
-using namespace std;
-
 namespace dynadjust {
 namespace measurements {
 
@@ -54,7 +52,7 @@ private:
 	//CDnaCoordinate& operator=(const CDnaCoordinate& rhs);
 
 public:
-	//CDnaCoordinate(const bool, const string&, const double&, const double&);
+	//CDnaCoordinate(const bool, const std::string&, const double&, const double&);
 
 	bool operator==(const CDnaCoordinate& rhs) const;
 	bool operator<(const CDnaCoordinate& rhs) const;
@@ -64,13 +62,13 @@ public:
 	inline double GetValue() const { return m_drValue; }
 	inline double GetStdDev() const { return m_dStdDev; }
 
-	void SetValue(const string& str);
-	void SetStdDev(const string& str);
+	void SetValue(const std::string& str);
+	void SetStdDev(const std::string& str);
 
 	inline virtual UINT32 CalcBinaryRecordCount() const { return 1; }
 	virtual void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) const;
 	virtual UINT32 SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr, it_vdbid_t& dbidmap);
-	virtual void WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool) const;
+	virtual void WriteDynaMLMsr(std::ofstream* dynaml_stream, const std::string& comment, bool) const;
 	virtual void WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool) const;
 	virtual void SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* ellipsoid);
 

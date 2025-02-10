@@ -27,41 +27,41 @@
 namespace dynadjust { 
 namespace iostreams {
 
-void dna_io_seg::load_seg_file_header_f(const string& seg_filename, UINT32& blockCount, 
+void dna_io_seg::load_seg_file_header_f(const std::string& seg_filename, UINT32& blockCount, 
 						UINT32& blockThreshold, UINT32& minInnerStns) 
 {	
 	std::ifstream seg_file;
-	stringstream ss_err;
+	std::stringstream ss_err;
 
 	try {
 		
 		// open stations seg file.  Throws runtime_error on failure.
-		ss_err << "load_seg_file_f(): An error was encountered when opening " << seg_filename << "." << endl;
-		file_opener(seg_file, seg_filename, ios::in, ascii, true);
+		ss_err << "load_seg_file_f(): An error was encountered when opening " << seg_filename << "." << std::endl;
+		file_opener(seg_file, seg_filename, std::ios::in, ascii, true);
 			
 		ss_err.str("");
-		ss_err << "load_seg_file_f(): An error was encountered when reading " << seg_filename << "." << endl;
+		ss_err << "load_seg_file_f(): An error was encountered when reading " << seg_filename << "." << std::endl;
 		load_seg_file_header(seg_filename, seg_file, blockCount, 
 			blockThreshold, minInnerStns);
 
 		seg_file.close();
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss_err << e.what();
-		throw boost::enable_current_exception(runtime_error(ss_err.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss_err.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss_err.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss_err.str()));
 	}
 }
 	
 
-void dna_io_seg::load_seg_file_header(const string& seg_filename, istream& seg_file, UINT32& blockCount, 
+void dna_io_seg::load_seg_file_header(const std::string& seg_filename, std::istream& seg_file, UINT32& blockCount, 
 	UINT32& blockThreshold, UINT32& minInnerStns) 
 {	
 
-	stringstream ss_err;	
-	ss_err << "load_seg_file_header(): An error was encountered when reading from " << seg_filename << "." << endl;
+	std::stringstream ss_err;	
+	ss_err << "load_seg_file_header(): An error was encountered when reading from " << seg_filename << "." << std::endl;
 
 	char line[PRINT_LINE_LENGTH];
 	memset(line, '\0', PRINT_LINE_LENGTH);
@@ -101,20 +101,20 @@ void dna_io_seg::load_seg_file_header(const string& seg_filename, istream& seg_f
 		seg_file.getline(line, PRINT_LINE_LENGTH);		// No. blocks produced 
 		blockCount = strtoul(line+PRINT_VAR_PAD, NULL, 0);
 	}
-	catch (const ios_base::failure& f) {
+	catch (const std::ios_base::failure& f) {
 		ss_err << f.what();
-		throw boost::enable_current_exception(runtime_error(ss_err.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss_err.str()));
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss_err << e.what();
-		throw boost::enable_current_exception(runtime_error(ss_err.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss_err.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss_err.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss_err.str()));
 	}
 }
 
-void dna_io_seg::load_seg_file(const string& seg_filename, UINT32& blockCount, 
+void dna_io_seg::load_seg_file(const std::string& seg_filename, UINT32& blockCount, 
 	UINT32& blockThreshold, UINT32& minInnerStns,
 	vvUINT32& v_ISL, vvUINT32& v_JSL, vvUINT32& v_CML,
 	bool loadMetrics,
@@ -123,23 +123,23 @@ void dna_io_seg::load_seg_file(const string& seg_filename, UINT32& blockCount,
 	pvUINT32 v_parameterStationCount) 
 {	
 	std::ifstream seg_file;
-	stringstream ss_err;
-	ss_err << "load_seg_file(): An error was encountered when opening " << seg_filename << "." << endl;
+	std::stringstream ss_err;
+	ss_err << "load_seg_file(): An error was encountered when opening " << seg_filename << "." << std::endl;
 
 	try {
 		// open stations seg file.  Throws runtime_error on failure.
-		file_opener(seg_file, seg_filename, ios::in, ascii, true);
+		file_opener(seg_file, seg_filename, std::ios::in, ascii, true);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss_err << e.what();
-		throw boost::enable_current_exception(runtime_error(ss_err.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss_err.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss_err.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss_err.str()));
 	}
 	
 	ss_err.str("");
-	ss_err << "load_seg_file(): An error was encountered when reading from " << seg_filename << "." << endl;
+	ss_err << "load_seg_file(): An error was encountered when reading from " << seg_filename << "." << std::endl;
 
 	UINT32 b, blk, c, i, j, m, 
 		blkCount(0), netID(0), jslCount(0), islCount(0), msrCount(0), stnCount(0);	
@@ -147,7 +147,7 @@ void dna_io_seg::load_seg_file(const string& seg_filename, UINT32& blockCount,
 	char line[PRINT_LINE_LENGTH], format_spec_netid[6], 
 		format_spec_junct[6], format_spec_inner[6], format_spec_measr[6];
 
-	string sBuf, tmp;
+	std::string sBuf, tmp;
 
 	try {
 		
@@ -186,19 +186,19 @@ void dna_io_seg::load_seg_file(const string& seg_filename, UINT32& blockCount,
 			getline(seg_file, sBuf);
 
 			if (sBuf.compare(0, 20, "--------------------") == 0)
-				throw boost::enable_current_exception(runtime_error("  Segmentation file is corrupt."));
+				throw boost::enable_current_exception(std::runtime_error("  Segmentation file is corrupt."));
 
 			// Block number
 			try {
 				tmp = trimstr(sBuf.substr(column, BLOCK));
 				if (tmp.empty())
-					throw boost::enable_current_exception(runtime_error("  Unable to retrieve Block number."));
+					throw boost::enable_current_exception(std::runtime_error("  Unable to retrieve Block number."));
 				blkCount = LongFromString<UINT32>(tmp);
 			}
 			catch (...) {
 				ss_err.str("");
-				ss_err << "  Segmentation file is corrupt: Could not extract Block number from the record:  " << endl << "    " << sBuf << endl;
-				throw boost::enable_current_exception(runtime_error(ss_err.str().c_str()));
+				ss_err << "  Segmentation file is corrupt: Could not extract Block number from the record:  " << std::endl << "    " << sBuf << std::endl;
+				throw boost::enable_current_exception(std::runtime_error(ss_err.str().c_str()));
 			}
 
 			column += BLOCK;
@@ -207,13 +207,13 @@ void dna_io_seg::load_seg_file(const string& seg_filename, UINT32& blockCount,
 			try {
 				tmp = trimstr(sBuf.substr(column, NETID));
 				if (tmp.empty())
-					throw boost::enable_current_exception(runtime_error("  Unable to retrieve Network ID."));
+					throw boost::enable_current_exception(std::runtime_error("  Unable to retrieve Network ID."));
 				netID = LongFromString<UINT32>(tmp);
 			}
 			catch (...) {
 				ss_err.str("");
-				ss_err << "  Segmentation file is corrupt: Could not extract Network ID from the record:  " << endl << "    " << sBuf << endl;
-				throw boost::enable_current_exception(runtime_error(ss_err.str().c_str()));
+				ss_err << "  Segmentation file is corrupt: Could not extract Network ID from the record:  " << std::endl << "    " << sBuf << std::endl;
+				throw boost::enable_current_exception(std::runtime_error(ss_err.str().c_str()));
 			}
 
 			column += NETID;
@@ -222,13 +222,13 @@ void dna_io_seg::load_seg_file(const string& seg_filename, UINT32& blockCount,
 			try {
 				tmp = trimstr(sBuf.substr(column, JUNCT));
 				if (tmp.empty())
-					throw boost::enable_current_exception(runtime_error("  Unable to retrieve Junction station count."));
+					throw boost::enable_current_exception(std::runtime_error("  Unable to retrieve Junction station count."));
 				jslCount = LongFromString<UINT32>(tmp);
 			}
 			catch (...) {
 				ss_err.str("");
-				ss_err << "  Segmentation file is corrupt: Could not extract Junction station count from the record:  " << endl << "    " << sBuf << endl;
-				throw boost::enable_current_exception(runtime_error(ss_err.str().c_str()));
+				ss_err << "  Segmentation file is corrupt: Could not extract Junction station count from the record:  " << std::endl << "    " << sBuf << std::endl;
+				throw boost::enable_current_exception(std::runtime_error(ss_err.str().c_str()));
 			}
 
 			column += JUNCT;
@@ -237,13 +237,13 @@ void dna_io_seg::load_seg_file(const string& seg_filename, UINT32& blockCount,
 			try {
 				tmp = trimstr(sBuf.substr(column, INNER));
 				if (tmp.empty())
-					throw boost::enable_current_exception(runtime_error("  Unable to retrieve Inner station count."));
+					throw boost::enable_current_exception(std::runtime_error("  Unable to retrieve Inner station count."));
 				islCount = LongFromString<UINT32>(tmp);
 			}
 			catch (...) {
 				ss_err.str("");
-				ss_err << "  Segmentation file is corrupt: Could not extract Inner station count from the record:  " << endl << "    " << sBuf << endl;
-				throw boost::enable_current_exception(runtime_error(ss_err.str().c_str()));
+				ss_err << "  Segmentation file is corrupt: Could not extract Inner station count from the record:  " << std::endl << "    " << sBuf << std::endl;
+				throw boost::enable_current_exception(std::runtime_error(ss_err.str().c_str()));
 			}
 
 			column += INNER;
@@ -252,13 +252,13 @@ void dna_io_seg::load_seg_file(const string& seg_filename, UINT32& blockCount,
 			try {
 				tmp = trimstr(sBuf.substr(column, MEASR));
 				if (tmp.empty())
-					throw boost::enable_current_exception(runtime_error("  Unable to retrieve Measurement count."));
+					throw boost::enable_current_exception(std::runtime_error("  Unable to retrieve Measurement count."));
 				msrCount = LongFromString<UINT32>(tmp);
 			}
 			catch (...) {
 				ss_err.str("");
-				ss_err << "  Segmentation file is corrupt: Could not extract Measurement count from the record:  " << endl << "    " << sBuf << endl;
-				throw boost::enable_current_exception(runtime_error(ss_err.str().c_str()));
+				ss_err << "  Segmentation file is corrupt: Could not extract Measurement count from the record:  " << std::endl << "    " << sBuf << std::endl;
+				throw boost::enable_current_exception(std::runtime_error(ss_err.str().c_str()));
 			}
 
 			column += MEASR;
@@ -267,17 +267,17 @@ void dna_io_seg::load_seg_file(const string& seg_filename, UINT32& blockCount,
 			try {
 				tmp = trimstr(sBuf.substr(column));
 				if (tmp.empty())
-					throw boost::enable_current_exception(runtime_error("  Unable to retrieve Total station count."));
+					throw boost::enable_current_exception(std::runtime_error("  Unable to retrieve Total station count."));
 				stnCount = LongFromString<UINT32>(tmp);
 			}
 			catch (...) {
 				ss_err.str("");
-				ss_err << "  Segmentation file is corrupt: Could not extract Total station count from the record:  " << endl << "    " << sBuf << endl;
-				throw boost::enable_current_exception(runtime_error(ss_err.str().c_str()));
+				ss_err << "  Segmentation file is corrupt: Could not extract Total station count from the record:  " << std::endl << "    " << sBuf << std::endl;
+				throw boost::enable_current_exception(std::runtime_error(ss_err.str().c_str()));
 			}
 
 			if (stnCount != islCount + jslCount)
-				throw boost::enable_current_exception(runtime_error("  Segmentation file is corrupt."));
+				throw boost::enable_current_exception(std::runtime_error("  Segmentation file is corrupt."));
 
 			v_JSL.at(t) = vUINT32(jslCount);
 			v_ISL.at(t) = vUINT32(islCount);
@@ -292,7 +292,7 @@ void dna_io_seg::load_seg_file(const string& seg_filename, UINT32& blockCount,
 		}
 		
 		if (blkCount != blockCount)
-			throw boost::enable_current_exception(runtime_error("load_seg_file(): Segmentation file is corrupt."));
+			throw boost::enable_current_exception(std::runtime_error("load_seg_file(): Segmentation file is corrupt."));
 
 		// skip header info
 		seg_file.ignore(PRINT_LINE_LENGTH, '\n');			// ------------------------
@@ -310,7 +310,7 @@ void dna_io_seg::load_seg_file(const string& seg_filename, UINT32& blockCount,
 			seg_file.getline(line, PRINT_LINE_LENGTH);		// Block #
 			sscanf(line+5, "%ud", &blk);
 			if (b+1 != blk)
-				throw boost::enable_current_exception(runtime_error("load_seg_file(): segmentation file is corrupt."));
+				throw boost::enable_current_exception(std::runtime_error("load_seg_file(): segmentation file is corrupt."));
 			
 			seg_file.ignore(PRINT_LINE_LENGTH, '\n');		// ------------------------
 			seg_file.ignore(PRINT_LINE_LENGTH, '\n');		// Junction stns:
@@ -393,16 +393,16 @@ void dna_io_seg::load_seg_file(const string& seg_filename, UINT32& blockCount,
 			}
 		}
 	}
-	catch (const ios_base::failure& f) {
+	catch (const std::ios_base::failure& f) {
 		ss_err << f.what();
-		throw boost::enable_current_exception(runtime_error(ss_err.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss_err.str()));
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss_err << e.what();
-		throw boost::enable_current_exception(runtime_error(ss_err.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss_err.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss_err.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss_err.str()));
 	}
 
 	seg_file.close();
@@ -488,7 +488,7 @@ void dna_io_seg::create_stn_appearance_list(vv_stn_appear& stnAppearance,
 	}
 }
 
-void dna_io_seg::write_seg_block(ostream &os, 
+void dna_io_seg::write_seg_block(std::ostream &os, 
 	const vUINT32& vISL, const vUINT32& vJSL, const vUINT32& vCML, 
 	const UINT32& currentBlock, 
 	const vstn_t* bstBinaryRecords, const vmsr_t* bmsBinaryRecords, 
@@ -496,28 +496,28 @@ void dna_io_seg::write_seg_block(ostream &os,
 {
 	char dash;
 
-	os << endl << "Block " << currentBlock << endl;
+	os << std::endl << "Block " << currentBlock << std::endl;
 	for (dash=INNER+JUNCT+MEASR+PAD; dash>0; dash--)
 		os << "-";
-	os << endl;
+	os << std::endl;
 
-	//os << setw(JUNCT) << left << "Block:" << setw(BLOCK) << right << currentBlock_ << endl;
-	os << setw(JUNCT) << left << "Junction stns:" << setw(BLOCK) << vJSL.size() << endl;
-	os << setw(JUNCT) << left << "Inner stns:" << setw(BLOCK) << vISL.size() << endl;
-	os << setw(JUNCT) << left << "Measurements:" << setw(BLOCK) << vCML.size() << endl;
-	os << setw(JUNCT) << left << "Total stns:" << setw(BLOCK) << (vJSL.size() + vISL.size()) << endl << endl;
+	//os << std::setw(JUNCT) << std::left << "Block:" << std::setw(BLOCK) << std::right << currentBlock_ << std::endl;
+	os << std::setw(JUNCT) << std::left << "Junction stns:" << std::setw(BLOCK) << vJSL.size() << std::endl;
+	os << std::setw(JUNCT) << std::left << "Inner stns:" << std::setw(BLOCK) << vISL.size() << std::endl;
+	os << std::setw(JUNCT) << std::left << "Measurements:" << std::setw(BLOCK) << vCML.size() << std::endl;
+	os << std::setw(JUNCT) << std::left << "Total stns:" << std::setw(BLOCK) << (vJSL.size() + vISL.size()) << std::endl << std::endl;
 
 	it_vUINT32_const _it_isl(vISL.begin());
 	it_vUINT32_const _it_jsl(vJSL.begin());
 	it_vUINT32_const _it_msr(vCML.begin());
 	
-	os << setw(INNER) << left << "Inner stns" << setw(JUNCT) << left << "Junction stns" << 
-		setw(MEASR) << "Measurements" << setw(PAD) << "Type" << endl;
+	os << std::setw(INNER) << std::left << "Inner stns" << std::setw(JUNCT) << std::left << "Junction stns" << 
+		std::setw(MEASR) << "Measurements" << std::setw(PAD) << "Type" << std::endl;
 	
 	for (dash=INNER+JUNCT+MEASR+PAD; dash>0; dash--)
 		os << "-";
-	os << endl;
-	ostringstream tmp;
+	os << std::endl;
+	std::ostringstream tmp;
 	
 	vUINT32 msrStations;
 
@@ -527,27 +527,27 @@ void dna_io_seg::write_seg_block(ostream &os,
 		if (_it_isl != vISL.end())
 		{
 			if (PRINT_NAMES) {
-				os << setw(INNER) << left << ((ostringstream&)(tmp << bstBinaryRecords->at(*_it_isl).stationName)).str();
+				os << std::setw(INNER) << std::left << ((ostringstream&)(tmp << bstBinaryRecords->at(*_it_isl).stationName)).str();
 				tmp.str("");
 			}
 			else
-				os << setw(INNER) << left << *_it_isl;
+				os << std::setw(INNER) << std::left << *_it_isl;
 			_it_isl++;
 		}
 		else
-			os << setw(INNER) << left << " ";
+			os << std::setw(INNER) << std::left << " ";
 		if (_it_jsl != vJSL.end())
 		{
 			if (PRINT_NAMES) {
-				os << setw(JUNCT) << left << ((ostringstream&)(tmp << bstBinaryRecords->at(*_it_jsl).stationName)).str();
+				os << std::setw(JUNCT) << std::left << ((ostringstream&)(tmp << bstBinaryRecords->at(*_it_jsl).stationName)).str();
 				tmp.str("");
 			}			
 			else
-				os << setw(JUNCT) << left << *_it_jsl;
+				os << std::setw(JUNCT) << std::left << *_it_jsl;
 			_it_jsl++;
 		}
 		else
-			os << setw(JUNCT) << left << " ";
+			os << std::setw(JUNCT) << std::left << " ";
 		if (_it_msr != vCML.end())
 		{
 			if (PRINT_NAMES) {
@@ -555,7 +555,7 @@ void dna_io_seg::write_seg_block(ostream &os,
 				// Get all the stations associated with this measurement
 				GetMsrStations(*bmsBinaryRecords, *_it_msr, msrStations);
 
-				os << left << bmsBinaryRecords->at(*_it_msr).measType << " (";
+				os << std::left << bmsBinaryRecords->at(*_it_msr).measType << " (";
 				
 				for_each(msrStations.begin(), msrStations.end(),
 					[&os, &bstBinaryRecords](UINT32 stn){
@@ -567,14 +567,14 @@ void dna_io_seg::write_seg_block(ostream &os,
 				if (bmsBinaryRecords->at(*_it_msr).clusterID > 0)
 					os << "cluster " << bmsBinaryRecords->at(*_it_msr).clusterID;
 				
-				os << endl;
+				os << std::endl;
 			}
 			else
-				os << setw(MEASR) << left << *_it_msr << setw(PAD) << left << bmsBinaryRecords->at(*_it_msr).measType << endl;
+				os << std::setw(MEASR) << std::left << *_it_msr << std::setw(PAD) << std::left << bmsBinaryRecords->at(*_it_msr).measType << std::endl;
 			_it_msr++;
 		}
 		else
-			os << endl;
+			os << std::endl;
 
 		// continue until all lists are exhausted
 		if (_it_msr==vCML.end() &&
@@ -585,76 +585,76 @@ void dna_io_seg::write_seg_block(ostream &os,
 
 	for (dash=INNER+JUNCT+MEASR+PAD; dash>0; dash--)
 		os << "-";
-	os << endl;
+	os << std::endl;
 
 }
 
-void dna_io_seg::write_seg_file(const string& seg_filename, const string& bst_filename, const string& bms_filename,
+void dna_io_seg::write_seg_file(const std::string& seg_filename, const std::string& bst_filename, const std::string& bms_filename,
 	const UINT32& min_inner_stns, const UINT32& max_block_stns,
-	const string& seg_starting_stns, const vstring& vinitialStns,
-	const string& command_line_arguments,
+	const std::string& seg_starting_stns, const vstring& vinitialStns,
+	const std::string& command_line_arguments,
 	vvUINT32& v_ISL, vvUINT32& v_JSL, vvUINT32& v_CML,
 	vUINT32& v_ContiguousNetList, const pvstn_t bstBinaryRecords, const pvmsr_t bmsBinaryRecords)
 {
 	std::ofstream seg_file;
-	stringstream ss;
-	ss << "write_seg_file(): An error was encountered when opening " << seg_filename << "." << endl;
+	std::stringstream ss;
+	ss << "write_seg_file(): An error was encountered when opening " << seg_filename << "." << std::endl;
 
 	try {
 		// Create segmentation file.  Throws runtime_error on failure.
 		file_opener(seg_file, seg_filename);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 
 	// Print formatted header
 	print_file_header(seg_file, "DYNADJUST SEGMENTATION OUTPUT FILE");
 	
-	seg_file << setw(PRINT_VAR_PAD) << left << "File name:" << system_complete(seg_filename).string() << endl << endl;
+	seg_file << std::setw(PRINT_VAR_PAD) << std::left << "File name:" << boost::filesystem::system_complete(seg_filename).string() << std::endl << std::endl;
 
-	seg_file << setw(PRINT_VAR_PAD) << left << "Command line arguments: ";
-	seg_file << command_line_arguments << endl << endl;
+	seg_file << std::setw(PRINT_VAR_PAD) << std::left << "Command line arguments: ";
+	seg_file << command_line_arguments << std::endl << std::endl;
 
-	seg_file << setw(PRINT_VAR_PAD) << left << "Stations file:" << system_complete(bst_filename).string() << endl;
-	seg_file << setw(PRINT_VAR_PAD) << left << "Measurements file:" << system_complete(bms_filename).string() << endl;	
+	seg_file << std::setw(PRINT_VAR_PAD) << std::left << "Stations file:" << boost::filesystem::system_complete(bst_filename).string() << std::endl;
+	seg_file << std::setw(PRINT_VAR_PAD) << std::left << "Measurements file:" << boost::filesystem::system_complete(bms_filename).string() << std::endl;	
 
 	UINT32 b = 1;
 	
-	seg_file << endl << setw(PRINT_VAR_PAD) << left << "Minimum inner stations" << min_inner_stns << endl;
-	seg_file << setw(PRINT_VAR_PAD) << left << "Block size threshold" << max_block_stns << endl;
+	seg_file << std::endl << std::setw(PRINT_VAR_PAD) << std::left << "Minimum inner stations" << min_inner_stns << std::endl;
+	seg_file << std::setw(PRINT_VAR_PAD) << std::left << "Block size threshold" << max_block_stns << std::endl;
 	if (seg_starting_stns.size() == 1)
-		seg_file << setw(PRINT_VAR_PAD) << left << "Starting station" << seg_starting_stns.at(0) << endl;
+		seg_file << std::setw(PRINT_VAR_PAD) << std::left << "Starting station" << seg_starting_stns.at(0) << std::endl;
 	else
 	{
-		string s("Starting station(s)");
+		std::string s("Starting station(s)");
 		for (b=0; b<vinitialStns.size(); ++b)
 		{
 			if (b > 0)
-				 seg_file << endl;
-			seg_file << setw(PRINT_VAR_PAD) << left << s <<
+				 seg_file << std::endl;
+			seg_file << std::setw(PRINT_VAR_PAD) << std::left << s <<
 				vinitialStns.at(b);
 			s = " ";
 		}
-		seg_file << endl;
+		seg_file << std::endl;
 	}
 
-	seg_file << OUTPUTLINE << endl << endl;
-	seg_file << setw(PRINT_VAR_PAD) << left << "SEGMENTATION SUMMARY" << endl << endl;
-	seg_file << setw(PRINT_VAR_PAD) << left << "No. blocks produced" << v_ISL.size() << endl;
+	seg_file << OUTPUTLINE << std::endl << std::endl;
+	seg_file << std::setw(PRINT_VAR_PAD) << std::left << "SEGMENTATION SUMMARY" << std::endl << std::endl;
+	seg_file << std::setw(PRINT_VAR_PAD) << std::left << "No. blocks produced" << v_ISL.size() << std::endl;
 	
 	char dash;
 	for (dash=BLOCK+NETID+INNER+JUNCT+TOTAL+MEASR; dash>2; dash--)
 		seg_file << "-";
 	
-	seg_file << endl;
-	seg_file << setw(BLOCK) << left << "  Block" << setw(NETID) << left << "Network ID" 
-		<< setw(JUNCT) << left << "Junction stns" << setw(INNER) << left << "Inner stns" 
-		<< setw(MEASR) << left << "Measurements" << setw(TOTAL) << left << "Total stns"  << endl;
+	seg_file << std::endl;
+	seg_file << std::setw(BLOCK) << std::left << "  Block" << std::setw(NETID) << std::left << "Network ID" 
+		<< std::setw(JUNCT) << std::left << "Junction stns" << std::setw(INNER) << std::left << "Inner stns" 
+		<< std::setw(MEASR) << std::left << "Measurements" << std::setw(TOTAL) << std::left << "Total stns"  << std::endl;
 
 	it_vUINT32 _it_net(v_ContiguousNetList.begin());
 	it_vvUINT32 _it_isl(v_ISL.begin()), _it_jsl(v_JSL.begin()), _it_cml(v_CML.begin());
@@ -664,33 +664,33 @@ void dna_io_seg::write_seg_file(const string& seg_filename, const string& bst_fi
 	for (; _it_isl!=v_ISL.end(); _it_isl++)
 	{
 		// block
-		seg_file << "  " << setw(BLOCK-2) << left << b;
+		seg_file << "  " << std::setw(BLOCK-2) << std::left << b;
 
 		// network id
-		seg_file << setw(NETID) << left << *_it_net;
+		seg_file << std::setw(NETID) << std::left << *_it_net;
 
 		// junction stns
 		if (_it_jsl!=v_JSL.end())
-			seg_file << setw(JUNCT) << left << _it_jsl->size();
+			seg_file << std::setw(JUNCT) << std::left << _it_jsl->size();
 		else
-			seg_file << setw(JUNCT) << " ";
+			seg_file << std::setw(JUNCT) << " ";
 		
 		// inner stns
-		seg_file << setw(INNER) << left << _it_isl->size();
+		seg_file << std::setw(INNER) << std::left << _it_isl->size();
 		
 		// total measurements
 		if (_it_cml!=v_CML.end())
-			seg_file << setw(MEASR) << left << _it_cml->size();
+			seg_file << std::setw(MEASR) << std::left << _it_cml->size();
 		else
-			seg_file << setw(MEASR) << " ";
+			seg_file << std::setw(MEASR) << " ";
 
 		// total stns
 		if (_it_jsl!=v_JSL.end())
-			seg_file << setw(TOTAL) << left << (_it_isl->size() + _it_jsl->size());
+			seg_file << std::setw(TOTAL) << std::left << (_it_isl->size() + _it_jsl->size());
 		else
-			seg_file << setw(TOTAL) << left << _it_isl->size();
+			seg_file << std::setw(TOTAL) << std::left << _it_isl->size();
 		
-		seg_file << endl;
+		seg_file << std::endl;
 
 		_it_jsl++;
 		_it_cml++;
@@ -700,10 +700,10 @@ void dna_io_seg::write_seg_file(const string& seg_filename, const string& bst_fi
 
 	for (dash=BLOCK+NETID+INNER+JUNCT+TOTAL+MEASR; dash>2; dash--)
 		seg_file << "-";
-	seg_file << endl << endl << "INDIVIDUAL BLOCK DATA" << endl;
+	seg_file << std::endl << std::endl << "INDIVIDUAL BLOCK DATA" << std::endl;
 	for (dash=BLOCK+NETID+INNER+JUNCT+TOTAL+MEASR; dash>2; dash--)
 		seg_file << "-";
-	seg_file << endl;
+	seg_file << std::endl;
 
 	_it_isl = v_ISL.begin();
 	_it_jsl = v_JSL.begin();
@@ -717,27 +717,27 @@ void dna_io_seg::write_seg_file(const string& seg_filename, const string& bst_fi
 		_it_cml++;
 	}
 
-	seg_file << endl;
+	seg_file << std::endl;
 
 	seg_file.close();
 }
 
-void dna_io_seg::write_stn_appearance(const string& sap_filename, const v_stn_block_map& stnAppearance)
+void dna_io_seg::write_stn_appearance(const std::string& sap_filename, const v_stn_block_map& stnAppearance)
 {
 	std::ofstream sap_file;
-	stringstream ss;
-	ss << "write_sap_file(): An error was encountered when opening " << sap_filename << "." << endl;
+	std::stringstream ss;
+	ss << "write_sap_file(): An error was encountered when opening " << sap_filename << "." << std::endl;
 
 	try {
 		// Create segmentation file.  Throws runtime_error on failure.
-		file_opener(sap_file, sap_filename, ios::out | ios::binary, binary);
+		file_opener(sap_file, sap_filename, std::ios::out | std::ios::binary, binary);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 
 	// write the list
@@ -755,22 +755,22 @@ void dna_io_seg::write_stn_appearance(const string& sap_filename, const v_stn_bl
 	sap_file.close();
 }
 
-void dna_io_seg::load_stn_appearance(const string& sap_filename, v_stn_block_map& stnAppearance)
+void dna_io_seg::load_stn_appearance(const std::string& sap_filename, v_stn_block_map& stnAppearance)
 {
 	std::ifstream sap_file;
-	stringstream ss;
-	ss << "load_sap_file(): An error was encountered when opening " << sap_filename << "." << endl;
+	std::stringstream ss;
+	ss << "load_sap_file(): An error was encountered when opening " << sap_filename << "." << std::endl;
 
 	try {
 		// Create segmentation file.  Throws runtime_error on failure.
-		file_opener(sap_file, sap_filename, ios::in | ios::binary, binary);
+		file_opener(sap_file, sap_filename, std::ios::in | std::ios::binary, binary);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 
 	// write the list

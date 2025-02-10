@@ -69,27 +69,18 @@
 
 #include <dynadjust/dnageoid/dnageoid.hpp>
 
-using namespace std;
-using namespace boost;
-using namespace boost::filesystem;
-using namespace boost::timer;
-using namespace boost::posix_time;
-using namespace boost::gregorian;
-using namespace boost::program_options;
-namespace po = boost::program_options;
-
 using namespace dynadjust::geoidinterpolation;
 
 bool CreateNTv2Grid(dna_geoid_interpolation* g, const char* dat_gridfilePath, const n_file_par* grid);
 bool createGridIndex(dna_geoid_interpolation* g, const char* gridfilePath, const char* gridfileType, const int& quiet);
 bool reportGridProperties(dna_geoid_interpolation* g, const char* gridfilePath, const char* gridfileType);
 bool InterpolateGridPoint(dna_geoid_interpolation* g, const char* gridfilePath, geoid_point* apInterpolant, 
-	const int& method, const int& coordinate_format, const string& inputLatitude, const string& inputLongitude);
+	const int& method, const int& coordinate_format, const std::string& inputLatitude, const std::string& inputLongitude);
 bool InterpolateGridPointFile(dna_geoid_interpolation* g, const char* inputfilePath, 
 	const int& method, const int EllipsoidtoOrtho, const int& coordinate_format, 
-	bool exportDnaGeoidFile, const char* dnageofilePath, string& outputfilePath);
-bool InterpolateGridBinaryStationFile(dna_geoid_interpolation* g, const string& bstnfilePath,
+	bool exportDnaGeoidFile, const char* dnageofilePath, std::string& outputfilePath);
+bool InterpolateGridBinaryStationFile(dna_geoid_interpolation* g, const std::string& bstnfilePath,
 	const int& method, bool convertHeights, bool exportDnaGeoidFile, const char* dnageofilePath);
-int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& vm, project_settings& p);
+int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_options::variables_map& vm, project_settings& p);
 
 #endif

@@ -303,7 +303,7 @@ const char* const __plot_dll_name__ = "libdnaplot.so";
 #define __COMPILER_VERSION__ __SUNPRO_CC
 #elif defined(__ICC) || defined(__INTEL_COMPILER)		// Intel compiler
 #define __COMPILER__ "Intel ICC"
-#define __COMPILER_VERSION__ lexical_cast<string>(__INTEL_COMPILER)
+#define __COMPILER_VERSION__ boost::lexical_cast<std::string>(__INTEL_COMPILER)
 #elif defined(__HP_aCC)								// Oracle Solaris
 #define __COMPILER__ "HP C++"
 #define __COMPILER_VERSION__ __HP_aCC

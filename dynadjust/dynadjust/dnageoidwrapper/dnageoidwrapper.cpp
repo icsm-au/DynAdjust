@@ -30,16 +30,16 @@ bool CreateNTv2Grid(dna_geoid_interpolation* g, const char* dat_gridfilePath, co
 	// geoid -d ausgeoid09_gda94_v1.01_clip_1x1.dat -c -g ausgeoid_clip_1.0.1.0.gsb --grid-shift radians --grid-version 1.0.1.0 --system-fr ___GDA94 --system-to ___AHD71 --sub-grid-n 1D-grid --creation 21.04.2021 --update 22.04.2021
 	//
 	
-	cout << "+ Creating NTv2 geoid grid file from WINTER DAT file format..." << endl;
+	std::cout << "+ Creating NTv2 geoid grid file from WINTER DAT file format..." << std::endl;
 
 	try {
 		g->CreateNTv2File(dat_gridfilePath, grid);
 	}
 	catch (const NetGeoidException& e) {
-		cout << endl << "- Error: " << e.what() << endl;
+		std::cout << std::endl << "- Error: " << e.what() << std::endl;
 		return false;
 	}
-	cout << endl;
+	std::cout << std::endl;
 
 	// Open the new grid file and print its properties
 	if (!reportGridProperties(g, grid->filename, grid->filetype))
@@ -55,22 +55,22 @@ bool ExportNTv2GridToAscii(dna_geoid_interpolation* g, const char* dat_gridfileP
 	// geoid -g ausgeoid_clip_1.0.1.0.gsb --grid-shift radians --export-ntv2-asc
 	//
 
-	path asciiGridFile(dat_gridfilePath);
-	string outfile = asciiGridFile.filename().string() + "." + exportfileType;
+	boost::filesystem::path asciiGridFile(dat_gridfilePath);
+	std::string outfile = asciiGridFile.filename().string() + "." + exportfileType;
 
 	int ioStatus;
 	
-	cout << endl << "+ Exporting NTv2 geoid grid file to " << leafStr<string>(outfile) << "... ";
+	std::cout << std::endl << "+ Exporting NTv2 geoid grid file to " << leafStr<std::string>(outfile) << "... ";
 
 	try {
 		g->ExportToAscii(dat_gridfilePath, gridfileType, gridshiftType, outfile.c_str(), &ioStatus);
 	}
 	catch (const NetGeoidException& e) {
-		cout << endl << "- Error: " << e.what() << endl;
+		std::cout << std::endl << "- Error: " << e.what() << std::endl;
 		return false;
 	}
 
-	cout << "done." << endl << endl;
+	std::cout << "done." << std::endl << std::endl;
 
 	// Open the new grid file and print its properties
 	if (!reportGridProperties(g, outfile.c_str(), exportfileType))
@@ -83,22 +83,22 @@ bool ExportNTv2GridToAscii(dna_geoid_interpolation* g, const char* dat_gridfileP
 	
 bool ExportNTv2GridToBinary(dna_geoid_interpolation* g, const char* dat_gridfilePath, const char* gridfileType, const char* gridshiftType, const char* exportfileType)
 {
-	path asciiGridFile(dat_gridfilePath);
-	string outfile = asciiGridFile.filename().string() + "." + exportfileType;
+	boost::filesystem::path asciiGridFile(dat_gridfilePath);
+	std::string outfile = asciiGridFile.filename().string() + "." + exportfileType;
 
 	int ioStatus;
 	
-	cout << endl << "+ Exporting geoid file to " << leafStr<string>(outfile) << "... ";
+	std::cout << std::endl << "+ Exporting geoid file to " << leafStr<std::string>(outfile) << "... ";
 
 	try {
 		g->ExportToBinary(dat_gridfilePath, gridfileType, gridshiftType, outfile.c_str(), &ioStatus);
 	}
 	catch (const NetGeoidException& e) {
-		cout << endl << "- Error: " << e.what() << endl;
+		std::cout << std::endl << "- Error: " << e.what() << std::endl;
 		return false;
 	}
 
-	cout << "done." << endl << endl;
+	std::cout << "done." << std::endl << std::endl;
 
 	// Open the grid file and print its properties
 	if (!reportGridProperties(g, outfile.c_str(), exportfileType))
@@ -109,64 +109,64 @@ bool ExportNTv2GridToBinary(dna_geoid_interpolation* g, const char* dat_gridfile
 
 void ReturnBadStationRecords(dna_geoid_interpolation* g, project_settings& p)
 {
-	string records, filename(p.g.network_name);
-	string badpointsPath(formPath<string>(p.g.output_folder, filename, "int"));
-	stringstream ss;
+	std::string records, filename(p.g.network_name);
+	std::string badpointsPath(formPath<std::string>(p.g.output_folder, filename, "int"));
+	std::stringstream ss;
 	std::ofstream badpoints_log;
 
-	ss << "- Error: Could not open " << filename << " for writing." << endl;
+	ss << "- Error: Could not open " << filename << " for writing." << std::endl;
 	try {
 		// Create dynadjust log file.  Throws runtime_error on failure.
 		file_opener(badpoints_log, badpointsPath);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 
 	// Print formatted header
 	print_file_header(badpoints_log, "DYNADJUST GEOID INTERPOLATION LOG FILE");
 
-	badpoints_log << setw(PRINT_VAR_PAD) << left << "File name:" << badpointsPath << endl << endl;
+	badpoints_log << std::setw(PRINT_VAR_PAD) << std::left << "File name:" << badpointsPath << std::endl << std::endl;
 	
-	badpoints_log << setw(PRINT_VAR_PAD) << left << "Command line arguments: ";
-	badpoints_log << p.n.command_line_arguments << endl << endl;
+	badpoints_log << std::setw(PRINT_VAR_PAD) << std::left << "Command line arguments: ";
+	badpoints_log << p.n.command_line_arguments << std::endl << std::endl;
 
-	badpoints_log << setw(PRINT_VAR_PAD) << left << "Network name:" <<  p.g.network_name << endl;
-	badpoints_log << setw(PRINT_VAR_PAD) << left << "Stations file:" << system_complete(p.n.bst_file).string() << endl;
-	badpoints_log << setw(PRINT_VAR_PAD) << left << "Geoid model: " << system_complete(p.n.ntv2_geoid_file).string() << endl << endl;
-	badpoints_log << setw(PRINT_VAR_PAD) << left << "Stations not interpolated:" << g->PointsNotInterpolated() << endl;
-	badpoints_log << OUTPUTLINE << endl << endl;
+	badpoints_log << std::setw(PRINT_VAR_PAD) << std::left << "Network name:" <<  p.g.network_name << std::endl;
+	badpoints_log << std::setw(PRINT_VAR_PAD) << std::left << "Stations file:" << boost::filesystem::system_complete(p.n.bst_file).string() << std::endl;
+	badpoints_log << std::setw(PRINT_VAR_PAD) << std::left << "Geoid model: " << boost::filesystem::system_complete(p.n.ntv2_geoid_file).string() << std::endl << std::endl;
+	badpoints_log << std::setw(PRINT_VAR_PAD) << std::left << "Stations not interpolated:" << g->PointsNotInterpolated() << std::endl;
+	badpoints_log << OUTPUTLINE << std::endl << std::endl;
 	
 	records = g->ReturnBadStationRecords();
 
-	badpoints_log << records << endl;
+	badpoints_log << records << std::endl;
 
 	if (p.g.verbose > 1)
 	{
-		string data("<file record or filename>");
-		badpoints_log << endl << endl <<
-			"DYNADJUST GEOID INTERPOLARION ERROR CODES" << endl << endl <<
-			setw(PAD) << "Code" << "Description (short and long)" << endl <<
-			"------------------------------------------------------" << endl;
+		std::string data("<file record or filename>");
+		badpoints_log << std::endl << std::endl <<
+			"DYNADJUST GEOID INTERPOLARION ERROR CODES" << std::endl << std::endl <<
+			std::setw(PAD) << "Code" << "Description (short and long)" << std::endl <<
+			"------------------------------------------------------" << std::endl;
 		for (int i=ERR_AUS_BINARY; i<=ERR_INTERPOLATION_TYPE; ++i)
 		{
 			badpoints_log << 
-				setw(PAD) << i << 
-				setw(ZONE) << "Short: " << g->ErrorCaption(i) << endl <<
-				setw(PAD) << " " <<
-				setw(ZONE) << "Long:  " << g->ErrorString(i, data) << endl;
+				std::setw(PAD) << i << 
+				std::setw(ZONE) << "Short: " << g->ErrorCaption(i) << std::endl <<
+				std::setw(PAD) << " " <<
+				std::setw(ZONE) << "Long:  " << g->ErrorString(i, data) << std::endl;
 		}
 	}
 	
 
 	badpoints_log.close();
 
-	cout << endl << "  See " << badpointsPath << " to view the list of stations for which an" << endl <<
-		"  N-value could not be interpolated." << endl;
+	std::cout << std::endl << "  See " << badpointsPath << " to view the list of stations for which an" << std::endl <<
+		"  N-value could not be interpolated." << std::endl;
 
 }
 
@@ -175,17 +175,17 @@ void ReturnBadStationRecords(dna_geoid_interpolation* g, project_settings& p)
 bool createGridIndex(dna_geoid_interpolation* g, const char* gridfilePath, const char* gridfileType, const int& quiet)
 {
 	if (!quiet)
-		cout << "+ Opening grid file... ";
+		std::cout << "+ Opening grid file... ";
 	try {
 		g->CreateGridIndex(gridfilePath, gridfileType);
 	}
 	catch (const NetGeoidException& e) {
-		cout << endl << "- Error: " << e.what() << endl;
+		std::cout << std::endl << "- Error: " << e.what() << std::endl;
 		return false;
 	}
 
 	if (!quiet)
-		cout << "done." << endl;
+		std::cout << "done." << std::endl;
 
 	return true;
 }
@@ -199,72 +199,72 @@ bool reportGridProperties(dna_geoid_interpolation* g, const char* gridfilePath, 
 		g->ReportGridProperties(gridfilePath, gridfileType, &grid_properties);
 	}
 	catch (const NetGeoidException& e) {
-		cout << endl << "- Error: " << e.what() << endl;
+		std::cout << std::endl << "- Error: " << e.what() << std::endl;
 		return false;
 	}
 
 	bool isRadians(false);
-	string shiftType(grid_properties.chGs_type);
-	if (iequals(trimstr(shiftType), "radians"))
+	std::string shiftType(grid_properties.chGs_type);
+	if (boost::iequals(trimstr(shiftType), "radians"))
 		isRadians = true;
 
-	string formattedLimit;
+	std::string formattedLimit;
 
-	cout << "+ Grid properties for " << gridfilePath << ":" << endl;
-	cout << "  - GS_TYPE  = " << grid_properties.chGs_type << endl;							// grid shift type (GS_TYPE)
-	cout << "  - VERSION  = " << grid_properties.chVersion << endl;							// grid file version (VERSION)
-	cout << "  - SYSTEM_F = " << grid_properties.chSystem_f << endl;						// reference system (SYSTEM_F)
-	cout << "  - SYSTEM_T = " << grid_properties.chSystem_t << endl;						// reference system (SYSTEM_T)
-	cout << "  - MAJOR_F  = " << setprecision(3) << fixed << grid_properties.daf << endl;	// semi major of from system (MAJOR_F)
-	cout << "  - MAJOR_T  = " << setprecision(3) << fixed << grid_properties.dat << endl;	// semi major of to system (MAJOR_T)
-	cout << "  - MINOR_F  = " << setprecision(3) << fixed << grid_properties.dbf << endl;	// semi minor of from system (MINOR_F)
-	cout << "  - MINOR_T  = " << setprecision(3) << fixed << grid_properties.dbt << endl;	// semi minor of to system (MINOR_T)
-	cout << "  - NUM_OREC = " << grid_properties.iH_info << endl;							// Number of header identifiers (NUM_OREC)
-	cout << "  - NUM_SREC = " << grid_properties.iSubH_info << endl;						// Number of sub-header idents (NUM_SREC)
-	cout << "  - NUM_FILE = " << grid_properties.iNumsubgrids << endl;						// number of subgrids in file (NUM_FILE)
+	std::cout << "+ Grid properties for " << gridfilePath << ":" << std::endl;
+	std::cout << "  - GS_TYPE  = " << grid_properties.chGs_type << std::endl;							// grid shift type (GS_TYPE)
+	std::cout << "  - VERSION  = " << grid_properties.chVersion << std::endl;							// grid file version (VERSION)
+	std::cout << "  - SYSTEM_F = " << grid_properties.chSystem_f << std::endl;						// reference system (SYSTEM_F)
+	std::cout << "  - SYSTEM_T = " << grid_properties.chSystem_t << std::endl;						// reference system (SYSTEM_T)
+	std::cout << "  - MAJOR_F  = " << std::setprecision(3) << std::fixed << grid_properties.daf << std::endl;	// semi major of from system (MAJOR_F)
+	std::cout << "  - MAJOR_T  = " << std::setprecision(3) << std::fixed << grid_properties.dat << std::endl;	// semi major of to system (MAJOR_T)
+	std::cout << "  - MINOR_F  = " << std::setprecision(3) << std::fixed << grid_properties.dbf << std::endl;	// semi minor of from system (MINOR_F)
+	std::cout << "  - MINOR_T  = " << std::setprecision(3) << std::fixed << grid_properties.dbt << std::endl;	// semi minor of to system (MINOR_T)
+	std::cout << "  - NUM_OREC = " << grid_properties.iH_info << std::endl;							// Number of header identifiers (NUM_OREC)
+	std::cout << "  - NUM_SREC = " << grid_properties.iSubH_info << std::endl;						// Number of sub-header idents (NUM_SREC)
+	std::cout << "  - NUM_FILE = " << grid_properties.iNumsubgrids << std::endl;						// number of subgrids in file (NUM_FILE)
 
 	for (int i=0; i<grid_properties.iNumsubgrids; ++i)
 	{
-		string formattedLimit;
-		cout << "  - SUBGRID " << i << ":" << endl;
-		cout << "    - SUB_NAME = " << grid_properties.ptrIndex[i].chSubname << endl;  		// name of subgrid (SUB_NAME)
-		cout << "    - PARENT   = " << grid_properties.ptrIndex[i].chParent << endl;		// name of parent grid (PARENT)
-		cout << "    - CREATED  = " << grid_properties.ptrIndex[i].chCreated << endl;		// date of creation (CREATED)
-		cout << "    - UPDATED  = " << grid_properties.ptrIndex[i].chUpdated << endl;		// date of last file update (UPDATED)
+		std::string formattedLimit;
+		std::cout << "  - SUBGRID " << i << ":" << std::endl;
+		std::cout << "    - SUB_NAME = " << grid_properties.ptrIndex[i].chSubname << std::endl;  		// name of subgrid (SUB_NAME)
+		std::cout << "    - PARENT   = " << grid_properties.ptrIndex[i].chParent << std::endl;		// name of parent grid (PARENT)
+		std::cout << "    - CREATED  = " << grid_properties.ptrIndex[i].chCreated << std::endl;		// date of creation (CREATED)
+		std::cout << "    - UPDATED  = " << grid_properties.ptrIndex[i].chUpdated << std::endl;		// date of last file update (UPDATED)
 		
 		// In ptrIndex, all values for the limits of a grid are held in seconds, despite
 		// whether the grid node records are in radians.
 
 		// lower latitude (S_LAT)
-		cout << "    - S_LAT    = " << right << setw(isRadians ? ZONE : REL) << grid_properties.ptrIndex[i].dSlat;						
+		std::cout << "    - S_LAT    = " << std::right << std::setw(isRadians ? ZONE : REL) << grid_properties.ptrIndex[i].dSlat;						
 		formattedLimit = "(" + FormatDmsString(DegtoDms(grid_properties.ptrIndex[i].dSlat / DEG_TO_SEC), 6, true, false) + ")";
-		cout << right << setw(MEASR) << formattedLimit << endl;								
+		std::cout << std::right << std::setw(MEASR) << formattedLimit << std::endl;								
 		
 		// upper latitude (N_LAT)
-		cout << "    - N_LAT    = " << right << setw(isRadians ? ZONE : REL) << grid_properties.ptrIndex[i].dNlat;
+		std::cout << "    - N_LAT    = " << std::right << std::setw(isRadians ? ZONE : REL) << grid_properties.ptrIndex[i].dNlat;
 		formattedLimit = "(" + FormatDmsString(DegtoDms(grid_properties.ptrIndex[i].dNlat / DEG_TO_SEC), 6, true, false) + ")";
-		cout << right << setw(MEASR) << formattedLimit << endl;								
+		std::cout << std::right << std::setw(MEASR) << formattedLimit << std::endl;								
 		
 		// lower longitude (E_LONG)
-		cout << "    - E_LONG   = " << right << setw(isRadians ? ZONE : REL) << grid_properties.ptrIndex[i].dElong;
+		std::cout << "    - E_LONG   = " << std::right << std::setw(isRadians ? ZONE : REL) << grid_properties.ptrIndex[i].dElong;
 		formattedLimit = "(" + FormatDmsString(DegtoDms(grid_properties.ptrIndex[i].dElong / DEG_TO_SEC), 6, true, false) + ")";
-		cout << right << setw(MEASR) << formattedLimit << endl;
+		std::cout << std::right << std::setw(MEASR) << formattedLimit << std::endl;
 
 		// upper longitude (W_LONG)
-		cout << "    - W_LONG   = " << right << setw(isRadians ? ZONE : REL) << grid_properties.ptrIndex[i].dWlong;
+		std::cout << "    - W_LONG   = " << std::right << std::setw(isRadians ? ZONE : REL) << grid_properties.ptrIndex[i].dWlong;
 		formattedLimit = "(" + FormatDmsString(DegtoDms(grid_properties.ptrIndex[i].dWlong / DEG_TO_SEC), 6, true, false) + ")";
-		cout << right << setw(MEASR) << formattedLimit << endl;
+		std::cout << std::right << std::setw(MEASR) << formattedLimit << std::endl;
 		
-		cout << "    - LAT_INC  = " << fixed << grid_properties.ptrIndex[i].dLatinc << endl;		// latitude interval (LAT_INC)
-		cout << "    - LONG_INC = " << fixed << grid_properties.ptrIndex[i].dLonginc << endl;		// longitude interval (LONG_INC)
-		cout << "    - GS_COUNT = " << fixed << setprecision(0) << grid_properties.ptrIndex[i].lGscount;						// number of nodes (GS_COUNT)
+		std::cout << "    - LAT_INC  = " << std::fixed << grid_properties.ptrIndex[i].dLatinc << std::endl;		// latitude interval (LAT_INC)
+		std::cout << "    - LONG_INC = " << std::fixed << grid_properties.ptrIndex[i].dLonginc << std::endl;		// longitude interval (LONG_INC)
+		std::cout << "    - GS_COUNT = " << std::fixed << std::setprecision(0) << grid_properties.ptrIndex[i].lGscount;						// number of nodes (GS_COUNT)
 	}
-	cout << endl;
+	std::cout << std::endl;
 	return true;
 }
 
 bool InterpolateGridPoint(dna_geoid_interpolation* g, geoid_point* apInterpolant, 
-	const int& method, const int& coordinate_format, const string& inputLatitude, const string& inputLongitude)
+	const int& method, const int& coordinate_format, const std::string& inputLatitude, const std::string& inputLongitude)
 {
 	try {
 		if (method == BICUBIC)
@@ -273,32 +273,32 @@ bool InterpolateGridPoint(dna_geoid_interpolation* g, geoid_point* apInterpolant
 			g->BiLinearTransformation(apInterpolant);
 	}
 	catch (const NetGeoidException& e) {
-		cout << endl << "- Error: " << e.what() << endl;
+		std::cout << std::endl << "- Error: " << e.what() << std::endl;
 		return false;
 	}
 
 	if (apInterpolant->cVar.IO_Status != ERR_TRANS_SUCCESS)
 		return false;
 	
-	cout << "+ Interpolation results for ";
-	cout << inputLatitude << ", " << inputLongitude;
+	std::cout << "+ Interpolation results for ";
+	std::cout << inputLatitude << ", " << inputLongitude;
 	if (coordinate_format == DMS)
-		//cout << fixed << setprecision(6) << DegtoDms<double>(apInterpolant->cVar.dLatitude) << ", " << DegtoDms<double>(apInterpolant->cVar.dLongitude) << " (ddd.mmssss):" << endl;
-		cout << " (ddd.mmssss):" << endl;
+		//cout << std::fixed << std::setprecision(6) << DegtoDms<double>(apInterpolant->cVar.dLatitude) << ", " << DegtoDms<double>(apInterpolant->cVar.dLongitude) << " (ddd.mmssss):" << std::endl;
+		std::cout << " (ddd.mmssss):" << std::endl;
 	else
-		//cout << fixed << setprecision(6) << apInterpolant->cVar.dLatitude << ", " << apInterpolant->cVar.dLongitude << " (ddd.dddddd):" << endl;
-		cout << " (ddd.dddddd):" << endl;
+		//cout << std::fixed << std::setprecision(6) << apInterpolant->cVar.dLatitude << ", " << apInterpolant->cVar.dLongitude << " (ddd.dddddd):" << std::endl;
+		std::cout << " (ddd.dddddd):" << std::endl;
 	
-	cout << endl;
+	std::cout << std::endl;
 
-	cout << "  N value          = " << setw(6) << 
-		right << setprecision(3) << apInterpolant->gVar.dN_value << " metres" << endl;			// N value
-	cout << "  Deflections:" << endl;
-	cout << "  - Prime meridian = " << setw(6) << 
-		right << fixed << setprecision(2) << apInterpolant->gVar.dDefl_meridian << " seconds" << endl;			// N value
-	cout << "  - Prime vertical = " << setw(6) << 
-		right << apInterpolant->gVar.dDefl_primev << " seconds" << endl;			// N value
-	cout << endl;
+	std::cout << "  N value          = " << std::setw(6) << 
+		std::right << std::setprecision(3) << apInterpolant->gVar.dN_value << " metres" << std::endl;			// N value
+	std::cout << "  Deflections:" << std::endl;
+	std::cout << "  - Prime meridian = " << std::setw(6) << 
+		std::right << std::fixed << std::setprecision(2) << apInterpolant->gVar.dDefl_meridian << " seconds" << std::endl;			// N value
+	std::cout << "  - Prime vertical = " << std::setw(6) << 
+		std::right << apInterpolant->gVar.dDefl_primev << " seconds" << std::endl;			// N value
+	std::cout << std::endl;
 	return true;
 
 } // InterpolateGridPoint
@@ -306,9 +306,9 @@ bool InterpolateGridPoint(dna_geoid_interpolation* g, geoid_point* apInterpolant
 
 bool InterpolateGridPointFile(dna_geoid_interpolation* g, const char* inputfilePath, 
 	const int& method, const int EllipsoidtoOrtho, const int& coordinate_format, 
-	bool exportDnaGeoidFile, const char* dnageofilePath, string& outputfilePath)
+	bool exportDnaGeoidFile, const char* dnageofilePath, std::string& outputfilePath)
 {
-	path inputFile(inputfilePath);
+	boost::filesystem::path inputFile(inputfilePath);
 	if (inputFile.has_extension())
 		outputfilePath = inputFile.stem().string() + "_out" + inputFile.extension().string();
 	else
@@ -326,7 +326,7 @@ bool InterpolateGridPointFile(dna_geoid_interpolation* g, const char* inputfileP
 			exportDnaGeoidFile, dnageofilePath);
 	}
 	catch (const NetGeoidException& e) {
-		cout << endl << "- Error: " << e.what() << endl;
+		std::cout << std::endl << "- Error: " << e.what() << std::endl;
 		return false;
 	}
 
@@ -335,7 +335,7 @@ bool InterpolateGridPointFile(dna_geoid_interpolation* g, const char* inputfileP
 } // InterpolateGridPointFile
 
 
-bool InterpolateGridBinaryStationFile(dna_geoid_interpolation* g, const string& bstnfilePath,
+bool InterpolateGridBinaryStationFile(dna_geoid_interpolation* g, const std::string& bstnfilePath,
 	const int& method, bool convertHeights, 
 	bool exportDnaGeoidFile, const char* dnageofilePath)
 {
@@ -344,7 +344,7 @@ bool InterpolateGridBinaryStationFile(dna_geoid_interpolation* g, const string& 
 			exportDnaGeoidFile, dnageofilePath);
 	}
 	catch (const NetGeoidException& e) {
-		cout << endl << "- Error: " << e.what() << endl;
+		std::cout << std::endl << "- Error: " << e.what() << std::endl;
 		return false;
 	}
 
@@ -353,16 +353,16 @@ bool InterpolateGridBinaryStationFile(dna_geoid_interpolation* g, const string& 
 } // InterpolateGridBinaryStationFile
 
 
-string GetFileType(const string inputfilePath)
+std::string GetFileType(const std::string inputfilePath)
 {
-	path inputFile(inputfilePath);
+	boost::filesystem::path inputFile(inputfilePath);
 	if (inputFile.has_extension())
 		return inputFile.extension().string();
 	else
 		return "";
 }
 
-int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& vm, project_settings& p)
+int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_options::variables_map& vm, project_settings& p)
 {
 	// capture command line arguments
 	for (int cmd_arg(0); cmd_arg<argc; ++cmd_arg)
@@ -374,21 +374,21 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 	// Has the user supplied a project file?
 	if (vm.count(PROJECT_FILE))
 	{
-		if (exists(p.g.project_file))
+		if (boost::filesystem::exists(p.g.project_file))
 		{
 			try {
 				CDnaProjectFile projectFile(p.g.project_file, geoidSetting);
 				p = projectFile.GetSettings();
 			}
-			catch (const runtime_error& e) {
-				cout << endl << "- Error: " << e.what() << endl;
+			catch (const std::runtime_error& e) {
+				std::cout << std::endl << "- Error: " << e.what() << std::endl;
 				return EXIT_FAILURE;
 			}
 			
 			return EXIT_SUCCESS;
 		}
 
-		cout << endl << "- Error: project file " << p.g.project_file << " does not exist." << endl << endl;
+		std::cout << std::endl << "- Error: project file " << p.g.project_file << " does not exist." << std::endl << std::endl;
 		return EXIT_FAILURE;
 	}
 
@@ -401,69 +401,69 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 		!vm.count(EXPORT_NTV2_ASCII_FILE) &&	// User wants to export a geoid file to ASCII
 		!vm.count(EXPORT_NTV2_BINARY_FILE))		// User wants to export a geoid file to binary
 	{
-		cout << endl << "- Nothing to do - no standard options specified. " << endl << endl;
+		std::cout << std::endl << "- Nothing to do - no standard options specified. " << std::endl << std::endl;
 		return EXIT_FAILURE;
 	}
 
 	// check mandatory arguments for NTv2 file creation
 	if (vm.count(CREATE_NTV2) && !vm.count(DAT_FILEPATH))
 	{
-		cout << endl << "- Error: no dat file specified. " << endl << endl;
+		std::cout << std::endl << "- Error: no dat file specified. " << std::endl << std::endl;
 		return EXIT_FAILURE;
 	}
 
 	// check mandatory arguments for interactive mode
 	if (vm.count(INTERACTIVE) && !vm.count(LATITUDE))
 	{
-		cout << endl << "- Error: Interpolation latitide not specified. " << endl << endl;
+		std::cout << std::endl << "- Error: Interpolation latitide not specified. " << std::endl << std::endl;
 		return EXIT_FAILURE;
 	}
 
 	// check mandatory arguments for interactive mode
 	if (vm.count(INTERACTIVE) && !vm.count(LONGITUDE))
 	{
-		cout << endl << "- Error: Interpolation longitude not specified. " << endl << endl;
+		std::cout << std::endl << "- Error: Interpolation longitude not specified. " << std::endl << std::endl;
 		return EXIT_FAILURE;
 	}
 
 	// check mandatory arguments for text file mode
 	if (!vm.count(INPUT_FILE) && !vm.count(NTV2_FILEPATH) && !vm.count(CREATE_NTV2))
 	{
-		cout << endl << "- Error: Interpolation input file not specified. " << endl << endl;
+		std::cout << std::endl << "- Error: Interpolation input file not specified. " << std::endl << std::endl;
 		return EXIT_FAILURE;
 	}
 
 	// check mandatory arguments for NTv2 file summary
 	if (vm.count(SUMMARY) && !vm.count(NTV2_FILEPATH))
 	{
-		cout << endl << "- Error: No NTv2 grid file specified. " << endl << endl;
+		std::cout << std::endl << "- Error: No NTv2 grid file specified. " << std::endl << std::endl;
 		return EXIT_FAILURE;
 	}
 
 	// check mandatory arguments for DynAdjust station file population
 	if (vm.count(NETWORK_NAME) && !vm.count(NTV2_FILEPATH))
 	{
-		cout << endl << "- Error: No NTv2 grid file specified. " << endl << endl;
+		std::cout << std::endl << "- Error: No NTv2 grid file specified. " << std::endl << std::endl;
 		return EXIT_FAILURE;
 	}
 
 	// binary station file location (input)
 	if (vm.count(NETWORK_NAME))
 	{
-		p.g.project_file = formPath<string>(p.g.output_folder, p.g.network_name, "dnaproj");
+		p.g.project_file = formPath<std::string>(p.g.output_folder, p.g.network_name, "dnaproj");
 
 		// define bst file name
-		p.n.bst_file = formPath<string>(p.g.input_folder, p.g.network_name, "bst");
+		p.n.bst_file = formPath<std::string>(p.g.input_folder, p.g.network_name, "bst");
 		p.n.file_mode = 1;
-		if (!exists(p.n.bst_file))
+		if (!boost::filesystem::exists(p.n.bst_file))
 		{
 			// Look for it in the input folder
-			p.n.bst_file = formPath<string>(p.g.input_folder, leafStr<string>(p.n.bst_file));
+			p.n.bst_file = formPath<std::string>(p.g.input_folder, leafStr<std::string>(p.n.bst_file));
 
-			if (!exists(p.n.bst_file))
+			if (!boost::filesystem::exists(p.n.bst_file))
 			{
-				cout << endl << "- Error: ";  
-				cout << "Binary station file " << p.n.bst_file << " does not exist." << endl << endl;  
+				std::cout << std::endl << "- Error: ";  
+				std::cout << "Binary station file " << p.n.bst_file << " does not exist." << std::endl << std::endl;  
 				return EXIT_FAILURE;
 			}
 		}
@@ -472,15 +472,15 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 	// Geoid DAT grid file file location (input)
 	if (vm.count(DAT_FILEPATH))
 	{
-		if (!exists(p.n.rdat_geoid_file))
+		if (!boost::filesystem::exists(p.n.rdat_geoid_file))
 		{
 			// Look for it in the input folder
-			p.n.rdat_geoid_file = formPath<string>(p.g.input_folder, leafStr<string>(p.n.rdat_geoid_file));
+			p.n.rdat_geoid_file = formPath<std::string>(p.g.input_folder, leafStr<std::string>(p.n.rdat_geoid_file));
 
-			if (!exists(p.n.rdat_geoid_file))
+			if (!boost::filesystem::exists(p.n.rdat_geoid_file))
 			{
-				cout << endl << "- Error: ";  
-				cout << "WINTER DAT grid file " << p.n.rdat_geoid_file << " does not exist." << endl << endl;  
+				std::cout << std::endl << "- Error: ";  
+				std::cout << "WINTER DAT grid file " << p.n.rdat_geoid_file << " does not exist." << std::endl << std::endl;  
 				return EXIT_FAILURE;
 			}
 		}
@@ -492,15 +492,15 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 		p.n.file_mode = 1;
 
 		// Geoid DAT grid file file location (input)
-		if (!exists(p.n.input_file))
+		if (!boost::filesystem::exists(p.n.input_file))
 		{
 			// Look for it in the input folder
-			p.n.input_file = formPath<string>(p.g.input_folder, leafStr<string>(p.n.input_file));
+			p.n.input_file = formPath<std::string>(p.g.input_folder, leafStr<std::string>(p.n.input_file));
 
-			if (!exists(p.n.input_file))
+			if (!boost::filesystem::exists(p.n.input_file))
 			{
-				cout << endl << "- Error: ";  
-				cout << "Input coordinates text file " << leafStr<string>(p.n.input_file) << " does not exist." << endl << endl;  
+				std::cout << std::endl << "- Error: ";  
+				std::cout << "Input coordinates text file " << leafStr<std::string>(p.n.input_file) << " does not exist." << std::endl << std::endl;  
 				return EXIT_FAILURE;
 			}
 		}
@@ -509,7 +509,7 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 	if (vm.count(EXPORT_GEO_FILE))
 	{
 		if (vm.count(NETWORK_NAME))
-			p.n.geo_file = formPath<string>(p.g.output_folder, p.g.network_name, "geo");	// dna geoid file
+			p.n.geo_file = formPath<std::string>(p.g.output_folder, p.g.network_name, "geo");	// dna geoid file
 		p.n.export_dna_geo_file = 1;
 	}
 
@@ -528,20 +528,20 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 
 int main(int argc, char* argv[])
 {
-	variables_map vm;
-	positional_options_description positional_options;
+	boost::program_options::variables_map vm;
+	boost::program_options::positional_options_description positional_options;
 	
-	options_description standard_options("+ " + string(ALL_MODULE_STDOPT), PROGRAM_OPTIONS_LINE_LENGTH);
-	options_description ntv2_options("+ " + string(GEOID_MODULE_NTV2), PROGRAM_OPTIONS_LINE_LENGTH);
-	options_description interpolate_options("+ " + string(GEOID_MODULE_INTERPOLATE), PROGRAM_OPTIONS_LINE_LENGTH);
-	options_description interactive_options("+ " + string(GEOID_MODULE_INTERACTIVE), PROGRAM_OPTIONS_LINE_LENGTH);
-	options_description file_interpolate_options("+ " + string(GEOID_MODULE_FILE), PROGRAM_OPTIONS_LINE_LENGTH);
-	options_description export_options("+ " + string(ALL_MODULE_EXPORT), PROGRAM_OPTIONS_LINE_LENGTH);
-	options_description generic_options("+ " + string(ALL_MODULE_GENERIC), PROGRAM_OPTIONS_LINE_LENGTH);
+	boost::program_options::options_description standard_options("+ " + std::string(ALL_MODULE_STDOPT), PROGRAM_OPTIONS_LINE_LENGTH);
+	boost::program_options::options_description ntv2_options("+ " + std::string(GEOID_MODULE_NTV2), PROGRAM_OPTIONS_LINE_LENGTH);
+	boost::program_options::options_description interpolate_options("+ " + std::string(GEOID_MODULE_INTERPOLATE), PROGRAM_OPTIONS_LINE_LENGTH);
+	boost::program_options::options_description interactive_options("+ " + std::string(GEOID_MODULE_INTERACTIVE), PROGRAM_OPTIONS_LINE_LENGTH);
+	boost::program_options::options_description file_interpolate_options("+ " + std::string(GEOID_MODULE_FILE), PROGRAM_OPTIONS_LINE_LENGTH);
+	boost::program_options::options_description export_options("+ " + std::string(ALL_MODULE_EXPORT), PROGRAM_OPTIONS_LINE_LENGTH);
+	boost::program_options::options_description generic_options("+ " + std::string(ALL_MODULE_GENERIC), PROGRAM_OPTIONS_LINE_LENGTH);
 
-	string cmd_line_usage("+ ");
+	std::string cmd_line_usage("+ ");
 	cmd_line_usage.append(__BINARY_NAME__).append(" usage:  ").append(__BINARY_NAME__).append(" [options]");
-	options_description allowable_options(cmd_line_usage, PROGRAM_OPTIONS_LINE_LENGTH);
+	boost::program_options::options_description allowable_options(cmd_line_usage, PROGRAM_OPTIONS_LINE_LENGTH);
 
 	n_file_par ntv2;
 	ntv2.ptrIndex = new n_gridfileindex[1];
@@ -549,10 +549,10 @@ int main(int argc, char* argv[])
 
 	project_settings p;
 
-	string cmd_line_banner, gs_type("seconds"), version("1.0.0.0"), system_f("GDA94   "), system_t("AHD_1971");
-	string subgridname("AUSGEOID"), parent(""), created(""), updated("");
+	std::string cmd_line_banner, gs_type("seconds"), version("1.0.0.0"), system_f("GDA94   "), system_t("AHD_1971");
+	std::string subgridname("AUSGEOID"), parent(""), created(""), updated("");
 
-	string inputLatitude, inputLongitude;
+	std::string inputLatitude, inputLongitude;
 	
 	fileproc_help_header(&cmd_line_banner);
 	p.g.project_file = "";
@@ -561,30 +561,30 @@ int main(int argc, char* argv[])
 		// Declare a group of options that will be 
 		// allowed only on command line		
 		standard_options.add_options()
-			(PROJECT_FILE_P, value<string>(&p.g.project_file),
+			(PROJECT_FILE_P, boost::program_options::value<std::string>(&p.g.project_file),
 				"Project file name. Full path to project file. If none specified, a new file is created using input-folder and network-name.")
-			(NETWORK_NAME_N, value<string>(&p.g.network_name), 
-				string("Network name. If [" + string(NETWORK_NAME) + "].bst exists, all records within the binary station file will be populated with N value and deflections of the vertical.").c_str())
-			(INPUT_FOLDER_I, value<string>(&p.g.input_folder),
+			(NETWORK_NAME_N, boost::program_options::value<std::string>(&p.g.network_name), 
+				std::string("Network name. If [" + std::string(NETWORK_NAME) + "].bst exists, all records within the binary station file will be populated with N value and deflections of the vertical.").c_str())
+			(INPUT_FOLDER_I, boost::program_options::value<std::string>(&p.g.input_folder),
 				"Path containing all input files.")
-			(OUTPUT_FOLDER_O, value<string>(&p.g.output_folder),		// default is ./,
+			(OUTPUT_FOLDER_O, boost::program_options::value<std::string>(&p.g.output_folder),		// default is ./,
 				"Path for all output files.")
 			;
 
 		interpolate_options.add_options()
 			(INTERACTIVE_E, "Interpolate geoid information using coordinates provided on the command line.")
-			(INPUT_FILE_T, value<string>(&p.n.input_file),
+			(INPUT_FILE_T, boost::program_options::value<std::string>(&p.n.input_file),
 				"Interpolate geoid information using coordinates contained in a text file. "
 				"arg is the path of the input text file. "
 				"The supported text file formats include formatted text (*.txt) and comma separated values (*.csv) files. "
 				"Refer to the User's Guide for file format information.")
-			(METHOD_M, value<UINT16>(&p.n.interpolation_method),
+			(METHOD_M, boost::program_options::value<UINT16>(&p.n.interpolation_method),
 				"Interpolation method.\n  0  Bi-linear\n  1  Bi-cubic (default)")
 			(CONVERT_BST_HT, 
 				"DEPRECATED. If a user-supplied height in the binary file is orthometric, the height will be converted to ellipsoidal automatically.")
 			(DDEG_FORMAT, "Specify input coordinates in decimal degrees (dd.dddddd).  Default is degrees, minutes and seconds (dd.mmssss).")
 			(CREATE_NTV2_C, "Create NTv2 grid file from standard DAT file.")
-			(NTV2_FILEPATH_G, value<string>(&p.n.ntv2_geoid_file), "Full file path of the NTv2 grid file.")
+			(NTV2_FILEPATH_G, boost::program_options::value<std::string>(&p.n.ntv2_geoid_file), "Full file path of the NTv2 grid file.")
 			(SUMMARY_U, "Print a summary of the grid file.")
 			;
 
@@ -592,41 +592,41 @@ int main(int argc, char* argv[])
 		// allowed both on command line and in
 		// config file        
 		ntv2_options.add_options()
-			(DAT_FILEPATH_D, value<string>(&p.n.rdat_geoid_file), 
+			(DAT_FILEPATH_D, boost::program_options::value<std::string>(&p.n.rdat_geoid_file), 
 				"File path of the WINTER DAT grid file.")
-			(NTV2_GS_TYPE, value<string>(&gs_type),
+			(NTV2_GS_TYPE, boost::program_options::value<std::string>(&gs_type),
 				"Units in which the grid parameters and deflections of the vertical will be stored. arg is either 'seconds' or 'radians'. Default is seconds.")
-			(NTV2_VERSION, value<string>(&version),
+			(NTV2_VERSION, boost::program_options::value<std::string>(&version),
 				"Grid file version. Default is 1.0.0.0.")
-			(NTV2_SYSTEM_F, value<string>(&system_f),
+			(NTV2_SYSTEM_F, boost::program_options::value<std::string>(&system_f),
 				"The 'From' reference system. Default is GDA94.")
-			(NTV2_SYSTEM_T, value<string>(&system_t),
+			(NTV2_SYSTEM_T, boost::program_options::value<std::string>(&system_t),
 				"The 'To' reference system. Default is AHD_1971")
-			(NTV2_MAJOR_F, value<double>(&ntv2.daf),
+			(NTV2_MAJOR_F, boost::program_options::value<double>(&ntv2.daf),
 				"Semi major of 'From' system. Default is 6378137.000")
-			(NTV2_MAJOR_T, value<double>(&ntv2.dat),
+			(NTV2_MAJOR_T, boost::program_options::value<double>(&ntv2.dat),
 				"Semi major of 'To' system. Default is 6378137.000")
-			(NTV2_MINOR_F, value<double>(&ntv2.dbf),
+			(NTV2_MINOR_F, boost::program_options::value<double>(&ntv2.dbf),
 				"Semi minor of 'From' system. Default is 6356752.314")
-			(NTV2_MINOR_T, value<double>(&ntv2.dbt),
+			(NTV2_MINOR_T, boost::program_options::value<double>(&ntv2.dbt),
 				"Semi minor of 'To' system. Default is 6356752.314")
-			(NTV2_SUB_NAME, value<string>(&subgridname),
+			(NTV2_SUB_NAME, boost::program_options::value<std::string>(&subgridname),
 				"The name of the sub-grid. Default is AUSGEOID")
-			(NTV2_CREATED, value<string>(&created), 
+			(NTV2_CREATED, boost::program_options::value<std::string>(&created), 
 				"Date of geoid model creation. arg is a dot delimited string \"dd.mm.yyyy\". Default is today's date if no value is supplied.")
-			(NTV2_UPDATED, value<string>(&updated), 
+			(NTV2_UPDATED, boost::program_options::value<std::string>(&updated), 
 				"Date of last file update. arg is a dot delimited string \"dd.mm.yyyy\". Default is today's date if no value is supplied.")
 			;
 
 		interactive_options.add_options()
-			(LATITUDE, value<string>(&inputLatitude),
+			(LATITUDE, boost::program_options::value<std::string>(&inputLatitude),
 				"Latitude of the interpolant. Default is degrees, minutes and seconds (dd.mmssss).")
-			(LONGITUDE, value<string>(&inputLongitude),
+			(LONGITUDE, boost::program_options::value<std::string>(&inputLongitude),
 				"Longitude of the interpolant. Default is degrees, minutes and seconds (dd.mmssss).")
 			;
 
 		file_interpolate_options.add_options()
-			(DIRECTION_R, value<UINT16>(&p.n.ellipsoid_to_ortho), 
+			(DIRECTION_R, boost::program_options::value<UINT16>(&p.n.ellipsoid_to_ortho), 
 				"Conversion of heights:\n  0  Orthometric to ellipsoid (default)\n  1  Ellipsoid to orthometric")
 			;
 
@@ -643,13 +643,13 @@ int main(int argc, char* argv[])
 			;
 
 		generic_options.add_options()
-			(VERBOSE, value<UINT16>(&p.g.verbose),
-				string("When importing geoid information into a project, print the stations for which an N-value could not be interpolated to a log (*.int) file.\n  0: No information (default)\n  1: Helpful information\n  2: Extended information").c_str())
+			(VERBOSE, boost::program_options::value<UINT16>(&p.g.verbose),
+				std::string("When importing geoid information into a project, print the stations for which an N-value could not be interpolated to a log (*.int) file.\n  0: No information (default)\n  1: Helpful information\n  2: Extended information").c_str())
 				(QUIET,
-					string("Suppresses all explanation of what ").append(__BINARY_NAME__).append(" is doing unless an error occurs").c_str())
+					std::string("Suppresses all explanation of what ").append(__BINARY_NAME__).append(" is doing unless an error occurs").c_str())
 					(VERSION_V, "Display the current program version")
 			(HELP_H, "Show this help message")
-			(HELP_MODULE_H, value<string>(),
+			(HELP_MODULE_H, boost::program_options::value<std::string>(),
 				"Provide help for a specific help category.")
 			;
 
@@ -658,70 +658,70 @@ int main(int argc, char* argv[])
 		// add "positional options" to handle command line tokens which have no option name
 		positional_options.add(NETWORK_NAME, -1);
 
-		command_line_parser parser(argc, argv);
+		boost::program_options::command_line_parser parser(argc, argv);
 		store(parser.options(allowable_options).positional(positional_options).run(), vm);
 		notify(vm);
 	} 
 	catch (const std::exception& e) {
-		cout << endl << "- Error: " << e.what() << endl;
-		cout << cmd_line_banner << allowable_options << endl;
+		std::cout << std::endl << "- Error: " << e.what() << std::endl;
+		std::cout << cmd_line_banner << allowable_options << std::endl;
 		return EXIT_FAILURE;
 	}
 	catch (...) 
 	{
-		cout << endl << "- Exception of unknown type!\n";
+		std::cout << std::endl << "- Exception of unknown type!\n";
 		return EXIT_FAILURE;
 	}
 
 	if (argc < 2)
 	{
-		cout << endl << "- Nothing to do - no options provided. " << endl << endl;  
-		cout << cmd_line_banner << allowable_options << endl;
+		std::cout << std::endl << "- Nothing to do - no options provided. " << std::endl << std::endl;  
+		std::cout << cmd_line_banner << allowable_options << std::endl;
 		return EXIT_FAILURE;
 	}
 
 	if (vm.count(VERSION))
 	{
-		cout << cmd_line_banner << endl;
+		std::cout << cmd_line_banner << std::endl;
 		return EXIT_SUCCESS;
 	}
 
 	if (vm.count(HELP))
 	{
-		cout << cmd_line_banner << allowable_options << endl;
+		std::cout << cmd_line_banner << allowable_options << std::endl;
 		return EXIT_SUCCESS;
 	}
 
 	if (vm.count(HELP_MODULE))
 	{
-		cout << cmd_line_banner;
-		string original_text = vm[HELP_MODULE].as<string>();
-		string help_text = str_upper<string>(original_text);
+		std::cout << cmd_line_banner;
+		std::string original_text = vm[HELP_MODULE].as<std::string>();
+		std::string help_text = str_upper<std::string>(original_text);
 
-		if (str_upper<string, char>(ALL_MODULE_STDOPT).find(help_text) != string::npos) {
-			cout << standard_options << endl;
+		if (str_upper<std::string, char>(ALL_MODULE_STDOPT).find(help_text) != std::string::npos) {
+			std::cout << standard_options << std::endl;
 		}
-		else if (str_upper<string, char>(GEOID_MODULE_NTV2).find(help_text) != string::npos) {
-			cout << ntv2_options << endl;
+		else if (str_upper<std::string, char>(GEOID_MODULE_NTV2).find(help_text) != std::string::npos) {
+			std::cout << ntv2_options << std::endl;
 		}
-		else if (str_upper<string, char>(GEOID_MODULE_INTERPOLATE).find(help_text) != string::npos) {
-			cout << interpolate_options << endl;
+		else if (str_upper<std::string, char>(GEOID_MODULE_INTERPOLATE).find(help_text) != std::string::npos) {
+			std::cout << interpolate_options << std::endl;
 		}
-		else if (str_upper<string, char>(GEOID_MODULE_INTERACTIVE).find(help_text) != string::npos) {
-			cout << interactive_options << endl;
+		else if (str_upper<std::string, char>(GEOID_MODULE_INTERACTIVE).find(help_text) != std::string::npos) {
+			std::cout << interactive_options << std::endl;
 		}
-		else if (str_upper<string, char>(GEOID_MODULE_FILE).find(help_text) != string::npos) {
-			cout << file_interpolate_options << endl;
+		else if (str_upper<std::string, char>(GEOID_MODULE_FILE).find(help_text) != std::string::npos) {
+			std::cout << file_interpolate_options << std::endl;
 		}
-		else if (str_upper<string, char>(ALL_MODULE_EXPORT).find(help_text) != string::npos) {
-			cout << export_options << endl;
+		else if (str_upper<std::string, char>(ALL_MODULE_EXPORT).find(help_text) != std::string::npos) {
+			std::cout << export_options << std::endl;
 		}
-		else if (str_upper<string, char>(ALL_MODULE_GENERIC).find(help_text) != string::npos) {
-			cout << generic_options << endl;
+		else if (str_upper<std::string, char>(ALL_MODULE_GENERIC).find(help_text) != std::string::npos) {
+			std::cout << generic_options << std::endl;
 		}
 		else {
-			cout << endl << "- Error: Help module '" <<
-				original_text << "' is not in the list of options." << endl;
+			std::cout << std::endl << "- Error: Help module '" <<
+				original_text << "' is not in the list of options." << std::endl;
 			return EXIT_FAILURE;
 		}
 
@@ -740,39 +740,39 @@ int main(int argc, char* argv[])
 	// grid file path not supplied.  Generate name from dat file
 	if (p.n.ntv2_geoid_file.empty())
 	{
-		path gsbFile(p.n.rdat_geoid_file);
+		boost::filesystem::path gsbFile(p.n.rdat_geoid_file);
 		p.n.ntv2_geoid_file = gsbFile.stem().string() + gsbFile.extension().string() + ".gsb";
 		strcpy(ntv2.filename, p.n.ntv2_geoid_file.c_str());
 		strcpy(ntv2.filetype, GSB);
 	}
 	else
 	{
-		string extension(GetFileType(p.n.ntv2_geoid_file));
+		std::string extension(GetFileType(p.n.ntv2_geoid_file));
 		if (extension.empty())
 		{
-			cout << endl << "- Error: NTv2 grid file type cannot be determined from a file without a file extension. " << endl << endl;
+			std::cout << std::endl << "- Error: NTv2 grid file type cannot be determined from a file without a file extension. " << std::endl << std::endl;
 			return EXIT_FAILURE;
 		}
 
-		if (!iequals(extension.substr(1), GSB) &&
-			!iequals(extension.substr(1), ASC))
+		if (!boost::iequals(extension.substr(1), GSB) &&
+			!boost::iequals(extension.substr(1), ASC))
 		{
-			cout << endl << "- Error: NTv2 grid file type cannot be determined from file extension \"" << extension << "\"." << endl << 
-				"         Supported types are ." << GSB << " and ." << ASC << " only." << endl << endl;
+			std::cout << std::endl << "- Error: NTv2 grid file type cannot be determined from file extension \"" << extension << "\"." << std::endl << 
+				"         Supported types are ." << GSB << " and ." << ASC << " only." << std::endl << std::endl;
 			return EXIT_FAILURE;
 		}
 
 		if (vm.count(EXPORT_NTV2_ASCII_FILE) &&
-			iequals(extension.substr(1), ASC))
+			boost::iequals(extension.substr(1), ASC))
 		{
-			cout << endl << "- Error: Export to ASCII NTv2 grid file option only supported for " << GSB " grid files." << endl << endl;
+			std::cout << std::endl << "- Error: Export to ASCII NTv2 grid file option only supported for " << GSB " grid files." << std::endl << std::endl;
 			return EXIT_FAILURE;
 		}
 
 		if (vm.count(EXPORT_NTV2_BINARY_FILE) &&
-			iequals(extension.substr(1), GSB))
+			boost::iequals(extension.substr(1), GSB))
 		{
-			cout << endl << "- Error: Export to Binary NTv2 grid file option only supported for " << ASC " grid files." << endl << endl;
+			std::cout << std::endl << "- Error: Export to Binary NTv2 grid file option only supported for " << ASC " grid files." << std::endl << std::endl;
 			return EXIT_FAILURE;
 		}
 
@@ -787,145 +787,145 @@ int main(int argc, char* argv[])
 	{
 		gs_type = trimstr(gs_type);
 		// Unknown type?
-		if (!iequals(gs_type, "seconds") && !iequals(gs_type, "radians"))
+		if (!boost::iequals(gs_type, "seconds") && !boost::iequals(gs_type, "radians"))
 			gs_type = "seconds";
 		str_toupper<int>(gs_type);
 	}
 	
 	if (!p.g.quiet)
 	{
-		cout << endl << cmd_line_banner;
+		std::cout << std::endl << cmd_line_banner;
 
-		cout << "+ Options:" << endl; 
+		std::cout << "+ Options:" << std::endl; 
 		
 		if (vm.count(NETWORK_NAME))
-			cout << setw(PRINT_VAR_PAD) << left << "  Network name: " <<  p.g.network_name << endl;
+			std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Network name: " <<  p.g.network_name << std::endl;
 
 		if (p.n.file_mode || vm.count(CREATE_NTV2))
 		{
-			cout << setw(PRINT_VAR_PAD) << left << "  Input folder: " << p.g.input_folder << endl;
-			cout << setw(PRINT_VAR_PAD) << left << "  Output folder: " << p.g.output_folder << endl;
+			std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Input folder: " << p.g.input_folder << std::endl;
+			std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Output folder: " << p.g.output_folder << std::endl;
 
 			if (!p.n.bst_file.empty())
 			{
-				cout << setw(PRINT_VAR_PAD) << left << "  Binary station file: " << p.n.bst_file << endl;
-				//cout << setw(PRINT_VAR_PAD) << left << "  Convert orthometric heights: ";
+				std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Binary station file: " << p.n.bst_file << std::endl;
+				//cout << std::setw(PRINT_VAR_PAD) << std::left << "  Convert orthometric heights: ";
 				//if (p.n.convert_heights)
-				//	cout << "Yes" << endl;
+				//	std::cout << "Yes" << std::endl;
 				//else
-				//	cout << "No" << endl;
+				//	std::cout << "No" << std::endl;
 			}
 
 			if (!p.n.input_file.empty())
-				cout << setw(PRINT_VAR_PAD) << left << "  ASCII file: " << p.n.input_file << endl;
+				std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  ASCII file: " << p.n.input_file << std::endl;
 		}
 		
-		cout << setw(PRINT_VAR_PAD) << left << "  Geoid grid file: " <<  ntv2.filename << endl;
+		std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Geoid grid file: " <<  ntv2.filename << std::endl;
 		
 		// Not applicable for project file use
 		if (vm.count(CREATE_NTV2))
 		{
-			cout << setw(PRINT_VAR_PAD) << left << "  WINTER DAT file: " << leafStr<string>(p.n.rdat_geoid_file) << endl;
+			std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  WINTER DAT file: " << leafStr<std::string>(p.n.rdat_geoid_file) << std::endl;
 
 			if (vm.count(NTV2_GS_TYPE))
-				cout << setw(PRINT_VAR_PAD) << left << "  Grid shift type: " << gs_type.c_str() << endl;
+				std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Grid shift type: " << gs_type.c_str() << std::endl;
 			if (vm.count(NTV2_VERSION))
-				cout << setw(PRINT_VAR_PAD) << left << "  Grid file version: " << version.c_str() << endl;
+				std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Grid file version: " << version.c_str() << std::endl;
 			if (vm.count(NTV2_SYSTEM_F))
-				cout << setw(PRINT_VAR_PAD) << left << "  From reference system: " << system_f.c_str() << endl;
+				std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  From reference system: " << system_f.c_str() << std::endl;
 			if (vm.count(NTV2_SYSTEM_T))
-				cout << setw(PRINT_VAR_PAD) << left << "  To reference system: " << system_t.c_str() << endl;
+				std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  To reference system: " << system_t.c_str() << std::endl;
 			if (vm.count(NTV2_MAJOR_F))
-				cout << setw(PRINT_VAR_PAD) << left << "  From semi-major: " << fixed << setprecision(3) << ntv2.daf << endl;
+				std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  From semi-major: " << std::fixed << std::setprecision(3) << ntv2.daf << std::endl;
 			if (vm.count(NTV2_MAJOR_T))
-				cout << setw(PRINT_VAR_PAD) << left << "  To semi-major: " << ntv2.dat << endl;
+				std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  To semi-major: " << ntv2.dat << std::endl;
 			if (vm.count(NTV2_MINOR_F))
-				cout << setw(PRINT_VAR_PAD) << left << "  From semi-minor: " << ntv2.dbf << endl;
+				std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  From semi-minor: " << ntv2.dbf << std::endl;
 			if (vm.count(NTV2_MINOR_T))
-				cout << setw(PRINT_VAR_PAD) << left << "  To semi-minor: " << ntv2.dbt << endl;
+				std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  To semi-minor: " << ntv2.dbt << std::endl;
 			if (vm.count(NTV2_SUB_NAME))
-				cout << setw(PRINT_VAR_PAD) << left << "  Sub-grid name: " << subgridname.c_str() << endl;
+				std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Sub-grid name: " << subgridname.c_str() << std::endl;
 			
-			date creationDate, updateDate;
+			boost::gregorian::date creationDate, updateDate;
 			if (created.empty())
 				created = "today";
 			
 			if (updated.empty())
 				updated = "today";
 			
-			creationDate = dateFromString<date>(created);
-			updateDate = dateFromString<date>(updated);
+			creationDate = dateFromString<boost::gregorian::date>(created);
+			updateDate = dateFromString<boost::gregorian::date>(updated);
 
 			// Print dates by default
 			//if (vm.count(NTV2_CREATED))
-			cout << setw(PRINT_VAR_PAD) << left << "  Date of file creation: " << 
-				stringFromDate<date>(creationDate, "%d %B %Y") << endl;
+			std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Date of file creation: " << 
+				stringFromDate<boost::gregorian::date>(creationDate, "%d %B %Y") << std::endl;
 			//if (vm.count(NTV2_UPDATED))
-			cout << setw(PRINT_VAR_PAD) << left << "  Date of file update: " << 
-				stringFromDate<date>(updateDate, "%d %B %Y") << endl;
+			std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Date of file update: " << 
+				stringFromDate<boost::gregorian::date>(updateDate, "%d %B %Y") << std::endl;
 
-			created = stringFromDate<date>(creationDate, "%d%m%Y");
-			updated = stringFromDate<date>(updateDate, "%d%m%Y");
+			created = stringFromDate<boost::gregorian::date>(creationDate, "%d%m%Y");
+			updated = stringFromDate<boost::gregorian::date>(updateDate, "%d%m%Y");
 
 		}
 
 		if (vm.count(EXPORT_NTV2_ASCII_FILE) ||
 			vm.count(EXPORT_NTV2_BINARY_FILE))
 		{
-			cout << setw(PRINT_VAR_PAD) << left << "  Export NTv2 grid file to: ";
+			std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Export NTv2 grid file to: ";
 			if (vm.count(EXPORT_NTV2_ASCII_FILE))
-				cout << "ASCII (." << ASC << ")" << endl;
+				std::cout << "ASCII (." << ASC << ")" << std::endl;
 			if (vm.count(EXPORT_NTV2_BINARY_FILE))
-				cout << "Binary (." << GSB << ")" << endl;
+				std::cout << "Binary (." << GSB << ")" << std::endl;
 
 			if (vm.count(NTV2_GS_TYPE))
-				cout << setw(PRINT_VAR_PAD) << left << "  Grid shift type: " << gs_type.c_str() << endl;
+				std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Grid shift type: " << gs_type.c_str() << std::endl;
 		}
 
 		if (p.n.file_mode || vm.count(INTERACTIVE))
 		{
-			cout << setw(PRINT_VAR_PAD) << left << "  Interpolation method: ";
+			std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Interpolation method: ";
 			if (p.n.interpolation_method == BICUBIC)
-				cout << "Bi-cubic" << endl;
+				std::cout << "Bi-cubic" << std::endl;
 			else
-				cout << "Bi-linear" << endl;
+				std::cout << "Bi-linear" << std::endl;
 
-			cout << setw(PRINT_VAR_PAD) << left << "  Input coordinate format: ";
+			std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Input coordinate format: ";
 			if (p.n.coordinate_format == DDEG)
-				cout << "Decimal degrees" << endl;
+				std::cout << "Decimal degrees" << std::endl;
 			else
-				cout << "Degrees minutes seconds" << endl;
+				std::cout << "Degrees minutes seconds" << std::endl;
 			
 			if (!vm.count(INTERACTIVE))
 			{
-				cout << setw(PRINT_VAR_PAD) << left << "  Transformation direction: ";
+				std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Transformation direction: ";
 				if (p.n.ellipsoid_to_ortho == 0)
-					cout << "Orthometric to ellipsoid" << endl;
+					std::cout << "Orthometric to ellipsoid" << std::endl;
 				else
-					cout << "Ellipsoid to orthometric" << endl;
+					std::cout << "Ellipsoid to orthometric" << std::endl;
 			}
 		}
 
 		if (p.n.export_dna_geo_file)
-			cout << setw(PRINT_VAR_PAD) << left << "  Export to DNA geoid file: " << "Yes" << endl;
+			std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Export to DNA geoid file: " << "Yes" << std::endl;
 
-		cout << endl;
+		std::cout << std::endl;
 
 		if (vm.count(CONVERT_BST_HT))
-			cout << "- Warning: The '--" << CONVERT_BST_HT << "' option has been deprecated. Orthometric" << endl <<
-				"  heights in the binary file will be converted to ellipsoidal by default, " << endl <<
-			    "  unless the transformation direction has been modified by supplying the " << endl << 
-			    "  '--" << DIRECTION << "' option with an argument of 1." << endl;
+			std::cout << "- Warning: The '--" << CONVERT_BST_HT << "' option has been deprecated. Orthometric" << std::endl <<
+				"  heights in the binary file will be converted to ellipsoidal by default, " << std::endl <<
+			    "  unless the transformation direction has been modified by supplying the " << std::endl << 
+			    "  '--" << DIRECTION << "' option with an argument of 1." << std::endl;
 
-		cout << endl;
+		std::cout << std::endl;
 	
 		// File interpolation mode...
 		if (p.n.file_mode)
 		{
 			if (!p.n.bst_file.empty())
-				cout << "+ Binary station file interpolation mode." << endl << endl;
+				std::cout << "+ Binary station file interpolation mode." << std::endl << std::endl;
 			else
-				cout << "+ ASCII file interpolation mode." << endl << endl;
+				std::cout << "+ ASCII file interpolation mode." << std::endl << std::endl;
 		}			
 	}
 
@@ -961,7 +961,7 @@ int main(int argc, char* argv[])
 		if (ntv2.ptrIndex)
 			delete [] ntv2.ptrIndex;
 
-		cout << endl << "+ Geoid file creation completed successfully." << endl << endl;
+		std::cout << std::endl << "+ Geoid file creation completed successfully." << std::endl << std::endl;
 
 		return EXIT_SUCCESS;
 	}
@@ -969,7 +969,7 @@ int main(int argc, char* argv[])
 	{
 		if (p.n.ntv2_geoid_file.empty())
 		{
-			cout << endl << "- Error: No NTv2 grid file specified. " << endl << endl;
+			std::cout << std::endl << "- Error: No NTv2 grid file specified. " << std::endl << std::endl;
 			return EXIT_FAILURE;
 		}
 
@@ -979,7 +979,7 @@ int main(int argc, char* argv[])
 		if (!ExportNTv2GridToAscii(&g, ntv2.filename, ntv2.filetype, ntv2.chGs_type, ASC))
 			return EXIT_FAILURE;
 		
-		cout << "+ Geoid file creation completed successfully." << endl << endl;
+		std::cout << "+ Geoid file creation completed successfully." << std::endl << std::endl;
 
 		return EXIT_SUCCESS;
 	}
@@ -987,7 +987,7 @@ int main(int argc, char* argv[])
 	{
 		if (p.n.ntv2_geoid_file.empty())
 		{
-			cout << endl << "- Error: No NTv2 grid file specified. " << endl << endl;
+			std::cout << std::endl << "- Error: No NTv2 grid file specified. " << std::endl << std::endl;
 			return EXIT_FAILURE;
 		}
 
@@ -997,7 +997,7 @@ int main(int argc, char* argv[])
 		if (!ExportNTv2GridToBinary(&g, ntv2.filename, ntv2.filetype, ntv2.chGs_type, GSB))
 			return EXIT_FAILURE;
 
-		cout << "+ Geoid file creation completed successfully." << endl << endl;
+		std::cout << "+ Geoid file creation completed successfully." << std::endl << std::endl;
 
 		return EXIT_SUCCESS;
 	}
@@ -1018,7 +1018,7 @@ int main(int argc, char* argv[])
 		apInterpolant.cVar.dLatitude = DoubleFromString<double>(inputLatitude);
 		apInterpolant.cVar.dLongitude = DoubleFromString<double>(inputLongitude);
 
-		stringstream ssInput;
+		std::stringstream ssInput;
 		ssInput << inputLatitude << ", " << inputLongitude;
 		g.SetInputCoordinates(ssInput.str());
 
@@ -1035,7 +1035,7 @@ int main(int argc, char* argv[])
 		if (!InterpolateGridPoint(&g, &apInterpolant, p.n.interpolation_method,
 			p.n.coordinate_format, inputLatitude, inputLongitude))
 		{
-			cout << endl;
+			std::cout << std::endl;
 			if (apInterpolant.cVar.IO_Status == ERR_FINDSUBGRID_OUTSIDE)
 				reportGridProperties(&g, ntv2.filename, ntv2.filetype);
 
@@ -1054,19 +1054,19 @@ int main(int argc, char* argv[])
 
 	if (!p.g.quiet)
 	{
-		cout << "+ Interpolating geoid components";
+		std::cout << "+ Interpolating geoid components";
 		if (!p.n.bst_file.empty() && p.n.convert_heights)
-			cout << " and reducing" << endl <<
+			std::cout << " and reducing" << std::endl <<
 				"  heights to the ellipsoid";
-		cout << "... ";
+		std::cout << "... ";
 	}
 	
-	cpu_timer time;
+	boost::timer::cpu_timer time;
 
 	char dnageoFile[601], *geoFileptr;
 	geoFileptr = NULL;
 	memset(dnageoFile, '\0', sizeof(dnageoFile));
-	string outputfilePath;
+	std::string outputfilePath;
 		
 	if (!p.n.geo_file.empty())
 	{
@@ -1096,52 +1096,52 @@ int main(int argc, char* argv[])
 		
 	if (!p.g.quiet)
 	{
-		cout << "done." << endl;
-		cout << "+ Interpolated data for " << g.PointsInterpolated();
+		std::cout << "done." << std::endl;
+		std::cout << "+ Interpolated data for " << g.PointsInterpolated();
 		if (g.PointsInterpolated() == 1)
-			cout << " point." << endl;
+			std::cout << " point." << std::endl;
 		else
-			cout << " points." << endl;
+			std::cout << " points." << std::endl;
 
 		if (g.PointsNotInterpolated() > 0)
 		{
-			cout << "- Warning: Data for " << g.PointsNotInterpolated();
+			std::cout << "- Warning: Data for " << g.PointsNotInterpolated();
 
 			// Is this wrapper being called to update DynAdjust station file?
 			if (!p.n.bst_file.empty())
 			{
 				if (g.PointsNotInterpolated() == 1)
-					cout << " station";
+					std::cout << " station";
 				else
-					cout << " stations";
+					std::cout << " stations";
 
-				cout << " could not be interpolated.  ";
+				std::cout << " could not be interpolated.  ";
 					
 				if (p.g.verbose > 0)
 				{
 					try {
 						ReturnBadStationRecords(&g, p);
 					}
-					catch (const runtime_error& e) {
+					catch (const std::runtime_error& e) {
 						// print error message, and continue
-						cout << "- Error: " << e.what() << endl;
+						std::cout << "- Error: " << e.what() << std::endl;
 					}
 				}
 				else
-					cout << "To view the list of stations " << endl <<
-						"  for which an N-value could not be interpolated, call " << __BINARY_NAME__ << " with --verbose-level 1." << endl;
+					std::cout << "To view the list of stations " << std::endl <<
+						"  for which an N-value could not be interpolated, call " << __BINARY_NAME__ << " with --verbose-level 1." << std::endl;
 			}
 			// If this point is reached, then this wrapper must have been called
 			// to interpolate points in interactive mode.
 			else //if (!p.n.input_file.empty())
 			{
 				if (g.PointsNotInterpolated() == 1)
-					cout << " point";
+					std::cout << " point";
 				else
-					cout << " points";
+					std::cout << " points";
 
-				cout << " could not be interpolated." << endl;
-				cout << "  See " << outputfilePath << " for more information." << endl;
+				std::cout << " could not be interpolated." << std::endl;
+				std::cout << "  See " << outputfilePath << " for more information." << std::endl;
 			}
 		}
 	}
@@ -1151,7 +1151,7 @@ int main(int argc, char* argv[])
 	if (userSuppliedProjectFile)
 	{
 		CDnaProjectFile projectFile;
-		if (exists(p.g.project_file))
+		if (boost::filesystem::exists(p.g.project_file))
 			projectFile.LoadProjectFile(p.g.project_file);
 
 		// Print the project file. If it doesn't exist, it will be created.
@@ -1163,9 +1163,9 @@ int main(int argc, char* argv[])
 		return EXIT_SUCCESS;
 
 	// wall time is in nanoseconds
-	// cout << time.elapsed().wall << endl << endl;
-	milliseconds elapsed_time(milliseconds(time.elapsed().wall/MILLI_TO_NANO));
-	cout << endl << formatedElapsedTime<string>(&elapsed_time, "+ Geoid file interpolation took ") << endl << endl;
+	// cout << time.elapsed().wall << std::endl << std::endl;
+	boost::posix_time::milliseconds elapsed_time(boost::posix_time::milliseconds(time.elapsed().wall/MILLI_TO_NANO));
+	std::cout << std::endl << formatedElapsedTime<std::string>(&elapsed_time, "+ Geoid file interpolation took ") << std::endl << std::endl;
 	
 	return EXIT_SUCCESS;
 }

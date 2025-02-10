@@ -45,10 +45,6 @@
 
 #include <dynadjust/dnaadjust/dnaadjust.hpp>
 
-using namespace std;
-using namespace boost;
-using namespace boost::posix_time;
-
 using namespace dynadjust::networkadjust;
 using namespace dynadjust::exception;
 
@@ -63,11 +59,11 @@ private:
 	bool prepareAdjustment();
 	bool processAdjustment();
 
-	void handlePrepareAdjustError(const string& error_msg);
-	void handleProcessAdjustError(const string& error_msg);
-	void printErrorMsg(const string& error_msg);
-	void coutMessage(stringstream& message);
-	void coutMessage(const string& message);
+	void handlePrepareAdjustError(const std::string& error_msg);
+	void handleProcessAdjustError(const std::string& error_msg);
+	void printErrorMsg(const std::string& error_msg);
+	void coutMessage(std::stringstream& message);
+	void coutMessage(const std::string& message);
 
 	dna_adjust*		_dnaAdj;
 	project_settings*	_p;
@@ -84,7 +80,7 @@ private:
 	void prepareAdjustment();
 	void processAdjustment();
 
-	void coutMessage(const string& message);
+	void coutMessage(const std::string& message);
 
 	dna_adjust*		_dnaAdj;
 	project_settings*	_p;

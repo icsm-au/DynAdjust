@@ -44,9 +44,6 @@
 #include <include/parameters/dnaprojection.hpp>
 #include <include/config/dnatypes.hpp>
 
-using namespace std;
-using namespace boost;
-
 using namespace dynadjust::datum_parameters;
 
 // nu helper
@@ -148,11 +145,11 @@ template <class T>
 // 	double dXAxis(-3563081.362), dYAxis(-2057145.984), dZAxis(-4870449.482), dHeight(0.);
 //	CDnaEllipsoid e;
 //	CartToGeo<double>(dXAxis, dYAxis, dZAxis, &dXAxis, &dYAxis, &dHeight, &e);
-//	stringstream ss;
-//	ss << setw(MSR) << right << FormatDmsString(RadtoDms(dXAxis), 5, true, false) << ", ";
-//	ss << setw(MSR) << right << FormatDmsString(RadtoDms(dYAxis), 5, true, false) << ", ";
-//	ss << setw(MSR) << setprecision(4) << fixed << right << dHeight;
-//	string comp(ss.str());
+//	std::stringstream ss;
+//	ss << std::setw(MSR) << std::right << FormatDmsString(RadtoDms(dXAxis), 5, true, false) << ", ";
+//	ss << std::setw(MSR) << std::right << FormatDmsString(RadtoDms(dYAxis), 5, true, false) << ", ";
+//	ss << std::setw(MSR) << std::setprecision(4) << std::fixed << std::right << dHeight;
+//	std::string comp(ss.str());
 //	comp should equal  "-50 00 00.0000, -150 00 00.0000, 10000.000"
 //
 void CartToGeo(const T& X, const T& Y, const T& Z,

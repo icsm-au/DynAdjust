@@ -31,9 +31,9 @@ namespace dynadjust {
 namespace iostreams {
 
 void dna_io_dna::write_dna_files(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, 
-			const string& stnfilename, const string& msrfilename, const string& networkname,
+			const std::string& stnfilename, const std::string& msrfilename, const std::string& networkname,
 			const CDnaDatum& datum, const CDnaProjection& projection, bool flagUnused,
-			const string& stn_comment, const string& msr_comment)
+			const std::string& stn_comment, const std::string& msr_comment)
 {
 
 	write_stn_file(vStations, stnfilename, networkname, datum, projection, flagUnused, stn_comment);
@@ -41,21 +41,21 @@ void dna_io_dna::write_dna_files(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurement
 }
 
 void dna_io_dna::write_dna_files(pvstn_t vbinary_stn, pvmsr_t vbinary_msr, 
-			const string& stnfilename, const string& msrfilename, const string& networkname,
+			const std::string& stnfilename, const std::string& msrfilename, const std::string& networkname,
 			const CDnaDatum& datum, const CDnaProjection& projection, bool flagUnused,
-			const string& stn_comment, const string& msr_comment)
+			const std::string& stn_comment, const std::string& msr_comment)
 {
 	write_stn_file(vbinary_stn, stnfilename, networkname, datum, projection, flagUnused, stn_comment);
 	write_msr_file(*vbinary_stn, vbinary_msr, msrfilename, networkname, datum, msr_comment);
 }
 	
-void dna_io_dna::create_file_stn(std::ofstream* ptr, const string& filename)
+void dna_io_dna::create_file_stn(std::ofstream* ptr, const std::string& filename)
 {
 	determineDNASTNFieldParameters<UINT16>("3.01", dsl_, dsw_);
 	create_file_pointer(ptr, filename);
 }
 	
-void dna_io_dna::create_file_msr(std::ofstream* ptr, const string& filename)
+void dna_io_dna::create_file_msr(std::ofstream* ptr, const std::string& filename)
 {
 	determineDNAMSRFieldParameters<UINT16>("3.01", dml_, dmw_);
 	create_file_pointer(ptr, filename);
@@ -69,30 +69,30 @@ void dna_io_dna::prepare_sort_list(const UINT32 count)
 	initialiseIncrementingIntegerVector<UINT32>(vStationList_, count);
 }
 	
-void dna_io_dna::create_file_pointer(std::ofstream* ptr, const string& filename)
+void dna_io_dna::create_file_pointer(std::ofstream* ptr, const std::string& filename)
 {
 	try {
 		// Create file pointer to DNA file. 
 		file_opener(*ptr, filename);
 	}
-	catch (const runtime_error& e) {
-		throw boost::enable_current_exception(runtime_error(e.what()));
+	catch (const std::runtime_error& e) {
+		throw boost::enable_current_exception(std::runtime_error(e.what()));
 	}
 }
 	
-void dna_io_dna::open_file_pointer(std::ifstream* ptr, const string& filename)
+void dna_io_dna::open_file_pointer(std::ifstream* ptr, const std::string& filename)
 {
 	try {
 		// Open DNA file.
-		file_opener(*ptr, filename, ios::in, ascii, true);
+		file_opener(*ptr, filename, std::ios::in, ascii, true);
 	}
-	catch (const runtime_error& e) {
-		throw boost::enable_current_exception(runtime_error(e.what()));
+	catch (const std::runtime_error& e) {
+		throw boost::enable_current_exception(std::runtime_error(e.what()));
 	}
 }
 
-void dna_io_dna::write_stn_header_data(std::ofstream* ptr, const string& networkname, const string& datum,
-	const string& epoch, const size_t& count, const string& comment)
+void dna_io_dna::write_stn_header_data(std::ofstream* ptr, const std::string& networkname, const std::string& datum,
+	const std::string& epoch, const size_t& count, const std::string& comment)
 {
 	// Write version line
 	dna_header(*ptr, "3.01", "STN", datum, epoch, count);
@@ -105,8 +105,8 @@ void dna_io_dna::write_stn_header_data(std::ofstream* ptr, const string& network
 	dna_comment(*ptr, comment);
 }
 
-void dna_io_dna::write_stn_header(std::ofstream* ptr, vdnaStnPtr* vStations, const string& networkname,
-			const CDnaDatum& datum, bool flagUnused, const string& comment)
+void dna_io_dna::write_stn_header(std::ofstream* ptr, vdnaStnPtr* vStations, const std::string& networkname,
+			const CDnaDatum& datum, bool flagUnused, const std::string& comment)
 {
 	// print stations
 	// Has the user specified --flag-unused-stations, in which case, do not
@@ -128,8 +128,8 @@ void dna_io_dna::write_stn_header(std::ofstream* ptr, vdnaStnPtr* vStations, con
 }
 	
 
-void dna_io_dna::write_stn_header(std::ofstream* ptr, pvstn_t vbinary_stn, const string& networkname,
-			const CDnaDatum& datum, bool flagUnused, const string& comment)
+void dna_io_dna::write_stn_header(std::ofstream* ptr, pvstn_t vbinary_stn, const std::string& networkname,
+			const CDnaDatum& datum, bool flagUnused, const std::string& comment)
 {
 	// print stations
 	// Has the user specified --flag-unused-stations, in which case, do not
@@ -151,17 +151,17 @@ void dna_io_dna::write_stn_header(std::ofstream* ptr, pvstn_t vbinary_stn, const
 }
 	
 
-void dna_io_dna::read_ren_file(const string& filename, pv_string_vstring_pair stnRenaming)
+void dna_io_dna::read_ren_file(const std::string& filename, pv_string_vstring_pair stnRenaming)
 {
 	std::ifstream renaming_file;
 
 	// create file pointer
 	open_file_pointer(&renaming_file, filename);
 
-	string version;
+	std::string version;
 	INPUT_DATA_TYPE idt;
 	CDnaDatum datum;
-	string geoidVersion, fileEpsg, fileEpoch;
+	std::string geoidVersion, fileEpsg, fileEpoch;
 	UINT32 count(0);
 
 	// read header information
@@ -174,7 +174,7 @@ void dna_io_dna::read_ren_file(const string& filename, pv_string_vstring_pair st
 
 void dna_io_dna::read_ren_data(std::ifstream* ptr, pv_string_vstring_pair stnRenaming)
 {
-	string sBuf;
+	std::string sBuf;
 
 	string_vstring_pair stnNames;
 	vstring altStnNames;
@@ -187,9 +187,9 @@ void dna_io_dna::read_ren_data(std::ifstream* ptr, pv_string_vstring_pair stnRen
 		catch (...) {
 			if (ptr->eof())
 				return;
-			stringstream ss;
-			ss << "read_ren_data(): Could not read from the renaming file." << endl;
-			boost::enable_current_exception(runtime_error(ss.str()));
+			std::stringstream ss;
+			ss << "read_ren_data(): Could not read from the renaming file." << std::endl;
+			boost::enable_current_exception(std::runtime_error(ss.str()));
 		}
 
 		// blank or whitespace?
@@ -204,7 +204,7 @@ void dna_io_dna::read_ren_data(std::ifstream* ptr, pv_string_vstring_pair stnRen
 		if (sBuf.compare(0, 1, "*") == 0)
 			continue;
 		
-		string tmp;
+		std::string tmp;
 		
 		// Add the preferred name
 		try {
@@ -212,10 +212,10 @@ void dna_io_dna::read_ren_data(std::ifstream* ptr, pv_string_vstring_pair stnRen
 			stnNames.first = tmp;
 		}
 		catch (...) {
-			stringstream ss;
+			std::stringstream ss;
 			ss << "read_ren_data(): Could not extract station name from the record:  " << 
-				endl << "    " << sBuf << endl;
-			boost::enable_current_exception(runtime_error(ss.str()));
+			 	std::endl << "    " << sBuf << std::endl;
+			boost::enable_current_exception(std::runtime_error(ss.str()));
 		}		
 
 		// Alternative names
@@ -237,7 +237,7 @@ void dna_io_dna::read_ren_data(std::ifstream* ptr, pv_string_vstring_pair stnRen
 		}
 		
 		// sort for faster searching
-		sort(altStnNames.begin(), altStnNames.end());
+		std::sort(altStnNames.begin(), altStnNames.end());
 
 		// Add the alternate names
 		stnNames.second = altStnNames;
@@ -248,11 +248,11 @@ void dna_io_dna::read_ren_data(std::ifstream* ptr, pv_string_vstring_pair stnRen
 }
 	
 
-void dna_io_dna::read_dna_header(std::ifstream* ptr, string& version, INPUT_DATA_TYPE& idt, 
+void dna_io_dna::read_dna_header(std::ifstream* ptr, std::string& version, INPUT_DATA_TYPE& idt, 
 	CDnaDatum& referenceframe, bool user_supplied_frame,
-	string& fileEpsg, string& fileEpoch, string& geoidversion, UINT32& count)
+	std::string& fileEpsg, std::string& fileEpoch, std::string& geoidversion, UINT32& count)
 {
-	string sBuf;
+	std::string sBuf;
 	getline((*ptr), sBuf);
 	sBuf = trimstr(sBuf);
 	m_filespecifiedReferenceFrame_ = false;
@@ -262,11 +262,11 @@ void dna_io_dna::read_dna_header(std::ifstream* ptr, string& version, INPUT_DATA
 
 	// Attempt to get the file's version
 	try {
-		if (iequals("!#=DNA", sBuf.substr(0, 6)))
+		if (boost::iequals("!#=DNA", sBuf.substr(0, 6)))
 			version = trimstr(sBuf.substr(6, 6));
 	}
-	catch (const runtime_error& e) {
-		throw boost::enable_current_exception(runtime_error(e.what()));
+	catch (const std::runtime_error& e) {
+		throw boost::enable_current_exception(std::runtime_error(e.what()));
 	}
 
 	// Attempt to get the file's type
@@ -274,51 +274,51 @@ void dna_io_dna::read_dna_header(std::ifstream* ptr, string& version, INPUT_DATA
 		determineDNASTNFieldParameters<UINT16>(version, dsl_, dsw_);
 		determineDNAMSRFieldParameters<UINT16>(version, dml_, dmw_);
 	}
-	catch (const runtime_error& e) {
-		stringstream ssError;
-		ssError << "- Error: Unable to determine DNA file version." << endl <<
-			sBuf << endl << " " << e.what() << endl;
-		throw boost::enable_current_exception(runtime_error(ssError.str()));
+	catch (const std::runtime_error& e) {
+		std::stringstream ssError;
+		ssError << "- Error: Unable to determine DNA file version." << std::endl <<
+			sBuf << std::endl << " " << e.what() << std::endl;
+		throw boost::enable_current_exception(std::runtime_error(ssError.str()));
 	}
 
 	// Version 1
-	if (iequals(version, "1.00"))
+	if (boost::iequals(version, "1.00"))
 	{
 		idt = unknown;							// could be stn or msr
 		count = 100;							// set default 100 stations
 		return;
 	}
 
-	string type;
+	std::string type;
 	// Attempt to get the file's type
 	try {
 		type = trimstr(sBuf.substr(12, 3));
 	}
-	catch (const runtime_error& e) {
-		stringstream ssError;
-		ssError << "- Error: File type has not been provided in the header" << endl <<
-			sBuf << endl << e.what() << endl;
-		throw boost::enable_current_exception(runtime_error(ssError.str()));
+	catch (const std::runtime_error& e) {
+		std::stringstream ssError;
+		ssError << "- Error: File type has not been provided in the header" << std::endl <<
+			sBuf << std::endl << e.what() << std::endl;
+		throw boost::enable_current_exception(std::runtime_error(ssError.str()));
 	}
 
 	// Station file
-	if (iequals(type, "stn"))
+	if (boost::iequals(type, "stn"))
 		idt = stn_data;
 	// Measurement file
-	else if (iequals(type, "msr"))
+	else if (boost::iequals(type, "msr"))
 		idt = msr_data;
 	// Geoid information file
-	else if (iequals(type, "geo"))
+	else if (boost::iequals(type, "geo"))
 		idt = geo_data;
 	// Station renaming
-	else if (iequals(type, "ren"))
+	else if (boost::iequals(type, "ren"))
 		idt = ren_data;
 	else
 	{
 		idt = unknown;
-		stringstream ssError;
-		ssError << "The supplied filetype '" << type << "' is not recognised" << endl;
-		throw boost::enable_current_exception(runtime_error(ssError.str()));
+		std::stringstream ssError;
+		ssError << "The supplied filetype '" << type << "' is not recognised" << std::endl;
+		throw boost::enable_current_exception(std::runtime_error(ssError.str()));
 	}
 
 	if (sBuf.length() < 29)
@@ -327,7 +327,7 @@ void dna_io_dna::read_dna_header(std::ifstream* ptr, string& version, INPUT_DATA
 		return;
 	}
 
-	string file_referenceframe;
+	std::string file_referenceframe;
 	// Attempt to get the default reference frame
 	try {
 		if (sBuf.length() > 42)
@@ -345,7 +345,7 @@ void dna_io_dna::read_dna_header(std::ifstream* ptr, string& version, INPUT_DATA
 	if (!file_referenceframe.empty())
 		m_filespecifiedReferenceFrame_ = true;
 
-	string epoch_version;
+	std::string epoch_version;
 	// Attempt to get the default epoch / geoid version
 	try {
 		if (sBuf.length() > 56)
@@ -375,7 +375,7 @@ void dna_io_dna::read_dna_header(std::ifstream* ptr, string& version, INPUT_DATA
 				// Empty? Get the epsg code from the project datum
 				fileEpsg = referenceframe.GetEpsgCode_s();
 			else
-				fileEpsg = epsgStringFromName<string>(file_referenceframe);
+				fileEpsg = epsgStringFromName<std::string>(file_referenceframe);
 
 			// capture file epoch
 			if (epoch_version.empty())
@@ -386,7 +386,7 @@ void dna_io_dna::read_dna_header(std::ifstream* ptr, string& version, INPUT_DATA
 					fileEpoch = referenceframe.GetEpoch_s();
 				else
 					// take from file's epsg's epoch
-					fileEpoch = referenceepochFromEpsgString<string>(fileEpsg);
+					fileEpoch = referenceepochFromEpsgString<std::string>(fileEpsg);
 			}
 			else
 				fileEpoch = epoch_version;
@@ -399,19 +399,19 @@ void dna_io_dna::read_dna_header(std::ifstream* ptr, string& version, INPUT_DATA
 			break;
 		}
 	}
-	catch (const runtime_error& e) {
-		stringstream ssError;
-		ssError << "The supplied frame is not recognised" << endl <<
-			e.what() << endl;
-		throw boost::enable_current_exception(runtime_error(ssError.str()));
+	catch (const std::runtime_error& e) {
+		std::stringstream ssError;
+		ssError << "The supplied frame is not recognised" << std::endl <<
+			e.what() << std::endl;
+		throw boost::enable_current_exception(std::runtime_error(ssError.str()));
 	}	
 
 	// Attempt to get the data count
 	try {
 		if (sBuf.length() > 66)
-			count = val_uint<UINT32, string>(trimstr(sBuf.substr(57, 10)));
+			count = val_uint<UINT32, std::string>(trimstr(sBuf.substr(57, 10)));
 		else if (sBuf.length() > 57)
-			count = val_uint<UINT32, string>(trimstr(sBuf.substr(57)));
+			count = val_uint<UINT32, std::string>(trimstr(sBuf.substr(57)));
 		else 
 			count = 100;
 	}
@@ -421,9 +421,9 @@ void dna_io_dna::read_dna_header(std::ifstream* ptr, string& version, INPUT_DATA
 }
 
 
-void dna_io_dna::write_stn_file(pvstn_t vbinary_stn, const string& stnfilename, const string& networkname,
+void dna_io_dna::write_stn_file(pvstn_t vbinary_stn, const std::string& stnfilename, const std::string& networkname,
 				const CDnaDatum& datum, const CDnaProjection& projection, bool flagUnused,
-				const string& comment)
+				const std::string& comment)
 {
 	// Print DNA stations from a vector of stn_t
 	std::ofstream dna_stn_file;
@@ -438,7 +438,7 @@ void dna_io_dna::write_stn_file(pvstn_t vbinary_stn, const string& stnfilename, 
 		// Sort on original file order
 		prepare_sort_list(static_cast<UINT32>(vbinary_stn->size()));
 		CompareStnFileOrder<station_t, UINT32> stnorderCompareFunc(vbinary_stn);
-		sort(vStationList_.begin(), vStationList_.end(), stnorderCompareFunc);
+		std::sort(vStationList_.begin(), vStationList_.end(), stnorderCompareFunc);
 
 		dnaStnPtr stnPtr(new CDnaStation(datum.GetName(), datum.GetEpoch_s()));
 
@@ -473,14 +473,14 @@ void dna_io_dna::write_stn_file(pvstn_t vbinary_stn, const string& stnfilename, 
 		
 	}
 	catch (const std::ifstream::failure& f) {
-		throw boost::enable_current_exception(runtime_error(f.what()));
+		throw boost::enable_current_exception(std::runtime_error(f.what()));
 	}
 }
 	
 
-void dna_io_dna::write_stn_file(vdnaStnPtr* vStations, const string& stnfilename, const string& networkname,
+void dna_io_dna::write_stn_file(vdnaStnPtr* vStations, const std::string& stnfilename, const std::string& networkname,
 			const CDnaDatum& datum, const CDnaProjection& projection, bool flagUnused,
-			const string& comment)
+			const std::string& comment)
 {
 	// Print DNA stations from a vector of dnaStnPtr
 	std::ofstream dna_stn_file;
@@ -493,7 +493,7 @@ void dna_io_dna::write_stn_file(vdnaStnPtr* vStations, const string& stnfilename
 		write_stn_header(&dna_stn_file, vStations, networkname, datum, flagUnused, comment);
 
 		// Sort on original file order
-		sort(vStations->begin(), vStations->end(), CompareStnFileOrder_CDnaStn<CDnaStation>());
+		std::sort(vStations->begin(), vStations->end(), CompareStnFileOrder_CDnaStn<CDnaStation>());
 
 		// print stations
 		// Has the user specified --flag-unused-stations, in wich case, do not
@@ -522,12 +522,12 @@ void dna_io_dna::write_stn_file(vdnaStnPtr* vStations, const string& stnfilename
 		
 	}
 	catch (const std::ifstream::failure& f) {
-		throw boost::enable_current_exception(runtime_error(f.what()));
+		throw boost::enable_current_exception(std::runtime_error(f.what()));
 	}	
 }
 
-void dna_io_dna::write_msr_header_data(std::ofstream* ptr, const string& networkname, const string& datum,
-	const string& epoch, const size_t& count, const string& comment)
+void dna_io_dna::write_msr_header_data(std::ofstream* ptr, const std::string& networkname, const std::string& datum,
+	const std::string& epoch, const size_t& count, const std::string& comment)
 {
 	// Write version line
 	dna_header(*ptr, "3.01", "MSR", datum, epoch, count);
@@ -542,24 +542,24 @@ void dna_io_dna::write_msr_header_data(std::ofstream* ptr, const string& network
 }
 
 
-void dna_io_dna::write_msr_header(std::ofstream* ptr, vdnaMsrPtr* vMeasurements, const string& networkname,
-	const CDnaDatum& datum, const string& comment)
+void dna_io_dna::write_msr_header(std::ofstream* ptr, vdnaMsrPtr* vMeasurements, const std::string& networkname,
+	const CDnaDatum& datum, const std::string& comment)
 {
 	// write header
 	write_msr_header_data(ptr, networkname, datum.GetName(), datum.GetEpoch_s(), vMeasurements->size(), comment);
 }
 	
 
-void dna_io_dna::write_msr_header(std::ofstream* ptr, pvmsr_t vbinary_msrn, const string& networkname,
-	const CDnaDatum& datum, const string& comment)
+void dna_io_dna::write_msr_header(std::ofstream* ptr, pvmsr_t vbinary_msrn, const std::string& networkname,
+	const CDnaDatum& datum, const std::string& comment)
 {
 	// write header
 	write_msr_header_data(ptr, networkname, datum.GetName(), datum.GetEpoch_s(), vbinary_msrn->size(), comment);
 }
 
 
-void dna_io_dna::write_msr_file(const vstn_t& vbinary_stn, pvmsr_t vbinary_msr, const string& msrfilename, const string& networkname,
-	const CDnaDatum& datum, const string& comment)
+void dna_io_dna::write_msr_file(const vstn_t& vbinary_stn, pvmsr_t vbinary_msr, const std::string& msrfilename, const std::string& networkname,
+	const CDnaDatum& datum, const std::string& comment)
 {
 	// Print DNA measurements	
 
@@ -597,12 +597,12 @@ void dna_io_dna::write_msr_file(const vstn_t& vbinary_stn, pvmsr_t vbinary_msr, 
 
 	}
 	catch (const std::ifstream::failure& f) {
-		throw boost::enable_current_exception(runtime_error(f.what()));
+		throw boost::enable_current_exception(std::runtime_error(f.what()));
 	}
 }
 	
-void dna_io_dna::write_msr_file(vdnaMsrPtr* vMeasurements, const string& msrfilename, const string& networkname,
-	const CDnaDatum& datum,	const string& comment)
+void dna_io_dna::write_msr_file(vdnaMsrPtr* vMeasurements, const std::string& msrfilename, const std::string& networkname,
+	const CDnaDatum& datum,	const std::string& comment)
 {
 	// Print DNA measurements	
 	
@@ -635,7 +635,7 @@ void dna_io_dna::write_msr_file(vdnaMsrPtr* vMeasurements, const string& msrfile
 		
 	}
 	catch (const std::ifstream::failure& f) {
-		throw boost::enable_current_exception(runtime_error(f.what()));
+		throw boost::enable_current_exception(std::runtime_error(f.what()));
 	}
 	
 

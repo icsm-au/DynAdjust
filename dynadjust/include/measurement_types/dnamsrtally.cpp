@@ -61,9 +61,9 @@ void MsrTally::FillMsrList(vchar& msr_list)
 	msr_list.push_back('Z'); // Vertical angle
 }
 
-string MsrTally::GetMsrName(const char& c)
+std::string MsrTally::GetMsrName(const char& c)
 {
-	return measurement_name<char, string>(c);
+	return measurement_name<char, std::string>(c);
 }
 	
 
@@ -173,169 +173,169 @@ UINT32 MsrTally::TotalCount() {
 	return totalCount=A+B+C+D+E+G+H+I+J+K+L+M+P+Q+R+S+V+X+Y+Z;
 }
 
-void MsrTally::coutSummary(ostream &os, const string& title) 
+void MsrTally::coutSummary(std::ostream &os, const std::string& title) 
 {
 	// Print title
-	os << title << " " << TotalCount() << " measurements:" << endl;
+	os << title << " " << TotalCount() << " measurements:" << std::endl;
 	UINT32 i, w(PRINT_VAR_PAD+NUMERIC_WIDTH);
 	// Print line
 	os << " ";
 	for (i=0; i<w; ++i)
 		os << "-";
-	os << endl;
+	os << std::endl;
 	// Print measurements
-	string msr = "  " + GetMsrName('A') + ":";
-	os << left << setw(PRINT_VAR_PAD) << msr << right << setw(NUMERIC_WIDTH) << A << endl;
+	std::string msr = "  " + GetMsrName('A') + ":";
+	os << std::left << std::setw(PRINT_VAR_PAD) << msr << std::right << std::setw(NUMERIC_WIDTH) << A << std::endl;
 	msr = "  " + GetMsrName('B') + ":";
-	os << left << setw(PRINT_VAR_PAD) << msr << right << setw(NUMERIC_WIDTH) << B << endl;
+	os << std::left << std::setw(PRINT_VAR_PAD) << msr << std::right << std::setw(NUMERIC_WIDTH) << B << std::endl;
 	msr = "  " + GetMsrName('C') + ":";
-	os << left << setw(PRINT_VAR_PAD) << msr << right << setw(NUMERIC_WIDTH) << C << endl;
+	os << std::left << std::setw(PRINT_VAR_PAD) << msr << std::right << std::setw(NUMERIC_WIDTH) << C << std::endl;
 	msr = "  " + GetMsrName('D') + ":";
-	os << left << setw(PRINT_VAR_PAD) << msr << right << setw(NUMERIC_WIDTH) << D << endl;
+	os << std::left << std::setw(PRINT_VAR_PAD) << msr << std::right << std::setw(NUMERIC_WIDTH) << D << std::endl;
 	msr = "  " + GetMsrName('E') + ":";
-	os << left << setw(PRINT_VAR_PAD) << msr << right << setw(NUMERIC_WIDTH) << E << endl;
+	os << std::left << std::setw(PRINT_VAR_PAD) << msr << std::right << std::setw(NUMERIC_WIDTH) << E << std::endl;
 	msr = "  " + GetMsrName('G') + ":";
-	os << left << setw(PRINT_VAR_PAD) << msr << right << setw(NUMERIC_WIDTH) << G << endl;
+	os << std::left << std::setw(PRINT_VAR_PAD) << msr << std::right << std::setw(NUMERIC_WIDTH) << G << std::endl;
 	msr = "  " + GetMsrName('H') + ":";
-	os << left << setw(PRINT_VAR_PAD) << msr << right << setw(NUMERIC_WIDTH) << H << endl;
+	os << std::left << std::setw(PRINT_VAR_PAD) << msr << std::right << std::setw(NUMERIC_WIDTH) << H << std::endl;
 	msr = "  " + GetMsrName('I') + ":";
-	os << left << setw(PRINT_VAR_PAD) << msr << right << setw(NUMERIC_WIDTH) << I << endl;
+	os << std::left << std::setw(PRINT_VAR_PAD) << msr << std::right << std::setw(NUMERIC_WIDTH) << I << std::endl;
 	msr = "  " + GetMsrName('J') + ":";
-	os << left << setw(PRINT_VAR_PAD) << msr << right << setw(NUMERIC_WIDTH) << J << endl;
+	os << std::left << std::setw(PRINT_VAR_PAD) << msr << std::right << std::setw(NUMERIC_WIDTH) << J << std::endl;
 	msr = "  " + GetMsrName('K') + ":";
-	os << left << setw(PRINT_VAR_PAD) << msr << right << setw(NUMERIC_WIDTH) << K << endl;
+	os << std::left << std::setw(PRINT_VAR_PAD) << msr << std::right << std::setw(NUMERIC_WIDTH) << K << std::endl;
 	msr = "  " + GetMsrName('L') + ":";
-	os << left << setw(PRINT_VAR_PAD) << msr << right << setw(NUMERIC_WIDTH) << L << endl;
+	os << std::left << std::setw(PRINT_VAR_PAD) << msr << std::right << std::setw(NUMERIC_WIDTH) << L << std::endl;
 	msr = "  " + GetMsrName('M') + ":";
-	os << left << setw(PRINT_VAR_PAD) << msr << right << setw(NUMERIC_WIDTH) << M << endl;
+	os << std::left << std::setw(PRINT_VAR_PAD) << msr << std::right << std::setw(NUMERIC_WIDTH) << M << std::endl;
 	msr = "  " + GetMsrName('P') + ":";
-	os << left << setw(PRINT_VAR_PAD) << msr << right << setw(NUMERIC_WIDTH) << P << endl;
+	os << std::left << std::setw(PRINT_VAR_PAD) << msr << std::right << std::setw(NUMERIC_WIDTH) << P << std::endl;
 	msr = "  " + GetMsrName('Q') + ":";
-	os << left << setw(PRINT_VAR_PAD) << msr << right << setw(NUMERIC_WIDTH) << Q << endl;
+	os << std::left << std::setw(PRINT_VAR_PAD) << msr << std::right << std::setw(NUMERIC_WIDTH) << Q << std::endl;
 	msr = "  " + GetMsrName('R') + ":";
-	os << left << setw(PRINT_VAR_PAD) << msr << right << setw(NUMERIC_WIDTH) << R << endl;
+	os << std::left << std::setw(PRINT_VAR_PAD) << msr << std::right << std::setw(NUMERIC_WIDTH) << R << std::endl;
 	msr = "  " + GetMsrName('S') + ":";
-	os << left << setw(PRINT_VAR_PAD) << msr << right << setw(NUMERIC_WIDTH) << S << endl;
+	os << std::left << std::setw(PRINT_VAR_PAD) << msr << std::right << std::setw(NUMERIC_WIDTH) << S << std::endl;
 	msr = "  " + GetMsrName('V') + ":";
-	os << left << setw(PRINT_VAR_PAD) << msr << right << setw(NUMERIC_WIDTH) << V << endl;
+	os << std::left << std::setw(PRINT_VAR_PAD) << msr << std::right << std::setw(NUMERIC_WIDTH) << V << std::endl;
 	msr = "  " + GetMsrName('X') + ":";
-	os << left << setw(PRINT_VAR_PAD) << msr << right << setw(NUMERIC_WIDTH) << X << endl;
+	os << std::left << std::setw(PRINT_VAR_PAD) << msr << std::right << std::setw(NUMERIC_WIDTH) << X << std::endl;
 	msr = "  " + GetMsrName('Y') + ":";
-	os << left << setw(PRINT_VAR_PAD) << msr << right << setw(NUMERIC_WIDTH) << Y << endl;
+	os << std::left << std::setw(PRINT_VAR_PAD) << msr << std::right << std::setw(NUMERIC_WIDTH) << Y << std::endl;
 	msr = "  " + GetMsrName('Z') + ":";
-	os << left << setw(PRINT_VAR_PAD) << msr << right << setw(NUMERIC_WIDTH) << Z << endl;
+	os << std::left << std::setw(PRINT_VAR_PAD) << msr << std::right << std::setw(NUMERIC_WIDTH) << Z << std::endl;
 	
 	os << " ";
 	for (i=0; i<w; ++i)
 		os << "-";
-	os << endl;
-	os << left << setw(PRINT_VAR_PAD) << "  Total" << right << setw(NUMERIC_WIDTH) << TotalCount();
+	os << std::endl;
+	os << std::left << std::setw(PRINT_VAR_PAD) << "  Total" << std::right << std::setw(NUMERIC_WIDTH) << TotalCount();
 
 	if (ignored)
-		os << "*" << endl << left << "  * Includes " << ignored << " ignored measurements";
+		os << "*" << std::endl << std::left << "  * Includes " << ignored << " ignored measurements";
 
-	os << endl;
+	os << std::endl;
 }
 	
 
-void MsrTally::coutSummaryMsrToStn(ostream &os, const string& station)
+void MsrTally::coutSummaryMsrToStn(std::ostream &os, const std::string& station)
 {
 	// Print station
-	os << setw(STATION) << left << station;
+	os << std::setw(STATION) << std::left << station;
 
 	// Print measurement count (alphabetical)
 	if (A)
-		os << setw(NUMERIC_WIDTH) << right << A;
+		os << std::setw(NUMERIC_WIDTH) << std::right << A;
 	else
-		os << setw(NUMERIC_WIDTH) << right << " ";
+		os << std::setw(NUMERIC_WIDTH) << std::right << " ";
 	if (B)
-		os << setw(NUMERIC_WIDTH) << right << B;
+		os << std::setw(NUMERIC_WIDTH) << std::right << B;
 	else
-		os << setw(NUMERIC_WIDTH) << right << " ";
+		os << std::setw(NUMERIC_WIDTH) << std::right << " ";
 	if (C)
-		os << setw(NUMERIC_WIDTH) << right << C;
+		os << std::setw(NUMERIC_WIDTH) << std::right << C;
 	else
-		os << setw(NUMERIC_WIDTH) << right << " ";
+		os << std::setw(NUMERIC_WIDTH) << std::right << " ";
 	if (D)
-		os << setw(NUMERIC_WIDTH) << right << D;
+		os << std::setw(NUMERIC_WIDTH) << std::right << D;
 	else
-		os << setw(NUMERIC_WIDTH) << right << " ";
+		os << std::setw(NUMERIC_WIDTH) << std::right << " ";
 	if (E)
-		os << setw(NUMERIC_WIDTH) << right << E;
+		os << std::setw(NUMERIC_WIDTH) << std::right << E;
 	else
-		os << setw(NUMERIC_WIDTH) << right << " ";
+		os << std::setw(NUMERIC_WIDTH) << std::right << " ";
 	if (G)
-		os << setw(NUMERIC_WIDTH) << right << G;
+		os << std::setw(NUMERIC_WIDTH) << std::right << G;
 	else 
-		os << setw(NUMERIC_WIDTH) << right << " ";
+		os << std::setw(NUMERIC_WIDTH) << std::right << " ";
 	if (H)
-		os << setw(NUMERIC_WIDTH) << right << H;
+		os << std::setw(NUMERIC_WIDTH) << std::right << H;
 	else
-		os << setw(NUMERIC_WIDTH) << right << " ";
+		os << std::setw(NUMERIC_WIDTH) << std::right << " ";
 	if (I)
-		os << setw(NUMERIC_WIDTH) << right << I;
+		os << std::setw(NUMERIC_WIDTH) << std::right << I;
 	else
-		os << setw(NUMERIC_WIDTH) << right << " ";
+		os << std::setw(NUMERIC_WIDTH) << std::right << " ";
 	if (J)
-		os << setw(NUMERIC_WIDTH) << right << J;
+		os << std::setw(NUMERIC_WIDTH) << std::right << J;
 	else
-		os << setw(NUMERIC_WIDTH) << right << " ";
+		os << std::setw(NUMERIC_WIDTH) << std::right << " ";
 	if (K)
-		os << setw(NUMERIC_WIDTH) << right << K;
+		os << std::setw(NUMERIC_WIDTH) << std::right << K;
 	else
-		os << setw(NUMERIC_WIDTH) << right << " ";
+		os << std::setw(NUMERIC_WIDTH) << std::right << " ";
 	if (L)
-		os << setw(NUMERIC_WIDTH) << right << L;
+		os << std::setw(NUMERIC_WIDTH) << std::right << L;
 	else
-		os << setw(NUMERIC_WIDTH) << right << " ";
+		os << std::setw(NUMERIC_WIDTH) << std::right << " ";
 	if (M)
-		os << setw(NUMERIC_WIDTH) << right << M;
+		os << std::setw(NUMERIC_WIDTH) << std::right << M;
 	else
-		os << setw(NUMERIC_WIDTH) << right << " ";
+		os << std::setw(NUMERIC_WIDTH) << std::right << " ";
 	if (P)
-		os << setw(NUMERIC_WIDTH) << right << P;
+		os << std::setw(NUMERIC_WIDTH) << std::right << P;
 	else
-		os << setw(NUMERIC_WIDTH) << right << " ";
+		os << std::setw(NUMERIC_WIDTH) << std::right << " ";
 	if (Q)
-		os << setw(NUMERIC_WIDTH) << right << Q;
+		os << std::setw(NUMERIC_WIDTH) << std::right << Q;
 	else
-		os << setw(NUMERIC_WIDTH) << right << " ";
+		os << std::setw(NUMERIC_WIDTH) << std::right << " ";
 	if (R)
-		os << setw(NUMERIC_WIDTH) << right << R;
+		os << std::setw(NUMERIC_WIDTH) << std::right << R;
 	else
-		os << setw(NUMERIC_WIDTH) << right << " ";
+		os << std::setw(NUMERIC_WIDTH) << std::right << " ";
 	if (S)
-		os << setw(NUMERIC_WIDTH) << right << S;
+		os << std::setw(NUMERIC_WIDTH) << std::right << S;
 	else
-		os << setw(NUMERIC_WIDTH) << right << " ";	
+		os << std::setw(NUMERIC_WIDTH) << std::right << " ";	
 	if (V)
-		os << setw(NUMERIC_WIDTH) << right << V;
+		os << std::setw(NUMERIC_WIDTH) << std::right << V;
 	else
-		os << setw(NUMERIC_WIDTH) << right << " ";
+		os << std::setw(NUMERIC_WIDTH) << std::right << " ";
 	if (X)
-		os << setw(NUMERIC_WIDTH) << right << X;
+		os << std::setw(NUMERIC_WIDTH) << std::right << X;
 	else 
-		os << setw(NUMERIC_WIDTH) << right << " ";
+		os << std::setw(NUMERIC_WIDTH) << std::right << " ";
 	if (Y)
-		os << setw(NUMERIC_WIDTH) << right << Y;
+		os << std::setw(NUMERIC_WIDTH) << std::right << Y;
 	else 
-		os << setw(NUMERIC_WIDTH) << right << " ";
+		os << std::setw(NUMERIC_WIDTH) << std::right << " ";
 	if (Z)
-		os << setw(NUMERIC_WIDTH) << right << Z;
+		os << std::setw(NUMERIC_WIDTH) << std::right << Z;
 	else
-		os << setw(NUMERIC_WIDTH) << right << " ";
+		os << std::setw(NUMERIC_WIDTH) << std::right << " ";
 	
 	// Total
-	os << setw(STAT) << totalCount << endl;
+	os << std::setw(STAT) << totalCount << std::endl;
 
 }
 
-void MsrTally::coutSummaryMsrToStn_Compressed(ostream &os, const string& station)
+void MsrTally::coutSummaryMsrToStn_Compressed(std::ostream &os, const std::string& station)
 {
 	// Print station
-	os << setw(STATION) << left << station;
+	os << std::setw(STATION) << std::left << station;
 
-	stringstream msrs;
+	std::stringstream msrs;
 
 	// Print measurement count (alphabetical)
 	if (A)
@@ -379,10 +379,10 @@ void MsrTally::coutSummaryMsrToStn_Compressed(ostream &os, const string& station
 	if (Z)
 		msrs << "Z";
 	
-	os << left << setw(30) << msrs.str();
+	os << std::left << std::setw(30) << msrs.str();
 
 	// Total
-	os << left << totalCount << endl;
+	os << std::left << totalCount << std::endl;
 
 }
 
@@ -435,7 +435,7 @@ UINT32 MsrTally::MeasurementCount(const char& msrType)
 	return 0;
 }
 
-// vector< boost::shared_ptr<CDnaMeasurement> >
+// std::vector< boost::shared_ptr<CDnaMeasurement> >
 void MsrTally::CreateTally(const vdnaMsrPtr& vMeasurements)
 {
 	initialise();
@@ -579,7 +579,7 @@ void MsrTally::IncrementMsrType(const char& msrType, const UINT32& count)
 }
 	
 
-// vector<measurement_t>
+// std::vector<measurement_t>
 void MsrTally::CreateTally(const vmsr_t& vMeasurements, const vUINT32& CML)
 {
 	initialise();
@@ -656,7 +656,7 @@ void MsrTally::CreateTally(const vmsr_t& vMeasurements, const vUINT32& CML)
 	TotalCount();
 }
 
-// vector<measurement_t>
+// std::vector<measurement_t>
 UINT32 MsrTally::CreateTally(const vmsr_t& vMeasurements, bool countValidOnly)
 {
 	initialise();

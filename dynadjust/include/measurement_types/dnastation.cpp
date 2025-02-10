@@ -24,7 +24,6 @@
 #include <include/parameters/dnaepsg.hpp>
 #include <include/exception/dnaexception.hpp>
 
-using namespace std;
 using namespace dynadjust::epsg;
 using namespace dynadjust::datum_parameters;
 using namespace dynadjust::exception;
@@ -105,7 +104,7 @@ CAStationList& CAStationList::operator =(CAStationList&& rhs)
 
 
 //<CDnaStation>//
-CDnaStation::CDnaStation(const string& referenceframe, const string& epoch)
+CDnaStation::CDnaStation(const std::string& referenceframe, const std::string& epoch)
 	: m_strName(""), m_strOriginalName("")
 	, m_dXAxis(0.), m_dYAxis(0.), m_dZAxis(0.), m_dHeight(0.)
 	, m_dStdDevX(0.), m_dStdDevY(0.), m_dStdDevZ(0.), m_dStdDevHt(0.)
@@ -119,7 +118,7 @@ CDnaStation::CDnaStation(const string& referenceframe, const string& epoch)
 	, m_referenceFrame(referenceframe), m_epoch(epoch)
 	, m_constraintType(free_3D)
 {
-	m_epsgCode = epsgStringFromName<string>(referenceframe);
+	m_epsgCode = epsgStringFromName<std::string>(referenceframe);
 }
 
 CDnaStation::~CDnaStation()
@@ -170,10 +169,10 @@ CDnaStation::CDnaStation(const CDnaStation& newStation)
 	m_constraintType = newStation.m_constraintType;
 }
 
-CDnaStation::CDnaStation(const string& strName, const string& strConstraints, 
-	const string& strType, const double& dXAxis, const double& dYAxis, const double& dZAxis,
-	const double& dHeight, const string& strHemisphereZone, const string& strDescription, 
-	const string& strComment)
+CDnaStation::CDnaStation(const std::string& strName, const std::string& strConstraints, 
+	const std::string& strType, const double& dXAxis, const double& dYAxis, const double& dZAxis,
+	const double& dHeight, const std::string& strHemisphereZone, const std::string& strDescription, 
+	const std::string& strComment)
 {
 	m_strName = strName;
 
@@ -264,7 +263,7 @@ CDnaStation& CDnaStation::operator =(const CDnaStation& rhs)
 }
 
 
-void CDnaStation::SetConstraints(const string& sConstraints)
+void CDnaStation::SetConstraints(const std::string& sConstraints)
 {
 	// capture string, trim whitespace
 	m_strConstraints = trimstr(sConstraints);
@@ -286,29 +285,29 @@ void CDnaStation::SetConstraints(const string& sConstraints)
 	m_cHtConstraint = (char)(*m_strConstraints.substr(2, 1).c_str());
 
 	// Free in all 3 dimensions
-	if (iequals(m_strConstraints, "FFF"))
+	if (boost::iequals(m_strConstraints, "FFF"))
 		m_constraintType = free_3D;
 	// Constrained in all 3 dimensions
-	else if (iequals(m_strConstraints, "CCC"))
+	else if (boost::iequals(m_strConstraints, "CCC"))
 		m_constraintType = constrained_3D;
 	// Horizontal or 2D adjustment
-	else if (iequals(m_strConstraints, "FFC"))
+	else if (boost::iequals(m_strConstraints, "FFC"))
 		m_constraintType = free_2D;
 	// Vertical or 1D adjustment
-	else if (iequals(m_strConstraints, "CCF"))
+	else if (boost::iequals(m_strConstraints, "CCF"))
 		m_constraintType = free_1D;
 	else
 		m_constraintType = custom_constraint;
 }
 	
 
-void CDnaStation::SetCoordType(const string& sType) {
+void CDnaStation::SetCoordType(const std::string& sType) {
 	m_strType = trimstr(sType);
 	m_ctTypeSupplied = m_ctType = GetMyCoordTypeC();	
 }
 
 // X, Easting, Latitude
-void CDnaStation::SetXAxis(const string& str)
+void CDnaStation::SetXAxis(const std::string& str)
 {
 	switch (m_ctType)
 	{
@@ -325,7 +324,7 @@ void CDnaStation::SetXAxis(const string& str)
 
 
 // Y, Northing, Longitude
-void CDnaStation::SetYAxis(const string& str)
+void CDnaStation::SetYAxis(const std::string& str)
 {
 	switch (m_ctType)
 	{
@@ -341,14 +340,14 @@ void CDnaStation::SetYAxis(const string& str)
 
 
 // Z
-void CDnaStation::SetZAxis(const string& str)
+void CDnaStation::SetZAxis(const std::string& str)
 {
 	DoubleFromString(m_dZAxis, trimstr(str));
 }
 
 
 // Height
-void CDnaStation::SetHeight(const string& str)
+void CDnaStation::SetHeight(const std::string& str)
 {
 	if (GetMyCoordTypeC() == XYZ_type_i)
 		SetZAxis(str);
@@ -357,7 +356,7 @@ void CDnaStation::SetHeight(const string& str)
 }
 
 // Hemisphere zone
-void CDnaStation::SetHemisphereZone(const string& sHemisphereZone)
+void CDnaStation::SetHemisphereZone(const std::string& sHemisphereZone)
 {
 	m_strHemisphereZone = trimstr(sHemisphereZone);
 	if (m_strHemisphereZone.empty())
@@ -439,36 +438,36 @@ void CDnaStation::ReduceStations_XYZ(const CDnaEllipsoid* m_eEllipsoid, const CD
 	m_strType = XYZ_type;
 }
 
-bool CDnaStation::IsValidConstraint(const string& sConst)
+bool CDnaStation::IsValidConstraint(const std::string& sConst)
 {
-	if (iequals(sConst, "CCC"))
+	if (boost::iequals(sConst, "CCC"))
 		return true;
-	if (iequals(sConst, "CCF"))
+	if (boost::iequals(sConst, "CCF"))
 		return true;
-	if (iequals(sConst, "CFF"))
+	if (boost::iequals(sConst, "CFF"))
 		return true;
-	if (iequals(sConst, "FFF"))
+	if (boost::iequals(sConst, "FFF"))
 		return true;
-	if (iequals(sConst, "FFC"))
+	if (boost::iequals(sConst, "FFC"))
 		return true;
-	if (iequals(sConst, "FCC"))
+	if (boost::iequals(sConst, "FCC"))
 		return true;
-	if (iequals(sConst, "FCF"))
+	if (boost::iequals(sConst, "FCF"))
 		return true;
-	if (iequals(sConst, "CFC"))
+	if (boost::iequals(sConst, "CFC"))
 		return true;
 	return false;
 }
 	
 
-_COORD_TYPE_ CDnaStation::GetCoordTypeC(const string& sType)
+_COORD_TYPE_ CDnaStation::GetCoordTypeC(const std::string& sType)
 {
 	// case insensitive
-	if (iequals(sType, XYZ_type))
+	if (boost::iequals(sType, XYZ_type))
 		return XYZ_type_i;
-	else if (iequals(sType, UTM_type))
+	else if (boost::iequals(sType, UTM_type))
 		return UTM_type_i;				// height is assumed to be orthometric
-	else if (iequals(sType, ENU_type))
+	else if (boost::iequals(sType, ENU_type))
 		return ENU_type_i;
 
 	// case sensitive
@@ -480,9 +479,9 @@ _COORD_TYPE_ CDnaStation::GetCoordTypeC(const string& sType)
 		return LLH_type_i;					// orthometric height (default)
 
 	// If this point is reached, sType is an unknown coordinate type, so throw!
-	stringstream ss;
-	ss << "  '" << sType << "' is not a recognised coordinate type." << endl;
-	throw boost::enable_current_exception(runtime_error(ss.str()));
+	std::stringstream ss;
+	ss << "  '" << sType << "' is not a recognised coordinate type." << std::endl;
+	throw boost::enable_current_exception(std::runtime_error(ss.str()));
 
 	return LLH_type_i;
 }
@@ -494,7 +493,7 @@ _COORD_TYPE_ CDnaStation::GetMyCoordTypeC() const
 }
 
 
-_HEIGHT_SYSTEM_ CDnaStation::GetHeightSystemC(const string& sType) const
+_HEIGHT_SYSTEM_ CDnaStation::GetHeightSystemC(const std::string& sType) const
 {
 	if (sType.compare(ELLIPSOIDAL_type) == 0)
 		return ELLIPSOIDAL_type_i;
@@ -511,7 +510,7 @@ _HEIGHT_SYSTEM_ CDnaStation::GetMyHeightSystemC() const
 
 // SetHeightSystem called by void Height_pimpl::system(const ::std::string& system)
 // where system is an attribute of the element Height (either "ellipsoidal" or "orthometric")
-void CDnaStation::SetHeightSystem(const string& sType)
+void CDnaStation::SetHeightSystem(const std::string& sType)
 {
 	SetHeightSystem(GetHeightSystemC(sType));
 }
@@ -539,13 +538,13 @@ void CDnaStation::SetHeightSystem(const HEIGHT_SYSTEM& type_i)
 	}
 }
 
-//void CDnaStation::coutStationData(ostream &os, ostream &os2, const UINT16& uType) const
+//void CDnaStation::coutStationData(std::ostream &os, ostream &os2, const UINT16& uType) const
 //{
 //	UINT32 precision = 3;
 //	if (m_ctType == LLH_type_i)
 //		precision = 10;
-//	stringstream ss;
-//	string str;
+//	std::stringstream ss;
+//	std::string str;
 //	size_t dot;
 //
 //	switch (uType)
@@ -553,27 +552,27 @@ void CDnaStation::SetHeightSystem(const HEIGHT_SYSTEM& type_i)
 //	case DNA_COUT:
 //	case GEOLAB_COUT:
 //		
-//		os << "+ " << setw(16) << m_strName;
-//		os << setw(4) << m_strConstraints;
-//		os << setw(4) << m_strType;
-//		os << setw(20) << setprecision(precision) << fixed << (m_ctType == LLH_type_i ? RadtoDms(m_dXAxis): m_dXAxis);
-//		os << setw(20) << setprecision(precision) << fixed << (m_ctType == LLH_type_i ? RadtoDmsL(m_dYAxis): m_dYAxis);
-//		//os << setw(16) << vStations[s].GetZAxis();
-//		os << setw(13) << setprecision(4) << fixed << m_dHeight;
-//		//os << setw(10) << vStations[s].GetRedHeight();
-//		os << setw(5) << m_strHemisphereZone;
-//		os << setw(6) << m_lnameOrder;
-//		os << setw(19) << m_strDescription;
-//		//os << setw(10) << vStations[s].GetComment();
-//		os << endl;
+//		os << "+ " << std::setw(16) << m_strName;
+//		os << std::setw(4) << m_strConstraints;
+//		os << std::setw(4) << m_strType;
+//		os << std::setw(20) << std::setprecision(precision) << std::fixed << (m_ctType == LLH_type_i ? RadtoDms(m_dXAxis): m_dXAxis);
+//		os << std::setw(20) << std::setprecision(precision) << std::fixed << (m_ctType == LLH_type_i ? RadtoDmsL(m_dYAxis): m_dYAxis);
+//		//os << std::setw(16) << vStations[s].GetZAxis();
+//		os << std::setw(13) << std::setprecision(4) << std::fixed << m_dHeight;
+//		//os << std::setw(10) << vStations[s].GetRedHeight();
+//		os << std::setw(5) << m_strHemisphereZone;
+//		os << std::setw(6) << m_lnameOrder;
+//		os << std::setw(19) << m_strDescription;
+//		//os << std::setw(10) << vStations[s].GetComment();
+//		os << std::endl;
 //		break;
 //	case NEWGAN_COUT:
-//		os << setw(3) << "4";
-//		os << right << setw(12) << m_strName;
+//		os << std::setw(3) << "4";
+//		os << std::right << std::setw(12) << m_strName;
 //		os << " ";
-//		os << left << setw(23) << m_strDescription.substr(0, 23);
+//		os << std::left << std::setw(23) << m_strDescription.substr(0, 23);
 //		ss.str("");
-//		ss << setprecision(precision) << fixed << (m_ctType == LLH_type_i ? RadtoDms(m_dXAxis): m_dXAxis);
+//		ss << std::setprecision(precision) << std::fixed << (m_ctType == LLH_type_i ? RadtoDms(m_dXAxis): m_dXAxis);
 //		str = trimstr(ss.str());
 //		dot = str.find(".");
 //		str.replace(dot, 1, " ");
@@ -582,13 +581,13 @@ void CDnaStation::SetHeightSystem(const HEIGHT_SYSTEM& type_i)
 //		{
 //			str.replace(0, 1, " ");		// replace negative sign
 //			str = trimstr(str);
-//			os << left << "S" << setw(precision + 4) << right << str;
+//			os << std::left << "S" << std::setw(precision + 4) << std::right << str;
 //		}
 //		else
-//			os << left << "N" << setw(precision + 4) << right << str;
+//			os << std::left << "N" << std::setw(precision + 4) << std::right << str;
 //		
 //		ss.str("");
-//		ss << setprecision(precision) << fixed << (m_ctType == LLH_type_i ? RadtoDmsL(m_dYAxis): m_dYAxis);
+//		ss << std::setprecision(precision) << std::fixed << (m_ctType == LLH_type_i ? RadtoDmsL(m_dYAxis): m_dYAxis);
 //		str = trimstr(ss.str());
 //		dot = str.find(".");
 //		str.replace(dot, 1, " ");
@@ -597,25 +596,25 @@ void CDnaStation::SetHeightSystem(const HEIGHT_SYSTEM& type_i)
 //		{
 //			str.replace(0, 1, " ");		// replace negative sign
 //			str = trimstr(str);
-//			os << left << "W" << setw(precision + 5) << right << str;
+//			os << std::left << "W" << std::setw(precision + 5) << std::right << str;
 //		}
 //		else
-//			os << left << "E" << setw(precision + 5) << right << str;
+//			os << std::left << "E" << std::setw(precision + 5) << std::right << str;
 //		
 //		
-//		os << right << setw(9) << setprecision(3) << fixed << m_dHeight;
-//		os << endl;
+//		os << std::right << std::setw(9) << std::setprecision(3) << std::fixed << m_dHeight;
+//		os << std::endl;
 //		break;
 //	case GMT_OUT:
-//		os << setprecision(precision) << fixed << (m_ctType == LLH_type_i ? DegreesL(m_dYAxis): m_dYAxis);
+//		os << std::setprecision(precision) << std::fixed << (m_ctType == LLH_type_i ? DegreesL(m_dYAxis): m_dYAxis);
 //		os << "  ";
-//		os << setprecision(precision) << fixed << (m_ctType == LLH_type_i ? Degrees(m_dXAxis): m_dXAxis);
-//		os << endl;
+//		os << std::setprecision(precision) << std::fixed << (m_ctType == LLH_type_i ? Degrees(m_dXAxis): m_dXAxis);
+//		os << std::endl;
 //
-//		os2 << setprecision(precision) << fixed << (m_ctType == LLH_type_i ? DegreesL(m_dYAxis): m_dYAxis);
+//		os2 << std::setprecision(precision) << std::fixed << (m_ctType == LLH_type_i ? DegreesL(m_dYAxis): m_dYAxis);
 //		os2 << "  ";
-//		os2 << setprecision(precision) << fixed << (m_ctType == LLH_type_i ? Degrees(m_dXAxis): m_dXAxis);
-//		os2 << "  6 0 0 LM " << m_strName << endl;		
+//		os2 << std::setprecision(precision) << std::fixed << (m_ctType == LLH_type_i ? Degrees(m_dXAxis): m_dXAxis);
+//		os2 << "  6 0 0 LM " << m_strName << std::endl;		
 //		break;
 //	}
 //	
@@ -713,8 +712,8 @@ void CDnaStation::WriteDNAXMLStn(std::ofstream* dna_ofstream,
 {
 	//m_ctTypeSupplied = LLh_type_i;
 
-	string hemisphereZone(m_strHemisphereZone);
-	string coordinateType(LLH_type);
+	std::string hemisphereZone(m_strHemisphereZone);
+	std::string coordinateType(LLH_type);
 
 	switch (m_ctTypeSupplied)
 	{
@@ -768,7 +767,7 @@ void CDnaStation::WriteDNAXMLStn(std::ofstream* dna_ofstream,
 
 	// Convert coordinates to cartesian or utm?
 	// Convert radians values to degrees, minutes and seconds?
-	stringstream ss;
+	std::stringstream ss;
 	double zone;
 	switch (m_ctTypeSupplied)
 	{
@@ -781,7 +780,7 @@ void CDnaStation::WriteDNAXMLStn(std::ofstream* dna_ofstream,
 		GeoToGrid<double>(lat_east_x, lon_north_y, 
 			&lat_east_x_mod, &lon_north_y_mod, &zone, ellipsoid, projection, true);
 		
-		ss << fixed << setprecision(0) << zone;
+		ss << std::fixed << std::setprecision(0) << zone;
 		hemisphereZone = ss.str();	
 		break;
 
@@ -816,9 +815,9 @@ void CDnaStation::WriteDNAXMLStn(std::ofstream* dna_ofstream,
 	}
 }
 
-void CDnaStation::WriteDNAStn(std::ofstream* dna_ofstream, const string& coordinateType, 
+void CDnaStation::WriteDNAStn(std::ofstream* dna_ofstream, const std::string& coordinateType, 
 	const double& lat_east_x, const double& lon_north_y, const double& ht_zone_z,
-	string& hemisphereZone, const dna_stn_fields& dsw)
+	std::string& hemisphereZone, const dna_stn_fields& dsw)
 {	
 	UINT32 LEX_precision(4), LNY_precision(4), HZ_precision(4);	
 	
@@ -832,25 +831,25 @@ void CDnaStation::WriteDNAStn(std::ofstream* dna_ofstream, const string& coordin
 		break;
 	}
 
-	(*dna_ofstream) << left << setw(dsw.stn_name) << m_strName;
-	(*dna_ofstream) << left << setw(dsw.stn_const) << m_strConstraints;
+	(*dna_ofstream) << std::left << std::setw(dsw.stn_name) << m_strName;
+	(*dna_ofstream) << std::left << std::setw(dsw.stn_const) << m_strConstraints;
 	(*dna_ofstream) << " ";
-	(*dna_ofstream) << left << setw(dsw.stn_type) << coordinateType;
-	(*dna_ofstream) << right << setw(dsw.stn_e_phi_x) << setprecision(LEX_precision) << fixed << lat_east_x;
-	(*dna_ofstream) << right << setw(dsw.stn_n_lam_y) << setprecision(LNY_precision) << fixed << lon_north_y;
-	(*dna_ofstream) << right << setw(dsw.stn_ht_z) << setprecision(HZ_precision) << fixed << ht_zone_z;	
+	(*dna_ofstream) << std::left << std::setw(dsw.stn_type) << coordinateType;
+	(*dna_ofstream) << std::right << std::setw(dsw.stn_e_phi_x) << std::setprecision(LEX_precision) << std::fixed << lat_east_x;
+	(*dna_ofstream) << std::right << std::setw(dsw.stn_n_lam_y) << std::setprecision(LNY_precision) << std::fixed << lon_north_y;
+	(*dna_ofstream) << std::right << std::setw(dsw.stn_ht_z) << std::setprecision(HZ_precision) << std::fixed << ht_zone_z;	
 	if (m_ctTypeSupplied == UTM_type_i)
-		(*dna_ofstream) << right << setw(dsw.stn_hemi_zo) << hemisphereZone;
+		(*dna_ofstream) << std::right << std::setw(dsw.stn_hemi_zo) << hemisphereZone;
 	else
-		(*dna_ofstream) << right << setw(dsw.stn_hemi_zo) << " ";
+		(*dna_ofstream) << std::right << std::setw(dsw.stn_hemi_zo) << " ";
 	(*dna_ofstream) << " ";
-	(*dna_ofstream) << left << m_strDescription << endl;
+	(*dna_ofstream) << std::left << m_strDescription << std::endl;
 }
 	
 
-void CDnaStation::WriteDynaMLStn(std::ofstream* xml_ofstream, const string& coordinateType, 
+void CDnaStation::WriteDynaMLStn(std::ofstream* xml_ofstream, const std::string& coordinateType, 
 	const double& lat_east_x, const double& lon_north_y, const double& ht_zone_z,
-	string& hemisphereZone)
+	std::string& hemisphereZone)
 {
 	UINT32 LEX_precision(4), LNY_precision(4), HZ_precision(4);
 	
@@ -865,32 +864,32 @@ void CDnaStation::WriteDynaMLStn(std::ofstream* xml_ofstream, const string& coor
 		break;
 	}
 	
-	(*xml_ofstream) << "  <DnaStation>" << endl;
-	(*xml_ofstream) << "    <Name>" << m_strName << "</Name>" << endl;
-	(*xml_ofstream) << "    <Constraints>" << m_strConstraints << "</Constraints>" << endl;
-	(*xml_ofstream) << "    <Type>" << coordinateType << "</Type>" << endl;
-	(*xml_ofstream) << "    <StationCoord>" << endl;
-	(*xml_ofstream) << "      <Name>" << m_strName << "</Name>" << endl;
-	(*xml_ofstream) << "      <XAxis>" << setprecision(LEX_precision) << fixed << lat_east_x << "</XAxis>" << endl;
-	(*xml_ofstream) << "      <YAxis>" << setprecision(LNY_precision) << fixed << lon_north_y << "</YAxis>" << endl;
-	(*xml_ofstream) << "      <Height>" << setprecision(HZ_precision) << fixed << ht_zone_z << "</Height>" << endl;
+	(*xml_ofstream) << "  <DnaStation>" << std::endl;
+	(*xml_ofstream) << "    <Name>" << m_strName << "</Name>" << std::endl;
+	(*xml_ofstream) << "    <Constraints>" << m_strConstraints << "</Constraints>" << std::endl;
+	(*xml_ofstream) << "    <Type>" << coordinateType << "</Type>" << std::endl;
+	(*xml_ofstream) << "    <StationCoord>" << std::endl;
+	(*xml_ofstream) << "      <Name>" << m_strName << "</Name>" << std::endl;
+	(*xml_ofstream) << "      <XAxis>" << std::setprecision(LEX_precision) << std::fixed << lat_east_x << "</XAxis>" << std::endl;
+	(*xml_ofstream) << "      <YAxis>" << std::setprecision(LNY_precision) << std::fixed << lon_north_y << "</YAxis>" << std::endl;
+	(*xml_ofstream) << "      <Height>" << std::setprecision(HZ_precision) << std::fixed << ht_zone_z << "</Height>" << std::endl;
 	
 	// Convert radians values to degrees, minutes and seconds
 	if (m_ctTypeSupplied == UTM_type_i)
-		(*xml_ofstream) << "      <HemisphereZone>" << hemisphereZone << "</HemisphereZone>" << endl;
+		(*xml_ofstream) << "      <HemisphereZone>" << hemisphereZone << "</HemisphereZone>" << std::endl;
 	
-	(*xml_ofstream) << "    </StationCoord>" << endl;
-	(*xml_ofstream) << "    <Description>"  << m_strDescription << "</Description>" << endl;
-	(*xml_ofstream) << "  </DnaStation>" << endl;
+	(*xml_ofstream) << "    </StationCoord>" << std::endl;
+	(*xml_ofstream) << "    <Description>"  << m_strDescription << "</Description>" << std::endl;
+	(*xml_ofstream) << "  </DnaStation>" << std::endl;
 }
 	
 
 void CDnaStation::WriteGeoidfile(std::ofstream* geo_ofstream)
 {
-	(*geo_ofstream) << setw(44) << left << m_strName <<
-		setw(15) << setprecision(3) << fixed << left << m_fgeoidSep <<
-		setw(10) << setprecision(3) << fixed << right << m_dmeridianDef <<
-		setw(10) << setprecision(3) << fixed << right << m_dverticalDef << endl;
+	(*geo_ofstream) << std::setw(44) << std::left << m_strName <<
+		std::setw(15) << std::setprecision(3) << std::fixed << std::left << m_fgeoidSep <<
+		std::setw(10) << std::setprecision(3) << std::fixed << std::right << m_dmeridianDef <<
+		std::setw(10) << std::setprecision(3) << std::fixed << std::right << m_dverticalDef << std::endl;
 }
 	
 
@@ -945,10 +944,10 @@ void CDnaStation::SetStationRec(const station_t& stationRecord)
 
 	m_epoch = stationRecord.epoch;
 	m_epsgCode = stationRecord.epsgCode;
-	m_referenceFrame = datumFromEpsgCode<string, UINT32>(LongFromString<UINT32>(m_epsgCode));
+	m_referenceFrame = datumFromEpsgCode<std::string, UINT32>(LongFromString<UINT32>(m_epsgCode));
 }
 
-string CDnaStation::CoordinateName(const char& c)
+std::string CDnaStation::CoordinateName(const char& c)
 {
 	switch (c)
 	{

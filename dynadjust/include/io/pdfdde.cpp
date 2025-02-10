@@ -30,6 +30,10 @@ Caveats:
 #include <string.h>
 #include <shellapi.h>
 
+#ifndef VC_EXTRALEAN
+#define VC_EXTRALEAN            // Exclude rarely-used stuff from Windows headers
+#endif
+
 //#include <my_getopt.h>
 
 #define ACROBAT_EXE	"acrobat.exe"

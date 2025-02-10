@@ -29,13 +29,13 @@ extern boost::mutex cout_mutex;
 using namespace dynadjust;
 using namespace dynadjust::epsg;
 
-void PrintSummaryMessage(dna_adjust* netAdjust, const project_settings* p, milliseconds *elapsed_time)
+void PrintSummaryMessage(dna_adjust* netAdjust, const project_settings* p, boost::posix_time::milliseconds *elapsed_time)
 {
 	if (p->g.quiet)
 		return;
 
 	cout_mutex.lock();
-	cout.flush();
+	std::cout.flush();
 	UINT32 currentIteration(0);
 
 	// any messages left
@@ -43,23 +43,23 @@ void PrintSummaryMessage(dna_adjust* netAdjust, const project_settings* p, milli
 	{
 		if (!netAdjust->GetMessageIteration(currentIteration))
 			break;
-		stringstream ss("");
-		ss << "  Iteration " << right << setw(2) << fixed << setprecision(0) << currentIteration;
-		ss << ", max station corr: " << right << setw(12) << netAdjust->GetMaxCorrection(currentIteration) << endl;
-		cout << PROGRESS_BACKSPACE_28 << setw(28) << left << ss.str();
+		std::stringstream ss("");
+		ss << "  Iteration " << std::right << std::setw(2) << std::fixed << std::setprecision(0) << currentIteration;
+		ss << ", max station corr: " << std::right << std::setw(12) << netAdjust->GetMaxCorrection(currentIteration) << std::endl;
+		std::cout << PROGRESS_BACKSPACE_28 << std::setw(28) << std::left << ss.str();
 	}
 
 	if (p->a.report_mode)
 	{
-		cout << "+ Printing results of last adjustment only" << endl;
+		std::cout << "+ Printing results of last adjustment only" << std::endl;
 		cout_mutex.unlock();
 		return;
 	}
 
-	cout << left << "+ Done." << endl;
+	std::cout << std::left << "+ Done." << std::endl;
 
 	UINT32 block_count(netAdjust->blockCount());
-	string block_str(" block");
+	std::string block_str(" block");
 	if (block_count > 1)
 		block_str.append("s");
 	block_str.append(".");
@@ -69,27 +69,27 @@ void PrintSummaryMessage(dna_adjust* netAdjust, const project_settings* p, milli
 	case Phased_Block_1Mode:
 	case PhasedMode:
 		if (netAdjust->GetStatus() == ADJUST_SUCCESS)
-			cout << "+ Successfully adjusted " << block_count << block_str;
+			std::cout << "+ Successfully adjusted " << block_count << block_str;
 		else
-			cout << "+ Attempted to adjust " << netAdjust->blockCount() << block_str;
-		cout << endl;
+			std::cout << "+ Attempted to adjust " << netAdjust->blockCount() << block_str;
+		std::cout << std::endl;
 	}
 	
 	
-	cout << "+ Solution: ";
+	std::cout << "+ Solution: ";
 
 	if (netAdjust->GetStatus() != ADJUST_SUCCESS)
 	{	
-		cout << "failed to converge after ";
+		std::cout << "failed to converge after ";
 		if (p->a.adjust_mode == Phased_Block_1Mode ||
 			p->a.max_iterations == 1)
-			cout << "one iteration." << endl;
+			std::cout << "one iteration." << std::endl;
 		else
-			cout << p->a.max_iterations << " iterations." << endl;
+			std::cout << p->a.max_iterations << " iterations." << std::endl;
 
 		if (netAdjust->GetStatus() > ADJUST_THRESHOLD_EXCEEDED)
 		{
-			cout << endl << "+ Open " << leafStr<string>(p->o._adj_file) << " to view the adjustment details." << endl << endl;
+			std::cout << std::endl << "+ Open " << leafStr<std::string>(p->o._adj_file) << " to view the adjustment details." << std::endl << std::endl;
 			cout_mutex.unlock();
 			return;
 		}		
@@ -99,21 +99,21 @@ void PrintSummaryMessage(dna_adjust* netAdjust, const project_settings* p, milli
 		switch (p->a.adjust_mode)
 		{
 		case Phased_Block_1Mode:
-			cout << "estimates solved for Block 1 only." << endl <<
-				endl << 
-				"- Warning: Depending on the quality of the apriori station estimates, further" << endl <<
-				"  iterations may be needed. --block1-phased mode should only be used once" << endl <<
-				"  rigorous estimates have been produced for the entire network." << endl << endl;
+			std::cout << "estimates solved for Block 1 only." << std::endl <<
+			 	std::endl << 
+				"- Warning: Depending on the quality of the apriori station estimates, further" << std::endl <<
+				"  iterations may be needed. --block1-phased mode should only be used once" << std::endl <<
+				"  rigorous estimates have been produced for the entire network." << std::endl << std::endl;
 			break;
 		default:
-			cout << "converged after " << netAdjust->CurrentIteration() << " iteration"; 
+			std::cout << "converged after " << netAdjust->CurrentIteration() << " iteration"; 
 			if (netAdjust->CurrentIteration() > 1)
-				cout << "s";
-			cout << "." << endl;
+				std::cout << "s";
+			std::cout << "." << std::endl;
 		}
 	}
 
-	cout << formatedElapsedTime<string>(elapsed_time, "+ Network adjustment took ") << endl;
+	std::cout << formatedElapsedTime<std::string>(elapsed_time, "+ Network adjustment took ") << std::endl;
 	cout_mutex.unlock();
 	
 }
@@ -127,16 +127,16 @@ void SerialiseVarianceMatrices(dna_adjust* netAdjust, const project_settings* p)
 
 	if (!p->g.quiet)
 	{
-		cout << "+ Serialising adjustment matrices... ";
-		cout.flush();
+		std::cout << "+ Serialising adjustment matrices... ";
+		std::cout.flush();
 	}
 
 	netAdjust->SerialiseAdjustedVarianceMatrices();
 
 	if (!p->g.quiet)
 	{
-		cout << "done." << endl;
-		cout.flush();
+		std::cout << "done." << std::endl;
+		std::cout.flush();
 	}
 
 	
@@ -162,45 +162,45 @@ void GenerateStatistics(dna_adjust* netAdjust, const project_settings* p)
 	{
 		if (!p->g.quiet)
 		{
-			cout << "+ Generating statistics...";
-			cout.flush();
+			std::cout << "+ Generating statistics...";
+			std::cout.flush();
 		}
 		netAdjust->GenerateStatistics();
 		if (!p->g.quiet)
 		{
-			cout << " done." << endl;
+			std::cout << " done." << std::endl;
 
-			cout << "+ Adjustment results:" << endl << endl;
-			cout << "+" << OUTPUTLINE << endl;
-			cout << setw(PRINT_VAR_PAD) << left << "  Number of unknown parameters" << fixed << setprecision(0) << netAdjust->GetUnknownsCount();
+			std::cout << "+ Adjustment results:" << std::endl << std::endl;
+			std::cout << "+" << OUTPUTLINE << std::endl;
+			std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Number of unknown parameters" << std::fixed << std::setprecision(0) << netAdjust->GetUnknownsCount();
 			if (netAdjust->GetAllFixed())
-				cout << "  (All stations held constrained)";
-			cout << endl;
+				std::cout << "  (All stations held constrained)";
+			std::cout << std::endl;
 
-			cout << setw(PRINT_VAR_PAD) << left << "  Number of measurements" << fixed << setprecision(0) << netAdjust->GetMeasurementCount();
+			std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Number of measurements" << std::fixed << std::setprecision(0) << netAdjust->GetMeasurementCount();
 			
 			if (netAdjust->GetPotentialOutlierCount() > 0)
 			{
-				cout << "  (" << netAdjust->GetPotentialOutlierCount() << " potential outlier";
+				std::cout << "  (" << netAdjust->GetPotentialOutlierCount() << " potential outlier";
 				if (netAdjust->GetPotentialOutlierCount() > 1)
-					cout << "s";
-				cout << ")";
+					std::cout << "s";
+				std::cout << ")";
 			}
-			cout << endl;
-			cout << setw(PRINT_VAR_PAD) << left << "  Degrees of freedom" << fixed << setprecision(0) << netAdjust->GetDegreesOfFreedom() << endl;
-			cout << setw(PRINT_VAR_PAD) << left << "  Chi squared" << fixed << setprecision(2) << netAdjust->GetChiSquared() << endl;
-			cout << setw(PRINT_VAR_PAD) << left << "  Rigorous sigma zero" << fixed << setprecision(3) << netAdjust->GetSigmaZero() << endl;
-			cout << setw(PRINT_VAR_PAD) << left << "  Global (Pelzer) Reliability" << fixed << setw(8) << setprecision(3) << netAdjust->GetGlobalPelzerRel() << "(excludes non redundant measurements)" << endl << endl;
+			std::cout << std::endl;
+			std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Degrees of freedom" << std::fixed << std::setprecision(0) << netAdjust->GetDegreesOfFreedom() << std::endl;
+			std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Chi squared" << std::fixed << std::setprecision(2) << netAdjust->GetChiSquared() << std::endl;
+			std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Rigorous sigma zero" << std::fixed << std::setprecision(3) << netAdjust->GetSigmaZero() << std::endl;
+			std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Global (Pelzer) Reliability" << std::fixed << std::setw(8) << std::setprecision(3) << netAdjust->GetGlobalPelzerRel() << "(excludes non redundant measurements)" << std::endl << std::endl;
 		
-			stringstream ss("");
-			ss << left << "  Chi-Square test (" << setprecision (1) << fixed << p->a.confidence_interval << "%)";
-			cout << setw(PRINT_VAR_PAD) << left << ss.str();
+			std::stringstream ss("");
+			ss << std::left << "  Chi-Square test (" << std::setprecision(1) << std::fixed << p->a.confidence_interval << "%)";
+			std::cout << std::setw(PRINT_VAR_PAD) << std::left << ss.str();
 			ss.str("");
-			ss << fixed << setprecision(3) << 
+			ss << std::fixed << std::setprecision(3) << 
 				netAdjust->GetChiSquaredLowerLimit() << " < " << 
 				netAdjust->GetSigmaZero() << " < " <<
 				netAdjust->GetChiSquaredUpperLimit();
-			cout << setw(CHISQRLIMITS) << left << ss.str();
+			std::cout << std::setw(CHISQRLIMITS) << std::left << ss.str();
 			ss.str("");
 
 			if (netAdjust->GetDegreesOfFreedom() < 1)
@@ -223,12 +223,12 @@ void GenerateStatistics(dna_adjust* netAdjust, const project_settings* p)
 				ss << " ***";
 			}
 
-			cout << setw(PASS_FAIL) << right << ss.str() << endl;	
-			cout << "+" << OUTPUTLINE << endl << endl;
+			std::cout << std::setw(PASS_FAIL) << std::right << ss.str() << std::endl;	
+			std::cout << "+" << OUTPUTLINE << std::endl << std::endl;
 		}
 	}
 	else
-		cout << endl;
+		std::cout << std::endl;
 }
 
 void PrintAdjustedMeasurements(dna_adjust* netAdjust, const project_settings* p)
@@ -237,13 +237,13 @@ void PrintAdjustedMeasurements(dna_adjust* netAdjust, const project_settings* p)
 	{
 		if (!p->g.quiet)
 		{
-			cout << "+ Printing adjusted measurements...";
-			cout.flush();
+			std::cout << "+ Printing adjusted measurements...";
+			std::cout.flush();
 		}
 
 		netAdjust->PrintAdjustedNetworkMeasurements();
 		if (!p->g.quiet)
-			cout << " done." << endl;
+			std::cout << " done." << std::endl;
 	}
 }
 
@@ -254,12 +254,12 @@ void PrintMeasurementstoStations(dna_adjust* netAdjust, const project_settings* 
 	{
 		if (!p->g.quiet)
 		{
-			cout << "+ Printing summary of measurements connected to each station...";
-			cout.flush();
+			std::cout << "+ Printing summary of measurements connected to each station...";
+			std::cout.flush();
 		}
 		netAdjust->PrintMeasurementsToStation();
 		if (!p->g.quiet)
-			cout << " done." << endl;
+			std::cout << " done." << std::endl;
 	}
 }
 
@@ -268,12 +268,12 @@ void PrintAdjustedNetworkStations(dna_adjust* netAdjust, const project_settings*
 	// Print adjusted stations to ADJ file
 	if (!p->g.quiet)
 	{
-		cout << "+ Printing adjusted station coordinates...";
-		cout.flush();
+		std::cout << "+ Printing adjusted station coordinates...";
+		std::cout.flush();
 	}
 	netAdjust->PrintAdjustedNetworkStations();
 	if (!p->g.quiet)
-		cout << " done." << endl;
+		std::cout << " done." << std::endl;
 }
 
 void PrintPositionalUncertainty(dna_adjust* netAdjust, const project_settings* p)
@@ -283,13 +283,13 @@ void PrintPositionalUncertainty(dna_adjust* netAdjust, const project_settings* p
 	{
 		if (!p->g.quiet)
 		{
-			cout << "+ Printing positional uncertainty of adjusted coordinates...";
-			cout.flush();
+			std::cout << "+ Printing positional uncertainty of adjusted coordinates...";
+			std::cout.flush();
 		}
 		// Print correlations as required
 		netAdjust->PrintPositionalUncertainty();
 		if (!p->g.quiet)
-			cout << " done." << endl;
+			std::cout << " done." << std::endl;
 	}
 }
 
@@ -300,12 +300,12 @@ void PrintStationCorrections(dna_adjust* netAdjust, const project_settings* p)
 	{
 		if (!p->g.quiet)
 		{
-			cout << "+ Printing corrections to initial station coordinates...";
-			cout.flush();
+			std::cout << "+ Printing corrections to initial station coordinates...";
+			std::cout.flush();
 		}
 		netAdjust->PrintNetworkStationCorrections();
 		if (!p->g.quiet)
-			cout << " done." << endl;
+			std::cout << " done." << std::endl;
 	}
 }
 
@@ -314,12 +314,12 @@ void UpdateBinaryFiles(dna_adjust* netAdjust, const project_settings* p)
 	// Update bst and bms files with adjustment results
 	if (!p->g.quiet)
 	{
-		cout << "+ Updating binary station and measurement files...";
-		cout.flush();
+		std::cout << "+ Updating binary station and measurement files...";
+		std::cout.flush();
 	}
 	netAdjust->UpdateBinaryFiles();
 	if (!p->g.quiet)
-		cout << " done." << endl;
+		std::cout << " done." << std::endl;
 }
 
 void ExportDynaML(dna_adjust* netAdjust, project_settings* p)
@@ -331,14 +331,14 @@ void ExportDynaML(dna_adjust* netAdjust, project_settings* p)
 		p->o._xml_file = p->o._adj_file + ".stn.xml";
 				
 		if (!p->g.quiet)
-			cout << "+ Serializing estimated coordinates to " << leafStr<string>(p->o._xml_file) << "... ";
+			std::cout << "+ Serializing estimated coordinates to " << leafStr<std::string>(p->o._xml_file) << "... ";
 				
 		// Export Stations file
 		netAdjust->PrintEstimatedStationCoordinatestoDNAXML(p->o._xml_file, dynaml, 
 			(p->i.flag_unused_stn ? true : false));
 
 		if (!p->g.quiet)
-			cout << "Done." << endl;
+			std::cout << "Done." << std::endl;
 	}
 
 	// Output adjustment as XML msr
@@ -348,14 +348,14 @@ void ExportDynaML(dna_adjust* netAdjust, project_settings* p)
 		p->o._xml_file = p->o._adj_file + ".msr.xml";
 				
 		if (!p->g.quiet)
-			cout << "+ Serializing estimated coordinates and uncertainties to " << leafStr<string>(p->o._xml_file) << "... ";
+			std::cout << "+ Serializing estimated coordinates and uncertainties to " << leafStr<std::string>(p->o._xml_file) << "... ";
 				
 		// Export Measurements file (exclude unused stations given 
 		// they will not have been estimated)
 		netAdjust->PrintEstimatedStationCoordinatestoDNAXML_Y(p->o._xml_file, dynaml);
 
 		if (!p->g.quiet)
-			cout << "Done." << endl;
+			std::cout << "Done." << std::endl;
 	}
 }
 
@@ -364,33 +364,33 @@ void ExportDNA(dna_adjust* netAdjust, project_settings* p)
 	// Print adjusted stations and measurements to DNA stn
 	if (p->o._export_dna_stn_file)
 	{
-		string stnfilename(p->o._adj_file + ".stn");
+		std::string stnfilename(p->o._adj_file + ".stn");
 		
 		if (!p->g.quiet)
-			cout << "+ Serializing estimated coordinates to " << leafStr<string>(stnfilename) << "... ";
+			std::cout << "+ Serializing estimated coordinates to " << leafStr<std::string>(stnfilename) << "... ";
 					
 		// Export Station file
 		netAdjust->PrintEstimatedStationCoordinatestoDNAXML(stnfilename, dna, 
 			(p->i.flag_unused_stn ? true : false));
 
 		if (!p->g.quiet)
-			cout << "Done." << endl;
+			std::cout << "Done." << std::endl;
 	}
 
 	// Print adjusted stations and measurements to DNA msr
 	if (p->o._export_dna_msr_file)
 	{
-		string msrfilename(p->o._adj_file + ".msr");
+		std::string msrfilename(p->o._adj_file + ".msr");
 		
 		if (!p->g.quiet)
-			cout << "+ Serializing estimated coordinates and uncertainties to " << leafStr<string>(msrfilename) << "... ";
+			std::cout << "+ Serializing estimated coordinates and uncertainties to " << leafStr<std::string>(msrfilename) << "... ";
 					
 		// Export Measurements file (exclude unused stations given 
 		// they will not have been estimated)
 		netAdjust->PrintEstimatedStationCoordinatestoDNAXML_Y(msrfilename, dna);
 
 		if (!p->g.quiet)
-			cout << "Done." << endl;
+			std::cout << "Done." << std::endl;
 	}
 }
 
@@ -399,31 +399,31 @@ void ExportSinex(dna_adjust* netAdjust, const project_settings* p)
 	// Print adjusted stations and measurements to SINEX
 	if (p->o._export_snx_file)
 	{
-		string sinex_file;
+		std::string sinex_file;
 		// Export to SINEX
 		if (!p->g.quiet)
-			cout << "+ Printing station estimates and uncertainties to SINEX...";
+			std::cout << "+ Printing station estimates and uncertainties to SINEX...";
 		bool success(netAdjust->PrintEstimatedStationCoordinatestoSNX(sinex_file));
 
 		// SomeFunc()
 		if (!p->g.quiet)
-			cout << " done." << endl;
+			std::cout << " done." << std::endl;
 
 		if (!success)
 		{
-			cout << "- Warning: The SINEX export process produced some warnings." << endl;
+			std::cout << "- Warning: The SINEX export process produced some warnings." << std::endl;
 			switch (p->a.adjust_mode)
 			{
 			case PhasedMode:
-				sinex_file = findandreplace(sinex_file, string("-block1"), string("-block*"));
+				sinex_file = findandreplace(sinex_file, std::string("-block1"), std::string("-block*"));
 			}
 
-			cout << "  See " << leafStr<string>(sinex_file) << ".err for details." << endl; 
+			std::cout << "  See " << leafStr<std::string>(sinex_file) << ".err for details." << std::endl; 
 		}
 	}
 }
 
-int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& vm, project_settings& p)
+int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_options::variables_map& vm, project_settings& p)
 {
 	// capture command line arguments
 	for (int cmd_arg(0); cmd_arg<argc; ++cmd_arg)
@@ -434,33 +434,33 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 
 	if (vm.count(PROJECT_FILE))
 	{
-		if (exists(p.g.project_file))
+		if (boost::filesystem::exists(p.g.project_file))
 		{
 			try {
 				CDnaProjectFile projectFile(p.g.project_file, adjustSetting);
 				p = projectFile.GetSettings();
 			}
-			catch (const runtime_error& e) {
-				cout << endl << "- Error: " << e.what() << endl;
+			catch (const std::runtime_error& e) {
+				std::cout << std::endl << "- Error: " << e.what() << std::endl;
 				return EXIT_FAILURE;
 			}
 			
 			return EXIT_SUCCESS;
 		}
 
-		cout << endl << "- Error: project file " << p.g.project_file << " does not exist." << endl << endl;
+		std::cout << std::endl << "- Error: project file " << p.g.project_file << " does not exist." << std::endl << std::endl;
 		return EXIT_FAILURE;
 	}
 
 	if (!vm.count(NETWORK_NAME))
 	{
-		cout << endl << "- Nothing to do - no network name specified. " << endl << endl;  
+		std::cout << std::endl << "- Nothing to do - no network name specified. " << std::endl << std::endl;  
 		return EXIT_FAILURE;
 	}
 
-	p.g.project_file = formPath<string>(p.g.output_folder, p.g.network_name, "dnaproj");
+	p.g.project_file = formPath<std::string>(p.g.output_folder, p.g.network_name, "dnaproj");
 
-	if (exists(p.g.project_file))
+	if (boost::filesystem::exists(p.g.project_file))
 	{
 		// update import settings from dnaproj file
 		try {
@@ -494,24 +494,24 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 
 	// binary station file location (output)
 	if (vm.count(BIN_STN_FILE))
-		p.a.bst_file = formPath<string>(p.g.input_folder, p.a.bst_file);
+		p.a.bst_file = formPath<std::string>(p.g.input_folder, p.a.bst_file);
 	else
-		p.a.bst_file = formPath<string>(p.g.output_folder, p.g.network_name, "bst");
+		p.a.bst_file = formPath<std::string>(p.g.output_folder, p.g.network_name, "bst");
 	
 	// binary station file location (output)
 	if (vm.count(BIN_MSR_FILE))
-		p.a.bms_file = formPath<string>(p.g.input_folder, p.a.bms_file);
+		p.a.bms_file = formPath<std::string>(p.g.input_folder, p.a.bms_file);
 	else
-		p.a.bms_file = formPath<string>(p.g.output_folder, p.g.network_name, "bms");
+		p.a.bms_file = formPath<std::string>(p.g.output_folder, p.g.network_name, "bms");
 
-	if (!exists(p.a.bst_file) || !exists(p.a.bms_file))
+	if (!boost::filesystem::exists(p.a.bst_file) || !boost::filesystem::exists(p.a.bms_file))
 	{
 		cout_mutex.lock();
-		cout << endl << "- Nothing to do: ";  
+		std::cout << std::endl << "- Nothing to do: ";  
 			
 		if (p.g.network_name.empty())
-			cout << endl << "network name has not been specified specified, and " << endl << "               ";  
-		cout << p.a.bst_file << " and " << p.a.bms_file << " do not exist." << endl << endl;  
+			std::cout << std::endl << "network name has not been specified specified, and " << std::endl << "               ";  
+		std::cout << p.a.bst_file << " and " << p.a.bms_file << " do not exist." << std::endl << std::endl;  
 		cout_mutex.unlock();
 		return EXIT_FAILURE;
 	}
@@ -592,22 +592,22 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const variables_map& 
 	if (vm.count(TYPE_B_FILE))
 		p.o._apply_type_b_file = 1;
 
-	p.s.asl_file = formPath<string>(p.g.output_folder, p.g.network_name, "asl");	// associated stations list
-	p.s.aml_file = formPath<string>(p.g.output_folder, p.g.network_name, "aml");	// associated measurements list
-	p.a.map_file = formPath<string>(p.g.output_folder, p.g.network_name, "map");	// station names map
+	p.s.asl_file = formPath<std::string>(p.g.output_folder, p.g.network_name, "asl");	// associated stations list
+	p.s.aml_file = formPath<std::string>(p.g.output_folder, p.g.network_name, "aml");	// associated measurements list
+	p.a.map_file = formPath<std::string>(p.g.output_folder, p.g.network_name, "map");	// station names map
 	
 	// has a seg file name been specified?
 	if (vm.count(SEG_FILE))
-		p.a.seg_file = formPath<string>(p.g.input_folder, p.a.seg_file);
+		p.a.seg_file = formPath<std::string>(p.g.input_folder, p.a.seg_file);
 	else
-		p.a.seg_file = formPath<string>(p.g.output_folder, p.g.network_name, "seg");
+		p.a.seg_file = formPath<std::string>(p.g.output_folder, p.g.network_name, "seg");
 	
 	if (vm.count(OUTPUT_APU_CORRELATIONS))
 		p.o._output_pu_covariances = 1;
 
 	// Set up file names dependent on adjustment mode
 	p.o._xyz_file = p.o._adj_file = 
-		formPath<string>(p.g.output_folder, p.g.network_name);
+		formPath<std::string>(p.g.output_folder, p.g.network_name);
 
 	if (vm.count(OUTPUT_POS_UNCERTAINTY))
 	{
@@ -728,53 +728,53 @@ void LoadBinaryMeta(binary_file_meta_t& bst_meta, binary_file_meta_t& bms_meta,
 	bst.load_bst_file_meta(p.a.bst_file, bst_meta);
 	bms.load_bms_file_meta(p.a.bms_file, bms_meta);
 
-	bst_meta_import = (iequals(bst_meta.modifiedBy, __import_app_name__) ||
-		iequals(bst_meta.modifiedBy, __import_dll_name__));
-	bms_meta_import = (iequals(bms_meta.modifiedBy, __import_app_name__) ||
-		iequals(bms_meta.modifiedBy, __import_dll_name__));
+	bst_meta_import = (boost::iequals(bst_meta.modifiedBy, __import_app_name__) ||
+		boost::iequals(bst_meta.modifiedBy, __import_dll_name__));
+	bms_meta_import = (boost::iequals(bms_meta.modifiedBy, __import_app_name__) ||
+		boost::iequals(bms_meta.modifiedBy, __import_dll_name__));
 }
 
 int main(int argc, char* argv[])
 {
 	// create banner message
-	string cmd_line_banner, stnfilename, msrfilename;	
+	std::string cmd_line_banner, stnfilename, msrfilename;	
 	fileproc_help_header(&cmd_line_banner);
 
 	project_settings p;
 
-	variables_map vm;
-	positional_options_description positional_options;
+	boost::program_options::variables_map vm;
+	boost::program_options::positional_options_description positional_options;
 
-	options_description standard_options("+ " + string(ALL_MODULE_STDOPT), PROGRAM_OPTIONS_LINE_LENGTH);
-	options_description adj_mode_options("+ " + string(ADJUST_MODULE_MODE), PROGRAM_OPTIONS_LINE_LENGTH);
-	options_description phased_adj_options("+ " + string(ADJUST_MODULE_PHASED), PROGRAM_OPTIONS_LINE_LENGTH);
-	options_description adj_config_options("+ " + string(ADJUST_MODULE_CONFIG), PROGRAM_OPTIONS_LINE_LENGTH);
-	options_description staged_adj_options("+ " + string(ADJUST_MODULE_STAGE), PROGRAM_OPTIONS_LINE_LENGTH);
-	options_description output_options("+ " + string(ALL_MODULE_OUTPUT), PROGRAM_OPTIONS_LINE_LENGTH);
-	options_description export_options("+ " + string(ALL_MODULE_EXPORT), PROGRAM_OPTIONS_LINE_LENGTH);
-	options_description generic_options("+ " + string(ALL_MODULE_GENERIC), PROGRAM_OPTIONS_LINE_LENGTH);
+	boost::program_options::options_description standard_options("+ " + std::string(ALL_MODULE_STDOPT), PROGRAM_OPTIONS_LINE_LENGTH);
+	boost::program_options::options_description adj_mode_options("+ " + std::string(ADJUST_MODULE_MODE), PROGRAM_OPTIONS_LINE_LENGTH);
+	boost::program_options::options_description phased_adj_options("+ " + std::string(ADJUST_MODULE_PHASED), PROGRAM_OPTIONS_LINE_LENGTH);
+	boost::program_options::options_description adj_config_options("+ " + std::string(ADJUST_MODULE_CONFIG), PROGRAM_OPTIONS_LINE_LENGTH);
+	boost::program_options::options_description staged_adj_options("+ " + std::string(ADJUST_MODULE_STAGE), PROGRAM_OPTIONS_LINE_LENGTH);
+	boost::program_options::options_description output_options("+ " + std::string(ALL_MODULE_OUTPUT), PROGRAM_OPTIONS_LINE_LENGTH);
+	boost::program_options::options_description export_options("+ " + std::string(ALL_MODULE_EXPORT), PROGRAM_OPTIONS_LINE_LENGTH);
+	boost::program_options::options_description generic_options("+ " + std::string(ALL_MODULE_GENERIC), PROGRAM_OPTIONS_LINE_LENGTH);
 
-	string cmd_line_usage("+ ");
+	std::string cmd_line_usage("+ ");
 	cmd_line_usage.append(__BINARY_NAME__).append(" usage:  ").append(__BINARY_NAME__).append(" ").append(NETWORK_NAME).append(" [options]");
-	options_description allowable_options(cmd_line_usage, PROGRAM_OPTIONS_LINE_LENGTH);
+	boost::program_options::options_description allowable_options(cmd_line_usage, PROGRAM_OPTIONS_LINE_LENGTH);
 	
 	try {
 		standard_options.add_options()
-			(PROJECT_FILE_P, value<string>(&p.g.project_file),
+			(PROJECT_FILE_P, boost::program_options::value<std::string>(&p.g.project_file),
 				"Project file containing all user options. If specified, all other options are ignored.")
-			(NETWORK_NAME_N, value<string>(&p.g.network_name),
+			(NETWORK_NAME_N, boost::program_options::value<std::string>(&p.g.network_name),
 				"Network name. User defined name for all input and output files. Default is \"network#\".")
-			(INPUT_FOLDER_I, value<string>(&p.g.input_folder),
+			(INPUT_FOLDER_I, boost::program_options::value<std::string>(&p.g.input_folder),
 				"Path containing all input files")
-			(OUTPUT_FOLDER_O, value<string>(&p.g.output_folder),		// default is ./,
+			(OUTPUT_FOLDER_O, boost::program_options::value<std::string>(&p.g.output_folder),		// default is ./,
 				"Path for all output files")
-			(BIN_STN_FILE, value<string>(&p.a.bst_file),
+			(BIN_STN_FILE, boost::program_options::value<std::string>(&p.a.bst_file),
 				"Binary station file name. Overrides network name.")
-			(BIN_MSR_FILE, value<string>(&p.a.bms_file),
+			(BIN_MSR_FILE, boost::program_options::value<std::string>(&p.a.bms_file),
 				"Binary measurement file name. Overrides network name.")
-			(SEG_FILE, value<string>(&p.a.seg_file),
+			(SEG_FILE, boost::program_options::value<std::string>(&p.a.seg_file),
 				"Network segmentation file name. Overrides network name.")
-			(COMMENTS, value<string>(&p.a.comments),
+			(COMMENTS, boost::program_options::value<std::string>(&p.a.comments),
 				"Comments about the adjustment. All comments are printed to the adj file.")
 			;
 
@@ -801,28 +801,28 @@ int main(int argc, char* argv[])
 			;
 		
 		adj_config_options.add_options()
-			(CONF_INTERVAL, value<float>(&p.a.confidence_interval),
-				(string("Confidence interval for testing the least squares solution and measurement corrections. Default is ")+
-				StringFromT(p.a.confidence_interval, 1)+string("%.")).c_str())
-			(ITERATION_THRESHOLD, value<float>(&p.a.iteration_threshold),
-				(string("Least squares iteration threshold. Default is ")+
-				StringFromT(p.a.iteration_threshold, 4)+string("m.")).c_str())
-			(MAX_ITERATIONS, value<UINT16>(&p.a.max_iterations),
-				(string("Maximum number of iterations. Default is ")+
-				StringFromT(p.a.max_iterations)+string(".")).c_str())
-			(STN_CONSTRAINTS, value<string>(&p.a.station_constraints),
+			(CONF_INTERVAL, boost::program_options::value<float>(&p.a.confidence_interval),
+				(std::string("Confidence interval for testing the least squares solution and measurement corrections. Default is ")+
+				StringFromT(p.a.confidence_interval, 1)+std::string("%.")).c_str())
+			(ITERATION_THRESHOLD, boost::program_options::value<float>(&p.a.iteration_threshold),
+				(std::string("Least squares iteration threshold. Default is ")+
+				StringFromT(p.a.iteration_threshold, 4)+std::string("m.")).c_str())
+			(MAX_ITERATIONS, boost::program_options::value<UINT16>(&p.a.max_iterations),
+				(std::string("Maximum number of iterations. Default is ")+
+				StringFromT(p.a.max_iterations)+std::string(".")).c_str())
+			(STN_CONSTRAINTS, boost::program_options::value<std::string>(&p.a.station_constraints),
 				"Station constraints. arg is a comma delimited string \"stn1,CCC,stn2,CCF\" defining specific station constraints. These constraints override those contained in the station file.")
-			(FREE_STN_SD, value<double>(&p.a.free_std_dev),
-				(string("A-priori standard deviation for free stations. Default is ")+
-				StringFromT(p.a.free_std_dev)+string("m.")).c_str())
-			(FIXED_STN_SD, value<double>(&p.a.fixed_std_dev),
-				(string("A-priori standard deviation for fixed stations. Default is ")+
-				StringFromT(p.a.fixed_std_dev, 6)+string("m.")).c_str())
+			(FREE_STN_SD, boost::program_options::value<double>(&p.a.free_std_dev),
+				(std::string("A-priori standard deviation for free stations. Default is ")+
+				StringFromT(p.a.free_std_dev)+std::string("m.")).c_str())
+			(FIXED_STN_SD, boost::program_options::value<double>(&p.a.fixed_std_dev),
+				(std::string("A-priori standard deviation for fixed stations. Default is ")+
+				StringFromT(p.a.fixed_std_dev, 6)+std::string("m.")).c_str())
 			(SCALE_NORMAL_UNITY,
 				"Scale adjustment normal matrices to unity prior to computing inverse to minimise loss of precision caused by tight variances placed on constraint stations.")
-			(TYPE_B_GLOBAL, value<string>(&p.a.type_b_global),
+			(TYPE_B_GLOBAL, boost::program_options::value<std::string>(&p.a.type_b_global),
 				"Type b uncertainties to be added to each computed uncertainty. arg is a comma delimited string that provides 1D, 2D or 3D uncertainties in the local reference frame (e.g. \"up\" or \"e,n\" or \"e,n,up\").")
-			(TYPE_B_FILE, value<string>(&p.a.type_b_file),
+			(TYPE_B_FILE, boost::program_options::value<std::string>(&p.a.type_b_file),
 				"Type b uncertainties file name. Full path to a file containing Type b uncertainties to be added to the computed uncertainty for specific sites.")
 			;
 
@@ -836,8 +836,8 @@ int main(int argc, char* argv[])
 		output_options.add_options()
 			(OUTPUT_MSR_TO_STN,
 				"Output summary of measurements connected to each station.")
-			(OUTPUT_MSR_TO_STN_SORTBY, value<UINT16>(&p.o._sort_msr_to_stn),
-				string("Sort order for measurement to stations summary.\n  " +
+			(OUTPUT_MSR_TO_STN_SORTBY, boost::program_options::value<UINT16>(&p.o._sort_msr_to_stn),
+				std::string("Sort order for measurement to stations summary.\n  " +
 					StringFromT(orig_stn_sort_ui) + ": Original station order (default)\n  " +
 					StringFromT(meas_stn_sort_ui) + ": Measurement count").c_str())
 			(OUTPUT_ADJ_STN_ITER,
@@ -850,8 +850,8 @@ int main(int argc, char* argv[])
 				"Output computed measurements on each iteration.")
 			(OUTPUT_ADJ_MSR,
 				"Output final adjusted measurements.")
-			(OUTPUT_ADJ_GNSS_UNITS, value<UINT16>(&p.o._adj_gnss_units),
-				string("Units for adjusted GNSS baseline measurements in the .adj file.\n  " + 
+			(OUTPUT_ADJ_GNSS_UNITS, boost::program_options::value<UINT16>(&p.o._adj_gnss_units),
+				std::string("Units for adjusted GNSS baseline measurements in the .adj file.\n  " + 
 					StringFromT(XYZ_adj_gnss_ui) + ": As measured (default)\n  " + 
 					StringFromT(ENU_adj_gnss_ui) + ": Local [east, north, up]\n  " + 
 					StringFromT(AED_adj_gnss_ui) + ": Polar [azimuth, vert. angle, slope dist]\n  " + 
@@ -862,8 +862,8 @@ int main(int argc, char* argv[])
 				"Output measurement and cluster ids for database mapping.")
 			(OUTPUT_IGNORED_MSRS,
 				"Output adjusted measurement statistics for ignored measurements.")
-			(OUTPUT_ADJ_MSR_SORTBY, value<UINT16>(&p.o._sort_adj_msr),
-				string("Sort order for adjusted measurements.\n  " + 
+			(OUTPUT_ADJ_MSR_SORTBY, boost::program_options::value<UINT16>(&p.o._sort_adj_msr),
+				std::string("Sort order for adjusted measurements.\n  " + 
 					StringFromT(orig_adj_msr_sort_ui) + ": Original input file order (default)\n  " + 
 					StringFromT(type_adj_msr_sort_ui) + ": Measurement type\n  " + 
 					StringFromT(inst_adj_msr_sort_ui) + ": Station 1\n  " + 
@@ -878,34 +878,34 @@ int main(int argc, char* argv[])
 				"For phased adjustments, output adjusted measurements according to each block.")
 			(OUTPUT_ADJ_STN_SORT_ORDER,
 				"Output station information using the station order in the original station file. By default, stations are output in alpha-numeric order.")
-			(OUTPUT_STN_COORD_TYPES, value<string>(&p.o._stn_coord_types),
-				(string("Output station coordinate types. arg is a case-sensitive string of chars \"ENzPLHhXYZ\" defining the specific types to be printed. Default is ").append(
+			(OUTPUT_STN_COORD_TYPES, boost::program_options::value<std::string>(&p.o._stn_coord_types),
+				(std::string("Output station coordinate types. arg is a case-sensitive string of chars \"ENzPLHhXYZ\" defining the specific types to be printed. Default is ").append(
 				p.o._stn_coord_types).append(
 				".")).c_str())
-			(OUTPUT_ANGULAR_TYPE_STN, value<UINT16>(&p.o._angular_type_stn),
-				string("Output type for angular station coordinates.\n"
+			(OUTPUT_ANGULAR_TYPE_STN, boost::program_options::value<UINT16>(&p.o._angular_type_stn),
+				std::string("Output type for angular station coordinates.\n"
 					"  0: Degrees, minutes and seconds (default)\n"
 					"  1: Decimal degrees").c_str())
 			(OUTPUT_STN_CORR,
 				"Output station corrections with adjusted station coordinates.")
-			(OUTPUT_PRECISION_METRES_STN, value<UINT16>(&p.o._precision_metres_stn),
-				(string("Output precision for linear station coordinates in metres. Default is ")+
+			(OUTPUT_PRECISION_METRES_STN, boost::program_options::value<UINT16>(&p.o._precision_metres_stn),
+				(std::string("Output precision for linear station coordinates in metres. Default is ")+
 				StringFromT(p.o._precision_metres_stn, 0)).c_str())
-			(OUTPUT_PRECISION_SECONDS_STN, value<UINT16>(&p.o._precision_seconds_stn),
-				(string("Output precision for angular station coordinates. For values in degrees, minutes and seconds, precision relates to seconds. For values in decimal degrees, precision relates to degrees. Default is ")+
+			(OUTPUT_PRECISION_SECONDS_STN, boost::program_options::value<UINT16>(&p.o._precision_seconds_stn),
+				(std::string("Output precision for angular station coordinates. For values in degrees, minutes and seconds, precision relates to seconds. For values in decimal degrees, precision relates to degrees. Default is ")+
 				StringFromT(p.o._precision_seconds_stn, 0)).c_str())
-			(OUTPUT_PRECISION_METRES_MSR, value<UINT16>(&p.o._precision_metres_msr),
-				(string("Output precision for linear measurements in metres. Default is ")+
+			(OUTPUT_PRECISION_METRES_MSR, boost::program_options::value<UINT16>(&p.o._precision_metres_msr),
+				(std::string("Output precision for linear measurements in metres. Default is ")+
 				StringFromT(p.o._precision_metres_msr, 0)).c_str())
-			(OUTPUT_PRECISION_SECONDS_MSR, value<UINT16>(&p.o._precision_seconds_msr),
-				(string("Output precision for angular measurements. For values in degrees, minutes and seconds, precision relates to seconds. For values in decimal degrees, precision relates to degrees. Default is ")+
+			(OUTPUT_PRECISION_SECONDS_MSR, boost::program_options::value<UINT16>(&p.o._precision_seconds_msr),
+				(std::string("Output precision for angular measurements. For values in degrees, minutes and seconds, precision relates to seconds. For values in decimal degrees, precision relates to degrees. Default is ")+
 				StringFromT(p.o._precision_seconds_msr, 0)).c_str())
-			(OUTPUT_ANGULAR_TYPE_MSR, value<UINT16>(&p.o._angular_type_msr),
-				string("Output type for angular measurements.\n"
+			(OUTPUT_ANGULAR_TYPE_MSR, boost::program_options::value<UINT16>(&p.o._angular_type_msr),
+				std::string("Output type for angular measurements.\n"
 					"  0: Degrees, minutes and seconds (default)\n"
 					"  1: Decimal degrees").c_str())
-			(OUTPUT_DMS_FORMAT_MSR, value<UINT16>(&p.o._dms_format_msr),
-				string("Output format for angular (dms) measurements.\n"
+			(OUTPUT_DMS_FORMAT_MSR, boost::program_options::value<UINT16>(&p.o._dms_format_msr),
+				std::string("Output format for angular (dms) measurements.\n"
 					"  0: Separated fields (default)\n"
 					"  1: Separated fields with symbols\n"
 					"  2: HP notation").c_str())
@@ -916,19 +916,19 @@ int main(int argc, char* argv[])
 				"Output positional uncertainty and variances of adjusted station coordinates to .apu file.")
 			(OUTPUT_APU_CORRELATIONS,
 				"Output covariances between adjusted station coordinates to .apu file.")
-			(OUTPUT_APU_UNITS, value<UINT16>(&p.o._apu_vcv_units),
-				string("Variance matrix units in the .apu file.\n  " +
+			(OUTPUT_APU_UNITS, boost::program_options::value<UINT16>(&p.o._apu_vcv_units),
+				std::string("Variance matrix units in the .apu file.\n  " +
 					StringFromT(XYZ_apu_ui) + ": Cartesian [X,Y,Z] (default)\n  " + 
 					//StringFromT(LLH_apu_ui) + ": Geographic [Lat,Lon,ht]\n  " + 
 					StringFromT(ENU_apu_ui) + ": Local [e,n,up]").c_str())
 			(OUTPUT_STN_COR_FILE,
 				"Output corrections (azimuth, distance, e, n, up) to initial station coordinates to .cor file.")
-			(HZ_CORR_THRESHOLD, value<double>(&p.o._hz_corr_threshold),
-				(string("Minimum horizontal threshold by which to restrict output of station corrections to .cor file. Default is ")+
-				StringFromT(p.o._hz_corr_threshold, 1)+string("m")).c_str())
-			(VT_CORR_THRESHOLD, value<double>(&p.o._vt_corr_threshold),
-				(string("Minimum vertical threshold by which to restrict output of station corrections to .cor file. Default is ")+
-				StringFromT(p.o._vt_corr_threshold, 1)+string("m")).c_str())
+			(HZ_CORR_THRESHOLD, boost::program_options::value<double>(&p.o._hz_corr_threshold),
+				(std::string("Minimum horizontal threshold by which to restrict output of station corrections to .cor file. Default is ")+
+				StringFromT(p.o._hz_corr_threshold, 1)+std::string("m")).c_str())
+			(VT_CORR_THRESHOLD, boost::program_options::value<double>(&p.o._vt_corr_threshold),
+				(std::string("Minimum vertical threshold by which to restrict output of station corrections to .cor file. Default is ")+
+				StringFromT(p.o._vt_corr_threshold, 1)+std::string("m")).c_str())
 			//(UPDATE_ORIGINAL_STN_FILE,
 			//	"Update original station file with adjusted station coordinates.")
 			(EXPORT_XML_STN_FILE,
@@ -946,17 +946,17 @@ int main(int argc, char* argv[])
 		// Declare a group of options that will be 
 		// allowed only on command line		
 		generic_options.add_options()
-			(VERBOSE, value<UINT16>(&p.g.verbose),
-				string("Give detailed information about what ").append(__BINARY_NAME__).append(" is doing.\n"
+			(VERBOSE, boost::program_options::value<UINT16>(&p.g.verbose),
+				std::string("Give detailed information about what ").append(__BINARY_NAME__).append(" is doing.\n"
 					"  0: No information (default)\n"
 					"  1: Helpful information\n"
 					"  2: Extended information\n"
 					"  3: Debug level information").c_str())
 			(QUIET,
-				string("Suppresses all explanation of what ").append(__BINARY_NAME__).append(" is doing unless an error occurs").c_str())
+				std::string("Suppresses all explanation of what ").append(__BINARY_NAME__).append(" is doing unless an error occurs").c_str())
 			(VERSION_V, "Display the current program version")
 			(HELP_H, "Show this help message")
-			(HELP_MODULE_H, value<string>(),
+			(HELP_MODULE_H, boost::program_options::value<std::string>(),
 				"Provide help for a specific help category.")
 			;
 
@@ -965,92 +965,92 @@ int main(int argc, char* argv[])
 		// add "positional options" to handle command line tokens which have no option name
 		positional_options.add(NETWORK_NAME, -1);
 		
-		command_line_parser parser(argc, argv);
+		boost::program_options::command_line_parser parser(argc, argv);
 		store(parser.options(allowable_options).positional(positional_options).run(), vm);
 		notify(vm);
 	} 
 	catch (const std::exception& e) {
 		cout_mutex.lock();
-		cout << "- Error: " << e.what() << endl;
-		cout << cmd_line_banner << allowable_options << endl;
+		std::cout << "- Error: " << e.what() << std::endl;
+		std::cout << cmd_line_banner << allowable_options << std::endl;
 		cout_mutex.unlock();
 		return EXIT_FAILURE;
 	}
 	catch (...) 
 	{
-		cout << "+ Exception of unknown type!\n";
+		std::cout << "+ Exception of unknown type!\n";
 		return EXIT_FAILURE;
 	}
 
 	if (argc < 2)
 	{
-		cout << endl << "- Nothing to do - no options provided. " << endl << endl;  
-		cout << cmd_line_banner << allowable_options << endl;
+		std::cout << std::endl << "- Nothing to do - no options provided. " << std::endl << std::endl;  
+		std::cout << cmd_line_banner << allowable_options << std::endl;
 		return EXIT_FAILURE;
 	}
 
 	if (vm.count(VERSION))
 	{
-		cout << cmd_line_banner << endl;
+		std::cout << cmd_line_banner << std::endl;
 		return EXIT_SUCCESS;
 	}
 
 	if (vm.count(HELP))
 	{
-		cout << cmd_line_banner << allowable_options << endl;
+		std::cout << cmd_line_banner << allowable_options << std::endl;
 		return EXIT_SUCCESS;
 	}
 
 	if (vm.count(HELP_MODULE)) 
 	{
-		cout << cmd_line_banner;
-		string original_text = vm[HELP_MODULE].as<string>();
-		string help_text = str_upper<string>(original_text);
+		std::cout << cmd_line_banner;
+		std::string original_text = vm[HELP_MODULE].as<std::string>();
+		std::string help_text = str_upper<std::string>(original_text);
 		bool module_found(false);
 
-		if (str_upper<string, char>(ALL_MODULE_STDOPT).find(help_text) != string::npos) {
-			cout << standard_options << endl;
+		if (str_upper<std::string, char>(ALL_MODULE_STDOPT).find(help_text) != std::string::npos) {
+			std::cout << standard_options << std::endl;
 			module_found = true;
 		}
 
-		if (str_upper<string, char>(ADJUST_MODULE_MODE).find(help_text) != string::npos) {
-			cout << adj_mode_options << endl;
+		if (str_upper<std::string, char>(ADJUST_MODULE_MODE).find(help_text) != std::string::npos) {
+			std::cout << adj_mode_options << std::endl;
 			module_found = true;
 		} 
 
-		if (str_upper<string, char>(ADJUST_MODULE_PHASED).find(help_text) != string::npos) {
-			cout << phased_adj_options << endl;
+		if (str_upper<std::string, char>(ADJUST_MODULE_PHASED).find(help_text) != std::string::npos) {
+			std::cout << phased_adj_options << std::endl;
 			module_found = true;
 		} 
 
-		if (str_upper<string, char>(ADJUST_MODULE_CONFIG).find(help_text) != string::npos) {
-			cout << adj_config_options << endl;
+		if (str_upper<std::string, char>(ADJUST_MODULE_CONFIG).find(help_text) != std::string::npos) {
+			std::cout << adj_config_options << std::endl;
 			module_found = true;
 		} 
 
-		if (str_upper<string, char>(ADJUST_MODULE_STAGE).find(help_text) != string::npos) {
-			cout << staged_adj_options << endl;
+		if (str_upper<std::string, char>(ADJUST_MODULE_STAGE).find(help_text) != std::string::npos) {
+			std::cout << staged_adj_options << std::endl;
 			module_found = true;
 		} 
 
-		if (str_upper<string, char>(ALL_MODULE_OUTPUT).find(help_text) != string::npos) {
-			cout << output_options << endl;
+		if (str_upper<std::string, char>(ALL_MODULE_OUTPUT).find(help_text) != std::string::npos) {
+			std::cout << output_options << std::endl;
 			module_found = true;
 		} 
 
-		if (str_upper<string, char>(ALL_MODULE_EXPORT).find(help_text) != string::npos) {
-			cout << export_options << endl;
+		if (str_upper<std::string, char>(ALL_MODULE_EXPORT).find(help_text) != std::string::npos) {
+			std::cout << export_options << std::endl;
 			module_found = true;
 		}
 
-		if (str_upper<string, char>(ALL_MODULE_GENERIC).find(help_text) != string::npos) {
-			cout << generic_options << endl;
+		if (str_upper<std::string, char>(ALL_MODULE_GENERIC).find(help_text) != std::string::npos) {
+			std::cout << generic_options << std::endl;
 			module_found = true;
 		}
 
 		if (!module_found) {
-			cout << endl << "- Error: Help module '" <<
-				original_text << "' is not in the list of options." << endl;
+			std::cout << std::endl << "- Error: Help module '" <<
+				original_text << "' is not in the list of options." << std::endl;
 			return EXIT_FAILURE;
 		}
 
@@ -1094,44 +1094,44 @@ int main(int argc, char* argv[])
 	if (!p.g.quiet)
 	{
 		cout_mutex.lock();
-		cout << endl << cmd_line_banner;
+		std::cout << std::endl << cmd_line_banner;
 
-		cout << "+ Options:" << endl;
-		cout << setw(PRINT_VAR_PAD) << left << "  Network name: " <<  p.g.network_name << endl;
-		cout << setw(PRINT_VAR_PAD) << left << "  Input folder: " << p.g.input_folder << endl;
-		cout << setw(PRINT_VAR_PAD) << left << "  Output folder: " << p.g.output_folder << endl;
-		cout << setw(PRINT_VAR_PAD) << left << "  Associated station file: " << p.s.asl_file << endl;
-		cout << setw(PRINT_VAR_PAD) << left << "  Associated measurement file: " << p.s.aml_file << endl;
-		cout << setw(PRINT_VAR_PAD) << left << "  Binary station file: " << p.a.bst_file << endl;
-		cout << setw(PRINT_VAR_PAD) << left << "  Binary measurement file: " << p.a.bms_file << endl;
+		std::cout << "+ Options:" << std::endl;
+		std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Network name: " <<  p.g.network_name << std::endl;
+		std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Input folder: " << p.g.input_folder << std::endl;
+		std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Output folder: " << p.g.output_folder << std::endl;
+		std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Associated station file: " << p.s.asl_file << std::endl;
+		std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Associated measurement file: " << p.s.aml_file << std::endl;
+		std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Binary station file: " << p.a.bst_file << std::endl;
+		std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Binary measurement file: " << p.a.bms_file << std::endl;
 		if (p.a.adjust_mode == PhasedMode || p.a.adjust_mode == Phased_Block_1Mode)
-			cout << setw(PRINT_VAR_PAD) << left << "  Segmentation file: " << p.a.seg_file << endl;
-		cout << setw(PRINT_VAR_PAD) << left << "  Adjustment output file: " << p.o._adj_file << endl;
-		cout << setw(PRINT_VAR_PAD) << left << "  Coordinate output file: " << p.o._xyz_file << endl;
+			std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Segmentation file: " << p.a.seg_file << std::endl;
+		std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Adjustment output file: " << p.o._adj_file << std::endl;
+		std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Coordinate output file: " << p.o._xyz_file << std::endl;
 		if (p.o._init_stn_corrections)
-			cout << setw(PRINT_VAR_PAD) << left << "  Corrections output file: " << p.o._cor_file << endl;
+			std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Corrections output file: " << p.o._cor_file << std::endl;
 		
 		if (p.a.stage)
 		{
-			cout << setw(PRINT_VAR_PAD) << left << "  Stage using hard disk: " << "yes" << endl;
+			std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Stage using hard disk: " << "yes" << std::endl;
 			if (p.a.recreate_stage_files)
-				cout << setw(PRINT_VAR_PAD) << left << "  Recreate mapped stage files: " << "yes" << endl;
+				std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Recreate mapped stage files: " << "yes" << std::endl;
 			if (p.a.purge_stage_files)
-				cout << setw(PRINT_VAR_PAD) << left << "  Purge mapped stage files: " << "yes" << endl;
+				std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Purge mapped stage files: " << "yes" << std::endl;
 		}		
 		
-		cout << setw(PRINT_VAR_PAD) << left << "  Reference frame: " << datum.GetName() << endl;
-		cout << setw(PRINT_VAR_PAD) << left << "  Epoch: " << datum.GetEpoch_s() << endl;
+		std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Reference frame: " << datum.GetName() << std::endl;
+		std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Epoch: " << datum.GetEpoch_s() << std::endl;
 		
-		cout << setw(PRINT_VAR_PAD) << left << "  Geoid model: " << system_complete(p.n.ntv2_geoid_file).string() << endl;
+		std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Geoid model: " << boost::filesystem::system_complete(p.n.ntv2_geoid_file).string() << std::endl;
 
 		if (p.a.scale_normals_to_unity)
-			cout << setw(PRINT_VAR_PAD) << left << "  Scale normals to unity: " << "yes" << endl;
+			std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Scale normals to unity: " << "yes" << std::endl;
 		if (!p.a.station_constraints.empty())
 		{
-			cout << setw(PRINT_VAR_PAD) << left << "  Station constraints: " << p.a.station_constraints << endl;
+			std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Station constraints: " << p.a.station_constraints << std::endl;
 			if (p.i.apply_discontinuities)
-				cout << setw(PRINT_VAR_PAD) << left << "  Apply discontinuities: " << "yes" << endl;
+				std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Apply discontinuities: " << "yes" << std::endl;
 		}
 
 		switch (p.a.adjust_mode)
@@ -1139,12 +1139,12 @@ int main(int argc, char* argv[])
 		case Phased_Block_1Mode:
 		case PhasedMode:
 
-			if (!exists(p.a.seg_file))
+			if (!boost::filesystem::exists(p.a.seg_file))
 			{
-				cout << endl << endl << 
-					"- Error: The required segmentation file does not exist:" << endl;  
-				cout << "         " << p.a.seg_file << endl << endl;
-				cout << "  Run  'segment " << p.g.network_name << "' to create a segmentation file" << endl << endl;
+				std::cout << std::endl << std::endl << 
+					"- Error: The required segmentation file does not exist:" << std::endl;  
+				std::cout << "         " << p.a.seg_file << std::endl << std::endl;
+				std::cout << "  Run  'segment " << p.g.network_name << "' to create a segmentation file" << std::endl << std::endl;
 				cout_mutex.unlock();
 				return EXIT_FAILURE;
 			}
@@ -1155,41 +1155,41 @@ int main(int argc, char* argv[])
 			netAdjust.LoadSegmentationFileParameters(p.a.seg_file);
 		}
 	
-		cout << endl;
-		cout << setw(PRINT_VAR_PAD) << left;
+		std::cout << std::endl;
+		std::cout << std::setw(PRINT_VAR_PAD) << std::left;
 		switch (p.a.adjust_mode)
 		{
 		case SimultaneousMode:
-			cout << "+ Simultaneous adjustment mode" << endl;
+			std::cout << "+ Simultaneous adjustment mode" << std::endl;
 			break;
 		case PhasedMode:
-			cout << "+ Rigorous sequential phased adjustment mode";
+			std::cout << "+ Rigorous sequential phased adjustment mode";
 			if (p.a.stage)
-				cout << " (staged)";
+				std::cout << " (staged)";
 
 			// If the user has not provided a seg file, check the meta of the default file
 			if (!userSuppliedSegFile)
 			{
-				if (last_write_time(p.a.seg_file) < last_write_time(p.a.bst_file) ||
-					last_write_time(p.a.seg_file) < last_write_time(p.a.bms_file))
+				if (boost::filesystem::last_write_time(p.a.seg_file) < boost::filesystem::last_write_time(p.a.bst_file) ||
+					boost::filesystem::last_write_time(p.a.seg_file) < boost::filesystem::last_write_time(p.a.bms_file))
 				{
 					// Has import been run after the segmentation file was created?
-					if ((bst_meta_import && (last_write_time(p.a.seg_file) < last_write_time(p.a.bst_file))) || 
-						(bms_meta_import && (last_write_time(p.a.seg_file) < last_write_time(p.a.bms_file))))
+					if ((bst_meta_import && (boost::filesystem::last_write_time(p.a.seg_file) < boost::filesystem::last_write_time(p.a.bst_file))) || 
+						(bms_meta_import && (boost::filesystem::last_write_time(p.a.seg_file) < boost::filesystem::last_write_time(p.a.bms_file))))
 					{
-						cout << endl << endl << 
-							"- Error: The raw stations and measurements have been imported after" << endl <<
-							"  the segmentation file was created:" << endl;
+						std::cout << std::endl << std::endl << 
+							"- Error: The raw stations and measurements have been imported after" << std::endl <<
+							"  the segmentation file was created:" << std::endl;
 
-						time_t t_bst(last_write_time(p.a.bst_file)), t_bms(last_write_time(p.a.bms_file));
-						time_t t_seg(last_write_time(p.a.seg_file));
+						time_t t_bst(boost::filesystem::last_write_time(p.a.bst_file)), t_bms(boost::filesystem::last_write_time(p.a.bms_file));
+						time_t t_seg(boost::filesystem::last_write_time(p.a.seg_file));
 
-						cout << "   " << leafStr<string>(p.a.bst_file) << "  last modified on  " << ctime(&t_bst);
-						cout << "   " << leafStr<string>(p.a.bms_file) << "  last modified on  " << ctime(&t_bms) << endl;
-						cout << "   " << leafStr<string>(p.a.seg_file) << "  created on  " << ctime(&t_seg) << endl;
-						cout << "  Run 'segment " << p.g.network_name << " [options]' to re-create the segmentation file, or re-run" << endl << 
+						std::cout << "   " << leafStr<std::string>(p.a.bst_file) << "  last modified on  " << ctime(&t_bst);
+						std::cout << "   " << leafStr<std::string>(p.a.bms_file) << "  last modified on  " << ctime(&t_bms) << std::endl;
+						std::cout << "   " << leafStr<std::string>(p.a.seg_file) << "  created on  " << ctime(&t_seg) << std::endl;
+						std::cout << "  Run 'segment " << p.g.network_name << " [options]' to re-create the segmentation file, or re-run" << std::endl << 
 							"  adjust using the --" << SEG_FILE << " option if the file " << 
-							path(p.a.seg_file).stem() << " must\n  be used." << endl << endl;
+							boost::filesystem::path(p.a.seg_file).stem() << " must\n  be used." << std::endl << std::endl;
 						cout_mutex.unlock();
 						return EXIT_FAILURE;
 					}
@@ -1201,13 +1201,13 @@ int main(int argc, char* argv[])
 			if (p.a.stage && !p.a.recreate_stage_files)
 			{
 				// Simply test one file - the estimated stations file
-				string est_mmapfile_name =
+				std::string est_mmapfile_name =
 					p.g.output_folder + FOLDER_SLASH + 
 					p.g.network_name + "-est.mtx";
-				string est_mmapfile_wildcard =
+				std::string est_mmapfile_wildcard =
 					p.g.output_folder + FOLDER_SLASH + 
 					p.g.network_name + "-*.mtx";
-				if (exists(est_mmapfile_name))
+				if (boost::filesystem::exists(est_mmapfile_name))
 				{
 					// Has import been run after the segmentation file was created?
 					
@@ -1222,20 +1222,20 @@ int main(int argc, char* argv[])
 					//     then adjust will attempt to load memory map files using the same parameters from the first import
 					//     and segment.
 					//  Hence, force the user to run adjust with the --create-stage-files option.
-					if ((bst_meta_import && (last_write_time(est_mmapfile_name) < last_write_time(p.a.bst_file))) ||
-						(bms_meta_import && (last_write_time(est_mmapfile_name) < last_write_time(p.a.bms_file))))
+					if ((bst_meta_import && (boost::filesystem::last_write_time(est_mmapfile_name) < boost::filesystem::last_write_time(p.a.bst_file))) ||
+						(bms_meta_import && (boost::filesystem::last_write_time(est_mmapfile_name) < boost::filesystem::last_write_time(p.a.bms_file))))
 					{
-						cout << endl << endl << 
-							"- Error: The raw stations and measurements have been imported after" << endl <<
-							"  a staged adjustment created the memory map files:" << endl;
+						std::cout << std::endl << std::endl << 
+							"- Error: The raw stations and measurements have been imported after" << std::endl <<
+							"  a staged adjustment created the memory map files:" << std::endl;
 						
-						time_t t_bst(last_write_time(p.a.bst_file)), t_bms(last_write_time(p.a.bms_file));
-						time_t t_mtx(last_write_time(est_mmapfile_name));
+						time_t t_bst(boost::filesystem::last_write_time(p.a.bst_file)), t_bms(boost::filesystem::last_write_time(p.a.bms_file));
+						time_t t_mtx(boost::filesystem::last_write_time(est_mmapfile_name));
 
-						cout << "   " << leafStr<string>(p.a.bst_file) << "  last modified on  " << ctime(&t_bst);
-						cout << "   " << leafStr<string>(p.a.bms_file) << "  last modified on  " << ctime(&t_bms) << endl;
-						cout << "   " << leafStr<string>(est_mmapfile_wildcard) << "  created on  " << ctime(&t_mtx) << endl;
-						cout << "  To readjust this network, re-run adjust using the " << RECREATE_STAGE_FILES << " option." << endl;
+						std::cout << "   " << leafStr<std::string>(p.a.bst_file) << "  last modified on  " << ctime(&t_bst);
+						std::cout << "   " << leafStr<std::string>(p.a.bms_file) << "  last modified on  " << ctime(&t_bms) << std::endl;
+						std::cout << "   " << leafStr<std::string>(est_mmapfile_wildcard) << "  created on  " << ctime(&t_mtx) << std::endl;
+						std::cout << "  To readjust this network, re-run adjust using the " << RECREATE_STAGE_FILES << " option." << std::endl;
 						cout_mutex.unlock();
 						return EXIT_FAILURE;
 					}				
@@ -1245,35 +1245,35 @@ int main(int argc, char* argv[])
 #ifdef MULTI_THREAD_ADJUST
 			if (p.a.multi_thread)
 			{
-				cout << endl << "+ Optimised for concurrent processing via multi-threading." << endl << endl;
-				cout << "+ The active CPU supports the execution of " << boost::thread::hardware_concurrency() << " concurrent threads.";
+				std::cout << std::endl << "+ Optimised for concurrent processing via multi-threading." << std::endl << std::endl;
+				std::cout << "+ The active CPU supports the execution of " << boost::thread::hardware_concurrency() << " concurrent threads.";
 			}
 #endif
-			cout << endl;
+			std::cout << std::endl;
 			break;
 		case Phased_Block_1Mode:
-			cout << "+ Sequential phased adjustment resulting in rigorous estimates for Block 1 only" << endl;
+			std::cout << "+ Sequential phased adjustment resulting in rigorous estimates for Block 1 only" << std::endl;
 			
 			break;
 		case SimulationMode:
-			cout << "+ Adjustment simulation only" << endl;
+			std::cout << "+ Adjustment simulation only" << std::endl;
 			break;
 		}
-		cout << endl;
+		std::cout << std::endl;
 		
 		if (p.a.report_mode)
 		{
-			cout << "+ Report last adjustment results" << endl;
+			std::cout << "+ Report last adjustment results" << std::endl;
 
 			// Has report mode been requested as well as an argument to recreate stage files?
 			// If so, return an error message and exit as this will lead to reporting of 
 			// incorrect (zero!) results
 			if (p.a.recreate_stage_files)
 			{
-				cout << endl <<
-					"- Error: The option --" << RECREATE_STAGE_FILES << " cannot be used in Report results mode" << endl <<
-					"  as it will erase the results from the latest adjustment and create new stage" << endl <<
-					"  files initialised to zero." << endl << endl;
+				std::cout << std::endl <<
+					"- Error: The option --" << RECREATE_STAGE_FILES << " cannot be used in Report results mode" << std::endl <<
+					"  as it will erase the results from the latest adjustment and create new stage" << std::endl <<
+					"  files initialised to zero." << std::endl << std::endl;
 				cout_mutex.unlock();
 				return EXIT_FAILURE;
 			}
@@ -1282,7 +1282,7 @@ int main(int argc, char* argv[])
 		cout_mutex.unlock();
 	}
 	
-	milliseconds elapsed_time(milliseconds(0));
+	boost::posix_time::milliseconds elapsed_time(boost::posix_time::milliseconds(0));
 	
 	_ADJUST_STATUS_ adjustStatus;
 	
@@ -1290,7 +1290,7 @@ int main(int argc, char* argv[])
 		running = true;
 		
 		// adjust blocks using group thread
-		thread_group ui_adjust_threads;
+		boost::thread_group ui_adjust_threads;
 		if (!p.g.quiet)
 			ui_adjust_threads.create_thread(dna_adjust_progress_thread(&netAdjust, &p));
 		ui_adjust_threads.create_thread(dna_adjust_thread(&netAdjust, &p, &adjustStatus));
@@ -1356,14 +1356,14 @@ int main(int argc, char* argv[])
 	}
 	catch (const NetAdjustException& e) {
 		cout_mutex.lock();
-		cout << endl << 
-			"- Error: " << e.what() << endl;
+		std::cout << std::endl << 
+			"- Error: " << e.what() << std::endl;
 		cout_mutex.unlock();
 		return EXIT_FAILURE;
 	}
 
 	if (!p.g.quiet)
-		cout << endl << "+ Open " << leafStr<string>(p.o._adj_file) << " to view the adjustment details." << endl << endl;
+		std::cout << std::endl << "+ Open " << leafStr<std::string>(p.o._adj_file) << " to view the adjustment details." << std::endl << std::endl;
 	
 	if (!userSuppliedSegFile)
 		p.a.seg_file = "";
@@ -1376,7 +1376,7 @@ int main(int argc, char* argv[])
 	// Update the import settings.
 	// Print the project file. If it doesn't exist, it will be created.
 	CDnaProjectFile projectFile;
-	if (exists(p.g.project_file))
+	if (boost::filesystem::exists(p.g.project_file))
 		projectFile.LoadProjectFile(p.g.project_file);
 	
 	projectFile.UpdateSettingsAdjust(p);

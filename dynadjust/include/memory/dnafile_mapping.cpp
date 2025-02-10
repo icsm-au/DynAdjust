@@ -71,9 +71,9 @@ block_map_t::block_map_t(const block_map_t &p)
 
 void block_map_t::MapRegion(FileMapPtr file_map_ptr) {
 	region_ptr_.reset(
-		new mapped_region(
+		new boost::interprocess::mapped_region(
 			*file_map_ptr, 
-			read_write, 
+			boost::interprocess::read_write, 
 			region_offset_, 
 			data_size_
 			)
@@ -89,18 +89,18 @@ vmat_file_map::vmat_file_map()
 }
 	
 
-vmat_file_map::vmat_file_map(const string& filePath, bool remove_mapped_file) 
+vmat_file_map::vmat_file_map(const std::string& filePath, bool remove_mapped_file) 
 	: filePath_(filePath), remove_mapped_file_(remove_mapped_file) 
 { 
-		file_map_ptr_.reset(new file_mapping(filePath_.c_str(), read_write));
+		file_map_ptr_.reset(new boost::interprocess::file_mapping(filePath_.c_str(), boost::interprocess::read_write));
 }
 	
 
 vmat_file_map::~vmat_file_map() 
 {
 	if (remove_mapped_file_)
-		if (exists(filePath_))
-			file_mapping::remove(filePath_.c_str());
+		if (boost::filesystem::exists(filePath_))
+			boost::interprocess::file_mapping::remove(filePath_.c_str());
 }
 	
 
@@ -116,7 +116,7 @@ void vmat_file_map::addblockMapRegion(const block_map_t& map)
 }
 
 
-void vmat_file_map::setnewFilePath(const string& filePath, bool remove_mapped_file) 
+void vmat_file_map::setnewFilePath(const std::string& filePath, bool remove_mapped_file) 
 {
 	filePath_ = filePath; 
 	remove_mapped_file_ = remove_mapped_file;
@@ -125,7 +125,7 @@ void vmat_file_map::setnewFilePath(const string& filePath, bool remove_mapped_fi
 
 void vmat_file_map::CreateFileMapping() 
 {
-	file_map_ptr_.reset(new file_mapping(filePath_.c_str(), read_write));
+	file_map_ptr_.reset(new boost::interprocess::file_mapping(filePath_.c_str(), boost::interprocess::read_write));
 }
 	
 

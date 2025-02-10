@@ -23,15 +23,10 @@
 #include <include/io/dnaiopdf.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
-
-using namespace std;
-
-using namespace boost::filesystem;
-
 namespace dynadjust { 
 namespace iostreams {
 
-string dna_io_pdf::form_pdf_action_command_string(const string& pdf_filename, const string& ddename, const string& action)
+std::string dna_io_pdf::form_pdf_action_command_string(const std::string& pdf_filename, const std::string& ddename, const std::string& action)
 {
 
 	if (pdf_filename.empty())
@@ -41,11 +36,11 @@ string dna_io_pdf::form_pdf_action_command_string(const string& pdf_filename, co
 	
 	char viewer_filepath[256];
 	FindExecutable(pdf_filename.c_str(), 0, viewer_filepath);
-	string viewer(path(viewer_filepath).stem());
+	std::string viewer(path(viewer_filepath).stem());
 
-	if (iequals(viewer, "AcroRd32") || iequals(viewer, "Acrobat"))
+	if (boost::iequals(viewer, "AcroRd32") || boost::iequals(viewer, "Acrobat"))
 	{
-		stringstream ss;
+		std::stringstream ss;
 		ss << "\"" << viewer_filepath << "\" " << pdf_filename;
 		return ss.str();
 	}
@@ -59,13 +54,13 @@ string dna_io_pdf::form_pdf_action_command_string(const string& pdf_filename, co
 	return "";
 }
 
-string dna_io_pdf::form_pdf_close_string(const string& pdf_filename, const string& ddename)
+std::string dna_io_pdf::form_pdf_close_string(const std::string& pdf_filename, const std::string& ddename)
 {
 	//return form_pdf_action_command_string(pdf_filename, ddename, "DocClose");
 	return "";	
 }
 
-string dna_io_pdf::form_pdf_open_string(const string& pdf_filename, const string& ddename)
+std::string dna_io_pdf::form_pdf_open_string(const std::string& pdf_filename, const std::string& ddename)
 {
 	// return form_pdf_action_command_string(pdf_filename, ddename, "DocOpen");
 	return "";

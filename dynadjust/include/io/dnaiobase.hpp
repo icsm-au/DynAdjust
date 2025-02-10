@@ -36,8 +36,6 @@
 
 #define __FILE_VERSION__ "1.0"
 
-using namespace std;
-
 namespace dynadjust {
 namespace iostreams {
 
@@ -69,8 +67,8 @@ public:
 
 	dna_io_base& operator=(const dna_io_base& rhs);
 
-	inline string getVersion() const { return m_strVersion; }
-	inline void setVersion(const string& version) { m_strVersion = version; }
+	inline std::string getVersion() const { return m_strVersion; }
+	inline void setVersion(const std::string& version) { m_strVersion = version; }
 
 	void writeFileInfo(std::ofstream& file_stream);
 	void readFileInfo(std::ifstream& file_stream);
@@ -87,9 +85,9 @@ protected:
 	void writeApp(std::ofstream& file_stream);
 	void readApp(std::ifstream& file_stream);
 
-	string	m_strVersion;
-	string	m_strDate;
-	string	m_strApp;
+	std::string	m_strVersion;
+	std::string	m_strDate;
+	std::string	m_strApp;
 };
 
 }	// namespace measurements

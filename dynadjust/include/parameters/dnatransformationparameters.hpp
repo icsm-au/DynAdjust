@@ -36,9 +36,6 @@
 
 #include <include/parameters/dnaepsg.hpp>
 
-using namespace std;
-using namespace boost;
-
 using namespace dynadjust::epsg;
 
 namespace dynadjust {
@@ -63,7 +60,7 @@ typedef enum
 	__plate_motion_model__ = 8
 } transformationType;
 
-template <class S=string, class U>
+template <class S=std::string, class U>
 S TransformationType(const U& u)
 {
 	switch (u)
@@ -148,7 +145,7 @@ typedef struct transformation_parameter_set_ {
 	}
 } transformation_parameter_set;
 
-typedef vector<transformation_parameter_set> vtransparams;
+typedef std::vector<transformation_parameter_set> vtransparams;
 
 
 ////////////////////////////////////////////////////////////////////////////////////

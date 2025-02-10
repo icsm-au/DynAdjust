@@ -35,9 +35,6 @@
 #include <include/config/dnatypes.hpp>
 #include <boost/exception_ptr.hpp>
 
-using namespace std;
-using namespace boost;
-
 typedef enum _PARSE_STATUS_ {
 	PARSE_SUCCESS = 0,
 	PARSE_MSR_MAP = 1,
@@ -77,21 +74,19 @@ typedef enum _REFTRAN_STATUS_ {
 	REFTRAN_WGS84_TRANS_UNSUPPORTED = 5
 } REFTRAN_STATUS;
 
-using namespace std;
-
 namespace dynadjust { namespace exception {
 
 // Exception handler
 class XMLInteropException : public std::exception
 {
 public:
-	explicit XMLInteropException(const string& what, const UINT32& line_no)
+	explicit XMLInteropException(const std::string& what, const UINT32& line_no)
 		: what_(what), line_no_(line_no) {}
 	virtual const char* what() const throw() { return what_.c_str(); }
 	virtual ~XMLInteropException() throw() {}
 
 private:
-	string what_;
+	std::string what_;
 	UINT32 line_no_;
 };
 
@@ -99,13 +94,13 @@ private:
 class NetPlotException : public std::exception
 {
 public:
-	explicit NetPlotException(const string& what, const UINT32& line_no)
+	explicit NetPlotException(const std::string& what, const UINT32& line_no)
 		: what_(what), line_no_(line_no) {}
 	virtual const char* what() const throw() { return what_.c_str(); }
 	virtual ~NetPlotException() throw() {}
 
 private:
-	string what_;
+	std::string what_;
 	UINT32 line_no_;
 };
 
@@ -113,13 +108,13 @@ private:
 class NetSegmentException : public std::exception
 {
 public:
-	explicit NetSegmentException(const string& what, const UINT32& line_no)
+	explicit NetSegmentException(const std::string& what, const UINT32& line_no)
 		: what_(what), line_no_(line_no) {}
 	virtual const char* what() const throw() { return what_.c_str(); }
 	virtual ~NetSegmentException() throw() {}
 
 private:
-	string what_;
+	std::string what_;
 	UINT32 line_no_;
 };
 
@@ -127,13 +122,13 @@ private:
 class NetAdjustException : public std::exception
 {
 public:
-	explicit NetAdjustException(const string& what, const UINT32 block_no)
+	explicit NetAdjustException(const std::string& what, const UINT32 block_no)
 		: what_(what), block_no_(block_no) {}
 	virtual const char* what() const throw() { return what_.c_str(); }
 	virtual ~NetAdjustException() throw() {}
 
 private:
-	string what_;
+	std::string what_;
 	UINT32 block_no_;
 };
 
@@ -141,20 +136,20 @@ private:
 class NetMemoryException : public std::exception
 {
 public:
-	explicit NetMemoryException(const string& what)
+	explicit NetMemoryException(const std::string& what)
 		: what_(what) {}
 	virtual const char* what() const throw() { return what_.c_str(); }
 	virtual ~NetMemoryException() throw() {}
 
 private:
-	string what_;
+	std::string what_;
 };
 
 // Exception handler
 class NetGeoidException : public std::exception
 {
 public:
-	explicit NetGeoidException(const string& what, const int& error_no, const UINT32& line_no = 0)
+	explicit NetGeoidException(const std::string& what, const int& error_no, const UINT32& line_no = 0)
 		: what_(what), error_no_(error_no), line_no_(line_no) {}
 	virtual const char* what() const throw() { return what_.c_str(); }
 	virtual ~NetGeoidException() throw() {}
@@ -163,7 +158,7 @@ public:
    inline UINT32 line_no () const { return line_no_; }
 
 private:
-	string what_;
+	std::string what_;
 	int error_no_;
 	UINT32 line_no_;
 };
@@ -172,7 +167,7 @@ private:
 class RefTranException : public std::exception
 {
 public:
-	explicit RefTranException(const string& what, size_t exception_type = REFTRAN_EXCEPTION_RAISED)
+	explicit RefTranException(const std::string& what, size_t exception_type = REFTRAN_EXCEPTION_RAISED)
 		: what_(what)
 		, exception_type_(exception_type) {}
 	virtual const char* what() const throw() { return what_.c_str(); }
@@ -180,7 +175,7 @@ public:
 	virtual ~RefTranException() throw() {}
 
 private:
-	string what_;
+	std::string what_;
 	size_t exception_type_;
 };
 

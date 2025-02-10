@@ -36,8 +36,6 @@
 #include <cstring>		// memset
 #include <stdio.h>
 
-using namespace std;
-
 #ifdef UINT32
 #undef UINT32
 #endif
@@ -68,61 +66,61 @@ const char UPPER_TRIANGLE = 'U';
 const UINT16 VALID_STATION = 1;
 const UINT16 INVALID_STATION = 0;
 
-typedef vector<char> vchar;
+typedef std::vector<char> vchar;
 typedef vchar::iterator _it_chr;
 
-typedef vector<double> vdouble;
+typedef std::vector<double> vdouble;
 typedef vdouble::iterator _it_dbl;
 
-typedef vector<bool> vbool;
+typedef std::vector<bool> vbool;
 typedef vbool::iterator _it_bool;
-typedef vector<bool>::reference boolRef;
+typedef std::vector<bool>::reference boolRef;
 
-typedef string::iterator _it_str;
-typedef string::const_iterator _it_str_const;
-typedef vector<string> vstring, *pvstring;
+typedef std::string::iterator _it_str;
+typedef std::string::const_iterator _it_str_const;
+typedef std::vector<std::string> vstring, *pvstring;
 typedef vstring::iterator _it_vstr;
 typedef vstring::const_iterator _it_vstr_const;
 
-typedef pair<vchar::iterator, vchar::iterator> _it_pair_vchar;
+typedef std::pair<vchar::iterator, vchar::iterator> _it_pair_vchar;
 
-typedef pair<vstring::iterator, vstring::iterator> _it_pair_vstring;
+typedef std::pair<vstring::iterator, vstring::iterator> _it_pair_vstring;
 
-typedef queue<UINT32> qUINT32;
+typedef std::queue<UINT32> qUINT32;
 
-typedef vector<UINT32> vUINT32, *pvUINT32;
-typedef vector<vUINT32> vvUINT32, *pvvUINT32;
+typedef std::vector<UINT32> vUINT32, *pvUINT32;
+typedef std::vector<vUINT32> vvUINT32, *pvvUINT32;
 
 typedef vUINT32::iterator it_vUINT32;
 typedef vUINT32::const_iterator it_vUINT32_const;
 typedef vvUINT32::iterator it_vvUINT32;
 
-typedef pair<string, string> string_string_pair;
-typedef pair<string, UINT32> string_uint32_pair;
-typedef pair<UINT32, UINT32> uint32_uint32_pair;
-typedef pair<UINT32, string> uint32_string_pair;
+typedef std::pair<std::string, std::string> string_string_pair;
+typedef std::pair<std::string, UINT32> string_uint32_pair;
+typedef std::pair<UINT32, UINT32> uint32_uint32_pair;
+typedef std::pair<UINT32, std::string> uint32_string_pair;
 
-typedef pair<bool, UINT32> bool_uint32_pair;
+typedef std::pair<bool, UINT32> bool_uint32_pair;
 
-typedef pair<string, vstring> string_vstring_pair;
+typedef std::pair<std::string, vstring> string_vstring_pair;
 
-typedef pair<uint32_uint32_pair, UINT32> u32u32_uint32_pair;
-typedef pair<UINT32, uint32_uint32_pair> uint32_u32u32_pair;
+typedef std::pair<uint32_uint32_pair, UINT32> u32u32_uint32_pair;
+typedef std::pair<UINT32, uint32_uint32_pair> uint32_u32u32_pair;
 
-typedef pair<double, double> doubledouble_pair;
-typedef pair<string_string_pair, doubledouble_pair> stringstring_doubledouble_pair;
-typedef vector<stringstring_doubledouble_pair> v_stringstring_doubledouble_pair, *pv_stringstring_doubledouble_pair;
+typedef std::pair<double, double> doubledouble_pair;
+typedef std::pair<string_string_pair, doubledouble_pair> stringstring_doubledouble_pair;
+typedef std::vector<stringstring_doubledouble_pair> v_stringstring_doubledouble_pair, *pv_stringstring_doubledouble_pair;
 typedef v_stringstring_doubledouble_pair::iterator _it_string_doubledouble_pair;
 
-typedef vector<doubledouble_pair> v_doubledouble_pair, *pv_doubledouble_pair;
-typedef pair<string, v_doubledouble_pair> string_v_doubledouble_pair;
-typedef vector<string_v_doubledouble_pair> v_string_v_doubledouble_pair, *pv_string_v_doubledouble_pair;
+typedef std::vector<doubledouble_pair> v_doubledouble_pair, *pv_doubledouble_pair;
+typedef std::pair<std::string, v_doubledouble_pair> string_v_doubledouble_pair;
+typedef std::vector<string_v_doubledouble_pair> v_string_v_doubledouble_pair, *pv_string_v_doubledouble_pair;
 typedef v_string_v_doubledouble_pair::iterator it_v_string_v_doubledouble_pair;
 
-typedef pair<uint32_uint32_pair, double> u32u32_double_pair;
+typedef std::pair<uint32_uint32_pair, double> u32u32_double_pair;
 
-typedef pair<string, bool> stringbool_pair;
-typedef pair<string_uint32_pair, stringbool_pair> stringuint32_stringbool_pair;
+typedef std::pair<std::string, bool> stringbool_pair;
+typedef std::pair<string_uint32_pair, stringbool_pair> stringuint32_stringbool_pair;
 
 /////////////////////////////////////////////////////////////
 // Custom pair type to manage appearances of a station
@@ -152,9 +150,9 @@ struct stn_appearance_t
 };
 
 typedef stn_appearance_t<UINT32, bool> stn_appear;
-typedef vector<stn_appear> v_stn_appear;
+typedef std::vector<stn_appear> v_stn_appear;
 typedef v_stn_appear::iterator it_vstn_appear;
-typedef vector<v_stn_appear> vv_stn_appear;
+typedef std::vector<v_stn_appear> vv_stn_appear;
 typedef vv_stn_appear::iterator it_vvstn_appear;
 /////////////////////////////////////////////////////////////
 
@@ -194,7 +192,7 @@ struct stn_block_map_t
 };
 
 typedef stn_block_map_t<UINT32> stn_block_map;
-typedef vector<stn_block_map> v_stn_block_map;
+typedef std::vector<stn_block_map> v_stn_block_map;
 typedef v_stn_block_map::iterator it_vstn_block_map;
 /////////////////////////////////////////////////////////////
 
@@ -217,7 +215,7 @@ struct freestnpair_t
 };
 
 typedef freestnpair_t<UINT32, bool> freestn_pair;
-typedef vector<freestn_pair> v_freestn_pair;
+typedef std::vector<freestn_pair> v_freestn_pair;
 typedef v_freestn_pair::iterator it_freestn_pair;
 /////////////////////////////////////////////////////////////
 
@@ -239,7 +237,7 @@ struct amlpair_t
 };
 
 typedef amlpair_t<UINT32, bool> aml_pair;
-typedef vector<aml_pair> v_aml_pair;
+typedef std::vector<aml_pair> v_aml_pair;
 typedef v_aml_pair::iterator it_aml_pair;
 /////////////////////////////////////////////////////////////
 
@@ -265,23 +263,23 @@ struct sequential_adj_t
 };
 
 typedef sequential_adj_t<UINT32, bool> sequential_adj;
-typedef vector<sequential_adj> v_sequential_adj;
+typedef std::vector<sequential_adj> v_sequential_adj;
 typedef v_sequential_adj::iterator it_sequential_adj;
 /////////////////////////////////////////////////////////////
 
-typedef map<UINT32, UINT32> uint32_uint32_map;
+typedef std::map<UINT32, UINT32> uint32_uint32_map;
 typedef uint32_uint32_map::iterator it_uint32_uint32_map;
-typedef vector<uint32_uint32_map> v_uint32_uint32_map;
+typedef std::vector<uint32_uint32_map> v_uint32_uint32_map;
 typedef v_uint32_uint32_map::iterator it_v_uint32_uint32_map;
 
-typedef vector<string_string_pair> v_string_string_pair, *pv_string_string_pair;
-typedef vector<string_vstring_pair> v_string_vstring_pair, *pv_string_vstring_pair;
+typedef std::vector<string_string_pair> v_string_string_pair, *pv_string_string_pair;
+typedef std::vector<string_vstring_pair> v_string_vstring_pair, *pv_string_vstring_pair;
 
-typedef vector<string_uint32_pair> v_string_uint32_pair, *pv_string_uint32_pair;
-typedef vector<uint32_uint32_pair> v_uint32_uint32_pair, *pv_uint32_uint32_pair;
-typedef vector<uint32_string_pair> v_uint32_string_pair, *pv_uint32_string_pair;
-typedef vector<u32u32_uint32_pair> v_u32u32_uint32_pair;
-typedef vector<uint32_u32u32_pair> v_uint32_u32u32_pair;
+typedef std::vector<string_uint32_pair> v_string_uint32_pair, *pv_string_uint32_pair;
+typedef std::vector<uint32_uint32_pair> v_uint32_uint32_pair, *pv_uint32_uint32_pair;
+typedef std::vector<uint32_string_pair> v_uint32_string_pair, *pv_uint32_string_pair;
+typedef std::vector<u32u32_uint32_pair> v_u32u32_uint32_pair;
+typedef std::vector<uint32_u32u32_pair> v_uint32_u32u32_pair;
 
 typedef v_string_vstring_pair::iterator _it_string_vstring_pair;
 typedef v_string_uint32_pair::iterator _it_string_uint32_pair;
@@ -290,20 +288,20 @@ typedef v_u32u32_uint32_pair::iterator _it_u32u32_uint32_pair;
 typedef v_uint32_u32u32_pair::iterator _it_uint32_u32u32_pair;
 typedef v_uint32_uint32_pair::iterator _it_uint32_uint32_pair;
 
-typedef pair<_it_u32u32_uint32_pair, _it_u32u32_uint32_pair> _it_pair_u32u32_uint32;
+typedef std::pair<_it_u32u32_uint32_pair, _it_u32u32_uint32_pair> _it_pair_u32u32_uint32;
 
-typedef vector<v_string_string_pair> vv_string_string_pair;
+typedef std::vector<v_string_string_pair> vv_string_string_pair;
 
-typedef pair<it_vUINT32_const, it_vUINT32_const> _it_pair_vUINT32_const;
-typedef pair<it_vUINT32, it_vUINT32> it_pair_vUINT32;
+typedef std::pair<it_vUINT32_const, it_vUINT32_const> _it_pair_vUINT32_const;
+typedef std::pair<it_vUINT32, it_vUINT32> it_pair_vUINT32;
 
 
 typedef v_string_string_pair::iterator it_string_pair;
-typedef pair<v_string_string_pair::iterator, v_string_string_pair::iterator> it_pair_string;
-typedef pair<_it_string_uint32_pair, _it_string_uint32_pair> it_pair_string_vUINT32;
-typedef pair<_it_uint32_string_pair, _it_uint32_string_pair> it_pair_uint32_string;
+typedef std::pair<v_string_string_pair::iterator, v_string_string_pair::iterator> it_pair_string;
+typedef std::pair<_it_string_uint32_pair, _it_string_uint32_pair> it_pair_string_vUINT32;
+typedef std::pair<_it_uint32_string_pair, _it_uint32_string_pair> it_pair_uint32_string;
 
-typedef pair<uint32_uint32_map::iterator, uint32_uint32_map::iterator> it_pair_map_vUINT32_vUINT32;
+typedef std::pair<uint32_uint32_map::iterator, uint32_uint32_map::iterator> it_pair_map_vUINT32_vUINT32;
 
 typedef enum _SIGMA_ZERO_STAT_PASS_
 {
@@ -468,11 +466,11 @@ typedef struct {
 } statSummary_t;
 	
 typedef struct stationCorrections {
-	stationCorrections(const string& stn="")
+	stationCorrections(const std::string& stn="")
 		: _station(stn), _azimuth(0.), _vAngle(0.), _sDistance(0.)
 		, _hDistance(0.), _east(0.), _north(0.), _up(0.) {}
 
-	string	_station;
+	std::string	_station;
 	double	_azimuth;
 	double	_vAngle;
 	double	_sDistance;
@@ -482,12 +480,12 @@ typedef struct stationCorrections {
 	double	_up;
 } stationCorrections_t;
 
-typedef vector<stationCorrections_t> vstnCor_t, *pvstnCor_t;
-typedef vector<vstnCor_t> vvstnCor_t;
+typedef std::vector<stationCorrections_t> vstnCor_t, *pvstnCor_t;
+typedef std::vector<vstnCor_t> vvstnCor_t;
 typedef vstnCor_t::iterator it_vstnCor_t;
 
 typedef struct {
-	string	_station;
+	std::string	_station;
 	double	_latitude;
 	double	_longitude;
 	double	_hzPosU;
@@ -503,12 +501,12 @@ typedef struct {
 	double	_zz;
 } stationPosUncertainty_t;
 
-typedef vector<stationPosUncertainty_t> vstnPU_t, *pvstnPU_t;
-typedef vector<vstnPU_t> vvstnPU_t;
+typedef std::vector<stationPosUncertainty_t> vstnPU_t, *pvstnPU_t;
+typedef std::vector<vstnPU_t> vvstnPU_t;
 typedef vstnPU_t::iterator it_vstnPU_t;
 
 typedef struct {
-	string	_networkName;
+	std::string	_networkName;
 	vstring	_initialStns;
 	UINT32	_minInnerStns;
 	UINT32	_maxTotalStns;
@@ -592,13 +590,13 @@ typedef struct stn_t {
 } station_t;
 
 
-typedef vector<station_t> vstn_t, *pvstn_t;
+typedef std::vector<station_t> vstn_t, *pvstn_t;
 typedef vstn_t::iterator it_vstn_t;
 typedef vstn_t::const_iterator it_vstn_t_const;
-typedef vector<statSummary_t> vsummary_t, *pvsummary_t;
+typedef std::vector<statSummary_t> vsummary_t, *pvsummary_t;
 
-typedef pair <station_t, string> stn_t_string_pair;
-typedef vector<stn_t_string_pair> v_stn_string;
+typedef std::pair <station_t, std::string> stn_t_string_pair;
+typedef std::vector<stn_t_string_pair> v_stn_string;
 typedef v_stn_string::iterator it_stn_string;
 
 const UINT32 MOD_NAME_WIDTH(20);
@@ -615,7 +613,7 @@ typedef struct input_file_meta {
 typedef struct binary_file_meta {
 	binary_file_meta () 
 		: binCount(0), reduced(false), reftran(false), geoid(false), inputFileCount(0), inputFileMeta(NULL) {}
-	binary_file_meta (const string& app_name) 
+	binary_file_meta (const std::string& app_name) 
 		: binCount(0), reduced(false), reftran(false), geoid(false), inputFileCount(0), inputFileMeta(NULL) {
 			sprintf(modifiedBy, "%s", app_name.c_str());
 	}
@@ -634,15 +632,15 @@ typedef struct binary_file_meta {
 	input_file_meta_t*	inputFileMeta;					// Source file metadata
 } binary_file_meta_t;
 
-typedef vector<input_file_meta_t> vifm_t;
+typedef std::vector<input_file_meta_t> vifm_t;
 typedef vifm_t::iterator it_vifm_t;
-typedef vector<binary_file_meta_t> vbfm_t;
+typedef std::vector<binary_file_meta_t> vbfm_t;
 typedef vbfm_t::iterator it_vbfm_t;
 
 template <typename S>
 S formatStnMsrFileSourceString(const vifm_t* vfile_meta, const size_t& file_type)
 {
-	string source_files("");
+	std::string source_files("");
 	bool this_file;
 
 	for (UINT32 i(0); i<vfile_meta->size(); ++i)
@@ -678,7 +676,7 @@ S formatStnMsrFileSourceString(const vifm_t* vfile_meta, const size_t& file_type
 	return source_files;
 }
 
-template <typename S=string>
+template <typename S = std::string>
 S FormatFileType(const size_t& file_type)
 {
 	switch (file_type)

@@ -36,17 +36,11 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/filesystem.hpp>
 
-using namespace std;
-using namespace boost;
-using namespace boost::filesystem;
-using namespace boost::interprocess;
-
-
 namespace dynadjust { 
 namespace memory {
 
-typedef boost::shared_ptr<mapped_region> MapRegPtr;
-typedef boost::shared_ptr<file_mapping> FileMapPtr;
+typedef boost::shared_ptr<boost::interprocess::mapped_region> MapRegPtr;
+typedef boost::shared_ptr<boost::interprocess::file_mapping> FileMapPtr;
 
 class block_map_t
 {
@@ -78,7 +72,7 @@ public:
 	MapRegPtr		region_ptr_;		// shared pointer to the region
 };
 
-typedef vector<block_map_t> vblock_map;
+typedef std::vector<block_map_t> vblock_map;
 typedef vblock_map::iterator _it_block_map;
 
 // class to hold addresses and sizes for all matrices 
@@ -86,13 +80,13 @@ typedef vblock_map::iterator _it_block_map;
 class vmat_file_map {
 public:
 	vmat_file_map();
-	vmat_file_map(const string& filePath, bool remove_mapped_file);
+	vmat_file_map(const std::string& filePath, bool remove_mapped_file);
 	~vmat_file_map();
 
 	void reserveblockMapRegions(const UINT32& size);
 	void addblockMapRegion(const block_map_t& map);
 
-	void setnewFilePath(const string& filePath, bool remove_mapped_file);
+	void setnewFilePath(const std::string& filePath, bool remove_mapped_file);
 	void CreateFileMapping();
 	void MapRegion(const UINT32 block);
 
@@ -105,12 +99,12 @@ public:
 	vmat_file_map& operator=(const vmat_file_map&);		//   ''      ''
 
 	vblock_map		vblockMapRegions_;
-	string			filePath_;
+	std::string			filePath_;
 	FileMapPtr		file_map_ptr_;
 	bool			remove_mapped_file_;
 };
 
-typedef vector<vmat_file_map> vvmatf_map;
+typedef std::vector<vmat_file_map> vvmatf_map;
 typedef vvmatf_map::iterator _it_vvmatf_map;
 
 

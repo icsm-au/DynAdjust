@@ -368,8 +368,8 @@ void CdnageoidintDlg::CreateGridIndex()
 
 		char version[21];
 		m_dnaGeoid.ReportGridVersion(version);
-		stringstream ss;
-		ss << "Opened Grid file  " << left << tUserSettings.GridFile << ", Version " << version << endl << endl;
+		std::stringstream ss;
+		ss << "Opened Grid file  " << std::left << tUserSettings.GridFile << ", Version " << version << std::endl << std::endl;
 		PrintLogFileMessage(ss.str().c_str());	
 	}
 	catch (const NetGeoidException& e) {
@@ -394,15 +394,15 @@ void CdnageoidintDlg::CreateGridIndex()
 int CdnageoidintDlg::DetermineFileType(const char *cType)
 {
 	// case insensitive
-	if (iequals(cType, ASC))		// asc "ASCII" file
+	if (boost::iequals(cType, ASC))		// asc "ASCII" file
 		return TYPE_ASC;			
-	else if (iequals(cType, GSB))	// gsb "Binary" file
+	else if (boost::iequals(cType, GSB))	// gsb "Binary" file
 		return TYPE_GSB;			
-	else if (iequals(cType, TXT) ||	// dat/txt/prn file
-			 iequals(cType, DAT) ||	// ..
-			 iequals(cType, PRN))	// ..
+	else if (boost::iequals(cType, TXT) ||	// dat/txt/prn file
+			 boost::iequals(cType, DAT) ||	// ..
+			 boost::iequals(cType, PRN))	// ..
 		return TYPE_DAT;
-	else if (iequals(cType, CSV))	// csv file
+	else if (boost::iequals(cType, CSV))	// csv file
 		return TYPE_CSV;
 	else
 		return -1;					// Unsupported filetype
@@ -604,7 +604,7 @@ void CdnageoidintDlg::OnTransform()
 	
 	strcpy(chDirectory, m_strDataFile);
 
-	vector<string> file_type_array;
+	std::vector<std::string> file_type_array;
 	file_type_array.push_back("dat");
 	file_type_array.push_back("csv");
 	
@@ -838,8 +838,8 @@ LRESULT CdnageoidintDlg::OnInterpolateInputCoords(WPARAM wParam, LPARAM lParam)
 	//	agCoord_.cVar.dLongitude = DmintoDeg(m_InputCoordDlg->GetLongitudeInput());
 	//	break;
 	case DDEG:
-		agCoord_.cVar.dLatitude = m_InputCoordDlg->GetLatitudeInput();	// S 12° 14' 55.92960"
-		agCoord_.cVar.dLongitude = m_InputCoordDlg->GetLongitudeInput();	// E 142° 03' 36.18000"	
+		agCoord_.cVar.dLatitude = m_InputCoordDlg->GetLatitudeInput();	// S 12ï¿½ 14' 55.92960"
+		agCoord_.cVar.dLongitude = m_InputCoordDlg->GetLongitudeInput();	// E 142ï¿½ 03' 36.18000"	
 		break;
 	}
 
@@ -855,8 +855,8 @@ LRESULT CdnageoidintDlg::OnInterpolateInputCoords(WPARAM wParam, LPARAM lParam)
 			agCoord_.cVar.IO_Status == ERR_PT_OUTSIDE_GRID)
 		{
 			// 13:	Point is outside limits of the grid
-			stringstream ss;
-			ss << ">>  " << fixed << setprecision(9) << agCoord_.cVar.dLatitude << ", " << fixed << setprecision(9) << agCoord_.cVar.dLongitude << endl << endl;
+			std::stringstream ss;
+			ss << ">>  " << std::fixed << std::setprecision(9) << agCoord_.cVar.dLatitude << ", " << std::fixed << std::setprecision(9) << agCoord_.cVar.dLongitude << std::endl << std::endl;
 			PrintLogFileMessage(ss.str().c_str());
 		}
 
@@ -951,7 +951,7 @@ void CdnageoidintDlg::PrintLogFileMessage(const char* szMessage)
 void CdnageoidintDlg::DeleteLogFile(void)
 {
 	CFileProc fileProc;
-	vector<string> file_type_array;
+	std::vector<std::string> file_type_array;
 	file_type_array.push_back("log");
 
 	char chDirectory[MAX_PATH];

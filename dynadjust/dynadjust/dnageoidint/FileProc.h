@@ -15,8 +15,6 @@ struct _fileindex {
 
 int CALLBACK BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData);
 
-using namespace std;
-
 #define PATH_ERROR			-1
 #define PATH_NOT_FOUND		0
 #define PATH_IS_FILE		1

@@ -49,13 +49,11 @@
 
 #include <boost/shared_ptr.hpp>
 
-using namespace std;
-using namespace boost;
 using namespace dynadjust::measurements;
 
 template <typename T>
 // Get all the statons asociated with a measurement
-void GetGXMsrStations(vector<CDnaGpsBaseline>* vgpsBsls, vector<T>& msrStations)
+void GetGXMsrStations(std::vector<CDnaGpsBaseline>* vgpsBsls, std::vector<T>& msrStations)
 {
 	msrStations.clear();
 			
@@ -73,7 +71,7 @@ void GetGXMsrStations(vector<CDnaGpsBaseline>* vgpsBsls, vector<T>& msrStations)
 
 template <typename T>
 // Get all the statons asociated with a measurement
-void GetMsrStations(const vmsr_t& binaryMsrs, const T& bmsIndex, vector<T>& msrStations)
+void GetMsrStations(const vmsr_t& binaryMsrs, const T& bmsIndex, std::vector<T>& msrStations)
 {
 	msrStations.clear();
 	T clusterID(binaryMsrs.at(bmsIndex).clusterID);
@@ -140,7 +138,7 @@ template <typename T>
 // Get all the binary measurement indices involved in a measurement
 // On return, msrIndices will contain only one index.  For clusters
 // and directions, msrIndices will be more than one.
-void GetMsrIndices(const vmsr_t& binaryMsrs, const T& bmsIndex, vector<T>& msrIndices)
+void GetMsrIndices(const vmsr_t& binaryMsrs, const T& bmsIndex, std::vector<T>& msrIndices)
 {
 	msrIndices.clear();
 
@@ -394,7 +392,7 @@ void CopyClusterMsr(T& cluster, const msriterator _it_msr, T& clusterCopy)
 
 
 // Comparison functions
-template <typename T = dnaStnPtr, typename S = string>
+template <typename T = dnaStnPtr, typename S = std::string>
 class CompareStationName {
 public:
 	bool operator()(const T& left, const T& right) {
@@ -410,19 +408,19 @@ public:
 	}
 };
 
-template <typename T = dnaStnPtr, typename S = string>
+template <typename T = dnaStnPtr, typename S = std::string>
 class EqualStationNameSaveDuplicates {
 public:
-	EqualStationNameSaveDuplicates(vector<S>* stns) : _stns(stns) {}
+	EqualStationNameSaveDuplicates(std::vector<S>* stns) : _stns(stns) {}
 
 	bool operator()(const T& left, const T& right) {
-		if (equals(left->GetName(), right->GetName()))
+		if (boost::equals(left->GetName(), right->GetName()))
 			_stns->push_back(right->GetName());
 
 		return (left->GetName() == right->GetName());
 	}
 
-	vector<S>* _stns;
+	std::vector<S>* _stns;
 };
 
 
@@ -435,27 +433,27 @@ public:
 };
 
 
-template <typename T = dnaStnPtr, typename S = string>
+template <typename T = dnaStnPtr, typename S = std::string>
 class EqualStationName_CaseInsensitive {
 public:
-	EqualStationName_CaseInsensitive(vector<S>* stns) : _stns(stns) {}
+	EqualStationName_CaseInsensitive(std::vector<S>* stns) : _stns(stns) {}
 
 	bool operator()(const T& left, const T& right) {
-		if (iequals(left->GetName(), right->GetName()))
+		if (boost::iequals(left->GetName(), right->GetName()))
 		{
 			_stns->push_back(right->GetName());
 			return true;
 		}
 		return false;
 	}
-	vector<S>* _stns;
+	std::vector<S>* _stns;
 };
 
 
-template <typename T = dnaStnPtr, typename S = string>
+template <typename T = dnaStnPtr, typename S = std::string>
 class TestEqualStationName {
 public:
-	TestEqualStationName(vector<S>* usedStns, vector<S>* unusedStns) 
+	TestEqualStationName(std::vector<S>* usedStns, std::vector<S>* unusedStns) 
 		: _usedStns(usedStns)
 		, _unusedStns(unusedStns) {}
 
@@ -468,15 +466,15 @@ public:
 		_unusedStns->push_back(stn->GetName());
 		return false;		
 	}
-	vector<S>* _usedStns;
-	vector<S>* _unusedStns;
+	std::vector<S>* _usedStns;
+	std::vector<S>* _unusedStns;
 };
 
 
-template <typename T = dnaStnPtr, typename S = string>
+template <typename T = dnaStnPtr, typename S = std::string>
 class TestNotEqualStationName {
 public:
-	TestNotEqualStationName(vector<S>* usedStns, vector<S>* unusedStns) 
+	TestNotEqualStationName(std::vector<S>* usedStns, std::vector<S>* unusedStns) 
 		: _usedStns(usedStns)
 		, _unusedStns(unusedStns) {}
 
@@ -489,8 +487,8 @@ public:
 		_unusedStns->push_back(stn->GetName());
 		return true;		
 	}
-	vector<S>* _usedStns;
-	vector<S>* _unusedStns;
+	std::vector<S>* _usedStns;
+	std::vector<S>* _unusedStns;
 };
 
 
@@ -498,7 +496,7 @@ public:
 template <typename T = dnaStnPtr, typename S = stringstring_doubledouble_pair, typename U = double>
 class NearbyStation_LowAcc {
 public:
-	NearbyStation_LowAcc (const U& tolerance, vector<S>* stns) 
+	NearbyStation_LowAcc (const U& tolerance, std::vector<S>* stns) 
 		: _tolerance(tolerance), _stns(stns), _dist(0.) {}
 
 	bool operator()(const T& left, const T& right) {
@@ -517,7 +515,7 @@ public:
 	}
 
 	U			_tolerance;
-	vector<S>*	_stns;
+	std::vector<S>*	_stns;
 	double		_dist;
 };
 
@@ -526,7 +524,7 @@ public:
 template <typename T = dnaStnPtr, typename U = double, typename S = stringstring_doubledouble_pair, typename E = CDnaEllipsoid>
 class NearbyStation_HighAcc {
 public:
-	NearbyStation_HighAcc(const U& tolerance, vector<S>* stns, const E& ellipsoid) 
+	NearbyStation_HighAcc(const U& tolerance, std::vector<S>* stns, const E& ellipsoid) 
 		: _tolerance(tolerance), _stns(stns), _dAzimuth(0.), _dist(0.), _ellipsoid(ellipsoid) {}
 
 	bool operator()(const T& left, const T& right) {
@@ -546,7 +544,7 @@ public:
 	}
 
 	U			_tolerance;
-	vector<S>*	_stns;
+	std::vector<S>*	_stns;
 	U			_dAzimuth;
 	double		_dist;
 	E			_ellipsoid;		// GDA by default
@@ -594,7 +592,7 @@ private:
 };
 
 // requires stns to be sorted
-template<typename U = string>
+template<typename U = std::string>
 class FindMsrsConnectedToStns_GX{
 public:
 	FindMsrsConnectedToStns_GX(const pvstring stns)
@@ -612,7 +610,7 @@ private:
 };
 
 // requires stns to be sorted
-template<typename U = string>
+template<typename U = std::string>
 class FindMsrsConnectedToStns_Y{
 public:
 	FindMsrsConnectedToStns_Y(const pvstring stns)
@@ -628,7 +626,7 @@ private:
 };
 
 // requires stns to be sorted
-template<typename U = string>
+template<typename U = std::string>
 class FindMsrsConnectedToStns_D{
 public:
 	FindMsrsConnectedToStns_D(const pvstring stns)
@@ -653,9 +651,9 @@ public:
 
 	bool operator()(dnaMsrPtr m) {
 
-		FindMsrsConnectedToStns_GX<string> gpsbslFunc(_stns);
-		FindMsrsConnectedToStns_Y<string> gpspntFunc(_stns);
-		FindMsrsConnectedToStns_D<string> dirnFunc(_stns);
+		FindMsrsConnectedToStns_GX<std::string> gpsbslFunc(_stns);
+		FindMsrsConnectedToStns_Y<std::string> gpspntFunc(_stns);
+		FindMsrsConnectedToStns_D<std::string> dirnFunc(_stns);
 		switch (m->GetTypeC())
 		{
 		
@@ -817,7 +815,7 @@ class CompareMsr {
 public:
 	bool operator()(const boost::shared_ptr<M> left, const boost::shared_ptr<M> right) {
 		if (left->GetIgnore() == right->GetIgnore()) {
-			if (iequals(left->GetType(), right->GetType()))
+			if (boost::iequals(left->GetType(), right->GetType()))
 			{
 				switch (left->GetTypeC())
 				{
@@ -883,7 +881,7 @@ public:
 	
 
 template <class CharT, class Traits>
-basic_istream<CharT, Traits>& operator>>(basic_istream<CharT, Traits>& is, CAStationList t)
+std::basic_istream<CharT, Traits>& operator>>(std::basic_istream<CharT, Traits>& is, CAStationList t)
 {
 	is.read(reinterpret_cast<char *>(t.GetAssocMsrCountPtr()), sizeof(UINT32));
 	is.read(reinterpret_cast<char *>(t.GetAMLStnIndexPtr()), sizeof(UINT32));
@@ -892,7 +890,7 @@ basic_istream<CharT, Traits>& operator>>(basic_istream<CharT, Traits>& is, CASta
 }
 
 template <class CharT, class Traits>
-basic_istream<CharT, Traits>& operator>>(basic_istream<CharT, Traits>& is, CAStationList* t)
+std::basic_istream<CharT, Traits>& operator>>(std::basic_istream<CharT, Traits>& is, CAStationList* t)
 {
 	is.read(reinterpret_cast<char *>(t->GetAssocMsrCountPtr()), sizeof(UINT32));
 	is.read(reinterpret_cast<char *>(t->GetAMLStnIndexPtr()), sizeof(UINT32));
@@ -901,7 +899,7 @@ basic_istream<CharT, Traits>& operator>>(basic_istream<CharT, Traits>& is, CASta
 }
 
 template <class CharT, class TraitsT>
-basic_ostream<CharT, TraitsT>& operator<<(std::basic_ostream<CharT, TraitsT>& os, CAStationList t)
+std::basic_ostream<CharT, TraitsT>& operator<<(std::basic_ostream<CharT, TraitsT>& os, CAStationList t)
 {
 	os.write(reinterpret_cast<char *>(t.GetAssocMsrCountPtr()), sizeof(UINT32));
 	os.write(reinterpret_cast<char *>(t.GetAMLStnIndexPtr()), sizeof(UINT32));
@@ -910,7 +908,7 @@ basic_ostream<CharT, TraitsT>& operator<<(std::basic_ostream<CharT, TraitsT>& os
 }
 
 template <class CharT, class TraitsT>
-basic_ostream<CharT, TraitsT>& operator<<(std::basic_ostream<CharT, TraitsT>& os, CAStationList* t)
+std::basic_ostream<CharT, TraitsT>& operator<<(std::basic_ostream<CharT, TraitsT>& os, CAStationList* t)
 {
 	os.write(reinterpret_cast<char *>(t->GetAssocMsrCountPtr()), sizeof(UINT32));
 	os.write(reinterpret_cast<char *>(t->GetAMLStnIndexPtr()), sizeof(UINT32));

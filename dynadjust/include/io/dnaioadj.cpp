@@ -29,22 +29,22 @@ using namespace dynadjust::measurements;
 namespace dynadjust { 
 namespace iostreams {
 
-void dna_io_adj::print_adj_stn_header(ostream& os)
+void dna_io_adj::print_adj_stn_header(std::ostream& os)
 {
-	os << endl << "Adjusted Coordinates" << endl <<
-		"------------------------------------------" << endl << endl;
+	os << std::endl << "Adjusted Coordinates" << std::endl <<
+		"------------------------------------------" << std::endl << std::endl;
 }
 
-void dna_io_adj::print_adj_stn_block_header(ostream& os, const UINT32& block)
+void dna_io_adj::print_adj_stn_block_header(std::ostream& os, const UINT32& block)
 {
-	os << endl << "Adjusted Coordinates (Block " << block + 1 << ")" << endl <<
-		"------------------------------------------" << endl << endl;
+	os << std::endl << "Adjusted Coordinates (Block " << block + 1 << ")" << std::endl <<
+		"------------------------------------------" << std::endl << std::endl;
 }
 
-void dna_io_adj::print_stn_info_col_header(ostream& os, 
-	const string& stn_coord_types, const UINT16& printStationCorrections)
+void dna_io_adj::print_stn_info_col_header(std::ostream& os, 
+	const std::string& stn_coord_types, const UINT16& printStationCorrections)
 {	
-	os << setw(STATION) << left << "Station" << setw(CONSTRAINT) << left << "Const";
+	os << std::setw(STATION) << std::left << "Station" << std::setw(CONSTRAINT) << std::left << "Const";
 
 	_it_str_const it_s;
 	UINT32 width(0);
@@ -90,32 +90,32 @@ void dna_io_adj::print_stn_info_col_header(ostream& os,
 		}
 
 		if (validType)
-			os << right << setw(width) << CDnaStation::CoordinateName(c);
+			os << std::right << std::setw(width) << CDnaStation::CoordinateName(c);
 	}	
 	
-	os << setw(PAD2) << " " << 
-		right << setw(STDDEV) << "SD(e)" << 
-		right << setw(STDDEV) << "SD(n)" << 
-		right << setw(STDDEV) << "SD(up)";
+	os << std::setw(PAD2) << " " << 
+		std::right << std::setw(STDDEV) << "SD(e)" << 
+		std::right << std::setw(STDDEV) << "SD(n)" << 
+		std::right << std::setw(STDDEV) << "SD(up)";
 
 	j += PAD2+STDDEV+STDDEV+STDDEV+PAD2+COMMENT;
 
 	if (printStationCorrections)
 	{
-		os << setw(PAD2) << " " << 
-			right << setw(HEIGHT) << "Corr(e)" << 
-			right << setw(HEIGHT) << "Corr(n)" << 
-			right << setw(HEIGHT) << "Corr(up)";
+		os << std::setw(PAD2) << " " << 
+			std::right << std::setw(HEIGHT) << "Corr(e)" << 
+			std::right << std::setw(HEIGHT) << "Corr(n)" << 
+			std::right << std::setw(HEIGHT) << "Corr(up)";
 
 		j += PAD2+HEIGHT+HEIGHT+HEIGHT;
 	}
 
-	os << setw(PAD2) << " " << left << "Description" << endl;
+	os << std::setw(PAD2) << " " << std::left << "Description" << std::endl;
 
 	UINT32 i;
 	for (i=0; i<j; ++i)
 		os << "-";
-	os << endl;
+	os << std::endl;
 }
 
 } // dnaiostreams

@@ -34,7 +34,7 @@ extern boost::exception_ptr rev_error;
 extern boost::exception_ptr cmb_error;
 extern boost::exception_ptr prep_error;
 
-bool combineAdjustmentExceptionThrown(const vector<boost::exception_ptr>& cmb_errors_)
+bool combineAdjustmentExceptionThrown(const std::vector<boost::exception_ptr>& cmb_errors_)
 {
 	// got a forward or reverse exception, or 
 	// have any of the other combination adjustments failed?
@@ -58,7 +58,7 @@ bool combineAdjustmentExceptionThrown(const vector<boost::exception_ptr>& cmb_er
 	return false;
 }
 
-bool prepareAdjustmentExceptionThrown(const vector<boost::exception_ptr>& prep_errors_)
+bool prepareAdjustmentExceptionThrown(const std::vector<boost::exception_ptr>& prep_errors_)
 {
 	// have any of the other combination adjustments failed?
 	UINT32 err_size(static_cast<UINT32>(prep_errors_.size()));
@@ -94,19 +94,19 @@ void dna_adjust::AdjustPhasedMultiThread()
 {
 	initialiseIteration();
 
-	string corr_msg;
-	ostringstream ss;
+	std::string corr_msg;
+	std::ostringstream ss;
 	UINT32 i;
 	bool iterate(true);
 
-	milliseconds iteration_time(milliseconds(0));
-	cpu_timer it_time, tot_time;
+	boost::posix_time::milliseconds iteration_time(boost::posix_time::milliseconds(0));
+	boost::timer::cpu_timer it_time, tot_time;
 
 #if defined(__ICC) || defined(__INTEL_COMPILER)		// Intel compiler
 	boost::shared_ptr<thread> f, r, c;
-	vector< boost::shared_ptr<thread> > mt_adjust_threads_sp;
+	std::vector< boost::shared_ptr<thread> > mt_adjust_threads_sp;
 #else
-	vector<boost::thread> mt_adjust_threads;
+	std::vector<boost::thread> mt_adjust_threads;
 #endif	
 
 	concurrentAdjustments.resize_runs(blockCount_);
@@ -170,7 +170,7 @@ void dna_adjust::AdjustPhasedMultiThread()
 		for_each(mt_adjust_threads.begin(), mt_adjust_threads.end(), boost::mem_fn(&boost::thread::join));
 #endif
 		// This point is reached when the threads have finished
-		iteration_time = milliseconds(it_time.elapsed().wall/MILLI_TO_NANO);
+		iteration_time = boost::posix_time::milliseconds(it_time.elapsed().wall/MILLI_TO_NANO);
 
 		//delete mt_adjust_threads;
 #if defined(__ICC) || defined(__INTEL_COMPILER)		// Intel compiler
@@ -197,15 +197,15 @@ void dna_adjust::AdjustPhasedMultiThread()
 			break;
 
 		ss.str("");
-		if (iteration_time > seconds(1))
-			ss << seconds(static_cast<long>(iteration_time.total_seconds()));
+		if (iteration_time > boost::posix_time::seconds(1))
+			ss << boost::posix_time::seconds(static_cast<long>(iteration_time.total_seconds()));
 		else
 			ss << iteration_time;
 
 		///////////////////////////////////
 		// protected write to adj file (not needed here since write to
 		// adj file at this stage is via single thread
-		adj_file << setw(PRINT_VAR_PAD) << left << "Elapsed time" << ss.str() << endl;
+		adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Elapsed time" << ss.str() << std::endl;
 		OutputLargestCorrection(corr_msg);
 		///////////////////////////////////
 
@@ -277,7 +277,7 @@ void dna_adjust::SolveMTTry(bool COMPUTE_INVERSE, const UINT32& block)
 	try {            
 		SolveMT(COMPUTE_INVERSE, block);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 
 		// could not invert matrix.  throw error
 
@@ -286,12 +286,12 @@ void dna_adjust::SolveMTTry(bool COMPUTE_INVERSE, const UINT32& block)
 #endif
 		if (projectSettings_.g.verbose)
 		{
-			debug_file << "Block " << block + 1 << " (reverse, multi-thread)" << endl;
-			debug_file << "Pre-adjustment Estimates" << fixed << setprecision(16) << v_estimatedStationsR_.at(block);
-			debug_file << "Design" << fixed << setprecision(16) << v_designR_.at(block);
-			debug_file << "Measurements" << fixed << setprecision(16) << v_measMinusCompR_.at(block);
-			debug_file << "At * V-inv" << fixed << setprecision(16) << v_AtVinvR_.at(block);
-			debug_file << "Normals " << fixed << setprecision(16) << v_normalsR_.at(block) << endl;
+			debug_file << "Block " << block + 1 << " (reverse, multi-thread)" << std::endl;
+			debug_file << "Pre-adjustment Estimates" << std::fixed << std::setprecision(16) << v_estimatedStationsR_.at(block);
+			debug_file << "Design" << std::fixed << std::setprecision(16) << v_designR_.at(block);
+			debug_file << "Measurements" << std::fixed << std::setprecision(16) << v_measMinusCompR_.at(block);
+			debug_file << "At * V-inv" << std::fixed << std::setprecision(16) << v_AtVinvR_.at(block);
+			debug_file << "Normals " << std::fixed << std::setprecision(16) << v_normalsR_.at(block) << std::endl;
 			debug_file.flush();
 		}
 #ifdef _MS_COMPILER_
@@ -344,29 +344,29 @@ void dna_adjust::SolveMT(bool COMPUTE_INVERSE, const UINT32& block)
 			break;
 		}
 
-		debug_file << endl;
+		debug_file << std::endl;
 		
 		debug_file << "Block " << block + 1 << " (Reverse)";
-		debug_file << endl;
-		debug_file << "Pre-adjustment Estimates" << fixed << setprecision(16) << v_estimatedStationsR_.at(block);
+		debug_file << std::endl;
+		debug_file << "Pre-adjustment Estimates" << std::fixed << std::setprecision(16) << v_estimatedStationsR_.at(block);
 		debug_file << "Block " << block + 1 << " (Reverse)";
-		debug_file << endl;
-		debug_file << "Design" << fixed << setprecision(16) << v_designR_.at(block);
+		debug_file << std::endl;
+		debug_file << "Design" << std::fixed << std::setprecision(16) << v_designR_.at(block);
 		debug_file << "Block " << block + 1 << " (Reverse)";
-		debug_file << endl;
-		debug_file << "Measurements" << fixed << setprecision(16) << v_measMinusCompR_.at(block);
+		debug_file << std::endl;
+		debug_file << "Measurements" << std::fixed << std::setprecision(16) << v_measMinusCompR_.at(block);
 		debug_file << "Block " << block + 1 << " (Reverse)";
-		debug_file << endl;
-		debug_file << "At * V-inv" << fixed << setprecision(16) << v_AtVinvR_.at(block) << endl;
+		debug_file << std::endl;
+		debug_file << "At * V-inv" << std::fixed << std::setprecision(16) << v_AtVinvR_.at(block) << std::endl;
 		debug_file << "Block " << block + 1 << " (Reverse)";
-		debug_file << endl;
-		debug_file << "Normals " << fixed << setprecision(16) << v_normalsR_.at(block) << endl;
+		debug_file << std::endl;
+		debug_file << "Normals " << std::fixed << std::setprecision(16) << v_normalsR_.at(block) << std::endl;
 		debug_file << "Block " << block + 1 << " (Reverse)";
-		debug_file << endl;
-		debug_file << "Precisions" << fixed << setprecision(16) << v_normalsR_.at(block) << endl;
+		debug_file << std::endl;
+		debug_file << "Precisions" << std::fixed << std::setprecision(16) << v_normalsR_.at(block) << std::endl;
 		debug_file << "Block " << block + 1 << " (Reverse)";
-		debug_file << endl;
-		debug_file << "Corrections" << fixed << setprecision(16) << v_correctionsR_.at(block) << endl;
+		debug_file << std::endl;
+		debug_file << "Corrections" << std::fixed << std::setprecision(16) << v_correctionsR_.at(block) << std::endl;
 		debug_file.flush();
 
 		dbg_file_mutex.unlock();
@@ -381,7 +381,7 @@ void dna_adjust::SolveMT(bool COMPUTE_INVERSE, const UINT32& block)
 		
 void adjust_forward_thread::operator()()
 {
-	stringstream ss;
+	std::stringstream ss;
 	UINT32 currentBlock;
 
 	concurrentAdjustments.forward_run_started();
@@ -396,7 +396,7 @@ void adjust_forward_thread::operator()()
 				return;
 
 			//ss.str("");
-			//ss << "1> Adjusted block " << currentBlock + 1 << " (forward, in isolation)... " << endl;
+			//ss << "1> Adjusted block " << currentBlock + 1 << " (forward, in isolation)... " << std::endl;
 			//main_adj_->ThreadSafeWritetoAdjFile(ss.str());
 
 			// Check if an exception was thrown in the reverse or combine threads
@@ -422,7 +422,7 @@ void adjust_forward_thread::operator()()
 			/////////////////////////////////////
 			//// protected write to adj file
 			//ss.str("");
-			//ss << "1> Forward adjustment (in isolation) of block " << currentBlock + 1 << " complete." << endl;
+			//ss << "1> Forward adjustment (in isolation) of block " << currentBlock + 1 << " complete." << std::endl;
 
 			//adj_file_mutex.lock();
 			//main_adj_->ThreadSafeWritetoAdjFile(ss.str());
@@ -453,7 +453,7 @@ void adjust_forward_thread::operator()()
 			///////////////////////////////////
 			// protected write to adj file
 			//ss.str("");
-			//ss << "1> Forward adjustment of block " << currentBlock << " complete." << endl;
+			//ss << "1> Forward adjustment of block " << currentBlock << " complete." << std::endl;
 
 			//main_adj_->ThreadSafeWritetoAdjFile(ss.str());		
 			///////////////////////////////////
@@ -482,7 +482,7 @@ void adjust_forward_thread::operator()()
 	// notify all threads waiting on combineAdjustmentQueue
 	//combineAdjustmentQueue.notify_all();
 
-	//this_thread::sleep(milliseconds(10));
+	//this_thread::sleep(boost::posix_time::milliseconds(10));
 
 	// notify all threads waiting on combineAdjustmentQueue
 	//combineAdjustmentQueue.notify_all();	
@@ -491,7 +491,7 @@ void adjust_forward_thread::operator()()
 
 void adjust_reverse_thread::operator()()
 {
-	stringstream ss;
+	std::stringstream ss;
 	UINT32 currentBlock(main_adj_->blockCount_-1), block;
 
 	concurrentAdjustments.reverse_run_started();
@@ -516,7 +516,7 @@ void adjust_reverse_thread::operator()()
 			/////////////////////////////////////
 			//// protected write to adj file
 			//ss.str("");
-			//ss << "2> Adjusted block " << currentBlock + 1 << " (reverse, in isolation)... " << endl;
+			//ss << "2> Adjusted block " << currentBlock + 1 << " (reverse, in isolation)... " << std::endl;
 			//main_adj_->ThreadSafeWritetoAdjFile(ss.str());
 			/////////////////////////////////////
 
@@ -543,7 +543,7 @@ void adjust_reverse_thread::operator()()
 			/////////////////////////////////////
 			//// protected write to adj file
 			//ss.str("");
-			//ss << "2> Reverse adjustment (in isolation) of block " << currentBlock + 1 << " complete." << endl;
+			//ss << "2> Reverse adjustment (in isolation) of block " << currentBlock + 1 << " complete." << std::endl;
 
 			//adj_file_mutex.lock();
 			//main_adj_->ThreadSafeWritetoAdjFile(ss.str());
@@ -583,7 +583,7 @@ void adjust_reverse_thread::operator()()
 			///////////////////////////////////
 			// protected write to adj file
 			//ss.str("");
-			//ss << "2> Reverse adjustment of block " << currentBlock << " complete." << endl;
+			//ss << "2> Reverse adjustment of block " << currentBlock << " complete." << std::endl;
 
 			//main_adj_->ThreadSafeWritetoAdjFile(ss.str());
 			///////////////////////////////////
@@ -609,7 +609,7 @@ void adjust_reverse_thread::operator()()
 
 void adjust_process_combine_thread::operator()()
 {
-	stringstream ss;
+	std::stringstream ss;
 	UINT32 pseudomsrJSLCount;
 	UINT32 currentBlock;
 
@@ -629,7 +629,7 @@ void adjust_process_combine_thread::operator()()
 			// Wait here until blocks have been placed on the queue
 			if (!combineAdjustmentQueue.front_and_pop(currentBlock))
 			{
-				boost::this_thread::sleep(milliseconds(2));
+				boost::this_thread::sleep(boost::posix_time::milliseconds(2));
 				continue;
 			}
 
@@ -675,15 +675,15 @@ void adjust_combine_thread::operator()()
 	UINT32 thread_id, cores(boost::thread::hardware_concurrency());
 
 	// Set up exception pointers
-	vector<boost::exception_ptr> cmb_errors;
+	std::vector<boost::exception_ptr> cmb_errors;
 	cmb_errors.resize(cores);
 
 	// Create the thread pool
 #if defined(__ICC) || defined(__INTEL_COMPILER)		// Intel compiler
 	boost::shared_ptr<thread> c;
-	vector< boost::shared_ptr<thread> > mt_combine_threads_sp;
+	std::vector< boost::shared_ptr<thread> > mt_combine_threads_sp;
 #else
-	vector<boost::thread> mt_combine_threads;
+	std::vector<boost::thread> mt_combine_threads;
 #endif	
 
 	for (thread_id=0; thread_id<cores; ++thread_id)
@@ -732,7 +732,7 @@ void adjust_combine_thread::operator()()
 
 void adjust_process_prepare_thread::operator()()
 {
-	stringstream ss;
+	std::stringstream ss;
 	UINT32 currentBlock;
 
 	try {
@@ -748,7 +748,7 @@ void adjust_process_prepare_thread::operator()()
 			// Wait here until blocks have been placed on the queue
 			if (!prepareAdjustmentQueue.front_and_pop(currentBlock))
 			{
-				boost::this_thread::sleep(milliseconds(2));
+				boost::this_thread::sleep(boost::posix_time::milliseconds(2));
 				continue;
 			}
 
@@ -782,15 +782,15 @@ void adjust_prepare_thread::operator()()
 	UINT32 thread_id, cores(boost::thread::hardware_concurrency());
 
 	// Set up exception pointers
-	vector<boost::exception_ptr> prep_errors;
+	std::vector<boost::exception_ptr> prep_errors;
 	prep_errors.resize(cores);
 
 	// Create the thread pool
 #if defined(__ICC) || defined(__INTEL_COMPILER)		// Intel compiler
 	boost::shared_ptr<thread> p;
-	vector< boost::shared_ptr<thread> > mt_prepare_threads_sp;
+	std::vector< boost::shared_ptr<thread> > mt_prepare_threads_sp;
 #else
-	vector<boost::thread> mt_prepare_threads;
+	std::vector<boost::thread> mt_prepare_threads;
 #endif	
 	
 

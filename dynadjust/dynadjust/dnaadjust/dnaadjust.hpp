@@ -91,12 +91,6 @@
 
 #include <atomic>
 
-using namespace std;
-using namespace boost;
-using namespace boost::posix_time;
-using namespace boost::filesystem;
-using namespace boost::math;
-
 using namespace dynadjust::datum_parameters;
 using namespace dynadjust::measurements;
 using namespace dynadjust::math;
@@ -133,7 +127,7 @@ class adjust_process_prepare_thread {
 public:
 	adjust_process_prepare_thread(
 		dna_adjust* dnaAdj, const UINT32& id, 
-		boost::exception_ptr& error, vector<boost::exception_ptr>& prep_errors) 
+		boost::exception_ptr& error, std::vector<boost::exception_ptr>& prep_errors) 
 		: main_adj_(dnaAdj)
 		, thread_id_(id) 
 		, error_(error)
@@ -145,7 +139,7 @@ private:
 	dna_adjust*	main_adj_;
 	UINT32 thread_id_;
 	boost::exception_ptr& error_;
-	vector<boost::exception_ptr>& prep_errors_;
+	std::vector<boost::exception_ptr>& prep_errors_;
 
 	// Prevent assignment operator
 	adjust_process_prepare_thread& operator=(const adjust_process_prepare_thread& rhs);
@@ -207,7 +201,7 @@ class adjust_process_combine_thread {
 public:
 	adjust_process_combine_thread(
 		dna_adjust* dnaAdj, const UINT32& id, 
-		boost::exception_ptr& error, vector<boost::exception_ptr>& cmb_errors) 
+		boost::exception_ptr& error, std::vector<boost::exception_ptr>& cmb_errors) 
 		: main_adj_(dnaAdj)
 		, thread_id_(id) 
 		, error_(error)
@@ -219,7 +213,7 @@ private:
 	dna_adjust*	main_adj_;
 	UINT32 thread_id_;
 	boost::exception_ptr& error_;
-	vector<boost::exception_ptr>& cmb_errors_;
+	std::vector<boost::exception_ptr>& cmb_errors_;
 
 	// Prevent assignment operator
 	adjust_process_combine_thread& operator=(const adjust_process_combine_thread& rhs);
@@ -286,9 +280,9 @@ public:
 	void PrintAdjustedNetworkMeasurements();
 	void PrintMeasurementsToStation();
 
-	bool PrintEstimatedStationCoordinatestoSNX(string& sinex_file);
-	void PrintEstimatedStationCoordinatestoDNAXML(const string& stnFile, INPUT_FILE_TYPE t, bool flagUnused = false);
-	void PrintEstimatedStationCoordinatestoDNAXML_Y(const string& msrFile, INPUT_FILE_TYPE t);
+	bool PrintEstimatedStationCoordinatestoSNX(std::string& sinex_file);
+	void PrintEstimatedStationCoordinatestoDNAXML(const std::string& stnFile, INPUT_FILE_TYPE t, bool flagUnused = false);
+	void PrintEstimatedStationCoordinatestoDNAXML_Y(const std::string& msrFile, INPUT_FILE_TYPE t);
 
 	void CloseOutputFiles();
 	void UpdateBinaryFiles();
@@ -314,7 +308,7 @@ public:
 	};
 	
 	inline UINT32 blockCount() const { return blockCount_; }
-	inline milliseconds adjustTime() const { return total_time_; }
+	inline boost::posix_time::milliseconds adjustTime() const { return total_time_; }
 	inline bool processingForward() { return forward_; }
 	inline bool processingCombine() { return isCombining_; }
 	inline int GetDegreesOfFreedom() const { return degreesofFreedom_; }
@@ -331,7 +325,7 @@ public:
 
 	void GetMemoryFootprint(double& memory, const _MEM_UNIT_ unit);
 
-	void LoadSegmentationFileParameters(const string& seg_filename);
+	void LoadSegmentationFileParameters(const std::string& seg_filename);
 
 	void SerialiseAdjustedVarianceMatrices();
 	void DeSerialiseAdjustedVarianceMatrices();
@@ -342,7 +336,7 @@ public:
 	inline bool GetMessageIteration(UINT32& iteration) { return iterationQueue_.front_and_pop(iteration); }
 
 	// iteration is indexed from 1.  That is, not zero-indexed.
-	inline string GetMaxCorrection(const UINT32& iteration) const {
+	inline std::string GetMaxCorrection(const UINT32& iteration) const {
 		if (iteration == 0)
 			return iterationCorrections_.get_message(iteration);		// safe guard
 		return iterationCorrections_.get_message(iteration-1);
@@ -351,25 +345,25 @@ public:
 
 #ifdef MULTI_THREAD_ADJUST
 
-	concurrent_ofstream<string> concurrent_adj_ofstream;
+	concurrent_ofstream<std::string> concurrent_adj_ofstream;
 
-	inline void ThreadSafeWritetoAdjFile(const string& s) { 
+	inline void ThreadSafeWritetoAdjFile(const std::string& s) { 
 		concurrent_adj_ofstream.wrtie(adj_file, s); 
 	}
-	inline void WriteStatstoAdjFile(const string& s) { 
+	inline void WriteStatstoAdjFile(const std::string& s) { 
 		if (projectSettings_.o._adj_stat_iteration)
 			ThreadSafeWritetoAdjFile(s);
 	}
-	inline void WriteStntoAdjFile(const string& s) { 
+	inline void WriteStntoAdjFile(const std::string& s) { 
 		if (projectSettings_.o._adj_stn_iteration)
 			ThreadSafeWritetoAdjFile(s);
 	}
-	inline void WriteMsrtoAdjFile(const string& s) { 
+	inline void WriteMsrtoAdjFile(const std::string& s) { 
 		if (projectSettings_.o._adj_msr_iteration)
 			ThreadSafeWritetoAdjFile(s);
 	}
 
-	inline void ThreadSafeWritetoDbgFile(const string& s) { concurrent_adj_ofstream.wrtie(debug_file, s); }
+	inline void ThreadSafeWritetoDbgFile(const std::string& s) { concurrent_adj_ofstream.wrtie(debug_file, s); }
 #endif
 
 	_ADJUST_STATUS_ AdjustNetwork();
@@ -385,11 +379,11 @@ public:
 	UINT32					blockCount_;
 	UINT32					currentBlock_;
 
-	milliseconds			total_time_;
+	boost::posix_time::milliseconds			total_time_;
 	_ADJUST_STATUS_			adjustStatus_;
 	vstring					statusMessages_;
 	UINT32					currentIteration_;
-	vector<blockMeta_t>		v_blockMeta_;
+	std::vector<blockMeta_t>		v_blockMeta_;
 
 	
 	inline bool FirstBlock(const UINT32& block) const { 
@@ -400,7 +394,7 @@ public:
 		 return v_blockMeta_.at(block)._blockLast;
 	}
 
-	void SignalExceptionAdjustment(const string& msg, const UINT32 block_no);
+	void SignalExceptionAdjustment(const std::string& msg, const UINT32 block_no);
 	
 	void CreateMeasurementTally(const UINT32& block = 0);
 	
@@ -431,9 +425,9 @@ private:
 
 	void RebuildNormals(const UINT32 block, adjustOperation direction, bool AddConstraintStationstoNormals, bool BackupNormals);
 	void UpdateAdjustment(bool iterate);	
-	void ValidateandFinaliseAdjustment(cpu_timer& tot_time);
+	void ValidateandFinaliseAdjustment(boost::timer::cpu_timer& tot_time);
 	void PrintAdjustmentStatus();
-	void PrintAdjustmentTime(cpu_timer& time, _TIMER_TYPE_);
+	void PrintAdjustmentTime(boost::timer::cpu_timer& time, _TIMER_TYPE_);
 	void PrintIteration(const UINT32& iteration);
 
 	void InitialiseAdjustment();
@@ -462,7 +456,7 @@ private:
 	// Adjustment helps
 	void ApplyAdditionalConstraints();
 	void AddDiscontinuitySites(vstring& constraintStns);
-	void LoadStationMap(pv_string_uint32_pair stnsMap, const string& stnmap_file);
+	void LoadStationMap(pv_string_uint32_pair stnsMap, const std::string& stnmap_file);
 	void ResizeMatrixVectors();
 	void LoadPhasedBlocks();
 	void LoadSegmentationFile();
@@ -629,8 +623,8 @@ private:
 	void LoadVarianceMatrix_X(it_vmsr_t _it_msr, matrix_2d* var_cart);
 	void LoadVarianceMatrix_Y(it_vmsr_t _it_msr, matrix_2d* var_cart, const _COORD_TYPE_ coordType);
 
-	void PrintMsrVarianceMatrixException(const it_vmsr_t& _it_msr, const runtime_error& e, stringstream& ss, 
-		const string& calling_function, const UINT32 msr_count = 0);
+	void PrintMsrVarianceMatrixException(const it_vmsr_t& _it_msr, const std::runtime_error& e, std::stringstream& ss, 
+		const std::string& calling_function, const UINT32 msr_count = 0);
 
 	// Estimated stations matrix
 	void PrepareStationandVarianceMatrices(const UINT32& block);
@@ -672,7 +666,7 @@ private:
 	void UpdateNormals_Y(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row,
 							matrix_2d* normals, matrix_2d* AtVinv);
 	
-	void OutputLargestCorrection(string& formatted_msg);
+	void OutputLargestCorrection(std::string& formatted_msg);
 	
 	// Design/Normals matrix
 	void PrepareDesignAndMsrMnsCmpMatrices(const UINT32& block);
@@ -750,14 +744,14 @@ private:
 	
 	void FormInverseVarianceMatrix(matrix_2d* vmat, bool LOWER_IS_CLEARED = false);
 	void FormInverseGPSVarianceMatrix(const it_vmsr_t& _it_msr, matrix_2d* vmat);
-	bool FormInverseVarianceMatrixReduced(it_vmsr_t _it_msr, matrix_2d* var_cart, const string& method_name);
+	bool FormInverseVarianceMatrixReduced(it_vmsr_t _it_msr, matrix_2d* var_cart, const std::string& method_name);
 
 	void PrintStatistics(bool printPelzer=true);
 	
 	// Output files
 	void OpenOutputFileStreams();
 	void PrintOutputFileHeaderInfo();
-	void PrintCompMeasurements(const UINT32& block, const string& msg = "");
+	void PrintCompMeasurements(const UINT32& block, const std::string& msg = "");
 	void PrintCompMeasurementsAngular(const char cardinal, const double& computed, const double& correction, const it_vmsr_t& _it_msr);
 	void PrintCompMeasurementsLinear(const char cardinal, const double& computed, const double& correction, const it_vmsr_t& _it_msr);
 	void PrintCompMeasurements_A(const UINT32& block, it_vmsr_t& _it_msr, UINT32& design_row, printMeasurementsMode printMode);
@@ -775,7 +769,7 @@ private:
 	void PrintMeasurementDatabaseID(const it_vmsr_t& _it_msr, bool initialise_dbindex=true);
 
 	void FormUniqueMsrList();
-	void PrintAdjMeasurementsHeader(bool printHeader, const string& table_heading,
+	void PrintAdjMeasurementsHeader(bool printHeader, const std::string& table_heading,
 		printMeasurementsMode printMode, UINT32 block, bool printBlocks = false);
 	void PrintAdjMeasurements(v_uint32_u32u32_pair msr_block, bool printHeader);
 	void PrintAdjMeasurementsAngular(const char cardinal, const it_vmsr_t& _it_msr, bool initialise_dbindex = true);
@@ -795,19 +789,19 @@ private:
 	void PrintAdjMeasurements_YLLH(it_vmsr_t& _it_msr);
 	void ReduceYLLHMeasurementsforPrinting(vmsr_t& y_msr, matrix_2d& mpositions, printMeasurementsMode print_mode);
 
-	void PrintAdjStation(ostream& os, const UINT32& block, const UINT32& stn, const UINT32& mat_idx, const matrix_2d* stationEstimates, matrix_2d* stationVariances, bool recomputeGeographicCoords, bool updateGeographicCoords, bool reapplyTypeBUncertainties);
-	void PrintAdjStations(ostream& os, const UINT32& block, const matrix_2d* stationEstimates, matrix_2d* stationVariances, 
+	void PrintAdjStation(std::ostream& os, const UINT32& block, const UINT32& stn, const UINT32& mat_idx, const matrix_2d* stationEstimates, matrix_2d* stationVariances, bool recomputeGeographicCoords, bool updateGeographicCoords, bool reapplyTypeBUncertainties);
+	void PrintAdjStations(std::ostream& os, const UINT32& block, const matrix_2d* stationEstimates, matrix_2d* stationVariances, 
 		bool printBlockID, bool recomputeGeographicCoords, bool updateGeographicCoords, bool printHeader, bool reapplyTypeBUncertainties);
-	void PrintAdjStationsUniqueList(ostream& os, const v_mat_2d* stationEstimates, v_mat_2d* stationVariances, bool recomputeGeographicCoords, bool updateGeographicCoords, bool reapplyTypeBUncertainties);
+	void PrintAdjStationsUniqueList(std::ostream& os, const v_mat_2d* stationEstimates, v_mat_2d* stationVariances, bool recomputeGeographicCoords, bool updateGeographicCoords, bool reapplyTypeBUncertainties);
 	
-	void PrintCorStations(ostream &cor_file, const UINT32& block);
-	void PrintCorStationsUniqueList(ostream& cor_file);
-	void PrintCorStation(ostream& os, const UINT32& block, const UINT32& stn, const UINT32& mat_idx, const matrix_2d* stationEstimates);
+	void PrintCorStations(std::ostream &cor_file, const UINT32& block);
+	void PrintCorStationsUniqueList(std::ostream& cor_file);
+	void PrintCorStation(std::ostream& os, const UINT32& block, const UINT32& stn, const UINT32& mat_idx, const matrix_2d* stationEstimates);
 
-	void PrintPosUncertainty(ostream& os, /*ostream* csv,*/ const UINT32& block, const UINT32& stn, const UINT32& mat_idx, const matrix_2d* stationVariances, const UINT32& map_idx=0, const vUINT32* blockStations=NULL);
-	void PrintPosUncertainties(ostream& os, const UINT32& block, const matrix_2d* stationVariances);
-	void PrintPosUncertaintiesUniqueList(ostream& os, const v_mat_2d* stationVariances);
-	void PrintPosUncertaintiesHeader(ostream& os);
+	void PrintPosUncertainty(std::ostream& os, /*ostream* csv,*/ const UINT32& block, const UINT32& stn, const UINT32& mat_idx, const matrix_2d* stationVariances, const UINT32& map_idx=0, const vUINT32* blockStations=NULL);
+	void PrintPosUncertainties(std::ostream& os, const UINT32& block, const matrix_2d* stationVariances);
+	void PrintPosUncertaintiesUniqueList(std::ostream& os, const v_mat_2d* stationVariances);
+	void PrintPosUncertaintiesHeader(std::ostream& os);
 
 	void UpdateGeographicCoordsPhased(const UINT32& block, matrix_2d* estimatedStations);
 	void UpdateGeographicCoords();
@@ -822,7 +816,7 @@ private:
 		return v_blockStationsMap_.at(block)[(*_it_msr)->station3] * 3; 
 	}
 
-	void debug_BlockInformation(const UINT32& currentBlock, const string& adjustment_method);
+	void debug_BlockInformation(const UINT32& currentBlock, const std::string& adjustment_method);
 	void debug_SolutionInformation(const UINT32& currentBlock);
 
 	CDnaDatum			datum_;
@@ -875,7 +869,7 @@ private:
 	UINT32					potentialOutlierCount_;
 	bool					allStationsFixed_;
 
-	message_bank<string>	iterationCorrections_;
+	message_bank<std::string>	iterationCorrections_;
 
 	// For each block
 	vUINT32					v_ContiguousNetList_;			// vector of contiguous network IDs (corresponding to each block)

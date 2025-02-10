@@ -44,9 +44,9 @@ public:
 
 	dna_io_adj& operator=(const dna_io_adj& rhs);
 
-	void print_stn_info_col_header(ostream& os, const string& stn_coord_types, const UINT16& printStationCorrections=false);
-	void print_adj_stn_header(ostream& os);
-	void print_adj_stn_block_header(ostream& os, const UINT32& block);
+	void print_stn_info_col_header(std::ostream& os, const std::string& stn_coord_types, const UINT16& printStationCorrections=false);
+	void print_adj_stn_header(std::ostream& os);
+	void print_adj_stn_block_header(std::ostream& os, const UINT32& block);
 
 protected:
 

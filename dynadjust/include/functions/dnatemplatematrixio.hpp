@@ -24,9 +24,6 @@
 
 #include <include/math/dnamatrix_contiguous.hpp>
 
-using namespace std;
-using namespace boost;
-
 using namespace dynadjust::math;
 
 

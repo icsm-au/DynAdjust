@@ -45,9 +45,6 @@
 #include <include/config/dnatypes.hpp>
 #include <include/config/dnaconsts.hpp>
 
-using namespace std;
-using namespace boost;
-
 template <class U>
 U sumOfConsecutiveIntegers(const U& max, const U& min = 1)
 {

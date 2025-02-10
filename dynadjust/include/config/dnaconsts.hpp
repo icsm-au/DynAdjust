@@ -107,7 +107,7 @@ const double HPOS_UNCERT_Q3(0.371625);
 const double E4_SEC_DEFLECTION(0.0001 * SEC_TO_RAD);
 
 const double STN_SEARCH_RADIUS(0.3);
-const string STN_SEARCH_RADIUS_STR("0.3");
+const std::string STN_SEARCH_RADIUS_STR("0.3");
 
 const double TOLERANCE_SEC_MIN(1.);
 const double TOLERANCE_SEC_MAX(7200.);		// 120 minutes (or 2 degrees)
@@ -122,9 +122,9 @@ const double MAX_DBL_VALUE(+1.7e308);
 const UINT32 MAX_UINT32_VALUE(0xffffffff);
 
 #if defined(_WIN32) || defined(__WIN32__)
-const string FOLDER_SLASH("\\");
+const std::string FOLDER_SLASH("\\");
 #elif defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
-const string FOLDER_SLASH("/");
+const std::string FOLDER_SLASH("/");
 #endif
 
 #endif  // DNACONSTS_HPP

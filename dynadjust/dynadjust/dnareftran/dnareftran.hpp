@@ -40,11 +40,6 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/filesystem.hpp>
 
-using namespace std;
-using namespace boost;
-using namespace boost::posix_time;
-using namespace boost::filesystem;
-
 #include <include/io/dnaiotpb.hpp>
 #include <include/io/dnaiobst.hpp>
 #include <include/io/dnaiobms.hpp>
@@ -108,7 +103,7 @@ private:
 	dna_reftran& operator=(const dna_reftran&);	
 
 public:
-	void TransformBinaryFiles(const string& bstFile, const string& bmsFile, const string& newFrame, const string& newEpoch="");
+	void TransformBinaryFiles(const std::string& bstFile, const std::string& bmsFile, const std::string& newFrame, const std::string& newEpoch="");
 	
 	// Returns the file progress
 	//inline int ReturnFileProgress() const { return (int)m_dPercentComplete; }
@@ -124,32 +119,32 @@ public:
 	inline UINT32 MeasurementsNotTransformed() const { return m_msrsNotTransformed; }
 
 	// file handling
-	void SerialiseDNA(const string& stnfilename, const string& msrfilename, bool flagUnused=false);
-	void SerialiseDynaML(const string& xmlfilename, bool flagUnused=false);
-	void SerialiseDynaML(const string& stnfilename, const string& msrfilename, bool flagUnused=false);
+	void SerialiseDNA(const std::string& stnfilename, const std::string& msrfilename, bool flagUnused=false);
+	void SerialiseDynaML(const std::string& xmlfilename, bool flagUnused=false);
+	void SerialiseDynaML(const std::string& stnfilename, const std::string& msrfilename, bool flagUnused=false);
 
 	void SerialiseDynaMLStn(std::ofstream* xml_file, CDnaProjection& projection, bool flagUnused=false);
 	void SerialiseDynaMLMsr(std::ofstream* xml_file);
 
 	//bool PrintTransformedStationCoordinatestoSNX();
 
-	void LoadTectonicPlateParameters(const string& pltfileName, const string& pmmfileName);
+	void LoadTectonicPlateParameters(const std::string& pltfileName, const std::string& pmmfileName);
 
-	//void LoadFrameSubstitutions(const string& frxfileName);
+	//void LoadFrameSubstitutions(const std::string& frxfileName);
 	void LoadWGS84FrameSubstitutions();
 
 	inline void InitialiseSettings(const project_settings& p) {projectSettings_ = p;}
 
 private:
 
-	void LoadBinaryStationFile(const string& bstfileName);
-	void LoadBinaryMeasurementFile(const string& bmsfileName);
+	void LoadBinaryStationFile(const std::string& bstfileName);
+	void LoadBinaryMeasurementFile(const std::string& bmsfileName);
 
-	void WriteBinaryStationFile(const string& bstfileName);
-	void WriteBinaryMeasurementFile(const string& bmsfileName);
+	void WriteBinaryStationFile(const std::string& bstfileName);
+	void WriteBinaryMeasurementFile(const std::string& bmsfileName);
 
-	void TransformStationRecords(const string& newFrame, const string& newEpoch);
-	void TransformMeasurementRecords(const string& newFrame, const string& newEpoch);
+	void TransformStationRecords(const std::string& newFrame, const std::string& newEpoch);
+	void TransformMeasurementRecords(const std::string& newFrame, const std::string& newEpoch);
 
 	double DetermineElapsedTime(const CDnaDatum& datumFrom, const CDnaDatum& datumTo,
 		transformation_parameter_set& transParams, transformationType transType);
@@ -157,7 +152,7 @@ private:
 	void ObtainHelmertParameters(const CDnaDatum& datumFrom, const CDnaDatum& datumTo, 
 		transformation_parameter_set& transParams, double& timeElapsed, transformationType transType);
 	
-	UINT32 DetermineTectonicPlate(const string& plate);
+	UINT32 DetermineTectonicPlate(const std::string& plate);
 
 	void ObtainPlateMotionParameters(it_vstn_t& stn_it, double* reduced_parameters, const CDnaDatum& datumFrom, const CDnaDatum& datumTo,
 		transformation_parameter_set& transformParameters, double& timeElapsed);
@@ -200,11 +195,11 @@ private:
 	
 	void CalculateRotations();
 
-	void LogFrameSubstitutions(vector<string_string_pair>& substitutions, const string& type);
+	void LogFrameSubstitutions(std::vector<string_string_pair>& substitutions, const std::string& type);
 	void ApplyStationFrameSubstitutions();
 	void ApplyMeasurementFrameSubstitutions();
 
-	bool IsolateandApplySubstitute(const string& epsgCode, const string& epoch, string& epsgSubstitute);
+	bool IsolateandApplySubstitute(const std::string& epsgCode, const std::string& epoch, std::string& epsgSubstitute);
 
 	//double							m_dPercentComplete;			// percentage of bytes read from file
 	int								m_iBytesRead;				// bytes read from file
@@ -230,8 +225,8 @@ private:
 	v_plate_motion_cartesians		plate_motion_cartesians_;	// Helmert parameters computed from Euler parameters
 
 	vframeSubsPtr					_frameSubstitutions;		// Reference frame substitutions
-	vector<string_string_pair>		_v_stn_substitutions;		// station substitutions made
-	vector<string_string_pair>		_v_msr_substitutions;		// station substitutions made
+	std::vector<string_string_pair>		_v_stn_substitutions;		// station substitutions made
+	std::vector<string_string_pair>		_v_msr_substitutions;		// station substitutions made
 
 	v_string_uint32_pair 			vplateMap_;					// Plate Map index sorted on plate ID
 

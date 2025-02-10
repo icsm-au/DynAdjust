@@ -25,15 +25,13 @@
 #include <include/functions/dnastrmanipfuncs.hpp>
 #include <boost/date_time/gregorian/gregorian.hpp>
 
-using namespace boost::gregorian;
-
 namespace dynadjust {
 namespace iostreams {
 
 dna_io_base::dna_io_base(void)
 	: m_strVersion(__FILE_VERSION__)
 	, m_strDate("")
-	, m_strApp("DNA" + string(__SHORT_VERSION__))
+	, m_strApp("DNA" + std::string(__SHORT_VERSION__))
 {
 }
 
@@ -170,9 +168,9 @@ void dna_io_base::writeDate(std::ofstream& file_stream)
 	char dateField[identifier_field_width+1];
 
 	// Form date string
-	date today(day_clock::local_day());
-	stringstream date_string;
-	date_string << right << to_iso_extended_string(today);
+	boost::gregorian::date today(boost::gregorian::day_clock::local_day());
+	std::stringstream date_string;
+	date_string << std::right << to_iso_extended_string(today);
 	m_strDate = date_string.str();
 	
 	// write creation date field name

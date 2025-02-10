@@ -65,11 +65,11 @@ bool dna_adjust_thread::prepareAdjustment()
 	catch (const NetMemoryException& e) {
 		handlePrepareAdjustError(e.what());
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		handlePrepareAdjustError(e.what());
 	}
 	catch (...) {
-		string err("Undefined error.\n  This could be the result of insufficient memory or poorly configured data.");
+		std::string err("Undefined error.\n  This could be the result of insufficient memory or poorly configured data.");
 		handlePrepareAdjustError(err);
 	}
 	*_adjustStatus = ADJUST_EXCEPTION_RAISED;
@@ -89,36 +89,36 @@ bool dna_adjust_thread::processAdjustment()
 	catch (const NetMemoryException& e) {
 		handleProcessAdjustError(e.what());
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		handleProcessAdjustError(e.what());
 	}
 	catch (...) {
-		string err("- Error: Undefined error.\n  This could be the result of insufficient memory or poorly configured data.");
+		std::string err("- Error: Undefined error.\n  This could be the result of insufficient memory or poorly configured data.");
 		handleProcessAdjustError(err);
 	}
 	*_adjustStatus = ADJUST_EXCEPTION_RAISED;
 	return false;
 }
 
-void dna_adjust_thread::handlePrepareAdjustError(const string& error_msg)
+void dna_adjust_thread::handlePrepareAdjustError(const std::string& error_msg)
 {
 	running = false;
-	stringstream ss;
-	ss << /*PROGRESS_BACKSPACE_12 << */setw(PROGRESS_ADJ_BLOCK_12) << " " << endl
-		<< "- Error: " << endl << "  " << error_msg << endl;
+	std::stringstream ss;
+	ss << /*PROGRESS_BACKSPACE_12 << */setw(PROGRESS_ADJ_BLOCK_12) << " " << std::endl
+		<< "- Error: " << std::endl << "  " << error_msg << std::endl;
 	coutMessage(ss.str());
 }
 
-void dna_adjust_thread::handleProcessAdjustError(const string& error_msg)
+void dna_adjust_thread::handleProcessAdjustError(const std::string& error_msg)
 {
 	running = false;
-	boost::this_thread::sleep(milliseconds(50));
+	boost::this_thread::sleep(boost::posix_time::milliseconds(50));
 	printErrorMsg(error_msg);
 }
 
-void dna_adjust_thread::printErrorMsg(const string& error_msg)
+void dna_adjust_thread::printErrorMsg(const std::string& error_msg)
 {
-	stringstream ss, sst;
+	std::stringstream ss, sst;
 	
 	switch (_p->a.adjust_mode)
 	{
@@ -127,8 +127,8 @@ void dna_adjust_thread::printErrorMsg(const string& error_msg)
 		// setw(2)        =  2
 		// -------------------
 		//                  14
-		sst << "  Iteration " << right << setw(2) << fixed << setprecision(0) << _dnaAdj->CurrentIteration();
-		ss << PROGRESS_BACKSPACE_14 << setw(PROGRESS_ADJ_BLOCK_14) << right << sst.str();
+		sst << "  Iteration " << std::right << std::setw(2) << std::fixed << std::setprecision(0) << _dnaAdj->CurrentIteration();
+		ss << PROGRESS_BACKSPACE_14 << std::setw(PROGRESS_ADJ_BLOCK_14) << std::right << sst.str();
 		break;
 	case Phased_Block_1Mode:
 	case PhasedMode:
@@ -140,26 +140,26 @@ void dna_adjust_thread::printErrorMsg(const string& error_msg)
 		// -------------------
 		//                  37
 		sst << "  Iteration " << 
-			right << setw(2) << fixed << setprecision(0) << _dnaAdj->CurrentIteration() << ", block" << right << setw(6) << fixed << setprecision(0) << 
+			std::right << std::setw(2) << std::fixed << std::setprecision(0) << _dnaAdj->CurrentIteration() << ", block" << std::right << std::setw(6) << std::fixed << std::setprecision(0) << 
 			_dnaAdj->CurrentBlock() + 1 << (_dnaAdj->processingForward() ? " (forward)" : " (reverse)");
-		ss << PROGRESS_BACKSPACE_37 << setw(37) << right << sst.str();
+		ss << PROGRESS_BACKSPACE_37 << std::setw(37) << std::right << sst.str();
 	}
 
-	ss << endl << "- Error: Cannot compute the least squares estimates.  Reason:\n  " << error_msg << endl;
+	ss << std::endl << "- Error: Cannot compute the least squares estimates.  Reason:\n  " << error_msg << std::endl;
 	coutMessage(ss);
 }
 
-void dna_adjust_thread::coutMessage(stringstream& message)
+void dna_adjust_thread::coutMessage(std::stringstream& message)
 {
 	coutMessage(message.str());
 }
 
-void dna_adjust_thread::coutMessage(const string& message)
+void dna_adjust_thread::coutMessage(const std::string& message)
 {
 	cout_mutex.lock();
-	cout.flush();
-	cout << message;
-	cout.flush();
+	std::cout.flush();
+	std::cout << message;
+	std::cout.flush();
 	cout_mutex.unlock();
 }
 
@@ -183,7 +183,7 @@ void dna_adjust_progress_thread::prepareAdjustment()
 		// Nothing to be displayed
 		return;
 
-	stringstream ss;
+	std::stringstream ss;
 	ss << "+ Preparing for ";
 
 	switch (_p->a.adjust_mode)
@@ -199,7 +199,7 @@ void dna_adjust_progress_thread::prepareAdjustment()
 	ss.str("");
 	
 	UINT32 block, currentBlock(0);
-	stringstream sst;
+	std::stringstream sst;
 	bool first_time(true);
 	
 	switch (_p->a.adjust_mode)
@@ -207,13 +207,13 @@ void dna_adjust_progress_thread::prepareAdjustment()
 	case SimultaneousMode:
 		while (running && _dnaAdj->IsPreparing())
 		{
-			boost::this_thread::sleep(milliseconds(40));
+			boost::this_thread::sleep(boost::posix_time::milliseconds(40));
 		}
 		
 		if (_dnaAdj->ExceptionRaised())
 			return;
 
-		ss << " done." << endl;
+		ss << " done." << std::endl;
 		coutMessage(ss.str());
 		
 		break;
@@ -226,19 +226,19 @@ void dna_adjust_progress_thread::prepareAdjustment()
 			if (block != currentBlock)
 			{
 				ss.str("");
-				ss << " block " << left << setw(5) << fixed << setprecision(0) << _dnaAdj->CurrentBlock() + 1;
+				ss << " block " << std::left << std::setw(5) << std::fixed << std::setprecision(0) << _dnaAdj->CurrentBlock() + 1;
 
 				sst.str("");
 				if (first_time)
 				{
-					sst << setw(PROGRESS_ADJ_BLOCK_12) << left << " ";
+					sst << std::setw(PROGRESS_ADJ_BLOCK_12) << std::left << " ";
 					first_time = false;
 				}
-				sst << PROGRESS_BACKSPACE_12 << setw(PROGRESS_ADJ_BLOCK_12) << left << ss.str();
+				sst << PROGRESS_BACKSPACE_12 << std::setw(PROGRESS_ADJ_BLOCK_12) << std::left << ss.str();
 				coutMessage(sst.str());
 				currentBlock = block;
 			}
-			boost::this_thread::sleep(milliseconds(40));
+			boost::this_thread::sleep(boost::posix_time::milliseconds(40));
 		}
 
 		if (_dnaAdj->ExceptionRaised())
@@ -249,7 +249,7 @@ void dna_adjust_progress_thread::prepareAdjustment()
 		sst.str("");
 		if (!first_time)
 			sst << PROGRESS_BACKSPACE_12;
-		sst << setw(PROGRESS_ADJ_BLOCK_12) << left << ss.str() << endl;
+		sst << std::setw(PROGRESS_ADJ_BLOCK_12) << std::left << ss.str() << std::endl;
 		coutMessage(sst.str());
 		
 	}
@@ -262,11 +262,11 @@ void dna_adjust_progress_thread::processAdjustment()
 		return;
 	
 	if (_p->a.max_iterations > 0)
-		coutMessage(string("+ Adjusting network...\n"));
+		coutMessage(std::string("+ Adjusting network...\n"));
 
 	UINT32 block, currentBlock(0);
 	UINT32 currentIteration(0);
-	stringstream ss, sst;
+	std::stringstream ss, sst;
 	bool first_time(true);
 
 	switch (_p->a.adjust_mode)
@@ -281,13 +281,13 @@ void dna_adjust_progress_thread::processAdjustment()
 				if (!_dnaAdj->GetMessageIteration(currentIteration))
 					break;
 				ss.str("");
-				ss << "  Iteration " << right << setw(2) << fixed << setprecision(0) << currentIteration;
-				ss << ", max station corr: " << right << setw(PROGRESS_ADJ_BLOCK_12) <<
-					_dnaAdj->GetMaxCorrection(currentIteration) << endl;
+				ss << "  Iteration " << std::right << std::setw(2) << std::fixed << std::setprecision(0) << currentIteration;
+				ss << ", max station corr: " << std::right << std::setw(PROGRESS_ADJ_BLOCK_12) <<
+					_dnaAdj->GetMaxCorrection(currentIteration) << std::endl;
 					
 				coutMessage(ss.str());
 			}
-			boost::this_thread::sleep(milliseconds(80));
+			boost::this_thread::sleep(boost::posix_time::milliseconds(80));
 		}
 		
 		break;
@@ -305,40 +305,40 @@ void dna_adjust_progress_thread::processAdjustment()
 					break;
 						
 				ss.str("");
-				ss << "  Iteration " << right << setw(2) << fixed << setprecision(0) << currentIteration;
-				ss << ", max station corr: " << right << setw(PROGRESS_ADJ_BLOCK_12) << _dnaAdj->GetMaxCorrection(currentIteration) << endl;
+				ss << "  Iteration " << std::right << std::setw(2) << std::fixed << std::setprecision(0) << currentIteration;
+				ss << ", max station corr: " << std::right << std::setw(PROGRESS_ADJ_BLOCK_12) << _dnaAdj->GetMaxCorrection(currentIteration) << std::endl;
 				
 				sst.str("");
 				if (first_time)
-					sst << setw(PROGRESS_ADJ_BLOCK_28) << left << " ";
-				sst << PROGRESS_BACKSPACE_28 << setw(PROGRESS_ADJ_BLOCK_28) << left << ss.str();
+					sst << std::setw(PROGRESS_ADJ_BLOCK_28) << std::left << " ";
+				sst << PROGRESS_BACKSPACE_28 << std::setw(PROGRESS_ADJ_BLOCK_28) << std::left << ss.str();
 				coutMessage(sst.str());
 				first_time = true;
 			}
 
-			boost::this_thread::sleep(milliseconds(40));
+			boost::this_thread::sleep(boost::posix_time::milliseconds(40));
 					
 			// print new block to screen when adjusting only
 			if (block != currentBlock && _dnaAdj->IsAdjusting())
 			{						
 				ss.str("");
-				ss << "  Iteration " << right << setw(2) << fixed << setprecision(0) << _dnaAdj->CurrentIteration();
+				ss << "  Iteration " << std::right << std::setw(2) << std::fixed << std::setprecision(0) << _dnaAdj->CurrentIteration();
 
 	#ifdef MULTI_THREAD_ADJUST
 				if (_p->a.multi_thread && !_dnaAdj->processingCombine())
-					ss << left << setw(13) << ", adjusting...";
+					ss << std::left << std::setw(13) << ", adjusting...";
 				else
 	#endif
-				ss << ", block " << left << setw(6) << fixed << setprecision(0) << _dnaAdj->CurrentBlock() + 1;
+				ss << ", block " << std::left << std::setw(6) << std::fixed << std::setprecision(0) << _dnaAdj->CurrentBlock() + 1;
 						
 				sst.str("");
 				if (first_time)
 				{
-					sst << setw(PROGRESS_ADJ_BLOCK_28) << left << " ";
+					sst << std::setw(PROGRESS_ADJ_BLOCK_28) << std::left << " ";
 					first_time = false;
 				}
 				
-				sst << PROGRESS_BACKSPACE_28 << setw(PROGRESS_ADJ_BLOCK_28) << left << ss.str();
+				sst << PROGRESS_BACKSPACE_28 << std::setw(PROGRESS_ADJ_BLOCK_28) << std::left << ss.str();
 				coutMessage(sst.str());
 
 				currentBlock = block;
@@ -366,12 +366,12 @@ void dna_adjust_progress_thread::operator()()
 	processAdjustment();	
 }
 
-void dna_adjust_progress_thread::coutMessage(const string& message)
+void dna_adjust_progress_thread::coutMessage(const std::string& message)
 {
 	cout_mutex.lock();
-	cout.flush();
-	cout << message;
-	cout.flush();
+	std::cout.flush();
+	std::cout << message;
+	std::cout.flush();
 	cout_mutex.unlock();
 }
 

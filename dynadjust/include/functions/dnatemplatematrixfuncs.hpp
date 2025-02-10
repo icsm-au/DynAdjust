@@ -45,13 +45,10 @@
 #include <include/math/dnamatrix_contiguous.hpp>
 #include <include/measurement_types/dnameasurement.hpp>
 
-using namespace std;
-using namespace boost;
-
 using namespace dynadjust::datum_parameters;
 using namespace dynadjust::math;
 
-// msr_t_Iterator = vector<measurement_t>::iterator
+// msr_t_Iterator = std::vector<measurement_t>::iterator
 template<typename msr_t_Iterator>
 // Fills upper triangle
 void GetDirectionsVarianceMatrix(msr_t_Iterator begin, matrix_2d* vmat)
@@ -129,7 +126,7 @@ void GetGPSVarianceMatrix(const msr_t_Iterator begin, matrix_2d* vmat)
 }
 
 
-// msr_t_Iterator = vector<measurement_t>::iterator
+// msr_t_Iterator = std::vector<measurement_t>::iterator
 template<typename msr_t_Iterator>
 // Sets values based on upper triangle
 void SetDirectionsVarianceMatrix(msr_t_Iterator begin, const matrix_2d& vmat)
@@ -167,7 +164,7 @@ void SetDirectionsVarianceMatrix(msr_t_Iterator begin, const matrix_2d& vmat)
 	}
 }
 
-// msr_t_Iterator = vector<measurement_t>::iterator
+// msr_t_Iterator = std::vector<measurement_t>::iterator
 template<typename msr_t_Iterator>
 // Sets values based on upper triangle
 void SetGPSVarianceMatrix(msr_t_Iterator begin, const matrix_2d& vmat)
