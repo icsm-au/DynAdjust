@@ -138,7 +138,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_HAS_STD_BYTE=0;WIN64;_DEBUG;_WINDOWS;_USRDLL;BUILD_DNASEGMENT_DLL;BUILD_EXPORTDNATYPES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN64;_DEBUG;_WINDOWS;_USRDLL;BUILD_DNASEGMENT_DLL;BUILD_EXPORTDNATYPES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <DisableSpecificWarnings>4996;4251;4290;</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <AdditionalOptions>/Zm280 /permissive-</AdditionalOptions>
