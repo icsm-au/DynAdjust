@@ -145,17 +145,14 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
 		
 		try
 		{
-			// Okay, no frame supplied, check the frame in the project settings.
+			// Okay, no frame supplied, set the frame epsg code from the project settings.
 			// The following throws an exception if the frame is unknown
-			std::string epsg = epsgStringFromName<std::string>(p.r.reference_frame);
+			epsgCode = epsgCodeFromName<UINT32>(p.r.reference_frame);
 		}
 		catch (const std::runtime_error& e) {
 			std::cout << std::endl << "- Error: " << e.what() << std::endl;
 			return EXIT_FAILURE;
-		}
-
-		// update epsgCode
-		epsgCode = epsgCodeFromName<UINT32>(p.r.reference_frame);
+		}		
 	}
 
 	if (!vm.count(EPOCH))
@@ -442,7 +439,15 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	UINT32 epsgCode(epsgCodeFromName<UINT32>(p.r.reference_frame));
+	UINT32 epsgCode;
+	try {
+		epsgCode = epsgCodeFromName<UINT32>(p.r.reference_frame);
+	}
+	catch (const std::runtime_error& e) {
+		std::cout << "- Error: " << e.what() << std::endl;
+		return EXIT_FAILURE;
+	}
+
 
 	if (ParseCommandLineOptions(argc, argv, vm, p, epsgCode) != EXIT_SUCCESS)
 		return EXIT_FAILURE;
