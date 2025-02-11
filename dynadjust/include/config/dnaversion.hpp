@@ -388,8 +388,12 @@ const char* const __plot_dll_name__ = "libdnaplot.so";
 #define __COMPILER_VERSION__ "17.10, VS2022"
 #elif (_MSC_VER == 1941)
 #define __COMPILER_VERSION__ "17.11, VS2022"
+#elif (_MSC_VER == 1942)
+#define __COMPILER_VERSION__ "17.12, VS2022"
+#elif (_MSC_VER == 1943)
+#define __COMPILER_VERSION__ "17.13, VS2022"
 
-#elif (_MSC_VER > 1941)
+#elif (_MSC_VER > 1943)
 #define __COMPILER_VERSION__ _MSC_VER
 #endif
 #else
