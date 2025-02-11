@@ -544,7 +544,7 @@ if (BUILD_TESTING)
     
     
     set_tests_properties(
-        reftran-no-option reftran-invalid-option reftran-no-project reftran-no-name reftran-no-frame reftran-no-bst-bms 
+        reftran-no-option reftran-invalid-option reftran-no-project reftran-no-name reftran-no-bst-bms 
         reftran-bad-frame reftran-bad-epoch reftran-no-discont-file reftran-no-euler-file
         reftran-no-model-option reftran-no-help
         PROPERTIES WILL_FAIL TRUE)
