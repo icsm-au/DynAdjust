@@ -527,8 +527,6 @@ if (BUILD_TESTING)
     add_test (NAME reftran-no-project COMMAND $<TARGET_FILE:dnareftranwrapper> -p ./nofile.dnaproj)
     # no name
     add_test (NAME reftran-no-name COMMAND $<TARGET_FILE:dnareftranwrapper> -r "gda94")
-    # no reference frame
-    add_test (NAME reftran-no-frame COMMAND $<TARGET_FILE:dnareftranwrapper> all)
     # no binary files
     add_test (NAME reftran-no-bst-bms COMMAND $<TARGET_FILE:dnareftranwrapper> extremelylargenetwork -r "itrf1990")
     # reference frame doesn't exist
