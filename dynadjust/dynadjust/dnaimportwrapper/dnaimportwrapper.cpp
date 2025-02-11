@@ -1880,7 +1880,7 @@ int main(int argc, char* argv[])
 	UINT32 stnCount(static_cast<UINT32>(vstationsTotal.size()));
 	UINT32 msrCount(static_cast<UINT32>(vmeasurementsTotal.size()));
 
-	if (!p.i.user_supplied_frame && !p.i.import_block)
+	if (!p.i.user_supplied_frame && !p.i.import_block && !p.i.import_network)
 	{
 		std::stringstream datumSource;
 		switch (vinput_file_meta.at(0).filetype)
