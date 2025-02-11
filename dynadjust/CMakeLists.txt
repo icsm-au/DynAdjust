@@ -515,7 +515,7 @@ if (BUILD_TESTING)
 
     set_tests_properties(import-no-option import-invalid-option import-invalid-file import-nearby import-no-files import-no-frame 
         import-no-data import-no-xsd-file import-no-geoid import-no-project import-no-stns import-no-help
-        import-misc-block-size import-misc-network-size
+        import-misc-block-size import-misc-network-size import-misc-07
         PROPERTIES WILL_FAIL TRUE)
 
     ### REFTRAN ###
