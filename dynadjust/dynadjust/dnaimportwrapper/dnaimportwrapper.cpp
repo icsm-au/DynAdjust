@@ -1017,24 +1017,28 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 					p.r.reference_frame = inputFileDatum;
 				}
 
-				if (inputFileEpoch.empty())
+				if (!p.i.user_supplied_epoch)
 				{
-					// Has an epoch been provided but no frame?
-					if (inputFileEpsg.empty())
-						// revert to epoch of 
-						p.i.epoch = referenceepochFromEpsgCode<UINT32>(inputFileEpsgi);
+					if (inputFileEpoch.empty())
+					{
+						// Has an epoch been provided but no frame?
+						if (inputFileEpsg.empty())
+							// revert to epoch of 
+							p.i.epoch = referenceepochFromEpsgCode<UINT32>(inputFileEpsgi);
+						else
+							p.i.epoch = referenceepochFromEpsgString<std::string>(projctEpsgCode);
+						p.r.epoch = p.i.epoch;
+					}
 					else
-						p.i.epoch = referenceepochFromEpsgString<std::string>(projctEpsgCode);
-					p.r.epoch = p.i.epoch;
-				}
-				else
-				{
-					p.i.epoch = inputFileEpoch;
-					p.r.epoch = p.i.epoch;
+					{
+						p.i.epoch = inputFileEpoch;
+						p.r.epoch = p.i.epoch;
+					}
 				}
 
 				try {
-					// Initialise the 'default' datum (frame and epoch) for the project, from the first file.
+					// Initialise the 'default' datum (frame and epoch) for the project, from the first file, unless the
+					// frame and epoch have been set by the user, in which case InitialiseDatum has already initialised the datum.
 					parserDynaML.InitialiseDatum(p.i.reference_frame, p.i.epoch);
 				}
 				catch (const XMLInteropException& e) {
@@ -1516,7 +1520,10 @@ int main(int argc, char* argv[])
 	// if adjust is called without reftran, it reflects the datum 
 	// supplied on import
 	p.r.reference_frame = p.i.reference_frame;
-	p.r.epoch = referenceepochFromEpsgCode<UINT32>(epsgCode);
+	if (p.i.user_supplied_epoch)
+		p.r.epoch = p.i.epoch;
+	else
+		p.r.epoch = referenceepochFromEpsgCode<UINT32>(epsgCode);
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// start "total" time
