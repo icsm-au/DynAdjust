@@ -25,7 +25,7 @@ The following build instructions are only needed if you would like to build DynA
 
 To build DynAdjust, the following prerequisites will be needed:
 
-- A C++14 compiler (e.g. gcc, Microsoft Visual Studio or Apple LLVM (clang))
+- A C++14, C++17 or C++20 compiler (e.g. gcc, Microsoft Visual Studio or Apple LLVM (clang))
 - Boost C++ headers and libraries
 - Apache Xerces C++ headers and libraries
 - Codesynthesis XSD headers and libraries
@@ -48,11 +48,11 @@ C++ is required for compiling all DynAdjust binaries.  MFC is required only for 
 
 #### 1.2 Install Boost C++ headers and libraries
 
-The supported versions of boost are 1.58.0 – 1.78.0. The headers and library sources are available from https://www.boost.org/users/download/
+The supported versions of boost are 1.58.0 – 1.87.0. The headers and library sources are available from https://www.boost.org/users/download/
 
 The boost libraries needed by DynAdjust include `filesystem`, `system`, `program_options`, `thread`, `date_time`, `math`, `timer`, `atomic` and `chrono`. These will need to be built from the boost C++ sources using Visual Studio 2022, and installed to a suitable folder on your machine.
 
-Follow the instructions on the [Boost Website](https://www.boost.org/doc/libs/1_78_0/more/getting_started/windows.html#prepare-to-use-a-boost-library-binary) to build the boost libraries from source.  For example, the steps are: 
+Follow the instructions on the [Boost Website](https://www.boost.org/doc/libs/1_87_0/more/getting_started/windows.html#prepare-to-use-a-boost-library-binary) to build the boost libraries from source.  For example, the steps are: 
 
 1. Download and extract boost to a suitable folder
 2. Run `Bootstrap.bat` to build `b2`
@@ -191,7 +191,7 @@ The specific Linux/Mac prerequisites for building DynaAdjust include the followi
 - gcc-c++ (with std C++ 14 support), with a compatible version of make
 - cmake (minimum v3.13)
 - Intel oneAPI Math Kernel Library (MKL)
-- boost-devel (minimum v1.58.0. v1.78.0 preferred)
+- boost-devel (minimum v1.58.0. v1.87.0 preferred)
 - xerces-c (3.1.4)
 - xsd (4.0)
 - git (if cloning copies from the GitHub repository)
