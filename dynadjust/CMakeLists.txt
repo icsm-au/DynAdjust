@@ -254,6 +254,7 @@ if (BUILD_TESTING)
     file (COPY ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn DESTINATION ./)
     file (COPY ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr DESTINATION ./)
     file (COPY ${CMAKE_SOURCE_DIR}/../sampleData/sample.dnaproj DESTINATION ./)
+    file (COPY ${CMAKE_SOURCE_DIR}/../sampleData/urban-network-geoid.gsb DESTINATION ./)
     #add_test (NAME dynadjust-proj-01 COMMAND $<TARGET_FILE:dynadjust> -p ${CMAKE_SOURCE_DIR}/../sampleData/sample.dnaproj --import --geoid --reftran --segment --adjust)
     #add_test (NAME dynadjust-proj-02 COMMAND $<TARGET_FILE:dynadjust> -p ${CMAKE_SOURCE_DIR}/../sampleData/sample.dnaproj --import --geoid --reftran --segment --adjust --quiet)
     add_test (NAME dynadjust-name-01 COMMAND $<TARGET_FILE:dynadjust> -n sample --import --geoid --reftran --segment --adjust)
@@ -515,7 +516,7 @@ if (BUILD_TESTING)
 
     set_tests_properties(import-no-option import-invalid-option import-invalid-file import-nearby import-no-files import-no-frame 
         import-no-data import-no-xsd-file import-no-geoid import-no-project import-no-stns import-no-help
-        import-misc-block-size import-misc-network-size
+        import-misc-block-size import-misc-network-size import-misc-07
         PROPERTIES WILL_FAIL TRUE)
 
     ### REFTRAN ###
