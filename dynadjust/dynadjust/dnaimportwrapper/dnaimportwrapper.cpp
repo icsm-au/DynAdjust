@@ -879,7 +879,7 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 
 	bool firstFile;
 
-	// obtain the project reference frame epsg code
+	// obtain the (default) project reference frame epsg code
 	std::string projctEpsgCode(epsgStringFromName<std::string>(p.i.reference_frame));
 
 	for (i=0; i<nfiles; i++)
@@ -1049,6 +1049,7 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 				}
 			}
 
+			// Was the datum field empty in the first file?
 			if (!parserDynaML.filespecifiedReferenceFrame())
 			{
 				std::stringstream ssEpsgWarning;
@@ -1057,6 +1058,7 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 					std::cout << ssEpsgWarning.str() << std::endl;
 				*imp_file << ssEpsgWarning.str() << std::endl;
 			}
+			// Is the datum in the first file different to the project datum?
 			else if (!boost::iequals(projctEpsgCode, input_file_meta.epsgCode))
 			{
 				std::stringstream ssEpsgWarning;
@@ -1064,6 +1066,9 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 				{
 					ssEpsgWarning << "  - Warning: The project reference frame has been set to the default" << std::endl <<
 						"    file datum of " << leafStr<std::string>(p.i.input_files.at(i)) << " (" << inputFileDatum << ").";
+					
+					// set the project reference frame epsg code
+					projctEpsgCode = epsgStringFromName<std::string>(p.i.reference_frame);
 				}
 				else				
 				{
@@ -1074,7 +1079,7 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 				if (!p.g.quiet)
 					std::cout << ssEpsgWarning.str() << std::endl;
 				*imp_file << ssEpsgWarning.str() << std::endl;
-			}
+			}			
 		}
 
 		// Handle discontinuities for non-sinex files, if and only if a discontinuity file has been loaded.
