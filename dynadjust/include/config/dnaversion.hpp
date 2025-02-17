@@ -171,7 +171,7 @@ const char* const __plot_dll_name__ = "libdnaplot.so";
 #endif
 
 #define __CONTACT_EMAIL__   "geodesy@ga.gov.au"
-#define __COPYRIGHT_YEAR__  "2022"
+#define __COPYRIGHT_YEAR__  "2025"
 #define __COPYRIGHT_OWNER__ "Geoscience Australia"
 #define __COPYRIGHT_MSG__   "This software is released under the Apache License."
 

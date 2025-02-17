@@ -44,7 +44,7 @@ BEGIN
             VALUE "FileDescription", "DynAdjust is a rigorous, high performance least squares adjustment application."
             VALUE "FileVersion", "1.2.8.0"
             VALUE "InternalName", "DynAdjust"
-            VALUE "LegalCopyright", "Copyright 2022 Geoscience Australia"
+            VALUE "LegalCopyright", "Copyright 2025 Geoscience Australia"
             VALUE "OriginalFilename", "DynAdjust"
             VALUE "ProductName", "DynAdjust"
             VALUE "ProductVersion", "1.2.8.0"
