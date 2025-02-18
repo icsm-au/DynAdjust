@@ -880,7 +880,7 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 	bool firstFile;
 
 	// obtain the (default) project reference frame epsg code
-	std::string projctEpsgCode(epsgStringFromName<std::string>(p.i.reference_frame));
+	std::string projectEpsgCode(epsgStringFromName<std::string>(p.i.reference_frame));
 
 	for (i=0; i<nfiles; i++)
 	{
@@ -1017,35 +1017,31 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 					
 					p.i.reference_frame = inputFileDatum;
 					p.r.reference_frame = inputFileDatum;
+					projectEpsgCode = epsgStringFromName<std::string>(p.i.reference_frame);
 				}
-
-				// Force reference epoch if reference frame is static
-				if (isEpsgDatumStatic(inputFileEpsgi))
+				
+				// Has the user supplied a static reference frame?  
+				// If so, set the epoch
+				if (p.i.user_supplied_frame && isEpsgDatumStatic(LongFromString<UINT32>(projectEpsgCode)))
 				{
-					p.i.epoch = referenceepochFromEpsgCode<UINT32>(inputFileEpsgi);
+					p.i.epoch = referenceepochFromEpsgString<std::string>(projectEpsgCode);
 					p.r.epoch = p.i.epoch;
 				}
-				else
+				else if (!p.i.user_supplied_epoch)
 				{
-					if (!p.i.user_supplied_epoch)
-					{
-						if (inputFileEpoch.empty())
-						{
-							// Has an epoch been provided but no frame?
-							if (inputFileEpsg.empty())
-								// revert to epoch of 
-								p.i.epoch = referenceepochFromEpsgCode<UINT32>(inputFileEpsgi);
-							else
-								p.i.epoch = referenceepochFromEpsgString<std::string>(projctEpsgCode);
-							p.r.epoch = p.i.epoch;
-						}
-						else
-						{
-							p.i.epoch = inputFileEpoch;
-							p.r.epoch = p.i.epoch;
-						}
+					if (inputFileEpoch.empty())
+					{						
+						// revert to epoch of the file frame
+						p.i.epoch = referenceepochFromEpsgCode<UINT32>(inputFileEpsgi);						
+						p.r.epoch = p.i.epoch;
 					}
-				}				
+					else
+					{
+						p.i.epoch = inputFileEpoch;
+						p.r.epoch = p.i.epoch;
+					}
+				}
+							
 
 				try {
 					// Initialise the 'default' datum (frame and epoch) for the project, from the first file, unless the
@@ -1070,7 +1066,7 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 				*imp_file << ssEpsgWarning.str() << std::endl;
 			}
 			// Is the datum in the first file different to the project datum?
-			else if (!boost::iequals(projctEpsgCode, input_file_meta.epsgCode))
+			else if (!boost::iequals(projectEpsgCode, input_file_meta.epsgCode))
 			{
 				std::stringstream ssEpsgWarning;
 				if (referenceframeChanged)
@@ -1079,7 +1075,7 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 						"    file datum of " << leafStr<std::string>(p.i.input_files.at(i)) << " (" << inputFileDatum << ").";
 					
 					// set the project reference frame epsg code
-					projctEpsgCode = epsgStringFromName<std::string>(p.i.reference_frame);
+					projectEpsgCode = epsgStringFromName<std::string>(p.i.reference_frame);
 				}
 				else				
 				{
