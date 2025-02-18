@@ -495,14 +495,15 @@ void dna_import::ParseXML(const std::string& fileName, vdnaStnPtr* vStations, PU
 			// is specified in DynaML.xsd, this value will never be empty, unless the user
 			// has inadvertently set in the xml file, e.g.:
 			//  <DnaXmlFormat epoch="" ... >
-			if (fileEpoch.empty())
+			// Or, is the file reference frame a static datum?
+			if (fileEpoch.empty() || isEpsgDatumStatic(LongFromString<UINT32>(fileEpsg)))
 			{
 				// Get the epoch of the nominated epsg (whether default or from the file)
 				fileEpoch = referenceepochFromEpsgString<std::string>(fileEpsg);
 			}
 
 			// Has the user supplied a reference frame on the command line (--reference-frame)?
-			if (projectSettings_.i.override_input_rfame)
+			if (projectSettings_.i.user_supplied_frame)
 			{
 				// A frame has been supplied. Now check for epoch.
 
@@ -1084,6 +1085,19 @@ void dna_import::ParseDNA(const std::string& fileName, vdnaStnPtr* vStations, PU
 	catch (const std::runtime_error& e) {
 		import_file_mutex.unlock();
 		throw XMLInteropException(e.what(), 0);
+	}
+
+	// Set to defaults if reference frame and epoch fields are empty
+	if (fileEpsg.empty())
+		fileEpsg = datum_.GetEpsgCode_s();	
+	if (fileEpoch.empty())
+		fileEpoch = datum_.GetEpoch_s();
+
+	// Is the file reference frame a static datum?
+	if (isEpsgDatumStatic(LongFromString<UINT32>(fileEpsg)))
+	{
+		// Get the reference epoch of the nominated epsg
+		fileEpoch = referenceepochFromEpsgString<std::string>(fileEpsg);
 	}
 
 	// Has the user supplied a reference frame on the command line (--reference-frame)?

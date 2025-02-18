@@ -444,13 +444,19 @@ int main(int argc, char* argv[])
 		epsgCode = epsgCodeFromName<UINT32>(p.r.reference_frame);
 	}
 	catch (const std::runtime_error& e) {
+		std::cout << std::endl << cmd_line_banner;
+		
 		std::cout << "- Error: " << e.what() << std::endl;
 		return EXIT_FAILURE;
 	}
 
-
 	if (ParseCommandLineOptions(argc, argv, vm, p, epsgCode) != EXIT_SUCCESS)
 		return EXIT_FAILURE;
+
+	// if the reference frame supplied is static, then force the epoch
+	// to be the reference epoch
+	if (isEpsgDatumStatic(epsgCode))
+		p.r.epoch = referenceepochFromEpsgCode<UINT32>(epsgCode);
 
 	std::ofstream rft_file;
 	try {
@@ -463,6 +469,8 @@ int main(int argc, char* argv[])
 		std::cout << ss.str() << e.what() << std::endl;
 		return EXIT_FAILURE;
 	}
+
+
 
 	if (vm.count(QUIET))
 		p.g.quiet = 1;
@@ -496,7 +504,7 @@ int main(int argc, char* argv[])
 				std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Target epoch: " <<
 					formattedDateStringFromNumericString<boost::gregorian::date>(p.r.epoch);
 				if (isEpsgDatumStatic(epsgCode))
-					std::cout << " (ignored: " << p.r.reference_frame << " is static)";
+					std::cout << " (adopted reference epoch of " << p.r.reference_frame << ")";
 				std::cout << std::endl;
 			}
 		}

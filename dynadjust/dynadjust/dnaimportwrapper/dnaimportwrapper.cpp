@@ -240,7 +240,7 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
 		else if (p.i.epoch.rfind(".") == std::string::npos)
 			p.i.epoch.insert(0, "01.01.");
 		p.i.user_supplied_epoch = 1;
-	}
+	}	
 
 	//////////////////////////////////////////////////////////////////////////////
 	// Data screening options
@@ -984,9 +984,11 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 			// Capture the input file's default reference frame and set the
 			// project reference frame (if not specified on the command-line)
 			std::string inputFileEpsg(""), inputFileDatum(""), inputFileEpoch("");
+			UINT32 inputFileEpsgi;
 			try {
 				inputFileDatum = datumFromEpsgString<std::string>(input_file_meta.epsgCode);
 				inputFileEpsg = input_file_meta.epsgCode;
+				inputFileEpsgi = LongFromString<UINT32>(inputFileEpsg);
 				inputFileEpoch = input_file_meta.epoch;
 			}
 			catch (...) 
@@ -998,7 +1000,7 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 
 			// Is this the first file?  If so, attempt to set the default datum from
 			// the input file (if applicable).
-			UINT32 inputFileEpsgi;
+			
 			bool referenceframeChanged(false);
 
 			if (firstFile)
@@ -1012,29 +1014,38 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 				{
 					// Set the project defaults
 					referenceframeChanged = true;
-					inputFileEpsgi = LongFromString<UINT32>(inputFileEpsg);
+					
 					p.i.reference_frame = inputFileDatum;
 					p.r.reference_frame = inputFileDatum;
 				}
 
-				if (!p.i.user_supplied_epoch)
+				// Force reference epoch if reference frame is static
+				if (isEpsgDatumStatic(inputFileEpsgi))
 				{
-					if (inputFileEpoch.empty())
-					{
-						// Has an epoch been provided but no frame?
-						if (inputFileEpsg.empty())
-							// revert to epoch of 
-							p.i.epoch = referenceepochFromEpsgCode<UINT32>(inputFileEpsgi);
-						else
-							p.i.epoch = referenceepochFromEpsgString<std::string>(projctEpsgCode);
-						p.r.epoch = p.i.epoch;
-					}
-					else
-					{
-						p.i.epoch = inputFileEpoch;
-						p.r.epoch = p.i.epoch;
-					}
+					p.i.epoch = referenceepochFromEpsgCode<UINT32>(inputFileEpsgi);
+					p.r.epoch = p.i.epoch;
 				}
+				else
+				{
+					if (!p.i.user_supplied_epoch)
+					{
+						if (inputFileEpoch.empty())
+						{
+							// Has an epoch been provided but no frame?
+							if (inputFileEpsg.empty())
+								// revert to epoch of 
+								p.i.epoch = referenceepochFromEpsgCode<UINT32>(inputFileEpsgi);
+							else
+								p.i.epoch = referenceepochFromEpsgString<std::string>(projctEpsgCode);
+							p.r.epoch = p.i.epoch;
+						}
+						else
+						{
+							p.i.epoch = inputFileEpoch;
+							p.r.epoch = p.i.epoch;
+						}
+					}
+				}				
 
 				try {
 					// Initialise the 'default' datum (frame and epoch) for the project, from the first file, unless the
@@ -1403,6 +1414,53 @@ int main(int argc, char* argv[])
 	vstationsTotal.clear();
 	vmeasurementsTotal.clear();
 
+	dna_import parserDynaML;
+
+	////////////////////////////////////////////////////////////////////////////////////
+	// First things first!
+	// Set the 'default' reference frame for the binary station and measurement files
+	// At this point, the frame may be the hard-coded default, or a user-specified 
+	// frame via:   -r [--reference-frame] arg
+	// See comments in InitialiseDatum()
+	try {
+		// Initialise the 'default' datum for the project.
+		parserDynaML.InitialiseDatum(p.i.reference_frame, p.i.epoch);
+	}
+	catch (const XMLInteropException& e) {
+
+		std::cout << std::endl << cmd_line_banner;
+		
+		std::stringstream ss;
+		ss << "- Error: ";
+		std::cout << ss.str() << e.what() << std::endl;
+		return EXIT_FAILURE;
+	}
+
+	// obtain the project reference frame
+	UINT32 epsgCode(epsgCodeFromName<UINT32>(p.i.reference_frame));
+
+	// set the default output reference frame and epoch, so that
+	// if adjust is called without reftran, it reflects the datum 
+	// supplied on import
+	p.r.reference_frame = p.i.reference_frame;
+
+	// if the reference frame supplied is static, then force the epoch
+	// to be the reference epoch
+	if (isEpsgDatumStatic(epsgCode))
+	{
+		p.i.epoch = referenceepochFromEpsgCode<UINT32>(epsgCode);
+		p.r.epoch = p.i.epoch;
+	}
+	else
+	{
+		if (p.i.user_supplied_epoch)
+			p.r.epoch = p.i.epoch;
+		else
+			p.r.epoch = referenceepochFromEpsgCode<UINT32>(epsgCode);
+	}
+
+	////////////////////////////////////////////////////////////////////////////////////
+
 	if (vm.count(QUIET))
 		p.g.quiet = 1;
 
@@ -1430,10 +1488,15 @@ int main(int argc, char* argv[])
 		if (p.i.override_input_rfame)
 			std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Override input file ref frame:" << yesno_string(p.i.override_input_rfame) << std::endl;
 
-		if (p.i.user_supplied_epoch)
-			std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Project epoch:" << p.i.epoch << " (user supplied)" << std::endl;
+		if (isEpsgDatumStatic(epsgCode) && p.i.user_supplied_frame)
+			std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Project epoch:" << p.i.epoch << " (adopted reference epoch of " << p.i.reference_frame << ")" << std::endl;
 		else
-			std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Project epoch:" << "To be assumed from the first input file" << std::endl;
+		{
+			if (p.i.user_supplied_epoch)
+				std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Project epoch:" << p.i.epoch << " (user supplied)" << std::endl;
+			else
+				std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Project epoch:" << "To be assumed from the first input file" << std::endl;
+		}
 
 		if (p.i.export_dynaml)
 		{
@@ -1494,41 +1557,12 @@ int main(int argc, char* argv[])
 
 	PrintOutputFileHeaderInfo(&imp_file, p.i.imp_file, &p, "DYNADJUST IMPORT LOG FILE");
 
-	dna_import parserDynaML;
 	MsrTally parsemsrTally;
 	StnTally parsestnTally;
 
 	CDnaProjection projection(UTM);
 
 	vifm_t vinput_file_meta;
-
-	// First things first!
-	// Set the 'default' reference frame for the binary station and measurement files
-	// At this point, the frame may be the hard-coded default, or a user-specified 
-	// frame via:   -r [--reference-frame] arg
-	// See comments in InitialiseDatum()
-	try {
-		// Initialise the 'default' datum for the project.
-		parserDynaML.InitialiseDatum(p.i.reference_frame, p.i.epoch);
-	}
-	catch (const XMLInteropException& e) {
-		std::stringstream ss;
-		ss << "- Error: ";
-		std::cout << ss.str() << e.what() << std::endl;
-		return EXIT_FAILURE;
-	}
-
-	// obtain the project reference frame
-	UINT32 epsgCode(epsgCodeFromName<UINT32>(p.i.reference_frame));
-
-	// set the default output reference frame and epoch, so that
-	// if adjust is called without reftran, it reflects the datum 
-	// supplied on import
-	p.r.reference_frame = p.i.reference_frame;
-	if (p.i.user_supplied_epoch)
-		p.r.epoch = p.i.epoch;
-	else
-		p.r.epoch = referenceepochFromEpsgCode<UINT32>(epsgCode);
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// start "total" time
@@ -1619,7 +1653,9 @@ int main(int argc, char* argv[])
 		if (ImportDataFiles(parserDynaML, &vStations, &vMeasurements, &vstationsTotal, &vmeasurementsTotal,
 			&imp_file, &vinput_file_meta, &parsestnTally, &parsemsrTally, errorCount, p) != EXIT_SUCCESS)
 			return EXIT_FAILURE;
-	}	
+	}
+
+	epsgCode = epsgCodeFromName<UINT32>(p.i.reference_frame);
 
 	if (!p.g.quiet)
 		std::cout << std::endl;
@@ -1894,6 +1930,7 @@ int main(int argc, char* argv[])
 
 	if (!p.i.user_supplied_frame && !p.i.import_block && !p.i.import_network)
 	{
+		// reference frame
 		std::stringstream datumSource;
 		switch (vinput_file_meta.at(0).filetype)
 		{
@@ -1907,6 +1944,17 @@ int main(int argc, char* argv[])
 		if (!p.g.quiet)
 			std::cout << std::setw(PRINT_VAR_PAD) << std::left << "+ Project reference frame:" << p.i.reference_frame << datumSource.str() << std::endl;
 		imp_file << std::setw(PRINT_VAR_PAD) << std::left << "+ Project reference frame:" << p.i.reference_frame << datumSource.str() << std::endl;
+
+		// epoch
+		std::stringstream epochSource;
+		if (isEpsgDatumStatic(epsgCode))
+			epochSource << ". Adopted static reference epoch (" << p.i.reference_frame << ")";
+		else
+			epochSource << ". Taken from first file (" << FormatFileType<std::string>(vinput_file_meta.at(0).filetype) << ")";
+
+		if (!p.g.quiet)
+			std::cout << std::setw(PRINT_VAR_PAD) << std::left << "+ Project epoch:" << p.i.epoch << epochSource.str() << std::endl;
+		imp_file << std::setw(PRINT_VAR_PAD) << std::left << "+ Project epoch:" << p.i.epoch << epochSource.str() << std::endl;
 	}
 
 	if (!p.g.quiet)
