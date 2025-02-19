@@ -1086,7 +1086,7 @@ int main(int argc, char* argv[])
 	if (bst_meta.reftran)
 		datum.SetDatumFromName(p.r.reference_frame, p.r.epoch);
 	else
-		datum.SetDatumFromName(p.i.reference_frame, bst_meta.epoch);
+		datum.SetDatumFromName(p.i.reference_frame, p.i.epoch);
 
 	if (vm.count(QUIET))
 		p.g.quiet = 1;

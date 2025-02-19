@@ -302,7 +302,7 @@ struct reftran_settings : private boost::equality_comparable<reftran_settings> {
 public:
 	reftran_settings()
 		: rft_file(""), bst_file(""), bms_file("")
-		, reference_frame(DEFAULT_DATUM), epoch("")
+		, reference_frame(DEFAULT_DATUM), epoch(DEFAULT_EPOCH)
 		, tpb_file(""), tpp_file("")
 		, plate_model_option(0)
 		, command_line_arguments("") {}

@@ -97,6 +97,8 @@ void dna_io_base::writeFileMetadata(std::ofstream& file_stream, binary_file_meta
 	for (UINT16 i(0); i<file_meta.inputFileCount; ++i)
 	{
 		file_stream.write(reinterpret_cast<char *>(file_meta.inputFileMeta[i].filename), FILE_NAME_WIDTH); 
+		file_stream.write(reinterpret_cast<char *>(file_meta.inputFileMeta[i].epsgCode), STN_EPSG_WIDTH);
+		file_stream.write(reinterpret_cast<char *>(file_meta.inputFileMeta[i].epoch), STN_EPOCH_WIDTH);
 		file_stream.write(reinterpret_cast<char *>(&file_meta.inputFileMeta[i].filetype), sizeof(UINT16)); 
 		file_stream.write(reinterpret_cast<char *>(&file_meta.inputFileMeta[i].datatype), sizeof(UINT16)); 
 	}
@@ -127,6 +129,8 @@ void dna_io_base::readFileMetadata(std::ifstream& file_stream, binary_file_meta_
 	for (UINT16 i(0); i<file_meta.inputFileCount; ++i)
 	{
 		file_stream.read(reinterpret_cast<char *>(file_meta.inputFileMeta[i].filename), FILE_NAME_WIDTH); 
+		file_stream.read(reinterpret_cast<char *>(file_meta.inputFileMeta[i].epsgCode), STN_EPSG_WIDTH);
+		file_stream.read(reinterpret_cast<char *>(file_meta.inputFileMeta[i].epoch), STN_EPOCH_WIDTH);
 		file_stream.read(reinterpret_cast<char *>(&file_meta.inputFileMeta[i].filetype), sizeof(UINT16)); 
 		file_stream.read(reinterpret_cast<char *>(&file_meta.inputFileMeta[i].datatype), sizeof(UINT16)); 
 	}
