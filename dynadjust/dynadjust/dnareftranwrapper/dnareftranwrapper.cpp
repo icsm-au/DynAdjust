@@ -47,10 +47,9 @@ void PrintOutputFileHeaderInfo(std::ofstream* f_out, const std::string& out_file
 		if (p->r.epoch.rfind(".") == std::string::npos)
 			p->r.epoch.insert(0, "01.01.");
 
-		*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Target epoch: " <<
-			formattedDateStringFromNumericString<boost::gregorian::date>(p->r.epoch);
+		*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Target epoch: " << p->r.epoch;
 		if (isEpsgDatumStatic(epsgCode))
-			*f_out << " (ignored: " << p->r.reference_frame << " is static)";
+			*f_out << " (adopted reference epoch of " << p->r.reference_frame << ")";
 		*f_out << std::endl;
 	}
 	
@@ -501,8 +500,7 @@ int main(int argc, char* argv[])
 				if (p.r.epoch.rfind(".") == std::string::npos)
 					p.r.epoch.insert(0, "01.01.");
 
-				std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Target epoch: " <<
-					formattedDateStringFromNumericString<boost::gregorian::date>(p.r.epoch);
+				std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Target epoch: " << p.r.epoch;
 				if (isEpsgDatumStatic(epsgCode))
 					std::cout << " (adopted reference epoch of " << p.r.reference_frame << ")";
 				std::cout << std::endl;

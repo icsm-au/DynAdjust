@@ -61,21 +61,27 @@ void PrintOutputFileHeaderInfo(std::ofstream* f_out, const std::string& out_file
 	}
 
 	// If a reference frame has been supplied, report it.  
-	// If not, the assumption is, the project frame will be assumed from the first file and
+	// If not, the assumption is, the project frame will be adopted from the first file and
 	// in this case, it will be reported later
 	if (p->i.user_supplied_frame)
 		*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Project reference frame:" << p->i.reference_frame << " (user supplied)" << std::endl;
 	else
-		*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Project reference frame:" << "To be assumed from the first input file" << std::endl;
+		*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Project reference frame:" << "To be adopted from the first input file" << std::endl;
 
 	if (p->i.override_input_rfame)
 		*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Override input file ref frame:" << yesno_string(p->i.override_input_rfame) << std::endl;
 
-	if (p->i.user_supplied_epoch)
-		*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Project epoch:" << p->i.epoch << " (user supplied)" << std::endl;
-	else
-		*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Project epoch:" << "To be assumed from the first input file" << std::endl;
+	UINT32 epsgCode(epsgCodeFromName<UINT32, std::string>(p->i.reference_frame));
 
+	if (isEpsgDatumStatic(epsgCode) && p->i.user_supplied_frame)
+		*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Project epoch:" << p->i.epoch << " (adopted reference epoch of " << p->i.reference_frame << ")" << std::endl;
+	else
+	{
+		if (p->i.user_supplied_epoch)
+			*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Project epoch:" << p->i.epoch << " (user supplied)" << std::endl;
+		else
+			*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Project epoch:" << "To be adopted from the first input file" << std::endl;
+	}
 	
 	if (!p->i.include_msrs.empty())
 		*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Strip all measurements except:" << p->i.include_msrs << std::endl;
@@ -830,7 +836,7 @@ int ImportContiguousNetwork(dna_import& parserDynaML, vdnaStnPtr* vStations, vdn
 int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements,
 		vdnaStnPtr* vstationsTotal, vdnaMsrPtr* vmeasurementsTotal,
 		std::ofstream* imp_file, vifm_t* vinput_file_meta, StnTally* parsestnTally, MsrTally* parsemsrTally, 
-		UINT32& errorCount, project_settings& p)
+		UINT32& errorCount, project_settings& p, bool& firstfileDatumProvided)
 {
 	// For consideration:  
 	//	- All input files could be read concurrently using multi-thread for faster input
@@ -1002,10 +1008,11 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 			// the input file (if applicable).
 			
 			bool referenceframeChanged(false);
-
+			
 			if (firstFile)
 			{
 				// Determine if the project reference frame needs to be changed
+				firstfileDatumProvided = parserDynaML.filespecifiedReferenceFrame();
 
 				// If the user has not provided a reference frame, then inspect the file reference frame
 				// If the file does not contain a reference frame (e.g. SNX) or the user has left it blank, 
@@ -1060,7 +1067,7 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 			if (!parserDynaML.filespecifiedReferenceFrame())
 			{
 				std::stringstream ssEpsgWarning;
-				ssEpsgWarning << "  - Warning: Input file reference frame empty. Assuming the default reference frame (" << inputFileDatum << ").";
+				ssEpsgWarning << "  - Warning: Input file reference frame not supplied. Adopting " << inputFileDatum << ".";
 				if (!p.g.quiet)
 					std::cout << ssEpsgWarning.str() << std::endl;
 				*imp_file << ssEpsgWarning.str() << std::endl;
@@ -1073,13 +1080,13 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 				{
 					ssEpsgWarning << "  - Warning: The project reference frame has been set to the default" << std::endl <<
 						"    file datum of " << leafStr<std::string>(p.i.input_files.at(i)) << " (" << inputFileDatum << ").";
-					
+
 					// set the project reference frame epsg code
 					projectEpsgCode = epsgStringFromName<std::string>(p.i.reference_frame);
 				}
-				else				
+				else
 				{
-					ssEpsgWarning << "  - Warning: Input file reference frame (" << inputFileDatum << ") does not match the " << std::endl << 
+					ssEpsgWarning << "  - Warning: Input file reference frame (" << inputFileDatum << ") does not match the " << std::endl <<
 						"    project reference frame (" << p.i.reference_frame << ").";
 				}
 
@@ -1474,12 +1481,12 @@ int main(int argc, char* argv[])
 		std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Binary measurement output file: " << p.i.bms_file << std::endl;
 		
 		// If a reference frame and epoch have been supplied, report them.
-		// If not, the assumption is, the project frame and epoch will be assumed from the first file and
+		// If not, the assumption is, the project frame and epoch will be adopted from the first file and
 		// in this case, it will be reported later
 		if (p.i.user_supplied_frame)
 			std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Project reference frame:" << p.i.reference_frame << " (user supplied)" << std::endl;
 		else
-			std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Project reference frame:" << "To be assumed from the first input file" << std::endl;
+			std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Project reference frame:" << "To be adopted from the first input file" << std::endl;
 		
 		if (p.i.override_input_rfame)
 			std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Override input file ref frame:" << yesno_string(p.i.override_input_rfame) << std::endl;
@@ -1491,7 +1498,7 @@ int main(int argc, char* argv[])
 			if (p.i.user_supplied_epoch)
 				std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Project epoch:" << p.i.epoch << " (user supplied)" << std::endl;
 			else
-				std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Project epoch:" << "To be assumed from the first input file" << std::endl;
+				std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Project epoch:" << "To be adopted from the first input file" << std::endl;
 		}
 
 		if (p.i.export_dynaml)
@@ -1616,6 +1623,7 @@ int main(int argc, char* argv[])
 
 	// Now, set the 'default' epoch in the binary station and measurement files
 	std::string default_datum = p.i.reference_frame;
+	bool firstfileDatumProvided;
 
 	// Import network information based on a segmentation block?
 	if (p.i.import_block)
@@ -1647,7 +1655,7 @@ int main(int argc, char* argv[])
 		// Import all data as-is.
 		// All filtering is performed later below
 		if (ImportDataFiles(parserDynaML, &vStations, &vMeasurements, &vstationsTotal, &vmeasurementsTotal,
-			&imp_file, &vinput_file_meta, &parsestnTally, &parsemsrTally, errorCount, p) != EXIT_SUCCESS)
+			&imp_file, &vinput_file_meta, &parsestnTally, &parsemsrTally, errorCount, p, firstfileDatumProvided) != EXIT_SUCCESS)
 			return EXIT_FAILURE;
 	}
 
@@ -1934,7 +1942,10 @@ int main(int argc, char* argv[])
 			datumSource << ". DynAdjust default (frame not found in SNX)";
 			break;
 		default:
-			datumSource << ". Taken from first file (" << FormatFileType<std::string>(vinput_file_meta.at(0).filetype) << ")";
+			if (firstfileDatumProvided)
+				datumSource << ". Taken from first file (" << FormatFileType<std::string>(vinput_file_meta.at(0).filetype) << ")";
+			else
+				datumSource << ". Adopted when reference frame not supplied in first input file";
 		}
 
 		if (!p.g.quiet)
