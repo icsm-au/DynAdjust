@@ -181,7 +181,7 @@ U epsgCodeFromName(const S& datumName)
 		return WGS84_G2139_i_xyz;
 	
 	std::stringstream ss;
-	ss << "epsgCodeFromName: " << datumName << " is not a supported reference frame label." << std::endl;
+	ss << "  epsgCodeFromName: " << datumName << " is not a supported reference frame label." << std::endl;
 	throw boost::enable_current_exception(std::runtime_error(ss.str()));
 }
 
@@ -280,7 +280,7 @@ S epsgStringFromName(const S& datumName)
 	}
 
 	std::stringstream ss;
-	ss << "epsgCodeFromName: " << datumName << " is either unknown or not yet supported." << std::endl;
+	ss << "  epsgStringFromName: " << datumName << " is either unknown or not yet supported." << std::endl;
 	throw boost::enable_current_exception(std::runtime_error(ss.str()));
 }
 
@@ -354,7 +354,7 @@ bool isEpsgDatumStatic(const U& epsgCode)
 	case WGS84_G2139_i:
 		return false;
 	default:
-		ss << "isEpsgDatumStatic: EPSG code " << epsgCode << " is not a supported EPSG code." << std::endl;
+		ss << "  isEpsgDatumStatic: EPSG code " << epsgCode << " is not a supported EPSG code." << std::endl;
 		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	return false;
@@ -454,7 +454,7 @@ void spheroidFromEpsgCode(const U& epsgCode, epsg_spheroid& ellipsoid)
 		break;
 	default:
 		std::stringstream ss;
-		ss << "spheroidFromEpsgCode: EPSG code " << epsgCode << " is not a supported EPSG code." << std::endl;
+		ss << "  spheroidFromEpsgCode: EPSG code " << epsgCode << " is not a supported EPSG code." << std::endl;
 		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 }
@@ -549,7 +549,7 @@ std::string referenceepochFromEpsgCode(const U& epsgCode)
 		return WGS84_G2139_epoch;
 	default:
 		std::stringstream ss;
-		ss << "referenceepochFromEpsgCode: EPSG code " << epsgCode << " is not a supported EPSG code." << std::endl;
+		ss << "  referenceepochFromEpsgCode: EPSG code " << epsgCode << " is not a supported EPSG code." << std::endl;
 		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	return "";
@@ -654,7 +654,7 @@ S datumFromEpsgCode(const U& epsgCode)
 		return WGS84_G2139_s;
 	default:
 		std::stringstream ss;
-		ss << "datumFromEpsgCode: EPSG code " << epsgCode << " is not a supported EPSG code." << std::endl;
+		ss << "  datumFromEpsgCode: EPSG code " << epsgCode << " is not a supported EPSG code." << std::endl;
 		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	return "";
@@ -747,7 +747,7 @@ bool validateEpsgCode(const U& epsgCode)
 		return true;
 	default:
 		std::stringstream ss;
-		ss << "validateEpsgCode: EPSG code " << epsgCode << " is not a supported EPSG code." << std::endl;
+		ss << "  validateEpsgCode: EPSG code " << epsgCode << " is not a supported EPSG code." << std::endl;
 		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	return false;

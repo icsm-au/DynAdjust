@@ -186,6 +186,7 @@ public:
 
 	inline void ResetFileOrder() const { g_fileOrder = 0; }
 	inline bool filespecifiedReferenceFrame() const { return _filespecifiedreferenceframe; }
+	inline bool filespecifiedEpoch() const { return _filespecifiedepoch; }
 	void InitialiseDatum(const std::string& reference_frame, const std::string epoch="");
 	
 	void PrintMeasurementsToStations(std::string& m2s_file, MsrTally* parsemsrTally,
@@ -376,6 +377,7 @@ private:
 	vUINT32 v_measurementCount_, v_unknownsCount_, v_ContiguousNetList_, v_parameterStationCount_;
 
 	bool _filespecifiedreferenceframe;
+	bool _filespecifiedepoch;
 
 };
 

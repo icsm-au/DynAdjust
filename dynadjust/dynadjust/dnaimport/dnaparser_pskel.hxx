@@ -850,6 +850,7 @@ protected:
 	bool _filespecifiedreferenceframe;
 	bool _overridereferenceframe;
 	bool _userspecifiedepoch;
+	bool _filespecifiedepoch;
 };
 
 class GPSBaseline_pskel: public ::xml_schema::complex_content

@@ -836,7 +836,7 @@ int ImportContiguousNetwork(dna_import& parserDynaML, vdnaStnPtr* vStations, vdn
 int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements,
 		vdnaStnPtr* vstationsTotal, vdnaMsrPtr* vmeasurementsTotal,
 		std::ofstream* imp_file, vifm_t* vinput_file_meta, StnTally* parsestnTally, MsrTally* parsemsrTally, 
-		UINT32& errorCount, project_settings& p, bool& firstfileDatumProvided)
+		UINT32& errorCount, project_settings& p)
 {
 	// For consideration:  
 	//	- All input files could be read concurrently using multi-thread for faster input
@@ -1008,11 +1008,11 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 			// the input file (if applicable).
 			
 			bool referenceframeChanged(false);
+			bool epochChanged(false);
 			
 			if (firstFile)
 			{
-				// Determine if the project reference frame needs to be changed
-				firstfileDatumProvided = parserDynaML.filespecifiedReferenceFrame();
+				bool isStaticFrame(false);
 
 				// If the user has not provided a reference frame, then inspect the file reference frame
 				// If the file does not contain a reference frame (e.g. SNX) or the user has left it blank, 
@@ -1026,10 +1026,12 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 					p.r.reference_frame = inputFileDatum;
 					projectEpsgCode = epsgStringFromName<std::string>(p.i.reference_frame);
 				}
+
+				isStaticFrame = isEpsgDatumStatic(LongFromString<UINT32>(projectEpsgCode));
 				
 				// Has the user supplied a static reference frame?  
 				// If so, set the epoch
-				if (p.i.user_supplied_frame && isEpsgDatumStatic(LongFromString<UINT32>(projectEpsgCode)))
+				if (p.i.user_supplied_frame && isStaticFrame)
 				{
 					p.i.epoch = referenceepochFromEpsgString<std::string>(projectEpsgCode);
 					p.r.epoch = p.i.epoch;
@@ -1061,39 +1063,169 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 					std::cout << ss.str() << e.what() << std::endl;
 					return EXIT_FAILURE;
 				}
-			}
 
-			// Was the datum field empty in the first file?
-			if (!parserDynaML.filespecifiedReferenceFrame())
-			{
-				std::stringstream ssEpsgWarning;
-				ssEpsgWarning << "  - Warning: Input file reference frame not supplied. Adopting " << inputFileDatum << ".";
-				if (!p.g.quiet)
-					std::cout << ssEpsgWarning.str() << std::endl;
-				*imp_file << ssEpsgWarning.str() << std::endl;
-			}
-			// Is the datum in the first file different to the project datum?
-			else if (!boost::iequals(projectEpsgCode, input_file_meta.epsgCode))
-			{
-				std::stringstream ssEpsgWarning;
-				if (referenceframeChanged)
+				if (p.i.import_block || p.i.import_network)
+					continue;
+
+				// When the user has not supplied a frame on the command line
+				if (!p.i.user_supplied_frame)
 				{
-					ssEpsgWarning << "  - Warning: The project reference frame has been set to the default" << std::endl <<
-						"    file datum of " << leafStr<std::string>(p.i.input_files.at(i)) << " (" << inputFileDatum << ").";
+					// reference frame
+					std::stringstream datumSource;
+					switch (input_file_meta.filetype)
+					{
+					case sinex:
+						datumSource << ". DynAdjust default (frame not present within SNX file)";
+						break;
+					default:
+						if (parserDynaML.filespecifiedReferenceFrame())
+							datumSource << ". Taken from " << FormatFileType<std::string>(input_file_meta.filetype) << " header.";
+						else
+							datumSource << ". Reference frame not supplied in " << FormatFileType<std::string>(input_file_meta.filetype) << " header.";
+					}
 
-					// set the project reference frame epsg code
-					projectEpsgCode = epsgStringFromName<std::string>(p.i.reference_frame);
-				}
-				else
+					if (!p.g.quiet)
+						std::cout << std::left << "  Project reference frame set to " << p.i.reference_frame << datumSource.str() << std::endl;
+					*imp_file << std::left << "  Project reference frame set to " << p.i.reference_frame << datumSource.str() << std::endl;
+				}				
+				// When the user has supplied a frame on the command line, and the input file datum field is blank
+				else if (!parserDynaML.filespecifiedReferenceFrame())
 				{
-					ssEpsgWarning << "  - Warning: Input file reference frame (" << inputFileDatum << ") does not match the " << std::endl <<
-						"    project reference frame (" << p.i.reference_frame << ").";
+					std::stringstream ssEpsgWarning;
+					switch (input_file_meta.filetype)
+					{
+					case sinex:
+						ssEpsgWarning << "  - Warning: SNX reference frame set to " << p.i.reference_frame << ".";
+						break;
+					default:
+						ssEpsgWarning << "  - Warning: Input file reference frame not supplied. Adopting " << inputFileDatum << ".";
+					}				
+
+					if (!p.g.quiet)
+						std::cout << ssEpsgWarning.str() << std::endl;
+					*imp_file << ssEpsgWarning.str() << std::endl;
+				}
+				// when reference frame has been supplied and the value in the file doesn't match
+				else if (p.i.user_supplied_frame)
+				{
+					if (!boost::iequals(projectEpsgCode, input_file_meta.epsgCode))
+					{
+						std::stringstream ssEpsgWarning;
+						ssEpsgWarning << "  - Warning: Input file reference frame (" << inputFileDatum << ") does not match the " << std::endl <<
+							"    project reference frame (" << p.i.reference_frame << ").";
+						if (!p.g.quiet)
+							std::cout << ssEpsgWarning.str() << std::endl;
+						*imp_file << ssEpsgWarning.str() << std::endl;
+					}
 				}
 
-				if (!p.g.quiet)
-					std::cout << ssEpsgWarning.str() << std::endl;
-				*imp_file << ssEpsgWarning.str() << std::endl;
-			}			
+				// When the user has not supplied an epoch on the command line
+				if (!p.i.user_supplied_epoch)
+				{
+					// epoch
+					std::stringstream epochSource;
+					if (!isStaticFrame)
+					{
+						if (parserDynaML.filespecifiedEpoch())
+							epochSource << ". Taken from " << FormatFileType<std::string>(input_file_meta.filetype) << " header.";
+						else
+							epochSource << ". Epoch not supplied in " << FormatFileType<std::string>(input_file_meta.filetype) << " header.";
+						if (!p.g.quiet)
+							std::cout << std::left << "  Project epoch set to " << p.i.epoch << epochSource.str() << std::endl;
+						*imp_file << std::left << "  Project epoch set to " << p.i.epoch << epochSource.str() << std::endl;
+						epochChanged = true;
+					}
+				}				
+				// When the user has supplied an epoch on the command line, and the input file epoch field is blank
+				else if (!parserDynaML.filespecifiedEpoch())
+				{
+					std::stringstream ssEpochWarning;
+					ssEpochWarning << "  - Warning: Input file epoch not supplied. Adopting " << p.i.epoch << ".";
+
+					if (!p.g.quiet)
+						std::cout << ssEpochWarning.str() << std::endl;
+					*imp_file << ssEpochWarning.str() << std::endl;
+				}
+				// when epoch has been supplied and the value in the file doesn't match
+				else if (p.i.user_supplied_epoch)
+				{
+					if (!boost::iequals(p.i.epoch, input_file_meta.epoch))
+					{
+						std::stringstream ssEpochWarning;
+						ssEpochWarning << "  - Warning: Input file epoch (" << inputFileEpoch << ") does not match the " << std::endl <<
+							"    project epoch (" << p.i.epoch << ").";
+						if (!p.g.quiet)
+							std::cout << ssEpochWarning.str() << std::endl;
+						*imp_file << ssEpochWarning.str() << std::endl;
+					}
+				}
+
+				if (referenceframeChanged || epochChanged)
+				{
+					if (!p.g.quiet)
+						std::cout << std::endl;
+					*imp_file << std::endl;
+				}
+			}
+			else
+			{
+				if (p.i.import_block || p.i.import_network)
+					continue;
+
+				// Was the datum field empty in the file?
+				if (!parserDynaML.filespecifiedReferenceFrame())
+				{					
+					std::stringstream ssEpsgWarning;
+					ssEpsgWarning << "  - Warning: Input file reference frame not supplied. Adopting " << inputFileDatum << ".";
+					if (!p.g.quiet)
+						std::cout << ssEpsgWarning.str() << std::endl;
+					*imp_file << ssEpsgWarning.str() << std::endl;					
+				}
+				// Is the datum in the file different to the project datum?
+				else if (!boost::iequals(projectEpsgCode, input_file_meta.epsgCode))
+				{
+					std::stringstream ssEpsgWarning;
+					if (referenceframeChanged)
+					{
+						ssEpsgWarning << "  - Warning: The project reference frame has been set to the default" << std::endl <<
+							"    file datum of " << leafStr<std::string>(p.i.input_files.at(i)) << " (" << inputFileDatum << ").";
+
+						// set the project reference frame epsg code
+						projectEpsgCode = epsgStringFromName<std::string>(p.i.reference_frame);
+					}
+					else
+					{
+						ssEpsgWarning << "  - Warning: Input file reference frame (" << inputFileDatum << ") does not match the " << std::endl <<
+							"    project reference frame (" << p.i.reference_frame << ").";
+					}
+
+					if (!p.g.quiet)
+						std::cout << ssEpsgWarning.str() << std::endl;
+					*imp_file << ssEpsgWarning.str() << std::endl;
+				}
+
+				// Was the epoch field empty in the file?
+				if (!parserDynaML.filespecifiedEpoch())
+				{
+					std::stringstream ssEpochWarning;
+					ssEpochWarning << "  - Warning: Input file epoch not supplied. Adopting " << p.i.epoch << ".";
+					if (!p.g.quiet)
+						std::cout << ssEpochWarning.str() << std::endl;
+					*imp_file << ssEpochWarning.str() << std::endl;
+				}
+				// Is the epoch in the file different to the project epoch?
+				else if (!boost::iequals(p.i.epoch, input_file_meta.epoch))
+				{
+					std::stringstream ssEpochWarning;
+					
+					ssEpochWarning << "  - Warning: Input file epoch (" << inputFileEpoch << ") does not match the " << std::endl <<
+						"    project epoch (" << p.i.epoch << ").";
+
+					if (!p.g.quiet)
+						std::cout << ssEpochWarning.str() << std::endl;
+					*imp_file << ssEpochWarning.str() << std::endl;
+				}
+			}
 		}
 
 		// Handle discontinuities for non-sinex files, if and only if a discontinuity file has been loaded.
@@ -1432,10 +1564,12 @@ int main(int argc, char* argv[])
 	catch (const XMLInteropException& e) {
 
 		std::cout << std::endl << cmd_line_banner;
+		imp_file << std::endl << cmd_line_banner;
 		
 		std::stringstream ss;
 		ss << "- Error: ";
 		std::cout << ss.str() << e.what() << std::endl;
+		imp_file << ss.str() << e.what() << std::endl;
 		return EXIT_FAILURE;
 	}
 
@@ -1623,8 +1757,7 @@ int main(int argc, char* argv[])
 
 	// Now, set the 'default' epoch in the binary station and measurement files
 	std::string default_datum = p.i.reference_frame;
-	bool firstfileDatumProvided;
-
+	
 	// Import network information based on a segmentation block?
 	if (p.i.import_block)
 	{
@@ -1655,7 +1788,7 @@ int main(int argc, char* argv[])
 		// Import all data as-is.
 		// All filtering is performed later below
 		if (ImportDataFiles(parserDynaML, &vStations, &vMeasurements, &vstationsTotal, &vmeasurementsTotal,
-			&imp_file, &vinput_file_meta, &parsestnTally, &parsemsrTally, errorCount, p, firstfileDatumProvided) != EXIT_SUCCESS)
+			&imp_file, &vinput_file_meta, &parsestnTally, &parsemsrTally, errorCount, p) != EXIT_SUCCESS)
 			return EXIT_FAILURE;
 	}
 
@@ -1931,38 +2064,6 @@ int main(int argc, char* argv[])
 	UINT32 msrRead(parsemsrTally.TotalCount());
 	UINT32 stnCount(static_cast<UINT32>(vstationsTotal.size()));
 	UINT32 msrCount(static_cast<UINT32>(vmeasurementsTotal.size()));
-
-	if (!p.i.user_supplied_frame && !p.i.import_block && !p.i.import_network)
-	{
-		// reference frame
-		std::stringstream datumSource;
-		switch (vinput_file_meta.at(0).filetype)
-		{
-		case sinex:
-			datumSource << ". DynAdjust default (frame not found in SNX)";
-			break;
-		default:
-			if (firstfileDatumProvided)
-				datumSource << ". Taken from first file (" << FormatFileType<std::string>(vinput_file_meta.at(0).filetype) << ")";
-			else
-				datumSource << ". Adopted when reference frame not supplied in first input file";
-		}
-
-		if (!p.g.quiet)
-			std::cout << std::setw(PRINT_VAR_PAD) << std::left << "+ Project reference frame:" << p.i.reference_frame << datumSource.str() << std::endl;
-		imp_file << std::setw(PRINT_VAR_PAD) << std::left << "+ Project reference frame:" << p.i.reference_frame << datumSource.str() << std::endl;
-
-		// epoch
-		std::stringstream epochSource;
-		if (isEpsgDatumStatic(epsgCode))
-			epochSource << ". Adopted static reference epoch (" << p.i.reference_frame << ")";
-		else
-			epochSource << ". Taken from first file (" << FormatFileType<std::string>(vinput_file_meta.at(0).filetype) << ")";
-
-		if (!p.g.quiet)
-			std::cout << std::setw(PRINT_VAR_PAD) << std::left << "+ Project epoch:" << p.i.epoch << epochSource.str() << std::endl;
-		imp_file << std::setw(PRINT_VAR_PAD) << std::left << "+ Project epoch:" << p.i.epoch << epochSource.str() << std::endl;
-	}
 
 	if (!p.g.quiet)
 		std::cout << std::endl;

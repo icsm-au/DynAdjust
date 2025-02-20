@@ -126,6 +126,7 @@ public:
 	virtual void epoch ();
 	virtual void post_DnaXmlFormat (vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements);
 	inline bool filespecifiedreferenceframe() { return _filespecifiedreferenceframe; }
+	inline bool filespecifiedepoch() { return _filespecifiedepoch; }
 
 	std::string DnaXmlParseMessage() { return _parse_msg; }
 

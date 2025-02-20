@@ -2150,6 +2150,7 @@ bool DnaXmlFormat_pskel::_attribute_impl (const ::xml_schema::ro_string& ns,
 				_userspecifiedreferenceframe, _userspecifiedepoch,
 				_firstFile);
 			this->epoch();
+			_filespecifiedepoch = true;
 		}
 
 		return true;

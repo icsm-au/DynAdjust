@@ -51,12 +51,16 @@ public:
 	dna_io_dna(void)
 		: pv_msr_db_map_(0)
 		, m_databaseIDsSet_(false)
-		, m_filespecifiedReferenceFrame_(false) {};
+		, m_filespecifiedReferenceFrame_(false)
+		, m_filespecifiedEpoch_(false) {
+	};
 	dna_io_dna(const dna_io_dna& dna) 
 		: dna_io_base(dna) 
 		, pv_msr_db_map_(0)
 		, m_databaseIDsSet_(false)
-		, m_filespecifiedReferenceFrame_(false) {};
+		, m_filespecifiedReferenceFrame_(false)
+		, m_filespecifiedEpoch_(false) {
+	};
 	virtual ~dna_io_dna(void) {};
 
 	dna_io_dna& operator=(const dna_io_dna& rhs);
@@ -102,6 +106,7 @@ public:
 	void set_dbid_ptr(pv_msr_database_id_map pv_msr_db_map);
 
 	inline bool filespecifiedReferenceFrame() { return m_filespecifiedReferenceFrame_; }
+	inline bool filespecifiedEpoch() { return m_filespecifiedEpoch_; }
 	
 protected:
 
@@ -138,6 +143,7 @@ private:
 	pv_msr_database_id_map	pv_msr_db_map_;
 	bool					m_databaseIDsSet_;
 	bool                    m_filespecifiedReferenceFrame_;
+	bool					m_filespecifiedEpoch_;
 };
 
 }	// namespace iostreams

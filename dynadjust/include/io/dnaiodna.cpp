@@ -256,6 +256,7 @@ void dna_io_dna::read_dna_header(std::ifstream* ptr, std::string& version, INPUT
 	getline((*ptr), sBuf);
 	sBuf = trimstr(sBuf);
 	m_filespecifiedReferenceFrame_ = false;
+	m_filespecifiedEpoch_ = false;
 
 	// Set the default version
 	version = "1.00";
@@ -360,6 +361,9 @@ void dna_io_dna::read_dna_header(std::ifstream* ptr, std::string& version, INPUT
 		epoch_version = "";
 	}
 
+	if (!epoch_version.empty())
+		m_filespecifiedEpoch_ = true;
+
 	// Try to get the reference frame
 	// For the first file, and unless the user has specified a reference frame,
 	// the reference frame will be used to set the frame for all other files.
@@ -380,13 +384,8 @@ void dna_io_dna::read_dna_header(std::ifstream* ptr, std::string& version, INPUT
 			// capture file epoch
 			if (epoch_version.empty())
 			{
-				// Empty?  Get the epoch of the nominated epsg, set from either 
-				// project or from the file
-				if (user_supplied_frame)
-					fileEpoch = referenceframe.GetEpoch_s();
-				else
-					// take from file's epsg's epoch
-					fileEpoch = referenceepochFromEpsgString<std::string>(fileEpsg);
+				// Empty?  Get the epoch of the nominated epsg (set above)
+				fileEpoch = referenceepochFromEpsgString<std::string>(fileEpsg);
 			}
 			else
 				fileEpoch = epoch_version;

@@ -232,6 +232,7 @@ _PARSE_STATUS_ dna_import::ParseInputFile(const std::string& fileName, vdnaStnPt
 	percentComplete_ = -99.0;
 	isProcessing_ = true;
 	_filespecifiedreferenceframe = false;
+	_filespecifiedepoch = false;
 	std::stringstream ss;
 
 	try 
@@ -399,6 +400,7 @@ void dna_import::ParseXML(const std::string& fileName, vdnaStnPtr* vStations, PU
 
 	parseStatus_ = PARSE_SUCCESS;
 	_filespecifiedreferenceframe = false;
+	_filespecifiedepoch = false;
 	
 	try
 	{
@@ -476,6 +478,7 @@ void dna_import::ParseXML(const std::string& fileName, vdnaStnPtr* vStations, PU
 		*msrCount = DnaXmlFormat_p.NumMeasurementsRead();
 		*success_msg = DnaXmlFormat_p.DnaXmlParseMessage() + "\n";
 		_filespecifiedreferenceframe = DnaXmlFormat_p.filespecifiedreferenceframe();
+		_filespecifiedepoch = DnaXmlFormat_p.filespecifiedepoch();
 
 		try
 		{
@@ -649,6 +652,7 @@ void dna_import::ParseSNX(const std::string& fileName, vdnaStnPtr* vStations, PU
 	catch (const std::runtime_error& e) {
 		SignalExceptionParse(e.what(), 0);
 	}
+	_filespecifiedepoch = true;
 }
 	
 // Parse discontinuities and create discontinuity tuple
@@ -1084,6 +1088,7 @@ void dna_import::ParseDNA(const std::string& fileName, vdnaStnPtr* vStations, PU
 	}
 	catch (const std::runtime_error& e) {
 		import_file_mutex.unlock();
+		parseStatus_ = PARSE_EXCEPTION_RAISED;
 		throw XMLInteropException(e.what(), 0);
 	}
 
@@ -1141,6 +1146,7 @@ void dna_import::ParseDNA(const std::string& fileName, vdnaStnPtr* vStations, PU
 	}
 
 	_filespecifiedreferenceframe = dnaFile.filespecifiedReferenceFrame();
+	_filespecifiedepoch = dnaFile.filespecifiedEpoch();
 		
 	// Station file
 	if (idt == stn_data ||

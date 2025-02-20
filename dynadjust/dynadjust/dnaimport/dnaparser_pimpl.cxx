@@ -951,6 +951,7 @@ DnaXmlFormat_pimpl::DnaXmlFormat_pimpl(std::ifstream* is, PUINT32 clusterID, con
 	// Has the user supplied a reference frame and should this be used to override all?
 	_userspecifiedreferenceframe = userspecifiedreferenceframe;
 	_filespecifiedreferenceframe = false;
+	_filespecifiedepoch = false;
 	_overridereferenceframe = overridereferenceframe;
 	_userspecifiedepoch = userspecifiedepoch;
 }
