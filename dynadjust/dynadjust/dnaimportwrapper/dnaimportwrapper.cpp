@@ -245,6 +245,10 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
 		// Has the user supplied the year only?
 		else if (p.i.epoch.rfind(".") == std::string::npos)
 			p.i.epoch.insert(0, "01.01.");
+		
+		if (p.i.epoch.length() < 10)
+			p.i.epoch = FormatDateString(p.i.epoch);
+
 		p.i.user_supplied_epoch = 1;
 	}	
 

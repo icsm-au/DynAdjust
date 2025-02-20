@@ -154,7 +154,19 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
 		}		
 	}
 
-	if (!vm.count(EPOCH))
+	if (vm.count(EPOCH))
+	{
+		// Get today's date?
+		if (boost::iequals(p.r.epoch, "today"))
+			p.r.epoch = stringFromToday<boost::gregorian::date>();
+		// Has the user supplied the year only?
+		else if (p.r.epoch.rfind(".") == std::string::npos)
+			p.r.epoch.insert(0, "01.01.");
+
+		if (p.r.epoch.length() < 10)
+			p.r.epoch = FormatDateString(p.i.epoch);
+	}
+	else
 	{
 		try
 		{

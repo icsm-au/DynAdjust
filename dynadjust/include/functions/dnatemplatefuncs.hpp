@@ -186,6 +186,25 @@ public:
 	}
 };
 
+// insert leading zeros into date string
+template <class S = std::string>
+S FormatDateString(const S& datestring)
+{
+	std::vector<S> tokenList;
+	S delimiter(".");
+	SplitDelimitedString<S>(datestring, delimiter, &tokenList);
+
+	if (tokenList.at(0).size() < 2)
+		tokenList.at(0).insert(0, "0");
+	if (tokenList.at(1).size() < 2)
+		tokenList.at(1).insert(0, "0");
+
+	std::stringstream datess;
+	datess << tokenList.at(0) << "." << tokenList.at(1) << "." << tokenList.at(2);
+	return datess.str();
+}
+
+
 //delimiter should be a space, commar or similar
 // Expected input is -38 43 28.24255
 // Use of NSEW to indicate negative/positive hemispheres 
@@ -227,7 +246,7 @@ T ParseDmsString(const std::string& dmsString, const std::string& delimiter)
 	return dms;
 
 }
-	
+
 //symbols is only optional if withSpaces is true
 template <class T>
 std::string FormatDmsString(const T& dDegMinSec, const int precision, bool withSpaces, bool withSymbols)
@@ -240,11 +259,11 @@ std::string FormatDmsString(const T& dDegMinSec, const int precision, bool withS
 		return ss.str();
 
 	std::string strNumber(ss.str()), strBuf(ss.str());
-	
+
 	size_t decimal(0);
 	int precision_fmt(precision);
-	int minute_symbol_loc(withSymbols?4:3), second_symbol_loc(withSymbols?8:6);
-		
+	int minute_symbol_loc(withSymbols ? 4 : 3), second_symbol_loc(withSymbols ? 8 : 6);
+
 	// Add symbols for degrees minutes and seconds
 	if ((decimal = strNumber.find('.')) != std::string::npos)
 	{
@@ -257,47 +276,47 @@ std::string FormatDmsString(const T& dDegMinSec, const int precision, bool withS
 
 		// add spaces
 		if (withSpaces)
-			strBuf.replace(decimal, 1, " "); 
-		
+			strBuf.replace(decimal, 1, " ");
+
 		// add symbols
 		if (withSymbols)
 			strBuf.insert(decimal, "\260");		// 272 is the degree symbol
-								
+
 		// add zero after "tens" minute or "tens" second value
 		if (precision == 1 || precision == 3)
 		{
 			strBuf += "0";
 			precision_fmt++;
 		}
-		
+
 		if (precision > 2)
 		{
 			// add spaces
 			if (withSpaces)
-				strBuf.insert((decimal+minute_symbol_loc), " "); 
-		
+				strBuf.insert((decimal + minute_symbol_loc), " ");
+
 			// add symbols
 			if (withSymbols)
-				strBuf.insert((decimal+minute_symbol_loc), "\222");		//minutes symbol
+				strBuf.insert((decimal + minute_symbol_loc), "\222");		//minutes symbol
 		}
 
 		if (precision == 2 && withSymbols)
-			strBuf += "\222";			
-		
+			strBuf += "\222";
+
 		if (precision > 4)
 		{
-			strBuf.insert((decimal+second_symbol_loc), ".");
+			strBuf.insert((decimal + second_symbol_loc), ".");
 			if (withSymbols)
 				strBuf += "\224";
 		}
-		
+
 		if (precision == 4 && withSymbols)
-			strBuf += "\224";	
-	}	
+			strBuf += "\224";
+	}
 	else if (withSymbols)
 		strBuf += "\260";		// couldn't find a decimal point, so append the degree symbol
-	
-	
+
+
 	//// Show North and South notation
 	//if (strNumber[0] == '-' || strNumber[0] == 's' || strNumber[0] == 'S' || 
 	//	strNumber[0] == 'w' || strNumber[0] == 'W')
