@@ -164,7 +164,7 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
 			p.r.epoch.insert(0, "01.01.");
 
 		if (p.r.epoch.length() < 10)
-			p.r.epoch = FormatDateString(p.i.epoch);
+			p.r.epoch = FormatDateString(p.r.epoch);
 	}
 	else
 	{
@@ -450,6 +450,7 @@ int main(int argc, char* argv[])
 		}
 	}
 
+	// Test for a valid reference frame label
 	UINT32 epsgCode;
 	try {
 		epsgCode = epsgCodeFromName<UINT32>(p.r.reference_frame);
@@ -464,7 +465,7 @@ int main(int argc, char* argv[])
 	if (ParseCommandLineOptions(argc, argv, vm, p, epsgCode) != EXIT_SUCCESS)
 		return EXIT_FAILURE;
 
-	// if the reference frame supplied is static, then force the epoch
+	// If the reference frame supplied is static, then force the epoch
 	// to be the reference epoch
 	if (isEpsgDatumStatic(epsgCode))
 		p.r.epoch = referenceepochFromEpsgCode<UINT32>(epsgCode);
@@ -507,15 +508,18 @@ int main(int argc, char* argv[])
 		try 
 		{
 			if (!p.r.epoch.empty())
-			{
-				// Has the user supplied the year only?
-				if (p.r.epoch.rfind(".") == std::string::npos)
-					p.r.epoch.insert(0, "01.01.");
-
+			{	
 				std::cout << std::setw(PRINT_VAR_PAD) << std::left << "  Target epoch: " << p.r.epoch;
 				if (isEpsgDatumStatic(epsgCode))
 					std::cout << " (adopted reference epoch of " << p.r.reference_frame << ")";
-				std::cout << std::endl;
+				else
+				{
+					if (vm.count(EPOCH))
+						std::cout << " (user supplied)" << std::endl;
+					else
+						std::cout << " (project default)" << std::endl;
+				}
+				std::cout << std::endl;				
 			}
 		}
 		catch (const std::runtime_error& e) {
