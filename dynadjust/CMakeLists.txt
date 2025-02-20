@@ -199,6 +199,13 @@ add_subdirectory (dynadjust/dynadjust)
 if (BUILD_TESTING)
     message ("  ")
     message (STATUS "Configuring tests")
+
+    # Create symbolic links
+    add_custom_target(import_link_target COMMAND ${CMAKE_COMMAND} -E create_symlink $<TARGET_FILE:dnaimportwrapper> dnaimport)
+    add_custom_target(geoid_link_target COMMAND ${CMAKE_COMMAND} -E create_symlink $<TARGET_FILE:dnageoidwrapper> dnageoid)
+    add_custom_target(reftran_link_target COMMAND ${CMAKE_COMMAND} -E create_symlink $<TARGET_FILE:dnareftranwrapper> dnareftran)
+    add_custom_target(segment_link_target COMMAND ${CMAKE_COMMAND} -E create_symlink $<TARGET_FILE:dnasegmentwrapper> dnasegment)
+    add_custom_target(adjust_link_target COMMAND ${CMAKE_COMMAND} -E create_symlink $<TARGET_FILE:dnaadjustwrapper> dnaadjust)
     
     # test execution of dynadjust binaries
     # 1. gnss network (simultaneous, phased-block 1, phased, staged)
@@ -254,9 +261,7 @@ if (BUILD_TESTING)
     file (COPY ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.stn DESTINATION ./)
     file (COPY ${CMAKE_SOURCE_DIR}/../sampleData/urban-network.msr DESTINATION ./)
     file (COPY ${CMAKE_SOURCE_DIR}/../sampleData/sample.dnaproj DESTINATION ./)
-    file (COPY ${CMAKE_SOURCE_DIR}/../sampleData/urban-network-geoid.gsb DESTINATION ./)
-    #add_test (NAME dynadjust-proj-01 COMMAND $<TARGET_FILE:dynadjust> -p ${CMAKE_SOURCE_DIR}/../sampleData/sample.dnaproj --import --geoid --reftran --segment --adjust)
-    #add_test (NAME dynadjust-proj-02 COMMAND $<TARGET_FILE:dynadjust> -p ${CMAKE_SOURCE_DIR}/../sampleData/sample.dnaproj --import --geoid --reftran --segment --adjust --quiet)
+    file (COPY ${CMAKE_SOURCE_DIR}/../sampleData/urban-network-geoid.gsb DESTINATION ./)    
     add_test (NAME dynadjust-name-01 COMMAND $<TARGET_FILE:dynadjust> -n sample --import --geoid --reftran --segment --adjust)
 
     # 6. urban data manipulation
