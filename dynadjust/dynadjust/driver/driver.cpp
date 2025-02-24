@@ -40,11 +40,9 @@
 
 #include <dynadjust/dnageoid/dnageoid_ext.hpp>
 
-using namespace std;
-
 bool CreateNTv2Grid(const char* datGridFile, const char* gsbGridFile)
 {
-	cout << "+ Creating NTv2 grid file... ";
+	std::cout << "+ Creating NTv2 grid file... ";
 	
 	int status(0);
 	n_file_par theGrid;
@@ -54,11 +52,11 @@ bool CreateNTv2Grid(const char* datGridFile, const char* gsbGridFile)
 
 	if (!DNAGEOID_CreateNTv2Grid(datGridFile, &theGrid, &status))
 	{
-		cout << endl << "Error: " << status << endl;
+		std::cout << std::endl << "Error: " << status << std::endl;
 		return false;
 	}
 
-	cout << "done." << endl << endl;
+	std::cout << "done." << std::endl << std::endl;
 	
 	return true;
 	
@@ -67,17 +65,17 @@ bool CreateNTv2Grid(const char* datGridFile, const char* gsbGridFile)
 	
 bool createGridIndex(const char* gridfilePath, const char* gridfileType)
 {
-	cout << "+ Opening grid file... ";
+	std::cout << "+ Opening grid file... ";
 
 	int status(0);
 
 	if (!DNAGEOID_CreateGridIndex(gridfilePath, gridfileType, &status))
 	{
-		cout << "Error: " << status << endl;
+		std::cout << "Error: " << status << std::endl;
 		return false;
 	}
 
-	cout << "done." << endl << endl;
+	std::cout << "done." << std::endl << std::endl;
 
 	return true;
 }
@@ -85,7 +83,7 @@ bool createGridIndex(const char* gridfilePath, const char* gridfileType)
 
 bool reportGridProperties(const char* gridfilePath, const char* gridfileType)
 {
-	cout << "+ Reporting grid file properties... ";
+	std::cout << "+ Reporting grid file properties... ";
 
 	n_file_par grid_properties;
 	
@@ -93,43 +91,43 @@ bool reportGridProperties(const char* gridfilePath, const char* gridfileType)
 
 	if (!DNAGEOID_ReportGridProperties(gridfilePath, gridfileType, &grid_properties, &status))
 	{
-		cout << "Error: " << status << endl;
+		std::cout << "Error: " << status << std::endl;
 		return false;
 	}
 
-	cout << endl << endl <<
+	std::cout << std::endl << std::endl <<
 		"----------------------------------------------------------------" << 
-		endl <<
-		"Grid properties for \"" << gridfilePath << "\":" << endl;
-	cout << "+ GS_TYPE  = " << grid_properties.chGs_type << endl;			// grid shift type (GS_TYPE)
-	cout << "+ VERSION  = " << grid_properties.chVersion << endl;			// grid file version (VERSION)
-	cout << "+ SYSTEM_F = " << grid_properties.chSystem_f << endl;			// reference system (SYSTEM_F)
-	cout << "+ SYSTEM_T = " << grid_properties.chSystem_t << endl;			// reference system (SYSTEM_T)
-	cout << "+ MAJOR_F  = " << setprecision(3) << fixed << grid_properties.daf << endl;					// semi major of from system (MAJOR_F)
-	cout << "+ MAJOR_T  = " << setprecision(3) << fixed << grid_properties.dat << endl;					// semi major of to system (MAJOR_T)
-	cout << "+ MINOR_F  = " << setprecision(3) << fixed << grid_properties.dbf << endl;					// semi minor of from system (MINOR_F)
-	cout << "+ MINOR_T  = " << setprecision(3) << fixed << grid_properties.dbt << endl;					// semi minor of to system (MINOR_T)
-	cout << "+ NUM_OREC = " << grid_properties.iH_info << endl;				// Number of header identifiers (NUM_OREC)
-	cout << "+ NUM_SREC = " << grid_properties.iSubH_info << endl;				// Number of sub-header idents (NUM_SREC)
-	cout << "+ NUM_FILE = " << grid_properties.iNumsubgrids << endl;			// number of subgrids in file (NUM_FILE)
+	 	std::endl <<
+		"Grid properties for \"" << gridfilePath << "\":" << std::endl;
+	std::cout << "+ GS_TYPE  = " << grid_properties.chGs_type << std::endl;			// grid shift type (GS_TYPE)
+	std::cout << "+ VERSION  = " << grid_properties.chVersion << std::endl;			// grid file version (VERSION)
+	std::cout << "+ SYSTEM_F = " << grid_properties.chSystem_f << std::endl;			// reference system (SYSTEM_F)
+	std::cout << "+ SYSTEM_T = " << grid_properties.chSystem_t << std::endl;			// reference system (SYSTEM_T)
+	std::cout << "+ MAJOR_F  = " << std::setprecision(3) << std::fixed << grid_properties.daf << std::endl;					// semi major of from system (MAJOR_F)
+	std::cout << "+ MAJOR_T  = " << std::setprecision(3) << std::fixed << grid_properties.dat << std::endl;					// semi major of to system (MAJOR_T)
+	std::cout << "+ MINOR_F  = " << std::setprecision(3) << std::fixed << grid_properties.dbf << std::endl;					// semi minor of from system (MINOR_F)
+	std::cout << "+ MINOR_T  = " << std::setprecision(3) << std::fixed << grid_properties.dbt << std::endl;					// semi minor of to system (MINOR_T)
+	std::cout << "+ NUM_OREC = " << grid_properties.iH_info << std::endl;				// Number of header identifiers (NUM_OREC)
+	std::cout << "+ NUM_SREC = " << grid_properties.iSubH_info << std::endl;				// Number of sub-header idents (NUM_SREC)
+	std::cout << "+ NUM_FILE = " << grid_properties.iNumsubgrids << std::endl;			// number of subgrids in file (NUM_FILE)
 
 	for (int i=0; i<grid_properties.iNumsubgrids; ++i)
 	{
-		cout << "  + SUBGRID " << i << ":" << endl;
-		cout << "    SUB_NAME = " << grid_properties.ptrIndex[i].chSubname << endl;  		// name of subgrid (SUB_NAME)
-		cout << "    PARENT   = " << grid_properties.ptrIndex[i].chParent << endl;			// name of parent grid (PARENT)
-		cout << "    CREATED  = " << grid_properties.ptrIndex[i].chCreated << endl;			// date of creation (CREATED)
-		cout << "    UPDATED  = " << grid_properties.ptrIndex[i].chUpdated << endl;			// date of last file update (UPDATED)
-		cout << "    S_LAT    = " << grid_properties.ptrIndex[i].dSlat << endl;				// lower latitude (S_LAT)
-		cout << "    N_LAT    = " << grid_properties.ptrIndex[i].dNlat << endl;				// upper latitude (N_LAT)
-		cout << "    E_LONG   = " << grid_properties.ptrIndex[i].dElong << endl;			// lower longitude (E_LONG)
-		cout << "    W_LONG   = " << grid_properties.ptrIndex[i].dWlong << endl;			// upper longitude (W_LONG)
-		cout << "    LAT_INC  = " << grid_properties.ptrIndex[i].dLatinc << endl;			// latitude interval (LAT_INC)
-		cout << "    LONG_INC = " << grid_properties.ptrIndex[i].dLonginc << endl;			// longitude interval (LONG_INC)
-		cout << "    GS_COUNT = " << grid_properties.ptrIndex[i].lGscount << endl;			// number of nodes (GS_COUNT)
+		std::cout << "  + SUBGRID " << i << ":" << std::endl;
+		std::cout << "    SUB_NAME = " << grid_properties.ptrIndex[i].chSubname << std::endl;  		// name of subgrid (SUB_NAME)
+		std::cout << "    PARENT   = " << grid_properties.ptrIndex[i].chParent << std::endl;			// name of parent grid (PARENT)
+		std::cout << "    CREATED  = " << grid_properties.ptrIndex[i].chCreated << std::endl;			// date of creation (CREATED)
+		std::cout << "    UPDATED  = " << grid_properties.ptrIndex[i].chUpdated << std::endl;			// date of last file update (UPDATED)
+		std::cout << "    S_LAT    = " << grid_properties.ptrIndex[i].dSlat << std::endl;				// lower latitude (S_LAT)
+		std::cout << "    N_LAT    = " << grid_properties.ptrIndex[i].dNlat << std::endl;				// upper latitude (N_LAT)
+		std::cout << "    E_LONG   = " << grid_properties.ptrIndex[i].dElong << std::endl;			// lower longitude (E_LONG)
+		std::cout << "    W_LONG   = " << grid_properties.ptrIndex[i].dWlong << std::endl;			// upper longitude (W_LONG)
+		std::cout << "    LAT_INC  = " << grid_properties.ptrIndex[i].dLatinc << std::endl;			// latitude interval (LAT_INC)
+		std::cout << "    LONG_INC = " << grid_properties.ptrIndex[i].dLonginc << std::endl;			// longitude interval (LONG_INC)
+		std::cout << "    GS_COUNT = " << grid_properties.ptrIndex[i].lGscount << std::endl;			// number of nodes (GS_COUNT)
 	}
-	cout << "----------------------------------------------------------------" << 
-		endl << endl;
+	std::cout << "----------------------------------------------------------------" << 
+	 	std::endl << std::endl;
 
 	return true;
 }
@@ -142,20 +140,20 @@ bool interpolateGridPoint(geoid_point* theGeoidPoint, const int& method)
 	{
 		if (status == -1)
 		{
-			cout << "+ The point " << fixed << setprecision(6) << theGeoidPoint->cVar.dLatitude << ", " << theGeoidPoint->cVar.dLongitude << " is outside the grid file." << endl << endl;
+			std::cout << "+ The point " << std::fixed << std::setprecision(6) << theGeoidPoint->cVar.dLatitude << ", " << theGeoidPoint->cVar.dLongitude << " is outside the grid file." << std::endl << std::endl;
 			return true;
 		}
-		cout << "Error: " << status << endl;
+		std::cout << "Error: " << status << std::endl;
 		return false;
 	}	
 	
-	cout << "+ Interpolation results for ";
-	cout << fixed << setprecision(6) << theGeoidPoint->cVar.dLatitude << ", " << theGeoidPoint->cVar.dLongitude << " (ddd.dddddd):" << endl;
+	std::cout << "+ Interpolation results for ";
+	std::cout << std::fixed << std::setprecision(6) << theGeoidPoint->cVar.dLatitude << ", " << theGeoidPoint->cVar.dLongitude << " (ddd.dddddd):" << std::endl;
 
-	cout << "  N VALUE      = " << setw(6) << right << setprecision(3) << theGeoidPoint->gVar.dN_value << endl;			// N value
-	cout << "  DEFL PRIME M = " << setw(6) << right << theGeoidPoint->gVar.dDefl_meridian << endl;						// Defl PM value
-	cout << "  DEFL PRIME V = " << setw(6) << right << theGeoidPoint->gVar.dDefl_primev << endl;						// Defl PV value
-	cout << endl;
+	std::cout << "  N VALUE      = " << std::setw(6) << std::right << std::setprecision(3) << theGeoidPoint->gVar.dN_value << std::endl;			// N value
+	std::cout << "  DEFL PRIME M = " << std::setw(6) << std::right << theGeoidPoint->gVar.dDefl_meridian << std::endl;						// Defl PM value
+	std::cout << "  DEFL PRIME V = " << std::setw(6) << std::right << theGeoidPoint->gVar.dDefl_primev << std::endl;						// Defl PV value
+	std::cout << std::endl;
 
 	return true;
 
@@ -163,7 +161,7 @@ bool interpolateGridPoint(geoid_point* theGeoidPoint, const int& method)
 
 bool FileTransformation(const char* fileIn, const char* fileOut, const int& intDmsFlag=0)
 {
-	cout << "+ Interpolating geoid information using a points file... ";
+	std::cout << "+ Interpolating geoid information using a points file... ";
 
 	
 	int method(BICUBIC);
@@ -174,30 +172,30 @@ bool FileTransformation(const char* fileIn, const char* fileOut, const int& intD
 	if (!DNAGEOID_FileTransformation(fileIn, fileOut, method, 
 		intEllipsoidtoOrtho, intDmsFlag, exportDnaGeoidFile, &status))
 	{
-		cout << "Error: " << status << endl;
+		std::cout << "Error: " << status << std::endl;
 		return false;
 	}	
 
-	cout << "done." << endl <<
-		"+ File written to:" << endl << 
-		"  " << fileOut << endl << endl;
+	std::cout << "done." << std::endl <<
+		"+ File written to:" << std::endl << 
+		"  " << fileOut << std::endl << std::endl;
 	
 	int pointsInterpolated(0), pointsNotInterpolated(0);
 
 	if (!DNAGEOID_PointsInterpolated(&pointsInterpolated, &status))
 	{
-		cout << "Error: " << status << endl;
+		std::cout << "Error: " << status << std::endl;
 		return false;
 	}
 
 	if (!DNAGEOID_PointsNotInterpolated(&pointsNotInterpolated, &status))
 	{
-		cout << "Error: " << status << endl;
+		std::cout << "Error: " << status << std::endl;
 		return false;
 	}
 
-	cout << "+ Points interpolated:     " << pointsInterpolated << endl <<
-		"+ Points not interpolated: " << pointsNotInterpolated << endl << endl;
+	std::cout << "+ Points interpolated:     " << pointsInterpolated << std::endl <<
+		"+ Points not interpolated: " << pointsNotInterpolated << std::endl << std::endl;
 
 	return true;
 }
@@ -235,7 +233,7 @@ int main(int argc, char* argv[])
 	theGeoidPoint.cVar.iHeightSystem = 0;
 
 	// 2. Call interpolateGridPoint() as many times as required
-	cout << "+ Interpolating from grid file... " << endl;
+	std::cout << "+ Interpolating from grid file... " << std::endl;
 
 	for (int i=0; i<4; ++i)
 	{

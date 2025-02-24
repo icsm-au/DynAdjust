@@ -31,8 +31,6 @@
 
 #include <include/measurement_types/dnastation.hpp>
 
-using namespace std;
-
 namespace dynadjust { namespace measurements {
 
 class StnTally {
@@ -47,9 +45,9 @@ public:
 	const StnTally operator-(const StnTally& rhs) const;
 	
 	UINT32 TotalCount();
-	void addstation(const string& constraint);
-	void removestation(const string& constraint);
-	void coutSummary(ostream &os, const string& title);
+	void addstation(const std::string& constraint);
+	void removestation(const std::string& constraint);
+	void coutSummary(std::ostream &os, const std::string& title);
 	void CreateTally(const vdnaStnPtr& vStations);
 
 	UINT32 CCC, FFF, CCF, CFF, FFC, FCC, CFC, FCF;

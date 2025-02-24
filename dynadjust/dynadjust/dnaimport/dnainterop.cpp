@@ -28,8 +28,6 @@
 #include <include/io/DynaML-schema.hxx>
 
 using namespace dynadjust::epsg;
-using namespace boost::gregorian;
-using namespace boost::posix_time;
 
 MsrTally	g_map_tally;
 MsrTally	g_parsemsr_tally;
@@ -128,15 +126,15 @@ void dna_import::DetermineBoundingBox()
 	bbox_lowerLon_ = DmstoRad(bbox_lowerLon_);
 }
 	
-void dna_import::BuildExtractStationsList(const string& stnList, pvstring vstnList)
+void dna_import::BuildExtractStationsList(const std::string& stnList, pvstring vstnList)
 {
 	// Extract stations from comma delimited string
 	try {
-		SplitDelimitedString<string>(stnList, string(","), vstnList);
+		SplitDelimitedString<std::string>(stnList, std::string(","), vstnList);
 	}
 	catch (...) {
-		stringstream ss;
-		ss << "BuildExtractStationsList(): An error was encountered when parsing " << stnList << "." << endl;
+		std::stringstream ss;
+		ss << "BuildExtractStationsList(): An error was encountered when parsing " << stnList << "." << std::endl;
 		SignalExceptionParse(ss.str(), 0);
 	}
 
@@ -150,7 +148,7 @@ void dna_import::BuildExtractStationsList(const string& stnList, pvstring vstnLi
 	it_string_pair _it_discont_ren;
 
 	_it_vstr _it_stn;
-	string station_name;
+	std::string station_name;
 	vstring renamed_stations;
 
 	// loop through all station names in vstnList
@@ -164,7 +162,7 @@ void dna_import::BuildExtractStationsList(const string& stnList, pvstring vstnLi
 
 		// Advance through _it_discont_ren for all occurrences of station_name
 		while ((_it_discont_ren = lower_bound(_it_discont_ren, stn_renamed_.end(), 
-			station_name, ComparePairFirst<string>())) != stn_renamed_.end())
+			station_name, ComparePairFirst<std::string>())) != stn_renamed_.end())
 		{
 			// found a station that has been renamed.			
 			// add the discontinuity name to the list
@@ -182,49 +180,18 @@ void dna_import::BuildExtractStationsList(const string& stnList, pvstring vstnLi
 }
 	
 
-void dna_import::UpdateEpoch(const vifm_t* vinput_file_meta)
-{
-	// Inspect the first file that was loaded.
-	// Assume that the epoch in that file is the desired epoch.
-
-	string epoch("");
-
-	if (vinput_file_meta->empty())
-		// Do nothing
-		return;
-
-	epoch = vinput_file_meta->at(0).epoch;
-
-	if (epoch.empty())
-		// Do nothing
-		return;
-
-	if (dateFromString<date>(epoch) == timeImmemorial<date>())
-		epoch = "";
-
-	m_strProjectDefaultEpoch = epoch;
-
-	// Set default epoch
-	datum_.SetEpoch(epoch);
-
-	// Update bst and bms files accordingly
-	sprintf(bst_meta_.epoch, "%s", epoch.substr(0, STN_EPOCH_WIDTH).c_str());
-	sprintf(bms_meta_.epoch, "%s", epoch.substr(0, STN_EPOCH_WIDTH).c_str());	
-}
-	
-
-void dna_import::InitialiseDatum(const string& reference_frame)
+void dna_import::InitialiseDatum(const std::string& reference_frame, const std::string epoch)
 {
 	try {
 		// Take the default reference frame, set either by the user or
 		// the datum_ constructor (GDA2020).  Epoch is that of the default
 		// reference frame (indicated by "")
-		datum_.SetDatumFromName(reference_frame, "");
+		datum_.SetDatumFromName(reference_frame, epoch);
 	}
-	catch (const runtime_error& e) {
-		stringstream ss;
-		ss << "InitialiseDatum(): An error occurred while initialising " << endl << "  the default reference frame.  Details:" << endl <<
-			"  " << e.what() << endl;
+	catch (const std::runtime_error& e) {
+		std::stringstream ss;
+		ss << "InitialiseDatum(): An error occurred while initialising " << std::endl << "  the default reference frame.  Details:" << std::endl <<
+			"  " << e.what() << std::endl;
 		SignalExceptionParse(ss.str(), 0);
 	}
 
@@ -232,17 +199,19 @@ void dna_import::InitialiseDatum(const string& reference_frame)
 	m_strProjectDefaultEpsg = datum_.GetEpsgCode_s();
 	m_strProjectDefaultEpoch = datum_.GetEpoch_s();
 
-	if (datum_.GetEpoch() == timeImmemorial<date>())
+	if (datum_.GetEpoch() == timeImmemorial<boost::gregorian::date>())
 		m_strProjectDefaultEpoch = "";
 
 	// Update binary file meta
-	// Note: the following rule applies each time a new file is loaded:
-	//	* This method (InitialiseDatum) is called (from dnaimportwrapper) before any files are loaded
-	//  * By default, the bst & bms meta is initialised with the reference frame and reference epoch.
-	//	* As each file is loaded, the frame and epoch from the files are captured from the header
-	//  * Once all files have been loaded, UpdateEpoch() is called to update the default epoch, with the
-	//    assumption that the first file contains the epoch that is to be used for the default, e.g. SINEX file.
-	//  * DynAdjust will not attempt to reconcile multiple default epochs found across the input files
+	// Note: the following rule applies each time a set of files is loaded via import:
+	//	* This method (InitialiseDatum) is called (from dnaimportwrapper) before any files are loaded.
+	//    By default, the bst & bms meta are initialised with the reference frame and reference epoch.
+	//  * The datum and epoch within the first file (if present) is used to set the default project 
+	//    datum. If a datum isn't provided in the first input file, e.g. SINEX file, the default datum
+	//    (GDA2020) is used. As each subsequent file is loaded, the default frame and epoch are assumed.
+	//  * After all files have been loaded, InitialiseDatum is called again to set the metadata.
+	//  * import does not attempt to reconcile multiple default datums and epochs found across the input
+	//    files. It will however produce a warning when something different to the default is discovered.
 	sprintf(bst_meta_.epsgCode, "%s", m_strProjectDefaultEpsg.substr(0, STN_EPSG_WIDTH).c_str());
 	sprintf(bms_meta_.epsgCode, "%s", m_strProjectDefaultEpsg.substr(0, STN_EPSG_WIDTH).c_str());
 	sprintf(bst_meta_.epoch, "%s", m_strProjectDefaultEpoch.substr(0, STN_EPOCH_WIDTH).c_str());
@@ -250,102 +219,10 @@ void dna_import::InitialiseDatum(const string& reference_frame)
 }
 	
 
-//   // DynaXML, dna v.1-2 and sinex file formats do not contain reference frame information, so
-//   // by default the reference frame for all stations is set to GDA2020.
-//   // This function is called to modify the default frame to a user-specified frame
-//   void dna_import::SetDefaultReferenceFrame(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements)
-//   {
-//   	// Default is GDA2020.
-//   	switch (m_ift)
-//   	{
-//   	case sinex:			// SNX	
-//   		// For sinex files, the default (or user input) reference frame is set in
-//   		// parse_sinex_msr and parse_sinex_stn.  The epoch of the sinex file is
-//   		// also set in these functions.  Hence, there is no need to override here.
-//   		return;
-//   
-//   	case dynaml:		// DynaML - *stn.xml and *msr.xml
-//   		// Reference frame is properly handled in and dnaparser_pskel.cxx dnaparser_pimpl.cxx
-//   	case dna:			// DNA - .stn and .msr
-//   		// Reference frame is properly handled in and ParseDNAMSR...
-//   		return;
-//   
-//   	//////////////////////////////////////////////////////////
-//   	// UNSUPPORTED OPTIONS
-//   
-//   	case geodesyml:		// GeodesyML - GML application schema
-//   	case csv:			// CSV
-//   	default:
-//   
-//   		//throw XMLInteropException("ParseInputFile(): Could not deduce file type from extension or contents.", 0);		
-//   		stringstream ss;
-//   		ss << "SetDefaultReferenceFrame(): unsupported file type.";
-//   		parseStatus_ = PARSE_UNRECOGNISED_FILE;
-//   		throw XMLInteropException(ss.str(), 0);
-//   
-//   
-//   		// Does the user want to override what is contained in the input files?
-//   		if (projectSettings_.i.override_input_rfame == 0)
-//   			// No, so don't override the reference frame found in the input files
-//   			return;
-//   		break;
-//   	}
-//   
-//   //////////////////////////////////////////////////////////
-//   // Unused code - comment out until required
-//   //
-//   //	// Yes, override what is contained in the input files.
-//   //
-//   //	// Get defaults
-//   //	string strEpsg(datum_.GetEpsgCode_s());
-//   //	string strEpoch(datum_.GetEpoch_s());
-//   //
-//   //	for_each(vStations->begin(), vStations->end(), 
-//   //		[this, &strEpsg, &strEpoch] (dnaStnPtr& s) {			
-//   //			s->SetReferenceFrame(projectSettings_.i.reference_frame);
-//   //			s->SetEpoch(strEpoch);
-//   //	});
-//   //
-//   //	// If only some dna records have frame and epoch, the default reference frame and epoch will be used.
-//   //	
-//   //	CDnaGpsBaselineCluster* bslCluster;
-//   //	CDnaGpsPointCluster* pntCluster;
-//   //
-//   //	for_each(vMeasurements->begin(), vMeasurements->end(),
-//   //		[this, &bslCluster, &pntCluster, &strEpsg, &strEpoch](dnaMsrPtr& m){
-//   //			
-//   //			// Set reference frame (and reference epoch) in the CDnaMeasurement (parent class)
-//   //			m->SetReferenceFrame(projectSettings_.i.reference_frame);
-//   //			m->SetEpoch(strEpoch);
-//   //
-//   //			switch (m->GetTypeC()) {
-//   //			case 'G': // Single Baseline (treat as a single-baseline cluster)
-//   //				bslCluster = (CDnaGpsBaselineCluster*) (m.get());
-//   //				bslCluster->SetReferenceFrame(projectSettings_.i.reference_frame);
-//   //				bslCluster->SetEpoch(strEpoch);
-//   //				break;
-//   //			case 'X': // GPS Baseline cluster
-//   //				bslCluster = (CDnaGpsBaselineCluster*) (m.get());
-//   //				bslCluster->SetReferenceFrame(projectSettings_.i.reference_frame);
-//   //				bslCluster->SetEpoch(strEpoch);
-//   //				break;
-//   //			case 'Y': // GPS point cluster
-//   //				pntCluster = (CDnaGpsPointCluster*) (m.get());
-//   //				pntCluster->SetReferenceFrame(projectSettings_.i.reference_frame);
-//   //				pntCluster->SetEpoch(strEpoch);
-//   //				break;
-//   //			default:
-//   //				break;
-//   //			}
-//   //			
-//   //	});
-//   }
-	
-
-_PARSE_STATUS_ dna_import::ParseInputFile(const string& fileName, vdnaStnPtr* vStations, PUINT32 stnCount, 
+_PARSE_STATUS_ dna_import::ParseInputFile(const std::string& fileName, vdnaStnPtr* vStations, PUINT32 stnCount, 
 							   vdnaMsrPtr* vMeasurements, PUINT32 msrCount, 
-							   PUINT32 clusterID, input_file_meta_t* input_file_meta,
-							   string* success_msg, project_settings* p)
+							   PUINT32 clusterID, input_file_meta_t* input_file_meta, bool firstFile,
+							   std::string* success_msg, project_settings* p)
 {
 	projectSettings_ = *p;
 	*success_msg = "";
@@ -354,18 +231,9 @@ _PARSE_STATUS_ dna_import::ParseInputFile(const string& fileName, vdnaStnPtr* vS
 
 	percentComplete_ = -99.0;
 	isProcessing_ = true;
-	stringstream ss;
-
-	try
-	{
-		// Reset default datum for the input file
-		// Note, the following call assumes InitialiseDatum(...)
-		// has already been called, and set m_strEpsg and m_strEpoch.
-		datum_.SetDatumFromEpsg(m_strProjectDefaultEpsg, m_strProjectDefaultEpoch);
-	}
-	catch (const runtime_error& e) {
-		SignalExceptionParse(e.what(), 0);
-	}
+	_filespecifiedreferenceframe = false;
+	_filespecifiedepoch = false;
+	std::stringstream ss;
 
 	try 
 	{
@@ -381,30 +249,31 @@ _PARSE_STATUS_ dna_import::ParseInputFile(const string& fileName, vdnaStnPtr* vS
 		ifsInputFILE_ = new std::ifstream;
 
 		// Open and seek to end immediately after opening.
-		file_opener(ifsInputFILE_, fileName, ios::in | ios::ate, ascii, true);
+		file_opener(ifsInputFILE_, fileName, std::ios::in | std::ios::ate, ascii, true);
 		
 		// get file size and return to start
 		sifsFileSize_ = (size_t)ifsInputFILE_->tellg();
-		ifsInputFILE_->seekg(0, ios::beg);
+		ifsInputFILE_->seekg(0, std::ios::beg);
 
 		// release file pointer mutex
 		import_file_mutex.unlock();
 	}
-	catch (const ios_base::failure& f) {	
+	catch (const std::ios_base::failure& f) {	
 		ss.str("");
-		ss << "ParseInputFile(): An error was encountered when opening " << fileName << "." << endl << "  " << f.what() << endl << "  Check that the file exists and that the file is not already opened.";
+		ss << "ParseInputFile(): An error was encountered when opening " << fileName << "." << std::endl << "  " << f.what() << std::endl << "  Check that the file exists and that the file is not already opened.";
 		SignalExceptionParse(ss.str(), 0);
 	}
 	catch (...) {	
 		ss.str("");
-		ss << "ParseInputFile(): An error was encountered when opening " << fileName << "." << endl << "  Check that the file exists and that the file is not already opened.";
+		ss << "ParseInputFile(): An error was encountered when opening " << fileName << "." << std::endl << "  Check that the file exists and that the file is not already opened.";
 		SignalExceptionParse(ss.str(), 0);		
 	}
 
 	// Firstly, see what type of file this is, then decide what to do with it
 	char first_chars[PRINT_LINE_LENGTH+1];
 
-	string fileEpsg, fileEpoch;
+	std::string fileEpsg, fileEpoch;
+	fileEpsg = "";
 	
 	try
 	{
@@ -412,14 +281,14 @@ _PARSE_STATUS_ dna_import::ParseInputFile(const string& fileName, vdnaStnPtr* vS
 		import_file_mutex.lock();
 
 		ifsInputFILE_->get(first_chars, PRINT_LINE_LENGTH, '\n');
-		ifsInputFILE_->seekg(0, ios::beg);				// put back to beginning
+		ifsInputFILE_->seekg(0, std::ios::beg);				// put back to beginning
 
 		// release file pointer mutex
 		import_file_mutex.unlock();
 	}
-	catch (const ios_base::failure& f) {	
+	catch (const std::ios_base::failure& f) {	
 		ss.str("");
-		ss << "ParseInputFile(): An error was encountered when reading " << fileName << "." << endl << "  " << f.what() << endl;
+		ss << "ParseInputFile(): An error was encountered when reading " << fileName << "." << std::endl << "  " << f.what() << std::endl;
 		SignalExceptionParse(ss.str(), 0);
 	}
 	
@@ -434,7 +303,7 @@ _PARSE_STATUS_ dna_import::ParseInputFile(const string& fileName, vdnaStnPtr* vS
 		m_ift = dynaml;
 		
 		// Parse the DynaML file
-		ParseXML(fileName, vStations, stnCount, vMeasurements, msrCount, clusterID, fileEpsg, fileEpoch, success_msg);
+		ParseXML(fileName, vStations, stnCount, vMeasurements, msrCount, clusterID, fileEpsg, fileEpoch, firstFile, success_msg);
 
 		if (fileEpsg.empty())
 			fileEpsg = m_strProjectDefaultEpsg;
@@ -459,21 +328,28 @@ _PARSE_STATUS_ dna_import::ParseInputFile(const string& fileName, vdnaStnPtr* vS
 		sprintf(input_file_meta->epsgCode, "%s", m_strProjectDefaultEpsg.substr(0, STN_EPSG_WIDTH).c_str());		
 		sprintf(input_file_meta->epoch, "%s", datum_.GetEpoch_s().substr(0, STN_EPOCH_WIDTH).c_str());
 
+		if (firstFile)
+		{
+			fileEpoch = input_file_meta->epoch;
+			if (!fileEpoch.empty())
+				m_strProjectDefaultEpoch = fileEpoch;
+		}
+
 		SignalComplete();
 	}
 	// STN or MSR
 	else if (
 		// use boost::algorithm::ifind_first, which is a case insensitive implementation of the find first algorithm. 
 		strncmp(first_chars, "!#=DNA", 6) == 0 ||	// dna file?
-		ifind_first(fileName, ".stn") ||			// dna station file
-		ifind_first(fileName, ".msr"))				// dna measurement file
+		boost::ifind_first(fileName, ".stn") ||			// dna station file
+		boost::ifind_first(fileName, ".msr"))				// dna measurement file
 	{
 		// Set the file type
 		input_file_meta->filetype = dna;
 		m_ift = dna;
 
 		// Parse the DNA file
-		ParseDNA(fileName, vStations, stnCount, vMeasurements, msrCount, clusterID, fileEpsg, fileEpoch);
+		ParseDNA(fileName, vStations, stnCount, vMeasurements, msrCount, clusterID, fileEpsg, fileEpoch, firstFile);
 		
 		if (fileEpsg.empty())
 			fileEpsg = m_strProjectDefaultEpsg;
@@ -488,7 +364,7 @@ _PARSE_STATUS_ dna_import::ParseInputFile(const string& fileName, vdnaStnPtr* vS
 	{
 		//throw XMLInteropException("ParseInputFile(): Could not deduce file type from extension or contents.", 0);		
 		ss.str("");
-		ss << "ParseInputFile(): " << leafStr<string>(fileName) << " is not a recognised station or" << endl <<
+		ss << "ParseInputFile(): " << leafStr<std::string>(fileName) << " is not a recognised station or" << std::endl <<
 			"  measurement input file.";
 		(*success_msg) = ss.str();
 		//SignalExceptionParse(ss.str(), 0);
@@ -504,11 +380,6 @@ _PARSE_STATUS_ dna_import::ParseInputFile(const string& fileName, vdnaStnPtr* vS
 		if (p->i.apply_discontinuities)
 			ApplyDiscontinuities(vMeasurements);
 	}
-
-	// SetDefaultReferenceFrame is not needed.  Keep for potential file formats that require this to be set
-	//
-	// // Set default reference frame (if the file type does not specify it).
-	// SetDefaultReferenceFrame(vStations, vMeasurements);
 	
 	// Populate metadata
 	sprintf(input_file_meta->filename, "%s", fileName.c_str());
@@ -522,12 +393,14 @@ _PARSE_STATUS_ dna_import::ParseInputFile(const string& fileName, vdnaStnPtr* vS
 	return parseStatus_;
 }
 	
-void dna_import::ParseXML(const string& fileName, vdnaStnPtr* vStations, PUINT32 stnCount, 
+void dna_import::ParseXML(const std::string& fileName, vdnaStnPtr* vStations, PUINT32 stnCount, 
 							   vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID, 
-							   string& fileEpsg, string& fileEpoch, string* success_msg)
+							   std::string& fileEpsg, std::string& fileEpoch, bool firstFile, std::string* success_msg)
 {
 
 	parseStatus_ = PARSE_SUCCESS;
+	_filespecifiedreferenceframe = false;
+	_filespecifiedepoch = false;
 	
 	try
 	{
@@ -535,15 +408,17 @@ void dna_import::ParseXML(const string& fileName, vdnaStnPtr* vStations, PUINT32
 		// A hack to circumvent the problem caused by importing DynaML files in 
 		// different directories to where import is run from, causing errors 
 		// because DynaML.xsd cannot be found.
-		path currentPath(current_path());
-		current_path(path(projectSettings_.g.input_folder));
+		boost::filesystem::path currentPath(boost::filesystem::current_path());
+		boost::filesystem::current_path(boost::filesystem::path(projectSettings_.g.input_folder));
 
 		// Instantiate individual parsers.
 		DnaXmlFormat_pimpl DnaXmlFormat_p(ifsInputFILE_,		// pass file stream to enable progress to be calculated
 			clusterID,											// pass cluster ID so that a unique number can be retained across multiple files
 			datum_.GetName(),									// pass the default reference frame
 			datum_.GetEpoch_s(),								// pass the default epoch
+			firstFile,											// is this the first file to be loaded?
 			projectSettings_.i.user_supplied_frame==1,			// Has a reference frame been supplied?
+			projectSettings_.i.user_supplied_epoch == 1,		// Has an epoch been supplied?
 			projectSettings_.i.override_input_rfame==1);		// Should this reference frame override all others?
 																		
 		::DnaStation_pimpl DnaStation_p;
@@ -602,34 +477,76 @@ void dna_import::ParseXML(const string& fileName, vdnaStnPtr* vStations, PUINT32
 		*stnCount = DnaXmlFormat_p.NumStationsRead();
 		*msrCount = DnaXmlFormat_p.NumMeasurementsRead();
 		*success_msg = DnaXmlFormat_p.DnaXmlParseMessage() + "\n";
+		_filespecifiedreferenceframe = DnaXmlFormat_p.filespecifiedreferenceframe();
+		_filespecifiedepoch = DnaXmlFormat_p.filespecifiedepoch();
 
 		try
 		{
+			// 1. Capture file epsg
 			// Get the reference frame from the XML file (i.e. referenceframe attribute in DnaXmlFormat element)
-			string xml_referenceframe = referenceframe_p.str();
-			string xml_epoch = epoch_p.str();
-		
+			fileEpsg = DnaXmlFormat_p.FileEpsg();
 			// Is this attribute value an empty string?  As long as a default value 
 			// is specified in DynaML.xsd, this value will never be empty, unless the user
 			// has inadvertently set in the xml file, e.g.:
 			//  <DnaXmlFormat referenceframe="" ... >
-			if (xml_referenceframe.empty())
+			if (fileEpsg.empty())
 				// No, so get the epsg code from the default datum 
 				fileEpsg = datum_.GetEpsgCode_s();
-			else
-				fileEpsg = epsgStringFromName<string>(xml_referenceframe);
 
-			if (xml_epoch.empty())
-				// No, so get the epoch from the default datum 
-				fileEpoch = datum_.GetEpoch_s();
+			fileEpoch = DnaXmlFormat_p.FileEpoch();
+			// Is this attribute value an empty string?  As long as a default value 
+			// is specified in DynaML.xsd, this value will never be empty, unless the user
+			// has inadvertently set in the xml file, e.g.:
+			//  <DnaXmlFormat epoch="" ... >
+			// Or, is the file reference frame a static datum?
+			if (fileEpoch.empty() || isEpsgDatumStatic(LongFromString<UINT32>(fileEpsg)))
+			{
+				// Get the epoch of the nominated epsg (whether default or from the file)
+				fileEpoch = referenceepochFromEpsgString<std::string>(fileEpsg);
+			}
+
+			// Has the user supplied a reference frame on the command line (--reference-frame)?
+			if (projectSettings_.i.user_supplied_frame)
+			{
+				// A frame has been supplied. Now check for epoch.
+
+				// Has the user supplied an epoch on the command line (--epoch)?
+				if (!projectSettings_.i.user_supplied_epoch)
+				{
+					// No epoch supplied. Take the epoch from the first file.
+					if (firstFile)
+					{
+						projectSettings_.i.epoch = fileEpoch;
+						projectSettings_.r.epoch = fileEpoch;
+						m_strProjectDefaultEpoch = fileEpoch;
+						datum_.SetEpoch(fileEpoch);
+					}
+				}
+			}
 			else
-				fileEpoch = xml_epoch;
+			{
+				// No frame supplied. Set the datum from the first file. 
+				// If the datum field is blank in the first file, the default will be used.
+				if (firstFile)
+				{
+					projectSettings_.i.reference_frame = datumFromEpsgString<std::string>(fileEpsg);
+					projectSettings_.r.reference_frame = projectSettings_.i.reference_frame;
+					m_strProjectDefaultEpsg = fileEpsg;
+
+					// If the user has not provided a reference frame on the command line, then
+					// take the epoch from the first file. In this case, do not take the epoch
+					// from the command line (dnaimportwrapper will throw in this scenario anyway)
+					projectSettings_.i.epoch = fileEpoch;
+					projectSettings_.r.epoch = fileEpoch;
+					m_strProjectDefaultEpoch = fileEpoch;
+				}
+			}
 		}
 		catch (...)
 		{
-			stringstream ss;
+			std::stringstream ss;
 			ss << "The default input file reference frame \"" << referenceframe_p.str() << "\" is not recognised.";
-			SignalExceptionParse(static_cast<string>(ss.str()), 0);
+			SignalExceptionParse(static_cast<std::string>(ss.str()), 0);
 		}
 
 		if (!vStations->empty() && !vMeasurements->empty())
@@ -641,7 +558,7 @@ void dna_import::ParseXML(const string& fileName, vdnaStnPtr* vStations, PUINT32
 
 		current_path(currentPath);
 	}
-	catch (const ios_base::failure& f)
+	catch (const std::ios_base::failure& f)
 	{
 		if (ifsInputFILE_->eof())
 		{
@@ -655,9 +572,9 @@ void dna_import::ParseXML(const string& fileName, vdnaStnPtr* vStations, PUINT32
 			import_file_mutex.unlock();
 			return;
 		}
-		stringstream ss;
-		ss << "ParseXML(): An ios_base failure was encountered while parsing " << fileName << "." << endl << "  " << f.what();
-		SignalExceptionParse(static_cast<string>(ss.str()), 0);
+		std::stringstream ss;
+		ss << "ParseXML(): An std::ios_base failure was encountered while parsing " << fileName << "." << std::endl << "  " << f.what();
+		SignalExceptionParse(static_cast<std::string>(ss.str()), 0);
 	}
 	catch (const std::system_error& e)
 	{
@@ -673,55 +590,55 @@ void dna_import::ParseXML(const string& fileName, vdnaStnPtr* vStations, PUINT32
 			import_file_mutex.unlock();
 			return;
 		}
-		stringstream ss;
-		ss << "ParseXML(): An ios_base failure was encountered while parsing " << fileName << "." << endl << "  " << e.what();
-		SignalExceptionParse(static_cast<string>(ss.str()), 0);
+		std::stringstream ss;
+		ss << "ParseXML(): An std::ios_base failure was encountered while parsing " << fileName << "." << std::endl << "  " << e.what();
+		SignalExceptionParse(static_cast<std::string>(ss.str()), 0);
 	}
 	catch (const XMLInteropException& e) 
 	{
-		stringstream ss;
-		ss << "ParseXML(): An exception was encountered while parsing " << fileName << "." << endl << "  " << e.what();
-		SignalExceptionParse(static_cast<string>(ss.str()), 0);
+		std::stringstream ss;
+		ss << "ParseXML(): An exception was encountered while parsing " << fileName << "." << std::endl << "  " << e.what();
+		SignalExceptionParse(static_cast<std::string>(ss.str()), 0);
 	}
 	catch (const ::xml_schema::parsing& e)
 	{
-		stringstream ss("");
+		std::stringstream ss("");
 		ss << e.what();
 
 		::xsd::cxx::parser::diagnostics<char>::const_iterator _it;		
 		for (_it=e.diagnostics().begin(); _it!=e.diagnostics().end(); _it++)
 		{
-			ss << endl;
+			ss << std::endl;
 			ss << "  - line " << _it->line();
 			ss << ", column " <<  _it->column();
-			ss << ", severity " <<  _it->severity() << endl;
+			ss << ", severity " <<  _it->severity() << std::endl;
 			ss << "  - " << _it->message();
 		}
 		SignalExceptionParse(ss.str(), 0);
 	}
 	catch (const ::xml_schema::exception& e)
 	{
-		stringstream ss;
-		ss << "ParseXML(): An xml_schema exception was encountered while parsing " << fileName << "." << endl << "  " << e.what();
-		SignalExceptionParse(static_cast<string>(ss.str()), 0);
+		std::stringstream ss;
+		ss << "ParseXML(): An xml_schema exception was encountered while parsing " << fileName << "." << std::endl << "  " << e.what();
+		SignalExceptionParse(static_cast<std::string>(ss.str()), 0);
 	}
 	catch (...)
 	{
-		stringstream ss;
-		ss << "ParseXML(): An unknown error was encountered while parsing " << fileName << "." << endl;
+		std::stringstream ss;
+		ss << "ParseXML(): An unknown error was encountered while parsing " << fileName << "." << std::endl;
 		SignalExceptionParse(ss.str(), 0);	
 	}
 
 	if (parseStatus_ != PARSE_SUCCESS)
 	{
-		stringstream ss("");
+		std::stringstream ss("");
 		ss.str("");
-		ss << "- Warning: Parse success code = " << PARSE_SUCCESS << "." << endl;
+		ss << "- Warning: Parse success code = " << PARSE_SUCCESS << "." << std::endl;
 		(*success_msg) += ss.str();
 	}
 }
 
-void dna_import::ParseSNX(const string& fileName, vdnaStnPtr* vStations, PUINT32 stnCount, 
+void dna_import::ParseSNX(const std::string& fileName, vdnaStnPtr* vStations, PUINT32 stnCount, 
 							   vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID)
 {
 	try {
@@ -732,21 +649,22 @@ void dna_import::ParseSNX(const string& fileName, vdnaStnPtr* vStations, PUINT32
 			datum_, projectSettings_.i.apply_discontinuities==1, &stn_discontinuities_, m_discontsSortedbyName,
 			m_lineNo, m_columnNo, parseStatus_);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		SignalExceptionParse(e.what(), 0);
 	}
+	_filespecifiedepoch = true;
 }
 	
 // Parse discontinuities and create discontinuity tuple
-void dna_import::ParseDiscontinuities(const string& fileName)
+void dna_import::ParseDiscontinuities(const std::string& fileName)
 {
 	std::ifstream discont_file;
 	try {
 		// Open discontinuity file.  Throws runtime_error on failure.
 		file_opener(discont_file, fileName, 
-			ios::in, ascii, true);
+			std::ios::in, ascii, true);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		SignalExceptionInterop(e.what(), 0, NULL);
 	}
 
@@ -758,7 +676,7 @@ void dna_import::ParseDiscontinuities(const string& fileName)
 			&stn_discontinuities_, m_discontsSortedbyName, 
 			m_lineNo, m_columnNo, parseStatus_);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		SignalExceptionParse(e.what(), 0);
 	}
 
@@ -775,12 +693,12 @@ void dna_import::AddDiscontinuityStations(vdnaStnPtr* vStations)
 	it_string_pair stn_renames_it(stn_renamed_.begin());
 
 	dnaStnPtr stn_ptr;
-	string stationName;
+	std::string stationName;
 	
 	UINT32 i, station_count(static_cast<UINT32>(vStations->size()));
 	UINT32 station_index(station_count);
 
-	sort(vStations->begin(), vStations->end(), CompareStationName<dnaStnPtr>());
+	std::sort(vStations->begin(), vStations->end(), CompareStationName<dnaStnPtr>());
 	
 	for (i=0; i<station_count; ++i)
 	{
@@ -813,7 +731,7 @@ void dna_import::AddDiscontinuityStations(vdnaStnPtr* vStations)
 	}
 
 	// Remove duplicates which may have been added through the above process
-	sort(vStations->begin(), vStations->end(), CompareStationName<dnaStnPtr>());
+	std::sort(vStations->begin(), vStations->end(), CompareStationName<dnaStnPtr>());
 	_it_vdnastnptr _it_stn_newend = unique(vStations->begin(), vStations->end(), EqualStationName<dnaStnPtr>());
 	if (_it_stn_newend != vStations->end())
 		vStations->resize(_it_stn_newend - vStations->begin());
@@ -828,7 +746,7 @@ void dna_import::ApplyDiscontinuities(vdnaMsrPtr* vMeasurements)
 
 	if (!m_discontsSortedbyName)
 	{
-		sort(stn_discontinuities_.begin(), stn_discontinuities_.end(),
+		std::sort(stn_discontinuities_.begin(), stn_discontinuities_.end(),
 			CompareSiteTuplesByName<discontinuity_tuple>());
 		m_discontsSortedbyName = true;
 	}
@@ -848,12 +766,12 @@ void dna_import::ApplyDiscontinuities(vdnaMsrPtr* vMeasurements)
 		ApplyDiscontinuitiesMeasurements(vMeasurements);
 }
 
-void dna_import::TrackDiscontinuitySite(const string& site, const string& site_renamed)
+void dna_import::TrackDiscontinuitySite(const std::string& site, const std::string& site_renamed)
 {
-	if (!binary_search(stn_renamed_.begin(), stn_renamed_.end(), site_renamed, ComparePairSecond<string>()))
+	if (!binary_search(stn_renamed_.begin(), stn_renamed_.end(), site_renamed, ComparePairSecond<std::string>()))
 	{
 		stn_renamed_.push_back(string_string_pair(site, site_renamed));
-		sort(stn_renamed_.begin(), stn_renamed_.end(), ComparePairFirst<string>());
+		std::sort(stn_renamed_.begin(), stn_renamed_.end(), ComparePairFirst<std::string>());
 	}
 }
 	
@@ -865,13 +783,13 @@ void dna_import::ApplyDiscontinuitiesMeasurements(vdnaMsrPtr* vMeasurements)
 {
 	_it_vdiscontinuity_tuple _it_discont(stn_discontinuities_.begin());
 
-	string site_renamed, stn1, stn2, stn3;
+	std::string site_renamed, stn1, stn2, stn3;
 	
-	date site_date;
+	boost::gregorian::date site_date;
 
-	vector<CDnaDirection>* vdirns;
-	vector<CDnaGpsBaseline>* vgpsBsls;
-	vector<CDnaGpsPoint>* vgpsPnts;
+	std::vector<CDnaDirection>* vdirns;
+	std::vector<CDnaGpsBaseline>* vgpsBsls;
+	std::vector<CDnaGpsPoint>* vgpsPnts;
 
 	_it_vdnamsrptr _it_msr(vMeasurements->begin());
 
@@ -897,7 +815,7 @@ void dna_import::ApplyDiscontinuitiesMeasurements(vdnaMsrPtr* vMeasurements)
 			continue;
 
 		// Capture the epoch of the measurement
-		site_date = dateFromString<date>(_it_msr->get()->GetEpoch());
+		site_date = dateFromString<boost::gregorian::date>(_it_msr->get()->GetEpoch());
 
 		// 2. Handle 'first' station for every measurement type
 		stn1 = _it_msr->get()->GetFirst();
@@ -963,7 +881,7 @@ void dna_import::ApplyDiscontinuitiesMeasurements(vdnaMsrPtr* vMeasurements)
 		case 'L':	// Level difference
 		case 'M':	// MSL arc
 		case 'S':	// Slope distance
-		case 'V':	// Zenith angle
+		case 'V':	// Zenith distance
 		case 'Z':	// Vertical angle
 			continue;
 		}
@@ -993,19 +911,19 @@ void dna_import::ApplyDiscontinuitiesMeasurements(vdnaMsrPtr* vMeasurements)
 }
 	
 
-void dna_import::ApplyDiscontinuitiesMeasurements_GX(vector<CDnaGpsBaseline>* vGpsBaselines)
+void dna_import::ApplyDiscontinuitiesMeasurements_GX(std::vector<CDnaGpsBaseline>* vGpsBaselines)
 {
-	vector< CDnaGpsBaseline >::iterator _it_msr(vGpsBaselines->begin());
+	std::vector< CDnaGpsBaseline >::iterator _it_msr(vGpsBaselines->begin());
 	_it_vdiscontinuity_tuple _it_discont(stn_discontinuities_.begin());
-	string site_renamed, stn1, stn2, stn3;
-	date site_date;
+	std::string site_renamed, stn1, stn2, stn3;
+	boost::gregorian::date site_date;
 
 	for (_it_msr = vGpsBaselines->begin();
 		_it_msr != vGpsBaselines->end();
 		_it_msr++)
 	{
 		// Capture the start date of the site
-		site_date = dateFromString<date>(_it_msr->GetEpoch());
+		site_date = dateFromString<boost::gregorian::date>(_it_msr->GetEpoch());
 
 		// Station 1
 		stn1 = _it_msr->GetFirst();
@@ -1046,19 +964,19 @@ void dna_import::ApplyDiscontinuitiesMeasurements_GX(vector<CDnaGpsBaseline>* vG
 }
 
 
-void dna_import::ApplyDiscontinuitiesMeasurements_Y(vector<CDnaGpsPoint>* vGpsPoints)
+void dna_import::ApplyDiscontinuitiesMeasurements_Y(std::vector<CDnaGpsPoint>* vGpsPoints)
 {
-	vector< CDnaGpsPoint >::iterator _it_msr(vGpsPoints->begin());
+	std::vector< CDnaGpsPoint >::iterator _it_msr(vGpsPoints->begin());
 	_it_vdiscontinuity_tuple _it_discont(stn_discontinuities_.begin());
-	string site_renamed, stn1, stn2, stn3;
-	date site_date;
+	std::string site_renamed, stn1, stn2, stn3;
+	boost::gregorian::date site_date;
 
 	for (_it_msr = vGpsPoints->begin();
 		_it_msr != vGpsPoints->end();
 		_it_msr++)
 	{
 		// Capture the start date of the site
-		site_date = dateFromString<date>(_it_msr->GetEpoch());
+		site_date = dateFromString<boost::gregorian::date>(_it_msr->GetEpoch());
 
 		// Station 1
 		stn1 = _it_msr->GetFirst();
@@ -1081,11 +999,11 @@ void dna_import::ApplyDiscontinuitiesMeasurements_Y(vector<CDnaGpsPoint>* vGpsPo
 }
 
 
-void dna_import::ApplyDiscontinuitiesMeasurements_D(vector<CDnaDirection>* vDirections, const date& site_date)
+void dna_import::ApplyDiscontinuitiesMeasurements_D(std::vector<CDnaDirection>* vDirections, const boost::gregorian::date& site_date)
 {
-	vector< CDnaDirection >::iterator _it_msr(vDirections->begin());
+	std::vector< CDnaDirection >::iterator _it_msr(vDirections->begin());
 	_it_vdiscontinuity_tuple _it_discont(stn_discontinuities_.begin());
-	string site_renamed, stn1, stn2, stn3;
+	std::string site_renamed, stn1, stn2, stn3;
 
 	for (_it_msr = vDirections->begin();
 		_it_msr != vDirections->end();
@@ -1128,51 +1046,11 @@ void dna_import::ApplyDiscontinuitiesMeasurements_D(vector<CDnaDirection>* vDire
 		}
 	}
 }
+	
 
-
-//// Get version number and assign field widths/locations
-//void dna_import::ParseDNAVersion(const INPUT_DATA_TYPE& idt)
-//{
-//	string sBuf;
-//
-//	// Obtain exclusive use of the input file pointer
-//	import_file_mutex.lock();
-//	getline((*ifsInputFILE_), sBuf);
-//	// release file pointer mutex
-//	import_file_mutex.unlock();
-//
-//	// Set the default version
-//	string version("1.00");
-//
-//	// Attempt to get this file's version
-//	try {
-//		if (iequals("!#=DNA", sBuf.substr(0, 6)))
-//			version = trimstr(sBuf.substr(6, 6));
-//	}
-//	catch (...) {
-//		SignalExceptionParseDNA("ParseDNAVersion(): Could not extract file version from the record:  ",
-//			sBuf, 6);
-//	}	
-//
-//	stringstream ss;
-//	switch (idt)
-//	{
-//	case stn_data:
-//		determineDNASTNFieldParameters<UINT16>(version, dsl_, dsw_);
-//		break;
-//	case msr_data:
-//		determineDNAMSRFieldParameters<UINT16>(version, dml_, dmw_);
-//		break;
-//	default:
-//		ss << " Unknown file type." << endl;
-//		m_columnNo = 0;
-//		throw XMLInteropException(ss.str(), m_lineNo);
-//	}
-//}
-
-void dna_import::ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32 stnCount, 
+void dna_import::ParseDNA(const std::string& fileName, vdnaStnPtr* vStations, PUINT32 stnCount, 
 							   vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID, 
-							   string& fileEpsg, string& fileEpoch)
+							   std::string& fileEpsg, std::string& fileEpoch, bool firstFile)
 {
 	parseStatus_ = PARSE_SUCCESS;
 
@@ -1181,8 +1059,8 @@ void dna_import::ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32
 	g_parsestn_tally.initialise();
 	g_parsemsr_tally.initialise();
 
-	string stn_file_type(".stn"), msr_file_type(".msr");
-	string version, geoversion;
+	std::string stn_file_type(".stn"), msr_file_type(".msr");
+	std::string version, geoversion;
 	
 	INPUT_DATA_TYPE idt;
 	UINT32 count;
@@ -1202,50 +1080,109 @@ void dna_import::ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32
 		// Read the dna file header, and set the
 		// reference frame based on the header and user preferences
 		dnaFile.read_dna_header(ifsInputFILE_, version, idt,			
-			datum_,											// default datum
-			projectSettings_.i.user_supplied_frame==1,			// Has a reference frame been supplied?
-			projectSettings_.i.override_input_rfame==1,		// does the user want to override the datum in the input files?
+			datum_,											// project datum
 			fileEpsg, fileEpoch, geoversion, count);
 		// release file pointer mutex
 		import_file_mutex.unlock();
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		import_file_mutex.unlock();
+		parseStatus_ = PARSE_EXCEPTION_RAISED;
 		throw XMLInteropException(e.what(), 0);
 	}
+
+	// Set to defaults if reference frame and epoch fields are empty
+	if (fileEpsg.empty())
+		fileEpsg = datum_.GetEpsgCode_s();	
+	if (fileEpoch.empty())
+		fileEpoch = datum_.GetEpoch_s();
+
+	// Is the file reference frame a static datum?
+	if (isEpsgDatumStatic(LongFromString<UINT32>(fileEpsg)))
+	{
+		// Get the reference epoch of the nominated epsg
+		fileEpoch = referenceepochFromEpsgString<std::string>(fileEpsg);
+	}
+
+	// Has the user supplied a reference frame on the command line (--reference-frame)?
+	if (projectSettings_.i.user_supplied_frame)
+	{
+		// A frame has been supplied. Now check for epoch.
+
+		// Has the user supplied an epoch on the command line (--epoch)?
+		if (!projectSettings_.i.user_supplied_epoch)
+		{
+			// No epoch supplied. Take the epoch from the first file.
+			if (firstFile)
+			{
+				projectSettings_.i.epoch = fileEpoch;
+				projectSettings_.r.epoch = fileEpoch;
+				m_strProjectDefaultEpoch = fileEpoch;
+				datum_.SetEpoch(fileEpoch);
+			}
+		}
+	}
+	else
+	{
+		// No frame supplied. Set the datum from the first file. 
+		// If the datum field is blank in the first file, the default will be used. See
+		// dnaFile.read_dna_header(..) for details.
+		if (firstFile)
+		{
+			projectSettings_.i.reference_frame = datumFromEpsgString<std::string>(fileEpsg);
+			projectSettings_.r.reference_frame = projectSettings_.i.reference_frame;
+			m_strProjectDefaultEpsg = fileEpsg;
+
+			// If the user has not provided a reference frame on the command line, then
+			// take the epoch from the first file.  In this case, do not take the epoch
+			// from the command line (dnaimportwrapper will throw in this scenario anyway)
+			projectSettings_.i.epoch = fileEpoch;
+			projectSettings_.r.epoch = fileEpoch;
+			m_strProjectDefaultEpoch = fileEpoch;
+
+			InitialiseDatum(projectSettings_.i.reference_frame, projectSettings_.i.epoch);
+		}
+	}
+
+	_filespecifiedreferenceframe = dnaFile.filespecifiedReferenceFrame();
+	_filespecifiedepoch = dnaFile.filespecifiedEpoch();
 		
 	// Station file
 	if (idt == stn_data ||
-		(pos = fileName.find(stn_file_type, 0)) != string::npos)
+		(pos = fileName.find(stn_file_type, 0)) != std::string::npos)
 	{
-		// Determine the file format version
-		//ParseDNAVersion(stn_data);
+		// set the column positions and widths (using version obtained from the header)
 		dsl_ = dnaFile.dna_stn_positions();
 		dsw_ = dnaFile.dna_stn_widths();
 		
 		try {
-			ParseDNASTN(vStations, stnCount);
+			// Does the user want to override the datum provided in the file with the project
+			// datum?
+			if (projectSettings_.i.override_input_rfame)
+				ParseDNASTN(vStations, stnCount, datum_.GetEpsgCode_s(), datum_.GetEpoch_s());
+			else
+				ParseDNASTN(vStations, stnCount, fileEpsg, fileEpoch);
 			m_idt = stn_data;
 		}
-		catch (const ios_base::failure& f) {
+		catch (const std::ios_base::failure& f) {
 			if (ifsInputFILE_->eof())
 			{
 				// release file pointer mutex
 				import_file_mutex.unlock();
 				return;
 			}
-			stringstream ss;
-			ss << "ParseDNA(): An ios_base failure was encountered when attempting to read stations file  " << fileName << "." << endl << "  " << f.what();
+			std::stringstream ss;
+			ss << "ParseDNA(): An std::ios_base failure was encountered when attempting to read stations file  " << fileName << "." << std::endl << "  " << f.what();
 			throw XMLInteropException(ss.str(), 0);
 		}
 		catch (const XMLInteropException& f)
 		{
-			stringstream ss;
-			ss << "ParseInputFile(): An exception was encountered while parsing " << fileName << "." << endl;
+			std::stringstream ss;
+			ss << "ParseInputFile(): An exception was encountered while parsing " << fileName << "." << std::endl;
 			ss << "  - line " << m_lineNo;
-			ss << ", column " << m_columnNo << endl;
+			ss << ", column " << m_columnNo << std::endl;
 			ss << "  - " << f.what();
-			SignalExceptionParse(static_cast<string>(ss.str()), 0);
+			SignalExceptionParse(static_cast<std::string>(ss.str()), 0);
 		}
 		catch (...) {
 			if (ifsInputFILE_->eof())
@@ -1254,13 +1191,13 @@ void dna_import::ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32
 				import_file_mutex.unlock();
 				return;
 			}
-			stringstream ss;
+			std::stringstream ss;
 			ss << "ParseDNA(): An error was encountered when attempting to read stations file  " << fileName << ".";
 			throw XMLInteropException(ss.str(), 0);
 		}
 	}
 	else if (idt == msr_data ||
-		(pos = fileName.find(msr_file_type, 0)) != string::npos)
+		(pos = fileName.find(msr_file_type, 0)) != std::string::npos)
 	{
 		// Determine the file format version
 		//ParseDNAVersion(msr_data);
@@ -1268,28 +1205,31 @@ void dna_import::ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32
 		dmw_ = dnaFile.dna_msr_widths();
 		
 		try {
-			ParseDNAMSR(vMeasurements, msrCount, clusterID);
+			if (projectSettings_.i.override_input_rfame)
+				ParseDNAMSR(vMeasurements, msrCount, clusterID, datum_.GetEpsgCode_s(), datum_.GetEpoch_s());
+			else
+				ParseDNAMSR(vMeasurements, msrCount, clusterID, fileEpsg, fileEpoch);
 			m_idt = msr_data;
 		}
-		catch (const ios_base::failure& f) {
+		catch (const std::ios_base::failure& f) {
 			if (ifsInputFILE_->eof())
 			{
 				// release file pointer mutex
 				import_file_mutex.unlock();
 				return;
 			}
-			stringstream ss;
-			ss << "ParseDNA(): An ios_base failure was encountered when attempting to read measurements file  " << fileName << "." << endl << "  " << f.what();
+			std::stringstream ss;
+			ss << "ParseDNA(): An std::ios_base failure was encountered when attempting to read measurements file  " << fileName << "." << std::endl << "  " << f.what();
 			throw XMLInteropException(ss.str(), 0);
 		}
 		catch (const XMLInteropException& f)
 		{
-			stringstream ss;
-			ss << "ParseInputFile(): An exception was encountered while parsing " << fileName << "." << endl;
+			std::stringstream ss;
+			ss << "ParseInputFile(): An exception was encountered while parsing " << fileName << "." << std::endl;
 			ss << "  - line " << m_lineNo;
-			ss << ", column " << m_columnNo << endl;
+			ss << ", column " << m_columnNo << std::endl;
 			ss << "  - " << f.what();
-			SignalExceptionParse(static_cast<string>(ss.str()), 0);
+			SignalExceptionParse(static_cast<std::string>(ss.str()), 0);
 		}
 		catch (...) {
 			if (ifsInputFILE_->eof())
@@ -1298,18 +1238,18 @@ void dna_import::ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32
 				import_file_mutex.unlock();
 				return;
 			}
-			stringstream ss;
-			ss << "ParseDNA(): An error was encountered when attempting to read measurements file  " << fileName << "." << endl;
+			std::stringstream ss;
+			ss << "ParseDNA(): An error was encountered when attempting to read measurements file  " << fileName << "." << std::endl;
 			ss << "  - line " << m_lineNo;
-			ss << ", column " <<  m_columnNo << endl;
+			ss << ", column " <<  m_columnNo << std::endl;
 			throw XMLInteropException(ss.str(), 0);
 		}
 	}
 }
 	
-void dna_import::ParseDNASTN(vdnaStnPtr* vStations, PUINT32 stnCount)
+void dna_import::ParseDNASTN(vdnaStnPtr* vStations, PUINT32 stnCount, const std::string& epsg, const std::string& epoch)
 {
-	string sBuf, tmp;
+	std::string sBuf, tmp;
 
 	dnaStnPtr stn_ptr;
 	vStations->clear();
@@ -1339,8 +1279,8 @@ void dna_import::ParseDNASTN(vdnaStnPtr* vStations, PUINT32 stnCount)
 				import_file_mutex.unlock();
 				return;
 			}
-			stringstream ss;
-			ss << "ParseDNASTN(): Could not read from the station file." << endl;
+			std::stringstream ss;
+			ss << "ParseDNASTN(): Could not read from the station file." << std::endl;
 			m_columnNo = 0;
 			throw XMLInteropException(ss.str(), m_lineNo);
 		}
@@ -1361,7 +1301,7 @@ void dna_import::ParseDNASTN(vdnaStnPtr* vStations, PUINT32 stnCount)
 			continue;
 		
 		// initialise new station
-		stn_ptr.reset(new CDnaStation(datum_.GetName(), datum_.GetEpoch_s()));
+		stn_ptr.reset(new CDnaStation(datumFromEpsgString<std::string>(epsg), epoch));
 
 		stn_ptr->SetfileOrder(g_fileOrder++);
 
@@ -1371,8 +1311,8 @@ void dna_import::ParseDNASTN(vdnaStnPtr* vStations, PUINT32 stnCount)
 			stn_ptr->SetName(tmp);
 		}
 		catch (...) {
-			stringstream ss;
-			ss << "ParseDNASTN(): Could not extract station name from the record:  " << endl << "    " << sBuf << endl;
+			std::stringstream ss;
+			ss << "ParseDNASTN(): Could not extract station name from the record:  " << std::endl << "    " << sBuf << std::endl;
 			m_columnNo = dsl_.stn_name+1;
 			throw XMLInteropException(ss.str(), m_lineNo);
 		}
@@ -1384,8 +1324,8 @@ void dna_import::ParseDNASTN(vdnaStnPtr* vStations, PUINT32 stnCount)
 			g_parsestn_tally.addstation(tmp);
 		}
 		catch (...) {
-			stringstream ss;
-			ss << "ParseDNASTN(): Could not extract station constraints from the record:  " << endl << "    " << sBuf << endl;
+			std::stringstream ss;
+			ss << "ParseDNASTN(): Could not extract station constraints from the record:  " << std::endl << "    " << sBuf << std::endl;
 			m_columnNo = dsl_.stn_const+1;
 			throw XMLInteropException(ss.str(), m_lineNo);
 		}
@@ -1396,8 +1336,8 @@ void dna_import::ParseDNASTN(vdnaStnPtr* vStations, PUINT32 stnCount)
 			stn_ptr->SetCoordType(tmp);
 		}
 		catch (...) {
-			stringstream ss;
-			ss << "ParseDNASTN(): Could not extract coordinate type from the record:  " << endl << "    " << sBuf << endl;
+			std::stringstream ss;
+			ss << "ParseDNASTN(): Could not extract coordinate type from the record:  " << std::endl << "    " << sBuf << std::endl;
 			m_columnNo = dsl_.stn_type+1;
 			throw XMLInteropException(ss.str(), m_lineNo);
 		}
@@ -1408,7 +1348,7 @@ void dna_import::ParseDNASTN(vdnaStnPtr* vStations, PUINT32 stnCount)
 			stn_ptr->SetXAxis(tmp);
 		}
 		catch (...) {
-			stringstream ss;
+			std::stringstream ss;
 			ss << "ParseDNASTN(): Could not extract station ";
 			switch (stn_ptr.get()->GetMyCoordTypeC())
 			{
@@ -1425,7 +1365,7 @@ void dna_import::ParseDNASTN(vdnaStnPtr* vStations, PUINT32 stnCount)
 			default:
 				break;
 			}
-			ss << " value from the record:  " << endl << "    " << sBuf << endl;
+			ss << " value from the record:  " << std::endl << "    " << sBuf << std::endl;
 			m_columnNo = dsl_.stn_e_phi_x+1;
 			throw XMLInteropException(ss.str(), m_lineNo);
 		}
@@ -1435,7 +1375,7 @@ void dna_import::ParseDNASTN(vdnaStnPtr* vStations, PUINT32 stnCount)
 			stn_ptr->SetYAxis(tmp);
 		}
 		catch (...) {
-			stringstream ss;
+			std::stringstream ss;
 			ss << "ParseDNASTN(): Could not extract station ";
 			switch (stn_ptr->GetMyCoordTypeC())
 			{
@@ -1452,7 +1392,7 @@ void dna_import::ParseDNASTN(vdnaStnPtr* vStations, PUINT32 stnCount)
 			default:
 				break;
 			}
-			ss << " value from the record:  " << endl << "    " << sBuf << endl;
+			ss << " value from the record:  " << std::endl << "    " << sBuf << std::endl;
 			m_columnNo = dsl_.stn_n_lam_y+1;
 			throw XMLInteropException(ss.str(), m_lineNo);
 		}
@@ -1465,7 +1405,7 @@ void dna_import::ParseDNASTN(vdnaStnPtr* vStations, PUINT32 stnCount)
 				stn_ptr->SetHeight(tmp);			
 		}
 		catch (...) {
-			stringstream ss;
+			std::stringstream ss;
 			ss << "ParseDNASTN(): Could not extract station ";
 			switch (stn_ptr->GetMyCoordTypeC())
 			{
@@ -1480,7 +1420,7 @@ void dna_import::ParseDNASTN(vdnaStnPtr* vStations, PUINT32 stnCount)
 			default:
 				break;
 			}
-			ss << " value from the record:  " << endl << "    " << sBuf << endl;
+			ss << " value from the record:  " << std::endl << "    " << sBuf << std::endl;
 			m_columnNo = dsl_.stn_ht_z+1;
 			throw XMLInteropException(ss.str(), m_lineNo);
 		}
@@ -1501,8 +1441,8 @@ void dna_import::ParseDNASTN(vdnaStnPtr* vStations, PUINT32 stnCount)
 				case XYZ_type_i:
 					break;
 				case UTM_type_i:	// Hemisphere and zone is only essential for UTM types
-					stringstream ss;
-					ss << "ParseDNASTN(): Could not extract station hemisphere and zone from the record:  " << endl << "    " << sBuf << endl;
+					std::stringstream ss;
+					ss << "ParseDNASTN(): Could not extract station hemisphere and zone from the record:  " << std::endl << "    " << sBuf << std::endl;
 					m_columnNo = dsl_.stn_hemi_zo+1;
 					throw XMLInteropException(ss.str(), m_lineNo);
 				}
@@ -1526,9 +1466,9 @@ void dna_import::ParseDNASTN(vdnaStnPtr* vStations, PUINT32 stnCount)
 }
 	
 
-void dna_import::ParseDNAMSR(pvdnaMsrPtr vMeasurements, PUINT32 msrCount, PUINT32 clusterID)
+void dna_import::ParseDNAMSR(pvdnaMsrPtr vMeasurements, PUINT32 msrCount, PUINT32 clusterID, const std::string& fileEpsg, const std::string& fileEpoch)
 {
-	string sBuf, tmp;
+	std::string sBuf, tmp;
 
 	dnaMsrPtr msr_ptr;
 	vMeasurements->clear();
@@ -1564,8 +1504,8 @@ void dna_import::ParseDNAMSR(pvdnaMsrPtr vMeasurements, PUINT32 msrCount, PUINT3
 				import_file_mutex.unlock();
 				return;		
 			}
-			stringstream ss;
-			ss << "ParseDNAMSR(): Could not read from the measurement file." << endl;
+			std::stringstream ss;
+			ss << "ParseDNAMSR(): Could not read from the measurement file." << std::endl;
 			m_columnNo = 0;
 			throw XMLInteropException(ss.str(), m_lineNo);
 		}
@@ -1611,13 +1551,13 @@ void dna_import::ParseDNAMSR(pvdnaMsrPtr vMeasurements, PUINT32 msrCount, PUINT3
 			cType = static_cast<char>(toupper(cType));
 		}
 		catch (...) {
-			stringstream ss;
-			ss << "ParseDNAMSR(): Could not extract measurement type from the record:  " << endl << "    " << sBuf << endl;
+			std::stringstream ss;
+			ss << "ParseDNAMSR(): Could not extract measurement type from the record:  " << std::endl << "    " << sBuf << std::endl;
 			m_columnNo = dml_.msr_type+1;
 			throw XMLInteropException(ss.str(), m_lineNo);
 		}
 
-		ignoreMsr = iequals("*", sBuf.substr(dml_.msr_ignore, dmw_.msr_ignore));
+		ignoreMsr = boost::iequals("*", sBuf.substr(dml_.msr_ignore, dmw_.msr_ignore));
 
 		switch (cType)
 		{
@@ -1656,7 +1596,8 @@ void dna_import::ParseDNAMSR(pvdnaMsrPtr vMeasurements, PUINT32 msrCount, PUINT3
 			break;
 		case 'G': // GPS Baseline (treat as single-baseline cluster)
 		case 'X': // GPS Baseline cluster
-			msr_ptr.reset(new CDnaGpsBaselineCluster(++(*clusterID), datum_.GetName(), datum_.GetEpoch_s()));
+			// Default to the fileEpsg and fileEpoch (see read_dna_header(..) in ParseDNA)
+			msr_ptr.reset(new CDnaGpsBaselineCluster(++(*clusterID), datumFromEpsgString<std::string>(fileEpsg), fileEpoch));
 			ParseDNAMSRGPSBaselines(sBuf, msr_ptr, ignoreMsr);
 			(*msrCount) += static_cast<UINT32>(msr_ptr->GetBaselines_ptr()->size() * 3);
 			break;
@@ -1720,14 +1661,15 @@ void dna_import::ParseDNAMSR(pvdnaMsrPtr vMeasurements, PUINT32 msrCount, PUINT3
 			ParseDNAMSRLinear(sBuf, msr_ptr);
 			(*msrCount) += 1;
 			break;
-		case 'V': // Zenith angle
+		case 'V': // Zenith distance
 			g_parsemsr_tally.V++;
 			msr_ptr.reset(new CDnaDirection);
 			ParseDNAMSRAngular(sBuf, msr_ptr);
 			(*msrCount) += 1;
 			break;
 		case 'Y': // GPS point cluster
-			msr_ptr.reset(new CDnaGpsPointCluster(++(*clusterID), datum_.GetName(), datum_.GetEpoch_s()));
+			// Default to the fileEpsg and fileEpoch (see read_dna_header(..) in ParseDNA)
+			msr_ptr.reset(new CDnaGpsPointCluster(++(*clusterID), datumFromEpsgString<std::string>(fileEpsg), fileEpoch));
 			ParseDNAMSRGPSPoints(sBuf, msr_ptr, ignoreMsr);
 			(*msrCount) += static_cast<UINT32>(msr_ptr->GetPoints_ptr()->size() * 3);
 			break;
@@ -1738,8 +1680,8 @@ void dna_import::ParseDNAMSR(pvdnaMsrPtr vMeasurements, PUINT32 msrCount, PUINT3
 			(*msrCount) += 1;
 			break;
 		default:
-			stringstream ss;
-			ss << "ParseDNAMSR(): Unknown measurement type:  " << cType << endl;
+			std::stringstream ss;
+			ss << "ParseDNAMSR(): Unknown measurement type:  " << cType << std::endl;
 			throw XMLInteropException(ss.str(), m_lineNo); 
 		}
 
@@ -1753,7 +1695,7 @@ void dna_import::ParseDNAMSR(pvdnaMsrPtr vMeasurements, PUINT32 msrCount, PUINT3
 	}
 }
 	
-void dna_import::ParseDNAMSRLinear(const string& sBuf, dnaMsrPtr& msr_ptr)
+void dna_import::ParseDNAMSRLinear(const std::string& sBuf, dnaMsrPtr& msr_ptr)
 {
 	// Measurement type
 	try {
@@ -1782,7 +1724,7 @@ void dna_import::ParseDNAMSRLinear(const string& sBuf, dnaMsrPtr& msr_ptr)
 
 	// Value
 	msr_ptr->SetValue(ParseLinearValue(sBuf, 
-		measurement_name<char, string>(msr_ptr->GetTypeC()), "ParseDNAMSRLinear"));
+		measurement_name<char, std::string>(msr_ptr->GetTypeC()), "ParseDNAMSRLinear"));
 
 	// Standard deviation
 	msr_ptr->SetStdDev(ParseStdDevValue(sBuf, "ParseDNAMSRLinear"));
@@ -1824,7 +1766,7 @@ void dna_import::ParseDNAMSRLinear(const string& sBuf, dnaMsrPtr& msr_ptr)
 }
 	
 
-void dna_import::ParseDNAMSRCoordinate(const string& sBuf, dnaMsrPtr& msr_ptr)
+void dna_import::ParseDNAMSRCoordinate(const std::string& sBuf, dnaMsrPtr& msr_ptr)
 {
 	// Measurement type
 	try {
@@ -1849,7 +1791,7 @@ void dna_import::ParseDNAMSRCoordinate(const string& sBuf, dnaMsrPtr& msr_ptr)
 
 	// Value
 	msr_ptr->SetValue(ParseLinearValue(sBuf, 
-		measurement_name<char, string>(msr_ptr->GetTypeC()), "ParseDNAMSRCoordinate"));
+		measurement_name<char, std::string>(msr_ptr->GetTypeC()), "ParseDNAMSRCoordinate"));
 
 	// Standard deviation
 	msr_ptr->SetStdDev(ParseStdDevValue(sBuf, "ParseDNAMSRCoordinate"));
@@ -1864,7 +1806,7 @@ void dna_import::ParseDNAMSRCoordinate(const string& sBuf, dnaMsrPtr& msr_ptr)
 }
 	
 
-void dna_import::ParseDNAMSRGPSBaselines(string& sBuf, dnaMsrPtr& msr_ptr, bool ignoreMsr)
+void dna_import::ParseDNAMSRGPSBaselines(std::string& sBuf, dnaMsrPtr& msr_ptr, bool ignoreMsr)
 {
 	CDnaGpsBaseline bslTmp;
 	CDnaCovariance covTmp;
@@ -1873,7 +1815,7 @@ void dna_import::ParseDNAMSRGPSBaselines(string& sBuf, dnaMsrPtr& msr_ptr, bool 
 	bslTmp.SetEpoch(msr_ptr->GetEpoch());
 
 	// Measurement type
-	string tmp;
+	std::string tmp;
 	try {
 		tmp = trimstr(sBuf.substr(dml_.msr_type, dmw_.msr_type));
 	}
@@ -1908,13 +1850,13 @@ void dna_import::ParseDNAMSRGPSBaselines(string& sBuf, dnaMsrPtr& msr_ptr, bool 
 	
 	// Number of baselines
 	UINT32 bslCount(1);
-	if (iequals(msr_ptr->GetType(), "X"))
+	if (boost::iequals(msr_ptr->GetType(), "X"))
 		msr_ptr->SetTotal(ParseMsrCountValue(sBuf, bslCount, "ParseDNAMSRGPSBaselines"));
 	msr_ptr->SetRecordedTotal(bslCount);
 	bslTmp.SetRecordedTotal(bslCount);
 
 	msr_ptr->GetBaselines_ptr()->reserve(bslCount);
-	if (iequals(msr_ptr->GetType(), "X"))
+	if (boost::iequals(msr_ptr->GetType(), "X"))
 		g_parsemsr_tally.X += bslCount * 3;
 	else
 		g_parsemsr_tally.G += bslCount * 3;
@@ -1965,9 +1907,9 @@ void dna_import::ParseDNAMSRGPSBaselines(string& sBuf, dnaMsrPtr& msr_ptr, bool 
 				bslTmp.SetReferenceFrame(tmp);
 			}
 		}
-		catch (runtime_error& e) {
-			stringstream ss;
-			ss << "ParseDNAMSRGPSBaselines(): Error parsing reference frame:  " << endl << 
+		catch (std::runtime_error& e) {
+			std::stringstream ss;
+			ss << "ParseDNAMSRGPSBaselines(): Error parsing reference frame:  " << std::endl << 
 				"    " << e.what();
 			SignalExceptionParseDNA(ss.str(), "", dml_.msr_gps_reframe);
 		}
@@ -1978,7 +1920,7 @@ void dna_import::ParseDNAMSRGPSBaselines(string& sBuf, dnaMsrPtr& msr_ptr, bool 
 
 			if (tmp.empty())
 			{
-				if (isEpsgWGS84Ensemble(epsgCodeFromName<UINT32, string>(msr_ptr->GetReferenceFrame())))
+				if (isEpsgWGS84Ensemble(epsgCodeFromName<UINT32, std::string>(msr_ptr->GetReferenceFrame())))
 				{
 					// Set the cluster epoch
 					msr_ptr->SetEpoch("");
@@ -1994,10 +1936,10 @@ void dna_import::ParseDNAMSRGPSBaselines(string& sBuf, dnaMsrPtr& msr_ptr, bool 
 				bslTmp.SetEpoch(tmp);
 			}
 		}
-		catch (runtime_error& e) {
-			stringstream ss;
+		catch (std::runtime_error& e) {
+			std::stringstream ss;
 			ss << "ParseDNAMSRGPSBaselines(): Error parsing epoch:  " << 
-				endl << "    " << e.what();
+			 	std::endl << "    " << e.what();
 			SignalExceptionParseDNA(ss.str(), "", dml_.msr_gps_epoch);
 		}
 	}
@@ -2085,7 +2027,7 @@ void dna_import::ParseDNAMSRGPSBaselines(string& sBuf, dnaMsrPtr& msr_ptr, bool 
 	}
 }
 	
-void dna_import::ParseDNAMSRGPSPoints(string& sBuf, dnaMsrPtr& msr_ptr, bool ignoreMsr)
+void dna_import::ParseDNAMSRGPSPoints(std::string& sBuf, dnaMsrPtr& msr_ptr, bool ignoreMsr)
 {
 	CDnaGpsPoint pntTmp;
 	CDnaCovariance covTmp;
@@ -2094,7 +2036,7 @@ void dna_import::ParseDNAMSRGPSPoints(string& sBuf, dnaMsrPtr& msr_ptr, bool ign
 	pntTmp.SetEpoch(msr_ptr->GetEpoch());
 
 	// Measurement type
-	string tmp;
+	std::string tmp;
 	try {
 		tmp = trimstr(sBuf.substr(dml_.msr_type, dmw_.msr_type));
 	}
@@ -2140,8 +2082,8 @@ void dna_import::ParseDNAMSRGPSPoints(string& sBuf, dnaMsrPtr& msr_ptr, bool ign
 			msr_ptr->SetCoordType(tmp);
 		pntTmp.SetCoordType(msr_ptr->GetCoordType());
 	}
-	catch (runtime_error& e) {
-		SignalExceptionParseDNA("ParseDNAMSRGPSPoints(): " + string(e.what()),
+	catch (std::runtime_error& e) {
+		SignalExceptionParseDNA("ParseDNAMSRGPSPoints(): " + std::string(e.what()),
 			"", dml_.msr_targ1);
 	}
 
@@ -2201,9 +2143,9 @@ void dna_import::ParseDNAMSRGPSPoints(string& sBuf, dnaMsrPtr& msr_ptr, bool ign
 				pntTmp.SetReferenceFrame(tmp);
 			}
 		}
-		catch (runtime_error& e) {
-			stringstream ss;
-			ss << "ParseDNAMSRGPSPoints(): Error parsing reference frame:  " << endl << 
+		catch (std::runtime_error& e) {
+			std::stringstream ss;
+			ss << "ParseDNAMSRGPSPoints(): Error parsing reference frame:  " << std::endl << 
 				"    " << e.what();
 			SignalExceptionParseDNA(ss.str(), "", dml_.msr_gps_reframe);
 		}
@@ -2214,7 +2156,7 @@ void dna_import::ParseDNAMSRGPSPoints(string& sBuf, dnaMsrPtr& msr_ptr, bool ign
 
 			if (tmp.empty())
 			{
-				if (isEpsgWGS84Ensemble(epsgCodeFromName<UINT32, string>(msr_ptr->GetReferenceFrame())))
+				if (isEpsgWGS84Ensemble(epsgCodeFromName<UINT32, std::string>(msr_ptr->GetReferenceFrame())))
 				{
 					// Set the cluster epoch
 					msr_ptr->SetEpoch("");
@@ -2230,9 +2172,9 @@ void dna_import::ParseDNAMSRGPSPoints(string& sBuf, dnaMsrPtr& msr_ptr, bool ign
 				pntTmp.SetEpoch(tmp);
 			}
 		}
-		catch (runtime_error& e) {
-			stringstream ss;
-			ss << "ParseDNAMSRGPSPoints(): Error parsing epoch:  " << endl << 
+		catch (std::runtime_error& e) {
+			std::stringstream ss;
+			ss << "ParseDNAMSRGPSPoints(): Error parsing epoch:  " << std::endl << 
 				"    " << e.what();
 			SignalExceptionParseDNA(ss.str(), "", dml_.msr_gps_epoch);
 		}
@@ -2319,7 +2261,7 @@ void dna_import::ParseDNAMSRGPSPoints(string& sBuf, dnaMsrPtr& msr_ptr, bool ign
 	
 void dna_import::ParseDNAMSRCovariance(CDnaCovariance& cov)
 {
-	string sBuf;
+	std::string sBuf;
 		
 	m_lineNo++;
 	// Obtain exclusive use of the input file pointer
@@ -2359,7 +2301,7 @@ void dna_import::ParseDNAMSRCovariance(CDnaCovariance& cov)
 }
 	
 
-void dna_import::ParseDatabaseIds(const string& sBuf, const string& calling_function, const char msrType)
+void dna_import::ParseDatabaseIds(const std::string& sBuf, const std::string& calling_function, const char msrType)
 {
 	m_msr_db_map.is_msr_id_set = false;
 	m_msr_db_map.is_cls_id_set = false;
@@ -2392,51 +2334,51 @@ void dna_import::ParseDatabaseIds(const string& sBuf, const string& calling_func
 }
 	
 
-void dna_import::ParseDatabaseClusterId(const string& sBuf, const string& calling_function)
+void dna_import::ParseDatabaseClusterId(const std::string& sBuf, const std::string& calling_function)
 {
-	string parsed_value;
+	std::string parsed_value;
 	// Cluster ID
 	try {
-		parsed_value = trimstr(sBuf.substr(dml_.msr_id_cluster));
+		parsed_value = trimstr(sBuf.substr(dml_.msr_id_cluster, dmw_.msr_id_cluster));
 		if (!parsed_value.empty())
 		{
-			m_msr_db_map.cluster_id = val_uint<UINT32, string>(parsed_value);
+			m_msr_db_map.cluster_id = val_uint<UINT32, std::string>(parsed_value);
 			m_msr_db_map.is_cls_id_set = true;
 		}
 	}
-	catch (runtime_error& e) {
-		stringstream ss;
+	catch (std::runtime_error& e) {
+		std::stringstream ss;
 		ss << calling_function << "(): Could not extract database cluster id from the record:  " << 
-			endl << "  " << e.what();
+		 	std::endl << "  " << e.what();
 		SignalExceptionParseDNA(ss.str(), sBuf, dml_.msr_id_msr);
 	}
 }
 	
 
-void dna_import::ParseDatabaseMsrId(const string& sBuf, const string& calling_function)
+void dna_import::ParseDatabaseMsrId(const std::string& sBuf, const std::string& calling_function)
 {
-	string parsed_value;
+	std::string parsed_value;
 	// Measurement ID
 	try {
 		parsed_value = trimstr(sBuf.substr(dml_.msr_id_msr, dmw_.msr_id_msr));
 		if (!parsed_value.empty())
 		{
-			m_msr_db_map.msr_id = val_uint<UINT32, string>(parsed_value);
+			m_msr_db_map.msr_id = val_uint<UINT32, std::string>(parsed_value);
 			m_msr_db_map.is_msr_id_set = true;
 		}
 	}
-	catch (runtime_error& e) {
-		stringstream ss;
+	catch (std::runtime_error& e) {
+		std::stringstream ss;
 		ss << calling_function << "(): Could not extract database msr id from the record:  " << 
-			endl << "  " << e.what();
+		 	std::endl << "  " << e.what();
 		SignalExceptionParseDNA(ss.str(), sBuf, dml_.msr_id_msr);
 	}
 }
 	
 
-string dna_import::ParseAngularValue(const string& sBuf, const string& calling_function)
+std::string dna_import::ParseAngularValue(const std::string& sBuf, const std::string& calling_function)
 {
-	string parsed_value, tmp;
+	std::string parsed_value, tmp;
 	double d;
 	UINT32 u;
 
@@ -2469,7 +2411,7 @@ string dna_import::ParseAngularValue(const string& sBuf, const string& calling_f
 		d = DoubleFromString<double>(tmp);
 		if (d < 10 && tmp.at(0) != '0')
 			parsed_value.append("0");
-		if ((pos = tmp.find(".", pos)) != string::npos)
+		if ((pos = tmp.find(".", pos)) != std::string::npos)
 			parsed_value.append(tmp.substr(0, pos) + tmp.substr(pos+1));
 		else
 			parsed_value.append(tmp);
@@ -2481,7 +2423,7 @@ string dna_import::ParseAngularValue(const string& sBuf, const string& calling_f
 	return parsed_value;
 }
 
-string dna_import::ParseLinearValue(const string& sBuf, const string& msrName, const string& calling_function)
+std::string dna_import::ParseLinearValue(const std::string& sBuf, const std::string& msrName, const std::string& calling_function)
 {
 	try {
 		return trimstr(sBuf.substr(dml_.msr_linear, dmw_.msr_linear));		// coordinate value
@@ -2493,12 +2435,12 @@ string dna_import::ParseLinearValue(const string& sBuf, const string& msrName, c
 	return "";
 }
 
-string dna_import::ParseInstrumentValue(const string& sBuf, const string& calling_function)
+std::string dna_import::ParseInstrumentValue(const std::string& sBuf, const std::string& calling_function)
 {
 
 	try {
 		// Capture string from the designated columns; throws on failure
-		string stn = trimstr(sBuf.substr(dml_.msr_inst, dmw_.msr_inst));		// instrument station
+		std::string stn = trimstr(sBuf.substr(dml_.msr_inst, dmw_.msr_inst));		// instrument station
 	
 		// No value supplied?
 		if (stn.empty())
@@ -2514,11 +2456,11 @@ string dna_import::ParseInstrumentValue(const string& sBuf, const string& callin
 	return "";
 }
 
-string dna_import::ParseTargetValue(const string& sBuf, const string& calling_function)
+std::string dna_import::ParseTargetValue(const std::string& sBuf, const std::string& calling_function)
 {
 	try {
 		// Capture string from the designated columns; throws on failure
-		string stn = trimstr(sBuf.substr(dml_.msr_targ1, dmw_.msr_targ1));		// first target station
+		std::string stn = trimstr(sBuf.substr(dml_.msr_targ1, dmw_.msr_targ1));		// first target station
 	
 		// No value supplied?
 		if (stn.empty())
@@ -2534,11 +2476,11 @@ string dna_import::ParseTargetValue(const string& sBuf, const string& calling_fu
 	return "";
 }
 
-string dna_import::ParseTarget2Value(const string& sBuf, const string& calling_function)
+std::string dna_import::ParseTarget2Value(const std::string& sBuf, const std::string& calling_function)
 {
 	try {
 		// Capture string from the designated columns; throws on failure
-		string stn = trimstr(sBuf.substr(dml_.msr_targ2, dmw_.msr_targ2));		// second target station
+		std::string stn = trimstr(sBuf.substr(dml_.msr_targ2, dmw_.msr_targ2));		// second target station
 	
 		// No value supplied?
 		if (stn.empty())
@@ -2554,9 +2496,9 @@ string dna_import::ParseTarget2Value(const string& sBuf, const string& calling_f
 	return "";
 }
 
-string dna_import::ParseStdDevValue(const string& sBuf, const string& calling_function)
+std::string dna_import::ParseStdDevValue(const std::string& sBuf, const std::string& calling_function)
 {
-	string tmp;
+	std::string tmp;
 	try {
 		tmp = trimstr(sBuf.substr(dml_.msr_stddev, dmw_.msr_stddev));		// standard deviation
 	}
@@ -2571,7 +2513,7 @@ string dna_import::ParseStdDevValue(const string& sBuf, const string& calling_fu
 	return tmp;
 }
 
-string dna_import::ParseInstHeightValue(const string& sBuf, const string& calling_function)
+std::string dna_import::ParseInstHeightValue(const std::string& sBuf, const std::string& calling_function)
 {
 	try {
 		if (sBuf.length() > dml_.msr_targ_ht)
@@ -2586,10 +2528,10 @@ string dna_import::ParseInstHeightValue(const string& sBuf, const string& callin
 	return "";
 }
 
-string dna_import::ParseTargHeightValue(const string& sBuf, const string& calling_function)
+std::string dna_import::ParseTargHeightValue(const std::string& sBuf, const std::string& calling_function)
 {
 	try {
-		if (sBuf.length() > static_cast<string::size_type>(dml_.msr_targ_ht + 1 + dmw_.msr_targ_ht))
+		if (sBuf.length() > static_cast<std::string::size_type>(dml_.msr_targ_ht + 1 + dmw_.msr_targ_ht))
 			return trimstr(sBuf.substr(dml_.msr_targ_ht, dmw_.msr_targ_ht));		// target height
 		else
 			return trimstr(sBuf.substr(dml_.msr_targ_ht));		
@@ -2601,10 +2543,10 @@ string dna_import::ParseTargHeightValue(const string& sBuf, const string& callin
 	return "";
 }
 
-string dna_import::ParseMsrCountValue(const string& sBuf, UINT32& msrCount, const string& calling_function)
+std::string dna_import::ParseMsrCountValue(const std::string& sBuf, UINT32& msrCount, const std::string& calling_function)
 {
 	try {
-		string count(trimstr(sBuf.substr(dml_.msr_targ2, dmw_.msr_targ2)));		// number of measurements
+		std::string count(trimstr(sBuf.substr(dml_.msr_targ2, dmw_.msr_targ2)));		// number of measurements
 		if (count.empty())
 			SignalExceptionParseDNA(calling_function + "(): Could not extract number of measurements from the record:  ",
 				sBuf, dml_.msr_targ2);
@@ -2618,12 +2560,12 @@ string dna_import::ParseMsrCountValue(const string& sBuf, UINT32& msrCount, cons
 	return "";
 }
 
-string dna_import::ParseScaleVValue(const string& sBuf, const string& calling_function)
+std::string dna_import::ParseScaleVValue(const std::string& sBuf, const std::string& calling_function)
 {
 	if (sBuf.length() <= dml_.msr_gps_vscale)
 		return "1";
 	
-	string scalar;
+	std::string scalar;
 	try {
 		if (sBuf.length() > dml_.msr_gps_pscale)
 			scalar = trimstr(sBuf.substr(dml_.msr_gps_vscale, dmw_.msr_gps_vscale));		// v-scale
@@ -2641,12 +2583,12 @@ string dna_import::ParseScaleVValue(const string& sBuf, const string& calling_fu
 	return scalar;
 }
 
-string dna_import::ParseScalePValue(const string& sBuf, const string& calling_function)
+std::string dna_import::ParseScalePValue(const std::string& sBuf, const std::string& calling_function)
 {
 	if (sBuf.length() <= dml_.msr_gps_pscale)
 		return "1";
 	
-	string scalar;
+	std::string scalar;
 	
 	try {
 		if (sBuf.length() > dml_.msr_gps_lscale)
@@ -2665,12 +2607,12 @@ string dna_import::ParseScalePValue(const string& sBuf, const string& calling_fu
 	return scalar;
 }
 
-string dna_import::ParseScaleLValue(const string& sBuf, const string& calling_function)
+std::string dna_import::ParseScaleLValue(const std::string& sBuf, const std::string& calling_function)
 {
 	if (sBuf.length() <= dml_.msr_gps_lscale)
 		return "1";
 	
-	string scalar;
+	std::string scalar;
 
 	try {
 		if (sBuf.length() > dml_.msr_gps_hscale)
@@ -2689,12 +2631,12 @@ string dna_import::ParseScaleLValue(const string& sBuf, const string& calling_fu
 	return scalar;
 }
 
-string dna_import::ParseScaleHValue(const string& sBuf, const string& calling_function)
+std::string dna_import::ParseScaleHValue(const std::string& sBuf, const std::string& calling_function)
 {
 	if (sBuf.length() <= dml_.msr_gps_hscale)
 		return "1";
 	
-	string scalar;
+	std::string scalar;
 
 	try {
 		if (sBuf.length() > (dml_.msr_gps_reframe))
@@ -2713,7 +2655,7 @@ string dna_import::ParseScaleHValue(const string& sBuf, const string& calling_fu
 	return scalar;
 }
 
-string dna_import::ParseRefFrameValue(const string& sBuf, const string& calling_function)
+std::string dna_import::ParseRefFrameValue(const std::string& sBuf, const std::string& calling_function)
 {
 	// Override the reference frame with the user specified frame?
 	if (projectSettings_.i.override_input_rfame)
@@ -2722,7 +2664,7 @@ string dna_import::ParseRefFrameValue(const string& sBuf, const string& calling_
 	if (sBuf.length() <= dml_.msr_gps_reframe)
 		return "";
 	
-	string frame;
+	std::string frame;
 	try {
 		if (sBuf.length() > (dml_.msr_gps_epoch))
 			frame = trimstr(sBuf.substr(dml_.msr_gps_reframe, dmw_.msr_gps_reframe));		// reference frame
@@ -2737,14 +2679,14 @@ string dna_import::ParseRefFrameValue(const string& sBuf, const string& calling_
 	return frame;
 }
 
-string dna_import::ParseEpochValue(const string& sBuf, const string& calling_function)
+std::string dna_import::ParseEpochValue(const std::string& sBuf, const std::string& calling_function)
 {
 	if (sBuf.length() <= dml_.msr_gps_epoch)
 		return "";
 	
-	string epoch;
+	std::string epoch;
 	try {
-		if (sBuf.length() > static_cast<string::size_type>(dml_.msr_gps_epoch + dmw_.msr_gps_epoch))
+		if (sBuf.length() > static_cast<std::string::size_type>(dml_.msr_gps_epoch + dmw_.msr_gps_epoch))
 			epoch = trimstr(sBuf.substr(dml_.msr_gps_epoch, dmw_.msr_gps_epoch));		// epoch
 		else
 			epoch = trimstr(sBuf.substr(dml_.msr_gps_epoch));
@@ -2757,7 +2699,7 @@ string dna_import::ParseEpochValue(const string& sBuf, const string& calling_fun
 	return epoch;
 }
 
-string dna_import::ParseGPSMsrValue(const string& sBuf, const string& element, const string& calling_function)
+std::string dna_import::ParseGPSMsrValue(const std::string& sBuf, const std::string& element, const std::string& calling_function)
 {
 	try {
 		return trimstr(sBuf.substr(dml_.msr_gps, dmw_.msr_gps));				// value
@@ -2769,7 +2711,7 @@ string dna_import::ParseGPSMsrValue(const string& sBuf, const string& element, c
 	return "";
 }
 
-string dna_import::ParseGPSVarValue(const string& sBuf, const string& element, const UINT32 location, const UINT32 width, const string& calling_function)
+std::string dna_import::ParseGPSVarValue(const std::string& sBuf, const std::string& element, const UINT32 location, const UINT32 width, const std::string& calling_function)
 {
 	try {
 		return trimstr(sBuf.substr(location, width));		// variance
@@ -2781,7 +2723,7 @@ string dna_import::ParseGPSVarValue(const string& sBuf, const string& element, c
 	return "";
 }
 
-void dna_import::ParseDNAMSRAngular(const string& sBuf, dnaMsrPtr& msr_ptr)
+void dna_import::ParseDNAMSRAngular(const std::string& sBuf, dnaMsrPtr& msr_ptr)
 {
 	// Measurement type
 	try {
@@ -2857,7 +2799,7 @@ void dna_import::ParseDNAMSRAngular(const string& sBuf, dnaMsrPtr& msr_ptr)
 }
 	
 
-UINT32 dna_import::ParseDNAMSRDirections(string& sBuf, dnaMsrPtr& msr_ptr, bool ignoreMsr)
+UINT32 dna_import::ParseDNAMSRDirections(std::string& sBuf, dnaMsrPtr& msr_ptr, bool ignoreMsr)
 {
 	// Measurement type
 	try {
@@ -2922,26 +2864,21 @@ UINT32 dna_import::ParseDNAMSRDirections(string& sBuf, dnaMsrPtr& msr_ptr, bool 
 		import_file_mutex.unlock();
 
 		// get ignore flag for sub direction and remove accordingly
-		subignoreMsr = iequals("*", sBuf.substr(dml_.msr_ignore, dmw_.msr_ignore));
+		subignoreMsr = boost::iequals("*", sBuf.substr(dml_.msr_ignore, dmw_.msr_ignore));
 
 		if (subignoreMsr)
 		{
 			dirnCountLessIgnored--;
 			if (dirnCountLessIgnored == 0)
 			{
-				// Is the entire direction set ignored?
-				// If so, return 0
-				if (ignoreMsr)
-					return 0;
-				
-				throw XMLInteropException("There aren't any non-ignored directions in the set.", m_lineNo);
+				// throw if the entire direction set is not ignored
+				if (!ignoreMsr)
+					throw XMLInteropException("There aren't any non-ignored directions in the set.", m_lineNo);
 			}
-			msr_ptr->SetTotal(dirnCountLessIgnored);
-			continue;
 		}
 
 		dirnTmp.SetFirst(msr_ptr->GetFirst());
-		dirnTmp.SetIgnore(ignoreMsr);
+		dirnTmp.SetIgnore(subignoreMsr);
 		g_parsemsr_tally.D++;
 
 		// Second target station
@@ -2965,6 +2902,8 @@ UINT32 dna_import::ParseDNAMSRDirections(string& sBuf, dnaMsrPtr& msr_ptr, bool 
 		msr_ptr->AddDirection(((CDnaMeasurement*)&dirnTmp));
 	}
 
+	msr_ptr->SetNonIgnoredDirns(dirnCountLessIgnored);
+
 	return dirnCount;
 }
 
@@ -2977,10 +2916,10 @@ void dna_import::RemoveIgnoredMeasurements(vdnaMsrPtr* vMeasurements, MsrTally* 
 }
 	
 
-void dna_import::IncludeMeasurementTypes(const string& includeMsrs, vdnaMsrPtr* vMeasurements, MsrTally* parsemsrTally)
+void dna_import::IncludeMeasurementTypes(const std::string& includeMsrs, vdnaMsrPtr* vMeasurements, MsrTally* parsemsrTally)
 {
 	_it_vdnamsrptr _it_msr;
-	string msrTypes = includeMsrs;
+	std::string msrTypes = includeMsrs;
 	// convert to upper case
 	str_toupper<int>(msrTypes);
 
@@ -3041,7 +2980,7 @@ void dna_import::IncludeMeasurementTypes(const string& includeMsrs, vdnaMsrPtr* 
 		case 'S': // Slope distance
 			msrtallyTmp.S = parsemsrTally->S;
 			break;
-		case 'V': // Zenith angle
+		case 'V': // Zenith distance
 			msrtallyTmp.V = parsemsrTally->V;
 			break;
 		case 'X': // GPS Baseline cluster
@@ -3059,10 +2998,10 @@ void dna_import::IncludeMeasurementTypes(const string& includeMsrs, vdnaMsrPtr* 
 	*parsemsrTally = msrtallyTmp;
 }
 
-void dna_import::ExcludeMeasurementTypes(const string& excludeMsrs, vdnaMsrPtr* vMeasurements, MsrTally* parsemsrTally)
+void dna_import::ExcludeMeasurementTypes(const std::string& excludeMsrs, vdnaMsrPtr* vMeasurements, MsrTally* parsemsrTally)
 {
 	_it_vdnamsrptr _it_msr;
-	string msrTypes = excludeMsrs;
+	std::string msrTypes = excludeMsrs;
 	// convert to upper case
 	str_toupper<int>(msrTypes);
 
@@ -3121,7 +3060,7 @@ void dna_import::ExcludeMeasurementTypes(const string& excludeMsrs, vdnaMsrPtr* 
 		case 'S': // Slope distance
 			parsemsrTally->S = 0;
 			break;
-		case 'V': // Zenith angle
+		case 'V': // Zenith distance
 			parsemsrTally->V = 0;
 			break;
 		case 'X': // GPS Baseline cluster
@@ -3148,7 +3087,7 @@ void dna_import::ExcludeAllOutsideBoundingBox(vdnaStnPtr* vStations, vdnaMsrPtr*
 	vdnaStnPtr bvStation = *vStations;
 
 	// TestNotEqualStationName requires vStations to be sorted (for binary_search)
-	sort(vStations->begin(), vStations->end());
+	std::sort(vStations->begin(), vStations->end());
 
 	// Remove all stations outside the bounding box
 	// vExcludedStns will contain the names of all the stations (if any) that were outside the bounding box.
@@ -3167,7 +3106,7 @@ void dna_import::ExcludeAllOutsideBoundingBox(vdnaStnPtr* vStations, vdnaMsrPtr*
 	});
 	
 	// FindMsrsConnectedToStns requires vExcludedStns to be sorted (for binary_search)
-	sort(vExcludedStns->begin(), vExcludedStns->end());
+	std::sort(vExcludedStns->begin(), vExcludedStns->end());
 
 	// OK, now measurements...
 	if (p.i.include_transcending_msrs == 1)
@@ -3180,7 +3119,7 @@ void dna_import::ExcludeAllOutsideBoundingBox(vdnaStnPtr* vStations, vdnaMsrPtr*
 	// restore station vector, and erase stations not in vIncludedStns
 	*vStations = bvStation;
 	vExcludedStns->clear();
-	TestNotEqualStationName<dnaStnPtr, string> selectStnFunc(&vIncludedStns, vExcludedStns);
+	TestNotEqualStationName<dnaStnPtr, std::string> selectStnFunc(&vIncludedStns, vExcludedStns);
 	erase_if(vStations, selectStnFunc);
 
 	// Rebuild station tally
@@ -3188,7 +3127,7 @@ void dna_import::ExcludeAllOutsideBoundingBox(vdnaStnPtr* vStations, vdnaMsrPtr*
 }
 	
 
-void dna_import::ExtractStnsAndAssociatedMsrs(const string& stnListInclude, const string& stnListExclude, vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, 
+void dna_import::ExtractStnsAndAssociatedMsrs(const std::string& stnListInclude, const std::string& stnListExclude, vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, 
 		StnTally* parsestnTally, MsrTally* parsemsrTally, pvstring vExcludedStns, const project_settings& p,
 		bool& splitXmsrs, bool& splitYmsrs)
 {
@@ -3197,7 +3136,7 @@ void dna_import::ExtractStnsAndAssociatedMsrs(const string& stnListInclude, cons
 	// backup station vector
 	vdnaStnPtr bvStations = *vStations;
 
-	const string *stnListIn;
+	const std::string *stnListIn;
 
 	vstring vIncludedStns;
 	pvstring pvStnsIn, pvStnsEx;
@@ -3227,7 +3166,7 @@ void dna_import::ExtractStnsAndAssociatedMsrs(const string& stnListInclude, cons
 	
 	// TestNotEqualStationName requires stations to be sorted (for binary_search)
 	strip_duplicates(pvStnsIn);		// Strip duplicates and sort
-	sort(pvStnsIn->begin(), pvStnsIn->end());
+	std::sort(pvStnsIn->begin(), pvStnsIn->end());
 		
 	pvStnsEx->clear();		
 
@@ -3236,20 +3175,20 @@ void dna_import::ExtractStnsAndAssociatedMsrs(const string& stnListInclude, cons
 	// This list will be used to strip the corresponding measurements.
 	if (!stnListInclude.empty())
 	{
-		TestNotEqualStationName<dnaStnPtr, string> selectStnFunc(pvStnsIn, pvStnsEx);	
+		TestNotEqualStationName<dnaStnPtr, std::string> selectStnFunc(pvStnsIn, pvStnsEx);	
 		erase_if(vStations, selectStnFunc);
 	}
 	else
 	{
-		TestEqualStationName<dnaStnPtr, string> selectStnFunc(pvStnsIn, pvStnsEx);	
+		TestEqualStationName<dnaStnPtr, std::string> selectStnFunc(pvStnsIn, pvStnsEx);	
 		erase_if(vStations, selectStnFunc);
 		pvStnsIn = &vIncludedStns;
 		pvStnsEx = vExcludedStns;
-		sort(pvStnsIn->begin(), pvStnsIn->end());
+		std::sort(pvStnsIn->begin(), pvStnsIn->end());
 	}
 
 	// FindMsrsConnectedToStns requires vExcludedStns to be sorted (for binary_search)
-	sort(pvStnsEx->begin(), pvStnsEx->end());
+	std::sort(pvStnsEx->begin(), pvStnsEx->end());
 
 	// OK, get all measurements connected associated with vIncludedStns, splitting clusters as necessary
 	if (!stnListInclude.empty())
@@ -3265,7 +3204,7 @@ void dna_import::ExtractStnsAndAssociatedMsrs(const string& stnListInclude, cons
 	// ExtractAssociatedMsrsConnectedToStns retrieves
 	*vStations = bvStations;
 	pvStnsEx->clear();
-	TestNotEqualStationName<dnaStnPtr, string> selectStnFunc(pvStnsIn, pvStnsEx);	
+	TestNotEqualStationName<dnaStnPtr, std::string> selectStnFunc(pvStnsIn, pvStnsEx);	
 	erase_if(vStations, selectStnFunc);
 
 	// Rebuild station tally
@@ -3306,12 +3245,12 @@ void dna_import::SplitClusterMsrs(vdnaMsrPtr& msrsConnectedToStns,
 void dna_import::SplitClusterMsrsConnectedToStns(vdnaMsrPtr* vClusterMsrs, pvstring pvIncludedStns, pvstring pvExcludedStns, bool& splitXmsrs, bool& splitYmsrs)
 {
 	_it_vdnamsrptr _it_msr;
-	vector<CDnaGpsBaseline>* vgpsBsls;
-	vector<CDnaGpsPoint>* vgpsPnts;
-	vector<CDnaCovariance>* vgpsCovs;
-	vector<CDnaGpsBaseline>::iterator _it_gps_bsl;
-	vector<CDnaGpsPoint>::iterator _it_gps_pnt;
-	vector<CDnaCovariance>::iterator _it_gps_cov;
+	std::vector<CDnaGpsBaseline>* vgpsBsls;
+	std::vector<CDnaGpsPoint>* vgpsPnts;
+	std::vector<CDnaCovariance>* vgpsCovs;
+	std::vector<CDnaGpsBaseline>::iterator _it_gps_bsl;
+	std::vector<CDnaGpsPoint>::iterator _it_gps_pnt;
+	std::vector<CDnaCovariance>::iterator _it_gps_cov;
 
 	UINT32 msr(0), index(0), subindex(0), keepCount;
 	vUINT32 vIndices;
@@ -3549,10 +3488,10 @@ void dna_import::ExtractAssociatedMsrsBoundingBox(vdnaMsrPtr* vMeasurements, Msr
 }
 
 
-void dna_import::ExtractAssociatedStns_GX(vector<CDnaGpsBaseline>* vGpsBaselines, pvstring pvUsedStns)
+void dna_import::ExtractAssociatedStns_GX(std::vector<CDnaGpsBaseline>* vGpsBaselines, pvstring pvUsedStns)
 {
-	string station;
-	vector<CDnaGpsBaseline>::iterator _it_msr(vGpsBaselines->begin());
+	std::string station;
+	std::vector<CDnaGpsBaseline>::iterator _it_msr(vGpsBaselines->begin());
 	_it_pair_vstring it_msr_stns;
 
 	for (_it_msr=vGpsBaselines->begin(); _it_msr!=vGpsBaselines->end(); _it_msr++)
@@ -3562,7 +3501,7 @@ void dna_import::ExtractAssociatedStns_GX(vector<CDnaGpsBaseline>* vGpsBaselines
 		if (it_msr_stns.first == it_msr_stns.second)
 		{
 			pvUsedStns->push_back(station);
-			sort(pvUsedStns->begin(), pvUsedStns->end());
+			std::sort(pvUsedStns->begin(), pvUsedStns->end());
 		}
 
 		station = _it_msr->GetTarget();
@@ -3570,15 +3509,15 @@ void dna_import::ExtractAssociatedStns_GX(vector<CDnaGpsBaseline>* vGpsBaselines
 		if (it_msr_stns.first == it_msr_stns.second)
 		{
 			pvUsedStns->push_back(station);
-			sort(pvUsedStns->begin(), pvUsedStns->end());
+			std::sort(pvUsedStns->begin(), pvUsedStns->end());
 		}
 	}
 }
 
-void dna_import::ExtractAssociatedStns_Y(vector<CDnaGpsPoint>* vGpsPoints, pvstring pvUsedStns)
+void dna_import::ExtractAssociatedStns_Y(std::vector<CDnaGpsPoint>* vGpsPoints, pvstring pvUsedStns)
 {
-	string station;
-	vector< CDnaGpsPoint >::iterator _it_msr(vGpsPoints->begin());
+	std::string station;
+	std::vector< CDnaGpsPoint >::iterator _it_msr(vGpsPoints->begin());
 	_it_pair_vstring it_msr_stns;
 
 	for (_it_msr=vGpsPoints->begin(); _it_msr!=vGpsPoints->end(); _it_msr++)
@@ -3588,15 +3527,15 @@ void dna_import::ExtractAssociatedStns_Y(vector<CDnaGpsPoint>* vGpsPoints, pvstr
 		if (it_msr_stns.first == it_msr_stns.second)
 		{
 			pvUsedStns->push_back(station);
-			sort(pvUsedStns->begin(), pvUsedStns->end());
+			std::sort(pvUsedStns->begin(), pvUsedStns->end());
 		}
 	}
 }
 
-void dna_import::ExtractAssociatedStns_D(vector<CDnaDirection>* vDirections, pvstring pvUsedStns)
+void dna_import::ExtractAssociatedStns_D(std::vector<CDnaDirection>* vDirections, pvstring pvUsedStns)
 {
-	string station;
-	vector<CDnaDirection>::iterator _it_msr(vDirections->begin());
+	std::string station;
+	std::vector<CDnaDirection>::iterator _it_msr(vDirections->begin());
 	_it_pair_vstring it_msr_stns;
 
 	for (_it_msr=vDirections->begin(); _it_msr!=vDirections->end(); _it_msr++)
@@ -3606,7 +3545,7 @@ void dna_import::ExtractAssociatedStns_D(vector<CDnaDirection>* vDirections, pvs
 		if (it_msr_stns.first == it_msr_stns.second)
 		{
 			pvUsedStns->push_back(station);
-			sort(pvUsedStns->begin(), pvUsedStns->end());
+			std::sort(pvUsedStns->begin(), pvUsedStns->end());
 		}
 
 		station = _it_msr->GetTarget();
@@ -3614,7 +3553,7 @@ void dna_import::ExtractAssociatedStns_D(vector<CDnaDirection>* vDirections, pvs
 		if (it_msr_stns.first == it_msr_stns.second)
 		{
 			pvUsedStns->push_back(station);
-			sort(pvUsedStns->begin(), pvUsedStns->end());
+			std::sort(pvUsedStns->begin(), pvUsedStns->end());
 		}
 	}
 }
@@ -3622,11 +3561,11 @@ void dna_import::ExtractAssociatedStns_D(vector<CDnaDirection>* vDirections, pvs
 void dna_import::ExtractAssociatedStns(vdnaMsrPtr* vMeasurements, pvstring pvUsedStns)
 {
 	_it_vdnamsrptr _it_msr;
-	vector<CDnaDirection>* vdirns;
-	vector<CDnaGpsBaseline>* vgpsBsls;
-	vector<CDnaGpsPoint>* vgpsPnts;
+	std::vector<CDnaDirection>* vdirns;
+	std::vector<CDnaGpsBaseline>* vgpsBsls;
+	std::vector<CDnaGpsPoint>* vgpsPnts;
 
-	string station;
+	std::string station;
 
 	_it_pair_vstring it_msr_stns;
 
@@ -3658,7 +3597,7 @@ void dna_import::ExtractAssociatedStns(vdnaMsrPtr* vMeasurements, pvstring pvUse
 		if (it_msr_stns.first == it_msr_stns.second)
 		{
 			pvUsedStns->push_back(station);
-			sort(pvUsedStns->begin(), pvUsedStns->end());
+			std::sort(pvUsedStns->begin(), pvUsedStns->end());
 		}
 		
 		// Finished with single station measurements
@@ -3682,7 +3621,7 @@ void dna_import::ExtractAssociatedStns(vdnaMsrPtr* vMeasurements, pvstring pvUse
 		if (it_msr_stns.first == it_msr_stns.second)
 		{
 			pvUsedStns->push_back(station);
-			sort(pvUsedStns->begin(), pvUsedStns->end());
+			std::sort(pvUsedStns->begin(), pvUsedStns->end());
 		}
 
 		// Dual station measurements...
@@ -3700,7 +3639,7 @@ void dna_import::ExtractAssociatedStns(vdnaMsrPtr* vMeasurements, pvstring pvUse
 		case 'M':	// MSL arc
 		case 'S':	// Slope distance
 		case 'L':	// Level difference
-		case 'V':	// Zenith angle
+		case 'V':	// Zenith distance
 		case 'Z':	// Vertical angle
 			continue;
 		}
@@ -3714,7 +3653,7 @@ void dna_import::ExtractAssociatedStns(vdnaMsrPtr* vMeasurements, pvstring pvUse
 		if (it_msr_stns.first == it_msr_stns.second)
 		{
 			pvUsedStns->push_back(station);
-			sort(pvUsedStns->begin(), pvUsedStns->end());
+			std::sort(pvUsedStns->begin(), pvUsedStns->end());
 		}
 	}
 
@@ -3745,7 +3684,7 @@ void dna_import::LoadBinaryFiles(pvstn_t binaryStn, pvmsr_t binaryMsr)
 		dna_io_bms bms;
 		bms.load_bms_file(projectSettings_.i.bms_file, binaryMsr, bms_meta_);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		SignalExceptionInterop(e.what(), 0, NULL);
 	}	
 }
@@ -3763,7 +3702,7 @@ void dna_import::LoadSegmentationFile(pvmsr_t binaryMsr)
 			true, binaryMsr,
 			&v_measurementCount_, &v_unknownsCount_, &v_ContiguousNetList_, &v_parameterStationCount_);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		SignalExceptionInterop(e.what(), 0, NULL);
 	}
 }
@@ -3775,21 +3714,21 @@ void dna_import::LoadDatabaseId()
 	if (databaseIDsLoaded_)
 		return;
 
-	string dbid_filename = formPath<string>(projectSettings_.g.output_folder,
+	std::string dbid_filename = formPath<std::string>(projectSettings_.g.output_folder,
 		projectSettings_.g.network_name, "dbid");
 
-	stringstream ss;
+	std::stringstream ss;
 	v_msr_db_map_.clear();
 
 	std::ifstream dbid_file;
 	try {
 		// Create geoid file.  Throws runtime_error on failure.
 		file_opener(dbid_file, dbid_filename,
-			ios::in | ios::binary, binary);
+			std::ios::in | std::ios::binary, binary);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 
 	UINT32 r, recordCount;
@@ -3825,7 +3764,7 @@ void dna_import::LoadDatabaseId()
 	}
 	catch (const std::ifstream::failure& f) {
 		ss << f.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 }
 
@@ -3840,15 +3779,15 @@ void dna_import::ImportStnsMsrsFromNetwork(vdnaStnPtr* vStations, vdnaMsrPtr* vM
 		// Load Database IDs
 		LoadDatabaseId();
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		throw XMLInteropException(e.what(), 0);
 	}
 
 	if ((p.i.import_network_number + 1) > v_ContiguousNetList_.size())
 	{
-		stringstream ss;
+		std::stringstream ss;
 		ss << "The specified network ID " << p.i.import_network_number <<
-			" does not exist in the list of " << endl <<
+			" does not exist in the list of " << std::endl <<
 			"         identified contiguous Network IDs (0 to " << (v_ContiguousNetList_.size() - 1) << ").";
 		throw XMLInteropException(ss.str(), 0);
 	}
@@ -3979,7 +3918,7 @@ void dna_import::ImportStnsMsrsFromNetwork(vdnaStnPtr* vStations, vdnaMsrPtr* vM
 			case 'S': // Slope distance
 				g_parsemsr_tally.S++;
 				break;
-			case 'V': // Zenith angle
+			case 'V': // Zenith distance
 				g_parsemsr_tally.V++;
 				break;
 			case 'X': // GPS Baseline cluster
@@ -4021,15 +3960,15 @@ void dna_import::ImportStnsMsrsFromBlock(vdnaStnPtr* vStations, vdnaMsrPtr* vMea
 		// Load Database IDs
 		LoadDatabaseId();
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		throw XMLInteropException(e.what(), 0);
 	}
 
 	if (p.i.import_block_number > v_ISL_.size())
 	{
-		stringstream ss;
+		std::stringstream ss;
 		ss << "The specified block number " << p.i.import_block_number << 
-			" exceeds the total number of " << endl <<
+			" exceeds the total number of " << std::endl <<
 			"         segmented blocks (" << v_ISL_.size() << ").";
 		throw XMLInteropException(ss.str(), 0);
 	}
@@ -4137,7 +4076,7 @@ void dna_import::ImportStnsMsrsFromBlock(vdnaStnPtr* vStations, vdnaMsrPtr* vMea
 		case 'S': // Slope distance
 			g_parsemsr_tally.S++;
 			break;
-		case 'V': // Zenith angle
+		case 'V': // Zenith distance
 			g_parsemsr_tally.V++;
 			break;
 		case 'X': // GPS Baseline cluster
@@ -4170,10 +4109,10 @@ void dna_import::RemoveNonMeasurements(const UINT32& block, pvmsr_t binaryMsr)
 	if (v_CML_.at(block).size() < 2)
 		return;
 	CompareNonMeasStart<measurement_t, UINT32> measstartCompareFunc(binaryMsr, xMeas);
-	sort(v_CML_.at(block).begin(), v_CML_.at(block).end(), measstartCompareFunc);
+	std::sort(v_CML_.at(block).begin(), v_CML_.at(block).end(), measstartCompareFunc);
 	erase_if(v_CML_.at(block), measstartCompareFunc);
 	CompareMsrFileOrder<measurement_t, UINT32> fileorderCompareFunc(binaryMsr);
-	sort(v_CML_.at(block).begin(), v_CML_.at(block).end(), fileorderCompareFunc);
+	std::sort(v_CML_.at(block).begin(), v_CML_.at(block).end(), fileorderCompareFunc);
 }
 	
 
@@ -4208,22 +4147,22 @@ void dna_import::SignalComplete()
 	import_file_mutex.unlock();
 }
 
-void dna_import::SignalExceptionParse(string msg, int i)
+void dna_import::SignalExceptionParse(std::string msg, int i)
 {
 	SignalComplete();
 	size_t s = msg.find("is not allowed for content model");
-	if (s != string::npos)
+	if (s != std::string::npos)
 		msg += "\n  - check that the order of elements in the XML file matches the order of the XSD complex type elements.";
 	parseStatus_ = PARSE_EXCEPTION_RAISED;
 	throw XMLInteropException(msg, i);
 }
 	
-void dna_import::SignalExceptionParseDNA(const string& message, const string& sBuf, const int& column_no)
+void dna_import::SignalExceptionParseDNA(const std::string& message, const std::string& sBuf, const int& column_no)
 {
-	stringstream ss;
-	ss << message << endl;
+	std::stringstream ss;
+	ss << message << std::endl;
 	if (!sBuf.empty())
-		ss << "    " << sBuf << endl;
+		ss << "    " << sBuf << std::endl;
 	m_columnNo = column_no + 1;
 	throw XMLInteropException(ss.str(), m_lineNo);
 }
@@ -4233,7 +4172,7 @@ void dna_import::SignalExceptionParseDNA(const string& message, const string& sB
 // Purpose:				Closes all files (if file pointers are passed in) and throws XMLInteropException
 // Called by:			Any
 // Calls:				XMLInteropException()
-void dna_import::SignalExceptionInterop(string msg, int i, const char *streamType, ...)
+void dna_import::SignalExceptionInterop(std::string msg, int i, const char *streamType, ...)
 {
 	if (streamType == NULL)
 		throw XMLInteropException(msg, i);
@@ -4265,28 +4204,60 @@ void dna_import::SignalExceptionInterop(string msg, int i, const char *streamTyp
 	
 	throw XMLInteropException(msg, i);
 }
-	
 
-void dna_import::SerialiseDNA(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, 
-	const string& stnfilename, const string& msrfilename, 
-	const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused)
+void dna_import::SerialiseMSR(vdnaMsrPtr* vMeasurements, const std::string& msrfilename, 
+	const project_settings& p, vifm_t* vinput_file_meta)
 {
-	try
-	{
-		// Reset the default datum.
-		datum_.SetDatumFromEpsg(m_strProjectDefaultEpsg, m_strProjectDefaultEpoch);
+	// Measurements
+	std::ofstream dna_msr_file;
+	try {
+		// Create DynAdjust MSR file. 
+		file_opener(dna_msr_file, msrfilename);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		SignalExceptionInterop(e.what(), 0, NULL);
 	}
 
+	_it_vdnamsrptr _it_msr(vMeasurements->begin());
+
+	try {
+		// Write version line
+		dna_header(dna_msr_file, "3.01", "MSR", datum_.GetName(), datum_.GetEpoch_s(), vMeasurements->size());
+
+		// Capture source files
+		std::string source_files(formatStnMsrFileSourceString<std::string>(vinput_file_meta, msr_data));
+
+		// Write header comment lines about this file
+		dna_comment(dna_msr_file, "File type:    Measurement file");
+		dna_comment(dna_msr_file, "Project name: " + p.g.network_name);
+		dna_comment(dna_msr_file, "Source files: " + source_files);
+
+		// print measurements
+		for (_it_msr = vMeasurements->begin(); _it_msr != vMeasurements->end(); _it_msr++)
+			_it_msr->get()->WriteDNAMsr(&dna_msr_file, dmw_, dml_);
+
+		dna_msr_file.close();
+
+	}
+	catch (const std::ifstream::failure& f) {
+		SignalExceptionInterop(static_cast<std::string>(f.what()), 0, "o", &dna_msr_file);
+	}
+	catch (const XMLInteropException& e) {
+		SignalExceptionInterop(static_cast<std::string>(e.what()), 0, "o", &dna_msr_file);
+	}
+}
+	
+
+void dna_import::SerialiseSTN(vdnaStnPtr* vStations, const std::string& stnfilename, 
+	const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused)
+{
 	// Stations
 	std::ofstream dna_stn_file;
 	try {
 		// Create DynAdjust STN file. 
 		file_opener(dna_stn_file, stnfilename);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		SignalExceptionInterop(e.what(), 0, NULL);
 	}
 
@@ -4301,13 +4272,13 @@ void dna_import::SerialiseDNA(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements,
 		// Has the user specified --flag-unused-stations, in which case, do not
 		// print stations marked unused?
 		UINT32 count(0);
-		if (flagUnused) 
+		if (flagUnused)
 		{
 			for_each(vStations->begin(), vStations->end(),
 				[&count](const dnaStnPtr& stn) {
 					if (stn.get()->IsNotUnused())
 						count++;
-			});
+				});
 		}
 		else
 			count = static_cast<UINT32>(vStations->size());
@@ -4316,7 +4287,7 @@ void dna_import::SerialiseDNA(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements,
 		dna_header(dna_stn_file, "3.01", "STN", datum_.GetName(), datum_.GetEpoch_s(), count);
 
 		// Capture source files
-		string source_files(formatStnMsrFileSourceString<string>(vinput_file_meta, stn_data));
+		std::string source_files(formatStnMsrFileSourceString<std::string>(vinput_file_meta, stn_data));
 
 		// Write header comment lines about this file
 		dna_comment(dna_stn_file, "File type:    Station file");
@@ -4326,81 +4297,64 @@ void dna_import::SerialiseDNA(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements,
 		// print stations
 		// Has the user specified --flag-unused-stations, in wich case, do not
 		// print stations marked unused?
-		if (flagUnused) 
+		if (flagUnused)
 		{
-			for (_it_stn=vStations->begin(); _it_stn!=vStations->end(); _it_stn++)
+			for (_it_stn = vStations->begin(); _it_stn != vStations->end(); _it_stn++)
 				if (_it_stn->get()->IsNotUnused())
 					_it_stn->get()->WriteDNAXMLStnInitialEstimates(&dna_stn_file,
-					datum_.GetEllipsoidRef(), &projection,
-					dna, &dsw_);
+						datum_.GetEllipsoidRef(), &projection,
+						dna, &dsw_);
 		}
 		else
 		{
 			// print all stations regardless of whether they are unused or not
-			for (_it_stn=vStations->begin(); _it_stn!=vStations->end(); _it_stn++)
+			for (_it_stn = vStations->begin(); _it_stn != vStations->end(); _it_stn++)
 				_it_stn->get()->WriteDNAXMLStnInitialEstimates(&dna_stn_file,
-				datum_.GetEllipsoidRef(), &projection,
-				dna, &dsw_);
+					datum_.GetEllipsoidRef(), &projection,
+					dna, &dsw_);
 		}
 
 		dna_stn_file.close();
 
 	}
 	catch (const std::ifstream::failure& f) {
-		SignalExceptionInterop(static_cast<string>(f.what()), 0, "o", &dna_stn_file);
+		SignalExceptionInterop(static_cast<std::string>(f.what()), 0, "o", &dna_stn_file);
 	}
-	catch (const XMLInteropException& e)  {
-		SignalExceptionInterop(static_cast<string>(e.what()), 0, "o", &dna_stn_file);
+	catch (const XMLInteropException& e) {
+		SignalExceptionInterop(static_cast<std::string>(e.what()), 0, "o", &dna_stn_file);
 	}
+}
 
-	// Measurements
-	std::ofstream dna_msr_file;
-	try {
-		// Create DynAdjust MSR file. 
-		file_opener(dna_msr_file, msrfilename);
+void dna_import::SerialiseDNA(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements,
+	const std::string& stnfilename, const std::string& msrfilename, 
+	const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused)
+{
+	try
+	{
+		// Reset the default datum.
+		datum_.SetDatumFromEpsg(m_strProjectDefaultEpsg, m_strProjectDefaultEpoch);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		SignalExceptionInterop(e.what(), 0, NULL);
 	}
 
-	_it_vdnamsrptr _it_msr(vMeasurements->begin());
+	// Write stations (if present)
+	if (!vStations->empty())
+		SerialiseSTN(vStations, stnfilename, p, vinput_file_meta, flagUnused);
 
-	try {
-		// Write version line
-		dna_header(dna_msr_file, "3.01", "MSR", datum_.GetName(), datum_.GetEpoch_s(), vMeasurements->size());
-
-		// Capture source files
-		string source_files(formatStnMsrFileSourceString<string>(vinput_file_meta, msr_data));
-
-		// Write header comment lines about this file
-		dna_comment(dna_msr_file, "File type:    Measurement file");
-		dna_comment(dna_msr_file, "Project name: " + p.g.network_name);
-		dna_comment(dna_msr_file, "Source files: " + source_files);
-
-		// print measurements
-		for (_it_msr=vMeasurements->begin(); _it_msr!=vMeasurements->end(); _it_msr++)
-			_it_msr->get()->WriteDNAMsr(&dna_msr_file, dmw_, dml_);
-
-		dna_msr_file.close();
-
-	}
-	catch (const std::ifstream::failure& f) {
-		SignalExceptionInterop(static_cast<string>(f.what()), 0, "o", &dna_msr_file);
-	}
-	catch (const XMLInteropException& e)  {
-		SignalExceptionInterop(static_cast<string>(e.what()), 0, "o", &dna_msr_file);
-	}
-
+	// Write measurements (if present)
+	if (!vMeasurements->empty())
+		SerialiseMSR(vMeasurements, msrfilename, p, vinput_file_meta);
 }
 	
 
 void dna_import::InitialiseDynaMLFile(const project_settings& p, vifm_t* vinput_file_meta,
-	const string& outfilename, std::ofstream* dynaml_file)
+	const std::string& outfilename, std::ofstream* dynaml_file)
 {
 	// create combined filename
-	string dynamlfilename(outfilename);
-	size_t dp = string::npos;
-	if ((dp = dynamlfilename.rfind(".")) == string::npos)
+	std::string dynamlfilename(outfilename);
+	size_t dp = std::string::npos;
+	if ((dp = dynamlfilename.rfind(".")) == std::string::npos)
 		dynamlfilename += ".xml";
 
 	try
@@ -4408,7 +4362,7 @@ void dna_import::InitialiseDynaMLFile(const project_settings& p, vifm_t* vinput_
 		// Reset the default datum.
 		datum_.SetDatumFromEpsg(m_strProjectDefaultEpsg, m_strProjectDefaultEpoch);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		SignalExceptionInterop(e.what(), 0, NULL);
 	}
 
@@ -4420,30 +4374,30 @@ void dna_import::InitialiseDynaMLFile(const project_settings& p, vifm_t* vinput_
 		dynaml_header(*dynaml_file, "Combined File", datum_.GetName(), datum_.GetEpoch_s());
 
 		// Capture source files
-		string source_files(formatStnMsrFileSourceString<string>(vinput_file_meta, stn_msr_data));
+		std::string source_files(formatStnMsrFileSourceString<std::string>(vinput_file_meta, stn_msr_data));
 
 		// Write header comment lines about this file
 		dynaml_comment(*dynaml_file, "File type:    Combined station and measurements file");
 		dynaml_comment(*dynaml_file, "Project name: " + p.g.network_name);
 		dynaml_comment(*dynaml_file, "Source files: " + source_files);		
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		SignalExceptionInterop(e.what(), 0, NULL);
 	}
 }
 
 // A useful, but unnecessary function	
 //
-//void dna_import::SerialiseDynaMLfromBinary(const string& outfilename, 
+//void dna_import::SerialiseDynaMLfromBinary(const std::string& outfilename, 
 //	const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused)
 //{
 //	// Load stations from binary file and serialise to XML
 //	std::ifstream bst_file;
 //	try {
 //		// Load binary stations data.  Throws runtime_error on failure.
-//		file_opener(bst_file, p.i.bst_file, ios::in | ios::binary, binary, true);
+//		file_opener(bst_file, p.i.bst_file, std::ios::in | std::ios::binary, binary, true);
 //	}
-//	catch (const runtime_error& e) {
+//	catch (const std::runtime_error& e) {
 //		SignalExceptionInterop(e.what(), 0, NULL);
 //	}
 //
@@ -4454,17 +4408,17 @@ void dna_import::InitialiseDynaMLFile(const project_settings& p, vifm_t* vinput_
 //	try {
 //		SerialiseXmlStn(&bst_file, &dynaml_file);
 //	}
-//	catch (const ios_base::failure& f) {
-//		SignalExceptionInterop(static_cast<string>(f.what()), 0, 
+//	catch (const std::ios_base::failure& f) {
+//		SignalExceptionInterop(static_cast<std::string>(f.what()), 0, 
 //			"io", &bst_file, &dynaml_file);	
 //	}
 //
 //	std::ifstream bms_file;
 //	try {
 //		// Load binary measurements data.  Throws runtime_error on failure.
-//		file_opener(bms_file, p.i.bms_file, ios::in | ios::binary, binary, true);
+//		file_opener(bms_file, p.i.bms_file, std::ios::in | std::ios::binary, binary, true);
 //	}
-//	catch (const runtime_error& e) {
+//	catch (const std::runtime_error& e) {
 //		SignalExceptionInterop(e.what(), 0, NULL);
 //	}
 //
@@ -4473,28 +4427,28 @@ void dna_import::InitialiseDynaMLFile(const project_settings& p, vifm_t* vinput_
 //		SerialiseXmlMsr(&bst_file, &bms_file, &dynaml_file);
 //	}
 //	catch (const std::ifstream::failure& f) {
-//		SignalExceptionInterop(static_cast<string>(f.what()), 0, 
+//		SignalExceptionInterop(static_cast<std::string>(f.what()), 0, 
 //			"iio", &bst_file, &bms_file, &dynaml_file);
 //	}
 //	catch (const XMLInteropException& e)  {
-//		SignalExceptionInterop(static_cast<string>(e.what()), 0, 
+//		SignalExceptionInterop(static_cast<std::string>(e.what()), 0, 
 //			"iio", &bst_file, &bms_file, &dynaml_file);
 //	}
 //
 //	bst_file.close();
 //	bms_file.close();
-//	dynaml_file << "</DnaXmlFormat>" << endl;
+//	dynaml_file << "</DnaXmlFormat>" << std::endl;
 //	dynaml_file.close();
 //}
 
 
 void dna_import::SerialiseDynaMLfromMemory(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, 
-	const string& outfilename, const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused)
+	const std::string& outfilename, const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused)
 {
 	// create combined filename
-	string dynamlfilename(outfilename);
-	size_t dp = string::npos;
-	if ((dp = dynamlfilename.rfind(".")) == string::npos)
+	std::string dynamlfilename(outfilename);
+	size_t dp = std::string::npos;
+	if ((dp = dynamlfilename.rfind(".")) == std::string::npos)
 		dynamlfilename += ".xml";
 	
 	try
@@ -4502,7 +4456,7 @@ void dna_import::SerialiseDynaMLfromMemory(vdnaStnPtr* vStations, vdnaMsrPtr* vM
 		// Reset the default datum.
 		datum_.SetDatumFromEpsg(m_strProjectDefaultEpsg, m_strProjectDefaultEpoch);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		SignalExceptionInterop(e.what(), 0, NULL);
 	}
 
@@ -4510,7 +4464,7 @@ void dna_import::SerialiseDynaMLfromMemory(vdnaStnPtr* vStations, vdnaMsrPtr* vM
 	InitialiseDynaMLFile(p, vinput_file_meta, outfilename, &dynaml_file);
 
 	CDnaProjection projection(UTM);
-	string comment("");
+	std::string comment("");
 
 	try {
 		// Write the stations (from memory)
@@ -4539,28 +4493,28 @@ void dna_import::SerialiseDynaMLfromMemory(vdnaStnPtr* vStations, vdnaMsrPtr* vM
 		});
 	}
 	catch (const std::ifstream::failure& f) {
-		SignalExceptionInterop(static_cast<string>(f.what()), 0, 
+		SignalExceptionInterop(static_cast<std::string>(f.what()), 0, 
 			"o", &dynaml_file);
 	}
 	catch (const XMLInteropException& e)  {
-		SignalExceptionInterop(static_cast<string>(e.what()), 0, 
+		SignalExceptionInterop(static_cast<std::string>(e.what()), 0, 
 			"o", &dynaml_file);
 	}
 	
-	dynaml_file << "</DnaXmlFormat>" << endl;
+	dynaml_file << "</DnaXmlFormat>" << std::endl;
 	dynaml_file.close();
 }
 	
 
 void dna_import::InitialiseDynaMLSepStationFile(const project_settings& p, vifm_t* vinput_file_meta,
-	const string& stnfilename, std::ofstream* dynaml_stn_file)
+	const std::string& stnfilename, std::ofstream* dynaml_stn_file)
 {
 	try
 	{
 		// Reset the default datum.
 		datum_.SetDatumFromEpsg(m_strProjectDefaultEpsg, m_strProjectDefaultEpoch);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		SignalExceptionInterop(e.what(), 0, NULL);
 	}
 
@@ -4572,20 +4526,20 @@ void dna_import::InitialiseDynaMLSepStationFile(const project_settings& p, vifm_
 		dynaml_header(*dynaml_stn_file, "Station File", datum_.GetName(), datum_.GetEpoch_s());
 
 		// Capture source files
-		string source_files(formatStnMsrFileSourceString<string>(vinput_file_meta, stn_data));
+		std::string source_files(formatStnMsrFileSourceString<std::string>(vinput_file_meta, stn_data));
 
 		// Write header comment lines about this file
 		dynaml_comment(*dynaml_stn_file, "File type:    Station file");
 		dynaml_comment(*dynaml_stn_file, "Project name: " + p.g.network_name);
 		dynaml_comment(*dynaml_stn_file, "Source files: " + source_files);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		SignalExceptionInterop(e.what(), 0, NULL);
 	}
 }
 
 void dna_import::InitialiseDynaMLSepMeasurementFile(const project_settings& p, vifm_t* vinput_file_meta,
-	const string& msrfilename, std::ofstream* dynaml_msr_file)
+	const std::string& msrfilename, std::ofstream* dynaml_msr_file)
 {
 	try {
 		// Create DynaML measurement file. 
@@ -4595,30 +4549,30 @@ void dna_import::InitialiseDynaMLSepMeasurementFile(const project_settings& p, v
 		dynaml_header(*dynaml_msr_file, "Measurement File", datum_.GetName(), datum_.GetEpoch_s());
 
 		// Capture source files
-		string source_files(formatStnMsrFileSourceString<string>(vinput_file_meta, msr_data));
+		std::string source_files(formatStnMsrFileSourceString<std::string>(vinput_file_meta, msr_data));
 
 		// Write header comment lines about this file
 		dynaml_comment(*dynaml_msr_file, "File type:    Measurement file");
 		dynaml_comment(*dynaml_msr_file, "Project name: " + p.g.network_name);
 		dynaml_comment(*dynaml_msr_file, "Source files: " + source_files);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		SignalExceptionInterop(e.what(), 0, NULL);
 	}
 }
 
 // A useful, but unnecessary function	
 //
-//void dna_import::SerialiseDynaMLSepfromBinary(const string& stnfilename, const string& msrfilename, 
+//void dna_import::SerialiseDynaMLSepfromBinary(const std::string& stnfilename, const std::string& msrfilename, 
 //	const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused)
 //{
 //	// Load stations from binary file and serialise to XML
 //	std::ifstream bst_file;
 //	try {
 //		// Load binary stations data.  Throws runtime_error on failure.
-//		file_opener(bst_file, p.i.bst_file, ios::in | ios::binary, binary, true);
+//		file_opener(bst_file, p.i.bst_file, std::ios::in | std::ios::binary, binary, true);
 //	}
-//	catch (const runtime_error& e) {
+//	catch (const std::runtime_error& e) {
 //		SignalExceptionInterop(e.what(), 0, NULL);
 //	}
 //
@@ -4629,20 +4583,20 @@ void dna_import::InitialiseDynaMLSepMeasurementFile(const project_settings& p, v
 //	// Write the stations (from binary file)
 //	try {		
 //		SerialiseXmlStn(&bst_file, &dynaml_stn_file);
-//		dynaml_stn_file << "</DnaXmlFormat>" << endl;
+//		dynaml_stn_file << "</DnaXmlFormat>" << std::endl;
 //		dynaml_stn_file.close();
 //	}
-//	catch (const ios_base::failure& f) {
-//		SignalExceptionInterop(static_cast<string>(f.what()), 0, 
+//	catch (const std::ios_base::failure& f) {
+//		SignalExceptionInterop(static_cast<std::string>(f.what()), 0, 
 //			"io", &bst_file, &dynaml_stn_file);	
 //	}
 //
 //	std::ifstream bms_file;
 //	try {
 //		// Load binary measurements data.  Throws runtime_error on failure.
-//		file_opener(bms_file, p.i.bms_file, ios::in | ios::binary, binary, true);
+//		file_opener(bms_file, p.i.bms_file, std::ios::in | std::ios::binary, binary, true);
 //	}
-//	catch (const runtime_error& e) {
+//	catch (const std::runtime_error& e) {
 //		SignalExceptionInterop(e.what(), 0, NULL);
 //	}
 //
@@ -4653,15 +4607,15 @@ void dna_import::InitialiseDynaMLSepMeasurementFile(const project_settings& p, v
 //	// Write the measurements (from binary file)
 //	try {
 //		SerialiseXmlMsr(&bst_file, &bms_file, &dynaml_msr_file);
-//		dynaml_msr_file << "</DnaXmlFormat>" << endl;
+//		dynaml_msr_file << "</DnaXmlFormat>" << std::endl;
 //		dynaml_msr_file.close();
 //	}
 //	catch (const std::ifstream::failure& f) {
-//		SignalExceptionInterop(static_cast<string>(f.what()), 0, 
+//		SignalExceptionInterop(static_cast<std::string>(f.what()), 0, 
 //			"iio", &bst_file, &bms_file, &dynaml_msr_file);
 //	}
 //	catch (const XMLInteropException& e)  {
-//		SignalExceptionInterop(static_cast<string>(e.what()), 0, 
+//		SignalExceptionInterop(static_cast<std::string>(e.what()), 0, 
 //			"iio", &bst_file, &bms_file, &dynaml_msr_file);
 //	}
 //
@@ -4671,7 +4625,7 @@ void dna_import::InitialiseDynaMLSepMeasurementFile(const project_settings& p, v
 	
 
 void dna_import::SerialiseDynaMLSepfromMemory(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, 
-	const string& stnfilename, const string& msrfilename, 
+	const std::string& stnfilename, const std::string& msrfilename, 
 	const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused)
 {	
 	// Create Station file and initialise header
@@ -4679,7 +4633,7 @@ void dna_import::SerialiseDynaMLSepfromMemory(vdnaStnPtr* vStations, vdnaMsrPtr*
 	InitialiseDynaMLSepStationFile(p, vinput_file_meta, stnfilename, &dynaml_stn_file);
 
 	CDnaProjection projection(UTM);
-	string comment("");
+	std::string comment("");
 	
 	// Write the stations (from memory)
 	try {	
@@ -4701,15 +4655,15 @@ void dna_import::SerialiseDynaMLSepfromMemory(vdnaStnPtr* vStations, vdnaMsrPtr*
 			});
 		}
 
-		dynaml_stn_file << "</DnaXmlFormat>" << endl;
+		dynaml_stn_file << "</DnaXmlFormat>" << std::endl;
 		dynaml_stn_file.close();
 
 	}
 	catch (const std::ifstream::failure& f) {
-		SignalExceptionInterop(static_cast<string>(f.what()), 0, "o", &dynaml_stn_file);
+		SignalExceptionInterop(static_cast<std::string>(f.what()), 0, "o", &dynaml_stn_file);
 	}
 	catch (const XMLInteropException& e)  {
-		SignalExceptionInterop(static_cast<string>(e.what()), 0, "o", &dynaml_stn_file);
+		SignalExceptionInterop(static_cast<std::string>(e.what()), 0, "o", &dynaml_stn_file);
 	}
 
 	// Create Measurement file and initialise header
@@ -4723,27 +4677,27 @@ void dna_import::SerialiseDynaMLSepfromMemory(vdnaStnPtr* vStations, vdnaMsrPtr*
 				msr->WriteDynaMLMsr(&dynaml_msr_file, comment);
 		});
 
-		dynaml_msr_file << "</DnaXmlFormat>" << endl;
+		dynaml_msr_file << "</DnaXmlFormat>" << std::endl;
 		dynaml_msr_file.close();
 
 	}
 	catch (const std::ifstream::failure& f) {
-		SignalExceptionInterop(static_cast<string>(f.what()), 0, "o", &dynaml_msr_file);
+		SignalExceptionInterop(static_cast<std::string>(f.what()), 0, "o", &dynaml_msr_file);
 	}
 	catch (const XMLInteropException& e)  {
-		SignalExceptionInterop(static_cast<string>(e.what()), 0, "o", &dynaml_msr_file);
+		SignalExceptionInterop(static_cast<std::string>(e.what()), 0, "o", &dynaml_msr_file);
 	}
 }
 
 
-//void dna_import::SerialiseGeoidData(vdnaStnPtr* vStations, const string& geofilename)
+//void dna_import::SerialiseGeoidData(vdnaStnPtr* vStations, const std::string& geofilename)
 //{
 //	std::ofstream dynaml_geo_file;
 //	try {
 //		// Create geoid file.  Throws runtime_error on failure.
 //		file_opener(dynaml_geo_file, geofilename);
 //	}
-//	catch (const runtime_error& e) {
+//	catch (const std::runtime_error& e) {
 //		SignalExceptionInterop(e.what(), 0, NULL);
 //	}
 //	
@@ -4760,10 +4714,10 @@ void dna_import::SerialiseDynaMLSepfromMemory(vdnaStnPtr* vStations, vdnaMsrPtr*
 //		
 //	}
 //	catch (const std::ifstream::failure& f) {
-//		SignalExceptionInterop(static_cast<string>(f.what()), 0, "o", &dynaml_geo_file);
+//		SignalExceptionInterop(static_cast<std::string>(f.what()), 0, "o", &dynaml_geo_file);
 //	}
 //	catch (const XMLInteropException& e)  {
-//		SignalExceptionInterop(static_cast<string>(e.what()), 0, "o", &dynaml_geo_file);
+//		SignalExceptionInterop(static_cast<std::string>(e.what()), 0, "o", &dynaml_geo_file);
 //	}
 //}
 	
@@ -4777,7 +4731,7 @@ void dna_import::SerialiseDynaMLSepfromMemory(vdnaStnPtr* vStations, vdnaMsrPtr*
 //		// Reset the default datum.
 //		datum_.SetDatumFromEpsg(m_strProjectDefaultEpsg, m_strProjectDefaultEpoch);
 //	}
-//	catch (const runtime_error& e) {
+//	catch (const std::runtime_error& e) {
 //		SignalExceptionInterop(e.what(), 0, NULL);
 //	}
 //
@@ -4811,7 +4765,7 @@ void dna_import::SerialiseDynaMLSepfromMemory(vdnaStnPtr* vStations, vdnaMsrPtr*
 //		// Reset the default datum.
 //		datum_.SetDatumFromEpsg(m_strProjectDefaultEpsg, m_strProjectDefaultEpoch);
 //	}
-//	catch (const runtime_error& e) {
+//	catch (const std::runtime_error& e) {
 //		SignalExceptionInterop(e.what(), 0, NULL);
 //	}
 //
@@ -4821,7 +4775,7 @@ void dna_import::SerialiseDynaMLSepfromMemory(vdnaStnPtr* vStations, vdnaMsrPtr*
 //
 //	// get number of measurements
 //	UINT32 msrCount;
-//	string comment("");
+//	std::string comment("");
 //	ifs_msrs->read(reinterpret_cast<char *>(&msrCount), sizeof(UINT32)); 
 //
 //	for (UINT32 i=0; i<msrCount; i++)
@@ -4836,7 +4790,7 @@ void dna_import::SerialiseDynaMLSepfromMemory(vdnaStnPtr* vStations, vdnaMsrPtr*
 //}
 	
 
-void dna_import::SerialiseBms(const string& bms_filename, vdnaMsrPtr* vMeasurements,
+void dna_import::SerialiseBms(const std::string& bms_filename, vdnaMsrPtr* vMeasurements,
 	vifm_t& vinput_file_meta)
 {
 	// Calculate number of measurement records
@@ -4861,15 +4815,17 @@ void dna_import::SerialiseBms(const string& bms_filename, vdnaMsrPtr* vMeasureme
 		sprintf(bms_meta_.modifiedBy, "%s", __BINARY_NAME__);
 		bms_meta_.binCount = m_binaryRecordCount;
 		bms_meta_.inputFileCount = bms.create_msr_input_file_meta(vinput_file_meta, &(bms_meta_.inputFileMeta));
+		bms_meta_.reftran = false;
+		bms_meta_.geoid = false;
 		bms.write_bms_file(bms_filename, vMeasurements, bms_meta_);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		SignalExceptionInterop(e.what(), 0, NULL);
 	}
 }
 	
 
-void dna_import::SerialiseBst(const string& bst_filename, vdnaStnPtr* vStations, 
+void dna_import::SerialiseBst(const std::string& bst_filename, vdnaStnPtr* vStations, 
 	pvstring vUnusedStns, vifm_t& vinput_file_meta,
 	bool flagUnused)
 {	
@@ -4880,9 +4836,11 @@ void dna_import::SerialiseBst(const string& bst_filename, vdnaStnPtr* vStations,
 		bst_meta_.binCount = static_cast<UINT32>(vStations->size());
 		bst_meta_.inputFileCount = bst.create_stn_input_file_meta(vinput_file_meta, &(bst_meta_.inputFileMeta));
 		bst_meta_.reduced = true;
+		bst_meta_.reftran = false;
+		bst_meta_.geoid = false;
 		bst.write_bst_file(bst_filename, vStations, vUnusedStns, bst_meta_, flagUnused);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		SignalExceptionInterop(e.what(), 0, NULL);
 	}
 }
@@ -4890,15 +4848,15 @@ void dna_import::SerialiseBst(const string& bst_filename, vdnaStnPtr* vStations,
 
 // First item in the file is a UINT32 value - the number of records in the file
 // All records are of type UINT32
-void dna_import::SerialiseDatabaseId(const string& dbid_filename, pvdnaMsrPtr vMeasurements)
+void dna_import::SerialiseDatabaseId(const std::string& dbid_filename, pvdnaMsrPtr vMeasurements)
 {
 	std::ofstream dbid_file;
 	try {
 		// Create geoid file.  Throws runtime_error on failure.
 		file_opener(dbid_file, dbid_filename,
-			ios::out | ios::binary, binary);
+			std::ios::out | std::ios::binary, binary);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		SignalExceptionInterop(e.what(), 0, NULL);
 	}
 	
@@ -4915,16 +4873,16 @@ void dna_import::SerialiseDatabaseId(const string& dbid_filename, pvdnaMsrPtr vM
 		dbid_file.close();
 	}
 	catch (const std::ifstream::failure& f) {
-		SignalExceptionInterop(static_cast<string>(f.what()), 0, NULL);
+		SignalExceptionInterop(static_cast<std::string>(f.what()), 0, NULL);
 	}
 	catch (const XMLInteropException& e)  {
-		SignalExceptionInterop(static_cast<string>(e.what()), 0, NULL);
+		SignalExceptionInterop(static_cast<std::string>(e.what()), 0, NULL);
 	}
 }
 	
 
-void dna_import::PrintMeasurementsToStations(string& m2s_file, MsrTally* parsemsrTally,
-	string& bst_file, string& bms_file, string& aml_file, pvASLPtr vAssocStnList)
+void dna_import::PrintMeasurementsToStations(std::string& m2s_file, MsrTally* parsemsrTally,
+	std::string& bst_file, std::string& bms_file, std::string& aml_file, pvASLPtr vAssocStnList)
 {
 	dna_io_aml aml;
 	vmsrtally v_stnmsrTally;
@@ -4945,7 +4903,7 @@ void dna_import::PrintMeasurementsToStations(string& m2s_file, MsrTally* parsems
 		// Load aml file.  Throws runtime_error on failure.
 		aml.load_aml_file(aml_file, &vAssocMsrList, &bmsBinaryRecords);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		SignalExceptionInterop(e.what(), 0, NULL);
 	}
 
@@ -4963,7 +4921,7 @@ void dna_import::PrintMeasurementsToStations(string& m2s_file, MsrTally* parsems
 	{
 		// sort summary according to measurement to station count
 		CompareMeasCount2<ASLPtr, UINT32> msrcountCompareFunc(vAssocStnList);
-		sort(vStationList.begin(), vStationList.end(), msrcountCompareFunc);
+		std::sort(vStationList.begin(), vStationList.end(), msrcountCompareFunc);
 	}
 	break;
 	case orig_stn_sort_ui:
@@ -4971,7 +4929,7 @@ void dna_import::PrintMeasurementsToStations(string& m2s_file, MsrTally* parsems
 	{
 		// sort summary according to original station file order
 		CompareStnFileOrder<station_t, UINT32> stnorderCompareFunc(&bstBinaryRecords);
-		sort(vStationList.begin(), vStationList.end(), stnorderCompareFunc);
+		std::sort(vStationList.begin(), vStationList.end(), stnorderCompareFunc);
 	}
 	break;
 	}
@@ -4985,23 +4943,23 @@ void dna_import::PrintMeasurementsToStations(string& m2s_file, MsrTally* parsems
 		// Print formatted header
 		print_file_header(m2s_stream, "DYNADJUST MEASUREMENT TO STATION OUTPUT FILE");
 
-		m2s_stream << setw(PRINT_VAR_PAD) << left << "File name:" << system_complete(m2s_file).string() << endl << endl;
+		m2s_stream << std::setw(PRINT_VAR_PAD) << std::left << "File name:" << boost::filesystem::system_complete(m2s_file).string() << std::endl << std::endl;
 
-		m2s_stream << setw(PRINT_VAR_PAD) << left << "Associated measurement file: " << system_complete(aml_file).string() << endl;
-		m2s_stream << setw(PRINT_VAR_PAD) << left << "Stations file:" << system_complete(bst_file).string() << endl;
-		m2s_stream << setw(PRINT_VAR_PAD) << left << "Measurements file:" << system_complete(bms_file).string() << endl;
+		m2s_stream << std::setw(PRINT_VAR_PAD) << std::left << "Associated measurement file: " << boost::filesystem::system_complete(aml_file).string() << std::endl;
+		m2s_stream << std::setw(PRINT_VAR_PAD) << std::left << "Stations file:" << boost::filesystem::system_complete(bst_file).string() << std::endl;
+		m2s_stream << std::setw(PRINT_VAR_PAD) << std::left << "Measurements file:" << boost::filesystem::system_complete(bms_file).string() << std::endl;
 
 		// Print station count
-		m2s_stream << endl;
-		m2s_stream << setw(PRINT_VAR_PAD) << left << "No. stations:" << vStationList.size() << endl;
+		m2s_stream << std::endl;
+		m2s_stream << std::setw(PRINT_VAR_PAD) << std::left << "No. stations:" << vStationList.size() << std::endl;
 
-		m2s_stream << OUTPUTLINE << endl << endl;
+		m2s_stream << OUTPUTLINE << std::endl << std::endl;
 
 		aml.write_msr_to_stn(m2s_stream, &bstBinaryRecords, &vStationList, v_stnmsrTally, parsemsrTally);
 
 		m2s_stream.close();
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		SignalExceptionInterop(e.what(), 0, NULL);
 	}
 }
@@ -5009,27 +4967,27 @@ void dna_import::PrintMeasurementsToStations(string& m2s_file, MsrTally* parsems
 
 // First item in the file is a UINT32 value - the number of records in the file
 // All records are of type UINT32
-void dna_import::SerialiseAml(const string& aml_filename, pvUINT32 vAML)
+void dna_import::SerialiseAml(const std::string& aml_filename, pvUINT32 vAML)
 {
 	try {
 		// write the aml file.
 		dna_io_aml aml;
 		aml.write_aml_file(aml_filename, vAML);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		SignalExceptionInterop(e.what(), 0, NULL);
 	}
 }
 	
 
-void dna_import::SerialiseAmlTextFile(const string& bms_filename, const string& aml_filename, pvUINT32 vAML, pvASLPtr vAssocStnList, vdnaStnPtr* vStations)
+void dna_import::SerialiseAmlTextFile(const std::string& bms_filename, const std::string& aml_filename, pvUINT32 vAML, pvASLPtr vAssocStnList, vdnaStnPtr* vStations)
 {
 	try {
 		// write the aml file as raw text.
 		dna_io_aml aml;
 		aml.write_aml_file_txt(bms_filename, aml_filename + ".txt", vAML, vAssocStnList, vStations);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		SignalExceptionInterop(e.what(), 0, NULL);
 	}
 }
@@ -5037,14 +4995,14 @@ void dna_import::SerialiseAmlTextFile(const string& bms_filename, const string& 
 
 // First item in the file is a UINT32 value - the number of records in the file
 // All records are of type ASLPtr
-void dna_import::SerialiseAsl(const string& filename, pvASLPtr vAssocStnList)
+void dna_import::SerialiseAsl(const std::string& filename, pvASLPtr vAssocStnList)
 {
 	try {
 		// write the asl file.
 		dna_io_asl asl;
 		asl.write_asl_file(filename, vAssocStnList);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		SignalExceptionInterop(e.what(), 0, NULL);
 	}
 }
@@ -5052,14 +5010,14 @@ void dna_import::SerialiseAsl(const string& filename, pvASLPtr vAssocStnList)
 
 // First item in the file is a UINT32 value - the number of records in the file
 // All records are of type ASLPtr
-void dna_import::SerialiseAslTextFile(const string& filename, pvASLPtr vAssocStnList, vdnaStnPtr* vStations)
+void dna_import::SerialiseAslTextFile(const std::string& filename, pvASLPtr vAssocStnList, vdnaStnPtr* vStations)
 {
 	try {
 		// write the ASCII version of the asl file.
 		dna_io_asl asl;
 		asl.write_asl_file_txt(filename + ".txt", vAssocStnList, vStations);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		SignalExceptionInterop(e.what(), 0, NULL);
 	}
 }
@@ -5075,10 +5033,10 @@ UINT32 dna_import::RemoveDuplicateStations(vdnaStnPtr* vStations,
 	_it_vdnastnptr _it_stn_newend;
 
 	// sort vStations on name and if equal, sort on file order
-	sort(vStations->begin(), vStations->end(), CompareStationName<dnaStnPtr>());
+	std::sort(vStations->begin(), vStations->end(), CompareStationName<dnaStnPtr>());
 	
 	vduplicateStations->clear();
-	EqualStationNameSaveDuplicates<dnaStnPtr, string> duplicateStnCompareFunc(vduplicateStations);
+	EqualStationNameSaveDuplicates<dnaStnPtr, std::string> duplicateStnCompareFunc(vduplicateStations);
 
 	_it_stn_newend = unique(vStations->begin(), vStations->end(), duplicateStnCompareFunc);
 	if (_it_stn_newend != vStations->end())
@@ -5090,7 +5048,7 @@ UINT32 dna_import::RemoveDuplicateStations(vdnaStnPtr* vStations,
 	// search nearby stations using a radial search	
 	//
 	// begin by sorting on latitude
-	sort(vStations->begin(), vStations->end(), CompareLatitude<dnaStnPtr>());
+	std::sort(vStations->begin(), vStations->end(), CompareLatitude<dnaStnPtr>());
 
 	vnearbyStations->clear();
 	NearbyStation_LowAcc<dnaStnPtr, stringstring_doubledouble_pair, double> 
@@ -5106,10 +5064,10 @@ UINT32 dna_import::RemoveDuplicateStations(vdnaStnPtr* vStations,
 		copy_if_all_occurrences(vStations->begin(), vStations->end(), nearbyStnHCompareFunc);
 	
 	// sort station pairs by name
-	sort(vnearbyStations->begin(), vnearbyStations->end(), CompareStationPairs<stringstring_doubledouble_pair>());
+	std::sort(vnearbyStations->begin(), vnearbyStations->end(), CompareStationPairs<stringstring_doubledouble_pair>());
 	
 	// sort by station name
-	sort(vStations->begin(), vStations->end());
+	std::sort(vStations->begin(), vStations->end());
 
 	return static_cast<UINT32>(vnearbyStations->size());
 }
@@ -5118,7 +5076,7 @@ UINT32 dna_import::RemoveDuplicateStations(vdnaStnPtr* vStations,
 UINT32 dna_import::FindSimilarMeasurements(vdnaMsrPtr* vMeasurements, vdnaMsrPtr* vSimilarMeasurements)
 {
 	// sort measurements list by Type then by First station
-	sort(vMeasurements->begin(), vMeasurements->end(), CompareMsr<CDnaMeasurement>());
+	std::sort(vMeasurements->begin(), vMeasurements->end(), CompareMsr<CDnaMeasurement>());
 
 	//bool similar;
 	int similar_msrs_found(0);
@@ -5212,7 +5170,7 @@ UINT32 dna_import::FindSimilarMeasurements(vdnaMsrPtr* vMeasurements, vdnaMsrPtr
 				continue;
 			break;
 				
-		case 'V':	// Zenith angle
+		case 'V':	// Zenith distance
 		case 'Z':	// Vertical angle
 			if (*(static_cast<const CDnaDirection*>(&(*_it_msr->get()))) ==
 				*(static_cast<const CDnaDirection*>(&(*_it_msrprev->get()))))
@@ -5260,8 +5218,8 @@ UINT32 dna_import::FindSimilarMeasurements(vdnaMsrPtr* vMeasurements, vdnaMsrPtr
 				continue;
 			break;
 		default:
-			stringstream ss;
-			ss << "FindSimilarMeasurements(): Unknown measurement type:  " << _it_msr->get()->GetTypeC() << endl;
+			std::stringstream ss;
+			ss << "FindSimilarMeasurements(): Unknown measurement type:  " << _it_msr->get()->GetTypeC() << std::endl;
 			throw XMLInteropException(ss.str(), 0); 
 		}
 		
@@ -5280,7 +5238,7 @@ UINT32 dna_import::FindSimilarGXMeasurements(vdnaMsrPtr* vMeasurements, vdnaMsrP
 	vdnaMsrPtr vMeasurementsG(*vMeasurements);
 
 	// Strip non-GX measurements
-	string msrTypes("GX");
+	std::string msrTypes("GX");
 	CompareNonMeasType<CDnaMeasurement> meastypeCompareFuncGX(msrTypes);
 	erase_if(vMeasurementsG, meastypeCompareFuncGX);
 
@@ -5305,10 +5263,10 @@ UINT32 dna_import::FindSimilarGXMeasurements(vdnaMsrPtr* vMeasurements, vdnaMsrP
 
 	_it_vdnamsrptr _it_msrG(vMeasurementsG.begin());
 	vstring stationsX;
-	vector<CDnaGpsBaseline> *vgpsBslsX, *vgpsBslsG;
-	string epochX, epochG;
-	date dateObsX, dateObsG;
-	stringstream strdiffDays;
+	std::vector<CDnaGpsBaseline> *vgpsBslsX, *vgpsBslsG;
+	std::string epochX, epochG;
+	boost::gregorian::date dateObsX, dateObsG;
+	std::stringstream strdiffDays;
 	size_t diffDays;
 	vUINT32 cluster_ids;
 
@@ -5316,9 +5274,9 @@ UINT32 dna_import::FindSimilarGXMeasurements(vdnaMsrPtr* vMeasurements, vdnaMsrP
 	for (_it_vdnamsrptr _it_msrX(vMeasurementsX.begin()); _it_msrX!=vMeasurementsX.end(); ++_it_msrX)
 	{
 		vgpsBslsX = _it_msrX->get()->GetBaselines_ptr();
-		GetGXMsrStations<string>(vgpsBslsX, stationsX);
+		GetGXMsrStations<std::string>(vgpsBslsX, stationsX);
 
-		sort(stationsX.begin(), stationsX.end());
+		std::sort(stationsX.begin(), stationsX.end());
 
 		similarG = false;
 
@@ -5345,10 +5303,10 @@ UINT32 dna_import::FindSimilarGXMeasurements(vdnaMsrPtr* vMeasurements, vdnaMsrP
 			epochX = _it_msrX->get()->GetEpoch();
 			epochG = _it_msrG->get()->GetEpoch();
 
-			dateObsX = dateFromString<date>(epochX);
-			dateObsG = dateFromString<date>(epochG);
+			dateObsX = dateFromString<boost::gregorian::date>(epochX);
+			dateObsG = dateFromString<boost::gregorian::date>(epochG);
 
-			days dateDifference = dateObsX - dateObsG;
+			boost::gregorian::days dateDifference = dateObsX - dateObsG;
 			
 			diffDays = abs(dateDifference.days());
 			//strdiffDays << "Elapsed days: " << dateDifference;
@@ -5373,7 +5331,7 @@ UINT32 dna_import::FindSimilarGXMeasurements(vdnaMsrPtr* vMeasurements, vdnaMsrP
 	// If required, ignore the measurements
 	if (projectSettings_.i.ignore_similar_msr)
 	{
-		sort(cluster_ids.begin(), cluster_ids.end());
+		std::sort(cluster_ids.begin(), cluster_ids.end());
 		for (_it_msrG=vMeasurements->begin(); _it_msrG != vMeasurements->end(); _it_msrG++)
 			IgnoreGXMeasurements(_it_msrG->get(), cluster_ids.begin(), cluster_ids.end());
 	}
@@ -5391,7 +5349,7 @@ void dna_import::SortandMapStations(vdnaStnPtr* vStations)
 
 	// sort on station name (by string, not int!!!)
 	// Note that the sort order after this will be the final order
-	sort(vStations->begin(), vStations->end());
+	std::sort(vStations->begin(), vStations->end());
 
 	// Create the Station-Name / ID map
 	string_uint32_pair stnID;
@@ -5404,7 +5362,7 @@ void dna_import::SortandMapStations(vdnaStnPtr* vStations)
 	}
 
 	// sort on station name (i.e. first of the pair)
-	sort(vStnsMap_sortName_.begin(), vStnsMap_sortName_.end(), StationNameIDCompareName());
+	std::sort(vStnsMap_sortName_.begin(), vStnsMap_sortName_.end(), StationNameIDCompareName());
 
 	if (vStnsMap_sortName_.size() < stnCount)
 		throw XMLInteropException("SortandMapStations(): Could not allocate sufficient memory for the Station map.", 0);
@@ -5421,7 +5379,7 @@ void dna_import::FullSortandMapStations(vdnaStnPtr* vStations, pv_string_uint32_
 void dna_import::SortStationsForExport(vdnaStnPtr* vStations)
 {
 	// Sort on original file order
-	sort(vStations->begin(), vStations->end(), CompareStnFileOrder_CDnaStn<CDnaStation>());
+	std::sort(vStations->begin(), vStations->end(), CompareStnFileOrder_CDnaStn<CDnaStation>());
 }
 		
 
@@ -5443,9 +5401,9 @@ void dna_import::ReduceStations(vdnaStnPtr* vStations, const CDnaProjection& pro
 
 void dna_import::RenameStations(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, project_settings* p)
 {
-	if (!exists(p->i.stn_renamingfile))
+	if (!boost::filesystem::exists(p->i.stn_renamingfile))
 	{
-		string s("The station renaming file cannot be found:\n");
+		std::string s("The station renaming file cannot be found:\n");
 		s.append("    ").append(p->i.stn_renamingfile);
 		throw XMLInteropException(s, 0);
 	}
@@ -5461,7 +5419,7 @@ void dna_import::RenameStations(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements
 	v_string_vstring_pair stationNames;
 	dna_io_dna dna;
 	dna.read_ren_file(p->i.stn_renamingfile, &stationNames);
-	sort(stationNames.begin(), stationNames.end());
+	std::sort(stationNames.begin(), stationNames.end());
 
 	// rename stations in stations vector
 	for_each(vStations->begin(), vStations->end(), 
@@ -5482,9 +5440,9 @@ void dna_import::RenameStations(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements
 	});
 
 	_it_vdnamsrptr _it_msr(vMeasurements->begin());
-	vector<CDnaDirection>* vdirns;
-	vector<CDnaGpsBaseline>* vgpsBsls;
-	vector<CDnaGpsPoint>* vgpsPnts;
+	std::vector<CDnaDirection>* vdirns;
+	std::vector<CDnaGpsBaseline>* vgpsBsls;
+	std::vector<CDnaGpsPoint>* vgpsPnts;
 
 	// rename stations in each measurement
 	for (_it_msr=vMeasurements->begin(); _it_msr != vMeasurements->end(); _it_msr++)
@@ -5516,7 +5474,7 @@ void dna_import::RenameStations(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements
 	
 }	
 
-void dna_import::RenameStationsBsl(vector<CDnaGpsBaseline>* vGpsBaselines, 
+void dna_import::RenameStationsBsl(std::vector<CDnaGpsBaseline>* vGpsBaselines, 
 	v_string_vstring_pair& stnRenaming)
 {
 	for_each(vGpsBaselines->begin(), vGpsBaselines->end(),
@@ -5526,7 +5484,7 @@ void dna_import::RenameStationsBsl(vector<CDnaGpsBaseline>* vGpsBaselines,
 }
 	
 
-void dna_import::RenameStationsPnt(vector<CDnaGpsPoint>* vGpsPoints, 
+void dna_import::RenameStationsPnt(std::vector<CDnaGpsPoint>* vGpsPoints, 
 	v_string_vstring_pair& stnRenaming)
 {
 	for_each(vGpsPoints->begin(), vGpsPoints->end(),
@@ -5536,7 +5494,7 @@ void dna_import::RenameStationsPnt(vector<CDnaGpsPoint>* vGpsPoints,
 }
 	
 
-void dna_import::RenameStationsDir(vector<CDnaDirection>* vDirections, 
+void dna_import::RenameStationsDir(std::vector<CDnaDirection>* vDirections, 
 	v_string_vstring_pair& stnRenaming)
 {
 	for_each(vDirections->begin(), vDirections->end(),
@@ -5545,10 +5503,10 @@ void dna_import::RenameStationsDir(vector<CDnaDirection>* vDirections,
 	});
 }
 
-void dna_import::ApplyGNSSMsrScalar(vector<CDnaGpsBaseline>::iterator& _it_bsl, vscl_t& bslScalars)
+void dna_import::ApplyGNSSMsrScalar(std::vector<CDnaGpsBaseline>::iterator& _it_bsl, vscl_t& bslScalars)
 {
 	vscl_t::iterator _it_scalar;
-	CompareScalarStations< scalar_t, string> scalarComparisonFunc(_it_bsl->GetFirst(), _it_bsl->GetTarget());
+	CompareScalarStations< scalar_t, std::string> scalarComparisonFunc(_it_bsl->GetFirst(), _it_bsl->GetTarget());
 
 	if ((_it_scalar = find_if(bslScalars.begin(), bslScalars.end(), scalarComparisonFunc)) != bslScalars.end())
 	{		
@@ -5577,9 +5535,9 @@ void dna_import::EditGNSSMsrScalars(vdnaMsrPtr* vMeasurements, project_settings*
 
 	if (!p->i.scalar_file.empty())
 	{
-		if (!exists(p->i.scalar_file))
+		if (!boost::filesystem::exists(p->i.scalar_file))
 		{
-			string s("The GNSS scalar file cannot be found:\n");
+			std::string s("The GNSS scalar file cannot be found:\n");
 			s.append("    ").append(p->i.scalar_file);
 			throw XMLInteropException(s, 0);
 		}
@@ -5590,12 +5548,12 @@ void dna_import::EditGNSSMsrScalars(vdnaMsrPtr* vMeasurements, project_settings*
 		scalar.load_scalar_file(p->i.scalar_file, &bslScalars);
 	}
 
-	sort(bslScalars.begin(), bslScalars.end(), CompareScalars<scalar_t>());
+	std::sort(bslScalars.begin(), bslScalars.end(), CompareScalars<scalar_t>());
 
-	vector<CDnaGpsBaseline>* vgpsBsls;
-	vector<CDnaGpsBaseline>::iterator _it_bsl;
-	vector<CDnaGpsPoint>* vgpsPnts;
-	vector<CDnaGpsPoint>::iterator _it_pnt;
+	std::vector<CDnaGpsBaseline>* vgpsBsls;
+	std::vector<CDnaGpsBaseline>::iterator _it_bsl;
+	std::vector<CDnaGpsPoint>* vgpsPnts;
+	std::vector<CDnaGpsPoint>::iterator _it_pnt;
 
 	// set scalars first
 	for (_it_msr=vMeasurements->begin(); _it_msr != vMeasurements->end(); _it_msr++)
@@ -5679,71 +5637,71 @@ void dna_import::EditGNSSMsrScalars(vdnaMsrPtr* vMeasurements, project_settings*
 }
 	
 
-void dna_import::SerialiseMap(const string& stnmap_file)
+void dna_import::SerialiseMap(const std::string& stnmap_file)
 {
 	try {
 		// write the aml file.
 		dna_io_map map;
 		map.write_map_file(stnmap_file, &vStnsMap_sortName_);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		SignalExceptionInterop(e.what(), 0, NULL);
 	}
 }
 	
 
-void dna_import::SerialiseMapTextFile(const string& stnmap_file)
+void dna_import::SerialiseMapTextFile(const std::string& stnmap_file)
 {
 	try {
 		// write the aml file as raw text.
 		dna_io_map map;
 		map.write_map_file_txt(stnmap_file + ".txt", &vStnsMap_sortName_);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		SignalExceptionInterop(e.what(), 0, NULL);
 	}
 }
 
 
-void dna_import::SerialiseDiscontTextFile(const string& discont_file)
+void dna_import::SerialiseDiscontTextFile(const std::string& discont_file)
 {
 	std::ofstream discont_outfile;
 	
 	try {
-		path discontFile(discont_file);
-		string outfileName = discontFile.filename().string();
+		boost::filesystem::path discontFile(discont_file);
+		std::string outfileName = discontFile.filename().string();
 		outfileName.append(".discont");
 		// Open discontinuity output file.  Throws runtime_error on failure.
 		file_opener(discont_outfile, outfileName,
-			ios::out, ascii);
+			std::ios::out, ascii);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		SignalExceptionInterop(e.what(), 0, NULL);
 	}
 
 	try {
 		discont_outfile <<
-			setw(14) << left << "file_index" <<
-			setw(14) << left << "solution_id" <<
-			setw(STATION) << left << "site_name" <<
-			setw(14) << "date_start" <<
-			setw(14) << "date_end" <<
-			setw(24) << "discontinuity_exists" << endl;
+			std::setw(14) << std::left << "file_index" <<
+			std::setw(14) << std::left << "solution_id" <<
+			std::setw(STATION) << std::left << "site_name" <<
+			std::setw(14) << "date_start" <<
+			std::setw(14) << "date_end" <<
+			std::setw(24) << "discontinuity_exists" << std::endl;
 
 		// Print discontinuity file.  Throws runtime_error on failure.
 		for_each(stn_discontinuities_.begin(), stn_discontinuities_.end(),
 			[this, &discont_outfile](discontinuity_tuple& discont) {			// use lambda expression
 			discont_outfile <<
-				setw(14) << left << discont.file_index <<
-				setw(14) << left << discont.solution_id <<
-				setw(STATION) << left << discont.site_name <<
-				setw(14) << stringFromDate(discont.date_start) <<
-				setw(14) << stringFromDate(discont.date_end) <<
-				setw(24) << discont.discontinuity_exists << endl;
+				std::setw(14) << std::left << discont.file_index <<
+				std::setw(14) << std::left << discont.solution_id <<
+				std::setw(STATION) << std::left << discont.site_name <<
+				std::setw(14) << stringFromDate(discont.date_start) <<
+				std::setw(14) << stringFromDate(discont.date_end) <<
+				std::setw(24) << discont.discontinuity_exists << std::endl;
 		}
 		);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		SignalExceptionParse(e.what(), 0);
 	}
 
@@ -5752,7 +5710,7 @@ void dna_import::SerialiseDiscontTextFile(const string& discont_file)
 	
 
 void dna_import::SimulateMSR(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, 
-	const string& msrfilename, 
+	const std::string& msrfilename, 
 	const project_settings& p)
 {
 	CDnaProjection projection(UTM);
@@ -5765,7 +5723,7 @@ void dna_import::SimulateMSR(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements,
 		});
 	}
 	catch (...) {
-		stringstream ss;
+		std::stringstream ss;
 		ss << "SimulateMSR(): An unexpected error occurred when reducing station coordinates.";
 		SignalExceptionInterop(ss.str(), 0, NULL);
 	}
@@ -5780,7 +5738,7 @@ void dna_import::SimulateMSR(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements,
 		});
 	}
 	catch (...) {
-		stringstream ss;
+		std::stringstream ss;
 		ss << "SimulateMSR(): An unexpected error occurred when simulating measurements.";
 		SignalExceptionInterop(ss.str(), 0, NULL);
 	}
@@ -5794,7 +5752,7 @@ void dna_import::SimulateMSR(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements,
 		});
 	}
 	catch (...) {
-		stringstream ss;
+		std::stringstream ss;
 		ss << "SimulateMSR(): An unexpected error occurred when reducing station coordinates.";
 		SignalExceptionInterop(ss.str(), 0, NULL);
 	}
@@ -5807,7 +5765,7 @@ void dna_import::SimulateMSR(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements,
 		// Create DynAdjust MSR file. 
 		file_opener(dna_msr_file, msrfilename);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		SignalExceptionInterop(e.what(), 0, NULL);
 	}
 
@@ -5828,10 +5786,10 @@ void dna_import::SimulateMSR(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements,
 
 	}
 	catch (const std::ifstream::failure& f) {
-		SignalExceptionInterop(static_cast<string>(f.what()), 0, "o", &dna_msr_file);
+		SignalExceptionInterop(static_cast<std::string>(f.what()), 0, "o", &dna_msr_file);
 	}
 	catch (const XMLInteropException& e)  {
-		SignalExceptionInterop(static_cast<string>(e.what()), 0, "o", &dna_msr_file);
+		SignalExceptionInterop(static_cast<std::string>(e.what()), 0, "o", &dna_msr_file);
 	}
 }
 	
@@ -5858,7 +5816,7 @@ void dna_import::IgnoreInsufficientMeasurements(vdnaStnPtr* vStations, vdnaMsrPt
 	bool foundInsufficientMeasurement;
 
 	vdnaMsrPtr vignMsr, vignMsrTotal;
-	vector<CDnaDirection>* vdirns;
+	std::vector<CDnaDirection>* vdirns;
 
 	vignMsrTotal.clear();
 
@@ -5896,11 +5854,11 @@ void dna_import::IgnoreInsufficientMeasurements(vdnaStnPtr* vStations, vdnaMsrPt
 					continue;
 				case 'H':	// Orthometric height
 				case 'R':	// Ellipsoidal height
-				case 'V':	// Zenith angle
+				case 'V':	// Zenith distance
 				case 'Z':	// Vertical angle
 				case 'L':	// Level difference
 					// Continue if:
-					// - an ellipsoid/orthometric height or vertical/zenith angle is found, and either
+					// - an ellipsoid/orthometric height or vertical angle/zenith distance is found, and either
 					// - the station is constrained in 3D, or
 					// - the station is constrained in 2D
 					switch (vStations->at(stnIndex)->GetConstraintType())
@@ -5921,7 +5879,7 @@ void dna_import::IgnoreInsufficientMeasurements(vdnaStnPtr* vStations, vdnaMsrPt
 				default:	
 					// All other 2D measurement types, which, alone, do not 
 					// sufficiently constrain coordinates in 2D.  So, continue if:
-					// - a latitude or longitude or ellipsoid/orthometric height or vertical/zenith angle is found, and
+					// - a latitude or longitude or ellipsoid/orthometric height or vertical angle/zenith distance is found, and
 					// - the station is held constrained in two dimensions
 					switch (vStations->at(stnIndex)->GetConstraintType())
 					{
@@ -5950,7 +5908,7 @@ void dna_import::IgnoreInsufficientMeasurements(vdnaStnPtr* vStations, vdnaMsrPt
 			break;
 
 		if (!projectSettings_.g.quiet)
-			cout << ".";
+			std::cout << ".";
 
 		// add the newly found insufficient measurements
 		vPoorlyConstrainedStns->insert(vPoorlyConstrainedStns->end(),
@@ -5959,7 +5917,7 @@ void dna_import::IgnoreInsufficientMeasurements(vdnaStnPtr* vStations, vdnaMsrPt
 		vignMsr.clear();
 
 		// find measurements connected to these stations and ignore them
-		sort(vInsufficientMsrStns.begin(), vInsufficientMsrStns.end());
+		std::sort(vInsufficientMsrStns.begin(), vInsufficientMsrStns.end());
 		for_each(vMeasurements->begin(), vMeasurements->end(),
 			[&vInsufficientMsrStns, &vMeasurements, 
 			&vdirns, &vignMsr](dnaMsrPtr msr) {
@@ -5990,7 +5948,7 @@ void dna_import::IgnoreInsufficientMeasurements(vdnaStnPtr* vStations, vdnaMsrPt
 				case 'L':	// Level difference
 				case 'M':	// MSL arc
 				case 'S':	// Slope distance
-				case 'V':	// Zenith angle
+				case 'V':	// Zenith distance
 				case 'Z':	// Vertical angle
 
 					if (binary_search(vInsufficientMsrStns.begin(),
@@ -6044,7 +6002,7 @@ void dna_import::IgnoreInsufficientMeasurements(vdnaStnPtr* vStations, vdnaMsrPt
 					}
 
 					vdirns = msr.get()->GetDirections_ptr();
-					vector< CDnaDirection >::iterator _it_dir;
+					std::vector< CDnaDirection >::iterator _it_dir;
 					for (_it_dir = vdirns->begin(); _it_dir != vdirns->end(); ++_it_dir)
 					{
 						// test the individual directions, which if found, remove the direction from the vector
@@ -6088,7 +6046,7 @@ void dna_import::IgnoreInsufficientMeasurements(vdnaStnPtr* vStations, vdnaMsrPt
 
 	
 	if (vPoorlyConstrainedStns->size() > 0)
-		sort(vPoorlyConstrainedStns->begin(), vPoorlyConstrainedStns->end());
+		std::sort(vPoorlyConstrainedStns->begin(), vPoorlyConstrainedStns->end());
 
 	// add the insufficient measurements back to the final vector.
 	// Note, these were ignored as part of the process above
@@ -6107,14 +6065,14 @@ void dna_import::MapMeasurementStations(vdnaMsrPtr* vMeasurements, pvASLPtr vAss
 	
 	g_map_tally.initialise();
 
-	ostringstream ss;
+	std::ostringstream ss;
 
-	vector<CDnaDirection>* vdirns;
-	vector<CDnaGpsBaseline>* vgpsBsls;
-	vector<CDnaGpsPoint>* vgpsPnts;
+	std::vector<CDnaDirection>* vdirns;
+	std::vector<CDnaGpsBaseline>* vgpsBsls;
+	std::vector<CDnaGpsPoint>* vgpsPnts;
 
 	// Association list initialisation and variables
-	string at_station_name, to_station_name, to2_station_name;
+	std::string at_station_name, to_station_name, to2_station_name;
 	UINT32 at_station_index, to_station_index, to2_station_index;
 	vAssocStnList->clear();
 	vAssocStnList->resize(vStnsMap_sortName_.size());
@@ -6187,12 +6145,12 @@ void dna_import::MapMeasurementStations(vdnaMsrPtr* vMeasurements, pvASLPtr vAss
 			case 'L':	// Level difference
 			case 'M':	// MSL arc
 			case 'S':	// Slope distance
-			case 'V':	// Zenith angle
+			case 'V':	// Zenith distance
 			case 'Z':	// Vertical angle
 				ss << " to " << _it_msr->get()->GetTarget();
 			}
 
-			ss << " was not found in the list of network stations." << endl <<
+			ss << " was not found in the list of network stations." << std::endl <<
 				"  Please ensure that " << at_station_name << 
 				" is included in the input station file.";
 			throw XMLInteropException(ss.str(), 0);
@@ -6299,7 +6257,7 @@ void dna_import::MapMeasurementStations(vdnaMsrPtr* vMeasurements, pvASLPtr vAss
 			g_map_tally.L ++;
 			(*lMapCount)++;
 			continue;
-		case 'V':	// Zenith angle
+		case 'V':	// Zenith distance
 			g_map_tally.V ++;
 			(*lMapCount)++;
 			continue;
@@ -6424,7 +6382,7 @@ UINT32 dna_import::ComputeMeasurementCount(vdnaMsrPtr* vMeasurements, const vUIN
 		case 'S': // Slope distance
 			msr_tally.S++;
 			break;
-		case 'V': // Zenith angle
+		case 'V': // Zenith distance
 			msr_tally.V++;
 			break;
 		case 'Y': // GPS point cluster
@@ -6434,8 +6392,8 @@ UINT32 dna_import::ComputeMeasurementCount(vdnaMsrPtr* vMeasurements, const vUIN
 			msr_tally.Z++;
 			break;
 		default:
-			stringstream ss;
-			ss << "ComputeMeasurementCount(): Unknown measurement type:  " << _it_msr->get()->GetTypeC() << endl;
+			std::stringstream ss;
+			ss << "ComputeMeasurementCount(): Unknown measurement type:  " << _it_msr->get()->GetTypeC() << std::endl;
 			throw XMLInteropException(ss.str(), m_lineNo); 
 		}
 	}
@@ -6443,17 +6401,17 @@ UINT32 dna_import::ComputeMeasurementCount(vdnaMsrPtr* vMeasurements, const vUIN
 	return msr_tally.TotalCount();
 }
 
-void dna_import::MapMeasurementStationsBsl(vector<CDnaGpsBaseline>* vGpsBaselines, pvASLPtr vAssocStnList, PUINT32 lMapCount)
+void dna_import::MapMeasurementStationsBsl(std::vector<CDnaGpsBaseline>* vGpsBaselines, pvASLPtr vAssocStnList, PUINT32 lMapCount)
 {
 	const size_t mapsize = vStnsMap_sortName_.size();
 	if (mapsize < 1)
 		throw XMLInteropException("A station map has not been created. Run \"SortStations\" to create a station map.", 0);
 
-	ostringstream ss;
+	std::ostringstream ss;
 	//_it_string_uint32_pair _it_stnmap(vStnsMap_sortName_.end());
-	vector< CDnaGpsBaseline >::iterator _it_msr(vGpsBaselines->begin());
+	std::vector< CDnaGpsBaseline >::iterator _it_msr(vGpsBaselines->begin());
 	
-	string station_name;
+	std::string station_name;
 	UINT32 station_index; //, msrs_per_cluster_row;
 
 #ifdef _MSDEBUG
@@ -6479,8 +6437,8 @@ void dna_import::MapMeasurementStationsBsl(vector<CDnaGpsBaseline>* vGpsBaseline
 		{
 			ss.str("");
 			ss << station_name << " is referenced in measurement '" << _it_msr->GetType() << "' " <<
-				_it_msr->GetFirst() << " - " << _it_msr->GetTarget() << endl;
-			ss << "  but is not in the stations map.  " << endl;
+				_it_msr->GetFirst() << " - " << _it_msr->GetTarget() << std::endl;
+			ss << "  but is not in the stations map.  " << std::endl;
 			ss << "  Please ensure that " << station_name << " is included in the list of stations.";
 			throw XMLInteropException(ss.str(), 0);
 		}
@@ -6507,8 +6465,8 @@ void dna_import::MapMeasurementStationsBsl(vector<CDnaGpsBaseline>* vGpsBaseline
 		{
 			ss.str("");
 			ss << station_name << " is referenced in measurement '" << _it_msr->GetType() << "' " <<
-				_it_msr->GetFirst() << " - " << _it_msr->GetTarget() << endl;
-			ss << "  but is not in the stations map.  " << endl;
+				_it_msr->GetFirst() << " - " << _it_msr->GetTarget() << std::endl;
+			ss << "  but is not in the stations map.  " << std::endl;
 			ss << "  Please ensure that " << station_name << " is included in the list of stations.";
 			throw XMLInteropException(ss.str(), 0);
 		}
@@ -6549,8 +6507,8 @@ void dna_import::MapMeasurementStationsBsl(vector<CDnaGpsBaseline>* vGpsBaseline
 
 	// set ID for each covariance term.  This is for the convenience of assigning covariance terms
 	// to the right index in dnaAdjust
-	vector< CDnaCovariance >::iterator _it_cov;
-	vector< CDnaGpsBaseline >::iterator _it_msr2(vGpsBaselines->begin());
+	std::vector< CDnaCovariance >::iterator _it_cov;
+	std::vector< CDnaGpsBaseline >::iterator _it_msr2(vGpsBaselines->begin());
 
 	for (_it_msr = vGpsBaselines->begin(); _it_msr != vGpsBaselines->end(); _it_msr++)
 	{
@@ -6563,17 +6521,17 @@ void dna_import::MapMeasurementStationsBsl(vector<CDnaGpsBaseline>* vGpsBaseline
 	}	
 }
 
-void dna_import::MapMeasurementStationsPnt(vector<CDnaGpsPoint>* vGpsPoints, pvASLPtr vAssocStnList, PUINT32 lMapCount)
+void dna_import::MapMeasurementStationsPnt(std::vector<CDnaGpsPoint>* vGpsPoints, pvASLPtr vAssocStnList, PUINT32 lMapCount)
 {
 	const size_t mapsize = vStnsMap_sortName_.size();
 	if (mapsize < 1)
 		throw XMLInteropException("A station map has not been created. Run \"SortStations\" to create a station map.", 0);
 
-	ostringstream ss;
+	std::ostringstream ss;
 	//_it_string_uint32_pair _it_stnmap;
-	vector< CDnaGpsPoint >::iterator _it_msr;
+	std::vector< CDnaGpsPoint >::iterator _it_msr;
 
-	string station_name;
+	std::string station_name;
 	UINT32 station_index; //, msrs_per_cluster_row;
 
 #ifdef _MSDEBUG
@@ -6612,8 +6570,8 @@ void dna_import::MapMeasurementStationsPnt(vector<CDnaGpsPoint>* vGpsPoints, pvA
 
 	// set ID for each covariance term.  This is for the convenience of assigning covariance terms
 	// to the right index in dnaAdjust
-	vector< CDnaCovariance >::iterator _it_cov;
-	vector< CDnaGpsPoint >::iterator _it_msr2(vGpsPoints->begin());
+	std::vector< CDnaCovariance >::iterator _it_cov;
+	std::vector< CDnaGpsPoint >::iterator _it_msr2(vGpsPoints->begin());
 
 	for (_it_msr = vGpsPoints->begin(); _it_msr != vGpsPoints->end(); _it_msr++)
 	{
@@ -6627,17 +6585,17 @@ void dna_import::MapMeasurementStationsPnt(vector<CDnaGpsPoint>* vGpsPoints, pvA
 }
 
 
-void dna_import::MapMeasurementStationsDir(vector<CDnaDirection>* vDirections, pvASLPtr vAssocStnList, PUINT32 lMapCount)
+void dna_import::MapMeasurementStationsDir(std::vector<CDnaDirection>* vDirections, pvASLPtr vAssocStnList, PUINT32 lMapCount)
 {
 	const size_t mapsize = vStnsMap_sortName_.size();
 	if (mapsize < 1)
 		throw XMLInteropException("A station map has not been created. Run \"SortStations\" to create a station map.", 0);
 
-	ostringstream ss;
+	std::ostringstream ss;
 	//_it_string_uint32_pair _it_stnmap;
-	vector< CDnaDirection >::iterator _it_msr(vDirections->begin());
+	std::vector< CDnaDirection >::iterator _it_msr(vDirections->begin());
 
-	string at_station_name, to_station_name;
+	std::string at_station_name, to_station_name;
 	UINT32 at_station_index, to_station_index;
 
 	// Unique list of stations involved in this cluster
@@ -6687,8 +6645,11 @@ void dna_import::MapMeasurementStationsDir(vector<CDnaDirection>* vDirections, p
 		
 		msrStations.push_back(to_station_index);
 		
-		(*lMapCount)++;
-		g_map_tally.D ++;
+		if (_it_msr->NotIgnored())
+		{
+			(*lMapCount)++;
+			g_map_tally.D++;
+		}
 	}
 
 	// Strip duplicates from msrStations, then increment station count for each of the stations tied to this cluster
@@ -6733,9 +6694,9 @@ void dna_import::CompleteAssociationLists(vdnaMsrPtr* vMeasurements, pvASLPtr vA
 	vAssocMsrList->clear();
 	vAssocMsrList->resize(msrstoAllStations);
 
-	vector<CDnaDirection>* vDirns;
-	vector<CDnaGpsBaseline>* vGpsBsls;
-	vector<CDnaGpsPoint>* vGpsPnts;
+	std::vector<CDnaDirection>* vDirns;
+	std::vector<CDnaGpsBaseline>* vGpsBsls;
+	std::vector<CDnaGpsPoint>* vGpsPnts;
 
 	// reset ASL #measurements to zero
 	for (_it_asl=vAssocStnList->begin(); _it_asl!=vAssocStnList->end(); _it_asl++)
@@ -6828,7 +6789,7 @@ void dna_import::CompleteAssociationLists(vdnaMsrPtr* vMeasurements, pvASLPtr vA
 		case 'M':	// MSL arc
 		case 'S':	// Slope distance
 		case 'L':	// Level difference
-		case 'V':	// Zenith angle
+		case 'V':	// Zenith distance
 		case 'Z':	// Vertical angle
 			currentBmsFileIndex ++;
 			continue;
@@ -6870,12 +6831,12 @@ void dna_import::CompleteAssociationLists(vdnaMsrPtr* vMeasurements, pvASLPtr vA
 //
 //	it_vUINT32 it_ignmsr, _it_stn_newend;
 //
-//	vector<CDnaDirection>* vDirns;
-//	vector<CDnaDirection>::iterator it_Dirns;
-//	vector<CDnaGpsBaseline>* vGpsBsls;
-//	vector<CDnaGpsBaseline>::iterator it_GpsBsls;
-//	vector<CDnaGpsPoint>* vGpsPnts;
-//	vector<CDnaGpsPoint>::iterator it_GpsPnts;
+//	std::vector<CDnaDirection>* vDirns;
+//	std::vector<CDnaDirection>::iterator it_Dirns;
+//	std::vector<CDnaGpsBaseline>* vGpsBsls;
+//	std::vector<CDnaGpsBaseline>::iterator it_GpsBsls;
+//	std::vector<CDnaGpsPoint>* vGpsPnts;
+//	std::vector<CDnaGpsPoint>::iterator it_GpsPnts;
 //
 //	vUINT32 vIgnoredMsrStations;
 //	// Iterate through the ignored measurement list and build unique list of stations in ignored measurements
@@ -6892,7 +6853,7 @@ void dna_import::CompleteAssociationLists(vdnaMsrPtr* vMeasurements, pvASLPtr vA
 //		case 'M':	// MSL arc
 //		case 'S':	// Slope distance
 //		case 'L':	// Level difference
-//		case 'V':	// Zenith angle
+//		case 'V':	// Zenith distance
 //		case 'Z':	// Vertical angle
 //			vIgnoredMsrStations.push_back(it_Dirns->GetStn2Index());
 //		case 'H':	// Orthometric height
@@ -6935,19 +6896,19 @@ void dna_import::CompleteAssociationLists(vdnaMsrPtr* vMeasurements, pvASLPtr vA
 //}
 	
 
-void dna_import::CompleteASLDirections(_it_vdnamsrptr _it_msr, vector<CDnaDirection>* vDirections, pvASLPtr vAssocStnList, 
+void dna_import::CompleteASLDirections(_it_vdnamsrptr _it_msr, std::vector<CDnaDirection>* vDirections, pvASLPtr vAssocStnList, 
 										 pvUINT32 vAssocMsrList, PUINT32 currentBmsFileIndex, const _AML_TYPE_ aml_type)
 {
-	ostringstream ss;
+	std::ostringstream ss;
 	
 	CAStationList* currentASL;
 
-	string station_name;
+	std::string station_name;
 	UINT32 stn_indexAML, stnmsr_indexAML;
 	const UINT32 msrstoAllStations = static_cast<UINT32>(vAssocMsrList->size());
 	const UINT32 bmsrIndex(*currentBmsFileIndex);
 
-	vector< CDnaDirection >::iterator _it_dir(vDirections->begin());
+	std::vector< CDnaDirection >::iterator _it_dir(vDirections->begin());
 
 	// Unique list of stations involved in this cluster
 	vUINT32 msrStations;
@@ -7010,8 +6971,9 @@ void dna_import::CompleteASLDirections(_it_vdnamsrptr _it_msr, vector<CDnaDirect
 		
 		// All ASL entries are set to invalid on initial run of 
 		// CompleteAssociationLists, so this is vital so as to ensure a station 
-		// is to be included.
-		if (_it_dir->NotIgnored())
+		// is to be included.  But stations should only be included if the 
+		// parent direction set measurement is not ignored
+		if (_it_dir->NotIgnored() && _it_msr->get()->NotIgnored())
 			currentASL->SetValid();
 
 		// Set binary msr index for all stations in this cluster to the first element of the 
@@ -7041,7 +7003,7 @@ void dna_import::CompleteASLDirections(_it_vdnamsrptr _it_msr, vector<CDnaDirect
 		vAssocStnList->at(*_it_stn).get()->IncrementMsrCount();
 }
 
-void dna_import::CompleteASLGpsBaselines(vector<CDnaGpsBaseline>* vGpsBaselines, pvASLPtr vAssocStnList,
+void dna_import::CompleteASLGpsBaselines(std::vector<CDnaGpsBaseline>* vGpsBaselines, pvASLPtr vAssocStnList,
 										   pvUINT32 vAssocMsrList, PUINT32 currentBmsFileIndex, const _AML_TYPE_ aml_type)
 {
 	CAStationList* currentASL;
@@ -7050,7 +7012,7 @@ void dna_import::CompleteASLGpsBaselines(vector<CDnaGpsBaseline>* vGpsBaselines,
 	const UINT32 msrstoAllStations = static_cast<UINT32>(vAssocMsrList->size());
 	const UINT32 bmsrIndex(*currentBmsFileIndex);
 	
-	vector< CDnaGpsBaseline >::iterator _it_msr(vGpsBaselines->begin());
+	std::vector< CDnaGpsBaseline >::iterator _it_msr(vGpsBaselines->begin());
 
 	// Unique list of stations involved in this cluster
 	vUINT32 msrStations;
@@ -7130,7 +7092,7 @@ void dna_import::CompleteASLGpsBaselines(vector<CDnaGpsBaseline>* vGpsBaselines,
 		vAssocStnList->at(*_it_stn).get()->IncrementMsrCount();
 }
 
-void dna_import::CompleteASLGpsPoints(vector<CDnaGpsPoint>* vGpsPoints, pvASLPtr vAssocStnList, 
+void dna_import::CompleteASLGpsPoints(std::vector<CDnaGpsPoint>* vGpsPoints, pvASLPtr vAssocStnList, 
 										pvUINT32 vAssocMsrList, PUINT32 currentBmsFileIndex, const _AML_TYPE_ aml_type)
 {
 	CAStationList* currentASL;
@@ -7139,7 +7101,7 @@ void dna_import::CompleteASLGpsPoints(vector<CDnaGpsPoint>* vGpsPoints, pvASLPtr
 	const UINT32 msrstoAllStations = static_cast<UINT32>(vAssocMsrList->size());
 	const UINT32 bmsrIndex(*currentBmsFileIndex);
 	
-	vector< CDnaGpsPoint >::iterator _it_msr(vGpsPoints->begin());
+	std::vector< CDnaGpsPoint >::iterator _it_msr(vGpsPoints->begin());
 
 	for (_it_msr=vGpsPoints->begin(); _it_msr != vGpsPoints->end(); _it_msr++)
 	{		
@@ -7191,19 +7153,19 @@ void dna_import::CompleteASLGpsPoints(vector<CDnaGpsPoint>* vGpsPoints, pvASLPtr
 	}
 }
 
-_PARSE_STATUS_ dna_import::LoadDNAGeoidFile(const string& fileName, vdnaStnPtr* vStations)
+_PARSE_STATUS_ dna_import::LoadDNAGeoidFile(const std::string& fileName, vdnaStnPtr* vStations)
 {
 	std::ifstream geo_file;
 	try {
 		// Load geoid file.  Throws runtime_error on failure.
 		file_opener(geo_file, fileName, 
-			ios::in, ascii, true);
+			std::ios::in, ascii, true);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		SignalExceptionInterop(e.what(), 0, NULL);
 	}
 
-	string geoidRec, station, nValue, primeMeridian, primeVertical;
+	std::string geoidRec, station, nValue, primeMeridian, primeVertical;
 	double value;
 
 	_it_vdnastnptr _it_stn;
@@ -7223,8 +7185,8 @@ _PARSE_STATUS_ dna_import::LoadDNAGeoidFile(const string& fileName, vdnaStnPtr* 
 				geo_file.close();
 				return parseStatus_;
 			}
-			stringstream ss;
-			ss << "LoadDNAGeoidFile(): Could not read from the geoid file." << endl;
+			std::stringstream ss;
+			ss << "LoadDNAGeoidFile(): Could not read from the geoid file." << std::endl;
 			m_columnNo = 0;
 			throw XMLInteropException(ss.str(), m_lineNo);
 		}
@@ -7249,8 +7211,8 @@ _PARSE_STATUS_ dna_import::LoadDNAGeoidFile(const string& fileName, vdnaStnPtr* 
 			station = trimstr(geoidRec.substr(0, 40));
 		}
 		catch (...) {
-			stringstream ss;
-			ss << "LoadDNAGeoidFile(): Could not extract station name from the record:  " << endl << "    " << geoidRec << endl;
+			std::stringstream ss;
+			ss << "LoadDNAGeoidFile(): Could not extract station name from the record:  " << std::endl << "    " << geoidRec << std::endl;
 			m_columnNo = 0;
 			throw XMLInteropException(ss.str(), m_lineNo);
 		}
@@ -7266,8 +7228,8 @@ _PARSE_STATUS_ dna_import::LoadDNAGeoidFile(const string& fileName, vdnaStnPtr* 
 			nValue = trimstr(geoidRec.substr(40, 10));
 		}
 		catch (...) {
-			stringstream ss;
-			ss << "LoadDNAGeoidFile(): Could not extract the N-value from the record:  " << endl << "    " << geoidRec << endl;
+			std::stringstream ss;
+			ss << "LoadDNAGeoidFile(): Could not extract the N-value from the record:  " << std::endl << "    " << geoidRec << std::endl;
 			m_columnNo = 41;
 			throw XMLInteropException(ss.str(), m_lineNo);
 		}
@@ -7277,8 +7239,8 @@ _PARSE_STATUS_ dna_import::LoadDNAGeoidFile(const string& fileName, vdnaStnPtr* 
 			primeMeridian = trimstr(geoidRec.substr(50, 19));
 		}
 		catch (...) {
-			stringstream ss;
-			ss << "LoadDNAGeoidFile(): Could not extract the deflection in prime meridian from the record:  " << endl << "    " << geoidRec << endl;
+			std::stringstream ss;
+			ss << "LoadDNAGeoidFile(): Could not extract the deflection in prime meridian from the record:  " << std::endl << "    " << geoidRec << std::endl;
 			m_columnNo = 51;
 			throw XMLInteropException(ss.str(), m_lineNo);
 		}
@@ -7288,8 +7250,8 @@ _PARSE_STATUS_ dna_import::LoadDNAGeoidFile(const string& fileName, vdnaStnPtr* 
 			primeVertical = trimstr(geoidRec.substr(69));
 		}
 		catch (...) {
-			stringstream ss;
-			ss << "LoadDNAGeoidFile(): Could not extract the deflection in prime meridian from the record:  " << endl << "    " << geoidRec << endl;
+			std::stringstream ss;
+			ss << "LoadDNAGeoidFile(): Could not extract the deflection in prime meridian from the record:  " << std::endl << "    " << geoidRec << std::endl;
 			m_columnNo = 70;
 			throw XMLInteropException(ss.str(), m_lineNo);
 		}		

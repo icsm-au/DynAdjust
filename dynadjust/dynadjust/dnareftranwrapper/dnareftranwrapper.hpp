@@ -62,16 +62,6 @@
 #include <include/functions/dnafilepathfuncs.hpp>
 #include <include/functions/dnastrmanipfuncs.hpp>
 
-
-using namespace std;
-using namespace boost;
-using namespace boost::gregorian;
-using namespace boost::filesystem;
-using namespace boost::posix_time;
-using namespace boost::local_time;
-using namespace boost::program_options;
-namespace po = boost::program_options;
-
 using namespace dynadjust::referenceframe;
 using namespace dynadjust::exception;
 using namespace dynadjust::iostreams;

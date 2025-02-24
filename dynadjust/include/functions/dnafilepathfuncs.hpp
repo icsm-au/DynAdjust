@@ -30,7 +30,6 @@
 #endif
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <stdarg.h>
 #include <string>
 
@@ -41,12 +40,6 @@
 #include <boost/iostreams/detail/absolute_path.hpp>
 
 #include <include/config/dnaconsts.hpp>
-
-using namespace std;
-using namespace boost;
-using namespace boost::filesystem;
-
-using namespace std;
 
 template <typename T>
 T formPath(const T& folder, const T& file, const T& ext)
@@ -63,7 +56,7 @@ T formPath(const T& folder, const T file)
 template <typename T>
 T leafStr(const T& filePath)
 {
-	return path(filePath).leaf().string();
+	return boost::filesystem::path(filePath).filename().string();
 }
 
 #endif //DNAFILEPATHFUNCS_H_

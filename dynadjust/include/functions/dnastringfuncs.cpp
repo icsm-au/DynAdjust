@@ -128,30 +128,30 @@ int GetFields(char *line, char delim, bool multiple_delim_as_one, const char *fm
 //    + Contact :     geodesy@ga.gov.au
 //    + ---------------------------------------------------------------------------
 //
-void fileproc_help_header(string* msg)
+void fileproc_help_header(std::string* msg)
 {
-	stringstream str;
+	std::stringstream str;
 
-	str << "+---------------------------------------------------------------------------" << endl;
+	str << "+---------------------------------------------------------------------------" << std::endl;
 	
 	str << "+ ";
 	output_binaryname(str);
 	str << " - ";
 	output_theappname(str);
 	str << ".";
-	str << endl;
+	str << std::endl;
 
 	str << "+ ";
 	output_binarydescription(str);
-	str << endl;
+	str << std::endl;
 	
 	str << "+ ";
 	output_version(str);
-	str << endl;
+	str << std::endl;
 	
 	str << "+ ";
 	output_build(str);
-	str << endl;
+	str << std::endl;
 	
 	*msg = str.str();
 	
@@ -170,100 +170,100 @@ void fileproc_help_header(string* msg)
 }
 
 	
-void dynaml_header(ostream& os, const string& fileType, const string& referenceFrame, const string& epoch)
+void dynaml_header(std::ostream& os, const std::string& fileType, const std::string& referenceFrame, const std::string& epoch)
 {
-	os << "<?xml version=\"1.0\"?>" << endl;
+	os << "<?xml version=\"1.0\"?>" << std::endl;
 	os << "<DnaXmlFormat type=\"" << fileType << 
 		"\" referenceframe=\"" << referenceFrame <<
 		"\" epoch=\"" << epoch <<
-		"\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"DynaML.xsd\">" << endl;
+		"\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"DynaML.xsd\">" << std::endl;
 	
 	os << "<!-- ";
 	output_createdby(os);
-	os << " -->" << endl;
+	os << " -->" << std::endl;
 	os << "<!-- ";
 	output_version(os);
-	os << " -->" << endl;
+	os << " -->" << std::endl;
 	os << "<!-- ";
 	output_build(os);
-	os << " -->" << endl;
+	os << " -->" << std::endl;
 }
 	
 
-void dynaml_footer(ostream& os)
+void dynaml_footer(std::ostream& os)
 {
-	os << "</DnaXmlFormat>" << endl;
+	os << "</DnaXmlFormat>" << std::endl;
 }
 	
 	
-void dynaml_comment(ostream& os, const string& comment)
+void dynaml_comment(std::ostream& os, const std::string& comment)
 {
-	os << "<!-- " << comment << " -->" << endl;
+	os << "<!-- " << comment << " -->" << std::endl;
 }
 
-string snx_softwarehardware_text()
+std::string snx_softwarehardware_text()
 {
-	stringstream str, str2;
+	std::stringstream str, str2;
 	
 	// name
 	output_globalname(str2);
-	str << " SOFTWARE           " << left << setw(60) << str2.str() << endl;
+	str << " SOFTWARE           " << std::left << std::setw(60) << str2.str() << std::endl;
 	
 	// version
 	str2.str("");
 	output_version(str2);
-	str << " SOFTWARE           " << left << setw(60) << str2.str() << endl;
+	str << " SOFTWARE           " << std::left << std::setw(60) << str2.str() << std::endl;
 	
 	// build
 	str2.str("");
 	output_build(str2);	
-	str << " SOFTWARE           " << left << setw(60) << str2.str() << endl;
+	str << " SOFTWARE           " << std::left << std::setw(60) << str2.str() << std::endl;
 	
 	// hardware
-	str << " HARDWARE           " << left << setw(60) << __HARDWARE__ << endl;
+	str << " HARDWARE           " << std::left << std::setw(60) << __HARDWARE__ << std::endl;
 
 
 	return str.str();
 }
 	
 
-void dna_header(ostream& os, const string& fileVersion, const string& fileType, const string& reference_frame, const string& epoch_version, const size_t& count)
+void dna_header(std::ostream& os, const std::string& fileVersion, const std::string& fileType, const std::string& reference_frame, const std::string& epoch_version, const size_t& count)
 {
-	stringstream str;
+	std::stringstream str;
 	str << "!#=DNA " << fileVersion << " " << fileType;
 
-	date today(day_clock::local_day());
+	boost::gregorian::date today(boost::gregorian::day_clock::local_day());
 	
 	// creation date
-	str << setw(14) << right << stringFromDate(today);
+	str << std::setw(14) << std::right << stringFromDate<boost::gregorian::date>(today);
 	// default reference frame
-	str << setw(14) << right << reference_frame;
+	str << std::setw(14) << std::right << reference_frame;
 	// default epoch
-	str << setw(14) << right << epoch_version;
+	str << std::setw(14) << std::right << epoch_version;
 	// count of records
-	str << setw(10) << right << count;
+	str << std::setw(10) << std::right << count;
 
-	os << str.str() << endl;
+	os << str.str() << std::endl;
 
 	// Provide comments on the version of DynAdjust that is creating this file
 	os << "* ";
 	output_createdby(os);
-	os << ". " << endl;
+	os << ". " << std::endl;
 	os << "* ";
 	output_version(os);
-	os << ". " << endl;
+	os << ". " << std::endl;
 	os << "* ";
 	output_build(os);
-	os << endl;
+	os << std::endl;
 }
 	
 
-void dna_comment(ostream& os, const string& comment)
+void dna_comment(std::ostream& os, const std::string& comment)
 {
-	os << "* " << comment << endl;
+	os << "* " << comment << std::endl;
 }
 
-void dnaproj_header(ostream& os, const string& comment)
+void dnaproj_header(std::ostream& os, const std::string& comment)
 {
 	// DynAdjust version
 	os << "# " << comment << ". ";
@@ -274,8 +274,8 @@ void dnaproj_header(ostream& os, const string& comment)
 	output_build(os);
 }
 
-void dnaproj_comment(ostream& os, const string& comment)
+void dnaproj_comment(std::ostream& os, const std::string& comment)
 {
-	os << "# " << comment << endl;
+	os << "# " << comment << std::endl;
 }
 

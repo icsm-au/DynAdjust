@@ -16,7 +16,6 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include <stdlib.h>
 #include <math.h>
 #include <iostream>
 
@@ -24,9 +23,6 @@
 #include <boost/algorithm/string.hpp>
 
 #include <include/math/dnamatrix_contiguous.hpp>
-
-using namespace std;
-using namespace boost;
 
 using namespace dynadjust::math;
 

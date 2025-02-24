@@ -33,8 +33,6 @@
 #include <string>
 #include <sstream>
 
-using namespace std;
-
 #include <include/config/dnatypes.hpp>
 #include <include/parameters/dnadatumprojectionparam.hpp>
 
@@ -48,7 +46,7 @@ public:
 	// predefined ellipsoid
 	CDnaEllipsoid(void);
 	CDnaEllipsoid(const UINT32& epsgCode);
-	CDnaEllipsoid(const string& epsgCode);
+	CDnaEllipsoid(const std::string& epsgCode);
 	CDnaEllipsoid(const CDnaEllipsoid& newEllipsoid);
 	
 	// user-defined ellipsoid

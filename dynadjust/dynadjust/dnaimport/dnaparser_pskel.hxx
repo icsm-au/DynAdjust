@@ -99,8 +99,6 @@ class system_pskel;
 
 #include <boost/shared_ptr.hpp>
 
-using namespace std;
-using namespace boost;
 using namespace dynadjust::measurements;
 
 namespace xml_schema
@@ -477,12 +475,21 @@ public:
 	virtual void post_DnaMeasurement ();
 
 	// Initialisation
-	inline void SetDefaultReferenceFrame(string& referenceframe, bool overridereferenceframe) { 
+
+	inline void InitfileEpsg(std::string& fileEpsg) {
+		_fileEpsg = fileEpsg;
+	}
+
+	inline void InitfileEpoch(std::string& fileEpoch) {
+		_fileEpoch = fileEpoch;
+	}
+
+	inline void SetDefaultReferenceFrame(std::string& referenceframe, bool overridereferenceframe) { 
 		_referenceframe = referenceframe;
 		_overridereferenceframe = overridereferenceframe;
 	}
 	
-	inline void SetDefaultEpoch(string& epoch) { 
+	inline void SetDefaultEpoch(std::string& epoch) { 
 		_epoch = epoch; 
 	}
 
@@ -635,8 +642,12 @@ protected:
 
 	PUINT32		_pMeasurementCount;
 	PUINT32		_pclusterID;
-	string		_epoch;
-	string		_referenceframe;
+	std::string		_fileEpoch;
+	std::string		_fileEpsg;
+	std::string		_epoch;
+	std::string		_referenceframe;
+	bool        _EpochTagSupplied;
+	bool        _ReferenceframeTagSupplied;
 	bool		_overridereferenceframe;
 
 	bool		_preferSingleXasG;
@@ -660,16 +671,25 @@ public:
 	virtual void post_DnaStation ();
 
 	// Initialisation
+	inline void InitfileEpsg(std::string& fileEpsg) {
+		_fileEpsg = fileEpsg;
+	}
+
+	inline void InitfileEpoch(std::string& fileEpoch) {
+		_fileEpoch = fileEpoch;
+	}
+
 	inline void InitparentStnVector(vdnaStnPtr* pStns)
 	{
 		_vParentStns = pStns;
 	}
 
-	inline void SetDefaultReferenceFrame(string& referenceframe) { 
+	inline void SetDefaultReferenceFrame(std::string& referenceframe, bool overridereferenceframe) {
 		_referenceframe = referenceframe;
+		_overridereferenceframe = overridereferenceframe;
 	}
 
-	inline void SetDefaultEpoch(string& epoch) { 
+	inline void SetDefaultEpoch(std::string& epoch) { 
 		_epoch = epoch; 
 	}
 
@@ -741,8 +761,11 @@ protected:
 	vdnaStnPtr* _vParentStns;
 	dnaStnPtr _dnaCurrentStn;
 
-	string		_epoch;
-	string		_referenceframe;
+	std::string		_fileEpoch;
+	std::string		_fileEpsg;
+	std::string		_epoch;
+	std::string		_referenceframe;
+	bool		_overridereferenceframe;
 };
 
 class DnaXmlFormat_pskel: public ::xml_schema::complex_content
@@ -818,10 +841,16 @@ protected:
 	UINT32 _clusterID;
 	UINT32 _measurement_count;
 	UINT32 _station_count;
-	string _referenceframe;
-	string _epoch;
+	std::string _referenceframe;
+	std::string _epoch;
+	std::string _fileEpsg;
+	std::string _fileEpoch;
+	bool _firstFile;
 	bool _userspecifiedreferenceframe;
+	bool _filespecifiedreferenceframe;
 	bool _overridereferenceframe;
+	bool _userspecifiedepoch;
+	bool _filespecifiedepoch;
 };
 
 class GPSBaseline_pskel: public ::xml_schema::complex_content
@@ -1225,8 +1254,8 @@ public:
 	// virtual void
 	// pre ();
 
-	// string& referenceframe, bool user_specified, bool overridereferenceframe
-	virtual void post_type (string&, bool, bool);
+	// std::string& referenceframe, bool user_specified, bool overridereferenceframe
+	virtual void post_type (std::string&, std::string&, bool, bool);
 };
 
 class epoch_pskel: public virtual ::xml_schema::string_pskel
@@ -1237,8 +1266,8 @@ public:
 	// virtual void
 	// pre ();
 
-	// string& referenceframe, bool overridereferenceframe
-	virtual void post_type (string&, bool);
+	// std::string& referenceframe, bool overridereferenceframe
+	virtual void post_type (std::string&, std::string&, bool, bool, bool);
 };
 
 class system_pskel: public virtual ::xml_schema::string_pskel

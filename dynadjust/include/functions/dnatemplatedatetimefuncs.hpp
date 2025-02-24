@@ -37,11 +37,6 @@
 
 const UINT32 TIME_IMMEMORIAL = 1900;
 
-using namespace std;
-using namespace boost::timer;
-using namespace boost::posix_time;
-using namespace boost::gregorian;
-
 // Boost implementation of gregorian calendar supports dates in the range 1400-Jan-01 to 9999-Dec-31.
 // Integer representation of these dates is 2232400 and 5373484, which appears to be the Julian Date.
 // GPS time begins on 6 January 1980 (2444245)
@@ -54,21 +49,21 @@ using namespace boost::gregorian;
 //UINT32 itoday = today.day_number();
 
 //stringstream str;
-//const std::locale fmt(locale::classic(), new date_facet("%m/%d/%Y"));
+//const std::locale fmt(std::locale::classic(), new date_facet("%m/%d/%Y"));
 //str.imbue(fmt);
-//str << gpsday << endl;
-//str << "Today:   " << today.day_number() << endl;
+//str << gpsday << std::endl;
+//str << "Today:   " << today.day_number() << std::endl;
 //str <<
-//	static_cast<short>(today.year()) << endl <<
-//	static_cast<short>(today.month()) << endl <<
-//	static_cast<short>(today.day()) << endl << endl;
-//str << "GPS day: " << gpsday.day_number() << endl;
+//	static_cast<short>(today.year()) << std::endl <<
+//	static_cast<short>(today.month()) << std::endl <<
+//	static_cast<short>(today.day()) << std::endl << std::endl;
+//str << "GPS day: " << gpsday.day_number() << std::endl;
 //str <<
-//	static_cast<short>(gpsday.year()) << endl <<
-//	static_cast<short>(gpsday.month()) << endl <<
-//	static_cast<short>(gpsday.day()) << endl;
+//	static_cast<short>(gpsday.year()) << std::endl <<
+//	static_cast<short>(gpsday.month()) << std::endl <<
+//	static_cast<short>(gpsday.day()) << std::endl;
 
-//cout << str.str().c_str() << endl;
+//cout << str.str().c_str() << std::endl;
 
 //TRACE("%s", str.str().c_str());
 
@@ -79,7 +74,7 @@ using namespace boost::gregorian;
 //TRACE("Today is %d days since the beginning of GPS time\n", str.str().c_str());
 
 template <class T>
-void dateSINEXFormat(T* os, const date& theDate, bool calculateSeconds=false)
+void dateSINEXFormat(T* os, const boost::gregorian::date& theDate, bool calculateSeconds=false)
 {
 	// Time stamps must be in the following format:  YY:DOY:SECOD 
 	// where:
@@ -90,32 +85,32 @@ void dateSINEXFormat(T* os, const date& theDate, bool calculateSeconds=false)
 	//		95:120:86399 denotes April 30, 1995 (23:59:59UT).
 	//
 
-	stringstream year;
-	time_facet* facet(new time_facet("%y"));
+	std::stringstream year;
+	boost::posix_time::time_facet* facet(new boost::posix_time::time_facet("%y"));
 
-	year.imbue(locale(year.getloc(), facet));
-	ptime dateTime(theDate);
+	year.imbue(std::locale(year.getloc(), facet));
+	boost::posix_time::ptime dateTime(theDate);
 	year << dateTime;
 
-	stringstream dayofyear;
-	dayofyear << right << setw(3) << theDate.day_of_year();
-	string dayofyearstr(dayofyear.str());
-	dayofyearstr = findandreplace<string>(dayofyearstr, " ", "0");
+	std::stringstream dayofyear;
+	dayofyear << std::right << std::setw(3) << theDate.day_of_year();
+	std::string dayofyearstr(dayofyear.str());
+	dayofyearstr = findandreplace<std::string>(dayofyearstr, " ", "0");
 
 	*os <<
-		right << setw(2) <<
+		std::right << std::setw(2) <<
 			year.str() << ":" <<		// year (YY)
-		right << setw(3) << 
+		std::right << std::setw(3) << 
 			dayofyearstr << ":";		// day of year
 
 	if (calculateSeconds)
 	{
-		ptime currentTime(second_clock::local_time());
-		time_duration timeInterval(currentTime - dateTime);
+		boost::posix_time::ptime currentTime(boost::posix_time::second_clock::local_time());
+		boost::posix_time::time_duration timeInterval(currentTime - dateTime);
 
-		stringstream secondsofday;
-		secondsofday << left << setw(5) << timeInterval.total_seconds();
-		*os << left << setw(5) << secondsofday.str();
+		std::stringstream secondsofday;
+		secondsofday << std::left << std::setw(5) << timeInterval.total_seconds();
+		*os << std::left << std::setw(5) << secondsofday.str();
 		return;
 	}
 
@@ -123,31 +118,31 @@ void dateSINEXFormat(T* os, const date& theDate, bool calculateSeconds=false)
 }
 
 template <class U>
-U dateYear(const date& theDate)
+U dateYear(const boost::gregorian::date& theDate)
 {
 	return theDate.year();
 }
 
 template <class U>
-U dateDOY(const date& theDate)
+U dateDOY(const boost::gregorian::date& theDate)
 {
 	return theDate.day_of_year();
 }
 
 template <class U>
-U dateMonth(const date& theDate)
+U dateMonth(const boost::gregorian::date& theDate)
 {
 	return theDate.month();
 }
 
 template <class U>
-U dateDay(const date& theDate)
+U dateDay(const boost::gregorian::date& theDate)
 {
 	return theDate.day();
 }
 
 template <class U>
-U dateDaynumber(const date& theDate)
+U dateDaynumber(const boost::gregorian::date& theDate)
 {
 	return theDate.day_number();
 }
@@ -155,31 +150,31 @@ U dateDaynumber(const date& theDate)
 template <class U>
 U todayYear()
 {
-	return dateYear<U>(day_clock::local_day());
+	return dateYear<U>(boost::gregorian::day_clock::local_day());
 }
 
 template <class U>
 U todayMonth()
 {
-	return dateMonth<U>(day_clock::local_day());
+	return dateMonth<U>(boost::gregorian::day_clock::local_day());
 }
 
 template <class U>
 U todayDay()
 {
-	return dateDay<U>(day_clock::local_day());
+	return dateDay<U>(boost::gregorian::day_clock::local_day());
 }
 
 template <class U>
 U todayDaynumber()
 {
-	return dateDaynumber<U>(day_clock::local_day());
+	return dateDaynumber<U>(boost::gregorian::day_clock::local_day());
 }
 
 template <class U, class T>
 T integerToDate(const U& integer)
 {
-	return date(integer);
+	return boost::gregorian::date(integer);
 }
 
 template <class U, class T>
@@ -191,7 +186,7 @@ T dateToInteger(const T& theDate)
 template <class U, class T>
 T ymdToDate(const U& year, const U& month, const U& day)
 {
-	return date(year, month, day);
+	return boost::gregorian::date(year, month, day);
 }
 
 template <class T>
@@ -290,7 +285,7 @@ void year_doy_Average(const T& start_year, const T& end_year,
 
 template <class T>
 // epochFrom -> epochTo
-T yearFraction(const date& epoch)
+T yearFraction(const boost::gregorian::date& epoch)
 {
 	// Day of year, less 0.5 day correction to 
 	// bring to middle of day, divided by number 
@@ -322,7 +317,7 @@ T yearFraction(const date& epoch)
 
 template <class T>
 // Return as a double or float the decimal year
-T referenceEpoch(const date& theDate)
+T referenceEpoch(const boost::gregorian::date& theDate)
 {
 	// Epoch of interest
 	return yearFraction<T>(theDate) + theDate.year();
@@ -338,58 +333,58 @@ T elapsedTime(const T& current_epoch, const T& reference_epoch)
 
 template <class T>
 // elapsedTime = current_epoch - reference_epoch
-T elapsedTime(const T& current_epoch, const date& reference_epoch)
+T elapsedTime(const T& current_epoch, const boost::gregorian::date& reference_epoch)
 {
 	return elapsedTime(current_epoch, referenceEpoch<T>(reference_epoch));
 }
 
 template <class T>
 // elapsedTime = current_epoch - reference_epoch
-T elapsedTime(const date& current_epoch, const T& reference_epoch)
+T elapsedTime(const boost::gregorian::date& current_epoch, const T& reference_epoch)
 {
 	return elapsedTime(referenceEpoch<T>(current_epoch), reference_epoch);
 }
 
 template <class T>
 // elapsedTime = current_epoch - reference_epoch
-T elapsedTime(const date& current_epoch, const date& reference_epoch)
+T elapsedTime(const boost::gregorian::date& current_epoch, const boost::gregorian::date& reference_epoch)
 {
 	return elapsedTime(referenceEpoch<T>(current_epoch), referenceEpoch<T>(reference_epoch));
 }
 
 template <class T>
 // dateString = dd.mm.yyyy
-date dateFromString_safe(const string& dateString)
+boost::gregorian::date dateFromString_safe(const std::string& dateString)
 {
-	vector<string> vdateList;
-	SplitDelimitedString<string>(dateString, string("."), &vdateList);
+	std::vector<std::string> vdateList;
+	SplitDelimitedString<std::string>(dateString, std::string("."), &vdateList);
 
 	try {
 		// boost date requires input in the following order: year, month, day
-		return date(
+		return boost::gregorian::date(
 			LongFromString<UINT32>(vdateList.at(2)),	// year
 			LongFromString<UINT32>(vdateList.at(1)),	// month
 			LongFromString<UINT32>(vdateList.at(0)));	// day
 	}
-	catch (runtime_error& e)
+	catch (std::runtime_error& e)
 	{
-		stringstream ss;
-		ss << "dateFromString_safe(): Could not parse the date string \"" << dateString << "\"" << endl <<
-			"  Details: " << e.what() << endl;
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		std::stringstream ss;
+		ss << "dateFromString_safe(): Could not parse the date string \"" << dateString << "\"" << std::endl <<
+			"  Details: " << e.what() << std::endl;
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...)
 	{
-		stringstream ss;
-		ss << "dateFromString_safe(): Could not parse the date string \"" << dateString << "\"." << endl <<
-			"  Check that the epoch is formatted as dd.mm.yyyy" << endl;
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		std::stringstream ss;
+		ss << "dateFromString_safe(): Could not parse the date string \"" << dateString << "\"." << std::endl <<
+			"  Check that the epoch is formatted as dd.mm.yyyy" << std::endl;
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 }
 
 template <class T, class S>
 // dateString = ddd yyyy
-T dateFromStringstream_doy_year(S& date)
+T dateFromStringstream_doy_year(S& thedate)
 {
 	T parsedDate;
 	// From boost_1_54_0/doc/html/date_time/date_time_io.html
@@ -401,14 +396,14 @@ T dateFromStringstream_doy_year(S& date)
 	// 		"2005" => 2005
 	// But! 94 => 2094!
 	// So use %Y"
-	date.imbue(locale(date.getloc(), new date_input_facet("%j %Y")));
-	date >> parsedDate;
+	thedate.imbue(std::locale(thedate.getloc(), new boost::gregorian::date_input_facet("%j %Y")));
+	thedate >> parsedDate;
 	return parsedDate;	
 }
 
 template <class T, class S>
 // dateString = ddd yyyy
-T dateFromString_doy_year(S& date)
+T dateFromString_doy_year(S& thedate)
 {
 	T parsedDate;
 	// From boost_1_54_0/doc/html/date_time/date_time_io.html
@@ -420,20 +415,20 @@ T dateFromString_doy_year(S& date)
 	// 		"2005" => 2005
 	// But! 94 => 2094!
 	// So use %Y"
-	stringstream ss_date;
-	ss_date << date;
-	ss_date.imbue(locale(ss_date.getloc(), new date_input_facet("%j %Y")));
+	std::stringstream ss_date;
+	ss_date << thedate;
+	ss_date.imbue(std::locale(ss_date.getloc(), new boost::gregorian::date_input_facet("%j %Y")));
 	ss_date >> parsedDate;
 	return parsedDate;	
 }
 
 template <class T, class D>
 // date = yyyy.yyyyy
-T dateFromDouble_doy_year(const D& date)
+T dateFromDouble_doy_year(const D& thedate)
 {
 	T parsedDate;
-	D year(floor(date));
-	D year_fraction(date - year);
+	D year(floor(thedate));
+	D year_fraction(thedate - year);
 	D days_in_year(365.0);
 
 	if (fmod(year, 400.) == 0)
@@ -460,59 +455,59 @@ T dateFromDouble_doy_year(const D& date)
 	// 		"2005" => 2005
 	// But! 94 => 2094!
 	// So use %Y"
-	stringstream strdate;
+	std::stringstream strdate;
 	if (idoy < 10.)
 		strdate << "00";
 	else if (idoy < 100.)
 		strdate << "0";
-	strdate << idoy << " " << fixed << setprecision(0) << year;
-	strdate.imbue(locale(strdate.getloc(), new date_input_facet("%j %Y")));
+	strdate << idoy << " " << std::fixed << std::setprecision(0) << year;
+	strdate.imbue(std::locale(strdate.getloc(), new boost::gregorian::date_input_facet("%j %Y")));
 	strdate >> parsedDate;
 	return parsedDate;	
 }
 
 template <class T>
 // dateString = dd.mm.yyyy
-string stringFromDate(const T& date)
+std::string stringFromDate(const T& thedate)
 {
-	stringstream ss;
-	ss.imbue(locale(ss.getloc(), new date_facet("%d.%m.%Y")));
+	std::stringstream ss;
+	ss.imbue(std::locale(ss.getloc(), new boost::gregorian::date_facet("%d.%m.%Y")));
 
-	ss << date;
+	ss << thedate;
 	return ss.str();	
 }
 
 template <class T>
 // dateString = dd.mm.yyyy
-string stringFromToday()
+std::string stringFromToday()
 {
-	stringstream ss;
-	ss.imbue(locale(ss.getloc(), new date_facet("%d.%m.%Y")));
+	std::stringstream ss;
+	ss.imbue(std::locale(ss.getloc(), new boost::gregorian::date_facet("%d.%m.%Y")));
 
-	ss << date(day_clock::local_day());
+	ss << boost::gregorian::date(boost::gregorian::day_clock::local_day());
 	return ss.str();	
 }
 
 template <class T>
 // dateString = dd.mm.yyyy
-string stringFromDate(const T& date, const string& format)
+std::string stringFromDate(const T& thedate, const std::string& format)
 {
-	stringstream ss;
-	ss.imbue(locale(ss.getloc(), new date_facet(format.c_str())));
+	std::stringstream ss;
+	ss.imbue(std::locale(ss.getloc(), new boost::gregorian::date_facet(format.c_str())));
 
-	ss << date;
+	ss << thedate;
 	return ss.str();	
 }
 
 template <class T>
 // dateString = dd.mm.yyyy
-T dateFromString(const string& dateString)
+T dateFromString(const std::string& dateString)
 {
 	// The following works well when dateString is "03.02.2013", but fails
 	// if dateString is "3.2.2013".  
 	//
 	//istringstream ss(dateString);
-	//ss.imbue(locale(std::locale::classic(), new gregorian::date_input_facet("%e.%m.%Y")));
+	//ss.imbue(std::locale(std::locale::classic(), new boost::gregorian::date_input_facet("%e.%m.%Y")));
 	//T date;
 	//ss >> date;
 	//return date;
@@ -524,8 +519,8 @@ T dateFromString(const string& dateString)
 	//	The flags marked with a hash sign (#) are implemented by system locale and are known to be missing on some platforms
 
 	// Is today's date required?
-	if (iequals(dateString, "today"))
-		return dateFromString_safe<T>(stringFromDate<T>(T(day_clock::local_day())));
+	if (boost::iequals(dateString, "today"))
+		return dateFromString_safe<T>(stringFromDate<T>(T(boost::gregorian::day_clock::local_day())));
 
 	// Parse manually.	
 	return dateFromString_safe<T>(dateString);
@@ -534,66 +529,66 @@ T dateFromString(const string& dateString)
 
 template <class T>
 // dateString = dd.mm.yyyy
-string formattedDateStringFromNumericString(const string& dateString)
+std::string formattedDateStringFromNumericString(const std::string& dateString)
 {
-	date date(dateFromString<T>(dateString));
+	boost::gregorian::date ddate(dateFromString<T>(dateString));
 	
-	stringstream ss;
-	ss.imbue(locale(ss.getloc(), new date_facet("%A, %d %B %Y")));
+	std::stringstream ss;
+	ss.imbue(std::locale(ss.getloc(), new boost::gregorian::date_facet("%A, %d %B %Y")));
 
-	ss << date;
+	ss << ddate;
 	return ss.str();
 }
 
 template <typename T>
 T formattedDateTimeString()
 {
-	stringstream datetime_ss, stream;
-	time_facet* p_time_output = new time_facet;
-	locale special_locale (locale(""), p_time_output);
+	std::stringstream datetime_ss, stream;
+	boost::posix_time::time_facet* p_time_output = new boost::posix_time::time_facet;
+	std::locale special_locale (std::locale(""), p_time_output);
 	
 	// special_locale takes ownership of the p_time_output facet
 	datetime_ss.imbue (special_locale);
 	(*p_time_output).format("%d-%m-%Y %X");
-	datetime_ss << second_clock::local_time();
+	datetime_ss << boost::posix_time::second_clock::local_time();
 	stream << datetime_ss.str().c_str();
 
 	return stream.str();
 }
 
 template <typename S>
-S formatedElapsedTime(milliseconds* elapsed_time, S app_message)
+S formatedElapsedTime(boost::posix_time::milliseconds* elapsed_time, S app_message)
 {
-	ostringstream ss_time;
-	ptime pt(ptime(gregorian::day_clock::local_day(), *elapsed_time));
+	std::ostringstream ss_time;
+	boost::posix_time::ptime pt(boost::posix_time::ptime(boost::gregorian::day_clock::local_day(), *elapsed_time));
 
-	if (*elapsed_time < seconds(3))
+	if (*elapsed_time < boost::posix_time::seconds(3))
 	{
-		time_facet* facet(new time_facet("%s"));
-		ss_time.imbue(locale(ss_time.getloc(), facet));
+		boost::posix_time::time_facet* facet(new boost::posix_time::time_facet("%s"));
+		ss_time.imbue(std::locale(ss_time.getloc(), facet));
 		ss_time.str("");
 		ss_time << pt << "s";			
 	}
-	else if (*elapsed_time < seconds(61))
+	else if (*elapsed_time < boost::posix_time::seconds(61))
 	{		
-		time_facet* facet(new time_facet("%S"));
-		ss_time.imbue(locale(ss_time.getloc(), facet));
+		boost::posix_time::time_facet* facet(new boost::posix_time::time_facet("%S"));
+		ss_time.imbue(std::locale(ss_time.getloc(), facet));
 		ss_time.str("");
 		ss_time << pt << "s";
 	}
 	else
-		ss_time << seconds(static_cast<long>(elapsed_time->total_seconds()));
+		ss_time << boost::posix_time::seconds(static_cast<long>(elapsed_time->total_seconds()));
 
-	size_t pos = string::npos;
-	string time_message = ss_time.str();
-	while ((pos = time_message.find("0s")) != string::npos)
+	size_t pos = std::string::npos;
+	std::string time_message = ss_time.str();
+	while ((pos = time_message.find("0s")) != std::string::npos)
 		time_message = time_message.substr(0, pos) + "s";
 
 	time_message = app_message + time_message + "."; 
 
-	if ((pos = time_message.find(" 00.")) != string::npos)
+	if ((pos = time_message.find(" 00.")) != std::string::npos)
 		time_message = time_message.replace(pos, 4, " 0.");
-	if ((pos = time_message.find(" 0.s")) != string::npos)
+	if ((pos = time_message.find(" 0.s")) != std::string::npos)
 		time_message = time_message.replace(pos, 4, " 0s");
 
 	return time_message;

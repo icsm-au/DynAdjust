@@ -79,10 +79,6 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem/operations.hpp>
 
-using namespace std;
-
-using namespace boost::filesystem;
-
 using namespace dynadjust::measurements;
 using namespace dynadjust::exception;
 using namespace dynadjust::iostreams;
@@ -150,7 +146,7 @@ public:
 		const int& intEllipsoidtoOrtho, const int& intDmsFlag, 
 		bool exportDnaGeoidFile, const char* geoFile=NULL);
 
-	void PopulateBinaryStationFile(const string& bstnFile, const int& method, 
+	void PopulateBinaryStationFile(const std::string& bstnFile, const int& method, 
 		bool convertHeights, 
 		bool exportDnaGeoidFile, const char* geoFile=NULL);
 
@@ -190,12 +186,12 @@ public:
 	inline int PointsInterpolated() const { return m_pointsInterpolated; }
 	inline int PointsNotInterpolated() const { return m_pointsNotInterpolated; }
 
-	string ErrorString(const int& error, const string& data="");
-	string ErrorCaption(const int& error);
+	std::string ErrorString(const int& error, const std::string& data="");
+	std::string ErrorCaption(const int& error);
 
-	inline void SetInputCoordinates(const string& inputCoordinates) { m_inputCoordinates = inputCoordinates; } 
+	inline void SetInputCoordinates(const std::string& inputCoordinates) { m_inputCoordinates = inputCoordinates; } 
 
-	string ReturnBadStationRecords();
+	std::string ReturnBadStationRecords();
 
 private:
 
@@ -227,17 +223,17 @@ private:
 	bool ReadAsciiShifts(geoid_values* pNShifts[], int iNodeIndex, long lNode);
 	bool ReadBinaryShifts(geoid_values* pNShifts[], int iNodeIndex, long lNode);
 
-	void LoadBinaryStationFile(const string& bstnfileName);
-	void WriteBinaryStationFile(const string& bstnfileName);
+	void LoadBinaryStationFile(const std::string& bstnfileName);
+	void WriteBinaryStationFile(const std::string& bstnfileName);
 	void PopulateStationRecords(const int& method, bool convertHeights);
 	
-	void WriteDNA1GeoidFile(const string& geofileName);
-	void PrintDNA1GeoidRecord(std::ofstream& f_out, const string& station, const double& nValue, const double& meridianDef, const double& verticalDef);
+	void WriteDNA1GeoidFile(const std::string& geofileName);
+	void PrintDNA1GeoidRecord(std::ofstream& f_out, const std::string& station, const double& nValue, const double& meridianDef, const double& verticalDef);
 
 	void ProcessCsvFile(std::ifstream* f_in, std::ofstream* f_out, std::ofstream* f_dnageo, const int& method, const int& intEllipsoidtoOrtho, const int& intDmsFlag);
 	void ProcessDatFile(std::ifstream* f_in, std::ofstream* f_out, std::ofstream* f_dnageo, const int& method, const int& intEllipsoidtoOrtho, const int& intDmsFlag);
 
-	//void OpenOutFile(std::ofstream& f_out, const string& fileOut, ios::open_mode mode, const string callingFunc);
+	//void OpenOutFile(std::ofstream& f_out, const std::string& fileOut, std::ios::open_mode mode, const std::string callingFunc);
 
 	bool				m_isReading;
 	bool				m_isWriting;
@@ -262,7 +258,7 @@ private:
 
 	bool				m_fileMode;
 
-	string				m_inputCoordinates;
+	std::string				m_inputCoordinates;
 
 	bool				m_isRadians;
 	

@@ -39,24 +39,21 @@
 #include <include/parameters/dnadatumprojectionparam.hpp>
 #include <include/functions/dnastrmanipfuncs.hpp>
 
-using namespace std;
-using namespace boost;
-
 namespace dynadjust {
 namespace epsg {
 
 // pairs to help parsing epsg codes
-typedef pair<string, UINT32> epsg_string_uint32;
-typedef pair<UINT32, string> epsg_uint32_string;
+typedef std::pair<std::string, UINT32> epsg_string_uint32;
+typedef std::pair<UINT32, std::string> epsg_uint32_string;
 
 // pairs needed for the epsg structs
-typedef pair<string, double> epsg_unit;
-typedef pair<string, string> epsg_axis;
-typedef pair<string, string> epsg_authority;
-typedef pair<string, double> epsg_parameter;
+typedef std::pair<std::string, double> epsg_unit;
+typedef std::pair<std::string, std::string> epsg_axis;
+typedef std::pair<std::string, std::string> epsg_authority;
+typedef std::pair<std::string, double> epsg_parameter;
 
 typedef struct {
-	string			name_;
+	std::string		name_;
 	double			semi_major_;
 	double			inv_flattening_;
 	epsg_authority	authority_;
@@ -67,20 +64,20 @@ typedef struct {
 } epsg_tparams;
 
 typedef struct {
-	string			name_;
+	std::string			name_;
 	epsg_spheroid	spheroid_;
 	epsg_tparams	towgs84_;
 	epsg_authority	authority_;
 } epsg_datum;
 
 typedef struct {
-	string			name_;
+	std::string			name_;
 	double			value_;
 	epsg_authority	authority_;
 } epsg_primem;
 
 typedef struct {
-	string			name;
+	std::string			name;
 	epsg_datum		datum_;
 	epsg_primem		primem_;
 	epsg_unit		unit_;
@@ -91,12 +88,12 @@ typedef struct {
 } epsg_geogcs;
 
 typedef struct {
-	string			name_;
+	std::string			name_;
 	epsg_authority	authority_;
 } epsg_projection;
 
 typedef struct {
-	string			name_;
+	std::string			name_;
 	epsg_geogcs		geogcs_;
 	epsg_projection	projection_;
 	epsg_parameter	central_meridian_;
@@ -119,73 +116,73 @@ typedef struct {
 template <typename U, typename S>
 U epsgCodeFromName(const S& datumName)
 {
-	if (iequals(datumName, AGD66_s))
+	if (boost::iequals(datumName, AGD66_s))
 		return AGD66_i;		
-	if (iequals(datumName, AGD84_s))
+	if (boost::iequals(datumName, AGD84_s))
 		return AGD84_i;		
-	if (iequals(datumName, GDA94_s))
+	if (boost::iequals(datumName, GDA94_s))
 		return GDA94_i_xyz;	
-	if (iequals(datumName, GDA2020_s))
+	if (boost::iequals(datumName, GDA2020_s))
 		return GDA2020_i_xyz;
 	// ITRF
-	if (iequals(datumName, ITRF2020_s))
+	if (boost::iequals(datumName, ITRF2020_s))
 		return ITRF2020_i_xyz;
-	if (iequals(datumName, ITRF2014_s))
+	if (boost::iequals(datumName, ITRF2014_s))
 		return ITRF2014_i_xyz;
-	if (iequals(datumName, ITRF2008_s))
+	if (boost::iequals(datumName, ITRF2008_s))
 		return ITRF2008_i_xyz;
-	if (iequals(datumName, ITRF2005_s))
+	if (boost::iequals(datumName, ITRF2005_s))
 		return ITRF2005_i_xyz;
-	if (iequals(datumName, ITRF2000_s))
+	if (boost::iequals(datumName, ITRF2000_s))
 		return ITRF2000_i_xyz;
-	if (iequals(datumName, ITRF1997_s) || iequals(datumName, ITRF1997_s_brief))
+	if (boost::iequals(datumName, ITRF1997_s) || boost::iequals(datumName, ITRF1997_s_brief))
 		return ITRF1997_i_xyz;
-	if (iequals(datumName, ITRF1996_s) || iequals(datumName, ITRF1996_s_brief))
+	if (boost::iequals(datumName, ITRF1996_s) || boost::iequals(datumName, ITRF1996_s_brief))
 		return ITRF1996_i_xyz;
-	if (iequals(datumName, ITRF1994_s) || iequals(datumName, ITRF1994_s_brief))
+	if (boost::iequals(datumName, ITRF1994_s) || boost::iequals(datumName, ITRF1994_s_brief))
 		return ITRF1994_i_xyz;
-	if (iequals(datumName, ITRF1993_s) || iequals(datumName, ITRF1993_s_brief))
+	if (boost::iequals(datumName, ITRF1993_s) || boost::iequals(datumName, ITRF1993_s_brief))
 		return ITRF1993_i_xyz;
-	if (iequals(datumName, ITRF1992_s) || iequals(datumName, ITRF1992_s_brief))
+	if (boost::iequals(datumName, ITRF1992_s) || boost::iequals(datumName, ITRF1992_s_brief))
 		return ITRF1992_i_xyz;
-	if (iequals(datumName, ITRF1991_s) || iequals(datumName, ITRF1991_s_brief))
+	if (boost::iequals(datumName, ITRF1991_s) || boost::iequals(datumName, ITRF1991_s_brief))
 		return ITRF1991_i_xyz;
-	if (iequals(datumName, ITRF1990_s) || iequals(datumName, ITRF1990_s_brief))
+	if (boost::iequals(datumName, ITRF1990_s) || boost::iequals(datumName, ITRF1990_s_brief))
 		return ITRF1990_i_xyz;
-	if (iequals(datumName, ITRF1989_s) || iequals(datumName, ITRF1989_s_brief))
+	if (boost::iequals(datumName, ITRF1989_s) || boost::iequals(datumName, ITRF1989_s_brief))
 		return ITRF1989_i_xyz;
-	if (iequals(datumName, ITRF1988_s) || iequals(datumName, ITRF1988_s_brief))
+	if (boost::iequals(datumName, ITRF1988_s) || boost::iequals(datumName, ITRF1988_s_brief))
 		return ITRF1988_i_xyz;
 	// WGS84
-	if (iequals(datumName, WGS84_s) || 
-		iequals(datumName, WGS84_ensemble_s) ||
-		iequals(datumName, WGS84_alias_s))
+	if (boost::iequals(datumName, WGS84_s) || 
+		boost::iequals(datumName, WGS84_ensemble_s) ||
+		boost::iequals(datumName, WGS84_alias_s))
 		return WGS84_i_xyz;
-	if (iequals(datumName, WGS84_transit_s) ||
-		iequals(datumName, WGS84_transit_alias_s))
+	if (boost::iequals(datumName, WGS84_transit_s) ||
+		boost::iequals(datumName, WGS84_transit_alias_s))
 		return WGS84_transit_i_xyz;
-	if (iequals(datumName, WGS84_G730_s) ||
-		iequals(datumName, WGS84_G730_alias_s))
+	if (boost::iequals(datumName, WGS84_G730_s) ||
+		boost::iequals(datumName, WGS84_G730_alias_s))
 		return WGS84_G730_i_xyz;
-	if (iequals(datumName, WGS84_G873_s) ||
-		iequals(datumName, WGS84_G873_alias_s))
+	if (boost::iequals(datumName, WGS84_G873_s) ||
+		boost::iequals(datumName, WGS84_G873_alias_s))
 		return WGS84_G873_i_xyz;
-	if (iequals(datumName, WGS84_G1150_s) ||
-		iequals(datumName, WGS84_G1150_alias_s))
+	if (boost::iequals(datumName, WGS84_G1150_s) ||
+		boost::iequals(datumName, WGS84_G1150_alias_s))
 		return WGS84_G1150_i_xyz;
-	if (iequals(datumName, WGS84_G1674_s) ||
-		iequals(datumName, WGS84_G1674_alias_s))
+	if (boost::iequals(datumName, WGS84_G1674_s) ||
+		boost::iequals(datumName, WGS84_G1674_alias_s))
 		return WGS84_G1674_i_xyz;
-	if (iequals(datumName, WGS84_G1762_s) ||
-		iequals(datumName, WGS84_G1762_alias_s))
+	if (boost::iequals(datumName, WGS84_G1762_s) ||
+		boost::iequals(datumName, WGS84_G1762_alias_s))
 		return WGS84_G1762_i_xyz;
-	if (iequals(datumName, WGS84_G2139_s) ||
-		iequals(datumName, WGS84_G2139_alias_s))
+	if (boost::iequals(datumName, WGS84_G2139_s) ||
+		boost::iequals(datumName, WGS84_G2139_alias_s))
 		return WGS84_G2139_i_xyz;
 	
-	stringstream ss;
-	ss << "epsgCodeFromName: " << datumName << " is not a supported reference frame label." << endl;
-	throw boost::enable_current_exception(runtime_error(ss.str()));
+	std::stringstream ss;
+	ss << "  epsgCodeFromName: '" << datumName << "' is not a supported reference frame label." << std::endl;
+	throw boost::enable_current_exception(std::runtime_error(ss.str()));
 }
 
 template <typename S>
@@ -206,11 +203,11 @@ S epsgStringFromName(const S& datumName)
 	case GDA94_i:
 	case GDA94_i_2d:
 	case GDA94_i_xyz:
-		return GDA94_c;
+		return GDA94_c_xyz;
 	case GDA2020_i:
 	case GDA2020_i_2d:
 	case GDA2020_i_xyz:
-		return GDA2020_c;
+		return GDA2020_c_xyz;
 	// ITRF
 	case ITRF2020_i:
 	case ITRF2020_i_xyz:
@@ -282,15 +279,15 @@ S epsgStringFromName(const S& datumName)
 		return WGS84_G2139_c;
 	}
 
-	stringstream ss;
-	ss << "epsgCodeFromName: " << datumName << " is either unknown or not yet supported." << endl;
-	throw boost::enable_current_exception(runtime_error(ss.str()));
+	std::stringstream ss;
+	ss << "  epsgStringFromName: '" << datumName << "' is either unknown or not yet supported." << std::endl;
+	throw boost::enable_current_exception(std::runtime_error(ss.str()));
 }
 
 template <typename U>
 bool isEpsgDatumStatic(const U& epsgCode)
 {
-	stringstream ss;
+	std::stringstream ss;
 
 	switch (epsgCode)
 	{
@@ -357,8 +354,8 @@ bool isEpsgDatumStatic(const U& epsgCode)
 	case WGS84_G2139_i:
 		return false;
 	default:
-		ss << "isEpsgDatumStatic: EPSG code " << epsgCode << " is not a supported EPSG code." << endl;
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		ss << "  isEpsgDatumStatic: EPSG code '" << epsgCode << "' is not a supported EPSG code." << std::endl;
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	return false;
 }
@@ -456,14 +453,14 @@ void spheroidFromEpsgCode(const U& epsgCode, epsg_spheroid& ellipsoid)
 		ellipsoid.semi_major_ = WGS84_a;
 		break;
 	default:
-		stringstream ss;
-		ss << "spheroidFromEpsgCode: EPSG code " << epsgCode << " is not a supported EPSG code." << endl;
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		std::stringstream ss;
+		ss << "  spheroidFromEpsgCode: EPSG code '" << epsgCode << "' is not a supported EPSG code." << std::endl;
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 }
 
 template <typename U>
-string referenceepochFromEpsgCode(const U& epsgCode)
+std::string referenceepochFromEpsgCode(const U& epsgCode)
 {
 	switch (epsgCode)
 	{
@@ -551,11 +548,17 @@ string referenceepochFromEpsgCode(const U& epsgCode)
 	case WGS84_G2139_i:
 		return WGS84_G2139_epoch;
 	default:
-		stringstream ss;
-		ss << "referenceepochFromEpsgCode: EPSG code " << epsgCode << " is not a supported EPSG code." << endl;
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		std::stringstream ss;
+		ss << "  referenceepochFromEpsgCode: EPSG code '" << epsgCode << "' is not a supported EPSG code." << std::endl;
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	return "";
+}
+	
+template <typename S>
+S referenceepochFromEpsgString(const S& epsgString)
+{
+	return referenceepochFromEpsgCode<UINT32>(LongFromString<UINT32>(epsgString));
 }
 
 template <typename S, typename U>
@@ -650,9 +653,9 @@ S datumFromEpsgCode(const U& epsgCode)
 	case WGS84_G2139_i:
 		return WGS84_G2139_s;
 	default:
-		stringstream ss;
-		ss << "datumFromEpsgCode: EPSG code " << epsgCode << " is not a supported EPSG code." << endl;
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		std::stringstream ss;
+		ss << "  datumFromEpsgCode: EPSG code '" << epsgCode << "' is not a supported EPSG code." << std::endl;
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	return "";
 }
@@ -743,9 +746,9 @@ bool validateEpsgCode(const U& epsgCode)
 	case WGS84_G2139_i:
 		return true;
 	default:
-		stringstream ss;
-		ss << "validateEpsgCode: EPSG code " << epsgCode << " is not a supported EPSG code." << endl;
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		std::stringstream ss;
+		ss << "  validateEpsgCode: EPSG code '" << epsgCode << "' is not a supported EPSG code." << std::endl;
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	return false;
 }
@@ -769,8 +772,8 @@ bool isEpsgWGS84Ensemble(const U& epsgCode)
 template <typename U>
 bool isEpsgStringWGS84Ensemble(const U& epsgString)
 {	
-	if (iequals(epsgString, WGS84_c) ||
-		iequals(epsgString, WGS84_ensemble_c))
+	if (boost::iequals(epsgString, WGS84_c) ||
+		boost::iequals(epsgString, WGS84_ensemble_c))
 		return true;
 
 	return false;
@@ -809,15 +812,15 @@ bool isEpsgWGS84(const U& epsgCode)
 template <typename U>
 bool isEpsgStringWGS84(const U& epsgString)
 {
-	if (iequals(epsgString, WGS84_c) ||
-		iequals(epsgString, WGS84_ensemble_c) ||
-		iequals(epsgString, WGS84_transit_c) ||
-		iequals(epsgString, WGS84_G730_c) ||
-		iequals(epsgString, WGS84_G873_c) ||
-		iequals(epsgString, WGS84_G1150_c) ||
-		iequals(epsgString, WGS84_G1674_c) ||
-		iequals(epsgString, WGS84_G1762_c) ||
-		iequals(epsgString, WGS84_G2139_c))
+	if (boost::iequals(epsgString, WGS84_c) ||
+		boost::iequals(epsgString, WGS84_ensemble_c) ||
+		boost::iequals(epsgString, WGS84_transit_c) ||
+		boost::iequals(epsgString, WGS84_G730_c) ||
+		boost::iequals(epsgString, WGS84_G873_c) ||
+		boost::iequals(epsgString, WGS84_G1150_c) ||
+		boost::iequals(epsgString, WGS84_G1674_c) ||
+		boost::iequals(epsgString, WGS84_G1762_c) ||
+		boost::iequals(epsgString, WGS84_G2139_c))
 		return true;
 
 	return false;

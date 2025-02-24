@@ -38,9 +38,6 @@
 #include <include/functions/dnaiostreamfuncs.hpp>
 #include <include/math/dnamatrix_contiguous.hpp>
 
-using namespace std;
-using namespace boost;
-
 using namespace dynadjust::math;
 
 namespace dynadjust {
@@ -80,9 +77,9 @@ struct type_b_uncertainty_t
 
 // Create types for the type b uncertainties to be managed for sites
 typedef type_b_uncertainty_t<UINT32, double, matrix_2d> type_b_uncertainty;
-typedef vector<type_b_uncertainty> v_type_b_uncertainty;
+typedef std::vector<type_b_uncertainty> v_type_b_uncertainty;
 typedef v_type_b_uncertainty::iterator it_type_b_uncertainty;
-typedef pair<it_type_b_uncertainty, it_type_b_uncertainty> it_pair_type_b_uncertainty;
+typedef std::pair<it_type_b_uncertainty, it_type_b_uncertainty> it_pair_type_b_uncertainty;
 
 template <class T1=UINT32, class T2= type_b_uncertainty>
 class CompareTypeBStationID
@@ -134,7 +131,7 @@ struct type_b_method_t
 };
 
 typedef type_b_method_t<UINT32, bool, TYPE_B_METHOD_TYPE> type_b_method;
-typedef vector<type_b_method> v_type_b_method;
+typedef std::vector<type_b_method> v_type_b_method;
 typedef v_type_b_method::iterator it_type_b_method;
 
 
@@ -149,14 +146,14 @@ public:
 
 	dna_io_tbu& operator=(const dna_io_tbu& rhs);
 
-	void read_tbu_header(std::ifstream* ptr, string& version, INPUT_DATA_TYPE& idt);
+	void read_tbu_header(std::ifstream* ptr, std::string& version, INPUT_DATA_TYPE& idt);
 
-	void load_tbu_file(const string& tbu_filename, v_type_b_uncertainty& type_b_uncertainties, v_string_uint32_pair& vStnsMap);
-	void load_tbu_argument(const string& argument, type_b_uncertainty& type_b_uncertainties);
+	void load_tbu_file(const std::string& tbu_filename, v_type_b_uncertainty& type_b_uncertainties, v_string_uint32_pair& vStnsMap);
+	void load_tbu_argument(const std::string& argument, type_b_uncertainty& type_b_uncertainties);
 
-	void identify_station_id(const string& stn_str, UINT32& stn_id, v_string_uint32_pair& vStnsMap);
+	void identify_station_id(const std::string& stn_str, UINT32& stn_id, v_string_uint32_pair& vStnsMap);
 
-	void validate_typeb_values(const string& argument, vstring& typeBUncertainties);
+	void validate_typeb_values(const std::string& argument, vstring& typeBUncertainties);
 	void assign_typeb_values_global(const vstring& typeBUncertainties, type_b_uncertainty& type_b);
 	void assign_typeb_values_local(const vstring& typeBUncertainties, type_b_uncertainty& type_b);
 

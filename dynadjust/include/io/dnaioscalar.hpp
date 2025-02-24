@@ -47,7 +47,7 @@ public:
 
 	dna_io_scalar& operator=(const dna_io_scalar& rhs);
 
-	void load_scalar_file(const string& map_filename, pvscl_t bslScaling);
+	void load_scalar_file(const std::string& map_filename, pvscl_t bslScaling);
 
 protected:
 

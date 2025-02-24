@@ -53,8 +53,7 @@ typedef enum ADJ_MSR_SORT_UI
 	meas_adj_msr_sort_ui = 4,
 	corr_adj_msr_sort_ui = 5,
 	a_sd_adj_msr_sort_ui = 6,
-	n_st_adj_msr_sort_ui = 7,
-	outl_adj_msr_sort_ui = 8
+	n_st_adj_msr_sort_ui = 7
 } _ADJ_MSR_SORT_UI_;
 
 typedef enum MSR_TO_STN_SORT_UI

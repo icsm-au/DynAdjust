@@ -20,7 +20,6 @@
 // Description  : AusGeoid Grid File (NTv2) Interpolation library
 //============================================================================
 
-
 #include <dynadjust/dnageoid/dnageoid.hpp>
 
 namespace dynadjust { namespace geoidinterpolation {
@@ -78,31 +77,31 @@ void dna_geoid_interpolation::ApplyAusGeoidGrid(geoid_point *agCoord, const int&
 		throw NetGeoidException(ErrorString(ERR_INTERPOLATION_TYPE), ERR_INTERPOLATION_TYPE);
 }
 
-string dna_geoid_interpolation::ReturnBadStationRecords()
+std::string dna_geoid_interpolation::ReturnBadStationRecords()
 {
-	stringstream ssPoints;
+	std::stringstream ssPoints;
 
-	ssPoints << setw(STATION) << left << "Station" <<
-		setw(PAD2) << " " << 
-		right << setw(LAT_EAST) << "Latitude" << 
-		right << setw(LON_NORTH) << "Longitude" << 
-		right << setw(LON_NORTH) << "Error code" << endl;
+	ssPoints << std::setw(STATION) << std::left << "Station" <<
+		std::setw(PAD2) << " " << 
+		std::right << std::setw(LAT_EAST) << "Latitude" << 
+		std::right << std::setw(LON_NORTH) << "Longitude" << 
+		std::right << std::setw(LON_NORTH) << "Error code" << std::endl;
 
 	UINT32 i, j = STATION+PAD2+LAT_EAST+LON_NORTH+LON_NORTH;
 
 	for (i=0; i<j; ++i)
 		ssPoints << "-";
-	ssPoints << endl;
+	ssPoints << std::endl;
 
 	for (it_stn_string stn_it = bstBadPoints_.begin(); 
 		stn_it!=bstBadPoints_.end(); 
 		++stn_it)
 	{
-		ssPoints << setw(STATION) << left << stn_it->first.stationName <<
-			setw(PAD2) << " " <<			
-			right << setw(LAT_EAST) << FormatDmsString(RadtoDms(stn_it->first.currentLatitude), 7, true, false) << 
-			right << setw(LON_NORTH) << FormatDmsString(RadtoDms(stn_it->first.currentLongitude), 7, true, false) << 
-			right << setw(LON_NORTH) << stn_it->second << endl;
+		ssPoints << std::setw(STATION) << std::left << stn_it->first.stationName <<
+			std::setw(PAD2) << " " <<			
+			std::right << std::setw(LAT_EAST) << FormatDmsString(RadtoDms(stn_it->first.currentLatitude), 7, true, false) << 
+			std::right << std::setw(LON_NORTH) << FormatDmsString(RadtoDms(stn_it->first.currentLongitude), 7, true, false) << 
+			std::right << std::setw(LON_NORTH) << stn_it->second << std::endl;
 	}
 
 	return ssPoints.str();
@@ -175,9 +174,9 @@ void dna_geoid_interpolation::ProcessCsvFile(std::ifstream* f_in, std::ofstream*
 	double latitude, longitude, original_height;
 
 	// calculate file length
-	f_in->seekg(0, ios::end);		// set file pointer to end
-	streamoff lFileLen = f_in->tellg();
-	f_in->seekg(0, ios::beg);		// reset file pointer to beginning
+	f_in->seekg(0, std::ios::end);		// set file pointer to end
+	std::streamoff lFileLen = f_in->tellg();
+	f_in->seekg(0, std::ios::beg);		// reset file pointer to beginning
 
 	char cBuf[MAX_RECORD_LENGTH];
 
@@ -186,20 +185,20 @@ void dna_geoid_interpolation::ProcessCsvFile(std::ifstream* f_in, std::ofstream*
 	bool iSuccess;
 	int fieldCount;
 	bool bheight_data;
-	string sBuf;
+	std::string sBuf;
 
 	// Print header
-	*f_out << left << setw(11) << "Point" << "," <<
-		setw(16) << right << "Latitude" << "," <<
-		setw(16) << right << "Longitude" << "," <<
-		setw(9) << right << "Orig. Ht" << ",";
+	*f_out << std::left << std::setw(11) << "Point" << "," <<
+		std::setw(16) << std::right << "Latitude" << "," <<
+		std::setw(16) << std::right << "Longitude" << "," <<
+		std::setw(9) << std::right << "Orig. Ht" << ",";
 	if (intEllipsoidtoOrtho == 1)
-		*f_out << setw(9) << right << trimstr(string(m_pGridfile->chSystem_t)) <<	",";	// "New Ht" 
+		*f_out << std::setw(9) << std::right << trimstr(std::string(m_pGridfile->chSystem_t)) <<	",";	// "New Ht" 
 	else
-		*f_out << setw(9) << right << trimstr(string(m_pGridfile->chSystem_f)) <<	",";	// "New Ht" 
-	*f_out << setw(9) << right << "N value" << "," <<
-		setw(9) << right << "D.Merid" << "," <<
-		setw(9) << right << "D.PrimeV" << endl;
+		*f_out << std::setw(9) << std::right << trimstr(std::string(m_pGridfile->chSystem_f)) <<	",";	// "New Ht" 
+	*f_out << std::setw(9) << std::right << "N value" << "," <<
+		std::setw(9) << std::right << "D.Merid" << "," <<
+		std::setw(9) << std::right << "D.PrimeV" << std::endl;
 
 	while (!f_in->eof())			// while EOF not found
 	{
@@ -240,31 +239,31 @@ void dna_geoid_interpolation::ProcessCsvFile(std::ifstream* f_in, std::ofstream*
 					longitude < -180.0 || longitude > 180.0)
 				{
 					// Coordinates are invalid
-					*f_out << left << "ERROR (" << ERR_NUM_CSV_FIELDS << "): " <<
-						ErrorString(ERR_NUM_CSV_FIELDS, sBuf) << endl;
+					*f_out << std::left << "ERROR (" << ERR_NUM_CSV_FIELDS << "): " <<
+						ErrorString(ERR_NUM_CSV_FIELDS, sBuf) << std::endl;
 					continue;
 				}
 			}
 		}
 		catch (...) {
-			*f_out << left << "ERROR (" << ERR_READING_DATA << "): " <<
-				ErrorString(ERR_READING_DATA, cBuf) << endl;
+			*f_out << std::left << "ERROR (" << ERR_READING_DATA << "): " <<
+				ErrorString(ERR_READING_DATA, cBuf) << std::endl;
 			continue;
 		}
 
 		if (fabs(latitude) > UNRELIABLE || fabs(longitude) > UNRELIABLE)
 		{
 			// a comma was found, but no data
-			*f_out << left << "ERROR (" << ERR_NUM_CSV_FIELDS << "): " <<
-				ErrorString(ERR_NUM_CSV_FIELDS, sBuf) << endl;
+			*f_out << std::left << "ERROR (" << ERR_NUM_CSV_FIELDS << "): " <<
+				ErrorString(ERR_NUM_CSV_FIELDS, sBuf) << std::endl;
 			continue;
 		}
 
 		if (fabs(latitude) > 90.0 || fabs(longitude) > 180.0)
 		{
 			// latitude or longitude invalid
-			*f_out << left << "ERROR (" << ERR_INVALID_INPUT << "): " <<
-				ErrorString(ERR_INVALID_INPUT, sBuf) << endl;
+			*f_out << std::left << "ERROR (" << ERR_INVALID_INPUT << "): " <<
+				ErrorString(ERR_INVALID_INPUT, sBuf) << std::endl;
 			continue;
 		}
 
@@ -297,7 +296,7 @@ void dna_geoid_interpolation::ProcessCsvFile(std::ifstream* f_in, std::ofstream*
 			iSuccess = true;
 		}
 		catch (const NetGeoidException& e) {
-			stringstream s(e.what());
+			std::stringstream s(e.what());
 			iSuccess = false;
 		}
 
@@ -316,46 +315,46 @@ void dna_geoid_interpolation::ProcessCsvFile(std::ifstream* f_in, std::ofstream*
 			apPt.cVar.dHeight = -UNRELIABLE;
 
 			// Format error message using input coordinates
-			stringstream ss;
+			std::stringstream ss;
 			strcpy(cBuf, sBuf.c_str());
 			char inputLatitude[50], inputLongitude[50];
 			GetFields(cBuf, ',', false, "sss", cPoint, inputLatitude, inputLongitude);
-			ss << trimstr(string(inputLatitude)) << ", " << trimstr(string(inputLongitude));
+			ss << trimstr(std::string(inputLatitude)) << ", " << trimstr(std::string(inputLongitude));
 
 			// print dat
-			*f_out << left << "ERROR (" << apPt.cVar.IO_Status << "): " <<
-				ErrorString(apPt.cVar.IO_Status, ss.str()) << endl;
+			*f_out << std::left << "ERROR (" << apPt.cVar.IO_Status << "): " <<
+				ErrorString(apPt.cVar.IO_Status, ss.str()) << std::endl;
 			continue;
 		}
 
 		// print csv 
 		// const char* const CSV_DDEG = "%-11s,%16.9f,%16.9f,%9.3f\n";
-		*f_out << left << setw(11) << cPoint << "," <<
-			setw(16) << setprecision(9) << fixed << right << latitude << "," <<
-			setw(16) << setprecision(9) << fixed << right << longitude << ",";
+		*f_out << std::left << std::setw(11) << cPoint << "," <<
+			std::setw(16) << std::setprecision(9) << std::fixed << std::right << latitude << "," <<
+			std::setw(16) << std::setprecision(9) << std::fixed << std::right << longitude << ",";
 		
 		
 		if (bheight_data)
 		{
 			// A height was supplied...
 			// Print the 'original' height
-			*f_out << setw(9) << setprecision(3) << fixed << right << original_height << ",";
+			*f_out << std::setw(9) << std::setprecision(3) << std::fixed << std::right << original_height << ",";
 			// Print the 'transformed' height
-			*f_out << setw(9) << setprecision(3) << fixed << right << apPt.cVar.dHeight << ",";
+			*f_out << std::setw(9) << std::setprecision(3) << std::fixed << std::right << apPt.cVar.dHeight << ",";
 		}
 		else
 		{
 			// no height was supplied, so print blanks for original height and derived heights
-			*f_out << setw(9) << right << " " << ",";
-			*f_out << setw(9) << right << " " << ",";
+			*f_out << std::setw(9) << std::right << " " << ",";
+			*f_out << std::setw(9) << std::right << " " << ",";
 		}			
 
 		// As per Nick Brown's request, print the N value regardless of input height
-		*f_out << setw(9) << setprecision(3) << fixed << right << apPt.gVar.dN_value << ",";
+		*f_out << std::setw(9) << std::setprecision(3) << std::fixed << std::right << apPt.gVar.dN_value << ",";
 
 		// Print the deflection values
-		*f_out << setw(9) << setprecision(3) << fixed << right << apPt.gVar.dDefl_meridian << "," <<
-			setw(9) << setprecision(3) << fixed << right << apPt.gVar.dDefl_primev << endl;
+		*f_out << std::setw(9) << std::setprecision(3) << std::fixed << std::right << apPt.gVar.dDefl_meridian << "," <<
+			std::setw(9) << std::setprecision(3) << std::fixed << std::right << apPt.gVar.dDefl_primev << std::endl;
 
 		// write to dna geo file
 		if (m_exportDNAGeoidFile)
@@ -370,30 +369,30 @@ void dna_geoid_interpolation::ProcessDatFile(std::ifstream* f_in, std::ofstream*
 	m_fileMode = true;
 
 	// calculate file length
-	f_in->seekg(0, ios::end);		// set file pointer to end
-	streamoff lFileLen = f_in->tellg();
-	f_in->seekg(0, ios::beg);		// reset file pointer to beginning
+	f_in->seekg(0, std::ios::end);		// set file pointer to end
+	std::streamoff lFileLen = f_in->tellg();
+	f_in->seekg(0, std::ios::beg);		// reset file pointer to beginning
 
 	char cBuf[MAX_RECORD_LENGTH];
 	geoid_point apPt;
 	bool iSuccess;
 	bool bheight_data;
-	string strBuf, station;
+	std::string strBuf, station;
 	
 	double original_height;
 
 	// Print header
-	*f_out << left << setw(11) << "Point" <<
-		setw(16) << right << "Latitude" <<
-		setw(16) << right << "Longitude" <<
-		setw(9) << right << "Orig. Ht";
+	*f_out << std::left << std::setw(11) << "Point" <<
+		std::setw(16) << std::right << "Latitude" <<
+		std::setw(16) << std::right << "Longitude" <<
+		std::setw(9) << std::right << "Orig. Ht";
 	if (intEllipsoidtoOrtho == 1)
-		*f_out << setw(9) << right << trimstr(string(m_pGridfile->chSystem_t));		// "New Ht" 
+		*f_out << std::setw(9) << std::right << trimstr(std::string(m_pGridfile->chSystem_t));		// "New Ht" 
 	else
-		*f_out << setw(9) << right << trimstr(string(m_pGridfile->chSystem_f));		// "New Ht" 
-	*f_out << setw(9) << right << "N value" <<
-		setw(9) << right << "D.Merid" <<
-		setw(9) << right << "D.PrimeV" << endl;
+		*f_out << std::setw(9) << std::right << trimstr(std::string(m_pGridfile->chSystem_f));		// "New Ht" 
+	*f_out << std::setw(9) << std::right << "N value" <<
+		std::setw(9) << std::right << "D.Merid" <<
+		std::setw(9) << std::right << "D.PrimeV" << std::endl;
 
 	do
 	{
@@ -424,12 +423,12 @@ void dna_geoid_interpolation::ProcessDatFile(std::ifstream* f_in, std::ofstream*
 		if (strBuf.length() < 31)		// 31 = 11 + 16 + 4 (4 is the minimum number of
 		{								//                   units required for longitude)
 			// print dat
-			*f_out << left << "ERROR (" << ERR_LINE_TOO_SHORT << "): " <<
-				ErrorString(ERR_LINE_TOO_SHORT, strBuf) << endl;
+			*f_out << std::left << "ERROR (" << ERR_LINE_TOO_SHORT << "): " <<
+				ErrorString(ERR_LINE_TOO_SHORT, strBuf) << std::endl;
 			continue;					
 		}
 		
-		stringstream ssInput;
+		std::stringstream ssInput;
 		ssInput << trimstr(strBuf.substr(11, 16)) << ", " 
 			<< trimstr(strBuf.substr(27, 16));
 		SetInputCoordinates(ssInput.str());
@@ -465,7 +464,7 @@ void dna_geoid_interpolation::ProcessDatFile(std::ifstream* f_in, std::ofstream*
 		// are there characters after the permitted height field?
 		if (bheight_data)
 		{
-			string height_str;
+			std::string height_str;
 			if (strBuf.length() > 52)
 				height_str = trimstr(strBuf.substr(43, 9));
 			else
@@ -487,7 +486,7 @@ void dna_geoid_interpolation::ProcessDatFile(std::ifstream* f_in, std::ofstream*
 			iSuccess = true;
 		}
 		catch (const NetGeoidException& e) {
-			stringstream s(e.what());
+			std::stringstream s(e.what());
 			iSuccess = false;
 		}
 
@@ -506,12 +505,12 @@ void dna_geoid_interpolation::ProcessDatFile(std::ifstream* f_in, std::ofstream*
 			apPt.cVar.dHeight = -UNRELIABLE;
 
 			// Format error message using input coordinates
-			stringstream ss;
+			std::stringstream ss;
 			ss << trimstr(strBuf.substr(11, 16)) << ", " << trimstr(strBuf.substr(27, 16));
 
 			// print dat
-			*f_out << left << "ERROR (" << apPt.cVar.IO_Status << "): " <<
-				ErrorString(apPt.cVar.IO_Status, ss.str()) << endl;
+			*f_out << std::left << "ERROR (" << apPt.cVar.IO_Status << "): " <<
+				ErrorString(apPt.cVar.IO_Status, ss.str()) << std::endl;
 			continue;
 		}
 
@@ -521,37 +520,37 @@ void dna_geoid_interpolation::ProcessDatFile(std::ifstream* f_in, std::ofstream*
 			apPt.cVar.dLongitude = DegtoDms<double>(apPt.cVar.dLongitude);
 		}
 
-		station = string(cBuf).substr(0, 11);
+		station = std::string(cBuf).substr(0, 11);
 		// print dat
-		*f_out << left << setw(11) << station <<
-			setw(16) << setprecision(9) << fixed << right << apPt.cVar.dLatitude <<
-			setw(16) << setprecision(9) << fixed << right << apPt.cVar.dLongitude;
+		*f_out << std::left << std::setw(11) << station <<
+			std::setw(16) << std::setprecision(9) << std::fixed << std::right << apPt.cVar.dLatitude <<
+			std::setw(16) << std::setprecision(9) << std::fixed << std::right << apPt.cVar.dLongitude;
 		
 		if (bheight_data)
 		{
 			// A height was supplied...
 			// Print the 'original' height
-			*f_out << setw(9) << setprecision(3) << fixed << right << original_height;
+			*f_out << std::setw(9) << std::setprecision(3) << std::fixed << std::right << original_height;
 
 			// Print the 'transformed' height, unless there is no N value (-999.000)
 			if (apPt.gVar.dN_value < -998.0)
-				*f_out << setw(9) << setprecision(3) << fixed << right << original_height;
+				*f_out << std::setw(9) << std::setprecision(3) << std::fixed << std::right << original_height;
 			else
-				*f_out << setw(9) << setprecision(3) << fixed << right << apPt.cVar.dHeight;
+				*f_out << std::setw(9) << std::setprecision(3) << std::fixed << std::right << apPt.cVar.dHeight;
 		}
 		else
 		{
 			// no height was supplied, so print blanks for original height and derived heights
-			*f_out << setw(9) << right << " ";
-			*f_out << setw(9) << right << " ";
+			*f_out << std::setw(9) << std::right << " ";
+			*f_out << std::setw(9) << std::right << " ";
 		}
 		
 		// As per Nick Brown's request, print the N value regardless of input height
-		*f_out << setw(9) << setprecision(3) << fixed << right << apPt.gVar.dN_value;
+		*f_out << std::setw(9) << std::setprecision(3) << std::fixed << std::right << apPt.gVar.dN_value;
 
 		// Print the deflection values
-		*f_out << setw(9) << setprecision(3) << fixed << right << apPt.gVar.dDefl_meridian <<
-			setw(9) << setprecision(3) << fixed << right << apPt.gVar.dDefl_primev << endl;
+		*f_out << std::setw(9) << std::setprecision(3) << std::fixed << std::right << apPt.gVar.dDefl_meridian <<
+			std::setw(9) << std::setprecision(3) << std::fixed << std::right << apPt.gVar.dDefl_primev << std::endl;
 
 		// write to dna geo file
 		if (m_exportDNAGeoidFile)
@@ -572,7 +571,7 @@ void dna_geoid_interpolation::FileTransformation(const char* fileIn, const char*
 
 	m_pointsInterpolated = m_pointsNotInterpolated = 0;
 	
-	//const char* ext = strrchr(trimstr<string>(fileIn).c_str(), '.');
+	//const char* ext = strrchr(trimstr<std::string>(fileIn).c_str(), '.');
 	const char* ext = strrchr(fileIn, '.');
 	int iF_inType(TYPE_ASC);
 	
@@ -585,11 +584,11 @@ void dna_geoid_interpolation::FileTransformation(const char* fileIn, const char*
 	std::ifstream f_in;
 	try {
 		// open input file.  Throws runtime_error on failure.
-		file_opener(f_in, trimstr<string>(fileIn).c_str(), ios::in, ascii, true);
+		file_opener(f_in, trimstr<std::string>(fileIn).c_str(), std::ios::in, ascii, true);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ClearGridFileMemory();
-		stringstream ss;
+		std::stringstream ss;
 		ss << ErrorString(ERR_INFILE_READ) << "\n" <<
 			"  " << e.what();
 		throw NetGeoidException(ss.str(), ERR_INFILE_READ);
@@ -598,11 +597,11 @@ void dna_geoid_interpolation::FileTransformation(const char* fileIn, const char*
 	std::ofstream f_out;
 	try {
 		// Create input file.  Throws runtime_error on failure.
-		file_opener(f_out, trimstr<string>(fileOut).c_str());
+		file_opener(f_out, trimstr<std::string>(fileOut).c_str());
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ClearGridFileMemory();
-		stringstream ss;
+		std::stringstream ss;
 		ss << ErrorString(ERR_OUTFILE_WRITE) << "\n" <<
 			"  " << e.what();
 		throw NetGeoidException(ss.str(), ERR_OUTFILE_WRITE);
@@ -614,19 +613,19 @@ void dna_geoid_interpolation::FileTransformation(const char* fileIn, const char*
 	std::ofstream f_dnageo;
 	if (m_exportDNAGeoidFile)
 	{
-		string geofileOut;
+		std::string geofileOut;
 		if (geoFile != NULL)
 			geofileOut = geoFile;
 		else
 		{
-			geofileOut = trimstr<string>(fileOut);
+			geofileOut = trimstr<std::string>(fileOut);
 
-			string searchstr(ext);
-			string replacestr(".geo");
+			std::string searchstr(ext);
+			std::string replacestr(".geo");
 		
 			size_t pos = 0;
 
-			if ((pos = geofileOut.find(searchstr, pos)) != string::npos)
+			if ((pos = geofileOut.find(searchstr, pos)) != std::string::npos)
 				geofileOut.replace(pos, replacestr.size(), replacestr);
 			else
 				geofileOut += ".geo";
@@ -636,9 +635,9 @@ void dna_geoid_interpolation::FileTransformation(const char* fileIn, const char*
 			// Create geoid file.  Throws runtime_error on failure.
 			file_opener(f_dnageo, geofileOut);
 		}
-		catch (const runtime_error& e) {
+		catch (const std::runtime_error& e) {
 			ClearGridFileMemory();
-			stringstream ss;
+			std::stringstream ss;
 			ss << ErrorString(ERR_OUTFILE_WRITE) << "\n" <<
 				"  " << e.what();
 			throw NetGeoidException(ss.str(), ERR_OUTFILE_WRITE);
@@ -648,10 +647,10 @@ void dna_geoid_interpolation::FileTransformation(const char* fileIn, const char*
 	// As per Nick Brown's request, print Grid file version to file
 	f_out << "Derived ";
 	if (intEllipsoidtoOrtho == 1)
-		f_out << trimstr(string(m_pGridfile->chSystem_t));
+		f_out << trimstr(std::string(m_pGridfile->chSystem_t));
 	else
-		f_out << trimstr(string(m_pGridfile->chSystem_f));
-	f_out << " values obtained from " << left << m_pGridfile->filename << ", Version " << trimstr(string(m_pGridfile->chVersion)) << endl;
+		f_out << trimstr(std::string(m_pGridfile->chSystem_f));
+	f_out << " values obtained from " << std::left << m_pGridfile->filename << ", Version " << trimstr(std::string(m_pGridfile->chVersion)) << std::endl;
 
 	switch (iF_inType)
 	{
@@ -671,7 +670,7 @@ void dna_geoid_interpolation::FileTransformation(const char* fileIn, const char*
 		f_dnageo.close();
 }
 	
-void dna_geoid_interpolation::PopulateBinaryStationFile(const string& bstnFile, const int& method, 
+void dna_geoid_interpolation::PopulateBinaryStationFile(const std::string& bstnFile, const int& method, 
 	bool convertHeights, bool exportDnaGeoidFile, const char* geoFile)
 {
 	if (!m_pGridfile)
@@ -689,13 +688,13 @@ void dna_geoid_interpolation::PopulateBinaryStationFile(const string& bstnFile, 
 	{
 		if (geoFile == NULL)
 		{
-			string geofileOut(bstnFile);
+			std::string geofileOut(bstnFile);
 
 			// Export data to DNA geoid file?
-			string searchstr(".bst"), replacestr(".geo");
+			std::string searchstr(".bst"), replacestr(".geo");
 			size_t pos = 0;
 
-			if ((pos = geofileOut.find(searchstr, pos)) != string::npos)
+			if ((pos = geofileOut.find(searchstr, pos)) != std::string::npos)
 				geofileOut.replace(pos, replacestr.size(), replacestr);
 			else
 				geofileOut += ".geo";
@@ -707,16 +706,16 @@ void dna_geoid_interpolation::PopulateBinaryStationFile(const string& bstnFile, 
 	}
 }
 
-void dna_geoid_interpolation::LoadBinaryStationFile(const string& bstnfileName)
+void dna_geoid_interpolation::LoadBinaryStationFile(const std::string& bstnfileName)
 {
 	try {
 		// Load binary stations data.  Throws runtime_error on failure.
 		dna_io_bst bst;
 		bst.load_bst_file(bstnfileName, &bstBinaryRecords_, bst_meta_);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ClearGridFileMemory();
-		stringstream ss;
+		std::stringstream ss;
 		ss << ErrorString(ERR_INFILE_READ) << "\n" <<
 			"  " << e.what();
 		throw NetGeoidException(ss.str(), ERR_INFILE_READ);
@@ -724,35 +723,36 @@ void dna_geoid_interpolation::LoadBinaryStationFile(const string& bstnfileName)
 }
 
 
-void dna_geoid_interpolation::WriteBinaryStationFile(const string& bstnfileName)
+void dna_geoid_interpolation::WriteBinaryStationFile(const std::string& bstnfileName)
 {
 	sprintf(bst_meta_.modifiedBy, "%s", __BINARY_NAME__);
+	bst_meta_.geoid = true;
 	
 	try {
 		// write binary stations data.  Throws runtime_error on failure.
 		dna_io_bst bst;
 		bst.write_bst_file(bstnfileName, &bstBinaryRecords_, bst_meta_);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ClearGridFileMemory();
-		stringstream ss;
-		ss << ErrorString(ERR_OUTFILE_WRITE) << endl <<
+		std::stringstream ss;
+		ss << ErrorString(ERR_OUTFILE_WRITE) << std::endl <<
 			"  " << e.what();
 		throw NetGeoidException(ss.str(), ERR_OUTFILE_WRITE);
 	}
 }
 
 
-void dna_geoid_interpolation::WriteDNA1GeoidFile(const string& geofileName)
+void dna_geoid_interpolation::WriteDNA1GeoidFile(const std::string& geofileName)
 {
 	std::ofstream f_dnageo;
 	try {
 		// Create geoid file.  Throws runtime_error on failure.
 		file_opener(f_dnageo, geofileName);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ClearGridFileMemory();
-		stringstream ss;
+		std::stringstream ss;
 		ss << ErrorString(ERR_OUTFILE_WRITE) << "\n" <<
 			"  " << e.what();
 		throw NetGeoidException(ss.str(), ERR_OUTFILE_WRITE);
@@ -763,7 +763,7 @@ void dna_geoid_interpolation::WriteDNA1GeoidFile(const string& geofileName)
 		// Write header line
 		dnaproj_header(f_dnageo, "DNA geoid file");
 
-		f_dnageo << endl;
+		f_dnageo << std::endl;
 
 		it_vstn_t _it_stn(bstBinaryRecords_.begin());
 		
@@ -784,9 +784,9 @@ void dna_geoid_interpolation::WriteDNA1GeoidFile(const string& geofileName)
 				Seconds(_it_stn->verticalDef));
 		}
 	}
-	catch (const ios_base::failure& f) {
-		stringstream ss;
-		ss << "WriteDNA1GeoidFile(): An error was encountered when writing to  " << geofileName << "." << endl << f.what();
+	catch (const std::ios_base::failure& f) {
+		std::stringstream ss;
+		ss << "WriteDNA1GeoidFile(): An error was encountered when writing to  " << geofileName << "." << std::endl << f.what();
 		throw NetGeoidException(ss.str(), ERR_INFILE_READ);
 	}
 
@@ -795,12 +795,12 @@ void dna_geoid_interpolation::WriteDNA1GeoidFile(const string& geofileName)
 }
 	
 
-void dna_geoid_interpolation::PrintDNA1GeoidRecord(std::ofstream& f_out, const string& station, const double& nValue, const double& meridianDef, const double& verticalDef)
+void dna_geoid_interpolation::PrintDNA1GeoidRecord(std::ofstream& f_out, const std::string& station, const double& nValue, const double& meridianDef, const double& verticalDef)
 {
-	f_out << setw(41) << left << station <<
-		setw(9) << right << fixed << setprecision(3) << nValue <<
-		setw(19) << right << setprecision(3) << meridianDef <<
-		setw(10) << right << setprecision(3) << verticalDef << endl;
+	f_out << std::setw(41) << std::left << station <<
+		std::setw(9) << std::right << std::fixed << std::setprecision(3) << nValue <<
+		std::setw(19) << std::right << std::setprecision(3) << meridianDef <<
+		std::setw(10) << std::right << std::setprecision(3) << verticalDef << std::endl;
 }
 	
 
@@ -924,7 +924,7 @@ void dna_geoid_interpolation::CreateGridIndex(const char* fileName, const char* 
 		}
 	}
 	// a new filename or filetype?
-	else if (!iequals(m_pGridfile->filename, fileName))
+	else if (!boost::iequals(m_pGridfile->filename, fileName))
 	{
 		ClearGridFileMemory();
 		if ((m_Grid_Success = OpenGridFile(fileName, fileType, 
@@ -1031,11 +1031,11 @@ void dna_geoid_interpolation::CreateNTv2File(const char* datFile, const n_file_p
 	std::ifstream f_in;
 	try {
 		// open dat file.  Throws runtime_error on failure.
-		file_opener(f_in, datFile, ios::in, ascii, true);
+		file_opener(f_in, datFile, std::ios::in, ascii, true);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ClearGridFileMemory();
-		stringstream ss;
+		std::stringstream ss;
 		ss << ErrorString(ERR_INFILE_READ) << "\n" <<
 			"  " << e.what();
 		throw NetGeoidException(ss.str(), ERR_INFILE_READ);
@@ -1044,20 +1044,20 @@ void dna_geoid_interpolation::CreateNTv2File(const char* datFile, const n_file_p
 	std::ofstream f_out;
 	try {
 		// open binary gsb output.  Throws runtime_error on failure.
-		file_opener(f_out, grid->filename, ios::out | ios::binary, binary, false);
+		file_opener(f_out, grid->filename, std::ios::out | std::ios::binary, binary, false);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ClearGridFileMemory();
-		stringstream ss;
+		std::stringstream ss;
 		ss << ErrorString(ERR_OUTFILE_WRITE) << "\n" <<
 			"  " << e.what();
 		throw NetGeoidException(ss.str(), ERR_OUTFILE_WRITE);
 	}
 
 	// calculate file length
-	f_in.seekg(0, ios::end);		// set file pointer to end
-	streamoff lFileLen = f_in.tellg();
-	f_in.seekg(0, ios::beg);		// reset file pointer to beginning
+	f_in.seekg(0, std::ios::end);		// set file pointer to end
+	std::streamoff lFileLen = f_in.tellg();
+	f_in.seekg(0, std::ios::beg);		// reset file pointer to beginning
 	
 	char szLine[MAX_RECORD_LENGTH];
 
@@ -1070,7 +1070,7 @@ void dna_geoid_interpolation::CreateNTv2File(const char* datFile, const n_file_p
 	f_in.getline(szLine, MAX_RECORD_LENGTH);
 
 	if (strncmp(szLine, "GEO", 3) == 0)
-		f_in.seekg(0, ios::beg);		// put file pointer back to beginning
+		f_in.seekg(0, std::ios::beg);		// put file pointer back to beginning
 
 	// AusGeoid file prints upper lat to lower lat.  NTv2 file format prints lower lat to upper lat
 	// So, read data to the end of the file to determine grid file limits and record count, then
@@ -1078,7 +1078,7 @@ void dna_geoid_interpolation::CreateNTv2File(const char* datFile, const n_file_p
 	double lat, lon, min_lat(90.), max_lat(-90.), min_lon(180.), max_lon(-180.);
 	double init_lat(0.), lat_inc(60.), lon_inc(60.);
 
-	cout << endl << "+ Reading contents of WINTER DAT file... ";
+	std::cout << std::endl << "+ Reading contents of WINTER DAT file... ";
 
 	m_isReading = true;
 	m_isWriting = false;
@@ -1126,7 +1126,7 @@ void dna_geoid_interpolation::CreateNTv2File(const char* datFile, const n_file_p
 			}		
 		}
 	}
-	catch (const ios_base::failure& f) {
+	catch (const std::ios_base::failure& f) {
 		if (!f_in.eof())
 			throw NetGeoidException(ErrorString(ERR_GRIDFILE_READ) + "\n " + f.what(), ERR_GRIDFILE_READ);
 	}
@@ -1150,17 +1150,17 @@ void dna_geoid_interpolation::CreateNTv2File(const char* datFile, const n_file_p
 
 	if (lExpectedNodes != lNodeRead)
 	{
-		stringstream ss;
-		ss << endl << "Expected number of rows is  " << lExpectedLatIncrements << endl;
-		ss << endl << "Expected number of cols is  " << lExpectedLonIncrements << endl;
-		ss << endl << "Expected number of nodes is " << lExpectedNodes << ", but read " << lNodeRead;
+		std::stringstream ss;
+		ss << std::endl << "Expected number of rows is  " << lExpectedLatIncrements << std::endl;
+		ss << std::endl << "Expected number of cols is  " << lExpectedLonIncrements << std::endl;
+		ss << std::endl << "Expected number of nodes is " << lExpectedNodes << ", but read " << lNodeRead;
 		throw NetGeoidException(ErrorString(ERR_GRID_PARAMETERS) + ss.str(), ERR_GRID_PARAMETERS);
 	}
 
 	m_iBytesRead = 0;
 
-	cout << "done." << endl << "+ WINTER DAT file structure appears OK." << endl;
-	cout <<	"+ Creating NTv2 gsb file... ";
+	std::cout << "done." << std::endl << "+ WINTER DAT file structure appears OK." << std::endl;
+	std::cout <<	"+ Creating NTv2 gsb file... ";
 	geoid_values* ag_data = new geoid_values[lNodeRead];
 
 	// Update header record
@@ -1173,8 +1173,8 @@ void dna_geoid_interpolation::CreateNTv2File(const char* datFile, const n_file_p
 	// Default option is to create a geoid grid file in seconds.
 	// Change to Radians if required
 	geoidConversion conversionType(geoidConversion::Same);
-	string shiftType(grid->chGs_type);
-	if (iequals(trimstr(shiftType), "radians"))
+	std::string shiftType(grid->chGs_type);
+	if (boost::iequals(trimstr(shiftType), "radians"))
 		conversionType = SecondsToRadians;
 
 	// Print default header block and subgrid header block information.
@@ -1183,12 +1183,12 @@ void dna_geoid_interpolation::CreateNTv2File(const char* datFile, const n_file_p
 	
 	// put file pointer back to beginning
 	f_in.clear();
-	f_in.seekg(0, ios::beg);
+	f_in.seekg(0, std::ios::beg);
 
 	// Read the first line and test for a comment line
 	f_in.getline(szLine, MAX_RECORD_LENGTH);
 	if (strncmp(szLine, "GEO", 3) == 0)
-		f_in.seekg(0, ios::beg);		// put file pointer back to beginning
+		f_in.seekg(0, std::ios::beg);		// put file pointer back to beginning
 
 	// read first line of dat file and scan in values
 	f_in.getline(szLine, MAX_RECORD_LENGTH);
@@ -1230,7 +1230,7 @@ void dna_geoid_interpolation::CreateNTv2File(const char* datFile, const n_file_p
 			f_in.getline(szLine, MAX_RECORD_LENGTH);	
 		}
 	}
-	catch (const ios_base::failure& f) {
+	catch (const std::ios_base::failure& f) {
 		if (!f_in.eof())
 			throw NetGeoidException(ErrorString(ERR_GRIDFILE_READ) + "\n " + f.what(), ERR_GRIDFILE_READ);
 	}
@@ -1255,7 +1255,7 @@ void dna_geoid_interpolation::CreateNTv2File(const char* datFile, const n_file_p
 	f_out.close();
 	f_in.close();
 
-	cout << "done." << endl;
+	std::cout << "done." << std::endl;
 }
 
 
@@ -1277,7 +1277,7 @@ void dna_geoid_interpolation::ExportToAscii(const char *gridFile, const char *gr
 		m_Grid_Success = OpenGridFile(gridFile, gridType, m_pGridfile, false);
 
 	// A new grid file specified?
-	if (!iequals(m_pGridfile->filename, gridFile))
+	if (!boost::iequals(m_pGridfile->filename, gridFile))
 	{
 		ClearGridFileMemory();
 		m_Grid_Success = OpenGridFile(gridFile, gridType, m_pGridfile, false);
@@ -1298,9 +1298,9 @@ void dna_geoid_interpolation::ExportToAscii(const char *gridFile, const char *gr
 		// Create geoid grid file.  Throws runtime_error on failure.
 		file_opener(f_out, OutputGrid);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ClearGridFileMemory();
-		stringstream ss;
+		std::stringstream ss;
 		ss << ErrorString(ERR_OUTFILE_WRITE) << "\n" <<
 			"  " << e.what();
 		throw NetGeoidException(ss.str(), ERR_OUTFILE_WRITE);
@@ -1308,18 +1308,18 @@ void dna_geoid_interpolation::ExportToAscii(const char *gridFile, const char *gr
 
 	*IO_Status = ERR_TRANS_SUCCESS;
 
-	string shiftTypeFrom(m_pGridfile->chGs_type);
-	string shiftTypeTo(shiftType);
+	std::string shiftTypeFrom(m_pGridfile->chGs_type);
+	std::string shiftTypeTo(shiftType);
 	shiftTypeFrom = trimstr(shiftTypeFrom);
 	shiftTypeTo = trimstr(shiftTypeTo);
 
 	geoidConversion conversionType;
 
-	if (iequals(shiftTypeFrom, "seconds") &&
-		iequals(shiftTypeTo, "radians"))
+	if (boost::iequals(shiftTypeFrom, "seconds") &&
+		boost::iequals(shiftTypeTo, "radians"))
 		conversionType = SecondsToRadians;
-	else if (iequals(shiftTypeFrom, "radians") &&
-		iequals(shiftTypeTo, "seconds"))
+	else if (boost::iequals(shiftTypeFrom, "radians") &&
+		boost::iequals(shiftTypeTo, "seconds"))
 		conversionType = RadiansToSeconds;
 	else
 		conversionType = Same;
@@ -1359,33 +1359,33 @@ void dna_geoid_interpolation::ExportToAscii(const char *gridFile, const char *gr
 					throw NetGeoidException(ErrorString(ERR_READ_BIN_SHIFT, m_pGridfile->filename), ERR_GRIDFILE_READ);
 
 				// Write N value
-				f_out << setw(10) << fixed << setprecision(6) << fValue1;
+				f_out << std::setw(10) << std::fixed << std::setprecision(6) << fValue1;
 
 				// Write deflections (check type first)
 				switch (conversionType)
 				{
 				case SecondsToRadians:
 					// convert seconds values to radians
-					f_out << setw(10) << scientific << setprecision(3) << fValue2 / RAD_TO_SEC;
-					f_out << setw(10) << scientific << setprecision(3) << fValue3 / RAD_TO_SEC;
+					f_out << std::setw(10) << std::scientific << std::setprecision(3) << fValue2 / RAD_TO_SEC;
+					f_out << std::setw(10) << std::scientific << std::setprecision(3) << fValue3 / RAD_TO_SEC;
 					break;
 				case RadiansToSeconds:
 					// convert radians values to seconds
-					f_out << setw(10) << setprecision(6) << fValue2 * RAD_TO_SEC;
-					f_out << setw(10) << setprecision(6) << fValue3 * RAD_TO_SEC;
+					f_out << std::setw(10) << std::setprecision(6) << fValue2 * RAD_TO_SEC;
+					f_out << std::setw(10) << std::setprecision(6) << fValue3 * RAD_TO_SEC;
 					break;
 				case Same:
 				default:
 					// as-is, so cater for precision
-					if (iequals(shiftTypeTo, "radians"))
-						f_out << scientific << setprecision(3);
-					f_out << setw(10) << setprecision(6) << fValue2;
-					f_out << setw(10) << setprecision(6) << fValue3;
+					if (boost::iequals(shiftTypeTo, "radians"))
+						f_out << std::scientific << std::setprecision(3);
+					f_out << std::setw(10) << std::setprecision(6) << fValue2;
+					f_out << std::setw(10) << std::setprecision(6) << fValue3;
 					break;
 				}
 
 				// Write blank value (not used for NTv2 geoid grid files)
-				f_out << setw(10) << fixed << setprecision(6) << fValue4 << endl;
+				f_out << std::setw(10) << std::fixed << std::setprecision(6) << fValue4 << std::endl;
 
 				m_dPercentComplete = (double)(m_pGfileptr.tellg()) / (double)m_pGridfile->iGfilelength * 100.0;	
 			}
@@ -1401,7 +1401,7 @@ void dna_geoid_interpolation::ExportToAscii(const char *gridFile, const char *gr
 	m_dPercentComplete = 0.0;
 
 	// print end of file record
-	f_out << "END     " << setw(10) << right << setprecision(2) << scientific << 3.33E+32 << endl;
+	f_out << "END     " << std::setw(10) << std::right << std::setprecision(2) << std::scientific << 3.33E+32 << std::endl;
 
 	// Finished!
 	f_out.close();
@@ -1426,7 +1426,7 @@ void dna_geoid_interpolation::ExportToBinary(const char *gridFile, const char *g
 		m_Grid_Success = OpenGridFile(gridFile, gridType, m_pGridfile, false);
 
 	// A new grid file specified?
-	if (!iequals(m_pGridfile->filename, gridFile))
+	if (!boost::iequals(m_pGridfile->filename, gridFile))
 	{
 		ClearGridFileMemory();
 		m_Grid_Success = OpenGridFile(gridFile, gridType, m_pGridfile, false);
@@ -1445,29 +1445,29 @@ void dna_geoid_interpolation::ExportToBinary(const char *gridFile, const char *g
 	*IO_Status = ERR_OUTFILE_WRITE;
 	try {
 		// open distortion grid file.  Throws runtime_error on failure.
-		file_opener(f_out, OutputGrid, ios::out | ios::binary, binary);
+		file_opener(f_out, OutputGrid, std::ios::out | std::ios::binary, binary);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ClearGridFileMemory();
-		stringstream ss;
+		std::stringstream ss;
 		ss << ErrorString(ERR_OUTFILE_WRITE) << "\n" <<
 			"  " << e.what();
 		throw NetGeoidException(ss.str(), ERR_OUTFILE_WRITE);
 	}
 	*IO_Status = ERR_TRANS_SUCCESS;
 	
-	string shiftTypeFrom(m_pGridfile->chGs_type);
-	string shiftTypeTo(shiftType);
+	std::string shiftTypeFrom(m_pGridfile->chGs_type);
+	std::string shiftTypeTo(shiftType);
 	shiftTypeFrom = trimstr(shiftTypeFrom);
 	shiftTypeTo = trimstr(shiftTypeTo);
 
 	geoidConversion conversionType;
 
-	if (iequals(shiftTypeFrom, "seconds") &&
-		iequals(shiftTypeTo, "radians"))
+	if (boost::iequals(shiftTypeFrom, "seconds") &&
+		boost::iequals(shiftTypeTo, "radians"))
 		conversionType = SecondsToRadians;
-	else if (iequals(shiftTypeFrom, "radians") &&
-		iequals(shiftTypeTo, "seconds"))
+	else if (boost::iequals(shiftTypeFrom, "radians") &&
+		boost::iequals(shiftTypeTo, "seconds"))
 		conversionType = RadiansToSeconds;
 	else
 		conversionType = Same;
@@ -1736,15 +1736,15 @@ bool dna_geoid_interpolation::IsWithinLowerLongitudeGridInterval(n_gridfileindex
 int dna_geoid_interpolation::DetermineFileType(const char *cType)
 {
 	// case insensitive
-	if (iequals(cType, ASC))		// asc "ASCII" file
+	if (boost::iequals(cType, ASC))		// asc "ASCII" file
 		return TYPE_ASC;			
-	else if (iequals(cType, GSB))	// gsb "Binary" file
+	else if (boost::iequals(cType, GSB))	// gsb "Binary" file
 		return TYPE_GSB;			
-	else if (iequals(cType, TXT) ||	// dat/txt/prn file
-			 iequals(cType, DAT) ||	// ..
-			 iequals(cType, PRN))	// ..
+	else if (boost::iequals(cType, TXT) ||	// dat/txt/prn file
+			 boost::iequals(cType, DAT) ||	// ..
+			 boost::iequals(cType, PRN))	// ..
 		return TYPE_DAT;
-	else if (iequals(cType, CSV))	// csv file
+	else if (boost::iequals(cType, CSV))	// csv file
 		return TYPE_CSV;
 	else
 		return -1;					// Unsupported filetype
@@ -2242,7 +2242,7 @@ int dna_geoid_interpolation::InterpolateNvalue_BiCubic(geoid_point *dInterpPoint
 			&m_pGridfile->ptrIndex[m_pGridfile->iTheGrid].dLatinc, 
 			&(dInterpPoint->gVar.dN_value));
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		throw NetGeoidException(e.what(), 0); 
 	}
 
@@ -2276,7 +2276,7 @@ int dna_geoid_interpolation::InterpolateNvalue_BiCubic(geoid_point *dInterpPoint
 			&(dInterpPoint->gVar.dDefl_meridian));
 
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		throw NetGeoidException(e.what(), 0); 
 	}
 
@@ -2309,7 +2309,7 @@ int dna_geoid_interpolation::InterpolateNvalue_BiCubic(geoid_point *dInterpPoint
 			&m_pGridfile->ptrIndex[m_pGridfile->iTheGrid].dLatinc, 
 			&(dInterpPoint->gVar.dDefl_primev));
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		throw NetGeoidException(e.what(), 0); 
 	}
 
@@ -2444,8 +2444,8 @@ int dna_geoid_interpolation::OpenGridFile(const char *filename, const char *file
 	if (ptheGrid->ptrIndex != NULL)
 		delete [] ptheGrid->ptrIndex;
 
-	strcpy(ptheGrid->filename, trimstr<string>(filename).c_str());
-	strcpy(ptheGrid->filetype, trimstr<string>(filetype).c_str());
+	strcpy(ptheGrid->filename, trimstr<std::string>(filename).c_str());
+	strcpy(ptheGrid->filetype, trimstr<std::string>(filetype).c_str());
 	
 	int iLineLength = 4 * sizeof(float);
 	ptheGrid->Can_Format = true;			// assume file will be in Canadian format
@@ -2457,17 +2457,17 @@ int dna_geoid_interpolation::OpenGridFile(const char *filename, const char *file
 	try {
 		if (gridType == TYPE_ASC)
 			// open in ascii mode and go to end of file
-			file_opener(pgrid_ifs, ptheGrid->filename, ios::in | ios::ate, ascii, true);
+			file_opener(pgrid_ifs, ptheGrid->filename, std::ios::in | std::ios::ate, ascii, true);
 		else if (gridType == TYPE_GSB)
 			// open in binary mode and go to end of file
-			file_opener(pgrid_ifs, ptheGrid->filename, ios::in | ios::binary | ios::ate, binary, true);
+			file_opener(pgrid_ifs, ptheGrid->filename, std::ios::in | std::ios::binary | std::ios::ate, binary, true);
 		else
 			// unknown file type, so throw an exception
 			throw NetGeoidException(ErrorString(ERR_GRIDFILE_TYPE), ERR_GRIDFILE_TYPE);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ClearGridFileMemory();
-		stringstream ss;
+		std::stringstream ss;
 		ss << ErrorString(ERR_GRIDFILE_READ) << "\n" <<
 			"  " << e.what();
 		throw NetGeoidException(ss.str(), ERR_GRIDFILE_READ);
@@ -2475,23 +2475,23 @@ int dna_geoid_interpolation::OpenGridFile(const char *filename, const char *file
 
 	// calculate file length
 	ptheGrid->iGfilelength = (int)pgrid_ifs->tellg();
-	pgrid_ifs->seekg(0, ios::beg);
+	pgrid_ifs->seekg(0, std::ios::beg);
 
 	char identifier[IDENT_BUF + 1];
-	string sBuf;
+	std::string sBuf;
 
 	try {
 		// read in all Overview Header information
 		if (gridType == TYPE_ASC)		// ascii
 		{
 			getline(*pgrid_ifs, sBuf);
-			ptheGrid->iH_info = lexical_cast<int, string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+			ptheGrid->iH_info = boost::lexical_cast<int, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
 			getline(*pgrid_ifs, sBuf);
-			ptheGrid->iSubH_info = lexical_cast<int, string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+			ptheGrid->iSubH_info = boost::lexical_cast<int, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
 			getline(*pgrid_ifs, sBuf);
-			ptheGrid->iNumsubgrids = lexical_cast<int, string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+			ptheGrid->iNumsubgrids = boost::lexical_cast<int, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
 			getline(*pgrid_ifs, sBuf);
 			strcpy(ptheGrid->chGs_type, trimstr(sBuf.substr(OVERVIEW_RECS)).c_str());
@@ -2506,16 +2506,16 @@ int dna_geoid_interpolation::OpenGridFile(const char *filename, const char *file
 			strcpy(ptheGrid->chSystem_t, trimstr(sBuf.substr(OVERVIEW_RECS)).c_str());
 
 			getline(*pgrid_ifs, sBuf);
-			ptheGrid->daf = lexical_cast<double, string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+			ptheGrid->daf = boost::lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
 			getline(*pgrid_ifs, sBuf);
-			ptheGrid->dbf = lexical_cast<double, string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+			ptheGrid->dbf = boost::lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
 			getline(*pgrid_ifs, sBuf);
-			ptheGrid->dat = lexical_cast<double, string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+			ptheGrid->dat = boost::lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
 			getline(*pgrid_ifs, sBuf);
-			ptheGrid->dbt = lexical_cast<double, string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+			ptheGrid->dbt = boost::lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 		}
 		else					// binary
 		{
@@ -2583,8 +2583,8 @@ int dna_geoid_interpolation::OpenGridFile(const char *filename, const char *file
 	// fills the new elements with default values
 	ptheGrid->ptrIndex = new n_gridfileindex[ptheGrid->iNumsubgrids];
 
-	string shiftType(ptheGrid->chGs_type);
-	if (iequals(trimstr(shiftType), "radians"))
+	std::string shiftType(ptheGrid->chGs_type);
+	if (boost::iequals(trimstr(shiftType), "radians"))
 		m_isRadians = true;
 	else
 		m_isRadians = false;
@@ -2606,25 +2606,25 @@ int dna_geoid_interpolation::OpenGridFile(const char *filename, const char *file
 			strcpy(ptheGrid->ptrIndex[i].chUpdated, trimstr(sBuf.substr(OVERVIEW_RECS)).c_str());
 
 			getline(*pgrid_ifs, sBuf);
-			ptheGrid->ptrIndex[i].dSlat = lexical_cast<double, string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+			ptheGrid->ptrIndex[i].dSlat = boost::lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
 			getline(*pgrid_ifs, sBuf);
-			ptheGrid->ptrIndex[i].dNlat = lexical_cast<double, string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+			ptheGrid->ptrIndex[i].dNlat = boost::lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
 			getline(*pgrid_ifs, sBuf);
-			ptheGrid->ptrIndex[i].dElong = lexical_cast<double, string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+			ptheGrid->ptrIndex[i].dElong = boost::lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
 			getline(*pgrid_ifs, sBuf);
-			ptheGrid->ptrIndex[i].dWlong = lexical_cast<double, string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+			ptheGrid->ptrIndex[i].dWlong = boost::lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
 			getline(*pgrid_ifs, sBuf);
-			ptheGrid->ptrIndex[i].dLatinc = lexical_cast<double, string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+			ptheGrid->ptrIndex[i].dLatinc = boost::lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
 			getline(*pgrid_ifs, sBuf);
-			ptheGrid->ptrIndex[i].dLonginc = lexical_cast<double, string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+			ptheGrid->ptrIndex[i].dLonginc = boost::lexical_cast<double, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
 			getline(*pgrid_ifs, sBuf);
-			ptheGrid->ptrIndex[i].lGscount = lexical_cast<double, string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
+			ptheGrid->ptrIndex[i].lGscount = boost::lexical_cast<long, std::string>(trimstr(sBuf.substr(OVERVIEW_RECS)));
 
 			// Save ASCII position in grid file for first record of lat & long shifts 
 			ptheGrid->ptrIndex[i].iGridPos = (int)pgrid_ifs->tellg();
@@ -2674,7 +2674,7 @@ int dna_geoid_interpolation::OpenGridFile(const char *filename, const char *file
 			ptheGrid->ptrIndex[i].iGridPos = (int)pgrid_ifs->tellg();
 	
 			// End of file encountered first???
-			pgrid_ifs->seekg(ptheGrid->ptrIndex[i].lGscount * iLineLength, ios::cur);
+			pgrid_ifs->seekg(ptheGrid->ptrIndex[i].lGscount * iLineLength, std::ios::cur);
 		}
 	}
 
@@ -2685,17 +2685,17 @@ int dna_geoid_interpolation::OpenGridFile(const char *filename, const char *file
 void dna_geoid_interpolation::PrintGridHeaderInfoAscii(std::ofstream* f_out)
 {
 	// print header block information
-	*f_out << "NUM_OREC" << setw(8) << right << m_pGridfile->iH_info << endl;			// Number of header identifiers (NUM_OREC)
-	*f_out << "NUM_SREC" << setw(8) << right << m_pGridfile->iSubH_info << endl;		// Number of sub-header idents (NUM_SREC)
-	*f_out << "NUM_FILE" << setw(8) << right << m_pGridfile->iNumsubgrids << endl;		// number of subgrids in file (NUM_FILE)
-	*f_out << "GS_TYPE " << setw(8) << right << m_pGridfile->chGs_type << endl;			// grid shift type (GS_TYPE)
-	*f_out << "VERSION " << setw(8) << right << m_pGridfile->chVersion << endl;			// grid file version (VERSION)
-	*f_out << "SYSTEM_F" << setw(8) << right << m_pGridfile->chSystem_f << endl;		// reference system (SYSTEM_F)
-	*f_out << "SYSTEM_T" << setw(8) << right << m_pGridfile->chSystem_t << endl;		// reference system (SYSTEM_T)
-	*f_out << "MAJOR_F " << setw(15) << right << fixed << setprecision(3) << m_pGridfile->daf << endl;	// semi major of from system (MAJOR_F)
-	*f_out << "MINOR_F " << setw(15) << right << fixed << setprecision(3) << m_pGridfile->dbf << endl;	// semi minor of from system (MINOR_F)
-	*f_out << "MAJOR_T " << setw(15) << right << fixed << setprecision(3) << m_pGridfile->dat << endl;	// semi major of to system (MAJOR_T)
-	*f_out << "MINOR_T " << setw(15) << right << fixed << setprecision(3) << m_pGridfile->dbt << endl;	// semi minor of to system (MINOR_T)
+	*f_out << "NUM_OREC" << std::setw(8) << std::right << m_pGridfile->iH_info << std::endl;			// Number of header identifiers (NUM_OREC)
+	*f_out << "NUM_SREC" << std::setw(8) << std::right << m_pGridfile->iSubH_info << std::endl;		// Number of sub-header idents (NUM_SREC)
+	*f_out << "NUM_FILE" << std::setw(8) << std::right << m_pGridfile->iNumsubgrids << std::endl;		// number of subgrids in file (NUM_FILE)
+	*f_out << "GS_TYPE " << std::setw(8) << std::right << m_pGridfile->chGs_type << std::endl;			// grid shift type (GS_TYPE)
+	*f_out << "VERSION " << std::setw(8) << std::right << m_pGridfile->chVersion << std::endl;			// grid file version (VERSION)
+	*f_out << "SYSTEM_F" << std::setw(8) << std::right << m_pGridfile->chSystem_f << std::endl;		// reference system (SYSTEM_F)
+	*f_out << "SYSTEM_T" << std::setw(8) << std::right << m_pGridfile->chSystem_t << std::endl;		// reference system (SYSTEM_T)
+	*f_out << "MAJOR_F " << std::setw(15) << std::right << std::fixed << std::setprecision(3) << m_pGridfile->daf << std::endl;	// semi major of from system (MAJOR_F)
+	*f_out << "MINOR_F " << std::setw(15) << std::right << std::fixed << std::setprecision(3) << m_pGridfile->dbf << std::endl;	// semi minor of from system (MINOR_F)
+	*f_out << "MAJOR_T " << std::setw(15) << std::right << std::fixed << std::setprecision(3) << m_pGridfile->dat << std::endl;	// semi major of to system (MAJOR_T)
+	*f_out << "MINOR_T " << std::setw(15) << std::right << std::fixed << std::setprecision(3) << m_pGridfile->dbt << std::endl;	// semi minor of to system (MINOR_T)
 }
 	
 
@@ -2746,22 +2746,22 @@ void dna_geoid_interpolation::PrintGridHeaderInfoBinary(std::ofstream* f_out, n_
 void dna_geoid_interpolation::PrintSubGridHeaderInfoAscii(std::ofstream* f_out, n_gridfileindex* gfIndex)
 {
 	// Print header info for sub-grid
-	*f_out << "SUB_NAME" << setw(8) << right << gfIndex->chSubname << endl;
-	*f_out << "PARENT  " << setw(8) << right << gfIndex->chParent << endl;
-	*f_out << "CREATED " << setw(8) << right << gfIndex->chCreated << endl;
-	*f_out << "UPDATED " << setw(8) << right << gfIndex->chUpdated << endl;
+	*f_out << "SUB_NAME" << std::setw(8) << std::right << gfIndex->chSubname << std::endl;
+	*f_out << "PARENT  " << std::setw(8) << std::right << gfIndex->chParent << std::endl;
+	*f_out << "CREATED " << std::setw(8) << std::right << gfIndex->chCreated << std::endl;
+	*f_out << "UPDATED " << std::setw(8) << std::right << gfIndex->chUpdated << std::endl;
 
 	// Output all values in seconds, irrespective of whether shifts are in radians or not. 
 	// NTv2 simply doesn't afford enough width for these fields to provide sufficient 
 	// precision for values in radians.
-	*f_out << "S_LAT   " << setw(15) << right << setprecision(6) << gfIndex->dSlat << endl;
-	*f_out << "N_LAT   " << setw(15) << right << setprecision(6) << gfIndex->dNlat << endl;
-	*f_out << "E_LONG  " << setw(15) << right << setprecision(6) << gfIndex->dElong << endl;
-	*f_out << "W_LONG  " << setw(15) << right << setprecision(6) << gfIndex->dWlong << endl;
-	*f_out << "LAT_INC " << setw(15) << right << setprecision(6) << gfIndex->dLatinc << endl;
-	*f_out << "LONG_INC" << setw(15) << right << setprecision(6) << gfIndex->dLonginc << endl;
+	*f_out << "S_LAT   " << std::setw(15) << std::right << std::setprecision(6) << gfIndex->dSlat << std::endl;
+	*f_out << "N_LAT   " << std::setw(15) << std::right << std::setprecision(6) << gfIndex->dNlat << std::endl;
+	*f_out << "E_LONG  " << std::setw(15) << std::right << std::setprecision(6) << gfIndex->dElong << std::endl;
+	*f_out << "W_LONG  " << std::setw(15) << std::right << std::setprecision(6) << gfIndex->dWlong << std::endl;
+	*f_out << "LAT_INC " << std::setw(15) << std::right << std::setprecision(6) << gfIndex->dLatinc << std::endl;
+	*f_out << "LONG_INC" << std::setw(15) << std::right << std::setprecision(6) << gfIndex->dLonginc << std::endl;
 
-	*f_out << "GS_COUNT" << setw(6) << right << gfIndex->lGscount << endl;
+	*f_out << "GS_COUNT" << std::setw(6) << std::right << gfIndex->lGscount << std::endl;
 }
 	
 
@@ -2867,7 +2867,7 @@ void dna_geoid_interpolation::ScanNodeLocations(char* szLine, double* latitude, 
 }
 	
 
-string dna_geoid_interpolation::ErrorString(const int& error, const string& data)
+std::string dna_geoid_interpolation::ErrorString(const int& error, const std::string& data)
 {
 	switch(error)
 	{
@@ -2884,10 +2884,10 @@ string dna_geoid_interpolation::ErrorString(const int& error, const string& data
 	case ERR_GRIDFILE_READ:		// 1
 		return "The specified grid file could not be opened.";
 	case ERR_GRIDFILE_TYPE:		// 2
-		return string(__BINARY_NAME__) + " cannot read this type of grid file.";
+		return std::string(__BINARY_NAME__) + " cannot read this type of grid file.";
 	case ERR_GRID_CORRUPT:		// 3
 	case ERR_GRIDFILE_ERROR:	// 14
-		return string(__BINARY_NAME__) + " found an unrecoverable error in the specified grid file:\n\n   " + 
+		return std::string(__BINARY_NAME__) + " found an unrecoverable error in the specified grid file:\n\n   " + 
 			data + "\n\nIt is likely that this file was downloaded or produced incorrectly.\nPlease select a new grid file.";
 	case ERR_INFILE_READ:		// 4
 		return "Could not read from the specified input file.";
@@ -2921,7 +2921,7 @@ string dna_geoid_interpolation::ErrorString(const int& error, const string& data
 	}
 }
 	
-string dna_geoid_interpolation::ErrorCaption(const int& error)
+std::string dna_geoid_interpolation::ErrorCaption(const int& error)
 {
 	switch(error)
 	{

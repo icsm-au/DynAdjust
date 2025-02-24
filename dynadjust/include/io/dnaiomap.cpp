@@ -29,26 +29,26 @@
 namespace dynadjust { 
 namespace iostreams {
 
-void dna_io_map::load_map_file(const string& map_filename, pv_string_uint32_pair stnsMap) 
+void dna_io_map::load_map_file(const std::string& map_filename, pv_string_uint32_pair stnsMap) 
 {	
 	std::ifstream map_file;
-	stringstream ss;
-	ss << "load_map_file(): An error was encountered when opening " << map_filename << "." << endl;
+	std::stringstream ss;
+	ss << "load_map_file(): An error was encountered when opening " << map_filename << "." << std::endl;
 
 	try {
 		// open stations map file.  Throws runtime_error on failure.
-		file_opener(map_file, map_filename, ios::in | ios::binary, binary, true);
+		file_opener(map_file, map_filename, std::ios::in | std::ios::binary, binary, true);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	
 	ss.str("");
-	ss << "load_map_file(): An error was encountered when reading from " << map_filename << "." << endl;
+	ss << "load_map_file(): An error was encountered when reading from " << map_filename << "." << std::endl;
 
 	stnsMap->clear();
 	UINT32 mapsize;
@@ -72,46 +72,46 @@ void dna_io_map::load_map_file(const string& map_filename, pv_string_uint32_pair
 			stnsMap->push_back(stnID);
 		}
 	}
-	catch (const ios_base::failure& f) {
+	catch (const std::ios_base::failure& f) {
 		ss << f.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 
 	map_file.close();
 
 	if (stnsMap->size() < mapsize)
 		throw boost::enable_current_exception(
-			runtime_error("load_map_file(): Could not allocate sufficient memory for the Station map."));
+			std::runtime_error("load_map_file(): Could not allocate sufficient memory for the Station map."));
 }
 
-void dna_io_map::write_map_file(const string& map_filename, pv_string_uint32_pair stnsMap)
+void dna_io_map::write_map_file(const std::string& map_filename, pv_string_uint32_pair stnsMap)
 {
 	std::ofstream map_file;
-	stringstream ss;
-	ss << "write_map_file(): An error was encountered when opening " << map_filename << "." << endl;
+	std::stringstream ss;
+	ss << "write_map_file(): An error was encountered when opening " << map_filename << "." << std::endl;
 
 	try {
 		// Open station map file.  Throws runtime_error on failure.
 		file_opener(map_file, map_filename, 
-			ios::out | ios::binary, binary);
+			std::ios::out | std::ios::binary, binary);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 
 	ss.str("");
-	ss << "write_map_file(): An error was encountered when writing to " << map_filename << "." << endl;
+	ss << "write_map_file(): An error was encountered when writing to " << map_filename << "." << std::endl;
 
 	v_string_uint32_pair::const_iterator _it_stnmap(stnsMap->begin());
 	UINT32 mapval(static_cast<UINT32>(stnsMap->size()));
@@ -131,77 +131,77 @@ void dna_io_map::write_map_file(const string& map_filename, pv_string_uint32_pai
 			map_file.write(reinterpret_cast<char *>(&mapval), sizeof(UINT32));
 		}
 	}
-	catch (const ios_base::failure& f) {
+	catch (const std::ios_base::failure& f) {
 		ss << f.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 
 	map_file.close();
 }
 	
 
-void dna_io_map::write_map_file_txt(const string& map_filename, pv_string_uint32_pair stnsMap)
+void dna_io_map::write_map_file_txt(const std::string& map_filename, pv_string_uint32_pair stnsMap)
 {
 	std::ofstream map_file;
-	stringstream ss;
-	ss << "write_map_file_txt(): An error was encountered when opening " << map_filename << "." << endl;
+	std::stringstream ss;
+	ss << "write_map_file_txt(): An error was encountered when opening " << map_filename << "." << std::endl;
 
 	try {
 		// Create station map text file.  Throws runtime_error on failure.
 		file_opener(map_file, map_filename);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 
 	ss.str("");
-	ss << "write_map_file_txt(): An error was encountered when writing to " << map_filename << "." << endl;
+	ss << "write_map_file_txt(): An error was encountered when writing to " << map_filename << "." << std::endl;
 
 	try {
-		stringstream ss_map;
+		std::stringstream ss_map;
 		ss_map << stnsMap->size() << " stations";
-		map_file << left << setw(STATION) << ss_map.str();
-		map_file << setw(HEADER_20) << right << "Stn. index" << endl;
+		map_file << std::left << std::setw(STATION) << ss_map.str();
+		map_file << std::setw(HEADER_20) << std::right << "Stn. index" << std::endl;
 		v_string_uint32_pair::const_iterator _it_stnmap(stnsMap->begin());
 		for (_it_stnmap=stnsMap->begin(); _it_stnmap!=stnsMap->end(); ++_it_stnmap)
 		{
-			map_file << setw(STATION) << left << 
+			map_file << std::setw(STATION) << std::left << 
 				_it_stnmap->first.c_str() <<
-				setw(HEADER_20) << right << _it_stnmap->second << endl;
+				std::setw(HEADER_20) << std::right << _it_stnmap->second << std::endl;
 		}
 	}
-	catch (const ios_base::failure& f) {
+	catch (const std::ios_base::failure& f) {
 		ss << f.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 
 	map_file.close();
 }
 
-//void dna_io_map::load_renaming_file(const string& renaming_filename, pv_string_string_pair stnRenaming)
+//void dna_io_map::load_renaming_file(const std::string& renaming_filename, pv_string_string_pair stnRenaming)
 //{
 //	std::ifstream renaming_file;
 //
-//	stringstream ss;
-//	ss << "load_renaming_file(): An error was encountered when opening " << renaming_filename << "." << endl;
+//	std::stringstream ss;
+//	ss << "load_renaming_file(): An error was encountered when opening " << renaming_filename << "." << std::endl;
 //
 //	// The contents of the renaming file is as follows:
 //	//
@@ -224,23 +224,23 @@ void dna_io_map::write_map_file_txt(const string& map_filename, pv_string_uint32
 //	try {
 //		// Load renaming file.  Throws runtime_error on failure.
 //		file_opener(renaming_file, renaming_filename, 
-//			ios::in, ascii, true);
+//			std::ios::in, ascii, true);
 //	}
-//	catch (const runtime_error& e) {
+//	catch (const std::runtime_error& e) {
 //		ss << e.what();
-//		throw boost::enable_current_exception(runtime_error(ss.str()));
+//		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 //	}
 //	catch (...) {
-//		throw boost::enable_current_exception(runtime_error(ss.str()));
+//		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 //	}
 //	
 //	ss.str("");
-//	ss << "load_renaming_file(): An error was encountered when reading from " << renaming_filename << "." << endl;
+//	ss << "load_renaming_file(): An error was encountered when reading from " << renaming_filename << "." << std::endl;
 //
 //	stnRenaming->clear();
 //
 //	string_string_pair stnNames;
-//	string sBuf("");
+//	std::string sBuf("");
 //	UINT32 stationWidth(STATION), stationCount(100);
 //	UINT32 line(0);
 //	
@@ -252,27 +252,27 @@ void dna_io_map::write_map_file_txt(const string& map_filename, pv_string_uint32
 //			line++;
 //			getline(renaming_file, sBuf);
 //
-//			if (iequals(trimstr(sBuf), "STATION NAMES"))
+//			if (boost::iequals(trimstr(sBuf), "STATION NAMES"))
 //				break;
 //
 //			// blank or whitespace?
 //			if (trimstr(sBuf).empty())		
 //				continue;
 //
-//			if (iequals(trimstr(sBuf.substr(0, 13)), "Station count"))
+//			if (boost::iequals(trimstr(sBuf.substr(0, 13)), "Station count"))
 //			{
-//				stationCount = lexical_cast<UINT16, string>(trimstr(sBuf.substr(PRINT_VAR_PAD)));
+//				stationCount = boost::lexical_cast<UINT16, std::string>(trimstr(sBuf.substr(PRINT_VAR_PAD)));
 //				continue;
 //			}
 //
-//			if (iequals(trimstr(sBuf.substr(0, 18)), "Station name width"))
+//			if (boost::iequals(trimstr(sBuf.substr(0, 18)), "Station name width"))
 //			{
-//				stationWidth = lexical_cast<UINT16, string>(trimstr(sBuf.substr(PRINT_VAR_PAD)));
+//				stationWidth = boost::lexical_cast<UINT16, std::string>(trimstr(sBuf.substr(PRINT_VAR_PAD)));
 //				continue;
 //			}
 //
 //		}
-//		while (!iequals(trimstr(sBuf), "STATION NAMES"));
+//		while (!boost::iequals(trimstr(sBuf), "STATION NAMES"));
 //		
 //		stnRenaming->reserve(stationCount);
 //		
@@ -288,10 +288,10 @@ void dna_io_map::write_map_file_txt(const string& map_filename, pv_string_uint32
 //			if (trimstr(sBuf).length() < stationWidth)
 //				continue;
 //
-//			if (iequals(trimstr(sBuf.substr(0, 8)), "OLD NAME"))
+//			if (boost::iequals(trimstr(sBuf.substr(0, 8)), "OLD NAME"))
 //				continue;
 //
-//			if (iequals(trimstr(sBuf.substr(0, 3)), "---"))
+//			if (boost::iequals(trimstr(sBuf.substr(0, 3)), "---"))
 //				continue;
 //
 //			// Ignore lines with blank station name
@@ -312,23 +312,23 @@ void dna_io_map::write_map_file_txt(const string& map_filename, pv_string_uint32
 //			stnRenaming->push_back(stnNames);
 //		}
 //	}
-//	catch (const ios_base::failure& f) {
+//	catch (const std::ios_base::failure& f) {
 //		if (renaming_file.eof())
 //		{
 //			renaming_file.close();
 //			return;
 //		}
 //		ss << f.what();
-//		throw boost::enable_current_exception(runtime_error(ss.str()));
+//		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 //	}
-//	catch (const runtime_error& e) {
+//	catch (const std::runtime_error& e) {
 //		if (renaming_file.eof())
 //		{
 //			renaming_file.close();
 //			return;
 //		}
 //		ss << e.what();
-//		throw boost::enable_current_exception(runtime_error(ss.str()));
+//		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 //	}
 //	catch (...) {
 //		if (renaming_file.eof())
@@ -336,7 +336,7 @@ void dna_io_map::write_map_file_txt(const string& map_filename, pv_string_uint32
 //			renaming_file.close();
 //			return;
 //		}
-//		throw boost::enable_current_exception(runtime_error(ss.str()));
+//		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 //	}
 //
 //	renaming_file.close();

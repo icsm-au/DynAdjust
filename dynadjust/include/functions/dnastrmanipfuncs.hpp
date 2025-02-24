@@ -30,7 +30,6 @@
 #endif
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <stdarg.h>
 #include <string>
 
@@ -48,7 +47,6 @@
 #include <boost/phoenix/core.hpp>
 #include <boost/phoenix/operator.hpp>
 
-using namespace std;
 using boost::spirit::qi::double_;
 using boost::spirit::qi::float_;
 using boost::spirit::qi::parse;
@@ -56,23 +54,23 @@ using boost::spirit::qi::parse;
 template <class T, class U>
 T val_uint(const U& value)
 {
-	return lexical_cast<T, U>(value);
+	return boost::lexical_cast<T, U>(value);
 }
 
 template <class T, class U>
 T valorno_uint(const U& value, T& var)
 {
-	if (iequals(value, "no"))
+	if (boost::iequals(value, "no"))
 		return var = 0;
 
 	var = 1;
-	return lexical_cast<T, U>(value);
+	return boost::lexical_cast<T, U>(value);
 }
 
 template <class T>
 T valorno_string(const T& value)
 {
-	if (iequals(value, "no"))
+	if (boost::iequals(value, "no"))
 		return "";
 	return value;
 }
@@ -80,29 +78,29 @@ T valorno_string(const T& value)
 template <class T, class U>
 T yesno_uint(const U& value)
 {
-	if (iequals(value, "yes"))
+	if (boost::iequals(value, "yes"))
 		return 1;
-	//if (iequals(value, "no"))
+	//if (boost::iequals(value, "no"))
 		return 0;
 
 }
 
 template <class T>
-string yesno_string(const T value)
+std::string yesno_string(const T value)
 {
 	if (value == 1)
-		return string("yes");
+		return std::string("yes");
 	else
-		return string("no");
+		return std::string("no");
 }
 
 template <class T>
-string bool_string(const T value)
+std::string bool_string(const T value)
 {
 	if (value)
-		return string("true");
+		return std::string("true");
 	else
-		return string("false");
+		return std::string("false");
 }
 
 template <class T>
@@ -117,7 +115,7 @@ T findandreplace(const T& source, const T& find, const T& replace)
 
 // convert to upper case
 template <class T>
-void str_toupper(string& strtext)
+void str_toupper(std::string& strtext)
 {
 	transform(strtext.begin(), strtext.end(), strtext.begin(), (T(*)(T))toupper);
 }
@@ -143,10 +141,10 @@ template <class T>
 T trimstr_(const T& Src, const T& c)
 {
 	size_t p2 = Src.find_last_not_of(c);
-	if (p2 == string::npos)
+	if (p2 == std::string::npos)
 		return std::string();
 	size_t p1 = Src.find_first_not_of(c);
-	if (p1 == string::npos)
+	if (p1 == std::string::npos)
 		p1 = 0;
 	return Src.substr(p1, (p2-p1)+1);
 }
@@ -156,7 +154,7 @@ T trimstrleft_(const T& Src, const T& c)
 {
 	size_t p2 = Src.length();
 	size_t p1 = Src.find_first_not_of(c);
-	if (p1 == string::npos)
+	if (p1 == std::string::npos)
 		p1 = 0;
 	return Src.substr(p1, (p2-p1)+1);
 }
@@ -165,7 +163,7 @@ template <class T>
 T trimstrright_(const T& Src, const T& c)
 {
 	size_t p2 = Src.find_last_not_of(c);
-	if (p2 == string::npos)
+	if (p2 == std::string::npos)
 		return std::string();
 	return Src.substr(0, p2+1);
 }
@@ -188,12 +186,12 @@ T trimstrright(const T& Src) {
 }
 
 template <class T, class U>
-string StringFromTW(const T& t, const U& width, const U& precision=0)
+std::string StringFromTW(const T& t, const U& width, const U& precision=0)
 {
-	stringstream ss;
+	std::stringstream ss;
 
 	// Assume number at precision prints within width
-	ss << setw(width) << fixed << right << setprecision(precision) << t;
+	ss << std::setw(width) << std::fixed << std::right << std::setprecision(precision) << t;
 	int trim = (int)trimstr(ss.str()).length() - width;
 
 	// Formatted string length is less than or equal to the fixed width
@@ -213,7 +211,7 @@ string StringFromTW(const T& t, const U& width, const U& precision=0)
 		if (width < UINT32(t < 0. ? 6 : 5))
 		{
 			// insufficient space for scientific notation!!!
-			ss << setw(width) << string(width, '#');
+			ss << std::setw(width) << std::string(width, '#');
 			return ss.str();
 		}
 		
@@ -223,29 +221,29 @@ string StringFromTW(const T& t, const U& width, const U& precision=0)
 		if (prec1 > 0)
 			prec1--;
 		
-		int prec = min<int>(precision, prec1);
+		int prec = std::min<int>(precision, prec1);
 		
-		ss << setw(width) << scientific << right << setprecision(prec) << t;
+		ss << std::setw(width) << std::scientific << std::right << std::setprecision(prec) << t;
 	}
 	else
 	{
 		int prec = precision - trim;
 		if (prec < 0)
 			prec = 0;
-		ss << setw(width) << fixed << right << setprecision(prec) << t;
+		ss << std::setw(width) << std::fixed << std::right << std::setprecision(prec) << t;
 	}
 
 	return ss.str();
 }
 
 template <class T>
-string StringFromT(const T& t, const int& precision=-1)
+std::string StringFromT(const T& t, const int& precision=-1)
 {
-	stringstream ss;
+	std::stringstream ss;
 	if (precision < 0)
 		ss << t;
 	else
-		ss << setprecision(precision) << fixed << t;
+		ss << std::setprecision(precision) << std::fixed << t;
 	return ss.str();
 }
 
@@ -274,7 +272,7 @@ S double_string_width(const T value, const U& width)
 // http://tinodidriksen.com/2011/05/28/cpp-convert-string-to-double-speed/
 
 template <class T>
-T DoubleFromString(const string& str)
+T DoubleFromString(const std::string& str)
 {
 	T t(0.);
 	parse(str.begin(), str.end(), double_, t);
@@ -282,7 +280,7 @@ T DoubleFromString(const string& str)
 }
 
 template <class T>
-T FloatFromString(const string& str)
+T FloatFromString(const std::string& str)
 {
 	T t(0.);
 	parse(str.begin(), str.end(), float_, t);
@@ -290,19 +288,19 @@ T FloatFromString(const string& str)
 }
 
 template <class T>
-void DoubleFromString(T& t, const string& str)
+void DoubleFromString(T& t, const std::string& str)
 {
 	parse(str.begin(), str.end(), double_, t);
 }
 
 template <class T>
-void FloatFromString(T& t, const string& str)
+void FloatFromString(T& t, const std::string& str)
 {
 	parse(str.begin(), str.end(), float_, t);
 }
 
 template <class T>
-bool DoubleFromString_ZeroCheck(T& t, const string& str)
+bool DoubleFromString_ZeroCheck(T& t, const std::string& str)
 {
 	parse(str.begin(), str.end(), double_, t);
 	if (fabs(t) < PRECISION_1E35)
@@ -312,16 +310,16 @@ bool DoubleFromString_ZeroCheck(T& t, const string& str)
 
 template <class T>
 // signed
-typename std::enable_if<std::is_signed<T>::value, T>::type LongFromString(const string& str)
+typename std::enable_if<std::is_signed<T>::value, T>::type LongFromString(const std::string& str)
 {
 	char* end(NULL);
 	T t(strtol(str.c_str(), &end,  10));
 	
 	if (*end)
 	{
-		stringstream ss;
+		std::stringstream ss;
 		ss << "String to long conversion error: non-convertible part: " << end;
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 
 	return t;
@@ -329,53 +327,53 @@ typename std::enable_if<std::is_signed<T>::value, T>::type LongFromString(const 
 
 template <class T>
 // unsigned
-typename std::enable_if<std::is_unsigned<T>::value, T>::type LongFromString(const string& str)
+typename std::enable_if<std::is_unsigned<T>::value, T>::type LongFromString(const std::string& str)
 {
 	char* end(NULL);
 	T t(strtoul(str.c_str(), &end,  10));
 	
 	if (*end)
 	{
-		stringstream ss;
+		std::stringstream ss;
 		ss << "String to long conversion error: non-convertible part: " << end;
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 
 	return t;
 }
 
 //template <class T>
-//T LongFromString(const string& str)
+//T LongFromString(const std::string& str)
 //{
 //	char* end(NULL);
 //	T t;
-//	string s(typeid(t).name());
+//	std::string s(typeid(t).name());
 //
-//	if (iequals(s, "unsigned int") || iequals(s, "unsigned long") ||	// msvc
-//	    iequals(s, "j") || iequals(s, "m"))								// gcc
+//	if (boost::iequals(s, "unsigned int") || boost::iequals(s, "unsigned long") ||	// msvc
+//	    boost::iequals(s, "j") || boost::iequals(s, "m"))								// gcc
 //		t = strtoul(str.c_str(), &end,  10);
-//	else if (iequals(s, "int") || iequals(s, "long") ||					// msvc
-//	    iequals(s, "i") || iequals(s, "l"))								// gcc
+//	else if (boost::iequals(s, "int") || boost::iequals(s, "long") ||					// msvc
+//	    boost::iequals(s, "i") || boost::iequals(s, "l"))								// gcc
 //		t = strtol(str.c_str(), &end,  10);
 //	else
 //	{
-//		stringstream ss;
+//		std::stringstream ss;
 //		ss << "String to long conversion error: " << s << " is not an integer." << end;
-//		throw boost::enable_current_exception(runtime_error(ss.str()));
+//		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 //	}
 //
 //	if (*end)
 //	{
-//		stringstream ss;
+//		std::stringstream ss;
 //		ss << "String to long conversion error: non-convertible part: " << end;
-//		throw boost::enable_current_exception(runtime_error(ss.str()));
+//		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 //	}
 //
 //	return t;
 //}
 
 //template <class T>
-//void LongFromString(T *l, const string& str)
+//void LongFromString(T *l, const std::string& str)
 //{
 //	//*l = atol(str.c_str());
 //
@@ -383,41 +381,41 @@ typename std::enable_if<std::is_unsigned<T>::value, T>::type LongFromString(cons
 //}
 //
 template <class T>
-void FromDmsString(T *d, const string& str)
+void FromDmsString(T *d, const std::string& str)
 {
 	DmstoDeg(atof(str.c_str()), d);
 }
 
 template <class T>
-T FromDmsString(const string& str)
+T FromDmsString(const std::string& str)
 {
 	return DmstoDeg(atof(str.c_str()));
 }
 
 template <class T>
-void RadFromDmsString(T *d, const string& str)
+void RadFromDmsString(T *d, const std::string& str)
 {
 	DmstoDeg(atof(str.c_str()), d);
 	Radians(d);
 }
 
 template <class T>
-void RadFromSecondsString(T *d, const string& str)
+void RadFromSecondsString(T *d, const std::string& str)
 {
 	*d = SecondstoRadians(atof(str.c_str()));
 }
 
 template <class T>
-void SplitDelimitedString(const T& str, const T& separator, vector<T>* tokenList)
+void SplitDelimitedString(const T& str, const T& separator, std::vector<T>* tokenList)
 {
 	// use boost to extract stations from comma delimited string
-	typedef tokenizer<char_separator<char> > tokenizer;
-	char_separator<char> sepa(separator.c_str());
-	tokenizer tokens(str, sepa);
+	typedef boost::tokenizer<boost::char_separator<char> > btokenizer;
+	boost::char_separator<char> sepa(separator.c_str());
+	btokenizer tokens(str, sepa);
 	tokenList->clear();
 	try {
 		for_each(tokens.begin(), tokens.end(), 
-			[&tokenList](const string& s) {
+			[&tokenList](const std::string& s) {
 				if (!trimstr(s).empty())
 					tokenList->push_back(trimstr(s));
 		});

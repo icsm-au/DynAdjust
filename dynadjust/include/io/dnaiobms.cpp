@@ -29,9 +29,9 @@ namespace iostreams {
 UINT16 dna_io_bms::create_msr_input_file_meta(vifm_t& vinput_file_meta, input_file_meta_t** input_file_meta)
 {
 	UINT16 msr_file_count(0);
-	stringstream ss;
-	ss << "create_msr_input_file_meta(): An error was encountered when creating " << endl <<
-		"  the binary measurement file metadata." << endl;
+	std::stringstream ss;
+	ss << "create_msr_input_file_meta(): An error was encountered when creating " << std::endl <<
+		"  the binary measurement file metadata." << std::endl;
 
 	// Determine how many measurement files were supplied
 	try {
@@ -58,32 +58,32 @@ UINT16 dna_io_bms::create_msr_input_file_meta(vifm_t& vinput_file_meta, input_fi
 	
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 
 	return msr_file_count;
 }
 
-void dna_io_bms::load_bms_file_meta(const string& bms_filename, binary_file_meta_t& bms_meta) 
+void dna_io_bms::load_bms_file_meta(const std::string& bms_filename, binary_file_meta_t& bms_meta) 
 {
 	std::ifstream bms_file;
-	stringstream ss;
-	ss << "load_bms_file(): An error was encountered when opening " << bms_filename << "." << endl;
+	std::stringstream ss;
+	ss << "load_bms_file(): An error was encountered when opening " << bms_filename << "." << std::endl;
 
 	try {
 		// open binary measurements file.  Throws runtime_error on failure.
-		file_opener(bms_file, bms_filename, ios::in | ios::binary, binary, true);
+		file_opener(bms_file, bms_filename, std::ios::in | std::ios::binary, binary, true);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	
 	ss.str("");
-	ss << "load_bms_file(): An error was encountered when reading from " << bms_filename << "." << endl;
+	ss << "load_bms_file(): An error was encountered when reading from " << bms_filename << "." << std::endl;
 
 	try {
 		// read the file information
@@ -92,44 +92,44 @@ void dna_io_bms::load_bms_file_meta(const string& bms_filename, binary_file_meta
 		// read the metadata
 		readFileMetadata(bms_file, bms_meta);
 	}
-	catch (const ios_base::failure& f) {
+	catch (const std::ios_base::failure& f) {
 		ss << f.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	
 	bms_file.close();
 }
 	
-UINT32 dna_io_bms::load_bms_file(const string& bms_filename, pvmsr_t vbinary_msr, binary_file_meta_t& bms_meta) 
+UINT32 dna_io_bms::load_bms_file(const std::string& bms_filename, pvmsr_t vbinary_msr, binary_file_meta_t& bms_meta) 
 {	
 	std::ifstream bms_file;
-	stringstream ss;
-	ss << "load_bms_file(): An error was encountered when opening " << bms_filename << "." << endl;
+	std::stringstream ss;
+	ss << "load_bms_file(): An error was encountered when opening " << bms_filename << "." << std::endl;
 
 	try {
 		// open binary measurements file.  Throws runtime_error on failure.
-		file_opener(bms_file, bms_filename, ios::in | ios::binary, binary, true);
+		file_opener(bms_file, bms_filename, std::ios::in | std::ios::binary, binary, true);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	
 	measurement_t measRecord;
 	UINT32 msr;
 
 	ss.str("");
-	ss << "load_bms_file(): An error was encountered when reading from " << bms_filename << "." << endl;
+	ss << "load_bms_file(): An error was encountered when reading from " << bms_filename << "." << std::endl;
 
 	try {
 		// read the file information 
@@ -146,16 +146,16 @@ UINT32 dna_io_bms::load_bms_file(const string& bms_filename, pvmsr_t vbinary_msr
 			vbinary_msr->push_back(measRecord);
 		}
 	}
-	catch (const ios_base::failure& f) {
+	catch (const std::ios_base::failure& f) {
 		ss << f.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	
 	bms_file.close();
@@ -163,27 +163,27 @@ UINT32 dna_io_bms::load_bms_file(const string& bms_filename, pvmsr_t vbinary_msr
 	return bms_meta.binCount;
 }
 
-void dna_io_bms::write_bms_file(const string& bms_filename, pvmsr_t vbinary_msr, binary_file_meta_t& bms_meta)
+void dna_io_bms::write_bms_file(const std::string& bms_filename, pvmsr_t vbinary_msr, binary_file_meta_t& bms_meta)
 {
 	std::ofstream bms_file;
-	stringstream ss;
-	ss << "write_bms_file(): An error was encountered when opening " << bms_filename << "." << endl;
+	std::stringstream ss;
+	ss << "write_bms_file(): An error was encountered when opening " << bms_filename << "." << std::endl;
 
 	try {
 		// open binary measurements file.  Throws runtime_error on failure.
 		file_opener(bms_file, bms_filename,
-			ios::out | ios::binary, binary);
+			std::ios::out | std::ios::binary, binary);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	
 	ss.str("");
-	ss << "write_bms_file(): An error was encountered when writing to " << bms_filename << "." << endl;
+	ss << "write_bms_file(): An error was encountered when writing to " << bms_filename << "." << std::endl;
 
 	try {
 		// write the file information
@@ -197,42 +197,42 @@ void dna_io_bms::write_bms_file(const string& bms_filename, pvmsr_t vbinary_msr,
 		for (_it_msr=vbinary_msr->begin(); _it_msr!=vbinary_msr->end(); ++_it_msr)
 			bms_file.write(reinterpret_cast<char *>(&(*_it_msr)), sizeof(measurement_t));
 	}
-	catch (const ios_base::failure& f) {
+	catch (const std::ios_base::failure& f) {
 		ss << f.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	
 	bms_file.close();
 }
 
-void dna_io_bms::write_bms_file(const string& bms_filename, vdnaMsrPtr* vMeasurements, binary_file_meta_t& bms_meta)
+void dna_io_bms::write_bms_file(const std::string& bms_filename, vdnaMsrPtr* vMeasurements, binary_file_meta_t& bms_meta)
 {
 	std::ofstream bms_file;
-	stringstream ss;
-	ss << "write_bms_file(): An error was encountered when opening " << bms_filename << "." << endl;
+	std::stringstream ss;
+	ss << "write_bms_file(): An error was encountered when opening " << bms_filename << "." << std::endl;
 
 	try {
 		// open binary measurements file.  Throws runtime_error on failure.
 		file_opener(bms_file, bms_filename,
-			ios::out | ios::binary, binary);
+			std::ios::out | std::ios::binary, binary);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	
 	ss.str("");
-	ss << "write_bms_file(): An error was encountered when writing to " << bms_filename << "." << endl;
+	ss << "write_bms_file(): An error was encountered when writing to " << bms_filename << "." << std::endl;
 
 	_it_vdnamsrptr _it_msr;
 	UINT32 msrIndex(0);
@@ -248,16 +248,16 @@ void dna_io_bms::write_bms_file(const string& bms_filename, vdnaMsrPtr* vMeasure
 		for (_it_msr=vMeasurements->begin(); _it_msr!=vMeasurements->end(); ++_it_msr)
 			_it_msr->get()->WriteBinaryMsr(&bms_file, &msrIndex);
 	}
-	catch (const ios_base::failure& f) {
+	catch (const std::ios_base::failure& f) {
 		ss << f.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	
 	bms_file.close();

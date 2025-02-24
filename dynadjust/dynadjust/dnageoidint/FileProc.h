@@ -15,8 +15,6 @@ struct _fileindex {
 
 int CALLBACK BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData);
 
-using namespace std;
-
 #define PATH_ERROR			-1
 #define PATH_NOT_FOUND		0
 #define PATH_IS_FILE		1
@@ -50,7 +48,7 @@ public:
 	CString BrowseForDialog(CString strMsg, HWND hwndOwner);
 
 	void ClearFileArrayMemory();
-	void BuildFileArray(const char* filedir, const vector<string>& filetype, const int& no_filetypes);
+	void BuildFileArray(const char* filedir, const std::vector<std::string>& filetype, const int& no_filetypes);
 	void EnterSingleFile(char *filename);
 
 	CString FileOpenSave(BOOL bOpen_Save, BOOL bMulti_Files, LPCTSTR lpszDir, char *cNewFile, LPCTSTR lpszTitle, LPCTSTR lpszExt, LPCTSTR strFilter, int iFileType);

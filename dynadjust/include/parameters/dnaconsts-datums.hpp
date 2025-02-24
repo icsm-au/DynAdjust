@@ -34,13 +34,13 @@
 const UINT16 AGD66_i =			4202;
 const UINT16 AGD84_i =			4203;
 
-const UINT16 GDA94_i_2d =		4283;		// LatLon
 const UINT16 GDA94_i_xyz =		4938;		// XYZ
+const UINT16 GDA94_i_2d =		4283;		// LatLon
 const UINT16 GDA94_i =			4939;		// LatLonEht
 
 const UINT16 GDA2020_i_xyz =	7842;		// XYZ
-const UINT16 GDA2020_i =		7843;		// LatLonEht
 const UINT16 GDA2020_i_2d =		7844;		// LatLon
+const UINT16 GDA2020_i =		7843;		// LatLonEht
 
 const UINT16 ITRF2020_i_xyz =   9988;		// XYZ
 const UINT16 ITRF2020_i =       9989;		// LatLonEht
@@ -93,11 +93,11 @@ const UINT16 WGS84_ensemble_i =		6326;		// WGS84 ensemble
 const char* const AGD66_c =			"4202";
 const char* const AGD84_c =			"4203";
 const char* const GDA94_c_xyz =		"4938";
-const char* const GDA94_c =			"4939";
 const char* const GDA94_c_2d =		"4283";
+const char* const GDA94_c =			"4939";
 const char* const GDA2020_c_xyz =	"7842";
-const char* const GDA2020_c =		"7843";
 const char* const GDA2020_c_2d =	"7844";
+const char* const GDA2020_c =		"7843";
 
 // epsg strings for ITRF provide XYZ definition only
 const char* const ITRF2020_c =		"9988";

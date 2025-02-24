@@ -37,9 +37,6 @@
 
 #include <include/parameters/dnaepsg.hpp>
 
-using namespace std;
-using namespace boost;
-
 using namespace dynadjust::epsg;
 
 namespace dynadjust {

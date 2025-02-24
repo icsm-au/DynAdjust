@@ -33,8 +33,6 @@
 #include <string>
 #include <sstream>
 
-using namespace std;
-
 #include <include/config/dnatypes.hpp>
 #include <include/parameters/dnadatumprojectionparam.hpp>
 	

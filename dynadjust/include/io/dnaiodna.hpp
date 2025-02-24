@@ -50,47 +50,53 @@ class dna_io_dna : public dna_io_base
 public:
 	dna_io_dna(void)
 		: pv_msr_db_map_(0)
-		, m_databaseIDsSet_(false) {};
+		, m_databaseIDsSet_(false)
+		, m_filespecifiedReferenceFrame_(false)
+		, m_filespecifiedEpoch_(false) {
+	};
 	dna_io_dna(const dna_io_dna& dna) 
 		: dna_io_base(dna) 
 		, pv_msr_db_map_(0)
-		, m_databaseIDsSet_(false) {};	  
+		, m_databaseIDsSet_(false)
+		, m_filespecifiedReferenceFrame_(false)
+		, m_filespecifiedEpoch_(false) {
+	};
 	virtual ~dna_io_dna(void) {};
 
 	dna_io_dna& operator=(const dna_io_dna& rhs);
 
-	void read_ren_file(const string& filename, pv_string_vstring_pair stnRenaming);
+	void read_ren_file(const std::string& filename, pv_string_vstring_pair stnRenaming);
 
 	void write_dna_files(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, 
-		const string& stnfilename, const string& msrfilename, const string& networkname,
+		const std::string& stnfilename, const std::string& msrfilename, const std::string& networkname,
 		const CDnaDatum& datum, const CDnaProjection& projection, bool flagUnused,
-		const string& stn_comment, const string& msr_comment);
+		const std::string& stn_comment, const std::string& msr_comment);
 	
 	void write_dna_files(pvstn_t vbinary_stn, pvmsr_t vbinary_msr, 
-		const string& stnfilename, const string& msrfilename, const string& networkname,
+		const std::string& stnfilename, const std::string& msrfilename, const std::string& networkname,
 		const CDnaDatum& datum, const CDnaProjection& projection, bool flagUnused,
-		const string& stn_comment, const string& msr_comment);
+		const std::string& stn_comment, const std::string& msr_comment);
 
 	// CDnaStation
-	void write_stn_file(vdnaStnPtr* vStations, const string& stnfilename, const string& networkname,
+	void write_stn_file(vdnaStnPtr* vStations, const std::string& stnfilename, const std::string& networkname,
 		const CDnaDatum& datum, const CDnaProjection& projection, bool flagUnused,
-		const string& comment);
+		const std::string& comment);
 	// station_t
-	void write_stn_file(pvstn_t vbinary_stn, const string& stnfilename, const string& networkname,
+	void write_stn_file(pvstn_t vbinary_stn, const std::string& stnfilename, const std::string& networkname,
 		const CDnaDatum& datum, const CDnaProjection& projection, bool flagUnused,
-		const string& comment);
+		const std::string& comment);
 	
 	// CDnaMeasurement
-	void write_msr_file(vdnaMsrPtr* vMeasurements, const string& msrfilename, const string& networkname,
-		const CDnaDatum& datum, const string& comment);
+	void write_msr_file(vdnaMsrPtr* vMeasurements, const std::string& msrfilename, const std::string& networkname,
+		const CDnaDatum& datum, const std::string& comment);
 
 	// measurement_t
-	void write_msr_file(const vstn_t& binaryStn, pvmsr_t vbinary_msr, const string& msrfilename, const string& networkname,
-		const CDnaDatum& datum, const string& comment);
+	void write_msr_file(const vstn_t& binaryStn, pvmsr_t vbinary_msr, const std::string& msrfilename, const std::string& networkname,
+		const CDnaDatum& datum, const std::string& comment);
 
-	void read_dna_header(std::ifstream* ptr, string& version, INPUT_DATA_TYPE& idt,
-		CDnaDatum& referenceframe, bool user_supplied_frame, bool override_input_frame,
-		string& fileEpsg, string& fileEpoch, string& geoidversion, UINT32& count);
+	void read_dna_header(std::ifstream* ptr, std::string& version, INPUT_DATA_TYPE& idt,
+		CDnaDatum& referenceframe, 
+		std::string& fileEpsg, std::string& fileEpoch, std::string& geoidversion, UINT32& count);
 
 	inline const dna_stn_fields	dna_stn_positions() { return dsl_; }
 	inline const dna_stn_fields	dna_stn_widths() { return dsw_; }
@@ -98,29 +104,32 @@ public:
 	inline const dna_msr_fields	dna_msr_widths() { return dmw_; }
 
 	void set_dbid_ptr(pv_msr_database_id_map pv_msr_db_map);
+
+	inline bool filespecifiedReferenceFrame() { return m_filespecifiedReferenceFrame_; }
+	inline bool filespecifiedEpoch() { return m_filespecifiedEpoch_; }
 	
 protected:
 
 private:
 
-	void create_file_stn(std::ofstream* ptr, const string& filename);
-	void create_file_msr(std::ofstream* ptr, const string& filename);
-	void create_file_pointer(std::ofstream* ptr, const string& filename);
-	void open_file_pointer(std::ifstream* ptr, const string& filename);
+	void create_file_stn(std::ofstream* ptr, const std::string& filename);
+	void create_file_msr(std::ofstream* ptr, const std::string& filename);
+	void create_file_pointer(std::ofstream* ptr, const std::string& filename);
+	void open_file_pointer(std::ifstream* ptr, const std::string& filename);
 
-	void write_stn_header_data(std::ofstream* ptr, const string& networkname, const string& datum,
-		const string& epoch, const size_t& count, const string& comment);
-	void write_stn_header(std::ofstream* ptr, vdnaStnPtr* vStations, const string& networkname,
-		const CDnaDatum& datum, bool flagUnused, const string& comment);
-	void write_stn_header(std::ofstream* ptr, pvstn_t vbinary_stn, const string& networkname,
-		const CDnaDatum& datum, bool flagUnused, const string& comment);
+	void write_stn_header_data(std::ofstream* ptr, const std::string& networkname, const std::string& datum,
+		const std::string& epoch, const size_t& count, const std::string& comment);
+	void write_stn_header(std::ofstream* ptr, vdnaStnPtr* vStations, const std::string& networkname,
+		const CDnaDatum& datum, bool flagUnused, const std::string& comment);
+	void write_stn_header(std::ofstream* ptr, pvstn_t vbinary_stn, const std::string& networkname,
+		const CDnaDatum& datum, bool flagUnused, const std::string& comment);
 
-	void write_msr_header_data(std::ofstream* ptr, const string& networkname, const string& datum,
-		const string& epoch, const size_t& count, const string& comment);
-	void write_msr_header(std::ofstream* ptr, vdnaMsrPtr* vMeasurements, const string& networkname,
-		const CDnaDatum& datum, const string& comment);
-	void write_msr_header(std::ofstream* ptr, pvmsr_t vbinary_msrn, const string& networkname,
-		const CDnaDatum& datum, const string& comment);
+	void write_msr_header_data(std::ofstream* ptr, const std::string& networkname, const std::string& datum,
+		const std::string& epoch, const size_t& count, const std::string& comment);
+	void write_msr_header(std::ofstream* ptr, vdnaMsrPtr* vMeasurements, const std::string& networkname,
+		const CDnaDatum& datum, const std::string& comment);
+	void write_msr_header(std::ofstream* ptr, pvmsr_t vbinary_msrn, const std::string& networkname,
+		const CDnaDatum& datum, const std::string& comment);
 
 	void read_ren_data(std::ifstream* ptr, pv_string_vstring_pair stnRenaming);
 	
@@ -133,6 +142,8 @@ private:
 
 	pv_msr_database_id_map	pv_msr_db_map_;
 	bool					m_databaseIDsSet_;
+	bool                    m_filespecifiedReferenceFrame_;
+	bool					m_filespecifiedEpoch_;
 };
 
 }	// namespace iostreams

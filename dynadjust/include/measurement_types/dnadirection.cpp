@@ -115,7 +115,7 @@ CDnaDirection& CDnaDirection::operator= (CDnaDirection&& rhs)
 //}
 
 
-//CDnaDirection::CDnaDirection(const bool bIgnore, const string& strFirst, const string& strTarget, const double& drValue, const double& dStdDev)
+//CDnaDirection::CDnaDirection(const bool bIgnore, const std::string& strFirst, const std::string& strTarget, const double& drValue, const double& dStdDev)
 //{
 //	m_strType = "D";
 //	m_strFirst = strFirst;
@@ -196,78 +196,78 @@ bool CDnaDirection::operator< (const CDnaDirection& rhs) const
 }
 	
 
-void CDnaDirection::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool bSubMeasurement /*= false*/) const
+void CDnaDirection::WriteDynaMLMsr(std::ofstream* dynaml_stream, const std::string& comment, bool bSubMeasurement /*= false*/) const
 {
 	if (bSubMeasurement)
 	{
 		// Direction set
-		*dynaml_stream << "    <Directions>" << endl;
+		*dynaml_stream << "    <Directions>" << std::endl;
 		if (m_bIgnore)
-			*dynaml_stream << "      <Ignore>*</Ignore>" << endl;
+			*dynaml_stream << "      <Ignore>*</Ignore>" << std::endl;
 		else
-			*dynaml_stream << "      <Ignore/>" << endl;
-		*dynaml_stream << "      <Target>" << m_strTarget << "</Target>" << endl;
-		*dynaml_stream << "      <Value>" << setprecision(8) << fixed 
-			<< RadtoDms(m_drValue) << "</Value>" << endl;
-		*dynaml_stream << "      <StdDev>" << scientific << setprecision(6) << Seconds(m_dStdDev) << "</StdDev>" << endl;	
+			*dynaml_stream << "      <Ignore/>" << std::endl;
+		*dynaml_stream << "      <Target>" << m_strTarget << "</Target>" << std::endl;
+		*dynaml_stream << "      <Value>" << std::setprecision(8) << std::fixed 
+			<< RadtoDms(m_drValue) << "</Value>" << std::endl;
+		*dynaml_stream << "      <StdDev>" << std::scientific << std::setprecision(6) << Seconds(m_dStdDev) << "</StdDev>" << std::endl;	
 		
 		if (m_msr_db_map.is_msr_id_set)
-			*dynaml_stream << "      <MeasurementID>" << m_msr_db_map.msr_id << "</MeasurementID>" << endl;
+			*dynaml_stream << "      <MeasurementID>" << m_msr_db_map.msr_id << "</MeasurementID>" << std::endl;
 		
-		*dynaml_stream << "    </Directions>" << endl;
+		*dynaml_stream << "    </Directions>" << std::endl;
 	}
 	else
 	{
 		// Zenith distance, vertical angle
 		if (comment.empty())
-			*dynaml_stream << "  <!-- Type " << measurement_name<char, string>(GetTypeC()) << " -->" << endl;
+			*dynaml_stream << "  <!-- Type " << measurement_name<char, std::string>(GetTypeC()) << " -->" << std::endl;
 		else
-			*dynaml_stream << "  <!-- " << comment << " -->" << endl;
+			*dynaml_stream << "  <!-- " << comment << " -->" << std::endl;
 	
-		*dynaml_stream << "  <DnaMeasurement>" << endl;
-		*dynaml_stream << "    <Type>" << m_strType << "</Type>" << endl;
+		*dynaml_stream << "  <DnaMeasurement>" << std::endl;
+		*dynaml_stream << "    <Type>" << m_strType << "</Type>" << std::endl;
 		// Source file from which the measurement came
-		*dynaml_stream << "    <Source>" << m_sourceFile << "</Source>" << endl;
+		*dynaml_stream << "    <Source>" << m_sourceFile << "</Source>" << std::endl;
 		if (m_bIgnore)
-			*dynaml_stream << "    <Ignore>*</Ignore>" << endl;
+			*dynaml_stream << "    <Ignore>*</Ignore>" << std::endl;
 		else
-			*dynaml_stream << "    <Ignore/>" << endl;
+			*dynaml_stream << "    <Ignore/>" << std::endl;
 		
 		if (m_epoch.empty())
-			*dynaml_stream << "    <Epoch/>" << endl;
+			*dynaml_stream << "    <Epoch/>" << std::endl;
 		else
-			*dynaml_stream << "    <Epoch>" << m_epoch << "</Epoch>" << endl;
+			*dynaml_stream << "    <Epoch>" << m_epoch << "</Epoch>" << std::endl;
 
-		*dynaml_stream << "    <First>" << m_strFirst << "</First>" << endl;
-		*dynaml_stream << "    <Second>" << m_strTarget << "</Second>" << endl;
-		*dynaml_stream << "    <Value>" << setprecision(8) << fixed 
-			<< RadtoDms(m_drValue) << "</Value>" << endl;
-		*dynaml_stream << "    <StdDev>" << scientific << setprecision(6) << Seconds(m_dStdDev) << "</StdDev>" << endl;	
+		*dynaml_stream << "    <First>" << m_strFirst << "</First>" << std::endl;
+		*dynaml_stream << "    <Second>" << m_strTarget << "</Second>" << std::endl;
+		*dynaml_stream << "    <Value>" << std::setprecision(8) << std::fixed 
+			<< RadtoDms(m_drValue) << "</Value>" << std::endl;
+		*dynaml_stream << "    <StdDev>" << std::scientific << std::setprecision(6) << Seconds(m_dStdDev) << "</StdDev>" << std::endl;	
 
 		// Zenith distance, vertical angle
 		switch (GetTypeC())
 		{
 		case 'Z':
 		case 'V':
-			*dynaml_stream << "    <InstHeight>" << fixed << setprecision(3) << m_fInstHeight << "</InstHeight>" << endl;
-			*dynaml_stream << "    <TargHeight>" << fixed << setprecision(3) << m_fTargHeight << "</TargHeight>" << endl;
+			*dynaml_stream << "    <InstHeight>" << std::fixed << std::setprecision(3) << m_fInstHeight << "</InstHeight>" << std::endl;
+			*dynaml_stream << "    <TargHeight>" << std::fixed << std::setprecision(3) << m_fTargHeight << "</TargHeight>" << std::endl;
 			break;
 		}
 		
 		if (m_msr_db_map.is_msr_id_set)
-			*dynaml_stream << "    <MeasurementID>" << m_msr_db_map.msr_id << "</MeasurementID>" << endl;
+			*dynaml_stream << "    <MeasurementID>" << m_msr_db_map.msr_id << "</MeasurementID>" << std::endl;
 		
-		*dynaml_stream << "  </DnaMeasurement>" << endl;
+		*dynaml_stream << "  </DnaMeasurement>" << std::endl;
 	}
 }
 	
 void CDnaDirection::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool bSubMeasurement /*= false*/) const
 {
-	*dna_stream << setw(dmw.msr_type) << m_strType;
+	*dna_stream << std::setw(dmw.msr_type) << m_strType;
 	if (m_bIgnore)
-		*dna_stream << setw(dmw.msr_ignore) << "*";
+		*dna_stream << std::setw(dmw.msr_ignore) << "*";
 	else
-		*dna_stream << setw(dmw.msr_ignore) << " ";
+		*dna_stream << std::setw(dmw.msr_ignore) << " ";
 
 	// database id width
 	UINT32 width(dml.msr_id_msr - dml.msr_stddev - dmw.msr_stddev);
@@ -275,30 +275,30 @@ void CDnaDirection::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields&
 	if (bSubMeasurement)
 	{
 		// Direction set
-		*dna_stream << left << setw(dmw.msr_inst) << " ";
-		*dna_stream << setw(dmw.msr_targ1) << " ";
-		*dna_stream << left << setw(dmw.msr_targ2) << m_strTarget;
-		*dna_stream << setw(dmw.msr_linear) << " ";	// linear measurement value
-		*dna_stream << setw(dmw.msr_ang_d + dmw.msr_ang_m + dmw.msr_ang_s) << 
-			right << FormatDnaDmsString(RadtoDms(m_drValue), 8);
+		*dna_stream << std::left << std::setw(dmw.msr_inst) << " ";
+		*dna_stream << std::setw(dmw.msr_targ1) << " ";
+		*dna_stream << std::left << std::setw(dmw.msr_targ2) << m_strTarget;
+		*dna_stream << std::setw(dmw.msr_linear) << " ";	// linear measurement value
+		*dna_stream << std::setw(dmw.msr_ang_d + dmw.msr_ang_m + dmw.msr_ang_s) << 
+			std::right << FormatDnaDmsString(RadtoDms(m_drValue), 8);
 		
 		UINT32 m_stdDevPrec(3);
-		*dna_stream << setw(dmw.msr_stddev) << StringFromTW(Seconds(m_dStdDev), dmw.msr_stddev, m_stdDevPrec);
-		//*dna_stream << setw(dmw.msr_stddev) << fixed << setprecision(3) << Seconds(m_dStdDev);
+		*dna_stream << std::setw(dmw.msr_stddev) << StringFromTW(Seconds(m_dStdDev), dmw.msr_stddev, m_stdDevPrec);
+		//*dna_stream << std::setw(dmw.msr_stddev) << std::fixed << std::setprecision(3) << Seconds(m_dStdDev);
 	}
 	else
 	{
 		// Azimuth, zenith distance, vertical angle
-		*dna_stream << left << setw(dmw.msr_inst) << m_strFirst;
-		*dna_stream << left << setw(dmw.msr_targ1) << m_strTarget;
-		*dna_stream << setw(dmw.msr_targ2) << " ";
-		*dna_stream << setw(dmw.msr_linear) << " ";	// linear measurement value
-		*dna_stream << setw(dmw.msr_ang_d + dmw.msr_ang_m + dmw.msr_ang_s) << 
-			right << FormatDnaDmsString(RadtoDms(m_drValue), 8);
+		*dna_stream << std::left << std::setw(dmw.msr_inst) << m_strFirst;
+		*dna_stream << std::left << std::setw(dmw.msr_targ1) << m_strTarget;
+		*dna_stream << std::setw(dmw.msr_targ2) << " ";
+		*dna_stream << std::setw(dmw.msr_linear) << " ";	// linear measurement value
+		*dna_stream << std::setw(dmw.msr_ang_d + dmw.msr_ang_m + dmw.msr_ang_s) << 
+			std::right << FormatDnaDmsString(RadtoDms(m_drValue), 8);
 		
 		UINT32 m_stdDevPrec(3);
-		*dna_stream << setw(dmw.msr_stddev) << StringFromTW(Seconds(m_dStdDev), dmw.msr_stddev, m_stdDevPrec);
-		//*dna_stream << setw(dmw.msr_stddev) << fixed << setprecision(3) << Seconds(m_dStdDev);
+		*dna_stream << std::setw(dmw.msr_stddev) << StringFromTW(Seconds(m_dStdDev), dmw.msr_stddev, m_stdDevPrec);
+		//*dna_stream << std::setw(dmw.msr_stddev) << std::fixed << std::setprecision(3) << Seconds(m_dStdDev);
 		width = dml.msr_gps_epoch - dml.msr_inst_ht;
 
 		// Zenith distance, vertical angle
@@ -306,29 +306,29 @@ void CDnaDirection::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields&
 		{
 		case 'Z':
 		case 'V':
-			*dna_stream << setw(dmw.msr_inst_ht) << fixed << setprecision(3) << m_fInstHeight;
-			*dna_stream << setw(dmw.msr_targ_ht) << fixed << setprecision(3) << m_fTargHeight;
+			*dna_stream << std::setw(dmw.msr_inst_ht) << std::fixed << std::setprecision(3) << m_fInstHeight;
+			*dna_stream << std::setw(dmw.msr_targ_ht) << std::fixed << std::setprecision(3) << m_fTargHeight;
 			width = dml.msr_gps_epoch - dml.msr_targ_ht - dmw.msr_targ_ht;
 			break;
 		}
 
-		*dna_stream << setw(width) << " ";
-		*dna_stream << setw(dmw.msr_gps_epoch) << m_epoch;
+		*dna_stream << std::setw(width) << " ";
+		*dna_stream << std::setw(dmw.msr_gps_epoch) << m_epoch;
 		width = 0;
 	}
 
 	if (m_msr_db_map.is_msr_id_set)
 	{
 		if (width)
-			*dna_stream << setw(width) << " ";
-		*dna_stream << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
+			*dna_stream << std::setw(width) << " ";
+		*dna_stream << std::setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
 
 		if (bSubMeasurement)
 			if (m_msr_db_map.is_cls_id_set)
-				*dna_stream << setw(dmw.msr_id_cluster) << m_msr_db_map.cluster_id;
+				*dna_stream << std::setw(dmw.msr_id_cluster) << m_msr_db_map.cluster_id;
 	}
 
-	*dna_stream << endl;
+	*dna_stream << std::endl;
 }
 	
 void CDnaDirection::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid*)
@@ -539,7 +539,7 @@ void CDnaDirection::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid*)
 //		
 //		// first station
 //		m_lstn1Index = measRecord->station1;
-//		ifs_stns->seekg(sizeof(UINT32) + measRecord->station1 * sizeof(station_t), ios::beg);
+//		ifs_stns->seekg(sizeof(UINT32) + measRecord->station1 * sizeof(station_t), std::ios::beg);
 //		ifs_stns->read(reinterpret_cast<char *>(&stationName), sizeof(stationName));
 //		m_strFirst = stationName;
 //
@@ -549,7 +549,7 @@ void CDnaDirection::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid*)
 //
 //	// target station
 //	m_lstn2Index = measRecord->station2;
-//	ifs_stns->seekg(sizeof(UINT32) + measRecord->station2 * sizeof(station_t), ios::beg);
+//	ifs_stns->seekg(sizeof(UINT32) + measRecord->station2 * sizeof(station_t), std::ios::beg);
 //	ifs_stns->read(reinterpret_cast<char *>(&stationName), sizeof(stationName));
 //	m_strTarget = stationName;
 //	
@@ -629,7 +629,6 @@ void CDnaDirection::WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrInde
 
 	measRecord.clusterID = m_lsetID;
 	// number of Directions in the parent cluster including the first
-	// measRecord.vectorCount1 = m_lRecordedTotal + 1;
 	measRecord.vectorCount1 = m_lRecordedTotal;
 	measRecord.measurementStations = m_MSmeasurementStations;
 	measRecord.fileOrder = ((*msrIndex)++);
@@ -640,31 +639,31 @@ void CDnaDirection::WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrInde
 }
 
 
-//void CDnaDirection::coutDirectionData(ostream &os) const
+//void CDnaDirection::coutDirectionData(std::ostream &os) const
 //{
-//	os << setw(16) << " " << setw(MSR2_WIDTH) << m_strTarget;
-//	os << setw(3) << (m_bIgnore ? "*" : " ") << setw(MEAS_WIDTH) << m_drValue;
-//	os << setw(VAR_WIDTH) << m_dStdDev;
-//	os << setw(7) << " ";	// m_fInstHeight
+//	os << std::setw(16) << " " << std::setw(MSR2_WIDTH) << m_strTarget;
+//	os << std::setw(3) << (m_bIgnore ? "*" : " ") << std::setw(MEAS_WIDTH) << m_drValue;
+//	os << std::setw(VAR_WIDTH) << m_dStdDev;
+//	os << std::setw(7) << " ";	// m_fInstHeight
 //	switch (GetTypeC())
 //	{
 //	case 'Z':
 //	case 'V':
-//		os << setw(7) << setprecision(3) << fixed << m_fTargHeight;
+//		os << std::setw(7) << std::setprecision(3) << std::fixed << m_fTargHeight;
 //		break;
 //	default:
-//		os << setw(7) << " ";
+//		os << std::setw(7) << " ";
 //		break;
 //	}
-//	os << endl;
+//	os << std::endl;
 //}
 
-void CDnaDirection::SetValue(const string& str)
+void CDnaDirection::SetValue(const std::string& str)
 {
 	RadFromDmsString(&m_drValue, trimstr(str));
 }
 
-void CDnaDirection::SetStdDev(const string& str)
+void CDnaDirection::SetStdDev(const std::string& str)
 {
 	// convert seconds to radians
 	RadFromSecondsString(&m_dStdDev, trimstr(str));
@@ -675,12 +674,12 @@ void CDnaDirection::SetStdDev(const string& str)
 // Note: vertical angles and zenith distances are derived
 // from CDnaDirection, so these methods are provided here,
 // but don't need instrument height for 'D' measurements.
-void CDnaDirection::SetInstrumentHeight(const string& str)
+void CDnaDirection::SetInstrumentHeight(const std::string& str)
 {
 	FloatFromString<float>(m_fInstHeight, trimstr(str));
 }
 
-void CDnaDirection::SetTargetHeight(const string& str)
+void CDnaDirection::SetTargetHeight(const std::string& str)
 {
 	FloatFromString<float>(m_fTargHeight, trimstr(str));
 }
@@ -728,7 +727,7 @@ CDnaAzimuth::~CDnaAzimuth(void)
 //}
 
 
-//CDnaAzimuth::CDnaAzimuth(const bool bIgnore, const string& strFirst, const string& strTarget, const double& drValue, const double& dStdDev)
+//CDnaAzimuth::CDnaAzimuth(const bool bIgnore, const std::string& strFirst, const std::string& strTarget, const double& drValue, const double& dStdDev)
 //{
 //	m_bIgnore = bIgnore;
 //	m_strTarget = strTarget;

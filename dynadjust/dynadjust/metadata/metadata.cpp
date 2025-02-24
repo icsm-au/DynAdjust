@@ -20,12 +20,6 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/iostreams/detail/absolute_path.hpp>
 
-using namespace std;
-using namespace boost;
-using namespace boost::filesystem;
-using namespace boost::posix_time;
-using namespace boost::program_options;
-
 boost::mutex cout_mutex;
 boost::mutex import_file_mutex;
 
@@ -48,21 +42,21 @@ using namespace dynadjust;
 using namespace dynadjust::exception;
 using namespace dynadjust::datum_parameters;
 
-void processGNSSMeasurement(string& dnaMeasurementGNSS, string& referenceFrame, string& epoch, size_t& lineNo, size_t& measurementUpdateCount)
+void processGNSSMeasurement(std::string& dnaMeasurementGNSS, std::string& referenceFrame, std::string& epoch, size_t& lineNo, size_t& measurementUpdateCount)
 {
-	string tmp(dnaMeasurementGNSS);
+	std::string tmp(dnaMeasurementGNSS);
 
 	// Validate reference frame and epoch.  Throws on error
 	CDnaDatum datum;
 	datum.SetDatumFromName(referenceFrame, epoch);
 
-	string FirstTag = "<First>";
-	string referenceframeTagOpen = "<ReferenceFrame>";
-	string referenceframeTagClose = "</ReferenceFrame>";
-	string epochTagOpen = "<Epoch>";
-	string epochTagClose = "</Epoch>";
+	std::string FirstTag = "<First>";
+	std::string referenceframeTagOpen = "<ReferenceFrame>";
+	std::string referenceframeTagClose = "</ReferenceFrame>";
+	std::string epochTagOpen = "<Epoch>";
+	std::string epochTagClose = "</Epoch>";
 	
-	string referenceFrameElement, epochElement;
+	std::string referenceFrameElement, epochElement;
 	referenceFrameElement = referenceframeTagOpen + referenceFrame + referenceframeTagClose + "\n        ";
 	epochElement = epochTagOpen + epoch + epochTagClose + "\n        ";
 
@@ -73,14 +67,14 @@ void processGNSSMeasurement(string& dnaMeasurementGNSS, string& referenceFrame, 
 	///////////////////////////////////////////////////////////
 	// Look for the existence of <ReferenceFrame> in data
 	// If none, add new <ReferenceFrame>
-	if ((pos = tmp.find(referenceframeTagOpen)) == string::npos)
+	if ((pos = tmp.find(referenceframeTagOpen)) == std::string::npos)
 	{
 		// Okay, no reference frame tag.  Add it before <First>
-		if ((pos = tmp.find(FirstTag)) == string::npos)
+		if ((pos = tmp.find(FirstTag)) == std::string::npos)
 		{
-			stringstream ss;
-			ss << "processGNSSMeasurement(): Could not find <First> element in:" << endl << 
-				dnaMeasurementGNSS << endl;
+			std::stringstream ss;
+			ss << "processGNSSMeasurement(): Could not find <First> element in:" << std::endl << 
+				dnaMeasurementGNSS << std::endl;
 			throw XMLInteropException(ss.str(), (int)lineNo);
 		}
 
@@ -91,14 +85,14 @@ void processGNSSMeasurement(string& dnaMeasurementGNSS, string& referenceFrame, 
 	///////////////////////////////////////////////////////////
 	// Look for the existence of <Epoch> in data
 	// If none, add new <ReferenceFrame>
-	if ((pos = tmp.find(epochTagOpen)) == string::npos)
+	if ((pos = tmp.find(epochTagOpen)) == std::string::npos)
 	{
 		// Okay, no reference frame tag.  Add it before <First>
-		if ((pos = tmp.find(FirstTag)) == string::npos)
+		if ((pos = tmp.find(FirstTag)) == std::string::npos)
 		{
-			stringstream ss;
-			ss << "processGNSSMeasurement(): Could not find <First> element in:" << endl << 
-				dnaMeasurementGNSS << endl;
+			std::stringstream ss;
+			ss << "processGNSSMeasurement(): Could not find <First> element in:" << std::endl << 
+				dnaMeasurementGNSS << std::endl;
 			throw XMLInteropException(ss.str(), (int)lineNo);
 		}
 
@@ -111,15 +105,15 @@ void processGNSSMeasurement(string& dnaMeasurementGNSS, string& referenceFrame, 
 		measurementUpdateCount++;
 }
 
-void GetDefaultReferenceFrameEpoch(string& sBuf, string& referenceFrame, string& epoch)
+void GetDefaultReferenceFrameEpoch(std::string& sBuf, std::string& referenceFrame, std::string& epoch)
 {
 	size_t pos;
-	string referenceFrameAttribute = "referenceframe";
-	string epochAttribute = "epoch";
+	std::string referenceFrameAttribute = "referenceframe";
+	std::string epochAttribute = "epoch";
 
-	string tmp;
+	std::string tmp;
 
-	if ((pos = sBuf.find(referenceFrameAttribute)) != string::npos)
+	if ((pos = sBuf.find(referenceFrameAttribute)) != std::string::npos)
 	{
 		// Okay, get the reference frame
 		// Advance to =
@@ -128,13 +122,13 @@ void GetDefaultReferenceFrameEpoch(string& sBuf, string& referenceFrame, string&
 		pos++;
 
 		tmp = sBuf.substr(pos);
-		if ((pos = tmp.find("\"")) != string::npos)
+		if ((pos = tmp.find("\"")) != std::string::npos)
 			tmp = tmp.substr(0, pos);
 
 		referenceFrame = tmp;
 	}
 
-	if ((pos = sBuf.find(epochAttribute)) != string::npos)
+	if ((pos = sBuf.find(epochAttribute)) != std::string::npos)
 	{
 		// Okay, get the epoch
 		// Advance to =
@@ -143,7 +137,7 @@ void GetDefaultReferenceFrameEpoch(string& sBuf, string& referenceFrame, string&
 		pos++;
 
 		tmp = sBuf.substr(pos);
-		if ((pos = tmp.find("\"")) != string::npos)
+		if ((pos = tmp.find("\"")) != std::string::npos)
 			tmp = tmp.substr(0, pos);
 
 		epoch = tmp;
@@ -151,30 +145,30 @@ void GetDefaultReferenceFrameEpoch(string& sBuf, string& referenceFrame, string&
 }
 	
 
-void processFile(std::ifstream* ifsFile, std::ofstream* ofsFile, string& defaultFrame, string& defaultEpoch, 
+void processFile(std::ifstream* ifsFile, std::ofstream* ofsFile, std::string& defaultFrame, std::string& defaultEpoch, 
 	size_t& measurementUpdateCount, size_t& unsureFrameCount, size_t& unsureEpochCount)
 {
-	string sBuf, tmp;
+	std::string sBuf, tmp;
 
-	string referenceFrame(GDA94_s);
-	string epoch("01.01.1994");
+	std::string referenceFrame(GDA94_s);
+	std::string epoch("01.01.1994");
 	
-	string openingDnaMeasurementTag = "<DnaMeasurement>";
-	string closingDnaMeasurementTag = "</DnaMeasurement>";
+	std::string openingDnaMeasurementTag = "<DnaMeasurement>";
+	std::string closingDnaMeasurementTag = "</DnaMeasurement>";
 
-	string dnaxmlFormatTag = "<DnaXmlFormat";
+	std::string dnaxmlFormatTag = "<DnaXmlFormat";
 
-	string gType = "<Type>G</Type>";
-	string xType = "<Type>X</Type>";
-	string yType = "<Type>Y</Type>";
+	std::string gType = "<Type>G</Type>";
+	std::string xType = "<Type>X</Type>";
+	std::string yType = "<Type>Y</Type>";
 
-	const string xmlComment = "<!--";
+	const std::string xmlComment = "<!--";
 	// <!--[BASELINE REFFRAME] ITRF2005-->
-	const string metadataReferenceFrame = "[BASELINE REFFRAME]";
+	const std::string metadataReferenceFrame = "[BASELINE REFFRAME]";
 	// <!--[BASELINE EPOCH] 19.08.2010-->
-	const string metadataEpoch = "[BASELINE EPOCH]";
+	const std::string metadataEpoch = "[BASELINE EPOCH]";
 
-	stringstream dnameasurementStream;
+	std::stringstream dnameasurementStream;
 	bool newMeasurement(false);
 
 	dnameasurementStream.str("");
@@ -198,14 +192,14 @@ void processFile(std::ifstream* ifsFile, std::ofstream* ofsFile, string& default
 			if (ifsFile->eof())
 				return;
 			
-			stringstream ss;
-			ss << "processFile(): Could not read from the station file." << endl;
+			std::stringstream ss;
+			ss << "processFile(): Could not read from the station file." << std::endl;
 			throw XMLInteropException(ss.str(), (int)lineNo);
 		}
 
 		// Reached a DnaMeasurement opening tag?  
 		
-		if (sBuf.find(dnaxmlFormatTag) != string::npos)
+		if (sBuf.find(dnaxmlFormatTag) != std::string::npos)
 		{
 			// Get the default reference frame and epoch
 			GetDefaultReferenceFrameEpoch(sBuf, referenceFrame, epoch);
@@ -219,7 +213,7 @@ void processFile(std::ifstream* ifsFile, std::ofstream* ofsFile, string& default
 		}
 
 		// Reached a DnaMeasurement opening tag?
-		if (sBuf.find(openingDnaMeasurementTag) != string::npos)
+		if (sBuf.find(openingDnaMeasurementTag) != std::string::npos)
 		{	
 			// yes, found an opening tag!
 			newMeasurement = true;
@@ -228,30 +222,30 @@ void processFile(std::ifstream* ifsFile, std::ofstream* ofsFile, string& default
 			dnameasurementStream.str("");
 
 			// Add this string to the stringstream (for subsequent processing)
-			dnameasurementStream << sBuf << endl;
+			dnameasurementStream << sBuf << std::endl;
 		
 		}
 		// Reached a DnaMeasurement closing tag?
-		else if (sBuf.find(closingDnaMeasurementTag) != string::npos)
+		else if (sBuf.find(closingDnaMeasurementTag) != std::string::npos)
 		{	
 			// yes, found a closing tag!
-			dnameasurementStream << sBuf << endl;
+			dnameasurementStream << sBuf << std::endl;
 
 			// capture the measurement
-			string dnaMeasurementGNSS = dnameasurementStream.str();
+			std::string dnaMeasurementGNSS = dnameasurementStream.str();
 
 			// Is this a GNSS measurement?  if not, dump and continue
-			if (dnaMeasurementGNSS.find(gType) != string::npos)
+			if (dnaMeasurementGNSS.find(gType) != std::string::npos)
 			{
 				// Process GNSS measurement
 				processGNSSMeasurement(dnaMeasurementGNSS, referenceFrame, epoch, lineNo, measurementUpdateCount);
 			}
-			else if (dnaMeasurementGNSS.find(xType) != string::npos)
+			else if (dnaMeasurementGNSS.find(xType) != std::string::npos)
 			{
 				// Process GNSS measurement
 				processGNSSMeasurement(dnaMeasurementGNSS, referenceFrame, epoch, lineNo, measurementUpdateCount);
 			}
-			else if (dnaMeasurementGNSS.find(yType) != string::npos)
+			else if (dnaMeasurementGNSS.find(yType) != std::string::npos)
 			{
 				// Process GNSS measurement
 				processGNSSMeasurement(dnaMeasurementGNSS, referenceFrame, epoch, lineNo, measurementUpdateCount);
@@ -273,7 +267,7 @@ void processFile(std::ifstream* ifsFile, std::ofstream* ofsFile, string& default
 			if (newMeasurement)
 			{
 				// Yes, add this string to the stringstream (for subsequent processing)
-				dnameasurementStream << sBuf << endl;
+				dnameasurementStream << sBuf << std::endl;
 			}
 			else
 			{
@@ -282,14 +276,14 @@ void processFile(std::ifstream* ifsFile, std::ofstream* ofsFile, string& default
 				// - A comment preceding a DnaMeasurement
 
 				// Dump the line to output file
-				(*ofsFile) << sBuf << endl;
+				(*ofsFile) << sBuf << std::endl;
 			}			
 
 			// Now check for Reference frame and epoch comments
 			tmp = trimstr(sBuf);
 
 			// Is this line a comment?
-			if (tmp.find(xmlComment) == string::npos)
+			if (tmp.find(xmlComment) == std::string::npos)
 			{
 				// No, this is a measurement element.
 				
@@ -300,21 +294,21 @@ void processFile(std::ifstream* ifsFile, std::ofstream* ofsFile, string& default
 				// At this point, tmp is a comment.
 
 				// Is this line a reference frame metadata tag in the comment?
-				if (tmp.find(metadataReferenceFrame) != string::npos)
+				if (tmp.find(metadataReferenceFrame) != std::string::npos)
 				{
-					if ((pos = tmp.find("]", 0)) != string::npos)
+					if ((pos = tmp.find("]", 0)) != std::string::npos)
 					{
 						referenceFrame = tmp.substr(pos+1);
-						if ((pos = referenceFrame.find("-->", 0)) != string::npos)
+						if ((pos = referenceFrame.find("-->", 0)) != std::string::npos)
 							referenceFrame = trimstr(referenceFrame.substr(0, pos));
 
-						if (iequals(referenceFrame, "unsure"))
+						if (boost::iequals(referenceFrame, "unsure"))
 						{
 							referenceFrame = defaultFrame;
 							unsureFrameCount++;
 						}
 
-						if (iequals(referenceFrame, "WGS84"))
+						if (boost::iequals(referenceFrame, "WGS84"))
 						{
 							referenceFrame = "ITRF1989";
 						}
@@ -322,15 +316,15 @@ void processFile(std::ifstream* ifsFile, std::ofstream* ofsFile, string& default
 				}
 
 				// Is this line a epoch metadata tag in the comment?
-				else if (tmp.find(metadataEpoch) != string::npos)
+				else if (tmp.find(metadataEpoch) != std::string::npos)
 				{
-					if ((pos = tmp.find("]", 0)) != string::npos)
+					if ((pos = tmp.find("]", 0)) != std::string::npos)
 					{
 						epoch = tmp.substr(pos+1);
-						if ((pos = epoch.find("-->", 0)) != string::npos)
+						if ((pos = epoch.find("-->", 0)) != std::string::npos)
 							epoch = trimstr(epoch.substr(0, pos));
 
-						if (iequals(epoch, "unsure"))
+						if (boost::iequals(epoch, "unsure"))
 						{
 							epoch = "01.01.2005";
 							unsureEpochCount++;
@@ -345,36 +339,36 @@ void processFile(std::ifstream* ifsFile, std::ofstream* ofsFile, string& default
 
 int main(int argc, char* argv[])
 {
-	stringstream ss_err;
+	std::stringstream ss_err;
 
-	string cmd_line_banner;
+	std::string cmd_line_banner;
 	fileproc_help_header(&cmd_line_banner);
 
 	project_settings p;
-	variables_map vm;
-	positional_options_description positional_options;
+	boost::program_options::variables_map vm;
+	boost::program_options::positional_options_description positional_options;
 
-	options_description standard_options("+ " + string(ALL_MODULE_STDOPT), PROGRAM_OPTIONS_LINE_LENGTH);
-	options_description generic_options("+ " + string(ALL_MODULE_GENERIC), PROGRAM_OPTIONS_LINE_LENGTH);
+	boost::program_options::options_description standard_options("+ " + std::string(ALL_MODULE_STDOPT), PROGRAM_OPTIONS_LINE_LENGTH);
+	boost::program_options::options_description generic_options("+ " + std::string(ALL_MODULE_GENERIC), PROGRAM_OPTIONS_LINE_LENGTH);
 
-	string cmd_line_usage("+ ");
+	std::string cmd_line_usage("+ ");
 	cmd_line_usage.append(__BINARY_NAME__).append(" usage:  ").append(__BINARY_NAME__).append(" ").append(" [options]");
-	options_description allowable_options(cmd_line_usage, PROGRAM_OPTIONS_LINE_LENGTH);
+	boost::program_options::options_description allowable_options(cmd_line_usage, PROGRAM_OPTIONS_LINE_LENGTH);
 
 	try {
 		standard_options.add_options()
-			(IMPORT_FILE_F, value< vstring >(&p.i.input_files), 
+			(IMPORT_FILE_F, boost::program_options::value< vstring >(&p.i.input_files), 
 				"Station and measurement input file(s). Switch is not required.")
 			;
 
 		generic_options.add_options()
-			(VERBOSE, value<UINT16>(&p.g.verbose),
-				string("Give detailed information about what ").append(__BINARY_NAME__).append(" is doing.\n  0: No information (default)\n  1: Helpful information\n  2: Extended information\n  3: Debug level information").c_str())
+			(VERBOSE, boost::program_options::value<UINT16>(&p.g.verbose),
+				std::string("Give detailed information about what ").append(__BINARY_NAME__).append(" is doing.\n  0: No information (default)\n  1: Helpful information\n  2: Extended information\n  3: Debug level information").c_str())
 			(QUIET,
-				string("Suppresses all explanation of what ").append(__BINARY_NAME__).append(" is doing unless an error occurs.").c_str())
+				std::string("Suppresses all explanation of what ").append(__BINARY_NAME__).append(" is doing unless an error occurs.").c_str())
 			(VERSION_V, "Display the current program version.")
 			(HELP_H, "Show this help message.")
-			(HELP_MODULE, value<string>(),
+			(HELP_MODULE_H, boost::program_options::value<std::string>(),
 				"Provide help for a specific help category.")
 			;
 
@@ -383,52 +377,52 @@ int main(int argc, char* argv[])
 		// add "positional options" to handle command line tokens which have no option name
 		positional_options.add(IMPORT_FILE, -1);
 
-		command_line_parser parser(argc, argv);
+		boost::program_options::command_line_parser parser(argc, argv);
 		store(parser.options(allowable_options).positional(positional_options).run(), vm);
 		notify(vm);
 	} 
 	catch (const std::exception& e) {
 		cout_mutex.lock();
-		cout << "- Error: " << e.what() << endl;
-		cout << cmd_line_banner << allowable_options << endl;
+		std::cout << "- Error: " << e.what() << std::endl;
+		std::cout << cmd_line_banner << allowable_options << std::endl;
 		cout_mutex.unlock();
 		return EXIT_FAILURE;
 	}
 
 	if (argc < 2)
 	{
-		cout << endl << "- Nothing to do - no files or options provided. " << endl << endl;  
-		cout << cmd_line_banner << allowable_options << endl;
+		std::cout << std::endl << "- Nothing to do - no files or options provided. " << std::endl << std::endl;  
+		std::cout << cmd_line_banner << allowable_options << std::endl;
 		return EXIT_FAILURE;
 	}
 
 	if (vm.count(VERSION))
 	{
-		cout << cmd_line_banner << endl;
+		std::cout << cmd_line_banner << std::endl;
 		return EXIT_SUCCESS;
 	}
 
 	if (vm.count(HELP))
 	{
-		cout << cmd_line_banner << allowable_options << endl;
+		std::cout << cmd_line_banner << allowable_options << std::endl;
 		return EXIT_SUCCESS;
 	}
 
 	if (vm.count(HELP_MODULE))
 	{
-		cout << cmd_line_banner;
-		string original_text = vm[HELP_MODULE].as<string>();
-		string help_text = str_upper<string>(original_text);
+		std::cout << cmd_line_banner;
+		std::string original_text = vm[HELP_MODULE].as<std::string>();
+		std::string help_text = str_upper<std::string>(original_text);
 
-		if (str_upper<string, char>(ALL_MODULE_STDOPT).find(help_text) != string::npos) {
-			cout << standard_options << endl;
+		if (str_upper<std::string, char>(ALL_MODULE_STDOPT).find(help_text) != std::string::npos) {
+			std::cout << standard_options << std::endl;
 		}
-		else if (str_upper<string, char>(ALL_MODULE_GENERIC).find(help_text) != string::npos) {
-			cout << generic_options << endl;
+		else if (str_upper<std::string, char>(ALL_MODULE_GENERIC).find(help_text) != std::string::npos) {
+			std::cout << generic_options << std::endl;
 		}
 		else {
-			cout << endl << "- Error: Help module '" <<
-				original_text << "' is not in the list of options." << endl;
+			std::cout << std::endl << "- Error: Help module '" <<
+				original_text << "' is not in the list of options." << std::endl;
 			return EXIT_FAILURE;
 		}
 
@@ -437,28 +431,28 @@ int main(int argc, char* argv[])
 
 	// Normalise files using input folder
 	for_each(p.i.input_files.begin(), p.i.input_files.end(),
-		[&p] (string& file) { 
-			formPath<string>(p.g.input_folder, file);
+		[&p] (std::string& file) { 
+			formPath<std::string>(p.g.input_folder, file);
 	}
 	);
 
 	UINT32 stnCount(0), msrCount(0), clusterID(0);
 
 	size_t i, nfiles(p.i.input_files.size());		// for each file...
-	string input_file, output_file, ss;
-	string defaultFrame, defaultEpoch;
+	std::string input_file, output_file, ss;
+	std::string defaultFrame, defaultEpoch;
 	
-	ostringstream ss_time, ss_msg;
-	milliseconds elapsed_time(milliseconds(0));
-	ptime pt;
+	std::ostringstream ss_time, ss_msg;
+	boost::posix_time::milliseconds elapsed_time(boost::posix_time::milliseconds(0));
+	boost::posix_time::ptime pt;
 
 	if (!p.g.quiet)
 	{
-		cout << endl << cmd_line_banner;
-		cout << "+ Parsing: " << endl;
+		std::cout << std::endl << cmd_line_banner;
+		std::cout << "+ Parsing: " << std::endl;
 	}
 	
-	cpu_timer time;	// constructor of boost::timer::cpu_timer calls start()
+	boost::timer::cpu_timer time;	// constructor of boost::timer::cpu_timer calls start()
 
 	std::ifstream*	ifsDynaML_;
 	size_t		sifsFileSize_, measurementUpdateCount(0), unsureFrameCount(0), unsureEpochCount(0);
@@ -470,9 +464,9 @@ int main(int argc, char* argv[])
 
 	size_t strlen_arg = 0;
 	for_each(p.i.input_files.begin(), p.i.input_files.end(),
-		[&strlen_arg](string& file) {
-			if (leafStr<string>(file).length() > strlen_arg)
-				strlen_arg = leafStr<string>(file).length();
+		[&strlen_arg](std::string& file) {
+			if (leafStr<std::string>(file).length() > strlen_arg)
+				strlen_arg = leafStr<std::string>(file).length();
 	});
 	strlen_arg += (6 + PROGRESS_PERCENT_04);
 
@@ -482,25 +476,25 @@ int main(int argc, char* argv[])
 
 		time.start();
 
-		if (!exists(input_file))
+		if (!boost::filesystem::exists(input_file))
 		{
-			input_file = formPath<string>(p.g.input_folder, input_file);
-			if (!exists(input_file))
+			input_file = formPath<std::string>(p.g.input_folder, input_file);
+			if (!boost::filesystem::exists(input_file))
 			{	
-				cout << "- Error:  " << input_file << " does not exist" << endl;
+				std::cout << "- Error:  " << input_file << " does not exist" << std::endl;
 				return EXIT_FAILURE;
 			}
 		}
 
 		// Form output file path
-		stringstream ss_outputfile("");
-		ss_outputfile << path(input_file).stem().generic_string();
+		std::stringstream ss_outputfile("");
+		ss_outputfile << boost::filesystem::path(input_file).stem().generic_string();
 		ss_outputfile << ".edit.xml";
 		output_file = ss_outputfile.str();
 
-		ss = leafStr<string>(p.i.input_files.at(i)) + "... ";
+		ss = leafStr<std::string>(p.i.input_files.at(i)) + "... ";
 		if (!p.g.quiet)
-			cout << "  " << setw(strlen_arg) << left << ss;
+			std::cout << "  " << std::setw(strlen_arg) << std::left << ss;
 		
 		// Obtain exclusive use of the input file pointer
 		import_file_mutex.lock();
@@ -516,20 +510,20 @@ int main(int argc, char* argv[])
 			ifsDynaML_ = new std::ifstream;
 
 			// Open and seek to end immediately after opening.
-			file_opener(ifsDynaML_, input_file, ios::in | ios::ate, ascii, true);
+			file_opener(ifsDynaML_, input_file, std::ios::in | std::ios::ate, ascii, true);
 		
 			// get file size and return to start
 			sifsFileSize_ = (size_t)ifsDynaML_->tellg();
-			ifsDynaML_->seekg(0, ios::beg);
+			ifsDynaML_->seekg(0, std::ios::beg);
 		}
-		catch (const ios_base::failure& f) {	
-			cout << "- Error: An error was encountered when opening " << input_file << "." << endl;
-			cout << "  Check that the file exists and that the file is not already opened." << endl << f.what();
+		catch (const std::ios_base::failure& f) {	
+			std::cout << "- Error: An error was encountered when opening " << input_file << "." << std::endl;
+			std::cout << "  Check that the file exists and that the file is not already opened." << std::endl << f.what();
 			return EXIT_FAILURE;
 		}
 		catch (...) {	
-			cout << "- Error: An error was encountered when opening " << input_file << "." << endl;
-			cout << "  Check that the file exists and that the file is not already opened.";
+			std::cout << "- Error: An error was encountered when opening " << input_file << "." << std::endl;
+			std::cout << "  Check that the file exists and that the file is not already opened.";
 			return EXIT_FAILURE;
 		}
 
@@ -544,15 +538,15 @@ int main(int argc, char* argv[])
 			ofsDynaML_ = new std::ofstream;
 
 			// Open output file
-			file_opener(ofsDynaML_, output_file, ios::out, ascii);
+			file_opener(ofsDynaML_, output_file, std::ios::out, ascii);
 
 		}
-		catch (const ios_base::failure& f) {	
-			cout << "- Error: An error was encountered when opening " << output_file << "." << endl << f.what();
+		catch (const std::ios_base::failure& f) {	
+			std::cout << "- Error: An error was encountered when opening " << output_file << "." << std::endl << f.what();
 			return EXIT_FAILURE;
 		}
 		catch (...) {	
-			cout << "- Error: An error was encountered when opening " << output_file << "." << endl;
+			std::cout << "- Error: An error was encountered when opening " << output_file << "." << std::endl;
 			return EXIT_FAILURE;
 		}
 
@@ -565,32 +559,32 @@ int main(int argc, char* argv[])
 			processFile(ifsDynaML_, ofsDynaML_, defaultFrame, defaultEpoch, 
 				measurementUpdateCount, unsureFrameCount, unsureEpochCount);
 		}
-		catch (const runtime_error& e) {
-			cout << endl << "- Error: " << e.what() << endl;
+		catch (const std::runtime_error& e) {
+			std::cout << std::endl << "- Error: " << e.what() << std::endl;
 			return EXIT_FAILURE;
 		}catch (const XMLInteropException& e) {
-			cout << endl << "- Error: " << e.what() << endl;
+			std::cout << std::endl << "- Error: " << e.what() << std::endl;
 			return EXIT_FAILURE;
 		}
 		catch (...) 
 		{
-			cout << "+ Exception of unknown type!\n";
+			std::cout << "+ Exception of unknown type!\n";
 			return EXIT_FAILURE;
 		} 
 
 		// Finish up
 		time.stop();
-		elapsed_time = milliseconds(time.elapsed().wall/MILLI_TO_NANO);
+		elapsed_time = boost::posix_time::milliseconds(time.elapsed().wall/MILLI_TO_NANO);
 
 		if (!p.g.quiet)
 		{
-			cout << "done." << endl << endl;
-			cout << "+ Output file:                          " << output_file << endl;
-			cout << "+ Default reference frame:              " << defaultFrame << endl;
-			cout << "+ Default epoch:                        " << defaultEpoch << endl;
-			cout << "+ No. DnaMeasurement records updated:   " << measurementUpdateCount << endl;
-			cout << "+ No. comments with \"unsure\" frame:     " << unsureFrameCount << endl;
-			cout << "+ No. comments with \"unsure\" epoch:     " << unsureEpochCount << endl;
+			std::cout << "done." << std::endl << std::endl;
+			std::cout << "+ Output file:                          " << output_file << std::endl;
+			std::cout << "+ Default reference frame:              " << defaultFrame << std::endl;
+			std::cout << "+ Default epoch:                        " << defaultEpoch << std::endl;
+			std::cout << "+ No. DnaMeasurement records updated:   " << measurementUpdateCount << std::endl;
+			std::cout << "+ No. comments with \"unsure\" frame:     " << unsureFrameCount << std::endl;
+			std::cout << "+ No. comments with \"unsure\" epoch:     " << unsureEpochCount << std::endl;
 			        
 		}
 
@@ -609,7 +603,7 @@ int main(int argc, char* argv[])
 			{
 				ifsDynaML_ = 0;
 			}
-			cout << "- Error: An error was encountered when closing " << input_file << "." << endl << endl << e.what() << endl << "  Check that the file exists and that the file is not already opened.";
+			std::cout << "- Error: An error was encountered when closing " << input_file << "." << std::endl << std::endl << e.what() << std::endl << "  Check that the file exists and that the file is not already opened.";
 			return EXIT_FAILURE;
 		}
 
@@ -630,7 +624,7 @@ int main(int argc, char* argv[])
 			{
 				ofsDynaML_ = 0;
 			}
-			cout << "- Error: An error was encountered when closing " << output_file << "." << endl << endl << e.what() << endl;
+			std::cout << "- Error: An error was encountered when closing " << output_file << "." << std::endl << std::endl << e.what() << std::endl;
 			return EXIT_FAILURE;
 		}
 
@@ -638,8 +632,8 @@ int main(int argc, char* argv[])
 
 		if (!p.g.quiet)
 		{
-			string time_message = formatedElapsedTime<string>(&elapsed_time, "+ File processing time:                 ");
-			cout << time_message << endl << endl;
+			std::string time_message = formatedElapsedTime<std::string>(&elapsed_time, "+ File processing time:                 ");
+			std::cout << time_message << std::endl << std::endl;
 		}
 
 		// release file pointer mutex

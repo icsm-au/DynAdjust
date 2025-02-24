@@ -32,8 +32,6 @@
 #include <include/measurement_types/dnameasurement.hpp>
 #include <include/functions/dnatemplatefuncs.hpp>
 
-using namespace std;
-
 namespace dynadjust {
 namespace measurements {
 
@@ -49,34 +47,34 @@ private:
 	//CDnaAngle& operator=(const CDnaAngle& rhs);
 
 public:
-	//CDnaAngle(const bool strIgnore, const string& strFirst, const string& strTarget, const string& strTarget2, const double& drValue, const double& dStdDev);
+	//CDnaAngle(const bool strIgnore, const std::string& strFirst, const std::string& strTarget, const std::string& strTarget2, const double& drValue, const double& dStdDev);
 
 	bool operator==(const CDnaAngle& rhs) const;
 	bool operator<(const CDnaAngle& rhs) const;
 
 	//inline CDnaAngle& operator[](int iIndex) { return this[iIndex]; }
 
-	inline string GetTarget() const { return m_strTarget; }
-	inline string GetTarget2() const { return m_strTarget2; }
+	inline std::string GetTarget() const { return m_strTarget; }
+	inline std::string GetTarget2() const { return m_strTarget2; }
 	inline double GetValue() const { return m_drValue; }
 	inline double GetStdDev() const { return m_dStdDev; }
 	
-	inline void SetTarget(const string& str) { m_strTarget = trimstr(str); }
-	inline void SetTarget2(const string& str) { m_strTarget2 = trimstr(str); }
+	inline void SetTarget(const std::string& str) { m_strTarget = trimstr(str); }
+	inline void SetTarget2(const std::string& str) { m_strTarget2 = trimstr(str); }
 
-	void SetValue(const string& str);
-	void SetStdDev(const string& str);
+	void SetValue(const std::string& str);
+	void SetStdDev(const std::string& str);
 	
 	inline virtual UINT32 CalcBinaryRecordCount() const { return 1; }
 	virtual void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) const;
 	virtual UINT32 SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr, it_vdbid_t& dbidmap);
-	virtual void WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool) const;
+	virtual void WriteDynaMLMsr(std::ofstream* dynaml_stream, const std::string& comment, bool) const;
 	virtual void WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool) const;
 	virtual void SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* ellipsoid);
 
 protected:
-	string	m_strTarget;
-	string	m_strTarget2;
+	std::string	m_strTarget;
+	std::string	m_strTarget2;
 	double	m_drValue;
 	double	m_dStdDev;
 };

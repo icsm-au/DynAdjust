@@ -18,6 +18,7 @@ Free Station S.D. (m):             10
 Iteration threshold:               0.0005
 Maximum iterations:                10
 Test confidence interval:          95.0%
+Uncertainties SD(e,n,up):          68.3% (1 sigma)
 Station coordinate types:          PLHhXYZ
 Stations printed in blocks:        No
 --------------------------------------------------------------------------------

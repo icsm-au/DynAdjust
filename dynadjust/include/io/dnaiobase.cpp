@@ -25,15 +25,13 @@
 #include <include/functions/dnastrmanipfuncs.hpp>
 #include <boost/date_time/gregorian/gregorian.hpp>
 
-using namespace boost::gregorian;
-
 namespace dynadjust {
 namespace iostreams {
 
 dna_io_base::dna_io_base(void)
 	: m_strVersion(__FILE_VERSION__)
 	, m_strDate("")
-	, m_strApp("DNA" + string(__SHORT_VERSION__))
+	, m_strApp("DNA" + std::string(__SHORT_VERSION__))
 {
 }
 
@@ -91,11 +89,16 @@ void dna_io_base::writeFileMetadata(std::ofstream& file_stream, binary_file_meta
 	file_stream.write(reinterpret_cast<char *>(file_meta.epsgCode), STN_EPSG_WIDTH);
 	file_stream.write(reinterpret_cast<char *>(file_meta.epoch), STN_EPOCH_WIDTH);
 
+	file_stream.write(reinterpret_cast<char*>(&file_meta.reftran), sizeof(bool));
+	file_stream.write(reinterpret_cast<char*>(&file_meta.geoid), sizeof(bool));
+
 	// Write file count and file meta
 	file_stream.write(reinterpret_cast<char *>(&file_meta.inputFileCount), sizeof(UINT16)); 
 	for (UINT16 i(0); i<file_meta.inputFileCount; ++i)
 	{
 		file_stream.write(reinterpret_cast<char *>(file_meta.inputFileMeta[i].filename), FILE_NAME_WIDTH); 
+		file_stream.write(reinterpret_cast<char *>(file_meta.inputFileMeta[i].epsgCode), STN_EPSG_WIDTH);
+		file_stream.write(reinterpret_cast<char *>(file_meta.inputFileMeta[i].epoch), STN_EPOCH_WIDTH);
 		file_stream.write(reinterpret_cast<char *>(&file_meta.inputFileMeta[i].filetype), sizeof(UINT16)); 
 		file_stream.write(reinterpret_cast<char *>(&file_meta.inputFileMeta[i].datatype), sizeof(UINT16)); 
 	}
@@ -113,6 +116,9 @@ void dna_io_base::readFileMetadata(std::ifstream& file_stream, binary_file_meta_
 	file_stream.read(reinterpret_cast<char *>(file_meta.epsgCode), STN_EPSG_WIDTH);
 	file_stream.read(reinterpret_cast<char *>(file_meta.epoch), STN_EPOCH_WIDTH);
 
+	file_stream.read(reinterpret_cast<char*>(&file_meta.reftran), sizeof(bool));
+	file_stream.read(reinterpret_cast<char*>(&file_meta.geoid), sizeof(bool));
+
 	// Read file count and file meta
 	file_stream.read(reinterpret_cast<char *>(&file_meta.inputFileCount), sizeof(UINT16));
 	if (file_meta.inputFileMeta != NULL)
@@ -123,6 +129,8 @@ void dna_io_base::readFileMetadata(std::ifstream& file_stream, binary_file_meta_
 	for (UINT16 i(0); i<file_meta.inputFileCount; ++i)
 	{
 		file_stream.read(reinterpret_cast<char *>(file_meta.inputFileMeta[i].filename), FILE_NAME_WIDTH); 
+		file_stream.read(reinterpret_cast<char *>(file_meta.inputFileMeta[i].epsgCode), STN_EPSG_WIDTH);
+		file_stream.read(reinterpret_cast<char *>(file_meta.inputFileMeta[i].epoch), STN_EPOCH_WIDTH);
 		file_stream.read(reinterpret_cast<char *>(&file_meta.inputFileMeta[i].filetype), sizeof(UINT16)); 
 		file_stream.read(reinterpret_cast<char *>(&file_meta.inputFileMeta[i].datatype), sizeof(UINT16)); 
 	}
@@ -164,9 +172,9 @@ void dna_io_base::writeDate(std::ofstream& file_stream)
 	char dateField[identifier_field_width+1];
 
 	// Form date string
-	date today(day_clock::local_day());
-	stringstream date_string;
-	date_string << right << to_iso_extended_string(today);
+	boost::gregorian::date today(boost::gregorian::day_clock::local_day());
+	std::stringstream date_string;
+	date_string << std::right << to_iso_extended_string(today);
 	m_strDate = date_string.str();
 	
 	// write creation date field name

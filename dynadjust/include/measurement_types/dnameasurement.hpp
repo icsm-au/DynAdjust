@@ -49,9 +49,6 @@
 
 //#include <boost/random.hpp>
 
-using namespace std;
-using namespace boost;
-
 enum {
 	INST_WIDTH = 12,
 	TARG_WIDTH = 12,
@@ -104,7 +101,7 @@ S measurement_name(const C& type)
 	case 'R':
 		return "(R) Ellipsoidal height";
 	case 'V':
-		return "(V) Zenith angle";
+		return "(V) Zenith distance";
 	case 'Z':
 		return "(Z) Vertical angle";
 	case 'Y':
@@ -123,12 +120,12 @@ class CDnaCovariance;
 
 // measurement types
 typedef boost::shared_ptr<CDnaMeasurement> dnaMsrPtr;
-typedef vector<dnaMsrPtr> vdnaMsrPtr, *pvdnaMsrPtr;						// vector of dnaMsrPtr
+typedef std::vector<dnaMsrPtr> vdnaMsrPtr, *pvdnaMsrPtr;						// vector of dnaMsrPtr
 typedef vdnaMsrPtr::iterator _it_vdnamsrptr;
 typedef vdnaMsrPtr::const_iterator _it_vdnamsrptr_const;
 
 typedef boost::shared_ptr<CDnaCovariance> dnaCovariancePtr;
-typedef boost::shared_ptr< vector<CDnaCovariance> > vecCovariancePtr;
+typedef boost::shared_ptr< std::vector<CDnaCovariance> > vecCovariancePtr;
 
 // data struct for storing measurement information to binary measurement file
 typedef struct msr_t {
@@ -161,6 +158,7 @@ typedef struct msr_t {
 	UINT32	station3;				// record file.
 	UINT32	vectorCount1;			// number of directions, GpsPoints or GpsBaselines
 	UINT32	vectorCount2;			// number of covariances for GpsPoint or GpsBaseline
+									// number of non-ignored directions
 	UINT32	clusterID;				// cluster ID (which cluster this measurement belongs to)
 	UINT32	fileOrder;				// original file order
 	double	term1;					// measurement, X, Y, Z, dX, dY, dZ value
@@ -168,13 +166,13 @@ typedef struct msr_t {
 	double	term2;					// measurement, XX, XY or XZ variance
 									// direction variance
 	double	term3;					// instrument height, YY or YZ variance
-									// derived angle
 	double	term4;					// target height or ZZ variance
-									// derived angle variance
 	double	scale1;					// phi, n or X scalar
-									// derived angle covariance
+									// derived angle corrected for deflection of the vertical
 	double	scale2;					// lambda, e or Y scalar
+									// derived angle variance
 	double	scale3;					// height, up or Z scalar
+									// derived angle covariance
 	double	scale4;					// matrix scalar
 	double	measAdj;
 	double	measCorr;
@@ -187,7 +185,7 @@ typedef struct msr_t {
 	double	preAdjMeas;
 } measurement_t;
 
-typedef vector<measurement_t> vmsr_t, *pvmsr_t;
+typedef std::vector<measurement_t> vmsr_t, *pvmsr_t;
 typedef vmsr_t::iterator it_vmsr_t, *pit_vmsr_t;
 typedef vmsr_t::const_iterator it_vmsr_t_const;
 
@@ -197,15 +195,15 @@ typedef struct scl_t {
 		, v_scale(1.), p_scale(1.), l_scale(1.), h_scale(1.) 
 	{}
 
-	string	station1;		
-	string	station2;		
+	std::string	station1;		
+	std::string	station2;		
 	double	v_scale;	// phi, n or X scalar
 	double	p_scale;	// lambda, e or Y scalar
 	double	l_scale;	// height, up or Z scalar
 	double	h_scale;	// matrix scalar
 } scalar_t;
 
-typedef vector<scalar_t> vscl_t, *pvscl_t;
+typedef std::vector<scalar_t> vscl_t, *pvscl_t;
 typedef vscl_t::iterator it_vscl_t, *pit_vscl_t;
 typedef vscl_t::const_iterator it_vscl_t_const;
 
@@ -231,7 +229,7 @@ public:
 
 	//inline CDnaCovariance& operator[](int iIndex) { return this[iIndex]; }
 
-	inline void SetType(const string& str) { m_strType = trimstr(str); }
+	inline void SetType(const std::string& str) { m_strType = trimstr(str); }
 	inline char GetTypeC() const { return (m_strType.c_str())[0]; }
 
 	// m_bIgnore used only to 'split' cluster measurements
@@ -239,7 +237,7 @@ public:
 	inline bool GetIgnore() const { return m_bIgnore; }
 
 	inline virtual UINT32 CalcBinaryRecordCount() const { return 3; }
-	void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex, const string& epsgCode, const string& epoch) const;
+	void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex, const std::string& epsgCode, const std::string& epoch) const;
 	virtual UINT32 SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr);
 	virtual void WriteDynaMLMsr(std::ofstream* dynaml_stream) const;
 	virtual void WriteDNAMsr(std::ofstream* dna_stream, 
@@ -251,15 +249,15 @@ public:
 	inline void SetClusterID(const UINT32& id) { m_lclusterID = id; }
 	inline void SetStn1Index(const UINT32& stn) { m_lstn1Index = stn; }
 	inline void SetStn2Index(const UINT32& stn) { m_lstn2Index = stn; }
-	void SetM11(const string& str);
-	void SetM12(const string& str);
-	void SetM13(const string& str);
-	void SetM21(const string& str);
-	void SetM22(const string& str);
-	void SetM23(const string& str);
-	void SetM31(const string& str);
-	void SetM32(const string& str);
-	void SetM33(const string& str);
+	void SetM11(const std::string& str);
+	void SetM12(const std::string& str);
+	void SetM13(const std::string& str);
+	void SetM21(const std::string& str);
+	void SetM22(const std::string& str);
+	void SetM23(const std::string& str);
+	void SetM31(const std::string& str);
+	void SetM32(const std::string& str);
+	void SetM33(const std::string& str);
 
 	inline void SetM11(const double& dbl) { m_dM11 = dbl; }
 	inline void SetM12(const double& dbl) { m_dM12 = dbl; }
@@ -288,7 +286,7 @@ protected:
 	bool	m_bIgnore;
 	UINT32	 m_lstn1Index;        			// This is an index to the record number in the station file
 	UINT32	 m_lstn2Index;
-	string	 m_strType;
+	std::string	 m_strType;
 	double	 m_dM11;
 	double	 m_dM12;
 	double	 m_dM13;
@@ -322,24 +320,24 @@ private:
 public:
 	//virtual CDnaMeasurement* clone() const = 0;  // The Virtual (Copy) Constructor
 
-	inline string GetType() const { return m_strType; }
+	inline std::string GetType() const { return m_strType; }
 	inline char GetTypeC() const { return (m_strType.c_str())[0]; }
 	inline bool GetIgnore() const { return m_bIgnore; }
 	inline bool NotIgnored() const { return m_bIgnore == false; }
-	inline string GetFirst() const { return m_strFirst; }
+	inline std::string GetFirst() const { return m_strFirst; }
 	inline MEASUREMENT_STATIONS GetMsrStnCount() const { return m_MSmeasurementStations; }
 
-	inline string GetEpsg() const { return m_epsgCode; }
-	inline string GetSource() const { return m_sourceFile; }
+	inline std::string GetEpsg() const { return m_epsgCode; }
+	inline std::string GetSource() const { return m_sourceFile; }
 
 	inline bool GetInsufficient() const { return m_bInsufficient; }
 
-	void SetType(const string& str);
+	void SetType(const std::string& str);
 	inline void SetIgnore(const bool bval) { m_bIgnore = bval; }
-	inline void SetFirst(const string& str) { m_strFirst = trimstr(str); }
+	inline void SetFirst(const std::string& str) { m_strFirst = trimstr(str); }
 	
-	inline void SetEpsg(const string& e) { m_epsgCode = trimstr(e); }
-	inline void SetSource(const string& source) { m_sourceFile = source; }
+	inline void SetEpsg(const std::string& e) { m_epsgCode = trimstr(e); }
+	inline void SetSource(const std::string& source) { m_sourceFile = source; }
 	
 	inline void SetInsufficient(const bool bval) { m_bInsufficient = bval; }
 
@@ -364,7 +362,7 @@ public:
 	virtual UINT32 CalcBinaryRecordCount() const = 0;
 	virtual void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) const = 0;
 	virtual UINT32 SetMeasurementRec(const vstn_t&, it_vmsr_t& it_msr, it_vdbid_t& dbidmap) = 0;
-	virtual void WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool bSubMeasurement = false) const = 0;
+	virtual void WriteDynaMLMsr(std::ofstream* dynaml_stream, const std::string& comment, bool bSubMeasurement = false) const = 0;
 	virtual void WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool bSubMeasurement = false) const = 0;
 	virtual void SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* ellipsoid) = 0;
 
@@ -375,26 +373,26 @@ public:
 
 	// virtual functions overridden by specialised classes
 	virtual inline UINT32 GetClusterID() const { return 0; }
-	virtual inline string GetCoordType() const { return m_strType; }
+	virtual inline std::string GetCoordType() const { return m_strType; }
 	virtual inline float GetInstrHeight() const { return 0; }
 	virtual inline double GetVscale() const { return 0; }
 	virtual inline double GetPscale() const { return 0; }
 	virtual inline double GetLscale() const { return 0; }
 	virtual inline double GetHscale() const { return 0; }
 	virtual inline double GetStdDev() const { return 0; }
-	virtual inline string GetTarget() const { return ""; }
-	virtual inline string GetTarget2() const { return ""; }
+	virtual inline std::string GetTarget() const { return ""; }
+	virtual inline std::string GetTarget2() const { return ""; }
 	virtual inline float GetTargetHeight() const { return 0; }
 	virtual inline UINT32 GetTotal() const { return 0; }
 	virtual inline double GetValue() const { return 0; }
 
-	virtual inline string GetReferenceFrame() const { return ""; }
-	inline string GetEpoch() const { return m_epoch; }
+	virtual inline std::string GetReferenceFrame() const { return ""; }
+	inline std::string GetEpoch() const { return m_epoch; }
 	
-	virtual inline vector<CDnaGpsBaseline>* GetBaselines_ptr() { return 0; }
-	virtual inline vector<CDnaDirection>* GetDirections_ptr() { return 0; }
-	virtual inline vector<CDnaGpsPoint>* GetPoints_ptr() { return 0; }
-	virtual inline vector<CDnaCovariance>* GetCovariances_ptr() { return 0; }
+	virtual inline std::vector<CDnaGpsBaseline>* GetBaselines_ptr() { return 0; }
+	virtual inline std::vector<CDnaDirection>* GetDirections_ptr() { return 0; }
+	virtual inline std::vector<CDnaGpsPoint>* GetPoints_ptr() { return 0; }
+	virtual inline std::vector<CDnaCovariance>* GetCovariances_ptr() { return 0; }
 
 	virtual void AddDirection(const CDnaMeasurement*) {}
 	virtual void AddGpsBaseline(const CDnaMeasurement*) {}
@@ -409,36 +407,37 @@ public:
 	virtual void ResizeGpsCovariancesCount(const UINT32&) {}
 
 	virtual void SetRecordedTotal(const UINT32&) {}
+	virtual void SetNonIgnoredDirns(const UINT32&) {}
 	virtual void SetClusterID(const UINT32&) {}
-	virtual void SetCoordType(const string&) {}
-	virtual void SetHscale(const string&) {}
+	virtual void SetCoordType(const std::string&) {}
+	virtual void SetHscale(const std::string&) {}
 	virtual void SetHscale(const double&) {}
-	virtual void SetInstrumentHeight(const string&) {}
+	virtual void SetInstrumentHeight(const std::string&) {}
 	
-	virtual void SetReferenceFrame(const string&) {}
-	void SetEpoch(const string& epoch);
+	virtual void SetReferenceFrame(const std::string&) {}
+	void SetEpoch(const std::string& epoch);
 	
-	virtual void SetLscale(const string&) {}
+	virtual void SetLscale(const std::string&) {}
 	virtual void SetLscale(const double&) {}
-	virtual void SetPscale(const string&) {}
+	virtual void SetPscale(const std::string&) {}
 	virtual void SetPscale(const double&) {}
-	virtual void SetSigmaXX(const string&) {}
-	virtual void SetSigmaXY(const string&) {}
-	virtual void SetSigmaXZ(const string&) {}
-	virtual void SetSigmaYY(const string&) {}
-	virtual void SetSigmaYZ(const string&) {}
-	virtual void SetSigmaZZ(const string&) {}
-	virtual void SetStdDev(const string&) {}
-	virtual void SetTarget(const string&) {}
-	virtual void SetTarget2(const string&) {}
-	virtual void SetTargetHeight(const string&) {}
-	virtual void SetTotal(const string&) {}
-	virtual void SetValue(const string&) {}
-	virtual void SetVscale(const string&) {}
+	virtual void SetSigmaXX(const std::string&) {}
+	virtual void SetSigmaXY(const std::string&) {}
+	virtual void SetSigmaXZ(const std::string&) {}
+	virtual void SetSigmaYY(const std::string&) {}
+	virtual void SetSigmaYZ(const std::string&) {}
+	virtual void SetSigmaZZ(const std::string&) {}
+	virtual void SetStdDev(const std::string&) {}
+	virtual void SetTarget(const std::string&) {}
+	virtual void SetTarget2(const std::string&) {}
+	virtual void SetTargetHeight(const std::string&) {}
+	virtual void SetTotal(const std::string&) {}
+	virtual void SetValue(const std::string&) {}
+	virtual void SetVscale(const std::string&) {}
 	virtual void SetVscale(const double&) {}
-	virtual void SetX(const string&) {}
-	virtual void SetY(const string&) {}
-	virtual void SetZ(const string&) {}
+	virtual void SetX(const std::string&) {}
+	virtual void SetY(const std::string&) {}
+	virtual void SetZ(const std::string&) {}
 
 	virtual void SetXAxis(const double&) {}
 	virtual void SetYAxis(const double&) {}
@@ -453,10 +452,10 @@ public:
 	
 	virtual void PreferGMeasurements() {}
 
-	//virtual void coutBaselineData(ostream &os, const int& pad, const UINT16& uType = 0) {}
+	//virtual void coutBaselineData(std::ostream &os, const int& pad, const UINT16& uType = 0) {}
 
-	void SetMeasurementDBID(const string& str);
-	void SetClusterDBID(const string& str);
+	void SetMeasurementDBID(const std::string& str);
+	void SetClusterDBID(const std::string& str);
 	
 	void SetClusterDBID(const UINT32& u, bool s);
 
@@ -469,14 +468,14 @@ public:
 	virtual void SerialiseDatabaseMap(std::ofstream* os);
 
 protected:
-	void coutMeasurement(ostream &os) const;
+	void coutMeasurement(std::ostream &os) const;
 
 public:
-	string	m_strFirst;
+	std::string	m_strFirst;
 	MEASUREMENT_STATIONS m_MSmeasurementStations;
 	
 protected:
-	string	m_strType;
+	std::string	m_strType;
 	bool	m_bIgnore;
 
 	UINT32 	m_lmeasurementIndex;
@@ -490,10 +489,10 @@ protected:
 	double	m_residualPrec;
 	double	m_preAdjCorr;
 
-	string	m_epsgCode;
-	string	m_sourceFile;
+	std::string	m_epsgCode;
+	std::string	m_sourceFile;
 
-	string	m_epoch;
+	std::string	m_epoch;
 	
 	msr_database_id_map		m_msr_db_map;
 
@@ -512,7 +511,7 @@ public:
 	}
 
 	static void FillMsrList(vchar& msr_list);
-	static string GetMsrName(const char& c);
+	static std::string GetMsrName(const char& c);
 	
 	void initialise();
 
@@ -521,7 +520,7 @@ public:
 	MsrTally operator+(const MsrTally& rhs) const;
 	//MsrTally operator-(const MsrTally& rhs) const;
 	UINT32 TotalCount();
-	void coutSummary(ostream &os, const string& title);
+	void coutSummary(std::ostream &os, const std::string& title);
 	UINT32 MeasurementCount(const char& msrType);
 	
 	void CreateTally(const vdnaMsrPtr& vMeasurements);
@@ -530,8 +529,8 @@ public:
 	
 	void IncrementMsrType(const char& msrType, const UINT32& count=1);
 	
-	void coutSummaryMsrToStn(ostream &os, const string& station);
-	void coutSummaryMsrToStn_Compressed(ostream &os, const string& station);
+	void coutSummaryMsrToStn(std::ostream &os, const std::string& station);
+	void coutSummaryMsrToStn_Compressed(std::ostream &os, const std::string& station);
 
 	//bool GPSOnly();	
 	inline bool ContainsNonGPS() { return containsNonGPS; }
@@ -546,7 +545,7 @@ public:
 	UINT32 totalCount;
 };
 
-typedef vector<MsrTally> vmsrtally;
+typedef std::vector<MsrTally> vmsrtally;
 typedef vmsrtally::iterator _it_vmsrtally;
 
 template <typename T>
@@ -557,40 +556,40 @@ void MsrToStnSummaryHeaderLine(
 	for (i=0; i<j; ++i)
 		stream << "-";
 
-	stream << endl;
+	stream << std::endl;
 }
 
 template <typename T>
 void MsrToStnSummaryHeader(
-	T& stream, string& header)
+	T& stream, std::string& header)
 {
-	stream << endl << header << endl;
-	stream << "------------------------------------------" << endl << endl;
+	stream << std::endl << header << std::endl;
+	stream << "------------------------------------------" << std::endl << std::endl;
 
-	stream << setw(STATION) << left << "Station" <<
-		setw(NUMERIC_WIDTH) << right <<	"A" <<
-		setw(NUMERIC_WIDTH) << right <<	"B" <<
-		setw(NUMERIC_WIDTH) << right <<	"C" <<
-		setw(NUMERIC_WIDTH) << right <<	"D" <<
-		setw(NUMERIC_WIDTH) << right <<	"E" <<
-		setw(NUMERIC_WIDTH) << right << "G" <<
-		setw(NUMERIC_WIDTH) << right <<	"H" <<
-		setw(NUMERIC_WIDTH) << right <<	"I" <<
-		setw(NUMERIC_WIDTH) << right <<	"J" <<
-		setw(NUMERIC_WIDTH) << right <<	"K" <<
-		setw(NUMERIC_WIDTH) << right <<	"L" <<
-		setw(NUMERIC_WIDTH) << right <<	"M" <<
-		setw(NUMERIC_WIDTH) << right <<	"P" <<
-		setw(NUMERIC_WIDTH) << right <<	"Q" <<
-		setw(NUMERIC_WIDTH) << right <<	"R" <<
-		setw(NUMERIC_WIDTH) << right <<	"S" <<
-		setw(NUMERIC_WIDTH) << right <<	"V" <<
-		setw(NUMERIC_WIDTH) << right <<	"X" <<
-		setw(NUMERIC_WIDTH) << right <<	"Y" <<
-		setw(NUMERIC_WIDTH) << right <<	"Z" <<
+	stream << std::setw(STATION) << std::left << "Station" <<
+		std::setw(NUMERIC_WIDTH) << std::right <<	"A" <<
+		std::setw(NUMERIC_WIDTH) << std::right <<	"B" <<
+		std::setw(NUMERIC_WIDTH) << std::right <<	"C" <<
+		std::setw(NUMERIC_WIDTH) << std::right <<	"D" <<
+		std::setw(NUMERIC_WIDTH) << std::right <<	"E" <<
+		std::setw(NUMERIC_WIDTH) << std::right << "G" <<
+		std::setw(NUMERIC_WIDTH) << std::right <<	"H" <<
+		std::setw(NUMERIC_WIDTH) << std::right <<	"I" <<
+		std::setw(NUMERIC_WIDTH) << std::right <<	"J" <<
+		std::setw(NUMERIC_WIDTH) << std::right <<	"K" <<
+		std::setw(NUMERIC_WIDTH) << std::right <<	"L" <<
+		std::setw(NUMERIC_WIDTH) << std::right <<	"M" <<
+		std::setw(NUMERIC_WIDTH) << std::right <<	"P" <<
+		std::setw(NUMERIC_WIDTH) << std::right <<	"Q" <<
+		std::setw(NUMERIC_WIDTH) << std::right <<	"R" <<
+		std::setw(NUMERIC_WIDTH) << std::right <<	"S" <<
+		std::setw(NUMERIC_WIDTH) << std::right <<	"V" <<
+		std::setw(NUMERIC_WIDTH) << std::right <<	"X" <<
+		std::setw(NUMERIC_WIDTH) << std::right <<	"Y" <<
+		std::setw(NUMERIC_WIDTH) << std::right <<	"Z" <<
 		// Total
-		setw(STAT) << right <<	"Total" <<
-		endl;
+		std::setw(STAT) << std::right <<	"Total" <<
+	 	std::endl;
 
 	MsrToStnSummaryHeaderLine(stream);
 

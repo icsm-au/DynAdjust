@@ -18,8 +18,6 @@
 #include <include/measurement_types/dnameasurement_types.hpp>
 #include <include/functions/dnatemplatestnmsrfuncs.hpp>
 
-using namespace std;
-using namespace boost;
 using namespace dynadjust::measurements;
 
 class Clusterpoint_pimpl: public virtual Clusterpoint_pskel
@@ -40,15 +38,15 @@ public:
 	virtual void post_Clusterpoint ();
 
 protected:
-	string _X;
-	string _Y;
-	string _Z;
-	string _SigmaXX;
-	string _SigmaXY;
-	string _SigmaXZ;
-	string _SigmaYY;
-	string _SigmaYZ;
-	string _SigmaZZ;
+	std::string _X;
+	std::string _Y;
+	std::string _Z;
+	std::string _SigmaXX;
+	std::string _SigmaXY;
+	std::string _SigmaXZ;
+	std::string _SigmaYY;
+	std::string _SigmaYZ;
+	std::string _SigmaZZ;
 };
 
 class Directions_pimpl: public virtual Directions_pskel
@@ -63,10 +61,10 @@ public:
 	virtual void post_Directions (const UINT32&);
 
 protected:
-	string _Ignore;
-	string _Target;
-	string _Value;
-	string _StdDev;
+	std::string _Ignore;
+	std::string _Target;
+	std::string _Value;
+	std::string _StdDev;
 
 };
 
@@ -116,8 +114,10 @@ class DnaXmlFormat_pimpl: public virtual DnaXmlFormat_pskel
 {
 public:
 	DnaXmlFormat_pimpl(std::ifstream* is, PUINT32 clusterID, 
-		const string& referenceframe, const string& epoch,
-		bool userspecifiedreferenceframe, bool overridereferenceframe);
+		const std::string& referenceframe, const std::string& epoch,
+		bool firstFile,
+		bool userspecifiedreferenceframe, bool userspecifiedepoch,
+		bool overridereferenceframe);
 	virtual void pre ();
 	virtual void DnaStation ();
 	virtual void DnaMeasurement ();
@@ -125,15 +125,20 @@ public:
 	virtual void referenceframe ();
 	virtual void epoch ();
 	virtual void post_DnaXmlFormat (vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements);
+	inline bool filespecifiedreferenceframe() { return _filespecifiedreferenceframe; }
+	inline bool filespecifiedepoch() { return _filespecifiedepoch; }
 
-	string DnaXmlParseMessage() { return _parse_msg; }
+	std::string DnaXmlParseMessage() { return _parse_msg; }
 
 	inline UINT32 NumStationsRead() const { return _station_count; }
 	inline UINT32 NumMeasurementsRead() const { return _measurement_count; }
 	inline UINT32 CurrentClusterID() const { return _clusterID; }
 
+	inline std::string FileEpsg() const { return _fileEpsg; }
+	inline std::string FileEpoch() const { return _fileEpoch; }
+
 protected:
-	string _parse_msg;
+	std::string _parse_msg;
 
 private:
 	std::ifstream* is_;
@@ -233,11 +238,12 @@ class referenceframe_pimpl: public virtual referenceframe_pskel,
 {
 public:
 	virtual void pre ();
-	virtual void post_type (string& referenceframe, bool userspecifiedreferenceframe, bool override_referenceframe);
-	inline const string str() { return _referenceframe; }
+	virtual void post_type (std::string& referenceframe, std::string& fileEpsg,
+		bool userspecifiedreferenceframe, bool firstFile);
+	inline const std::string str() { return _referenceframe; }
 
 protected:
-	string _referenceframe;
+	std::string _referenceframe;
 	bool _overridereferenceframe;
 };
 
@@ -246,11 +252,12 @@ class epoch_pimpl: public virtual epoch_pskel,
 {
 public:
 	virtual void pre ();
-	virtual void post_type (string& epoch, bool override_referenceframe);
-	inline const string str() { return _epoch; }
+	virtual void post_type (std::string& epoch, std::string& fileEpoch,
+		bool userspecifiedreferenceframe, bool userspecifiedepoch, bool firstFile);
+	inline const std::string str() { return _epoch; }
 
 protected:
-	string _epoch;
+	std::string _epoch;
 };
 
 class system_pimpl: public virtual system_pskel,

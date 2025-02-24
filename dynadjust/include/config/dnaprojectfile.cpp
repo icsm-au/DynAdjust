@@ -36,7 +36,7 @@ CDnaProjectFile::CDnaProjectFile(void)
 }
 
 // Create instance and initialise settings based on context
-CDnaProjectFile::CDnaProjectFile(const string& projectFile, const UINT16& verifyContext)
+CDnaProjectFile::CDnaProjectFile(const std::string& projectFile, const UINT16& verifyContext)
 {
 	LoadProjectFile(projectFile);
 
@@ -89,20 +89,20 @@ CDnaProjectFile::CDnaProjectFile(const string& projectFile, const UINT16& verify
 //}
 	
 
-void CDnaProjectFile::LoadProjectFile(const string& projectFile)
+void CDnaProjectFile::LoadProjectFile(const std::string& projectFile)
 {
 	// load project file
-	if (exists(projectFile))
+	if (boost::filesystem::exists(projectFile))
 	{
 		settings_.g.project_file = projectFile;
 		LoadProjectFile();
 	}
 	else
 	{
-		stringstream err_msg;
+		std::stringstream err_msg;
 		err_msg << "LoadProjectFile(): Project file " << 
-		projectFile << " does not exist." << endl;	
-		throw boost::enable_current_exception(runtime_error(err_msg.str()));
+		projectFile << " does not exist." << std::endl;	
+		throw boost::enable_current_exception(std::runtime_error(err_msg.str()));
 	}
 }
 
@@ -112,29 +112,29 @@ void CDnaProjectFile::LoadProjectFile()
 	// load project file using p.g.project_file
 	std::ifstream dnaproj_file;
 
-	stringstream err_msg;
+	std::stringstream err_msg;
 	err_msg << "LoadProjectFile(): An error was encountered when opening " << 
-		settings_.g.project_file << "." << endl;
+		settings_.g.project_file << "." << std::endl;
 
 	try {
 		// create binary aml file.  Throws runtime_error on failure.
 		file_opener(dnaproj_file, settings_.g.project_file,
-			ios::in, ascii, true);
+			std::ios::in, ascii, true);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		err_msg << e.what();
-		throw boost::enable_current_exception(runtime_error(err_msg.str()));
+		throw boost::enable_current_exception(std::runtime_error(err_msg.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(err_msg.str()));
+		throw boost::enable_current_exception(std::runtime_error(err_msg.str()));
 	}
 
 	err_msg.str("");
 	err_msg << "LoadProjectFile(): An error was encountered when loading from " << 
-		settings_.g.project_file << "." << endl;
+		settings_.g.project_file << "." << std::endl;
 
-	string str, line, var, val;
-	stringstream ss;
+	std::string str, line, var, val;
+	std::stringstream ss;
 
 	settingMode mSetting(unknownSetting);
 	
@@ -148,16 +148,16 @@ void CDnaProjectFile::LoadProjectFile()
 			if (dnaproj_file.eof())
 				break;
 			
-			err_msg << f.what() << endl;
-			throw boost::enable_current_exception(runtime_error(err_msg.str()));
+			err_msg << f.what() << std::endl;
+			throw boost::enable_current_exception(std::runtime_error(err_msg.str()));
 		}
 		catch (...)
 		{
 			if (dnaproj_file.eof())
 				break;
 
-			err_msg << "Could not read file." << endl;
-			throw boost::enable_current_exception(runtime_error(err_msg.str()));
+			err_msg << "Could not read file." << std::endl;
+			throw boost::enable_current_exception(std::runtime_error(err_msg.str()));
 		}
 
 
@@ -170,77 +170,77 @@ void CDnaProjectFile::LoadProjectFile()
 			continue;
 
 		// #variables
-		if (line.find(section_variables) != string::npos)
+		if (line.find(section_variables) != std::string::npos)
 		{
 			mSetting = switchSetting;
 			continue;
 		}
 
 		// #general
-		if (line.find(section_general) != string::npos)
+		if (line.find(section_general) != std::string::npos)
 		{
 			mSetting = generalSetting;
 			continue;
 		}
 
 		// #import
-		if (line.find(section_import) != string::npos)
+		if (line.find(section_import) != std::string::npos)
 		{
 			mSetting = importSetting;
 			continue;
 		}
 
 		// #reftran
-		if (line.find(section_reftran) != string::npos)
+		if (line.find(section_reftran) != std::string::npos)
 		{
 			mSetting = reftranSetting;
 			continue;
 		}
 
 		// #general
-		if (line.find(section_geoid) != string::npos)
+		if (line.find(section_geoid) != std::string::npos)
 		{
 			mSetting = geoidSetting;
 			continue;
 		}
 
 		// #segment
-		if (line.find(section_segment) != string::npos)
+		if (line.find(section_segment) != std::string::npos)
 		{
 			mSetting = segmentSetting;
 			continue;
 		}
 
 		// #adjust
-		if (line.find(section_adjust) != string::npos)
+		if (line.find(section_adjust) != std::string::npos)
 		{
 			mSetting = adjustSetting;
 			continue;
 		}
 
 		// #output
-		if (line.find(section_output) != string::npos)
+		if (line.find(section_output) != std::string::npos)
 		{
 			mSetting = outputSetting;
 			continue;
 		}
 
 		// #plot
-		if (line.find(section_plot) != string::npos)
+		if (line.find(section_plot) != std::string::npos)
 		{
 			mSetting = plotSetting;
 			continue;
 		}
 
 		// #display
-		if (line.find(section_display) != string::npos)
+		if (line.find(section_display) != std::string::npos)
 		{
 			mSetting = displaySetting;
 			continue;
 		}
 		
 		// Line?
-		if (line.find("----------") != string::npos)
+		if (line.find("----------") != std::string::npos)
 			continue;
 
 		// Now get the variables and their value relating to the setting
@@ -284,12 +284,12 @@ void CDnaProjectFile::LoadProjectFile()
   				break;
 			}
 		}
-		catch (const runtime_error& e) {
+		catch (const std::runtime_error& e) {
 			err_msg << e.what();
-			throw boost::enable_current_exception(runtime_error(err_msg.str()));
+			throw boost::enable_current_exception(std::runtime_error(err_msg.str()));
 		}
 		catch (...) {
-			throw boost::enable_current_exception(runtime_error(err_msg.str()));
+			throw boost::enable_current_exception(std::runtime_error(err_msg.str()));
 		}
 	}
 
@@ -301,9 +301,9 @@ void CDnaProjectFile::InitialiseGeneralSettings()
 {
 	if (settings_.g.network_name.empty())
 	{
-		stringstream ss;
-		ss << "The project file does not provide the network name. " << endl << endl;
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		std::stringstream ss;
+		ss << "The project file does not provide the network name. " << std::endl << std::endl;
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 }
 
@@ -314,33 +314,33 @@ void CDnaProjectFile::InitialiseImportSettings()
 	if (settings_.i.input_files.empty() && 
 		settings_.i.seg_file.empty())
 	{
-		stringstream ss;
-		ss << "Nothing to do - the project file does not list any files to import. " << endl << endl;
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		std::stringstream ss;
+		ss << "Nothing to do - the project file does not list any files to import. " << std::endl << std::endl;
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 
-	string firstPart(settings_.g.output_folder + FOLDER_SLASH + settings_.g.network_name + ".");
+	std::string firstPart(settings_.g.output_folder + FOLDER_SLASH + settings_.g.network_name + ".");
 	
 	if (!settings_.i.bst_file.empty())
 	{
-		if (!exists(settings_.i.bst_file))
+		if (!boost::filesystem::exists(settings_.i.bst_file))
 			// Does the file exist?  No.  
 			// Assume it is a filename contained in the input folder.
 			// import will throw an exception if it cannot be found.
-			settings_.i.bst_file = formPath<string>(settings_.g.input_folder, 
-				leafStr<string>(settings_.i.bst_file));
+			settings_.i.bst_file = formPath<std::string>(settings_.g.input_folder, 
+				leafStr<std::string>(settings_.i.bst_file));
 	}
 	else
 		settings_.i.bst_file = firstPart + "bst";	// binary stations file
 
 	if (!settings_.i.bms_file.empty())
 	{
-		if (!exists(settings_.i.bms_file))
+		if (!boost::filesystem::exists(settings_.i.bms_file))
 			// Does the file exist?  No.  
 			// Assume it is a filename contained in the input folder.
 			// import will throw an exception if it cannot be found.
-			settings_.i.bms_file = formPath<string>(settings_.g.input_folder, 
-				leafStr<string>(settings_.i.bms_file));
+			settings_.i.bms_file = formPath<std::string>(settings_.g.input_folder, 
+				leafStr<std::string>(settings_.i.bms_file));
 	}
 	else
 		settings_.i.bms_file = firstPart + "bms";	// binary measurements file
@@ -357,12 +357,12 @@ void CDnaProjectFile::InitialiseImportSettings()
 
 	if (!settings_.i.seg_file.empty())
 	{
-		if (!exists(settings_.i.seg_file))
+		if (!boost::filesystem::exists(settings_.i.seg_file))
 			// Does the file exist?  No.  
 			// Assume it is a filename contained in the input folder.
 			// import will throw an exception if it cannot be found.
-			settings_.i.seg_file = formPath<string>(settings_.g.input_folder, 
-				leafStr<string>(settings_.i.seg_file));
+			settings_.i.seg_file = formPath<std::string>(settings_.g.input_folder, 
+				leafStr<std::string>(settings_.i.seg_file));
 	}
 
 	//////////////////////////////////////////////////////////////////////////////
@@ -376,19 +376,19 @@ void CDnaProjectFile::InitialiseImportSettings()
 	
 	if (!settings_.i.scalar_file.empty())
 	{
-		if (!exists(settings_.i.scalar_file))			
+		if (!boost::filesystem::exists(settings_.i.scalar_file))			
 			// Does the file exist?  No.  
 			// Assume it is a filename contained in the input folder.
 			// import will throw an exception if it cannot be found.
-			settings_.i.scalar_file = formPath<string>(settings_.g.input_folder, 
-				leafStr<string>(settings_.i.scalar_file));	
+			settings_.i.scalar_file = formPath<std::string>(settings_.g.input_folder, 
+				leafStr<std::string>(settings_.i.scalar_file));	
 	}
 
 	// Create file name based on the provided block
-	string fileName(settings_.g.network_name);
+	std::string fileName(settings_.g.network_name);
 	if (settings_.i.import_block)
 	{
-		stringstream blk("");
+		std::stringstream blk("");
 		blk << ".block-" << settings_.i.import_block_number;
 		fileName += blk.str();
 	}
@@ -396,27 +396,27 @@ void CDnaProjectFile::InitialiseImportSettings()
 	if (settings_.i.export_dynaml)
 	{
 		if (settings_.i.export_single_xml_file)
-			settings_.i.xml_outfile = formPath<string>(settings_.g.output_folder, 
+			settings_.i.xml_outfile = formPath<std::string>(settings_.g.output_folder, 
 				fileName, "xml");
 		else
 		{
-			settings_.i.xml_stnfile = formPath<string>(settings_.g.output_folder, 
+			settings_.i.xml_stnfile = formPath<std::string>(settings_.g.output_folder, 
 				fileName + "stn", "xml");
-			settings_.i.xml_msrfile = formPath<string>(settings_.g.output_folder, 
+			settings_.i.xml_msrfile = formPath<std::string>(settings_.g.output_folder, 
 				fileName + "msr", "xml");
 		}
 	}
 
 	if (settings_.i.export_dna_files)
 	{
-		settings_.i.dna_stnfile = formPath<string>(settings_.g.output_folder, 
+		settings_.i.dna_stnfile = formPath<std::string>(settings_.g.output_folder, 
 			fileName, "stn");
-		settings_.i.dna_msrfile = formPath<string>(settings_.g.output_folder, 
+		settings_.i.dna_msrfile = formPath<std::string>(settings_.g.output_folder, 
 			fileName, "msr");		
 	}
 
 	if (settings_.i.simulate_measurements)
-		settings_.i.simulate_msrfile = formPath<string>(settings_.g.output_folder, 
+		settings_.i.simulate_msrfile = formPath<std::string>(settings_.g.output_folder, 
 			settings_.g.network_name, "simulated.msr");
 
 }
@@ -427,12 +427,12 @@ void CDnaProjectFile::InitialiseReftranSettings()
 
 	if (settings_.r.reference_frame.empty())
 	{
-		stringstream ss;
-		ss << "Nothing to do - the project file does not specify a reference frame." << endl << endl;
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		std::stringstream ss;
+		ss << "Nothing to do - the project file does not specify a reference frame." << std::endl << std::endl;
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 
-	string firstPart(settings_.g.output_folder + FOLDER_SLASH + settings_.g.network_name + ".");
+	std::string firstPart(settings_.g.output_folder + FOLDER_SLASH + settings_.g.network_name + ".");
 	settings_.r.bst_file = firstPart + "bst";	// binary stations file
 	settings_.r.bms_file = firstPart + "bms";	// binary measurements file
 	settings_.r.rft_file = firstPart + "rft";	// log
@@ -443,9 +443,9 @@ void CDnaProjectFile::InitialiseReftranSettings()
 			settings_.i.xml_outfile = firstPart + "xml";		// single XML file
 		else
 		{
-			settings_.i.xml_stnfile = formPath<string>(settings_.g.output_folder,
+			settings_.i.xml_stnfile = formPath<std::string>(settings_.g.output_folder,
 				settings_.g.network_name + "stn", "xml");
-			settings_.i.xml_msrfile = formPath<string>(settings_.g.output_folder,
+			settings_.i.xml_msrfile = formPath<std::string>(settings_.g.output_folder,
 				settings_.g.network_name + "msr", "xml");;
 		}
 	}
@@ -468,20 +468,20 @@ void CDnaProjectFile::InitialiseGeoidSettings()
 	// Expected behaviour: when running geoid using a project file, network name must exist
 	if (settings_.g.network_name.empty())
 	{
-		stringstream ss;
-		ss << "Nothing to do - the project file does not provide a network name. " << endl << endl;
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		std::stringstream ss;
+		ss << "Nothing to do - the project file does not provide a network name. " << std::endl << std::endl;
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	
-	settings_.n.bst_file = formPath<string>(settings_.g.input_folder, settings_.g.network_name, "bst");		// binary stations file
-	settings_.n.geo_file = formPath<string>(settings_.g.output_folder, settings_.g.network_name, "geo");	// dna geo file
+	settings_.n.bst_file = formPath<std::string>(settings_.g.input_folder, settings_.g.network_name, "bst");		// binary stations file
+	settings_.n.geo_file = formPath<std::string>(settings_.g.output_folder, settings_.g.network_name, "geo");	// dna geo file
 	settings_.n.file_mode = 1;
 
 	if (settings_.n.ntv2_geoid_file.empty())
 	{
-		stringstream ss;
-		ss << "Nothing to do - the project file does not provide an NTv2 grid file path. " << endl << endl;
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		std::stringstream ss;
+		ss << "Nothing to do - the project file does not provide an NTv2 grid file path. " << std::endl << std::endl;
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 }
 
@@ -489,7 +489,7 @@ void CDnaProjectFile::InitialiseSegmentSettings()
 {
 	InitialiseGeneralSettings();
 
-	string firstPart(settings_.g.output_folder + FOLDER_SLASH + settings_.g.network_name + ".");
+	std::string firstPart(settings_.g.output_folder + FOLDER_SLASH + settings_.g.network_name + ".");
 	settings_.s.bst_file = firstPart + "bst";	// binary stations file
 	settings_.s.bms_file = firstPart + "bms";	// binary measurements file
 	settings_.s.asl_file = firstPart + "asl";	// associated stations list
@@ -503,19 +503,19 @@ void CDnaProjectFile::InitialiseAdjustSettings()
 {
 	InitialiseGeneralSettings();
 
-	string firstPart(settings_.g.output_folder + FOLDER_SLASH + settings_.g.network_name + ".");
+	std::string firstPart(settings_.g.output_folder + FOLDER_SLASH + settings_.g.network_name + ".");
 	settings_.a.bst_file = firstPart + "bst";	// binary stations file
 	settings_.a.bms_file = firstPart + "bms";	// binary measurements file
 
-	if (!exists(settings_.a.bst_file) || !exists(settings_.a.bms_file))
+	if (!boost::filesystem::exists(settings_.a.bst_file) || !boost::filesystem::exists(settings_.a.bms_file))
 	{
-		stringstream ss;
+		std::stringstream ss;
 		ss << "- Nothing to do: ";  
 			
 		if (settings_.g.network_name.empty())
-			ss << endl << "network name has not been specified specified, and " << endl << "               ";  
-		ss << settings_.a.bst_file << " and " << settings_.a.bms_file << " do not exist." << endl << endl;  
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+			ss << std::endl << "network name has not been specified specified, and " << std::endl << "               ";  
+		ss << settings_.a.bst_file << " and " << settings_.a.bms_file << " do not exist." << std::endl << std::endl;  
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	
 	// Station appearance file
@@ -527,7 +527,7 @@ void CDnaProjectFile::InitialiseAdjustSettings()
 
 	// Set up file names dependent on adjustment mode
 	settings_.o._xyz_file = settings_.o._adj_file = 
-		formPath<string>(settings_.g.output_folder, settings_.g.network_name);
+		formPath<std::string>(settings_.g.output_folder, settings_.g.network_name);
 
 	if (settings_.o._positional_uncertainty)
 		settings_.o._apu_file = settings_.o._adj_file;
@@ -619,34 +619,34 @@ void CDnaProjectFile::InitialiseAdjustSettings()
 
 }
 
-void CDnaProjectFile::LoadSettingGeneral(const settingMode mSetting, const string& var, string& val)
+void CDnaProjectFile::LoadSettingGeneral(const settingMode mSetting, const std::string& var, std::string& val)
 {
 	// general settings
-	if (iequals(var, QUIET))
+	if (boost::iequals(var, QUIET))
 	{
 		if (val.empty())
 			return;			
-		settings_.g.quiet = yesno_uint<UINT16, string>(val);
+		settings_.g.quiet = yesno_uint<UINT16, std::string>(val);
 	}
-	else if (iequals(var, VERBOSE))
+	else if (boost::iequals(var, VERBOSE))
 	{
 		if (val.empty())
 			return;
-		settings_.g.verbose = lexical_cast<UINT16, string>(val);
+		settings_.g.verbose = boost::lexical_cast<UINT16, std::string>(val);
 	}
-	else if (iequals(var, PROJECT_FILE))
+	else if (boost::iequals(var, PROJECT_FILE))
 	{
 		if (val.empty())
 			return;			
 		settings_.g.project_file = val;
 	}
-	else if (iequals(var, DYNADJUST_LOG_FILE))
+	else if (boost::iequals(var, DYNADJUST_LOG_FILE))
 	{
 		if (val.empty())
 			return;			
 		settings_.g.log_file = val;
 	}
-	else if (iequals(var, NETWORK_NAME))
+	else if (boost::iequals(var, NETWORK_NAME))
 	{
 		if (val.empty())
 			return;
@@ -660,7 +660,7 @@ void CDnaProjectFile::LoadSettingGeneral(const settingMode mSetting, const strin
 			if (t.second.substr(0,2) == "${" && t.second.at(3) == '}')
 			{
 				settings_.g.variables.push_back(t);
-				sort(settings_.g.variables.begin(), settings_.g.variables.end(), PairCompareFirst<string, string>());
+				std::sort(settings_.g.variables.begin(), settings_.g.variables.end(), PairCompareFirst<std::string, std::string>());
 			}
 			break;
 		case generalSetting:
@@ -670,13 +670,13 @@ void CDnaProjectFile::LoadSettingGeneral(const settingMode mSetting, const strin
   			break;
 		}			
 	}
-	else if (iequals(var, INPUT_FOLDER))
+	else if (boost::iequals(var, INPUT_FOLDER))
 	{
 		if (val.empty())
 			return;			
 		settings_.g.input_folder = val;
 	}
-	else if (iequals(var, OUTPUT_FOLDER))
+	else if (boost::iequals(var, OUTPUT_FOLDER))
 	{
 		if (val.empty())
 			return;			
@@ -685,35 +685,41 @@ void CDnaProjectFile::LoadSettingGeneral(const settingMode mSetting, const strin
 		
 }
 	
-void CDnaProjectFile::LoadSettingImport(const settingMode mSetting, const string& var, string& val)
+void CDnaProjectFile::LoadSettingImport(const settingMode mSetting, const std::string& var, std::string& val)
 {
 	// Import settings
-	if (iequals(var, IMPORT_FILE))
+	if (boost::iequals(var, IMPORT_FILE))
 	{
 		if (val.empty())
 			return;			
-		settings_.i.input_files.push_back(formPath<string>(settings_.g.input_folder, val));
+		settings_.i.input_files.push_back(formPath<std::string>(settings_.g.input_folder, val));
 	}
-	else if (iequals(var, REFERENCE_FRAME))
+	else if (boost::iequals(var, REFERENCE_FRAME))
 	{
 		if (val.empty())
 			return;
 		settings_.i.reference_frame = val;
 	}
-	else if (iequals(var, OVERRIDE_INPUT_FRAME))
+	else if (boost::iequals(var, EPOCH))
 	{
 		if (val.empty())
 			return;
-		settings_.i.override_input_rfame = yesno_uint<UINT16, string>(val);;
+		settings_.i.epoch = val;
 	}
-	else if (iequals(var, IMPORT_GEO_FILE))
+	else if (boost::iequals(var, OVERRIDE_INPUT_FRAME))
 	{
 		if (val.empty())
 			return;
-		settings_.i.geo_file = formPath<string>(settings_.g.input_folder, val);
+		settings_.i.override_input_rfame = yesno_uint<UINT16, std::string>(val);;
+	}
+	else if (boost::iequals(var, IMPORT_GEO_FILE))
+	{
+		if (val.empty())
+			return;
+		settings_.i.geo_file = formPath<std::string>(settings_.g.input_folder, val);
 		settings_.i.import_geo_file = 1;
 	}
-	else if (iequals(var, BIN_STN_FILE))
+	else if (boost::iequals(var, BIN_STN_FILE))
 	{
 		string_string_pair t;
 		switch (mSetting)
@@ -727,22 +733,22 @@ void CDnaProjectFile::LoadSettingImport(const settingMode mSetting, const string
 			if (t.second.substr(0,2) == "${" && t.second.at(3) == '}')
 			{
 				settings_.g.variables.push_back(t);
-				sort(settings_.g.variables.begin(), settings_.g.variables.end(), PairCompareFirst<string, string>());
+				std::sort(settings_.g.variables.begin(), settings_.g.variables.end(), PairCompareFirst<std::string, std::string>());
 			}
 			break;
 		case importSetting:
 			if (val.empty())
 				// default export bst file - create in output folder
-				settings_.i.bst_file = formPath<string>(settings_.g.output_folder, settings_.g.network_name, "bst");	// binary stations file
+				settings_.i.bst_file = formPath<std::string>(settings_.g.output_folder, settings_.g.network_name, "bst");	// binary stations file
 			else
 				// user specified bst file - look in input folder
-				settings_.i.bst_file = formPath<string>(settings_.g.input_folder, val);
+				settings_.i.bst_file = formPath<std::string>(settings_.g.input_folder, val);
 			break;
 		default:
   			break;
 		}
 	}
-	else if (iequals(var, BIN_MSR_FILE))
+	else if (boost::iequals(var, BIN_MSR_FILE))
 	{
 		string_string_pair t;
 		switch (mSetting)
@@ -756,20 +762,20 @@ void CDnaProjectFile::LoadSettingImport(const settingMode mSetting, const string
 			if (t.second.substr(0,2) == "${" && t.second.at(3) == '}')
 			{
 				settings_.g.variables.push_back(t);
-				sort(settings_.g.variables.begin(), settings_.g.variables.end(), PairCompareFirst<string, string>());
+				std::sort(settings_.g.variables.begin(), settings_.g.variables.end(), PairCompareFirst<std::string, std::string>());
 			}
 			break;
 		case importSetting:
 			if (val.empty())
-				settings_.i.bms_file = formPath<string>(settings_.g.output_folder, settings_.g.network_name, "bms");	// binary stations file
+				settings_.i.bms_file = formPath<std::string>(settings_.g.output_folder, settings_.g.network_name, "bms");	// binary stations file
 			else
-				settings_.i.bms_file = formPath<string>(settings_.g.input_folder, val);
+				settings_.i.bms_file = formPath<std::string>(settings_.g.input_folder, val);
 			break;
 		default:
   			break;
 		}
 	}
-	else if (iequals(var, MAP_FILE))
+	else if (boost::iequals(var, MAP_FILE))
 	{
 		if (val.empty())
 			return;
@@ -783,17 +789,17 @@ void CDnaProjectFile::LoadSettingImport(const settingMode mSetting, const string
 			if (t.second.substr(0,2) == "${" && t.second.at(3) == '}')
 			{
 				settings_.g.variables.push_back(t);
-				sort(settings_.g.variables.begin(), settings_.g.variables.end(), PairCompareFirst<string, string>());
+				std::sort(settings_.g.variables.begin(), settings_.g.variables.end(), PairCompareFirst<std::string, std::string>());
 			}
 			break;
 		case importSetting:
-			settings_.i.map_file = formPath<string>(settings_.g.output_folder, val);
+			settings_.i.map_file = formPath<std::string>(settings_.g.output_folder, val);
 			break;
 		default:
   			break;
 		}			
 	}
-	else if (iequals(var, ASL_FILE))
+	else if (boost::iequals(var, ASL_FILE))
 	{
 		if (val.empty())
 			return;
@@ -807,17 +813,17 @@ void CDnaProjectFile::LoadSettingImport(const settingMode mSetting, const string
 			if (t.second.substr(0,2) == "${" && t.second.at(3) == '}')
 			{
 				settings_.g.variables.push_back(t);
-				sort(settings_.g.variables.begin(), settings_.g.variables.end(), PairCompareFirst<string, string>());
+				std::sort(settings_.g.variables.begin(), settings_.g.variables.end(), PairCompareFirst<std::string, std::string>());
 			}
 			break;
 		case importSetting:
-			settings_.i.asl_file = formPath<string>(settings_.g.output_folder, val);
+			settings_.i.asl_file = formPath<std::string>(settings_.g.output_folder, val);
 			break;
 		default:
   			break;
 		}
 	}
-	else if (iequals(var, AML_FILE))
+	else if (boost::iequals(var, AML_FILE))
 	{
 		if (val.empty())
 			return;
@@ -831,468 +837,474 @@ void CDnaProjectFile::LoadSettingImport(const settingMode mSetting, const string
 			if (t.second.substr(0,2) == "${" && t.second.at(3) == '}')
 			{
 				settings_.g.variables.push_back(t);
-				sort(settings_.g.variables.begin(), settings_.g.variables.end(), PairCompareFirst<string, string>());
+				std::sort(settings_.g.variables.begin(), settings_.g.variables.end(), PairCompareFirst<std::string, std::string>());
 			}
 			break;
 		case importSetting:
-			settings_.i.aml_file = formPath<string>(settings_.g.output_folder, val);
+			settings_.i.aml_file = formPath<std::string>(settings_.g.output_folder, val);
 			break;
 		default:
   			break;
 		}
 	}
-	else if (iequals(var, DST_FILE))
+	else if (boost::iequals(var, DST_FILE))
 	{
 		if (val.empty())
 			return;
-		settings_.i.dst_file = formPath<string>(settings_.g.output_folder, val);
+		settings_.i.dst_file = formPath<std::string>(settings_.g.output_folder, val);
 	}
-	else if (iequals(var, DMS_FILE))
+	else if (boost::iequals(var, DMS_FILE))
 	{
 		if (val.empty())
 			return;
-		settings_.i.dms_file = formPath<string>(settings_.g.output_folder, val);
+		settings_.i.dms_file = formPath<std::string>(settings_.g.output_folder, val);
 	}
-	else if (iequals(var, BOUNDING_BOX))
+	else if (boost::iequals(var, BOUNDING_BOX))
 	{
 		if (val.empty())
 			return;
 		settings_.i.bounding_box = val;
 	}
-	else if (iequals(var, GET_MSRS_TRANSCENDING_BOX))
+	else if (boost::iequals(var, GET_MSRS_TRANSCENDING_BOX))
 	{
 		if (val.empty())
 			return;
-		settings_.i.include_transcending_msrs = yesno_uint<UINT16, string>(val);
+		settings_.i.include_transcending_msrs = yesno_uint<UINT16, std::string>(val);
 	}
-	else if (iequals(var, INCLUDE_STN_ASSOC_MSRS))
+	else if (boost::iequals(var, INCLUDE_STN_ASSOC_MSRS))
 	{
 		if (val.empty())
 			return;
-		settings_.i.stn_associated_msr_include = valorno_string<string>(val);
+		settings_.i.stn_associated_msr_include = valorno_string<std::string>(val);
 	}
-	else if (iequals(var, EXCLUDE_STN_ASSOC_MSRS))
+	else if (boost::iequals(var, EXCLUDE_STN_ASSOC_MSRS))
 	{
 		if (val.empty())
 			return;
-		settings_.i.stn_associated_msr_exclude = valorno_string<string>(val);
+		settings_.i.stn_associated_msr_exclude = valorno_string<std::string>(val);
 	}
-	else if (iequals(var, SPLIT_CLUSTERS))
+	else if (boost::iequals(var, SPLIT_CLUSTERS))
 	{
 		if (val.empty())
 			return;
-		settings_.i.split_clusters = yesno_uint<UINT16, string>(val);
+		settings_.i.split_clusters = yesno_uint<UINT16, std::string>(val);
 	}
-	else if (iequals(var, IMPORT_SEG_BLOCK))
+	else if (boost::iequals(var, IMPORT_SEG_BLOCK))
 	{
 		if (val.empty())
 			return;
-		settings_.i.import_block_number = valorno_uint<UINT16, string>(val, settings_.i.import_block);
+		settings_.i.import_block_number = valorno_uint<UINT16, std::string>(val, settings_.i.import_block);
 	}
-	else if (iequals(var, SEG_FILE))
+	else if (boost::iequals(var, SEG_FILE))
 	{
 		if (val.empty())
 			return;
-		settings_.i.seg_file = formPath<string>(settings_.g.input_folder, val);
+		settings_.i.seg_file = formPath<std::string>(settings_.g.input_folder, val);
 	}
-	else if (iequals(var, PREFER_X_MSR_AS_G))
+	else if (boost::iequals(var, PREFER_X_MSR_AS_G))
 	{
 		if (val.empty())
 			return;
-		settings_.i.prefer_single_x_as_g = yesno_uint<UINT16, string>(val);
+		settings_.i.prefer_single_x_as_g = yesno_uint<UINT16, std::string>(val);
 	}
-	else if (iequals(var, INCLUDE_MSRS))
+	else if (boost::iequals(var, INCLUDE_MSRS))
 	{
 		if (val.empty())
 			return;
 		settings_.i.include_msrs = val;
 	}
-	else if (iequals(var, EXCLUDE_MSRS))
+	else if (boost::iequals(var, EXCLUDE_MSRS))
 	{
 		if (val.empty())
 			return;
 		settings_.i.exclude_msrs = val;
 	}
-	else if (iequals(var, STATION_RENAMING_FILE))
+	else if (boost::iequals(var, STATION_RENAMING_FILE))
 	{
 		if (val.empty())
 			return;
-		settings_.i.stn_renamingfile = formPath<string>(settings_.g.input_folder, val);
+		settings_.i.stn_renamingfile = formPath<std::string>(settings_.g.input_folder, val);
 	}
-	else if (iequals(var, STATION_DISCONTINUITY_FILE))
+	else if (boost::iequals(var, STATION_DISCONTINUITY_FILE))
 	{
 		if (val.empty())
 			return;
-		settings_.i.stn_discontinuityfile = formPath<string>(settings_.g.input_folder, val);
+		settings_.i.stn_discontinuityfile = formPath<std::string>(settings_.g.input_folder, val);
 		settings_.i.apply_discontinuities = true;
 	}
-	else if (iequals(var, TEST_NEARBY_STNS))
+	else if (boost::iequals(var, TEST_NEARBY_STNS))
 	{
 		if (val.empty())
 			return;
-		settings_.i.search_nearby_stn = yesno_uint<UINT16, string>(val);
+		settings_.i.search_nearby_stn = yesno_uint<UINT16, std::string>(val);
 	}
-	else if (iequals(var, TEST_NEARBY_STN_DIST))
+	else if (boost::iequals(var, TEST_NEARBY_STN_DIST))
 	{
 		if (val.empty())
 			return;
 		settings_.i.search_stn_radius = DoubleFromString<double>(val);
 	}
-	else if (iequals(var, TEST_SIMILAR_MSRS))
+	else if (boost::iequals(var, TEST_SIMILAR_MSRS))
 	{
 		if (val.empty())
 			return;
-		settings_.i.search_similar_msr = yesno_uint<UINT16, string>(val);
+		settings_.i.search_similar_msr = yesno_uint<UINT16, std::string>(val);
 	}
-	else if (iequals(var, TEST_SIMILAR_GNSS_MSRS))
+	else if (boost::iequals(var, TEST_SIMILAR_GNSS_MSRS))
 	{
 		if (val.empty())
 			return;
-		settings_.i.search_similar_msr_gx = yesno_uint<UINT16, string>(val);
+		settings_.i.search_similar_msr_gx = yesno_uint<UINT16, std::string>(val);
 	}
-	else if (iequals(var, IGNORE_SIMILAR_MSRS))
+	else if (boost::iequals(var, IGNORE_INSUFFICIENT_MSRS))
 	{
 		if (val.empty())
 			return;
-		settings_.i.ignore_similar_msr = yesno_uint<UINT16, string>(val);
-	}
-	else if (iequals(var, REMOVE_IGNORED_MSRS))
+		settings_.i.ignore_insufficient_msrs = yesno_uint<UINT16, std::string>(val);
+		}
+	else if (boost::iequals(var, IGNORE_SIMILAR_MSRS))
 	{
 		if (val.empty())
 			return;
-		settings_.i.remove_ignored_msr = yesno_uint<UINT16, string>(val);
+		settings_.i.ignore_similar_msr = yesno_uint<UINT16, std::string>(val);
 	}
-	else if (iequals(var, FLAG_UNUSED_STNS))
+	else if (boost::iequals(var, REMOVE_IGNORED_MSRS))
 	{
 		if (val.empty())
 			return;
-		settings_.i.flag_unused_stn = yesno_uint<UINT16, string>(val);
+		settings_.i.remove_ignored_msr = yesno_uint<UINT16, std::string>(val);
 	}
-	else if (iequals(var, TEST_INTEGRITY))
+	else if (boost::iequals(var, FLAG_UNUSED_STNS))
+	{
+		if (val.empty())
+			return;
+		settings_.i.flag_unused_stn = yesno_uint<UINT16, std::string>(val);
+	}
+	else if (boost::iequals(var, TEST_INTEGRITY))
 	{
 		if (val.empty())
 			return;			
-		settings_.i.test_integrity = yesno_uint<UINT16, string>(val);
+		settings_.i.test_integrity = yesno_uint<UINT16, std::string>(val);
 	}
-	else if (iequals(var, VSCALE))
+	else if (boost::iequals(var, VSCALE))
 	{
 		if (val.empty())
 			return;
 		settings_.i.vscale = DoubleFromString<double>(val);
 	}
-	else if (iequals(var, PSCALE))
+	else if (boost::iequals(var, PSCALE))
 	{
 		if (val.empty())
 			return;
 		settings_.i.pscale = DoubleFromString<double>(val);
 	}
-	else if (iequals(var, LSCALE))
+	else if (boost::iequals(var, LSCALE))
 	{
 		if (val.empty())
 			return;
 		settings_.i.lscale = DoubleFromString<double>(val);
 	}
-	else if (iequals(var, HSCALE))
+	else if (boost::iequals(var, HSCALE))
 	{
 		if (val.empty())
 			return;
 		settings_.i.hscale = DoubleFromString<double>(val);
 	}
-	else if (iequals(var, SCALAR_FILE))
+	else if (boost::iequals(var, SCALAR_FILE))
 	{
 		if (val.empty())
 			return;
-		settings_.i.scalar_file = formPath<string>(settings_.g.input_folder, val);
+		settings_.i.scalar_file = formPath<std::string>(settings_.g.input_folder, val);
 	}
-	else if (iequals(var, EXPORT_XML_FILES))
+	else if (boost::iequals(var, EXPORT_XML_FILES))
 	{
 		if (val.empty())
 			return;			
-		settings_.i.export_dynaml = yesno_uint<UINT16, string>(val);
+		settings_.i.export_dynaml = yesno_uint<UINT16, std::string>(val);
 	}
-	else if (iequals(var, EXPORT_SINGLE_XML_FILE))
+	else if (boost::iequals(var, EXPORT_SINGLE_XML_FILE))
 	{
 		if (val.empty())
 			return;			
-		settings_.i.export_single_xml_file = yesno_uint<UINT16, string>(val);
+		settings_.i.export_single_xml_file = yesno_uint<UINT16, std::string>(val);
 	}
-	else if (iequals(var, EXPORT_FROM_BINARY))
+	else if (boost::iequals(var, EXPORT_FROM_BINARY))
 	{
 		if (val.empty())
 			return;			
-		settings_.i.export_from_bfiles = yesno_uint<UINT16, string>(val);
+		settings_.i.export_from_bfiles = yesno_uint<UINT16, std::string>(val);
 	}
-	else if (iequals(var, EXPORT_DNA_FILES))
+	else if (boost::iequals(var, EXPORT_DNA_FILES))
 	{
 		if (val.empty())
 			return;			
-		settings_.i.export_dna_files = yesno_uint<UINT16, string>(val);
+		settings_.i.export_dna_files = yesno_uint<UINT16, std::string>(val);
 	}
-	else if (iequals(var, EXPORT_ASL_FILE))
+	else if (boost::iequals(var, EXPORT_ASL_FILE))
 	{
 		if (val.empty())
 			return;			
-		settings_.i.export_asl_file = yesno_uint<UINT16, string>(val);
+		settings_.i.export_asl_file = yesno_uint<UINT16, std::string>(val);
 	}
-	else if (iequals(var, EXPORT_AML_FILE))
+	else if (boost::iequals(var, EXPORT_AML_FILE))
 	{
 		if (val.empty())
 			return;			
-		settings_.i.export_aml_file = yesno_uint<UINT16, string>(val);
+		settings_.i.export_aml_file = yesno_uint<UINT16, std::string>(val);
 	}
-	else if (iequals(var, EXPORT_MAP_FILE))
+	else if (boost::iequals(var, EXPORT_MAP_FILE))
 	{
 		if (val.empty())
 			return;			
-		settings_.i.export_map_file = yesno_uint<UINT16, string>(val);
+		settings_.i.export_map_file = yesno_uint<UINT16, std::string>(val);
 	}
-	else if (iequals(var, SIMULATE_MSR_FILE))
+	else if (boost::iequals(var, SIMULATE_MSR_FILE))
 	{
 		if (val.empty())
 			return;			
-		settings_.i.simulate_measurements = yesno_uint<UINT16, string>(val);
+		settings_.i.simulate_measurements = yesno_uint<UINT16, std::string>(val);
 	}
-	//else if (iequals(var, VERIFY_COORDS))
+	//else if (boost::iequals(var, VERIFY_COORDS))
 	//{
 	//	if (val.empty())
 	//		return;			
-	//	settings_.i.verify_coordinates = lexical_cast<UINT16, string>(val);
+	//	settings_.i.verify_coordinates = boost::lexical_cast<UINT16, std::string>(val);
 	//}
 	
 }
 	
-void CDnaProjectFile::LoadSettingReftran(const string& var, string& val)
+void CDnaProjectFile::LoadSettingReftran(const std::string& var, std::string& val)
 {
-	if (iequals(var, REFERENCE_FRAME))
+	if (boost::iequals(var, REFERENCE_FRAME))
 	{
 		if (val.empty())
 			return;
 		settings_.r.reference_frame = val;
 	}
-	else if (iequals(var, EPOCH))
+	else if (boost::iequals(var, EPOCH))
 	{
 		if (val.empty())
 			return;
 		settings_.r.epoch = val;
 	}
-	else if (iequals(var, TECTONIC_PLATE_MODEL_OPTION))
+	else if (boost::iequals(var, TECTONIC_PLATE_MODEL_OPTION))
 	{
 		if (val.empty())
 			return;
-		settings_.r.plate_model_option = lexical_cast<UINT16, string>(val);
+		settings_.r.plate_model_option = boost::lexical_cast<UINT16, std::string>(val);
 	}
-	else if (iequals(var, TECTONIC_PLATE_BDY_FILE))
+	else if (boost::iequals(var, TECTONIC_PLATE_BDY_FILE))
 	{
 		if (val.empty())
 			return;
 		settings_.r.tpb_file = val;
 
-		if (!exists(val))
-			if (exists(formPath<string>(settings_.g.input_folder, val)))
-				settings_.r.tpb_file = formPath<string>(settings_.g.input_folder, val);
+		if (!boost::filesystem::exists(val))
+			if (boost::filesystem::exists(formPath<std::string>(settings_.g.input_folder, val)))
+				settings_.r.tpb_file = formPath<std::string>(settings_.g.input_folder, val);
 	}
-	else if (iequals(var, TECTONIC_PLATE_POLE_FILE))
+	else if (boost::iequals(var, TECTONIC_PLATE_POLE_FILE))
 	{
 		if (val.empty())
 			return;
 		settings_.r.tpp_file = val;
 
-		if (!exists(val))
-			if (exists(formPath<string>(settings_.g.input_folder, val)))
-				settings_.r.tpp_file = formPath<string>(settings_.g.input_folder, val);
+		if (!boost::filesystem::exists(val))
+			if (boost::filesystem::exists(formPath<std::string>(settings_.g.input_folder, val)))
+				settings_.r.tpp_file = formPath<std::string>(settings_.g.input_folder, val);
 	}
 }
 	
-void CDnaProjectFile::LoadSettingGeoid(const string& var, string& val)
+void CDnaProjectFile::LoadSettingGeoid(const std::string& var, std::string& val)
 {
-	if (iequals(var, DAT_FILEPATH))
+	if (boost::iequals(var, DAT_FILEPATH))
 	{
 		if (val.empty())
 			return;
-		settings_.n.rdat_geoid_file = formPath<string>(settings_.g.input_folder, val);
+		settings_.n.rdat_geoid_file = formPath<std::string>(settings_.g.input_folder, val);
 	}
-	else if (iequals(var, NTV2_FILEPATH))
+	else if (boost::iequals(var, NTV2_FILEPATH))
 	{
 		if (val.empty())
 			return;
 		settings_.n.ntv2_geoid_file = val;
 
-		if (!exists(val))
-			if (exists(formPath<string>(settings_.g.input_folder, val)))
-				settings_.n.ntv2_geoid_file = formPath<string>(settings_.g.input_folder, val);
+		if (!boost::filesystem::exists(val))
+			if (boost::filesystem::exists(formPath<std::string>(settings_.g.input_folder, val)))
+				settings_.n.ntv2_geoid_file = formPath<std::string>(settings_.g.input_folder, val);
 	}
-	else if (iequals(var, INPUT_FILE))
+	else if (boost::iequals(var, INPUT_FILE))
 	{
 		if (val.empty())
 			return;
-		settings_.n.input_file = formPath<string>(settings_.g.input_folder, val);
+		settings_.n.input_file = formPath<std::string>(settings_.g.input_folder, val);
 	}
-	//else if (iequals(var, BIN_STN_FILE))
+	//else if (boost::iequals(var, BIN_STN_FILE))
 	//{
 	//	if (val.empty())
 	//		return;
-	//	settings_.n.bst_file = formPath<string>(settings_.g.input_folder, val);
+	//	settings_.n.bst_file = formPath<std::string>(settings_.g.input_folder, val);
 	//}
-	else if (iequals(var, METHOD))
+	else if (boost::iequals(var, METHOD))
 	{
 		if (val.empty())
 			return;
-		settings_.n.interpolation_method = lexical_cast<UINT16, string>(val);
+		settings_.n.interpolation_method = boost::lexical_cast<UINT16, std::string>(val);
 	}
-	else if (iequals(var, DDEG_FORMAT))
+	else if (boost::iequals(var, DDEG_FORMAT))
 	{
 		if (val.empty())
 			return;
-		settings_.n.coordinate_format = lexical_cast<UINT16, string>(val);
+		settings_.n.coordinate_format = boost::lexical_cast<UINT16, std::string>(val);
 	}
-	else if (iequals(var, DIRECTION))
+	else if (boost::iequals(var, DIRECTION))
 	{
 		if (val.empty())
 			return;
-		settings_.n.ellipsoid_to_ortho = lexical_cast<UINT16, string>(val);
+		settings_.n.ellipsoid_to_ortho = boost::lexical_cast<UINT16, std::string>(val);
 	}
-	else if (iequals(var, CONVERT_BST_HT))
+	else if (boost::iequals(var, CONVERT_BST_HT))
 	{
 		if (val.empty())
 			return;
-		settings_.n.convert_heights = yesno_uint<UINT16, string>(val);
+		settings_.n.convert_heights = yesno_uint<UINT16, std::string>(val);
 	}
-	else if (iequals(var, EXPORT_GEO_FILE))
+	else if (boost::iequals(var, EXPORT_GEO_FILE))
 	{
 		if (val.empty())
 			return;
-		settings_.n.export_dna_geo_file = yesno_uint<UINT16, string>(val);
+		settings_.n.export_dna_geo_file = yesno_uint<UINT16, std::string>(val);
 	}
 }
 	
-void CDnaProjectFile::LoadSettingSegment(const string& var, string& val)
+void CDnaProjectFile::LoadSettingSegment(const std::string& var, std::string& val)
 {
-	if (iequals(var, NET_FILE))
+	if (boost::iequals(var, NET_FILE))
 	{
 		if (val.empty())
 			return;
-		settings_.s.net_file = formPath<string>(settings_.g.input_folder, val);
+		settings_.s.net_file = formPath<std::string>(settings_.g.input_folder, val);
 	}
-	else if (iequals(var, SEG_FILE))
+	else if (boost::iequals(var, SEG_FILE))
 	{
 		if (val.empty())
 			return;
 		settings_.s.seg_file = val;
 
-		if (!exists(val))
-			if (exists(formPath<string>(settings_.g.input_folder, val)))
-				settings_.s.seg_file = formPath<string>(settings_.g.input_folder, val);
+		if (!boost::filesystem::exists(val))
+			if (boost::filesystem::exists(formPath<std::string>(settings_.g.input_folder, val)))
+				settings_.s.seg_file = formPath<std::string>(settings_.g.input_folder, val);
 	}
-	else if (iequals(var, BIN_STN_FILE))
+	else if (boost::iequals(var, BIN_STN_FILE))
 	{
 		if (val.empty())
 			return;
 		settings_.s.bst_file = val;
 
-		if (!exists(val))
-			if (exists(formPath<string>(settings_.g.input_folder, val)))
-				settings_.s.bst_file = formPath<string>(settings_.g.input_folder, val);
+		if (!boost::filesystem::exists(val))
+			if (boost::filesystem::exists(formPath<std::string>(settings_.g.input_folder, val)))
+				settings_.s.bst_file = formPath<std::string>(settings_.g.input_folder, val);
 	}
-	else if (iequals(var, BIN_MSR_FILE))
+	else if (boost::iequals(var, BIN_MSR_FILE))
 	{
 		if (val.empty())
 			return;
 		settings_.s.bms_file = val;
 
-		if (!exists(val))
-			if (exists(formPath<string>(settings_.g.input_folder, val)))
-				settings_.s.bms_file = formPath<string>(settings_.g.input_folder, val);
+		if (!boost::filesystem::exists(val))
+			if (boost::filesystem::exists(formPath<std::string>(settings_.g.input_folder, val)))
+				settings_.s.bms_file = formPath<std::string>(settings_.g.input_folder, val);
 	}
-	else if (iequals(var, SEG_MIN_INNER_STNS))
+	else if (boost::iequals(var, SEG_MIN_INNER_STNS))
 	{
 		if (val.empty())
 			return;
-		settings_.s.min_inner_stations = lexical_cast<UINT32, string>(val);
+		settings_.s.min_inner_stations = boost::lexical_cast<UINT32, std::string>(val);
 	}
-	else if (iequals(var, SEG_THRESHOLD_STNS))
+	else if (boost::iequals(var, SEG_THRESHOLD_STNS))
 	{
 		if (val.empty())
 			return;
-		settings_.s.max_total_stations = lexical_cast<UINT32, string>(val);
+		settings_.s.max_total_stations = boost::lexical_cast<UINT32, std::string>(val);
 	}
-	else if (iequals(var, SEG_FORCE_CONTIGUOUS))
+	else if (boost::iequals(var, SEG_FORCE_CONTIGUOUS))
 	{
 		if (val.empty())
 			return;
-		settings_.s.force_contiguous_blocks = yesno_uint<UINT16, string>(val);
+		settings_.s.force_contiguous_blocks = yesno_uint<UINT16, std::string>(val);
 	}
-	else if (iequals(var, SEG_STARTING_STN))
+	else if (boost::iequals(var, SEG_STARTING_STN))
 	{
 		if (val.empty())
 			return;
 		settings_.s.seg_starting_stns = val;
 	}
-	else if (iequals(var, SEG_SEARCH_LEVEL))
+	else if (boost::iequals(var, SEG_SEARCH_LEVEL))
 	{
 		if (val.empty())
 			return;
-		settings_.s.seg_search_level = lexical_cast<UINT16, string>(val);
+		settings_.s.seg_search_level = boost::lexical_cast<UINT16, std::string>(val);
 	}
 }
 	
-void CDnaProjectFile::LoadSettingAdjust(const string& var, string& val)
+void CDnaProjectFile::LoadSettingAdjust(const std::string& var, std::string& val)
 {
-	if (iequals(var, BIN_STN_FILE))
+	if (boost::iequals(var, BIN_STN_FILE))
 	{
 		if (val.empty())
 			return;
 		settings_.a.bst_file = val;
 
-		if (!exists(val))
-			if (exists(formPath<string>(settings_.g.input_folder, val)))
-				settings_.a.bst_file = formPath<string>(settings_.g.input_folder, val);
+		if (!boost::filesystem::exists(val))
+			if (boost::filesystem::exists(formPath<std::string>(settings_.g.input_folder, val)))
+				settings_.a.bst_file = formPath<std::string>(settings_.g.input_folder, val);
 	}
-	else if (iequals(var, BIN_MSR_FILE))
+	else if (boost::iequals(var, BIN_MSR_FILE))
 	{
 		if (val.empty())
 			return;
 		settings_.a.bms_file = val;
 
-		if (!exists(val))
-			if (exists(formPath<string>(settings_.g.input_folder, val)))
-				settings_.a.bms_file = formPath<string>(settings_.g.input_folder, val);
+		if (!boost::filesystem::exists(val))
+			if (boost::filesystem::exists(formPath<std::string>(settings_.g.input_folder, val)))
+				settings_.a.bms_file = formPath<std::string>(settings_.g.input_folder, val);
 	}
-	else if (iequals(var, SEG_FILE))
+	else if (boost::iequals(var, SEG_FILE))
 	{
 		if (val.empty())
 			return;
 		settings_.a.seg_file = val;
 
-		if (!exists(val))
-			if (exists(formPath<string>(settings_.g.input_folder, val)))
-				settings_.a.seg_file = formPath<string>(settings_.g.input_folder, val);
+		if (!boost::filesystem::exists(val))
+			if (boost::filesystem::exists(formPath<std::string>(settings_.g.input_folder, val)))
+				settings_.a.seg_file = formPath<std::string>(settings_.g.input_folder, val);
 	}
-	else if (iequals(var, COMMENTS))
+	else if (boost::iequals(var, COMMENTS))
 	{
 		if (val.empty())
 			return;
 		settings_.a.comments = val;		
 	}
-	if (iequals(var, ADJUSTMENT_MODE))
+	if (boost::iequals(var, ADJUSTMENT_MODE))
 	{
 		if (val.empty())
 			return;
-		if (iequals(val, MODE_SIMULTANEOUS))
+		if (boost::iequals(val, MODE_SIMULTANEOUS))
 		{
 			settings_.a.adjust_mode = SimultaneousMode;
 			settings_.a.multi_thread = false;
 			settings_.a.stage = false;
 		}
-		else if (iequals(val, MODE_PHASED))
+		else if (boost::iequals(val, MODE_PHASED))
 		{
 			settings_.a.adjust_mode = PhasedMode;
 		}
-		else if (iequals(val, MODE_PHASED_BLOCK1))
+		else if (boost::iequals(val, MODE_PHASED_BLOCK1))
 		{
 			settings_.a.adjust_mode = Phased_Block_1Mode;
 			settings_.a.multi_thread = false;
 		}
-		else if (iequals(val, MODE_SIMULATION))
+		else if (boost::iequals(val, MODE_SIMULATION))
 		{
 			settings_.a.adjust_mode = SimulationMode;
 			settings_.a.multi_thread = false;
@@ -1300,321 +1312,323 @@ void CDnaProjectFile::LoadSettingAdjust(const string& var, string& val)
 		}
 	}
 
-	else if (iequals(var, MODE_PHASED_MT))
+	else if (boost::iequals(var, MODE_PHASED_MT))
 	{
 		if (val.empty())
 			return;
-		settings_.a.multi_thread = yesno_uint<UINT16, string>(val);
+		settings_.a.multi_thread = yesno_uint<UINT16, std::string>(val);
 	}
-	else if (iequals(var, STAGED_ADJUSTMENT))
+	else if (boost::iequals(var, STAGED_ADJUSTMENT))
 	{
 		if (val.empty())
 			return;
-		settings_.a.stage = yesno_uint<UINT16, string>(val);
+		settings_.a.stage = yesno_uint<UINT16, std::string>(val);
 	}
 	
-	else if (iequals(var, CONF_INTERVAL))
+	else if (boost::iequals(var, CONF_INTERVAL))
 	{
 		if (val.empty())
 			return;
 		settings_.a.confidence_interval = FloatFromString<float>(val);
 	}
-	else if (iequals(var, ITERATION_THRESHOLD))
+	else if (boost::iequals(var, ITERATION_THRESHOLD))
 	{
 		if (val.empty())
 			return;
 		settings_.a.iteration_threshold = FloatFromString<float>(val);
 	}
-	else if (iequals(var, MAX_ITERATIONS))
+	else if (boost::iequals(var, MAX_ITERATIONS))
 	{
 		if (val.empty())
 			return;
-		settings_.a.max_iterations = lexical_cast<UINT16, string>(val);
+		settings_.a.max_iterations = boost::lexical_cast<UINT16, std::string>(val);
 	}
-	else if (iequals(var, STN_CONSTRAINTS))
+	else if (boost::iequals(var, STN_CONSTRAINTS))
 	{
 		if (val.empty())
 			return;
 		settings_.a.station_constraints = val;
 	}
-	else if (iequals(var, FREE_STN_SD))
+	else if (boost::iequals(var, FREE_STN_SD))
 	{
 		if (val.empty())
 			return;
 		settings_.a.free_std_dev = DoubleFromString<double>(val);
 	}
-	else if (iequals(var, FIXED_STN_SD))
+	else if (boost::iequals(var, FIXED_STN_SD))
 	{
 		if (val.empty())
 			return;
 		settings_.a.fixed_std_dev = DoubleFromString<double>(val);
 	}
-	//else if (iequals(var, LSQ_INVERSE_METHOD))
+	//else if (boost::iequals(var, LSQ_INVERSE_METHOD))
 	//{
 	//	if (val.empty())
 	//		return;
-	//	settings_.a.inverse_method_lsq = lexical_cast<UINT16, string>(val);
+	//	settings_.a.inverse_method_lsq = boost::lexical_cast<UINT16, std::string>(val);
 	//}
-	else if (iequals(var, SCALE_NORMAL_UNITY))
+	else if (boost::iequals(var, SCALE_NORMAL_UNITY))
 	{
 		if (val.empty())
 			return;
-		settings_.a.scale_normals_to_unity = yesno_uint<UINT16, string>(val);
+		settings_.a.scale_normals_to_unity = yesno_uint<UINT16, std::string>(val);
 	}
-	else if (iequals(var, RECREATE_STAGE_FILES))
+	else if (boost::iequals(var, RECREATE_STAGE_FILES))
 	{
 		if (val.empty())
 			return;
-		settings_.a.recreate_stage_files = yesno_uint<UINT16, string>(val);
+		settings_.a.recreate_stage_files = yesno_uint<UINT16, std::string>(val);
 	}
-	else if (iequals(var, PURGE_STAGE_FILES))
+	else if (boost::iequals(var, PURGE_STAGE_FILES))
 	{
 		if (val.empty())
 			return;
-		settings_.a.purge_stage_files = yesno_uint<UINT16, string>(val) == 1;
+		settings_.a.purge_stage_files = yesno_uint<UINT16, std::string>(val) == 1;
 	}
-	else if (iequals(var, TYPE_B_GLOBAL))
+	else if (boost::iequals(var, TYPE_B_GLOBAL))
 	{
 		if (val.empty())
 			return;
 		settings_.a.type_b_global = val;
 	}
-	else if (iequals(var, TYPE_B_FILE))
+	else if (boost::iequals(var, TYPE_B_FILE))
 	{
 		if (val.empty())
 			return;
 		settings_.a.type_b_file = val;
 
-		if (!exists(val))
-			if (exists(formPath<string>(settings_.g.input_folder, val)))
-				settings_.a.type_b_file = formPath<string>(settings_.g.input_folder, val);
+		if (!boost::filesystem::exists(val))
+			if (boost::filesystem::exists(formPath<std::string>(settings_.g.input_folder, val)))
+				settings_.a.type_b_file = formPath<std::string>(settings_.g.input_folder, val);
 	}
 }
 	
-void CDnaProjectFile::LoadSettingOutput(const string& var, string& val)
+void CDnaProjectFile::LoadSettingOutput(const std::string& var, std::string& val)
 {
-	if (iequals(var, OUTPUT_MSR_TO_STN))
+	if (boost::iequals(var, OUTPUT_MSR_TO_STN))
 	{
 		if (val.empty())
 			return;
-		settings_.o._msr_to_stn = yesno_uint<UINT16, string>(val);
+		settings_.o._msr_to_stn = yesno_uint<UINT16, std::string>(val);
 	}
-	else if (iequals(var, OUTPUT_MSR_TO_STN_SORTBY))
+	else if (boost::iequals(var, OUTPUT_MSR_TO_STN_SORTBY))
 	{
 		if (val.empty())
 			return;
-		settings_.o._sort_msr_to_stn = lexical_cast<UINT16, string>(val);
+		settings_.o._sort_msr_to_stn = boost::lexical_cast<UINT16, std::string>(val);
 	}
-	else if (iequals(var, OUTPUT_ADJ_STN_ITER))
+	else if (boost::iequals(var, OUTPUT_ADJ_STN_ITER))
 	{
 		if (val.empty())
 			return;
-		settings_.o._adj_stn_iteration = yesno_uint<UINT16, string>(val);
+		settings_.o._adj_stn_iteration = yesno_uint<UINT16, std::string>(val);
 	}
-	else if (iequals(var, OUTPUT_ADJ_STAT_ITER))
+	else if (boost::iequals(var, OUTPUT_ADJ_STAT_ITER))
 	{
 		if (val.empty())
 			return;
-		settings_.o._adj_stat_iteration = yesno_uint<UINT16, string>(val);
+		settings_.o._adj_stat_iteration = yesno_uint<UINT16, std::string>(val);
 	}
-	else if (iequals(var, OUTPUT_ADJ_MSR_ITER))
+	else if (boost::iequals(var, OUTPUT_ADJ_MSR_ITER))
 	{
 		if (val.empty())
 			return;
-		settings_.o._adj_msr_iteration = yesno_uint<UINT16, string>(val);
+		settings_.o._adj_msr_iteration = yesno_uint<UINT16, std::string>(val);
 	}
-	else if (iequals(var, OUTPUT_CMP_MSR_ITER))
+	else if (boost::iequals(var, OUTPUT_CMP_MSR_ITER))
 	{
 		if (val.empty())
 			return;
-		settings_.o._cmp_msr_iteration = yesno_uint<UINT16, string>(val);
+		settings_.o._cmp_msr_iteration = yesno_uint<UINT16, std::string>(val);
 	}
-	else if (iequals(var, OUTPUT_ADJ_MSR))
+	else if (boost::iequals(var, OUTPUT_ADJ_MSR))
 	{
 		if (val.empty())
 			return;
-		settings_.o._adj_msr_final = yesno_uint<UINT16, string>(val);
+		settings_.o._adj_msr_final = yesno_uint<UINT16, std::string>(val);
 	}
-	else if (iequals(var, OUTPUT_ADJ_GNSS_UNITS))
+	else if (boost::iequals(var, OUTPUT_ADJ_GNSS_UNITS))
 	{
 		if (val.empty())
 			return;
-		settings_.o._adj_gnss_units = lexical_cast<UINT16, string>(val);
+		settings_.o._adj_gnss_units = boost::lexical_cast<UINT16, std::string>(val);
 	}
-	else if (iequals(var, OUTPUT_ADJ_MSR_TSTAT))
+	else if (boost::iequals(var, OUTPUT_ADJ_MSR_TSTAT))
 	{
 		if (val.empty())
 			return;
-		settings_.o._adj_msr_tstat = yesno_uint<UINT16, string>(val);
+		settings_.o._adj_msr_tstat = yesno_uint<UINT16, std::string>(val);
 	}
-	else if (iequals(var, OUTPUT_ADJ_MSR_SORTBY))
+	else if (boost::iequals(var, OUTPUT_ADJ_MSR_SORTBY))
 	{
 		if (val.empty())
 			return;
-		settings_.o._sort_adj_msr = lexical_cast<UINT16, string>(val);
+		settings_.o._sort_adj_msr = boost::lexical_cast<UINT16, std::string>(val);
 	}
-	else if (iequals(var, OUTPUT_ADJ_MSR_DBID))
+	else if (boost::iequals(var, OUTPUT_ADJ_MSR_DBID))
 	{
 		if (val.empty())
 			return;
-		settings_.o._database_ids = yesno_uint<UINT16, string>(val);
+		settings_.o._database_ids = yesno_uint<UINT16, std::string>(val);
 	}
-	else if (iequals(var, OUTPUT_ADJ_STN_BLOCKS))
+	else if (boost::iequals(var, OUTPUT_ADJ_STN_BLOCKS))
 	{
 		if (val.empty())
 			return;
-		settings_.o._output_stn_blocks = yesno_uint<UINT16, string>(val);
+		settings_.o._output_stn_blocks = yesno_uint<UINT16, std::string>(val);
 	}
-	else if (iequals(var, OUTPUT_ADJ_MSR_BLOCKS))
+	else if (boost::iequals(var, OUTPUT_ADJ_MSR_BLOCKS))
 	{
 		if (val.empty())
 			return;
-		settings_.o._output_msr_blocks = yesno_uint<UINT16, string>(val);
+		settings_.o._output_msr_blocks = yesno_uint<UINT16, std::string>(val);
 	}
-	else if (iequals(var, OUTPUT_ADJ_STN_SORT_ORDER))
+	else if (boost::iequals(var, OUTPUT_ADJ_STN_SORT_ORDER))
 	{
 		if (val.empty())
 			return;
-		settings_.o._sort_stn_file_order = yesno_uint<UINT16, string>(val);
+		settings_.o._sort_stn_file_order = yesno_uint<UINT16, std::string>(val);
 	}
-	else if (iequals(var, OUTPUT_STN_COORD_TYPES))
+	else if (boost::iequals(var, OUTPUT_STN_COORD_TYPES))
 	{
 		if (val.empty())
 			return;
 		settings_.o._stn_coord_types = val;
 	}
-	else if (iequals(var, OUTPUT_ANGULAR_TYPE_STN))
+	else if (boost::iequals(var, OUTPUT_ANGULAR_TYPE_STN))
 	{
 		if (val.empty())
 			return;
-		settings_.o._angular_type_stn = lexical_cast<UINT16, string>(val);
+		settings_.o._angular_type_stn = boost::lexical_cast<UINT16, std::string>(val);
 	}
-	else if (iequals(var, OUTPUT_STN_CORR))
+	else if (boost::iequals(var, OUTPUT_STN_CORR))
 	{
 		if (val.empty())
 			return;
-		settings_.o._stn_corr = yesno_uint<UINT16, string>(val);
+		settings_.o._stn_corr = yesno_uint<UINT16, std::string>(val);
 	}
-	else if (iequals(var, OUTPUT_PRECISION_METRES_STN))
+	else if (boost::iequals(var, OUTPUT_PRECISION_METRES_STN))
 	{
 		if (val.empty())
 			return;
-		settings_.o._precision_metres_stn = lexical_cast<UINT16, string>(val);
+		settings_.o._precision_metres_stn = boost::lexical_cast<UINT16, std::string>(val);
 	}
-	else if (iequals(var, OUTPUT_PRECISION_SECONDS_STN))
+	else if (boost::iequals(var, OUTPUT_PRECISION_SECONDS_STN))
 	{
 		if (val.empty())
 			return;
-		settings_.o._precision_seconds_stn = lexical_cast<UINT16, string>(val);
+		settings_.o._precision_seconds_stn = boost::lexical_cast<UINT16, std::string>(val);
 	}
-	else if (iequals(var, OUTPUT_PRECISION_METRES_MSR))
+	else if (boost::iequals(var, OUTPUT_PRECISION_METRES_MSR))
 	{
 		if (val.empty())
 			return;
-		settings_.o._precision_metres_msr = lexical_cast<UINT16, string>(val);
+		settings_.o._precision_metres_msr = boost::lexical_cast<UINT16, std::string>(val);
 	}
-	else if (iequals(var, OUTPUT_PRECISION_SECONDS_MSR))
+	else if (boost::iequals(var, OUTPUT_PRECISION_SECONDS_MSR))
 	{
 		if (val.empty())
 			return;
-		settings_.o._precision_seconds_msr = lexical_cast<UINT16, string>(val);
+		settings_.o._precision_seconds_msr = boost::lexical_cast<UINT16, std::string>(val);
 	}
-	else if (iequals(var, OUTPUT_ANGULAR_TYPE_MSR))
+	else if (boost::iequals(var, OUTPUT_ANGULAR_TYPE_MSR))
 	{
 		if (val.empty())
 			return;
-		settings_.o._angular_type_msr = lexical_cast<UINT16, string>(val);
+		settings_.o._angular_type_msr = boost::lexical_cast<UINT16, std::string>(val);
 	}
-	else if (iequals(var, OUTPUT_DMS_FORMAT_MSR))
+	else if (boost::iequals(var, OUTPUT_DMS_FORMAT_MSR))
 	{
 		if (val.empty())
 			return;
-		settings_.o._dms_format_msr = lexical_cast<UINT16, string>(val);
+		settings_.o._dms_format_msr = boost::lexical_cast<UINT16, std::string>(val);
 	}
-	else if (iequals(var, OUTPUT_POS_UNCERTAINTY))
+	else if (boost::iequals(var, OUTPUT_POS_UNCERTAINTY))
 	{
 		if (val.empty())
 			return;
-		settings_.o._positional_uncertainty = yesno_uint<UINT16, string>(val);
+		settings_.o._positional_uncertainty = yesno_uint<UINT16, std::string>(val);
 	}
-	else if (iequals(var, OUTPUT_APU_CORRELATIONS))
+	else if (boost::iequals(var, OUTPUT_APU_CORRELATIONS))
 	{
 		if (val.empty())
 			return;
-		settings_.o._output_pu_covariances = yesno_uint<UINT16, string>(val);
+		settings_.o._output_pu_covariances = yesno_uint<UINT16, std::string>(val);
 	}
-	else if (iequals(var, OUTPUT_APU_UNITS))
+	else if (boost::iequals(var, OUTPUT_APU_UNITS))
 	{
 		if (val.empty())
 			return;
-		settings_.o._apu_vcv_units = lexical_cast<UINT16, string>(val);
+		settings_.o._apu_vcv_units = boost::lexical_cast<UINT16, std::string>(val);
 	}
-	else if (iequals(var, OUTPUT_STN_COR_FILE))
+	else if (boost::iequals(var, OUTPUT_STN_COR_FILE))
 	{
 		if (val.empty())
 			return;
-		settings_.o._init_stn_corrections = yesno_uint<UINT16, string>(val);
+		settings_.o._init_stn_corrections = yesno_uint<UINT16, std::string>(val);
 	}
-	else if (iequals(var, HZ_CORR_THRESHOLD))
+	else if (boost::iequals(var, HZ_CORR_THRESHOLD))
 	{
 		if (val.empty())
 			return;
 		settings_.o._hz_corr_threshold = DoubleFromString<double>(val);
 	}
-	else if (iequals(var, VT_CORR_THRESHOLD))
+	else if (boost::iequals(var, VT_CORR_THRESHOLD))
 	{
 		if (val.empty())
 			return;
 		settings_.o._vt_corr_threshold = DoubleFromString<double>(val);
 	}
-	//else if (iequals(var, UPDATE_ORIGINAL_STN_FILE))
+	//else if (boost::iequals(var, UPDATE_ORIGINAL_STN_FILE))
 	//{
 	//	if (val.empty())
 	//		return;
-	//	settings_.o. = yesno_uint<UINT16, string>(val);
+	//	settings_.o. = yesno_uint<UINT16, std::string>(val);
 	//}
-	else if (iequals(var, EXPORT_XML_STN_FILE))
+	else if (boost::iequals(var, EXPORT_XML_STN_FILE))
 	{
 		if (val.empty())
 			return;
-		settings_.o._export_xml_stn_file= yesno_uint<UINT16, string>(val);
+		settings_.o._export_xml_stn_file= yesno_uint<UINT16, std::string>(val);
 	}
-	else if (iequals(var, EXPORT_DNA_STN_FILE))
+	else if (boost::iequals(var, EXPORT_DNA_STN_FILE))
 	{
 		if (val.empty())
 			return;
-		settings_.o._export_dna_stn_file = yesno_uint<UINT16, string>(val);
+		settings_.o._export_dna_stn_file = yesno_uint<UINT16, std::string>(val);
 	}
-	else if (iequals(var, EXPORT_SNX_FILE))
+	else if (boost::iequals(var, EXPORT_SNX_FILE))
 	{
 		if (val.empty())
 			return;
-		settings_.o._export_snx_file = yesno_uint<UINT16, string>(val);
+		settings_.o._export_snx_file = yesno_uint<UINT16, std::string>(val);
 	}
+	// ???
+	// EXPORT_DISCONT_FILE = "export-discont-file";
 	
 }
 	
-//void CDnaProjectFile::LoadSettingPlot(const string& var, string& val)
+//void CDnaProjectFile::LoadSettingPlot(const std::string& var, std::string& val)
 //{
 //}
 //	
-//void CDnaProjectFile::LoadSettingDisplay(const string& var, string& val)
+//void CDnaProjectFile::LoadSettingDisplay(const std::string& var, std::string& val)
 //{
 //}
 
 template <typename T>
-void CDnaProjectFile::AddOptionValue(ostream& os, const char* const option, const T& value) {
+void CDnaProjectFile::AddOptionValue(std::ostream& os, const char* const option, const T& value) {
 	os << " --" << option << " " << value;
 }
 
 template <typename T>
-void CDnaProjectFile::AddDefaultValue(ostream& os, const T& value)
+void CDnaProjectFile::AddDefaultValue(std::ostream& os, const T& value)
 {
 	os << " " << value;
 }
 
 template <typename T, typename U>
-void CDnaProjectFile::PrintRecord(ostream& os, const T& variable, const U& value) {
+void CDnaProjectFile::PrintRecord(std::ostream& os, const T& variable, const U& value) {
 
 	PrintVariable(os, variable);
 	PrintValue(os, value);
@@ -1622,22 +1636,22 @@ void CDnaProjectFile::PrintRecord(ostream& os, const T& variable, const U& value
 	
 
 template <typename T>
-void CDnaProjectFile::PrintVariable(ostream& os, const T& variable) {
+void CDnaProjectFile::PrintVariable(std::ostream& os, const T& variable) {
 	// width of 35
-	os << setw(PRINT_VAR_PAD) << left << variable;
+	os << std::setw(PRINT_VAR_PAD) << std::left << variable;
 }
 	
 
 template <typename T>
-void CDnaProjectFile::PrintValue(ostream& os, const T& value) {
+void CDnaProjectFile::PrintValue(std::ostream& os, const T& value) {
 	// width of 45
-	os << setw(PRINT_VAL_PAD) << left << value << endl;
+	os << std::setw(PRINT_VAL_PAD) << std::left << value << std::endl;
 }
 	
 
-string CDnaProjectFile::FormCommandLineOptionsStringImport()
+std::string CDnaProjectFile::FormCommandLineOptionsStringImport()
 {
-	stringstream options;
+	std::stringstream options;
 	//////////////////////////////////////////////////////
 	// General settings
 	AddDefaultValue(options, FormCommandLineOptionsStringGeneral());
@@ -1647,22 +1661,22 @@ string CDnaProjectFile::FormCommandLineOptionsStringImport()
 	// files
 	for (_it_vstr_const _it_tmp(settings_.i.input_files.begin());
 		_it_tmp!=settings_.i.input_files.end(); ++_it_tmp)
-		AddDefaultValue<string>(options, 
-			leafStr<string>(trimstr<string>(_it_tmp->c_str())));
+		AddDefaultValue<std::string>(options, 
+			leafStr<std::string>(trimstr<std::string>(_it_tmp->c_str())));
 	
 
 	return options.str();
 }
 	
-string CDnaProjectFile::FormCommandLineOptionsStringGeneral()
+std::string CDnaProjectFile::FormCommandLineOptionsStringGeneral()
 {
-	stringstream options;
+	std::stringstream options;
 	//////////////////////////////////////////////////////
 	// General settings
 	// project file
-	AddOptionValue<string>(options, PROJECT_FILE, settings_.g.project_file);
+	AddOptionValue<std::string>(options, PROJECT_FILE, settings_.g.project_file);
 	// network name
-	AddOptionValue<string>(options, NETWORK_NAME, settings_.g.network_name);
+	AddOptionValue<std::string>(options, NETWORK_NAME, settings_.g.network_name);
 	// verbose
 	AddOptionValue<UINT16>(options, VERBOSE, settings_.g.verbose);
 	// verbose
@@ -1675,72 +1689,73 @@ void CDnaProjectFile::PrintProjectFile()
 {
 	std::ofstream dnaproj_file;
 
-	stringstream err_msg;
+	std::stringstream err_msg;
 	err_msg << "PrintProjectFile(): An error was encountered when opening " << 
-		settings_.g.project_file << "." << endl;
+		settings_.g.project_file << "." << std::endl;
 
 	try {
 		// create binary aml file.  Throws runtime_error on failure.
 		file_opener(dnaproj_file, settings_.g.project_file,
-			ios::out, ascii);
+			std::ios::out, ascii);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		err_msg << e.what();
-		throw boost::enable_current_exception(runtime_error(err_msg.str()));
+		throw boost::enable_current_exception(std::runtime_error(err_msg.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(err_msg.str()));
+		throw boost::enable_current_exception(std::runtime_error(err_msg.str()));
 	}
 
 	err_msg.str("");
 	err_msg << "PrintProjectFile(): An error was encountered when writing to " << 
-		settings_.g.project_file << "." << endl;
+		settings_.g.project_file << "." << std::endl;
 
-	stringstream ss;
+	std::stringstream ss;
 
 	// Write header line
-	dnaproj_header(dnaproj_file, settings_.g.network_name + " project file.");
-	dnaproj_file << endl << endl;
+	dnaproj_header(dnaproj_file, settings_.g.network_name + " project file");
+	dnaproj_file << std::endl << std::endl;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	// #general
 	ss.str("");
 	ss << section_general << " (" << PRINT_VAR_PAD << ")";
 	PrintRecord(dnaproj_file, ss.str(), "VALUE");
-	dnaproj_file << OUTPUTLINE << endl;
+	dnaproj_file << OUTPUTLINE << std::endl;
 	
 	PrintRecord(dnaproj_file, NETWORK_NAME, settings_.g.network_name);								// network name
-	PrintRecord(dnaproj_file, INPUT_FOLDER, system_complete(settings_.g.input_folder).string());	// Path containing all input files
-	PrintRecord(dnaproj_file, OUTPUT_FOLDER, system_complete(settings_.g.output_folder).string());	// Path for all output files
+	PrintRecord(dnaproj_file, INPUT_FOLDER, boost::filesystem::system_complete(settings_.g.input_folder).string());	// Path containing all input files
+	PrintRecord(dnaproj_file, OUTPUT_FOLDER, boost::filesystem::system_complete(settings_.g.output_folder).string());	// Path for all output files
 	PrintRecord(dnaproj_file, VERBOSE, settings_.g.verbose);										// Give detailed information about what dnainterop is doing.
 																									// 0: No information (default)
 																									// 1: Helpful information
 																									// 2: Extended information\n3: Debug level information
 	PrintRecord(dnaproj_file, QUIET, yesno_string(settings_.g.quiet));								// Run quietly?
-	PrintRecord(dnaproj_file, PROJECT_FILE, system_complete(settings_.g.project_file).string());	// project file
-	PrintRecord(dnaproj_file, DYNADJUST_LOG_FILE, system_complete(settings_.g.log_file).string());	// dynadjust log file
+	PrintRecord(dnaproj_file, PROJECT_FILE, boost::filesystem::system_complete(settings_.g.project_file).string());	// project file
+	PrintRecord(dnaproj_file, DYNADJUST_LOG_FILE, boost::filesystem::system_complete(settings_.g.log_file).string());	// dynadjust log file
 	
-	dnaproj_file << endl;
+	dnaproj_file << std::endl;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	// #import
 	ss.str("");
 	ss << section_import << " (" << PRINT_VAR_PAD << ")";
 	PrintRecord(dnaproj_file, ss.str(), "VALUE");
-	dnaproj_file << OUTPUTLINE << endl;
+	dnaproj_file << OUTPUTLINE << std::endl;
 	
 	// Input files
 	for_each (settings_.i.input_files.begin(), settings_.i.input_files.end(),
-		[&dnaproj_file, this] (string file) {
-			PrintRecord(dnaproj_file, IMPORT_FILE, leafStr<string>(file.c_str()));
+		[&dnaproj_file, this] (std::string file) {
+			PrintRecord(dnaproj_file, IMPORT_FILE, leafStr<std::string>(file.c_str()));
 	});
 
 	// geoid file
 	PrintRecord(dnaproj_file, IMPORT_GEO_FILE, 
-		(settings_.i.geo_file.empty() ? " " : leafStr<string>(settings_.i.geo_file)));
+		(settings_.i.geo_file.empty() ? " " : leafStr<std::string>(settings_.i.geo_file)));
 
 	// reference frame settings
 	PrintRecord(dnaproj_file, REFERENCE_FRAME, settings_.i.reference_frame);
+	PrintRecord(dnaproj_file, EPOCH, settings_.i.epoch);
 	PrintRecord(dnaproj_file, OVERRIDE_INPUT_FRAME, 
 		yesno_string(settings_.i.override_input_rfame));
 
@@ -1756,25 +1771,27 @@ void CDnaProjectFile::PrintProjectFile()
 	PrintRecord(dnaproj_file, SPLIT_CLUSTERS,
 		yesno_string(settings_.i.split_clusters));	
 	PrintRecord(dnaproj_file, IMPORT_SEG_BLOCK,
-		(settings_.i.import_block ? val_uint<string, UINT32>(settings_.i.import_block_number) : "no"));
+		(settings_.i.import_block ? val_uint<std::string, UINT32>(settings_.i.import_block_number) : "no"));
 	PrintRecord(dnaproj_file, SEG_FILE, 
-		(settings_.i.seg_file.empty() ? " " : leafStr<string>(settings_.i.seg_file)));
+		(settings_.i.seg_file.empty() ? " " : leafStr<std::string>(settings_.i.seg_file)));
 	PrintRecord(dnaproj_file, PREFER_X_MSR_AS_G, 
 		yesno_string(settings_.i.prefer_single_x_as_g));	
 	
 	PrintRecord(dnaproj_file, INCLUDE_MSRS, settings_.i.include_msrs);
 	PrintRecord(dnaproj_file, EXCLUDE_MSRS, settings_.i.exclude_msrs);							
 	PrintRecord(dnaproj_file, STATION_RENAMING_FILE,
-		leafStr<string>(settings_.i.stn_renamingfile));						
+		leafStr<std::string>(settings_.i.stn_renamingfile));						
 	PrintRecord(dnaproj_file, STATION_DISCONTINUITY_FILE,
-		leafStr<string>(settings_.i.stn_discontinuityfile));						
+		leafStr<std::string>(settings_.i.stn_discontinuityfile));						
 	PrintRecord(dnaproj_file, TEST_NEARBY_STNS,
 		yesno_string(settings_.i.search_nearby_stn));						
 	PrintRecord(dnaproj_file, TEST_NEARBY_STN_DIST, settings_.i.search_stn_radius);					
-	PrintRecord(dnaproj_file, TEST_SIMILAR_MSRS,
-		yesno_string(settings_.i.search_similar_msr));						
 	PrintRecord(dnaproj_file, TEST_SIMILAR_GNSS_MSRS,
 		yesno_string(settings_.i.search_similar_msr_gx));						
+	PrintRecord(dnaproj_file, TEST_SIMILAR_MSRS,
+		yesno_string(settings_.i.search_similar_msr));
+	PrintRecord(dnaproj_file, IGNORE_INSUFFICIENT_MSRS,
+		yesno_string(settings_.i.ignore_insufficient_msrs));
 	PrintRecord(dnaproj_file, IGNORE_SIMILAR_MSRS,
 		yesno_string(settings_.i.ignore_similar_msr));					
 	PrintRecord(dnaproj_file, REMOVE_IGNORED_MSRS,
@@ -1789,7 +1806,7 @@ void CDnaProjectFile::PrintProjectFile()
 	PrintRecord(dnaproj_file, PSCALE, settings_.i.pscale);				
 	PrintRecord(dnaproj_file, LSCALE, settings_.i.lscale);				
 	PrintRecord(dnaproj_file, HSCALE, settings_.i.hscale);				
-	PrintRecord(dnaproj_file, SCALAR_FILE, leafStr<string>(settings_.i.scalar_file));
+	PrintRecord(dnaproj_file, SCALAR_FILE, leafStr<std::string>(settings_.i.scalar_file));
 
 	// export options
 	PrintRecord(dnaproj_file, EXPORT_XML_FILES, 
@@ -1807,33 +1824,33 @@ void CDnaProjectFile::PrintProjectFile()
 	PrintRecord(dnaproj_file, SIMULATE_MSR_FILE, 
 		yesno_string(settings_.i.simulate_measurements));
 
-	dnaproj_file << endl;
+	dnaproj_file << std::endl;
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	// #reftran
 	ss.str("");
 	ss << section_reftran << " (" << PRINT_VAR_PAD << ")";
 	PrintRecord(dnaproj_file, ss.str(), "VALUE");
-	dnaproj_file << OUTPUTLINE << endl;
+	dnaproj_file << OUTPUTLINE << std::endl;
 	
 	PrintRecord(dnaproj_file, REFERENCE_FRAME, settings_.r.reference_frame);
 	PrintRecord(dnaproj_file, EPOCH, settings_.r.epoch);
 
 	PrintRecord(dnaproj_file, TECTONIC_PLATE_MODEL_OPTION, settings_.r.plate_model_option);					// Plate motion model option
-	PrintRecord(dnaproj_file, TECTONIC_PLATE_BDY_FILE, leafStr<string>(settings_.r.tpb_file));				// Tectonic plate boundary file
-	PrintRecord(dnaproj_file, TECTONIC_PLATE_POLE_FILE, leafStr<string>(settings_.r.tpp_file));				// Tectonic plate pole file
+	PrintRecord(dnaproj_file, TECTONIC_PLATE_BDY_FILE, leafStr<std::string>(settings_.r.tpb_file));				// Tectonic plate boundary file
+	PrintRecord(dnaproj_file, TECTONIC_PLATE_POLE_FILE, leafStr<std::string>(settings_.r.tpp_file));				// Tectonic plate pole file
 	
-	dnaproj_file << endl;
+	dnaproj_file << std::endl;
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	// #geoid
 	ss.str("");
 	ss << section_geoid << " (" << PRINT_VAR_PAD << ")";
 	PrintRecord(dnaproj_file, ss.str(), "VALUE");
-	dnaproj_file << OUTPUTLINE << endl;
+	dnaproj_file << OUTPUTLINE << std::endl;
 
 	// Output configured to populate binary station files
-	PrintRecord(dnaproj_file, NTV2_FILEPATH, system_complete(settings_.n.ntv2_geoid_file).string());					// Full file path to geoid file
+	PrintRecord(dnaproj_file, NTV2_FILEPATH, boost::filesystem::system_complete(settings_.n.ntv2_geoid_file).string());					// Full file path to geoid file
 	
 	PrintRecord(dnaproj_file, METHOD, settings_.n.interpolation_method);
 	PrintRecord(dnaproj_file, DDEG_FORMAT, settings_.n.coordinate_format);
@@ -1843,17 +1860,17 @@ void CDnaProjectFile::PrintProjectFile()
 	PrintRecord(dnaproj_file, EXPORT_GEO_FILE,
 		yesno_string(settings_.n.export_dna_geo_file));
 	
-	dnaproj_file << endl;
+	dnaproj_file << std::endl;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	// #segment
 	ss.str("");
 	ss << section_segment << " (" << PRINT_VAR_PAD << ")";
 	PrintRecord(dnaproj_file, ss.str(), "VALUE");
-	dnaproj_file << OUTPUTLINE << endl;
+	dnaproj_file << OUTPUTLINE << std::endl;
 	
-	PrintRecord(dnaproj_file, NET_FILE, leafStr<string>(settings_.s.net_file));				// Starting stations file
-	PrintRecord(dnaproj_file, SEG_FILE, leafStr<string>(settings_.s.seg_file));				// Segmentation output file
+	PrintRecord(dnaproj_file, NET_FILE, leafStr<std::string>(settings_.s.net_file));				// Starting stations file
+	PrintRecord(dnaproj_file, SEG_FILE, leafStr<std::string>(settings_.s.seg_file));				// Segmentation output file
 	PrintRecord(dnaproj_file, SEG_MIN_INNER_STNS, settings_.s.min_inner_stations);			// Minimum number of inner stations per block
 	PrintRecord(dnaproj_file, SEG_THRESHOLD_STNS, settings_.s.max_total_stations);			// Maximum number of total stations per block
 	PrintRecord(dnaproj_file, SEG_FORCE_CONTIGUOUS,
@@ -1862,19 +1879,19 @@ void CDnaProjectFile::PrintProjectFile()
 	// Stations to be incorporated within the first block.
 	PrintRecord(dnaproj_file, SEG_STARTING_STN, settings_.s.seg_starting_stns);	
 
-	dnaproj_file << endl;
+	dnaproj_file << std::endl;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	// #adjust
 	ss.str("");
 	ss << section_adjust << " (" << PRINT_VAR_PAD << ")";
 	PrintRecord(dnaproj_file, ss.str(), "VALUE");
-	dnaproj_file << OUTPUTLINE << endl;
+	dnaproj_file << OUTPUTLINE << std::endl;
 
-	PrintRecord(dnaproj_file, SEG_FILE, leafStr<string>(settings_.a.seg_file));				// Starting stations file
+	PrintRecord(dnaproj_file, SEG_FILE, leafStr<std::string>(settings_.a.seg_file));				// Starting stations file
 	PrintRecord(dnaproj_file, COMMENTS, settings_.a.comments);								// Starting stations file
 	
-	PrintRecord(dnaproj_file, ADJUSTMENT_MODE, adjustmentMode<string, UINT32>(settings_.a.adjust_mode));
+	PrintRecord(dnaproj_file, ADJUSTMENT_MODE, adjustmentMode<std::string, UINT32>(settings_.a.adjust_mode));
 
 	PrintRecord(dnaproj_file, MODE_PHASED_MT, 
 		yesno_string(settings_.a.multi_thread));
@@ -1887,10 +1904,10 @@ void CDnaProjectFile::PrintProjectFile()
 	PrintRecord(dnaproj_file, STN_CONSTRAINTS, settings_.a.station_constraints);			
 	
 	ss.str("");
-	ss << fixed << setprecision(3) << settings_.a.free_std_dev;
+	ss << std::fixed << std::setprecision(3) << settings_.a.free_std_dev;
 	PrintRecord(dnaproj_file, FREE_STN_SD, ss.str());										// SD for free stations
 	ss.str("");
-	ss << scientific << setprecision(4) << settings_.a.fixed_std_dev;
+	ss << std::scientific << std::setprecision(4) << settings_.a.fixed_std_dev;
 	PrintRecord(dnaproj_file, FIXED_STN_SD, ss.str());										// SD for fixed stations
 	
 	//PrintRecord(dnaproj_file, LSQ_INVERSE_METHOD, settings_.a.inverse_method_lsq);			// Least squares inverse method
@@ -1903,16 +1920,16 @@ void CDnaProjectFile::PrintProjectFile()
 		yesno_string(settings_.a.purge_stage_files));										// Purge stage files
 
 	PrintRecord(dnaproj_file, TYPE_B_GLOBAL, settings_.a.type_b_global);					// Global Type B uncertainties
-	PrintRecord(dnaproj_file, TYPE_B_FILE, leafStr<string>(settings_.a.type_b_file));		// Type B uncertainty file
+	PrintRecord(dnaproj_file, TYPE_B_FILE, leafStr<std::string>(settings_.a.type_b_file));		// Type B uncertainty file
 	
-	dnaproj_file << endl;
+	dnaproj_file << std::endl;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	// #output
 	ss.str("");
 	ss << section_output << " (" << PRINT_VAR_PAD << ")";
 	PrintRecord(dnaproj_file, ss.str(), "VALUE");
-	dnaproj_file << OUTPUTLINE << endl;
+	dnaproj_file << OUTPUTLINE << std::endl;
 
 	PrintRecord(dnaproj_file, OUTPUT_MSR_TO_STN, 
 		yesno_string(settings_.o._msr_to_stn));
@@ -1963,10 +1980,10 @@ void CDnaProjectFile::PrintProjectFile()
 		yesno_string(settings_.o._init_stn_corrections));
 	
 	ss.str("");
-	ss << fixed << setprecision(3) << settings_.o._hz_corr_threshold;
+	ss << std::fixed << std::setprecision(3) << settings_.o._hz_corr_threshold;
 	PrintRecord(dnaproj_file, HZ_CORR_THRESHOLD, ss.str());				
 	ss.str("");
-	ss << fixed << setprecision(3) << settings_.o._vt_corr_threshold;
+	ss << std::fixed << std::setprecision(3) << settings_.o._vt_corr_threshold;
 	PrintRecord(dnaproj_file, VT_CORR_THRESHOLD, ss.str());				
 	
 	PrintRecord(dnaproj_file, EXPORT_XML_STN_FILE, 
@@ -1976,16 +1993,16 @@ void CDnaProjectFile::PrintProjectFile()
 	PrintRecord(dnaproj_file, EXPORT_SNX_FILE, 
 		yesno_string(settings_.o._export_snx_file));					
 	
-	dnaproj_file << endl;
+	dnaproj_file << std::endl;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	// #plot
 	ss.str("");
 	ss << section_plot << " (" << PRINT_VAR_PAD << ")";
 	PrintRecord(dnaproj_file, ss.str(), "VALUE");
-	dnaproj_file << OUTPUTLINE << endl;
+	dnaproj_file << OUTPUTLINE << std::endl;
 	
-	dnaproj_file << endl;
+	dnaproj_file << std::endl;
 
 	dnaproj_file.close();
 }

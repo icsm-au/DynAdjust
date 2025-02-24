@@ -16,8 +16,6 @@
 #include <string>
 #include "get_process_id_name.hpp"
 
-using namespace boost::interprocess;
-
 int main ()
 {
    const int FileSize          = 65536*10;

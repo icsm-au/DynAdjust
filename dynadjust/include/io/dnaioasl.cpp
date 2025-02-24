@@ -30,26 +30,26 @@ namespace iostreams {
 
 // open the asl file. the asl file is required to ensure invalid stations are
 // excluded from the adjustment. invalid stations are those with no measurements.
-UINT32 dna_io_asl::load_asl_file(const string& asl_filename, vASL* vbinary_asl, vUINT32* vfree_stn)
+UINT32 dna_io_asl::load_asl_file(const std::string& asl_filename, vASL* vbinary_asl, vUINT32* vfree_stn)
 {	
 	std::ifstream asl_file;
-	stringstream ss;
-	ss << "load_asl_file(): An error was encountered when opening " << asl_filename << "." << endl;
+	std::stringstream ss;
+	ss << "load_asl_file(): An error was encountered when opening " << asl_filename << "." << std::endl;
 
 	try {
 		// open stations asl file.  Throws runtime_error on failure.
-		file_opener(asl_file, asl_filename, ios::in | ios::binary, binary, true);
+		file_opener(asl_file, asl_filename, std::ios::in | std::ios::binary, binary, true);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	
 	ss.str("");
-	ss << "load_asl_file(): An error was encountered when reading from " << asl_filename << "." << endl;
+	ss << "load_asl_file(): An error was encountered when reading from " << asl_filename << "." << std::endl;
 
 	UINT32 stnCount;
 	
@@ -77,16 +77,16 @@ UINT32 dna_io_asl::load_asl_file(const string& asl_filename, vASL* vbinary_asl, 
 		}
 
 	}
-	catch (const ios_base::failure& f) {
+	catch (const std::ios_base::failure& f) {
 		ss << f.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 
 	asl_file.close();
@@ -94,27 +94,27 @@ UINT32 dna_io_asl::load_asl_file(const string& asl_filename, vASL* vbinary_asl, 
 	return stnCount;
 }
 
-void dna_io_asl::write_asl_file(const string& asl_filename, pvASLPtr vbinary_asl) 
+void dna_io_asl::write_asl_file(const std::string& asl_filename, pvASLPtr vbinary_asl) 
 {	
 	std::ofstream asl_file;
-	stringstream ss;
-	ss << "write_asl_file(): An error was encountered when opening " << asl_filename << "." << endl;
+	std::stringstream ss;
+	ss << "write_asl_file(): An error was encountered when opening " << asl_filename << "." << std::endl;
 
 	try {
 		// create binary asl file.  Throws runtime_error on failure.
 		file_opener(asl_file, asl_filename,
-			ios::out | ios::binary, binary);
+			std::ios::out | std::ios::binary, binary);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	
 	ss.str("");
-	ss << "write_asl_file(): An error was encountered when writing to " << asl_filename << "." << endl;
+	ss << "write_asl_file(): An error was encountered when writing to " << asl_filename << "." << std::endl;
 
 	// Calculate number of station records and write to binary file
 	UINT32 aslCount = static_cast<UINT32>(vbinary_asl->size());
@@ -130,16 +130,16 @@ void dna_io_asl::write_asl_file(const string& asl_filename, pvASLPtr vbinary_asl
 			if (_it_asl->get())
 				asl_file << _it_asl->get();			// see dnastation.hpp (region CAStationList stream handlers)
 	}
-	catch (const ios_base::failure& f) {
+	catch (const std::ios_base::failure& f) {
 		ss << f.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	
 	asl_file.close();
@@ -147,37 +147,37 @@ void dna_io_asl::write_asl_file(const string& asl_filename, pvASLPtr vbinary_asl
 
 // prints ASL entries sorted according to measurement count, which is useful when determining 
 // the starting station to begin network segmentation.
-void dna_io_asl::write_asl_file_txt(const string& asl_filename, pvASLPtr vbinary_asl, vdnaStnPtr* vStations) 
+void dna_io_asl::write_asl_file_txt(const std::string& asl_filename, pvASLPtr vbinary_asl, vdnaStnPtr* vStations) 
 {	
 	std::ofstream asl_file;
-	stringstream ss;
-	ss << "write_asl_file_txt(): An error was encountered when opening " << asl_filename << "." << endl;
+	std::stringstream ss;
+	ss << "write_asl_file_txt(): An error was encountered when opening " << asl_filename << "." << std::endl;
 
 	try {
 		// create binary asl file.  Throws runtime_error on failure.
 		file_opener(asl_file, asl_filename);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	
 	ss.str("");
-	ss << "write_asl_file_txt(): An error was encountered when writing to " << asl_filename << "." << endl;
+	ss << "write_asl_file_txt(): An error was encountered when writing to " << asl_filename << "." << std::endl;
 
 	// Calculate number of station records and write to binary file
 	size_t aslCount = vbinary_asl->size();
 	
 	// Pump to text file
-	stringstream ss_asl;
+	std::stringstream ss_asl;
 	ss_asl << aslCount << " stations";
-	asl_file << left << setw(STATION) << ss_asl.str();
-	asl_file << setw(HEADER_20) << right << "No. connected msrs";
-	asl_file << setw(STATION) << right << "AML index";
-	asl_file << setw(STATION) << right << "Unused?" << endl;
+	asl_file << std::left << std::setw(STATION) << ss_asl.str();
+	asl_file << std::setw(HEADER_20) << std::right << "No. connected msrs";
+	asl_file << std::setw(STATION) << std::right << "AML index";
+	asl_file << std::setw(STATION) << std::right << "Unused?" << std::endl;
 
 	// Create an incrementing list and sort on number of measurements to each station
 	vUINT32 aslPtrs(vbinary_asl->size());
@@ -185,7 +185,7 @@ void dna_io_asl::write_asl_file_txt(const string& asl_filename, pvASLPtr vbinary
 
 	// Sort on measurement count
 	CompareMeasCount2<ASLPtr, UINT32> msrcountCompareFunc(vbinary_asl);
-	sort(aslPtrs.begin(), aslPtrs.end(), msrcountCompareFunc);
+	std::sort(aslPtrs.begin(), aslPtrs.end(), msrcountCompareFunc);
 
 	vbinary_asl->at(0).get()->GetAMLStnIndex();
 
@@ -202,28 +202,28 @@ void dna_io_asl::write_asl_file_txt(const string& asl_filename, pvASLPtr vbinary
 			_it_pasl = vbinary_asl->begin() + *_it_asl;
 			
 			// Name and measurement count
-			asl_file << setw(STATION) << left << 
+			asl_file << std::setw(STATION) << std::left << 
 				vStations->at(*_it_asl)->GetName() << 
-				setw(HEADER_20) << right << _it_pasl->get()->GetAssocMsrCount();
+				std::setw(HEADER_20) << std::right << _it_pasl->get()->GetAssocMsrCount();
 			// Aml station index
 			if (_it_pasl->get()->GetAssocMsrCount() == 0)
-				asl_file << setw(STATION) << "-";
+				asl_file << std::setw(STATION) << "-";
 			else
-				asl_file << setw(STATION) << right << _it_pasl->get()->GetAMLStnIndex();
+				asl_file << std::setw(STATION) << std::right << _it_pasl->get()->GetAMLStnIndex();
 			// Valid station?
-			asl_file << setw(STATION) << right << (_it_pasl->get()->IsValid() ? " " : "*") << endl;
+			asl_file << std::setw(STATION) << std::right << (_it_pasl->get()->IsValid() ? " " : "*") << std::endl;
 		}
 	}
-	catch (const ios_base::failure& f) {
+	catch (const std::ios_base::failure& f) {
 		ss << f.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	
 	asl_file.close();

@@ -31,6 +31,8 @@
 
 #include <iomanip>
 
+using std::setw;
+
 #include <include/config/dnaversion.hpp>
 #include <include/config/dnaconsts-iostream.hpp>
 
@@ -73,7 +75,7 @@ template <class T>
 void output_version(T& stream, bool PAD=false)
 {
 	if (PAD)
-		stream << setw(PRINT_VAR_PAD) << left << "Version: ";
+		stream << std::setw(PRINT_VAR_PAD) << std::left << "Version: ";
 	else
 		stream << "Version:      ";
 	stream << __BINARY_VERSION__ << ", " << __BINARY_BUILDTYPE__;
@@ -84,7 +86,7 @@ template <class T>
 void output_build(T& stream, bool PAD=false)
 {
 	if (PAD)
-		stream << setw(PRINT_VAR_PAD) << left << "Build: ";
+		stream << std::setw(PRINT_VAR_PAD) << std::left << "Build: ";
 	else
 		stream << "Build:        ";
 	stream << 

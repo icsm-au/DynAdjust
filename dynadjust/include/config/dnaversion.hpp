@@ -171,7 +171,7 @@ const char* const __plot_dll_name__ = "libdnaplot.so";
 #endif
 
 #define __CONTACT_EMAIL__   "geodesy@ga.gov.au"
-#define __COPYRIGHT_YEAR__  "2022"
+#define __COPYRIGHT_YEAR__  "2025"
 #define __COPYRIGHT_OWNER__ "Geoscience Australia"
 #define __COPYRIGHT_MSG__   "This software is released under the Apache License."
 
@@ -303,11 +303,12 @@ const char* const __plot_dll_name__ = "libdnaplot.so";
 #define __COMPILER_VERSION__ __SUNPRO_CC
 #elif defined(__ICC) || defined(__INTEL_COMPILER)		// Intel compiler
 #define __COMPILER__ "Intel ICC"
-#define __COMPILER_VERSION__ lexical_cast<string>(__INTEL_COMPILER)
+#define __COMPILER_VERSION__ boost::lexical_cast<std::string>(__INTEL_COMPILER)
 #elif defined(__HP_aCC)								// Oracle Solaris
 #define __COMPILER__ "HP C++"
 #define __COMPILER_VERSION__ __HP_aCC
 #elif defined(_MSC_VER)
+// https://learn.microsoft.com/en-us/cpp/overview/compiler-versions?view=msvc-170#version-macros
 #define __COMPILER__ "MSVC++"
 #if (_MSC_VER == 1100)	
 #define __COMPILER_VERSION__ "5.0"
@@ -375,8 +376,24 @@ const char* const __plot_dll_name__ = "libdnaplot.so";
 #define __COMPILER_VERSION__ "17.4, VS2022"
 #elif (_MSC_VER == 1935)
 #define __COMPILER_VERSION__ "17.5, VS2022"
+#elif (_MSC_VER == 1936)
+#define __COMPILER_VERSION__ "17.6, VS2022"
+#elif (_MSC_VER == 1937)
+#define __COMPILER_VERSION__ "17.7, VS2022"
+#elif (_MSC_VER == 1938)
+#define __COMPILER_VERSION__ "17.8, VS2022"
+#elif (_MSC_VER == 1939)
+#define __COMPILER_VERSION__ "17.9, VS2022"
+#elif (_MSC_VER == 1940)
+#define __COMPILER_VERSION__ "17.10, VS2022"
+#elif (_MSC_VER == 1941)
+#define __COMPILER_VERSION__ "17.11, VS2022"
+#elif (_MSC_VER == 1942)
+#define __COMPILER_VERSION__ "17.12, VS2022"
+#elif (_MSC_VER == 1943)
+#define __COMPILER_VERSION__ "17.13, VS2022"
 
-#elif (_MSC_VER > 1935)
+#elif (_MSC_VER > 1943)
 #define __COMPILER_VERSION__ _MSC_VER
 #endif
 #else

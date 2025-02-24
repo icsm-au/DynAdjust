@@ -31,8 +31,6 @@
 
 #include <include/measurement_types/dnameasurement.hpp>
 
-using namespace std;
-
 namespace dynadjust {
 namespace measurements {
 
@@ -48,35 +46,35 @@ private:
 	//CDnaDistance& operator=(const CDnaDistance& rhs);
 
 public:
-	//CDnaDistance(const bool bIgnore, const string& strType, const string& strFirst, const string& strTarget, const double& dValue, const double& dStdDev);
+	//CDnaDistance(const bool bIgnore, const std::string& strType, const std::string& strFirst, const std::string& strTarget, const double& dValue, const double& dStdDev);
 
 	bool operator==(const CDnaDistance& rhs) const;
 	bool operator<(const CDnaDistance& rhs) const;
 
 	//inline CDnaDistance& operator[](int iIndex) { return this[iIndex]; }
 
-	inline string GetTarget() const { return m_strTarget; }
+	inline std::string GetTarget() const { return m_strTarget; }
 	inline double GetValue() const { return m_dValue; }
 	inline double GetStdDev() const { return m_dStdDev; }
 	inline float GetInstrHeight() const { return m_fInstHeight; }
 	inline float GetTargetHeight() const { return m_fTargHeight; }
 
 
-	inline void SetTarget(const string& str) { m_strTarget = trimstr(str); }
-	void SetValue(const string& str);
-	void SetStdDev(const string& str);
-	void SetInstrumentHeight(const string& str);
-	void SetTargetHeight(const string& str);
+	inline void SetTarget(const std::string& str) { m_strTarget = trimstr(str); }
+	void SetValue(const std::string& str);
+	void SetStdDev(const std::string& str);
+	void SetInstrumentHeight(const std::string& str);
+	void SetTargetHeight(const std::string& str);
 
 	inline virtual UINT32 CalcBinaryRecordCount() const { return 1; }
 	virtual void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) const;
 	virtual UINT32 SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr, it_vdbid_t& dbidmap);
-	virtual void WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool) const;
+	virtual void WriteDynaMLMsr(std::ofstream* dynaml_stream, const std::string& comment, bool) const;
 	virtual void WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool) const;
 	virtual void SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* ellipsoid);
 
 protected:
-	string m_strTarget;
+	std::string m_strTarget;
 	double m_dValue;
 	double	m_dStdDev;
 	float	m_fInstHeight;

@@ -30,9 +30,24 @@
 #endif
 
 #if defined(_WIN32) || defined(__WIN32__)
+	
+	// prevent conflict with std::min(...) std::max(...)
+	#ifndef NOMINMAX
+	#define NOMINMAX
+	#endif
+
+	#ifndef WIN32_LEAN_AND_MEAN
+	#define WIN32_LEAN_AND_MEAN
+	#endif
+	
+	#ifndef VC_EXTRALEAN
+	#define VC_EXTRALEAN            // Exclude rarely-used stuff from Windows headers
+	#endif
+	
 	#include <windows.h>
 	#include <winbase.h>
 	#include <ShellAPI.h>		// for FindExecutable
+
 #elif defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)
 	#include <unistd.h>
 #endif
@@ -60,9 +75,9 @@ public:
 
 	dna_io_pdf& operator=(const dna_io_pdf& rhs);
 
-	string form_pdf_action_command_string(const string& pdf_filename, const string& ddename, const string& action);
-	string form_pdf_close_string(const string& pdf_filename, const string& ddename);
-	string form_pdf_open_string(const string& pdf_filename, const string& ddename);
+	std::string form_pdf_action_command_string(const std::string& pdf_filename, const std::string& ddename, const std::string& action);
+	std::string form_pdf_close_string(const std::string& pdf_filename, const std::string& ddename);
+	std::string form_pdf_open_string(const std::string& pdf_filename, const std::string& ddename);
 
 protected:
 

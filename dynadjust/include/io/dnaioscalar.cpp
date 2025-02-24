@@ -27,11 +27,11 @@
 namespace dynadjust { 
 namespace iostreams {
 
-void dna_io_scalar::load_scalar_file(const string& scalar_filename, pvscl_t bslScaling)
+void dna_io_scalar::load_scalar_file(const std::string& scalar_filename, pvscl_t bslScaling)
 {
 	std::ifstream scalar_file;
-	stringstream ss;
-	ss << "load_scalar_file(): An error was encountered when opening " << scalar_filename << "." << endl;
+	std::stringstream ss;
+	ss << "load_scalar_file(): An error was encountered when opening " << scalar_filename << "." << std::endl;
 
 	// The contents of the scalar file is as follows:
 	//
@@ -54,23 +54,23 @@ void dna_io_scalar::load_scalar_file(const string& scalar_filename, pvscl_t bslS
 	try {
 		// Load scalar file.  Throws runtime_error on failure.
 		file_opener(scalar_file, scalar_filename, 
-			ios::in, ascii, true);
+			std::ios::in, ascii, true);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	
 	ss.str("");
-	ss << "load_scalar_file(): An error was encountered when reading from " << scalar_filename << "." << endl;
+	ss << "load_scalar_file(): An error was encountered when reading from " << scalar_filename << "." << std::endl;
 
 	bslScaling->clear();
 
 	scalar_t bslScalars;
-	string sBuf(""), tmp;
+	std::string sBuf(""), tmp;
 	UINT32 stationWidth(STATION), scalarCount(100);
 	UINT32 line(0), position(0);
 	
@@ -82,23 +82,23 @@ void dna_io_scalar::load_scalar_file(const string& scalar_filename, pvscl_t bslS
 			line++;
 			getline(scalar_file, sBuf);
 
-			if (iequals(trimstr(sBuf), "SCALARS"))
+			if (boost::iequals(trimstr(sBuf), "SCALARS"))
 				break;
 
-			if (iequals(trimstr(sBuf.substr(0, 16)), "Baseline count"))
+			if (boost::iequals(trimstr(sBuf.substr(0, 16)), "Baseline count"))
 			{
-				scalarCount = lexical_cast<UINT16, string>(trimstr(sBuf.substr(PRINT_VAR_PAD)));
+				scalarCount = boost::lexical_cast<UINT16, std::string>(trimstr(sBuf.substr(PRINT_VAR_PAD)));
 				continue;
 			}
 
-			if (iequals(trimstr(sBuf.substr(0, 18)), "Station name width"))
+			if (boost::iequals(trimstr(sBuf.substr(0, 18)), "Station name width"))
 			{
-				stationWidth = lexical_cast<UINT16, string>(trimstr(sBuf.substr(PRINT_VAR_PAD)));
+				stationWidth = boost::lexical_cast<UINT16, std::string>(trimstr(sBuf.substr(PRINT_VAR_PAD)));
 				continue;
 			}
 
 		}
-		while (!iequals(trimstr(sBuf), "SCALARS"));
+		while (!boost::iequals(trimstr(sBuf), "SCALARS"));
 		
 		bslScaling->reserve(scalarCount);
 		
@@ -114,10 +114,10 @@ void dna_io_scalar::load_scalar_file(const string& scalar_filename, pvscl_t bslS
 			if (trimstr(sBuf).length() < stationWidth+1)
 				continue;
 
-			if (iequals(trimstr(sBuf.substr(0, 20)), "Station 1"))
+			if (boost::iequals(trimstr(sBuf.substr(0, 20)), "Station 1"))
 				continue;
 
-			if (iequals(trimstr(sBuf.substr(0, 3)), "---"))
+			if (boost::iequals(trimstr(sBuf.substr(0, 3)), "---"))
 				continue;
 
 			// Ignore lines with blank station name
@@ -143,7 +143,7 @@ void dna_io_scalar::load_scalar_file(const string& scalar_filename, pvscl_t bslS
 			if (sBuf.length() > position)
 			{
 				if ((tmp = trimstr(sBuf.substr(position, 10))).length() > 0)
-					bslScalars.v_scale = lexical_cast<double, string>(tmp);
+					bslScalars.v_scale = boost::lexical_cast<double, std::string>(tmp);
 			}
 			else
 				continue;
@@ -154,7 +154,7 @@ void dna_io_scalar::load_scalar_file(const string& scalar_filename, pvscl_t bslS
 			if (sBuf.length() > position)
 			{
 				if ((tmp = trimstr(sBuf.substr(position, 10))).length() > 0)
-					bslScalars.p_scale = lexical_cast<double, string>(tmp);
+					bslScalars.p_scale = boost::lexical_cast<double, std::string>(tmp);
 			}
 			else
 				continue;
@@ -165,7 +165,7 @@ void dna_io_scalar::load_scalar_file(const string& scalar_filename, pvscl_t bslS
 			if (sBuf.length() > position)
 			{
 				if ((tmp = trimstr(sBuf.substr(position, 10))).length() > 0)
-					bslScalars.l_scale = lexical_cast<double, string>(tmp);
+					bslScalars.l_scale = boost::lexical_cast<double, std::string>(tmp);
 			}
 			else
 				continue;
@@ -176,7 +176,7 @@ void dna_io_scalar::load_scalar_file(const string& scalar_filename, pvscl_t bslS
 			if (sBuf.length() > position)
 			{
 				if ((tmp = trimstr(sBuf.substr(position, 10))).length() > 0)
-					bslScalars.h_scale = lexical_cast<double, string>(tmp);
+					bslScalars.h_scale = boost::lexical_cast<double, std::string>(tmp);
 			}
 			else
 				continue;
@@ -184,23 +184,23 @@ void dna_io_scalar::load_scalar_file(const string& scalar_filename, pvscl_t bslS
 			bslScaling->push_back(bslScalars);
 		}
 	}
-	catch (const ios_base::failure& f) {
+	catch (const std::ios_base::failure& f) {
 		if (scalar_file.eof())
 		{
 			scalar_file.close();
 			return;
 		}
 		ss << f.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		if (scalar_file.eof())
 		{
 			scalar_file.close();
 			return;
 		}
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
 		if (scalar_file.eof())
@@ -208,7 +208,7 @@ void dna_io_scalar::load_scalar_file(const string& scalar_filename, pvscl_t bslS
 			scalar_file.close();
 			return;
 		}
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 
 	scalar_file.close();

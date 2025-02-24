@@ -16,7 +16,6 @@
 
 #include <include/io/DynaML-schema.hxx>
 
-using namespace std;
 using namespace dynadjust::measurements;
 using namespace dynadjust::epsg;
 using namespace dynadjust::exception;
@@ -150,12 +149,11 @@ void Directions_pimpl::Value(const ::std::string& Value)
 {
 	_dnaDirection->SetValue(Value);
 
-	if (_dnaDirection->NotIgnored())
-	{
+	//if (_dnaDirection->NotIgnored())
+	//{
 		// increment measurement counter
 		*(_pMeasurementCount) += 1;
-		g_parsemsr_tally.D++;
-	}
+	//}
 }
 
 void Directions_pimpl::StdDev(const ::std::string& StdDev)
@@ -175,29 +173,38 @@ void Directions_pimpl::post_Directions(const UINT32& total)
 {
 	if (!_parent_dnaDirectionSet)
 		return;
-
-	if (_dnaDirection->NotIgnored())
-		_parent_dnaDirectionSet->AddDirection(_dnaDirection.get());
-	else
+	
+	// Is the parent ignored? Add it to the ignored set
+	if (_parent_dnaDirectionSet->GetIgnore())
 	{
-		UINT32 t = _parent_dnaDirectionSet->GetTotal() - 1;
-		_parent_dnaDirectionSet->SetTotal(t);
-
-		if (t == 0)
-		{
-			// Is the entire direction set ignored?
-			if (_parent_dnaDirectionSet->GetIgnore())
-				return;
-
-			stringstream ss, ss2;
-			ss << 
-				"<Directions>...</Directions>',  total of " << total << " element(s)" << endl <<
-				"  - found 0 <Directions>, or there aren't any non-ignored directions in the set. '";
-			ss2 << " ~ <Total>" << total << "</Total>";
-			throw ::xsd::cxx::parser::expected_element< char >(
-				ss.str(), ss2.str());
-		}
+		_parent_dnaDirectionSet->AddDirection(_dnaDirection.get());
+		return;
 	}
+
+	// Is the parent not ignored, and the direction not ignored? Add it to the set
+	if (_dnaDirection->NotIgnored())
+	{
+		_parent_dnaDirectionSet->AddDirection(_dnaDirection.get());
+		return;
+	}
+
+	// At this point, the parent is not ignored, but a sub direction is.
+	// Test if this ignored sub direction will lead to a false direction
+	UINT32 t = _parent_dnaDirectionSet->GetTotal() - 1;
+
+	if (t == 0)
+	{
+		std::stringstream ss, ss2;
+		ss << 
+			"<Directions>...</Directions>',  total of " << total << " element(s)" << std::endl <<
+			"  - found 0 <Directions>, or there aren't any non-ignored directions in the set. '";
+		ss2 << " ~ <Total>" << total << "</Total>";
+		throw ::xsd::cxx::parser::expected_element< char >(
+			ss.str(), ss2.str());
+	}
+
+	_parent_dnaDirectionSet->AddDirection(_dnaDirection.get());
+	
 }
 
 // DnaMeasurement_pimpl
@@ -206,6 +213,10 @@ void Directions_pimpl::post_Directions(const UINT32& total)
 void DnaMeasurement_pimpl::pre()
 {
 	_dnaCurrentMsr.reset();
+
+	// Initialise flags that will track whether Reference frame has been supplied
+	_ReferenceframeTagSupplied = false;
+	_EpochTagSupplied = false;
 }
 
 
@@ -213,6 +224,18 @@ void DnaMeasurement_pimpl::Type(const ::std::string& Type)
 {
 	if (Type.empty())
 		throw XMLInteropException("\"Type\" element cannot be empty.", 0);
+
+	std::string frame, epoch;
+
+	if (_ReferenceframeTagSupplied || _overridereferenceframe)
+		frame = _referenceframe;
+	else
+		frame = datumFromEpsgString(_fileEpsg);
+
+	if (_EpochTagSupplied || _overridereferenceframe)
+		epoch = _epoch;
+	else
+		epoch = _fileEpoch;
 
 	char cType = (Type.c_str())[0];
 	switch (cType) {
@@ -232,6 +255,7 @@ void DnaMeasurement_pimpl::Type(const ::std::string& Type)
 		_dnaCurrentMsr.reset(new CDnaDistance);
 		break;
 	case 'D': // Direction set
+		g_parsemsr_tally.D++;
 		_dnaCurrentMsr.reset(new CDnaDirectionSet(++(*(_pclusterID))));
 		break;
 	case 'E': // Ellipsoid arc
@@ -241,7 +265,7 @@ void DnaMeasurement_pimpl::Type(const ::std::string& Type)
 		break;
 	case 'G': // GPS Baseline (treat as single-baseline cluster)
 	case 'X': // GPS Baseline cluster
-		_dnaCurrentMsr.reset(new CDnaGpsBaselineCluster(++(*(_pclusterID)), _referenceframe, _epoch));
+		_dnaCurrentMsr.reset(new CDnaGpsBaselineCluster(++(*(_pclusterID)), frame, epoch));
 		break;
 	case 'H': // Orthometric height
 		g_parsemsr_tally.H++;
@@ -293,7 +317,7 @@ void DnaMeasurement_pimpl::Type(const ::std::string& Type)
 		*(_pMeasurementCount) += 1;
 		_dnaCurrentMsr.reset(new CDnaDistance);
 		break;
-	case 'V': // Zenith angle
+	case 'V': // Zenith distance
 		g_parsemsr_tally.V++;
 		*(_pMeasurementCount) += 1;
 		_dnaCurrentMsr.reset(new CDnaDirection);
@@ -307,7 +331,7 @@ void DnaMeasurement_pimpl::Type(const ::std::string& Type)
 		_dnaCurrentMsr.reset(new CDnaDirection);
 		break;
 	default:
-		stringstream ss;
+		std::stringstream ss;
 		ss << "Unknown measurement type: " << Type;
 		throw XMLInteropException(ss.str(), 0);
 	}
@@ -354,12 +378,12 @@ void DnaMeasurement_pimpl::Second(const ::std::string& Second)
 	case 'D': // Direction set
 	case 'G': // GPS Baseline
 	case 'L': // Level difference
-	case 'V': // Zenith angle
+	case 'V': // Zenith distance
 	case 'Z': // Vertical angle
 	case 'X': // GPS Baseline cluster
 		if (Second.empty())
 		{
-			stringstream ss;
+			std::stringstream ss;
 			ss << "\"Second\" element cannot be empty for measurement type " << _dnaCurrentMsr->GetTypeC() << 
 				" (first station: " << _dnaCurrentMsr->GetFirst() << ").";
 			throw XMLInteropException(ss.str(), 0);
@@ -377,7 +401,7 @@ void DnaMeasurement_pimpl::Third(const ::std::string& Third)
 	case 'A': // Horizontal angle
 		if (Third.empty())
 		{
-			stringstream ss;
+			std::stringstream ss;
 			ss << "\"Third\" element cannot be empty for measurement type " << _dnaCurrentMsr->GetTypeC() << 
 				" (first station: " << _dnaCurrentMsr->GetFirst() << ").";
 			throw XMLInteropException(ss.str(), 0);
@@ -408,11 +432,11 @@ void DnaMeasurement_pimpl::Value(const ::std::string& Value)
 	case 'P': // Geodetic latitude
 	case 'Q': // Geodetic longitude
 	case 'L': // Level difference
-	case 'V': // Zenith angle
+	case 'V': // Zenith distance
 	case 'Z': // Vertical angle
 		if (Value.empty())
 		{
-			stringstream ss;
+			std::stringstream ss;
 			ss << "\"Value\" element cannot be empty for measurement type " << _dnaCurrentMsr->GetTypeC() << 
 				" (first station: " << _dnaCurrentMsr->GetFirst() << ").";
 			throw XMLInteropException(ss.str(), 0);
@@ -443,18 +467,18 @@ void DnaMeasurement_pimpl::StdDev(const ::std::string& StdDev)
 	case 'P': // Geodetic latitude
 	case 'Q': // Geodetic longitude
 	case 'L': // Level difference
-	case 'V': // Zenith angle
+	case 'V': // Zenith distance
 	case 'Z': // Vertical angle
 		if (StdDev.empty())
 		{
-			stringstream ss;
+			std::stringstream ss;
 			ss << "\"StdDev\" element cannot be empty for " << _dnaCurrentMsr->GetTypeC() << " measurements (first station: " << _dnaCurrentMsr->GetFirst() << ").";
 			throw XMLInteropException(ss.str(), 0);
 		}
 
 		if (DoubleFromString<double>(StdDev) < PRECISION_1E25)
 		{
-			stringstream ss;
+			std::stringstream ss;
 			ss << "\"StdDev\" element cannot contain a zero or negative value for " << _dnaCurrentMsr->GetTypeC() << " measurements (first station: " << _dnaCurrentMsr->GetFirst() << ").";
 			throw XMLInteropException(ss.str(), 0);
 		}
@@ -560,15 +584,16 @@ void DnaMeasurement_pimpl::Epoch(const ::std::string& Epoch)
 			return;
 
 		_dnaCurrentMsr->SetEpoch(Epoch);
+		_EpochTagSupplied = true;
 	}
-	catch (const runtime_error& e) {
-		stringstream ss("");
+	catch (const std::runtime_error& e) {
+		std::stringstream ss("");
 		ss << e.what();
-		ss << "    - Measurement type: " << _dnaCurrentMsr->GetType() << endl <<
-			"    - From:             " << _dnaCurrentMsr->GetFirst() << endl <<
-			"    - To:               " << _dnaCurrentMsr->GetTarget() << endl <<
-			"    - Reference frame:  " << _dnaCurrentMsr->GetReferenceFrame() << endl <<
-			"    - Epoch:            " << Epoch << endl;
+		ss << "    - Measurement type: " << _dnaCurrentMsr->GetType() << std::endl <<
+			"    - From:             " << _dnaCurrentMsr->GetFirst() << std::endl <<
+			"    - To:               " << _dnaCurrentMsr->GetTarget() << std::endl <<
+			"    - Reference frame:  " << _dnaCurrentMsr->GetReferenceFrame() << std::endl <<
+			"    - Epoch:            " << Epoch << std::endl;
 		throw XMLInteropException(ss.str(), 0);
 	}
 }
@@ -596,21 +621,24 @@ void DnaMeasurement_pimpl::ReferenceFrame(const ::std::string& ReferenceFrame)
 
 		// Set the reference frame found for this measurement
 		_dnaCurrentMsr->SetReferenceFrame(ReferenceFrame);
+		_ReferenceframeTagSupplied = true;
 	}
-	catch (const runtime_error& e) {
-		stringstream ss("");
+	catch (const std::runtime_error& e) {
+		std::stringstream ss("");
 		ss << e.what();
-		ss << "    - Measurement type: " << _dnaCurrentMsr->GetType() << endl <<
-			"    - From:             " << _dnaCurrentMsr->GetFirst() << endl <<
-			"    - To:               " << _dnaCurrentMsr->GetTarget() << endl <<
-			"    - Reference frame:  " << ReferenceFrame << endl <<
-			"    - Epoch:            " << _dnaCurrentMsr->GetEpoch() << endl;
+		ss << "    - Measurement type: " << _dnaCurrentMsr->GetType() << std::endl <<
+			"    - From:             " << _dnaCurrentMsr->GetFirst() << std::endl <<
+			"    - To:               " << _dnaCurrentMsr->GetTarget() << std::endl <<
+			"    - Reference frame:  " << ReferenceFrame << std::endl <<
+			"    - Epoch:            " << _dnaCurrentMsr->GetEpoch() << std::endl;
 		throw XMLInteropException(ss.str(), 0);
 	}
 }
 
 void DnaMeasurement_pimpl::GPSBaseline()
 {
+	if (!_dnaCurrentMsr)
+		throw XMLInteropException("\"Type\" element must be the first element within \"DnaMeasurement\".", 0);
 }
 
 
@@ -707,7 +735,7 @@ void DnaMeasurement_pimpl::post_DnaMeasurement()
 	UINT32 total, found;
 
 	// Is the direction set empty and ignored?
-	// If so, do nothing.
+	// If so, do nothing (an invalid measurement).
 	switch (_dnaCurrentMsr->GetTypeC())
 	{
 	case 'D':
@@ -729,16 +757,39 @@ void DnaMeasurement_pimpl::post_DnaMeasurement()
 		found = static_cast<UINT32>(_dnaCurrentMsr->GetDirections_ptr()->size());
 		if (total != found)
 		{
-			stringstream ss, ss2;
+			std::stringstream ss, ss2;
 			ss <<
-				"<Directions>...</Directions>',  total of " << total << " element(s)" << endl <<
+				"<Directions>...</Directions>',  total of " << total << " element(s)" << std::endl <<
 				"  - found " << found << " <Directions> in the set. '";
 			ss2 << " ~ <Total>" << total << "</Total>";
 			throw ::xsd::cxx::parser::expected_element< char >(
 				ss.str(), ss2.str());
 		}
 
-		// Okay, capture all the elements for this baseline (cluster)
+		found = 0;
+
+		// Test for non-ignored measurements
+		for_each(_dnaCurrentMsr->GetDirections_ptr()->begin(),
+			_dnaCurrentMsr->GetDirections_ptr()->end(),
+			[this, &found](CDnaDirection& d) {
+				if (d.NotIgnored())
+					found++;
+			});
+
+		if (found == 0 && _dnaCurrentMsr->NotIgnored())
+		{
+			std::stringstream ss, ss2;
+			ss <<
+				"<Directions>...</Directions>',  total of " << total << " element(s)" << std::endl <<
+				"  - There aren't any non-ignored directions in the set. ";
+			ss2 << " ~ <Total>" << total << "</Total>";
+			throw ::xsd::cxx::parser::expected_element< char >(
+				ss.str(), ss2.str());
+		}
+
+		_dnaCurrentMsr->SetNonIgnoredDirns(found);
+		
+		// Okay, capture all the elements for this direction set
 		for_each(_dnaCurrentMsr->GetDirections_ptr()->begin(),
 			_dnaCurrentMsr->GetDirections_ptr()->end(),
 			[this](CDnaDirection& d) {
@@ -759,9 +810,9 @@ void DnaMeasurement_pimpl::post_DnaMeasurement()
 		found = static_cast<UINT32>(_dnaCurrentMsr->GetBaselines_ptr()->size());
 		if (total != found)
 		{
-			stringstream ss, ss2;
+			std::stringstream ss, ss2;
 			ss <<
-				"<GPSBaseline>...</GPSBaseline>',  total of " << total << " element(s)" << endl <<
+				"<GPSBaseline>...</GPSBaseline>',  total of " << total << " element(s)" << std::endl <<
 				"  - found " << found << " <GPSBaseline> in the set. '";
 			ss2 << " ~ <Total>" << total << "</Total>";
 			throw ::xsd::cxx::parser::expected_element< char >(
@@ -789,9 +840,9 @@ void DnaMeasurement_pimpl::post_DnaMeasurement()
 		found = static_cast<UINT32>(_dnaCurrentMsr->GetPoints_ptr()->size());
 		if (total != found)
 		{
-			stringstream ss, ss2;
+			std::stringstream ss, ss2;
 			ss <<
-				"<Clusterpoint>...</Clusterpoint>',  total of " << total << " element(s)" << endl <<
+				"<Clusterpoint>...</Clusterpoint>',  total of " << total << " element(s)" << std::endl <<
 				"  - found " << found << " <Clusterpoint> in the set. '";
 			ss2 << " ~ <Total>" << total << "</Total>";
 			throw ::xsd::cxx::parser::expected_element< char >(
@@ -822,7 +873,19 @@ void DnaMeasurement_pimpl::post_DnaMeasurement()
 
 void DnaStation_pimpl::pre()
 {
-	_dnaCurrentStn.reset(new CDnaStation(_referenceframe, _epoch));
+	std::string frame, epoch;
+
+	if (_overridereferenceframe)
+		frame = _referenceframe;
+	else
+		frame = datumFromEpsgString(_fileEpsg);
+
+	if (_overridereferenceframe)
+		epoch = _epoch;
+	else
+		epoch = _fileEpoch;
+
+	_dnaCurrentStn.reset(new CDnaStation(frame, epoch));
 	_dnaCurrentStn->SetfileOrder(g_fileOrder++);
 }
 
@@ -867,7 +930,10 @@ void DnaStation_pimpl::post_DnaStation()
 // DnaXmlFormat_pimpl
 //
 
-DnaXmlFormat_pimpl::DnaXmlFormat_pimpl(std::ifstream* is, PUINT32 clusterID, const string& referenceframe, const string& epoch, bool userspecifiedreferenceframe, bool overridereferenceframe)
+DnaXmlFormat_pimpl::DnaXmlFormat_pimpl(std::ifstream* is, PUINT32 clusterID, const std::string& referenceframe, const std::string& epoch, 
+	bool firstFile, 
+	bool userspecifiedreferenceframe, bool userspecifiedepoch,
+	bool overridereferenceframe)
 {
 	// capture pointer to file stream
 	is_ = is;
@@ -879,9 +945,15 @@ DnaXmlFormat_pimpl::DnaXmlFormat_pimpl(std::ifstream* is, PUINT32 clusterID, con
 	_referenceframe = referenceframe;
 	_epoch = epoch;
 
+	// capture first file flag
+	_firstFile = firstFile;
+
 	// Has the user supplied a reference frame and should this be used to override all?
 	_userspecifiedreferenceframe = userspecifiedreferenceframe;
+	_filespecifiedreferenceframe = false;
+	_filespecifiedepoch = false;
 	_overridereferenceframe = overridereferenceframe;
+	_userspecifiedepoch = userspecifiedepoch;
 }
 
 void DnaXmlFormat_pimpl::pre()
@@ -918,7 +990,7 @@ void DnaXmlFormat_pimpl::epoch()
 
 void DnaXmlFormat_pimpl::post_DnaXmlFormat(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements) 
 {
-	ostringstream ss("");
+	std::ostringstream ss("");
 	if (_station_count > 0) 
 	{
 		ss << "Loaded " << _station_count << " stations";
@@ -1306,33 +1378,37 @@ void referenceframe_pimpl::pre()
 // For DynaML.xsd, the following is specified:
 //     <xs:attribute name="referenceframe" type="xs:string" use="optional" default="GDA2020"/>
 // In this case, post_string() will return "GDA2020"
-void referenceframe_pimpl::post_type(string& referenceframe, bool userspecifiedreferenceframe, bool overridereferenceframe)
+void referenceframe_pimpl::post_type(std::string& referenceframe, std::string& fileEpsg,
+	bool userspecifiedreferenceframe, bool firstFile)
 {
 	// 1. Get the DnaXmlFormat referenceframe attribute value from the file
 	_referenceframe = trimstr(post_string());
 
-	// 2. Does the user want to override the default datum?
-	if (overridereferenceframe)
-		// Do nothing, just return as referenceframe will become 
-		// the default for all stations and measurements loaded
-		// from the file.
-		return;
-	
-	// 3. Does the user want the referenceframe attribute in the file to become the default?
+	// But, is this attribute value an empty string?  As long as a default value 
+	// is specified in DynaML.xsd, this value will never be empty, unless the user
+	// has inadvertently set in the xml file, e.g.:
+	//  <DnaXmlFormat referenceframe="" >
+	// Check anyway ...
+	if (_referenceframe.empty())
+		// If the file doesn't contain reference frame, set
+		// to the default reference frame passed from import
+		_referenceframe = referenceframe;
+
+	try {
+		// Capture epsg code for the file
+		fileEpsg = epsgStringFromName<std::string>(_referenceframe);
+	}
+	catch (std::runtime_error& e) {
+		std::stringstream ss("");
+		ss << e.what() << std::endl;
+		throw XMLInteropException(ss.str(), 0);
+	}
+
 	if (!userspecifiedreferenceframe)
 	{
-		// Here, the assumption is, if the user did not specify a reference frame,
-		// then the user wants to adopt the DnaXmlFormat referenceframe attribute
-		
-		// But, is this attribute value an empty string?  As long as a default value 
-		// is specified in DynaML.xsd, this value will never be empty, unless the user
-		// has inadvertently set in the xml file, e.g.:
-		//  <DnaXmlFormat referenceframe="" ... >
-		if (_referenceframe.empty())
-			// Set to the default reference frame passed from import
-			_referenceframe = referenceframe;
-		else
-			// adopt the DnaXmlFormat referenceframe attribute 
+		// No frame supplied. Set the datum from the first file. 
+		// If the datum field is blank in the first file, the default will be used. 
+		if (firstFile)
 			referenceframe = _referenceframe;
 	}
 }
@@ -1349,22 +1425,50 @@ void epoch_pimpl::pre()
 // For DynaML.xsd, the following is specified:
 //     <xs:attribute name="epoch" type="xs:string" use="optional" default="01.01.1994"/>
 // In this case, post_string() will return "01.01.1994"
-void epoch_pimpl::post_type(string& epoch, bool overridereferenceframe)
+void epoch_pimpl::post_type(std::string& epoch, std::string& fileEpoch,
+	bool userspecifiedreferenceframe, bool userspecifiedepoch, 
+	bool firstFile)
 {
 	// 1. Get the DnaXmlFormat epoch attribute value from the file
-	_epoch = post_string();
-
-	// 2. Does the user want to override the default datum?
-	if (overridereferenceframe)
-		// Do nothing, just return as epoch will become 
-		// the default for all stations and measurements loaded
-		// from the file.
-		return;
-
-	// Since import doesn't offer an option to capture epoch on the command line,
-	// take the epoch from the DnaXmlFormat referenceframe attribute 
+	_epoch = trimstr(post_string());
+	
+	// But, is this attribute value an empty string?  As long as a default value 
+	// is specified in DynaML.xsd, this value will never be empty, unless the user
+	// has inadvertently set in the xml file, e.g.:
+	//  <DnaXmlFormat epoch="" >
+	// Check anyway ...
 	if (_epoch.empty())
-		epoch = _epoch;	
+		// Set to the default epoch passed from import
+		_epoch = epoch;
+
+	// Capture epoch for the file
+	fileEpoch = _epoch;
+
+	// Set the epoch, provided the user does not want to 
+	// override all epoch information
+	// Note, epoch is contingent upon how the frame has been
+	// supplied
+	if (userspecifiedreferenceframe)
+	{
+		// A frame has been supplied. Now check for epoch.
+
+		// Has the user supplied an epoch on the command line (--epoch)?
+		if (!userspecifiedepoch)
+		{
+			// No epoch supplied. Take the epoch from the first file.
+			if (firstFile)
+				// If the user didn't specify a frame, take it from the file
+				epoch = _epoch;
+		}
+
+	}
+	else
+	{
+		// No frame supplied. Set the datum from the first file. 
+		// If the datum field is blank in the first file, the default will be used. 
+		if (firstFile)
+			epoch = _epoch;
+	}
 }
 
 // system_pimpl

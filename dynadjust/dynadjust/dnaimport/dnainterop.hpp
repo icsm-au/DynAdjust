@@ -79,10 +79,6 @@
 #include <include/functions/dnaiostreamfuncs.hpp>
 #include <include/functions/dnastringfuncs.hpp>
 
-using namespace std;
-using namespace boost;
-using namespace boost::filesystem;
-
 using namespace dynadjust::measurements;
 using namespace dynadjust::math;
 using namespace dynadjust::exception;
@@ -110,22 +106,22 @@ private:
 
 public:
 	// Parse an xml file
-	_PARSE_STATUS_ ParseInputFile(const string& filename, vdnaStnPtr* vStations, PUINT32 stnCount, 
+	_PARSE_STATUS_ ParseInputFile(const std::string& filename, vdnaStnPtr* vStations, PUINT32 stnCount, 
 		vdnaMsrPtr* vMeasurements, PUINT32 msrCount, 
-		PUINT32 clusterID, input_file_meta_t* input_file_meta,
-		string* success_msg, project_settings* p);
+		PUINT32 clusterID, input_file_meta_t* input_file_meta, bool firstFILE,
+		std::string* success_msg, project_settings* p);
 
-	_PARSE_STATUS_ LoadDNAGeoidFile(const string& fileName, vdnaStnPtr* vStations);
+	_PARSE_STATUS_ LoadDNAGeoidFile(const std::string& fileName, vdnaStnPtr* vStations);
 
 	void RemoveIgnoredMeasurements(vdnaMsrPtr* vMeasurements, MsrTally* parsemsrTally);
-	void IncludeMeasurementTypes(const string& includeMsrs, vdnaMsrPtr* vMeasurements, MsrTally* parsemsrTally);
-	void ExcludeMeasurementTypes(const string& excludeMsrs, vdnaMsrPtr* vMeasurements, MsrTally* parsemsrTally);
+	void IncludeMeasurementTypes(const std::string& includeMsrs, vdnaMsrPtr* vMeasurements, MsrTally* parsemsrTally);
+	void ExcludeMeasurementTypes(const std::string& excludeMsrs, vdnaMsrPtr* vMeasurements, MsrTally* parsemsrTally);
 	void IgnoreInsufficientMeasurements(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, pvstring vPoorlyConstrainedStns);
 
 	void ExcludeAllOutsideBoundingBox(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, 
 		StnTally* parsestnTally, MsrTally* parsemsrTally, pvstring pvUnusedStns, const project_settings& p,
 		bool& splitXmsrs, bool& splitYmsrs);
-	void ExtractStnsAndAssociatedMsrs(const string& stnListInclude, const string& stnListExclude, vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, 
+	void ExtractStnsAndAssociatedMsrs(const std::string& stnListInclude, const std::string& stnListExclude, vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, 
 		StnTally* parsestnTally, MsrTally* parsemsrTally, pvstring vExcludedStns, const project_settings& p,
 		bool& splitXmsrs, bool& splitYmsrs);
 	void ImportStnsMsrsFromBlock(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, const project_settings& p);
@@ -141,41 +137,43 @@ public:
 	void ReduceStations(vdnaStnPtr* vStations, const CDnaProjection& projection, const UINT32& cores);
 	void RenameStations(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, project_settings* p);
 	void ApplyDiscontinuities(vdnaMsrPtr* vMeasurements);
-	void TrackDiscontinuitySite(const string& site, const string& site_renamed);
+	void TrackDiscontinuitySite(const std::string& site, const std::string& site_renamed);
 	void ApplyDiscontinuitiesMeasurements(vdnaMsrPtr* vMeasurements);
 
-	void ApplyDiscontinuitiesMeasurements_GX(vector<CDnaGpsBaseline>* vGpsBaselines);
-	void ApplyDiscontinuitiesMeasurements_Y(vector<CDnaGpsPoint>* vGpsPoints);
-	void ApplyDiscontinuitiesMeasurements_D(vector<CDnaDirection>* vDirections, const date& site_date);
+	void ApplyDiscontinuitiesMeasurements_GX(std::vector<CDnaGpsBaseline>* vGpsBaselines);
+	void ApplyDiscontinuitiesMeasurements_Y(std::vector<CDnaGpsPoint>* vGpsPoints);
+	void ApplyDiscontinuitiesMeasurements_D(std::vector<CDnaDirection>* vDirections, const boost::gregorian::date& site_date);
 	
 	void AddDiscontinuityStations(vdnaStnPtr* vstationsTotal);
 
 	void EditGNSSMsrScalars(vdnaMsrPtr* vMeasurements, project_settings* p);
-	void ApplyGNSSMsrScalar(vector<CDnaGpsBaseline>::iterator& _it_bsl, vscl_t& bslScalars);
+	void ApplyGNSSMsrScalar(std::vector<CDnaGpsBaseline>::iterator& _it_bsl, vscl_t& bslScalars);
 
 	void MapMeasurementStations(vdnaMsrPtr* vMeasurements, pvASLPtr vAssocStnList, PUINT32 lMapCount, pvstring vUnusedStns, pvUINT32 vIgnoredMsrs);
 	UINT32 ComputeMeasurementCount(vdnaMsrPtr* vMeasurements, const vUINT32& vIgnoredMsrs);
 
 	// file handling
-	void SerialiseDNA(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, const string& stnfilename, const string& msrfilename, const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused=false);
-	//void SerialiseDynaMLfromBinary(const string& outfilename, const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused=false);
-	void SerialiseDynaMLfromMemory(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, const string& outfilename, const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused=false);
-	//void SerialiseDynaMLSepfromBinary(const string& stnfilename, const string& msrfilename, const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused=false);
-	void SerialiseDynaMLSepfromMemory(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, const string& stnfilename, const string& msrfilename, const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused=false);
-	//void SerialiseGeoidData(vdnaStnPtr* vStations, const string& geofilename);
-	void SimulateMSR(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, const string& msrfilename, const project_settings& p);
+	void SerialiseDNA(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, const std::string& stnfilename, const std::string& msrfilename, const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused=false);
+	void SerialiseMSR(vdnaMsrPtr* vMeasurements, const std::string& msrfilename, const project_settings& p, vifm_t* vinput_file_meta);
+	void SerialiseSTN(vdnaStnPtr* vStations, const std::string& stnfilename, const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused = false);
+	//void SerialiseDynaMLfromBinary(const std::string& outfilename, const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused=false);
+	void SerialiseDynaMLfromMemory(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, const std::string& outfilename, const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused=false);
+	//void SerialiseDynaMLSepfromBinary(const std::string& stnfilename, const std::string& msrfilename, const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused=false);
+	void SerialiseDynaMLSepfromMemory(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, const std::string& stnfilename, const std::string& msrfilename, const project_settings& p, vifm_t* vinput_file_meta, bool flagUnused=false);
+	//void SerialiseGeoidData(vdnaStnPtr* vStations, const std::string& geofilename);
+	void SimulateMSR(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, const std::string& msrfilename, const project_settings& p);
 
-	void SerialiseBst(const string& bst_filename, vdnaStnPtr* vStations, pvstring vUnusedStns, vifm_t& vinput_file_meta, bool flagUnused=false);
-	void SerialiseBms(const string& bms_filename, vdnaMsrPtr* vMeasurements, vifm_t& vinput_file_meta);
-	void SerialiseMap(const string& stnmap_file);
-	void SerialiseAml(const string& filename, pvUINT32 vAssocMsrList);
-	void SerialiseAsl(const string& filename, pvASLPtr vAssocStnList);
-	void SerialiseMapTextFile(const string& stnmap_file);
-	void SerialiseDiscontTextFile(const string& discont_file);
-	void SerialiseAmlTextFile(const string& bms_filename, const string& aml_filename, pvUINT32 vAML, pvASLPtr vAssocStnList, vdnaStnPtr* vStations);
-	void SerialiseAslTextFile(const string& filename, pvASLPtr vAssocStnList, vdnaStnPtr* vStations);
+	void SerialiseBst(const std::string& bst_filename, vdnaStnPtr* vStations, pvstring vUnusedStns, vifm_t& vinput_file_meta, bool flagUnused=false);
+	void SerialiseBms(const std::string& bms_filename, vdnaMsrPtr* vMeasurements, vifm_t& vinput_file_meta);
+	void SerialiseMap(const std::string& stnmap_file);
+	void SerialiseAml(const std::string& filename, pvUINT32 vAssocMsrList);
+	void SerialiseAsl(const std::string& filename, pvASLPtr vAssocStnList);
+	void SerialiseMapTextFile(const std::string& stnmap_file);
+	void SerialiseDiscontTextFile(const std::string& discont_file);
+	void SerialiseAmlTextFile(const std::string& bms_filename, const std::string& aml_filename, pvUINT32 vAML, pvASLPtr vAssocStnList, vdnaStnPtr* vStations);
+	void SerialiseAslTextFile(const std::string& filename, pvASLPtr vAssocStnList, vdnaStnPtr* vStations);
 
-	void SerialiseDatabaseId(const string& dbid_filename, pvdnaMsrPtr vMeasurements);
+	void SerialiseDatabaseId(const std::string& dbid_filename, pvdnaMsrPtr vMeasurements);
 
 	void CompleteAssociationLists(vdnaMsrPtr* vMeasurements, pvASLPtr vAssocStnList, pvUINT32 vAssocMsrList, const _AML_TYPE_ aml_type = str_msr);
 
@@ -186,66 +184,69 @@ public:
 
 	inline _PARSE_STATUS_ GetStatus() const { return parseStatus_; }
 
-	void inline ResetFileOrder() const { g_fileOrder = 0; }
-	void InitialiseDatum(const string& reference_frame);
-	void UpdateEpoch(const vifm_t* vinput_file_meta);
+	inline void ResetFileOrder() const { g_fileOrder = 0; }
+	inline bool filespecifiedReferenceFrame() const { return _filespecifiedreferenceframe; }
+	inline bool filespecifiedEpoch() const { return _filespecifiedepoch; }
+	void InitialiseDatum(const std::string& reference_frame, const std::string epoch="");
 	
-	void PrintMeasurementsToStations(string& m2s_file, MsrTally* parsemsrTally,
-		string& bst_file, string& bms_file, string& aml_file, pvASLPtr vAssocStnList);
+	void PrintMeasurementsToStations(std::string& m2s_file, MsrTally* parsemsrTally,
+		std::string& bst_file, std::string& bms_file, std::string& aml_file, pvASLPtr vAssocStnList);
 
 	// Discontonuity file
-	void ParseDiscontinuities(const string& fileName);
+	void ParseDiscontinuities(const std::string& fileName);
 
 private:
 	
 	// DynaML files
-	void ParseXML(const string& fileName, vdnaStnPtr* vStations, PUINT32 stnCount, 
+	void ParseXML(const std::string& fileName, vdnaStnPtr* vStations, PUINT32 stnCount, 
 							   vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID, 
-							   string& fileEpsg, string& fileEpoch, string* success_msg);
+							   std::string& fileEpsg, std::string& fileEpoch, bool firstFile, std::string* success_msg);
 	
 	// SINEX files
-	void ParseSNX(const string& fileName, vdnaStnPtr* vStations, PUINT32 stnCount, 
+	void ParseSNX(const std::string& fileName, vdnaStnPtr* vStations, PUINT32 stnCount, 
 							   vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID);
 	
 	// DNA Ascii files
 	//void ParseDNAVersion(const INPUT_DATA_TYPE& idt);
-	void ParseDNA(const string& fileName, vdnaStnPtr* vStations, PUINT32 stnCount, 
+	void ParseDNA(const std::string& fileName, vdnaStnPtr* vStations, PUINT32 stnCount, 
 							   vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID, 
-							   string& fileEpsg, string& fileEpoch);
-	void ParseDNASTN(vdnaStnPtr* vStations, PUINT32 stnCount);
-	void ParseDNAMSR(pvdnaMsrPtr vMeasurements, PUINT32 msrCount, PUINT32 clusterID);
+							   std::string& fileEpsg, std::string& fileEpoch, bool firstFile);
+	void ParseDNASTN(vdnaStnPtr* vStations, PUINT32 stnCount,
+								const std::string& fileEpsg, const std::string& fileEpoch);
+	void ParseDNAMSR(pvdnaMsrPtr vMeasurements, PUINT32 msrCount, PUINT32 clusterID,
+								const std::string& fileEpsg, const std::string& fileEpoch);
 
 	//void SetDefaultReferenceFrame(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements);
 
-	void ParseDNAMSRAngular(const string& sBuf, dnaMsrPtr& msr_ptr);
-	void ParseDNAMSRCoordinate(const string& sBuf, dnaMsrPtr& msr_ptr);
-	UINT32 ParseDNAMSRDirections(string& sBuf, dnaMsrPtr& msr_ptr, bool ignoreMsr);
-	void ParseDNAMSRGPSBaselines(string& sBuf, dnaMsrPtr& msr_ptr, bool ignoreMsr);
-	void ParseDNAMSRGPSPoints(string& sBuf, dnaMsrPtr& msr_ptr, bool ignoreMsr);
-	void ParseDNAMSRLinear(const string& sBuf, dnaMsrPtr& msr_ptr);
+	void ParseDNAMSRAngular(const std::string& sBuf, dnaMsrPtr& msr_ptr);
+	void ParseDNAMSRCoordinate(const std::string& sBuf, dnaMsrPtr& msr_ptr);
+	UINT32 ParseDNAMSRDirections(std::string& sBuf, dnaMsrPtr& msr_ptr, bool ignoreMsr);
+	void ParseDNAMSRGPSBaselines(std::string& sBuf, dnaMsrPtr& msr_ptr, bool ignoreMsr);
+	void ParseDNAMSRGPSPoints(std::string& sBuf, dnaMsrPtr& msr_ptr, bool ignoreMsr);
+	void ParseDNAMSRLinear(const std::string& sBuf, dnaMsrPtr& msr_ptr);
 	void ParseDNAMSRCovariance(CDnaCovariance& cov);
 
-	string ParseAngularValue(const string& sBuf, const string& calling_function);
-	string ParseLinearValue(const string& sBuf, const string& msrName, const string& calling_function);
-	string ParseGPSMsrValue(const string& sBuf, const string& element, const string& calling_function);
-	string ParseGPSVarValue(const string& sBuf, const string& element, const UINT32 location, const UINT32 width, const string& calling_function);
-	string ParseInstrumentValue(const string& sBuf, const string& calling_function);
-	string ParseTargetValue(const string& sBuf, const string& calling_function);
-	string ParseTarget2Value(const string& sBuf, const string& calling_function);
-	string ParseStdDevValue(const string& sBuf, const string& calling_function);
-	string ParseInstHeightValue(const string& sBuf, const string& calling_function);
-	string ParseTargHeightValue(const string& sBuf, const string& calling_function);
-	string ParseMsrCountValue(const string& sBuf, UINT32& msrCount, const string& calling_function);
-	string ParseScaleVValue(const string& sBuf, const string& calling_function);
-	string ParseScalePValue(const string& sBuf, const string& calling_function);
-	string ParseScaleLValue(const string& sBuf, const string& calling_function);
-	string ParseScaleHValue(const string& sBuf, const string& calling_function);
-	string ParseRefFrameValue(const string& sBuf, const string& calling_function);
-	string ParseEpochValue(const string& sBuf, const string& calling_function);
+	std::string ParseAngularValue(const std::string& sBuf, const std::string& calling_function);
+	std::string ParseLinearValue(const std::string& sBuf, const std::string& msrName, const std::string& calling_function);
+	std::string ParseGPSMsrValue(const std::string& sBuf, const std::string& element, const std::string& calling_function);
+	std::string ParseGPSVarValue(const std::string& sBuf, const std::string& element, const UINT32 location, const UINT32 width, const std::string& calling_function);
+	std::string ParseInstrumentValue(const std::string& sBuf, const std::string& calling_function);
+	std::string ParseTargetValue(const std::string& sBuf, const std::string& calling_function);
+	std::string ParseTarget2Value(const std::string& sBuf, const std::string& calling_function);
+	std::string ParseStdDevValue(const std::string& sBuf, const std::string& calling_function);
+	std::string ParseInstHeightValue(const std::string& sBuf, const std::string& calling_function);
+	std::string ParseTargHeightValue(const std::string& sBuf, const std::string& calling_function);
+	std::string ParseMsrCountValue(const std::string& sBuf, UINT32& msrCount, const std::string& calling_function);
+	std::string ParseScaleVValue(const std::string& sBuf, const std::string& calling_function);
+	std::string ParseScalePValue(const std::string& sBuf, const std::string& calling_function);
+	std::string ParseScaleLValue(const std::string& sBuf, const std::string& calling_function);
+	std::string ParseScaleHValue(const std::string& sBuf, const std::string& calling_function);
+	std::string ParseRefFrameValue(const std::string& sBuf, const std::string& calling_function);
+	std::string ParseEpochValue(const std::string& sBuf, const std::string& calling_function);
 
-	void ParseDatabaseIds(const string& sBuf, const string& calling_function, const char msrType);
-	void ParseDatabaseClusterId(const string& sBuf, const string& calling_function);
-	void ParseDatabaseMsrId(const string& sBuf, const string& calling_function);
+	void ParseDatabaseIds(const std::string& sBuf, const std::string& calling_function, const char msrType);
+	void ParseDatabaseClusterId(const std::string& sBuf, const std::string& calling_function);
+	void ParseDatabaseMsrId(const std::string& sBuf, const std::string& calling_function);
 
 	void LoadNetworkFiles(pvstn_t binaryStn, pvmsr_t binaryMsr, const project_settings& projectSettings, bool loadSegmentFile);
 	void LoadBinaryFiles(pvstn_t binaryStn, pvmsr_t binaryMsr);
@@ -264,29 +265,29 @@ private:
 		pvstring pvUsedStns, pvstring pvUnusedStns, const project_settings& p,
 		bool& splitXmsrs, bool& splitYmsrs);
 	void ExtractAssociatedStns(vdnaMsrPtr* vMeasurements, pvstring pvUsedStns);
-	void ExtractAssociatedStns_GX(vector<CDnaGpsBaseline>* vGpsBaselines, pvstring pvUsedStns);
-	void ExtractAssociatedStns_Y(vector<CDnaGpsPoint>* vGpsPoints, pvstring pvUsedStns);
-	void ExtractAssociatedStns_D(vector<CDnaDirection>* vDirections, pvstring pvUsedStns);
+	void ExtractAssociatedStns_GX(std::vector<CDnaGpsBaseline>* vGpsBaselines, pvstring pvUsedStns);
+	void ExtractAssociatedStns_Y(std::vector<CDnaGpsPoint>* vGpsPoints, pvstring pvUsedStns);
+	void ExtractAssociatedStns_D(std::vector<CDnaDirection>* vDirections, pvstring pvUsedStns);
 
 	void SortandMapStations(vdnaStnPtr* vStations);
 
-	void MapMeasurementStationsBsl(vector<CDnaGpsBaseline>* vGpsBaselines,
+	void MapMeasurementStationsBsl(std::vector<CDnaGpsBaseline>* vGpsBaselines,
 		pvASLPtr vAssocStnList, PUINT32 lMapCount);
-	void MapMeasurementStationsPnt(vector<CDnaGpsPoint>* vGpsPoints,
+	void MapMeasurementStationsPnt(std::vector<CDnaGpsPoint>* vGpsPoints,
 		pvASLPtr vAssocStnList, PUINT32 lMapCount);
-	void MapMeasurementStationsDir(vector<CDnaDirection>* vDirections,
+	void MapMeasurementStationsDir(std::vector<CDnaDirection>* vDirections,
 		pvASLPtr vAssocStnList, PUINT32 lMapCount);
 	
 	//void RenameStationsMsr(CDnaMeasurement* msr, v_string_string_pair& variables);
-	void RenameStationsBsl(vector<CDnaGpsBaseline>* vGpsBaselines, v_string_vstring_pair& stnRenaming);
-	void RenameStationsPnt(vector<CDnaGpsPoint>* vGpsPoints, v_string_vstring_pair& stnRenaming);
-	void RenameStationsDir(vector<CDnaDirection>* vDirections, v_string_vstring_pair& stnRenaming);
+	void RenameStationsBsl(std::vector<CDnaGpsBaseline>* vGpsBaselines, v_string_vstring_pair& stnRenaming);
+	void RenameStationsPnt(std::vector<CDnaGpsPoint>* vGpsPoints, v_string_vstring_pair& stnRenaming);
+	void RenameStationsDir(std::vector<CDnaDirection>* vDirections, v_string_vstring_pair& stnRenaming);
 	
-	void CompleteASLDirections(_it_vdnamsrptr _it_msr, vector<CDnaDirection>* vDirections, pvASLPtr vAssocStnList, 
+	void CompleteASLDirections(_it_vdnamsrptr _it_msr, std::vector<CDnaDirection>* vDirections, pvASLPtr vAssocStnList, 
 		pvUINT32 vAssocMsrList, PUINT32 currentBmsFileIndex, const _AML_TYPE_ aml_type);
-	void CompleteASLGpsBaselines(vector<CDnaGpsBaseline>* vGpsBaselines, pvASLPtr vAssocStnList, 
+	void CompleteASLGpsBaselines(std::vector<CDnaGpsBaseline>* vGpsBaselines, pvASLPtr vAssocStnList, 
 		pvUINT32 vAssocMsrList, PUINT32 currentBmsFileIndex, const _AML_TYPE_ aml_type);
-	void CompleteASLGpsPoints(vector<CDnaGpsPoint>* vGpsPoints, pvASLPtr vAssocStnList, 
+	void CompleteASLGpsPoints(std::vector<CDnaGpsPoint>* vGpsPoints, pvASLPtr vAssocStnList, 
 		pvUINT32 vAssocMsrList, PUINT32 currentBmsFileIndex, const _AML_TYPE_ aml_type);
 
 	//void FindUnusedStationsInIgnoredMeasurements(vdnaMsrPtr* vMeasurements, pvASLPtr vAssocStnList, pvUINT32 vAssocMsrList, pvstring vUnusedStns, pvUINT32 vIgnoredMsrs);
@@ -295,22 +296,22 @@ private:
 	void SerialiseXmlMsr(std::ifstream* ifs_stns, std::ifstream* ifs_msrs, std::ofstream* ofs_dynaml);
 
 	void InitialiseDynaMLSepStationFile(const project_settings& p, vifm_t* vinput_file_meta,
-		const string& stnfilename, std::ofstream* dynaml_stn_file);
+		const std::string& stnfilename, std::ofstream* dynaml_stn_file);
 	void InitialiseDynaMLSepMeasurementFile(const project_settings& p, vifm_t* vinput_file_meta,
-		const string& msrfilename, std::ofstream* dynaml_msr_file);
+		const std::string& msrfilename, std::ofstream* dynaml_msr_file);
 
 	void InitialiseDynaMLFile(const project_settings& p, vifm_t* vinput_file_meta,
-		const string& outfilename, std::ofstream* dynaml_file);
+		const std::string& outfilename, std::ofstream* dynaml_file);
 
 	void DetermineBoundingBox();
-	void BuildExtractStationsList(const string& stnList, pvstring vstnList);
+	void BuildExtractStationsList(const std::string& stnList, pvstring vstnList);
 	
 	void RemoveNonMeasurements(const UINT32& block, pvmsr_t binaryMsr);
 
 	void SignalComplete();
-	void SignalExceptionParseDNA(const string& message, const string& sBuf, const int& column_no);
-	void SignalExceptionParse(string msg, int i);
-	void SignalExceptionInterop(string msg, int i, const char *streamType, ...);
+	void SignalExceptionParseDNA(const std::string& message, const std::string& sBuf, const int& column_no);
+	void SignalExceptionParse(std::string msg, int i);
+	void SignalExceptionInterop(std::string msg, int i, const char *streamType, ...);
 
 	
 	project_settings		projectSettings_;
@@ -342,9 +343,9 @@ private:
 	UINT32		m_lineNo;
 	UINT32		m_columnNo;
 
-	string		m_strProjectDefaultEpsg;
-	string		m_strProjectDefaultEpoch;
-	string		m_msrComments;
+	std::string		m_strProjectDefaultEpsg;
+	std::string		m_strProjectDefaultEpoch;
+	std::string		m_msrComments;
 
 	vvUINT32	v_ISL_;				// Inner stations
 	vvUINT32	v_JSL_;				// Junction stations
@@ -374,6 +375,9 @@ private:
 	void LoadDatabaseId();
 
 	vUINT32 v_measurementCount_, v_unknownsCount_, v_ContiguousNetList_, v_parameterStationCount_;
+
+	bool _filespecifiedreferenceframe;
+	bool _filespecifiedepoch;
 
 };
 

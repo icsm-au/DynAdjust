@@ -27,7 +27,7 @@
 namespace dynadjust {
 namespace iostreams {
 	
-void dna_io_tpb::load_tpb_file(const string& tpb_filename, v_string_v_doubledouble_pair& global_plates)
+void dna_io_tpb::load_tpb_file(const std::string& tpb_filename, v_string_v_doubledouble_pair& global_plates)
 {
 	// From the standard:
 	// PB2002_plates.dig.For some applications it is necessary to
@@ -62,26 +62,26 @@ void dna_io_tpb::load_tpb_file(const string& tpb_filename, v_string_v_doubledoub
 	//   *** end of line segment ***
 
 	std::ifstream tpb_file;
-	stringstream ss;
-	ss << "load_tpb_file(): An error was encountered when opening " << tpb_filename << "." << endl;
+	std::stringstream ss;
+	ss << "load_tpb_file(): An error was encountered when opening " << tpb_filename << "." << std::endl;
 	
 	try {
 		// open ascii plate boundaries file.  Throws runtime_error on failure.
-		file_opener(tpb_file, tpb_filename, ios::in, ascii, true);
+		file_opener(tpb_file, tpb_filename, std::ios::in, ascii, true);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 
 	ss.str("");
-	ss << "load_tpb_file(): An error was encountered when reading from " << tpb_filename << "." << endl;
+	ss << "load_tpb_file(): An error was encountered when reading from " << tpb_filename << "." << std::endl;
 
 	v_doubledouble_pair plate_nodes;
-	string plate_name, node_coordinates;
+	std::string plate_name, node_coordinates;
 	vstring coordinates;
 
 	try {
@@ -99,7 +99,7 @@ void dna_io_tpb::load_tpb_file(const string& tpb_filename, v_string_v_doubledoub
 			
 			// Ignore lines with comments
 			if ((plate_name.compare(0, 1, "*") == 0) &&
-				!iequals(plate_name.substr(0, 7), "*** end"))
+				!boost::iequals(plate_name.substr(0, 7), "*** end"))
 				continue;
 
 			str_toupper<int>(plate_name);
@@ -107,12 +107,12 @@ void dna_io_tpb::load_tpb_file(const string& tpb_filename, v_string_v_doubledoub
 			// get the next set of plate coordinates
 			getline(tpb_file, node_coordinates);
 
-			while (!iequals(node_coordinates.substr(0, 7), "*** end"))
+			while (!boost::iequals(node_coordinates.substr(0, 7), "*** end"))
 			{
 				// Extract coordinates from comma delimited string
-				SplitDelimitedString<string>(
+				SplitDelimitedString<std::string>(
 					node_coordinates,				// the comma delimited string
-					string(","),				// the delimiter
+					std::string(","),				// the delimiter
 					&coordinates);			// the respective values
 
 				plate_nodes.push_back(doubledouble_pair(
@@ -131,18 +131,18 @@ void dna_io_tpb::load_tpb_file(const string& tpb_filename, v_string_v_doubledoub
 
 		tpb_file.close();
 	}
-	catch (const ios_base::failure& f) {
+	catch (const std::ios_base::failure& f) {
 		if (tpb_file.eof())
 		{
 			tpb_file.close();
 			return;
 		}
 		ss << f.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
 		if (tpb_file.eof())
@@ -150,13 +150,13 @@ void dna_io_tpb::load_tpb_file(const string& tpb_filename, v_string_v_doubledoub
 			tpb_file.close();
 			return;
 		}
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}	
 
 	return;
 }
 
-void dna_io_tpb::load_tpp_file(const string& tpp_filename, v_plate_motion_eulers& plate_pole_parameters)
+void dna_io_tpb::load_tpp_file(const std::string& tpp_filename, v_plate_motion_eulers& plate_pole_parameters)
 {
 	// Tectonic pole parameters file structure is as follows.
 	// Note - coordinates are in degrees.
@@ -165,26 +165,26 @@ void dna_io_tpb::load_tpp_file(const string& tpp_filename, v_plate_motion_eulers
 	//
 
 	std::ifstream tpp_file;
-	stringstream ss;
-	ss << "load_tpp_file(): An error was encountered when opening " << tpp_filename << "." << endl;
+	std::stringstream ss;
+	ss << "load_tpp_file(): An error was encountered when opening " << tpp_filename << "." << std::endl;
 
 	try {
 		// open ascii pole parameters file.  Throws runtime_error on failure.
-		file_opener(tpp_file, tpp_filename, ios::in, ascii, true);
+		file_opener(tpp_file, tpp_filename, std::ios::in, ascii, true);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 
 	ss.str("");
-	ss << "load_tpp_file(): An error was encountered when reading from " << tpp_filename << "." << endl;
+	ss << "load_tpp_file(): An error was encountered when reading from " << tpp_filename << "." << std::endl;
 
 	plate_motion_euler pmm;
-	string record;
+	std::string record;
 
 	try {
 
@@ -221,18 +221,18 @@ void dna_io_tpb::load_tpp_file(const string& tpp_filename, v_plate_motion_eulers
 
 		tpp_file.close();
 	}
-	catch (const ios_base::failure& f) {
+	catch (const std::ios_base::failure& f) {
 		if (tpp_file.eof())
 		{
 			tpp_file.close();
 			return;
 		}
 		ss << f.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
 		if (tpp_file.eof())
@@ -240,14 +240,14 @@ void dna_io_tpb::load_tpp_file(const string& tpp_filename, v_plate_motion_eulers
 			tpp_file.close();
 			return;
 		}
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 
 	return;
 }
 
 bool dna_io_tpb::validate_plate_files(v_string_v_doubledouble_pair& global_plates,
-	v_plate_motion_eulers& plate_pole_parameters, string& message)
+	v_plate_motion_eulers& plate_pole_parameters, std::string& message)
 {
 	if (plate_pole_parameters.size() != global_plates.size())
 	{

@@ -54,13 +54,6 @@
 #include <include/config/dnaoptions-interface.hpp>
 #include <dynadjust/dnaadjust/dnaadjust.hpp>
 
-using namespace std;
-using namespace boost;
-using namespace boost::filesystem;
-using namespace boost::posix_time;
-using namespace boost::program_options;
-namespace po = boost::program_options;
-
 using namespace dynadjust::networkadjust;
 using namespace dynadjust::exception;
 using namespace dynadjust::iostreams;

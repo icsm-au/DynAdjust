@@ -74,6 +74,7 @@ const char* const BIN_MSR_FILE = "binary-msr-file";
 const char* const BIN_MSR_FILE_M = "binary-msr-file,m";
 const char* const CONVERT_BST_HT = "convert-stn-hts";
 const char* const HELP_MODULE = "help-module";
+const char* const HELP_MODULE_H = "help-module,?";
 const char* const HELP = "help";
 const char* const HELP_H = "help,h";
 const char* const VERSION = "version";
