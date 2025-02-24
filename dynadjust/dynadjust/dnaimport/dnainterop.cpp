@@ -1081,7 +1081,6 @@ void dna_import::ParseDNA(const std::string& fileName, vdnaStnPtr* vStations, PU
 		// reference frame based on the header and user preferences
 		dnaFile.read_dna_header(ifsInputFILE_, version, idt,			
 			datum_,											// project datum
-			projectSettings_.i.user_supplied_frame==1,		// Has a reference frame been supplied?
 			fileEpsg, fileEpoch, geoversion, count);
 		// release file pointer mutex
 		import_file_mutex.unlock();

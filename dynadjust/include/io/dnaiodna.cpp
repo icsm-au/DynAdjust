@@ -165,7 +165,7 @@ void dna_io_dna::read_ren_file(const std::string& filename, pv_string_vstring_pa
 	UINT32 count(0);
 
 	// read header information
-	read_dna_header(&renaming_file, version, idt, datum, false, fileEpsg, fileEpoch, geoidVersion, count);
+	read_dna_header(&renaming_file, version, idt, datum, fileEpsg, fileEpoch, geoidVersion, count);
 
 	read_ren_data(&renaming_file, stnRenaming);
 
@@ -249,7 +249,7 @@ void dna_io_dna::read_ren_data(std::ifstream* ptr, pv_string_vstring_pair stnRen
 	
 
 void dna_io_dna::read_dna_header(std::ifstream* ptr, std::string& version, INPUT_DATA_TYPE& idt, 
-	CDnaDatum& referenceframe, bool user_supplied_frame,
+	CDnaDatum& referenceframe,
 	std::string& fileEpsg, std::string& fileEpoch, std::string& geoidversion, UINT32& count)
 {
 	std::string sBuf;

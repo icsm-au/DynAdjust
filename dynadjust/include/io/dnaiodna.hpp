@@ -95,7 +95,7 @@ public:
 		const CDnaDatum& datum, const std::string& comment);
 
 	void read_dna_header(std::ifstream* ptr, std::string& version, INPUT_DATA_TYPE& idt,
-		CDnaDatum& referenceframe, bool user_supplied_frame,
+		CDnaDatum& referenceframe, 
 		std::string& fileEpsg, std::string& fileEpoch, std::string& geoidversion, UINT32& count);
 
 	inline const dna_stn_fields	dna_stn_positions() { return dsl_; }
