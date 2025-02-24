@@ -1140,8 +1140,8 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 					{
 						epochSource << "  - Warning: File epoch (" << inputFileEpoch << ") will be ignored." << std::endl;
 						if (!p.g.quiet)
-							std::cout << epochSource.str() << std::endl;
-						*imp_file << epochSource.str() << std::endl;
+							std::cout << epochSource.str();
+						*imp_file << epochSource.str();
 					}
 					else
 					{
