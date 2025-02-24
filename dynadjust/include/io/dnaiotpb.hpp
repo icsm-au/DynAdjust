@@ -37,7 +37,7 @@ namespace iostreams {
 
 /////////////////////////////////////////////////////////////
 // Custom type to manage euler plate motion model parameters
-template <class T1 = string, class T2 = double>
+template <class T1 = std::string, class T2 = double>
 struct plate_motion_euler_t
 {
 	T1 plate_name;
@@ -75,15 +75,15 @@ struct plate_motion_euler_t
 
 };
 
-typedef plate_motion_euler_t<string, double> plate_motion_euler;
-typedef vector<plate_motion_euler> v_plate_motion_eulers;
+typedef plate_motion_euler_t<std::string, double> plate_motion_euler;
+typedef std::vector<plate_motion_euler> v_plate_motion_eulers;
 typedef v_plate_motion_eulers::iterator it_plate_motion_euler;
 /////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////
 // Custom type to manage cartesian plate motion model parameters
-template <class T1 = string, class T2 = double>
+template <class T1 = std::string, class T2 = double>
 struct plate_motion_cartesian_t
 {
 	T1 plate_name;
@@ -124,8 +124,8 @@ struct plate_motion_cartesian_t
 
 };
 
-typedef plate_motion_cartesian_t<string, double> plate_motion_cartesian;
-typedef vector<plate_motion_cartesian> v_plate_motion_cartesians;
+typedef plate_motion_cartesian_t<std::string, double> plate_motion_cartesian;
+typedef std::vector<plate_motion_cartesian> v_plate_motion_cartesians;
 typedef v_plate_motion_cartesians::iterator it_plate_motion_cartesian;
 /////////////////////////////////////////////////////////////
 
@@ -139,11 +139,11 @@ public:
 
 	dna_io_tpb& operator=(const dna_io_tpb& rhs);
 
-	void load_tpb_file(const string& tpb_filename, v_string_v_doubledouble_pair& global_plates);
-	void load_tpp_file(const string& tpp_filename, v_plate_motion_eulers& plate_pole_parameters);
+	void load_tpb_file(const std::string& tpb_filename, v_string_v_doubledouble_pair& global_plates);
+	void load_tpp_file(const std::string& tpp_filename, v_plate_motion_eulers& plate_pole_parameters);
 
 	bool validate_plate_files(v_string_v_doubledouble_pair& global_plates, 
-		v_plate_motion_eulers& plate_pole_parameters, string& message);
+		v_plate_motion_eulers& plate_pole_parameters, std::string& message);
 
 protected:
 	

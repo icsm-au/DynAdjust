@@ -5,6 +5,13 @@
 
 #pragma once
 
+// prevent conflict with std::min(...) std::max(...)
+#ifdef _WIN32
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#endif
+
 #include <windows.h>
 
 #include <boost/timer/timer.hpp>

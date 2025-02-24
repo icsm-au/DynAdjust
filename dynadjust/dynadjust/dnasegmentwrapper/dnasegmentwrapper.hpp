@@ -49,13 +49,6 @@
 #include <boost/program_options/variables_map.hpp>
 #include <boost/filesystem.hpp>
 
-using namespace std;
-using namespace boost;
-using namespace boost::filesystem;
-using namespace boost::posix_time;
-using namespace boost::program_options;
-namespace po = boost::program_options;
-
 #include <include/config/dnaversion.hpp>
 #include <include/config/dnaconsts.hpp>
 #include <include/config/dnaoptions-interface.hpp>
@@ -77,7 +70,7 @@ extern boost::mutex cout_mutex;
 class dna_segment_thread
 {
 public:
-	dna_segment_thread(dna_segment* dnaSeg, project_settings* p, _SEGMENT_STATUS_* segmentStatus, milliseconds* s, string* status_msg)
+	dna_segment_thread(dna_segment* dnaSeg, project_settings* p, _SEGMENT_STATUS_* segmentStatus, boost::posix_time::milliseconds* s, std::string* status_msg)
 		: _dnaSeg(dnaSeg)
 		, _p(p)
 		, _segmentStatus(segmentStatus)
@@ -90,7 +83,7 @@ public:
 		if (!_p->g.quiet)
 		{
 			cout_mutex.lock();
-			cout << "+ Loading binary files...";
+			std::cout << "+ Loading binary files...";
 			cout_mutex.unlock();
 		}
 		
@@ -100,7 +93,7 @@ public:
 		} 
 		catch (const NetSegmentException& e) {
 			cout_mutex.lock();
-			cout << endl << "- Error: " << e.what() << endl;
+			std::cout << std::endl << "- Error: " << e.what() << std::endl;
 			cout_mutex.unlock();
 			running = false;
 			return;
@@ -109,19 +102,19 @@ public:
 		if (!_p->g.quiet)
 		{
 			cout_mutex.lock();
-			cout << " done." << endl;
+			std::cout << " done." << std::endl;
 
 			if (_dnaSeg->StartingStations().empty())
 			{
-				string startStn(_dnaSeg->DefaultStartingStation());
+				std::string startStn(_dnaSeg->DefaultStartingStation());
 				if (startStn == "")
 					startStn = "the first station";
-				cout << "+ Adopting " << _dnaSeg->DefaultStartingStation() << " as the initial station in the first block." << endl;
+				std::cout << "+ Adopting " << _dnaSeg->DefaultStartingStation() << " as the initial station in the first block." << std::endl;
 			}
-			cout << "+ Creating block " << setw(PROGRESS_PAD_39) << " ";
+			std::cout << "+ Creating block " << std::setw(PROGRESS_PAD_39) << " ";
 			cout_mutex.unlock();
 		}
-		cpu_timer time;
+		boost::timer::cpu_timer time;
 		try {
 			*_segmentStatus = SEGMENT_EXCEPTION_RAISED;
 			*_segmentStatus = _dnaSeg->SegmentNetwork(_p);
@@ -129,26 +122,26 @@ public:
 		catch (const NetSegmentException& e) {
 			running = false;
 			cout_mutex.lock();
-			cout << endl << "- Error: " << e.what() << endl;
+			std::cout << std::endl << "- Error: " << e.what() << std::endl;
 			cout_mutex.unlock();
 			return;
 		}
-		catch (const runtime_error& e) {
+		catch (const std::runtime_error& e) {
 			running = false;
-			boost::this_thread::sleep(milliseconds(250));
+			boost::this_thread::sleep(boost::posix_time::milliseconds(250));
 			cout_mutex.lock();
-			cout << endl << "- Error: " << e.what() << endl;
+			std::cout << std::endl << "- Error: " << e.what() << std::endl;
 			cout_mutex.unlock();
 			return;
 		}
 
-		*_s = milliseconds(time.elapsed().wall/MILLI_TO_NANO);
+		*_s = boost::posix_time::milliseconds(time.elapsed().wall/MILLI_TO_NANO);
 		running = false;
 		
 		if (!_p->g.quiet)
 		{
 			cout_mutex.lock();
-			cout << PROGRESS_BACKSPACE_39 << "\b" << setw(PROGRESS_PAD_39+3) << left << "s... done.   " << endl;
+			std::cout << PROGRESS_BACKSPACE_39 << "\b" << std::setw(PROGRESS_PAD_39+3) << std::left << "s... done.   " << std::endl;
 			cout_mutex.unlock();
 		}		
 	}
@@ -156,8 +149,8 @@ private:
 	dna_segment*		_dnaSeg;
 	project_settings*	_p;
 	_SEGMENT_STATUS_*	_segmentStatus;
-	milliseconds*		_s;
-	string*				_status_msg;
+	boost::posix_time::milliseconds*		_s;
+	std::string*				_status_msg;
 };
 
 class dna_segment_progress_thread
@@ -168,7 +161,7 @@ public:
 	void operator()()
 	{
 		UINT32 block, currentBlock(0);
-		ostringstream ss;
+		std::ostringstream ss;
 		
 		while (running)
 		{
@@ -178,15 +171,15 @@ public:
 				if (block != currentBlock)
 				{
 					ss.str("");
-					ss << "(" << fixed << setw(2) << right << setprecision(0) << _dnaSeg->GetProgress() << "% stations used)";
+					ss << "(" << std::fixed << std::setw(2) << std::right << std::setprecision(0) << _dnaSeg->GetProgress() << "% stations used)";
 					cout_mutex.lock();
-					cout << PROGRESS_BACKSPACE_39 << setw(PROGRESS_BLOCK) << left << block << setw(PROGRESS_PERCENT_29) << right << ss.str();
-					cout.flush();
+					std::cout << PROGRESS_BACKSPACE_39 << std::setw(PROGRESS_BLOCK) << std::left << block << std::setw(PROGRESS_PERCENT_29) << std::right << ss.str();
+					std::cout.flush();
 					cout_mutex.unlock();
 					currentBlock = block;
 				}
 			}
-			boost::this_thread::sleep(milliseconds(75));
+			boost::this_thread::sleep(boost::posix_time::milliseconds(75));
 		}	
 	}
 

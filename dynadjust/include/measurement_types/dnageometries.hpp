@@ -34,9 +34,6 @@
 #include <boost/geometry/geometries/register/point.hpp>
 #include <boost/geometry/multi/geometries/multi_polygon.hpp>
 
-using namespace std;
-using namespace boost::geometry;
-
 namespace dynadjust {
 namespace geometries {
 

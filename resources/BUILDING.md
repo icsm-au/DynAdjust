@@ -25,7 +25,7 @@ The following build instructions are only needed if you would like to build DynA
 
 To build DynAdjust, the following prerequisites will be needed:
 
-- A C++14 compiler (e.g. gcc, Microsoft Visual Studio or Apple LLVM (clang))
+- A C++14, C++17 or C++20 compiler (e.g. gcc, Microsoft Visual Studio or Apple LLVM (clang))
 - Boost C++ headers and libraries
 - Apache Xerces C++ headers and libraries
 - Codesynthesis XSD headers and libraries
@@ -48,11 +48,11 @@ C++ is required for compiling all DynAdjust binaries.  MFC is required only for 
 
 #### 1.2 Install Boost C++ headers and libraries
 
-The supported versions of boost are 1.58.0 – 1.78.0. The headers and library sources are available from https://www.boost.org/users/download/
+The supported versions of boost are 1.58.0 – 1.87.0. The headers and library sources are available from https://www.boost.org/users/download/
 
 The boost libraries needed by DynAdjust include `filesystem`, `system`, `program_options`, `thread`, `date_time`, `math`, `timer`, `atomic` and `chrono`. These will need to be built from the boost C++ sources using Visual Studio 2022, and installed to a suitable folder on your machine.
 
-Follow the instructions on the [Boost Website](https://www.boost.org/doc/libs/1_78_0/more/getting_started/windows.html#prepare-to-use-a-boost-library-binary) to build the boost libraries from source.  For example, the steps are: 
+Follow the instructions on the [Boost Website](https://www.boost.org/doc/libs/1_87_0/more/getting_started/windows.html#prepare-to-use-a-boost-library-binary) to build the boost libraries from source.  For example, the steps are: 
 
 1. Download and extract boost to a suitable folder
 2. Run `Bootstrap.bat` to build `b2`
@@ -73,7 +73,7 @@ rem build b2 using VS 2022
 call bootstrap.bat vc143
 
 rem Directory to boost root
-set boost_dir=boost_1_78_0
+set boost_dir=boost_1_87_0
 
 rem Store compiled libraries in directories corresponding to 64-bit and 32-bit.
 set stage_64=C:\Data\boost\%boost_dir%\lib\x64
@@ -118,8 +118,8 @@ provides a convenient way to reference custom boost C++ file paths across the en
 
 By default, the boost paths are set as follows. Change these to match the location of the boost header files and libraries on your machine, making sure that `\lib\` contains two folders named `x64` and `Win32` if you need to build 64-bit and 32-bit binaries respectively.
 
-- **BoostIncludeDir:**  `C:\Data\boost\boost_1_78_0\include\`
-- **BoostLibDir:** `C:\Data\boost\boost_1_78_0\lib\$(Platform)`
+- **BoostIncludeDir:**  `C:\Data\boost\boost_1_87_0\include\`
+- **BoostLibDir:** `C:\Data\boost\boost_1_87_0\lib\$(Platform)`
 
 #### 1.3 Install CodeSynthesis XSD and Apache xerces-c headers and libraries
 
@@ -191,7 +191,7 @@ The specific Linux/Mac prerequisites for building DynaAdjust include the followi
 - gcc-c++ (with std C++ 14 support), with a compatible version of make
 - cmake (minimum v3.13)
 - Intel oneAPI Math Kernel Library (MKL)
-- boost-devel (minimum v1.58.0. v1.78.0 preferred)
+- boost-devel (minimum v1.58.0. v1.87.0 preferred)
 - xerces-c (3.1.4)
 - xsd (4.0)
 - git (if cloning copies from the GitHub repository)

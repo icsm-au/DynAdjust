@@ -43,18 +43,16 @@ typedef enum _MEM_UNIT_ {
 // the following will be truncated
 //const UINT32 TERABYTE_SIZE = 1099511627776;		// 2 ^ 40
 
-using namespace std;
-
 namespace dynadjust { namespace memory {
 
 class new_handler_holder 
 {
 public:
-	explicit new_handler_holder(new_handler nh)					// acquire current
+	explicit new_handler_holder(std::new_handler nh)					// acquire current
 		: _handler(nh) {}										// new handler
-	~new_handler_holder() { set_new_handler(_handler); }		// release it
+	~new_handler_holder() { std::set_new_handler(_handler); }		// release it
 private:
-	new_handler _handler;
+	std::new_handler _handler;
 	new_handler_holder(const new_handler_holder&);				// prevent copying
 	new_handler_holder& operator=(const new_handler_holder&);	//   ''      ''
 };
@@ -62,17 +60,17 @@ private:
 template<typename T>
 class new_handler_support {
 public:
-	static new_handler set_new_handler(new_handler p) noexcept;
+	static std::new_handler set_new_handler(std::new_handler p) noexcept;
 	static void* operator new(size_t size) noexcept(false);
 
 private:
-	static new_handler _current_handler;
+	static std::new_handler _current_handler;
 };
 
 template<typename T>
-new_handler new_handler_support<T>::set_new_handler(new_handler p) noexcept
+std::new_handler new_handler_support<T>::set_new_handler(std::new_handler p) noexcept
 {
-	new_handler old_handler = _current_handler;
+	std::new_handler old_handler = _current_handler;
 	_current_handler = p;
 	return old_handler;
 }
@@ -80,13 +78,13 @@ new_handler new_handler_support<T>::set_new_handler(new_handler p) noexcept
 template<typename T>
 void* new_handler_support<T>::operator new(size_t size) noexcept(false)
 {
-	new_handler_holder h(set_new_handler(_current_handler));
+	new_handler_holder h(std::set_new_handler(_current_handler));
 	return ::operator new(size);
 }
 
 // this initialises each _current_handler to null
 template<typename T>
-new_handler new_handler_support<T>::_current_handler = 0;
+std::new_handler new_handler_support<T>::_current_handler = 0;
 	
 }	// namespace memory 
 }	// namespace dynadjust 

@@ -22,6 +22,10 @@
 #define _SECURE_ATL 1
 #endif
 
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+
 #ifndef VC_EXTRALEAN
 #define VC_EXTRALEAN            // Exclude rarely-used stuff from Windows headers
 #endif
@@ -46,12 +50,6 @@
 #include <afxcontrolbars.h>     // MFC support for ribbons and control bars
 
 #include <dynadjust/dnageoid/dnageoid.hpp>
-
-using namespace std;
-
-
-
-
 
 #ifdef _UNICODE
 #if defined _M_IX86

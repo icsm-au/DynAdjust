@@ -36,7 +36,6 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include <stdlib.h>
 #include <math.h>
 #include <iostream>
 
@@ -45,9 +44,6 @@
 
 #include <include/config/dnatypes.hpp>
 #include <include/config/dnaconsts.hpp>
-
-using namespace std;
-using namespace boost;
 
 template <class U>
 U sumOfConsecutiveIntegers(const U& max, const U& min = 1)

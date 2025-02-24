@@ -34,7 +34,6 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include <stdlib.h>
 #include <math.h>
 #include <iostream>
 
@@ -46,19 +45,17 @@
 #include <include/math/dnamatrix_contiguous.hpp>
 #include <include/measurement_types/dnameasurement.hpp>
 
-using namespace std;
-using namespace boost;
-
 using namespace dynadjust::datum_parameters;
 using namespace dynadjust::math;
 
-// msr_t_Iterator = vector<measurement_t>::iterator
+// msr_t_Iterator = std::vector<measurement_t>::iterator
 template<typename msr_t_Iterator>
 // Fills upper triangle
 void GetDirectionsVarianceMatrix(msr_t_Iterator begin, matrix_2d* vmat)
 {
 	msr_t_Iterator bmsRecord(begin);
-	UINT32 a, angle_count(bmsRecord->vectorCount1 - 1);		// number of directions excluding the RO
+	UINT32 a, angle_count(bmsRecord->vectorCount2 - 1);		// number of directions excluding the RO
+	UINT32 skip(0), ignored(bmsRecord->vectorCount1 - bmsRecord->vectorCount2);
 
 	vmat->zero();
 	vmat->redim(angle_count, angle_count);
@@ -67,6 +64,18 @@ void GetDirectionsVarianceMatrix(msr_t_Iterator begin, matrix_2d* vmat)
 
 	for (a=0; a<angle_count; ++a)
 	{
+		// Ignored direction?
+		if (bmsRecord->ignore)
+		{
+			while (skip < ignored)
+			{
+				skip++;
+				bmsRecord++;
+				if (!bmsRecord->ignore)
+					break;
+			}
+		}
+
 		vmat->put(a, a, bmsRecord->scale2);				// derived angle variance
 		if (a+1 < angle_count)
 			vmat->put(a, a+1, bmsRecord->scale3);		// derived angle covariance
@@ -117,13 +126,14 @@ void GetGPSVarianceMatrix(const msr_t_Iterator begin, matrix_2d* vmat)
 }
 
 
-// msr_t_Iterator = vector<measurement_t>::iterator
+// msr_t_Iterator = std::vector<measurement_t>::iterator
 template<typename msr_t_Iterator>
 // Sets values based on upper triangle
 void SetDirectionsVarianceMatrix(msr_t_Iterator begin, const matrix_2d& vmat)
 {
 	msr_t_Iterator bmsRecord(begin);
-	UINT32 a, angle_count(bmsRecord->vectorCount1 - 1);		// number of directions excluding the RO
+	UINT32 a, angle_count(bmsRecord->vectorCount2 - 1);		// number of directions excluding the RO
+	UINT32 skip(0), ignored(bmsRecord->vectorCount1 - bmsRecord->vectorCount2);
 
 	bmsRecord->scale2 = 0.;	// variance (angle)
 	bmsRecord->scale3 = 0.;	// covariance (angle)
@@ -132,6 +142,18 @@ void SetDirectionsVarianceMatrix(msr_t_Iterator begin, const matrix_2d& vmat)
 
 	for (a=0; a<angle_count; ++a)
 	{
+		// Ignored direction?
+		if (bmsRecord->ignore)
+		{
+			while (skip < ignored)
+			{
+				skip++;
+				bmsRecord++;
+				if (!bmsRecord->ignore)
+					break;
+			}
+		}
+
 		bmsRecord->scale2 = vmat.get(a, a);				// derived angle variance
 		if (a+1 < angle_count)
 			bmsRecord->scale3 = vmat.get(a, a+1);		// derived angle covariance
@@ -142,7 +164,7 @@ void SetDirectionsVarianceMatrix(msr_t_Iterator begin, const matrix_2d& vmat)
 	}
 }
 
-// msr_t_Iterator = vector<measurement_t>::iterator
+// msr_t_Iterator = std::vector<measurement_t>::iterator
 template<typename msr_t_Iterator>
 // Sets values based on upper triangle
 void SetGPSVarianceMatrix(msr_t_Iterator begin, const matrix_2d& vmat)

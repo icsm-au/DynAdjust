@@ -44,14 +44,14 @@ public:
 
 	dna_io_aml& operator=(const dna_io_aml& rhs);
 
-	void load_aml_file(const string& aml_filename, v_aml_pair* vbinary_aml, pvmsr_t bmsRecords);
-	void write_aml_file(const string& aml_filename, pvUINT32 vbinary_aml);
-	void write_aml_file_txt(const string& bms_filename, const string& aml_filename, pvUINT32 vbinary_aml, const pvASLPtr vAssocStnList, vdnaStnPtr* vStations);
+	void load_aml_file(const std::string& aml_filename, v_aml_pair* vbinary_aml, pvmsr_t bmsRecords);
+	void write_aml_file(const std::string& aml_filename, pvUINT32 vbinary_aml);
+	void write_aml_file_txt(const std::string& bms_filename, const std::string& aml_filename, pvUINT32 vbinary_aml, const pvASLPtr vAssocStnList, vdnaStnPtr* vStations);
 
 	void create_msr_to_stn_tally(const pvASLPtr vAssocStnList, v_aml_pair& vAssocMsrList, 
 		vmsrtally& stnmsrTally, vmsr_t& bmsBinaryRecords);
 
-	void write_msr_to_stn(ostream &os, pvstn_t bstBinaryRecords, 
+	void write_msr_to_stn(std::ostream &os, pvstn_t bstBinaryRecords, 
 		pvUINT32 vStationList, vmsrtally& v_stnmsrTally, MsrTally* parsemsrTally);
 	
 protected:

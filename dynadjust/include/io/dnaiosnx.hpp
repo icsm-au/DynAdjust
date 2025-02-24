@@ -41,8 +41,6 @@ using namespace dynadjust::math;
 using namespace dynadjust::datum_parameters;
 using namespace dynadjust::measurements;
 
-using namespace boost::local_time;
-
 namespace dynadjust {
 namespace iostreams {
 
@@ -60,7 +58,7 @@ typedef enum _SINEX_WARN_TYPE_
 //T2 formatted_name;
 //T2 formatted_date;
 //T3 last_occurrence;
-template <class T1=UINT32, class T2=string, class T3=bool> 
+template <class T1=UINT32, class T2=std::string, class T3=bool> 
 struct site_id_tuple_t
 {
 	T1 file_index;
@@ -89,8 +87,8 @@ struct site_id_tuple_t
 };
 
 // Now create types for the site_id variable, container and iterator
-typedef site_id_tuple_t<UINT32, string, bool> site_id;
-typedef vector<site_id> v_site_id_tuple, *pv_v_site_id_tuple;
+typedef site_id_tuple_t<UINT32, std::string, bool> site_id;
+typedef std::vector<site_id> v_site_id_tuple, *pv_v_site_id_tuple;
 typedef v_site_id_tuple::iterator _it_vsite_id_tuple;
 
 // Used to sort site tuples by file order
@@ -111,7 +109,7 @@ class CompareSiteTuplesByName {
 public:
 	bool operator()(const T& left, const T& right) {
 		// if the station names are equal
-		if (equals(left.site_name, right.site_name))
+		if (boost::equals(left.site_name, right.site_name))
 			// sort on file order
 			return left.file_index < right.file_index;
 		// sort on station name
@@ -121,7 +119,7 @@ public:
 
 /////////////////////////////////////////////////////////////
 // Custom struct to manage site discontinuities
-template <class T1=UINT32, class T2=string, class T3=date, class T4=bool> 
+template <class T1=UINT32, class T2=std::string, class T3=boost::gregorian::date, class T4=bool> 
 struct discontinuity_tuple_t
 {
 	T1 file_index;
@@ -133,7 +131,7 @@ struct discontinuity_tuple_t
 
 	discontinuity_tuple_t()
 		: file_index(0), solution_id(0), site_name("")
-		, date_start(date(TIME_IMMEMORIAL, 1, 1)), date_end(date(TIME_IMMEMORIAL, 1, 1)), discontinuity_exists(false) {}
+		, date_start(boost::gregorian::date(TIME_IMMEMORIAL, 1, 1)), date_end(boost::gregorian::date(TIME_IMMEMORIAL, 1, 1)), discontinuity_exists(false) {}
 	discontinuity_tuple_t(const T1& index, const T1& solution, const T2& name, 
 		const T3& from, const T3& to, const T4& discontinuity) 
 		: file_index(index), solution_id(solution), site_name(name)
@@ -150,8 +148,8 @@ struct discontinuity_tuple_t
 };
 
 // Now create types for the site_id variable, container and iterator
-typedef discontinuity_tuple_t<UINT32, string, date, bool> discontinuity_tuple;
-typedef vector<discontinuity_tuple> v_discontinuity_tuple, *pv_v_discontinuity_tuple;
+typedef discontinuity_tuple_t<UINT32, std::string, boost::gregorian::date, bool> discontinuity_tuple;
+typedef std::vector<discontinuity_tuple> v_discontinuity_tuple, *pv_v_discontinuity_tuple;
 typedef v_discontinuity_tuple::iterator _it_vdiscontinuity_tuple;
 
 template<typename T, typename S, typename D>
@@ -160,7 +158,7 @@ bool rename_discont_station(T& begin, S& site_name, D& site_date, S& site_rename
 	UINT32 doy, year;
 	
 	// find the next occurrence of this site
-	while (equals(site_name, begin->site_name))
+	while (boost::equals(site_name, begin->site_name))
 	{
 		// Check if discontinuities exist at this site, if not, skip
 		if (!begin->discontinuity_exists)
@@ -173,7 +171,7 @@ bool rename_discont_station(T& begin, S& site_name, D& site_date, S& site_rename
 		if (site_date >= begin->date_start &&
 			site_date < begin->date_end)
 		{
-			stringstream ss;
+			std::stringstream ss;
 			doy = begin->date_start.day_of_year();
 			year = begin->date_start.year();
 			ss << site_name << "_";
@@ -217,7 +215,7 @@ struct CompareDiscontinuityOnSite
 template<typename T, typename S>
 T binary_search_discontinuity_site(T begin, T end, S value)
 {
-	T i = lower_bound(begin, end, value, CompareDiscontinuityOnSite<discontinuity_tuple, string>());
+	T i = lower_bound(begin, end, value, CompareDiscontinuityOnSite<discontinuity_tuple, std::string>());
 	if (i != end && i->site_name == value)
 		return i;
 	else
@@ -254,17 +252,17 @@ public:
 
 	dna_io_snx& operator=(const dna_io_snx& rhs);
 
-	stringstream parse_date_from_string(const string& date_str, DATE_FORMAT_TYPE date_type, DATE_TERMINAL_TYPE terminal_type, const string& separator);
-	stringstream parse_date_from_yy_doy(const UINT32& yy, const UINT32& doy, DATE_FORMAT_TYPE date_type, const string& separator);
+	std::stringstream parse_date_from_string(const std::string& date_str, DATE_FORMAT_TYPE date_type, DATE_TERMINAL_TYPE terminal_type, const std::string& separator);
+	std::stringstream parse_date_from_yy_doy(const UINT32& yy, const UINT32& doy, DATE_FORMAT_TYPE date_type, const std::string& separator);
 
-	void parse_sinex(std::ifstream** snx_file, const string& fileName, vdnaStnPtr* vStations, PUINT32 stnCount, 
+	void parse_sinex(std::ifstream** snx_file, const std::string& fileName, vdnaStnPtr* vStations, PUINT32 stnCount, 
 					vdnaMsrPtr* vMeasurements, PUINT32 msrCount, PUINT32 clusterID,
 					StnTally& parsestn_tally, MsrTally& parsemsr_tally, UINT32& fileOrder,
 					CDnaDatum& datum, bool applyDiscontinuities, 
 					v_discontinuity_tuple* stn_discontinuities_, bool& m_discontsSortedbyName,
 					UINT32& lineNo, UINT32& columnNo, _PARSE_STATUS_& parseStatus);
 	
-	void parse_discontinuity_file(std::ifstream* snx_file, const string& fileName,
+	void parse_discontinuity_file(std::ifstream* snx_file, const std::string& fileName,
 		v_discontinuity_tuple* stn_discontinuities_, bool& m_discontsSortedbyName,
 		UINT32& lineNo, UINT32& columnNo, _PARSE_STATUS_& parseStatus);
 
@@ -278,7 +276,7 @@ public:
 
 	inline bool warnings_exist() { return !warningMessages_.empty(); }
 	
-	void print_warnings(std::ofstream* warning_file, const string& fileName);
+	void print_warnings(std::ofstream* warning_file, const std::string& fileName);
 
 protected:
 
@@ -325,9 +323,9 @@ protected:
 	void serialise_solution_variances(std::ofstream* snx_file, matrix_2d* variances);
 	void print_line(std::ofstream* snx_file);
 
-	//string format_exponent(string value);
+	//string format_exponent(std::string value);
 	void print_matrix_index(std::ofstream* snx_file, const UINT32& row, const UINT32& col);
-	void add_warning(const string& message, SINEX_WARN_TYPE warning);
+	void add_warning(const std::string& message, SINEX_WARN_TYPE warning);
 
 	UINT32					blockCount_;
 	UINT32					block_;
@@ -338,9 +336,9 @@ protected:
 	uint32_uint32_map*		blockStationsMap_;
 	vUINT32*				blockStations_;
 
-	vector<string>			warningMessages_;
+	std::vector<std::string>			warningMessages_;
 
-	date					averageEpoch_;
+	boost::gregorian::date					averageEpoch_;
 
 	UINT32					uniqueStationCount_;
 	bool					containsVelocities_;

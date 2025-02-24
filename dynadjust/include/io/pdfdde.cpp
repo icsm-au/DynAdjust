@@ -21,13 +21,27 @@ Caveats:
 ***************************************************************************/
 
 
-// #include <afx.h>
+// prevent conflict with std::min(...) std::max(...)
+#ifdef _WIN32
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#endif
+
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+
+#ifndef VC_EXTRALEAN
+#define VC_EXTRALEAN            // Exclude rarely-used stuff from Windows headers
+#endif
+
+
 #define MAXPATHLEN 256
 #include <windows.h>
 #include <ddeml.h>
 #include <dde.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <shellapi.h>
 

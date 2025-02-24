@@ -89,62 +89,65 @@ bool CDnaDistance::operator< (const CDnaDistance& rhs) const
 }
 	
 
-void CDnaDistance::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool) const
+void CDnaDistance::WriteDynaMLMsr(std::ofstream* dynaml_stream, const std::string& comment, bool) const
 {
 	if (comment.empty())
-		*dynaml_stream << "  <!-- Type " << measurement_name<char, string>(GetTypeC()) << " -->" << endl;
+		*dynaml_stream << "  <!-- Type " << measurement_name<char, std::string>(GetTypeC()) << " -->" << std::endl;
 	else
-		*dynaml_stream << "  <!-- " << comment << " -->" << endl;
+		*dynaml_stream << "  <!-- " << comment << " -->" << std::endl;
 	
-	*dynaml_stream << "  <DnaMeasurement>" << endl;
-	*dynaml_stream << "    <Type>" << m_strType << "</Type>" << endl;
+	*dynaml_stream << "  <DnaMeasurement>" << std::endl;
+	*dynaml_stream << "    <Type>" << m_strType << "</Type>" << std::endl;
 	// Source file from which the measurement came
-	*dynaml_stream << "    <Source>" << m_sourceFile << "</Source>" << endl;
+	*dynaml_stream << "    <Source>" << m_sourceFile << "</Source>" << std::endl;
 	if (m_bIgnore)
-		*dynaml_stream << "    <Ignore>*</Ignore>" << endl;
+		*dynaml_stream << "    <Ignore>*</Ignore>" << std::endl;
 	else
-		*dynaml_stream << "    <Ignore/>" << endl;
+		*dynaml_stream << "    <Ignore/>" << std::endl;
 	
 	if (m_epoch.empty())
-		*dynaml_stream << "    <Epoch/>" << endl;
+		*dynaml_stream << "    <Epoch/>" << std::endl;
 	else
-		*dynaml_stream << "    <Epoch>" << m_epoch << "</Epoch>" << endl;
+		*dynaml_stream << "    <Epoch>" << m_epoch << "</Epoch>" << std::endl;
 
-	*dynaml_stream << "    <First>" << m_strFirst << "</First>" << endl;
-	*dynaml_stream << "    <Second>" << m_strTarget << "</Second>" << endl;
-	*dynaml_stream << "    <Value>" << fixed << setprecision(4) << m_dValue << "</Value>" << endl;
-	*dynaml_stream << "    <StdDev>" << fixed << setprecision(4) << m_dStdDev << "</StdDev>" << endl;
+	*dynaml_stream << "    <First>" << m_strFirst << "</First>" << std::endl;
+	*dynaml_stream << "    <Second>" << m_strTarget << "</Second>" << std::endl;
+	*dynaml_stream << "    <Value>" << std::fixed << std::setprecision(4) << m_dValue << "</Value>" << std::endl;
+	*dynaml_stream << "    <StdDev>" << std::fixed << std::setprecision(4) << m_dStdDev << "</StdDev>" << std::endl;
 
 	switch (GetTypeC())
 	{
 	case 'S':
-		*dynaml_stream << "    <InstHeight>" << fixed << setprecision(3) << m_fInstHeight << "</InstHeight>" << endl;
-		*dynaml_stream << "    <TargHeight>" << fixed << setprecision(3) << m_fTargHeight << "</TargHeight>" << endl;
+		*dynaml_stream << "    <InstHeight>" << std::fixed << std::setprecision(3) << m_fInstHeight << "</InstHeight>" << std::endl;
+		*dynaml_stream << "    <TargHeight>" << std::fixed << std::setprecision(3) << m_fTargHeight << "</TargHeight>" << std::endl;
 		break;
 	}
 		
 	if (m_msr_db_map.is_msr_id_set)
-		*dynaml_stream << "    <MeasurementID>" << m_msr_db_map.msr_id << "</MeasurementID>" << endl;
+		*dynaml_stream << "    <MeasurementID>" << m_msr_db_map.msr_id << "</MeasurementID>" << std::endl;
 	
-	*dynaml_stream << "  </DnaMeasurement>" << endl;
+	*dynaml_stream << "  </DnaMeasurement>" << std::endl;
 }
 	
 
 void CDnaDistance::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool) const
 {
-	*dna_stream << setw(dmw.msr_type) << m_strType;
+	*dna_stream << std::setw(dmw.msr_type) << m_strType;
 	if (m_bIgnore)
-		*dna_stream << setw(dmw.msr_ignore) << "*";
+		*dna_stream << std::setw(dmw.msr_ignore) << "*";
 	else
-		*dna_stream << setw(dmw.msr_ignore) << " ";
+		*dna_stream << std::setw(dmw.msr_ignore) << " ";
 
-	*dna_stream << left << setw(dmw.msr_inst) << m_strFirst;
-	*dna_stream << left << setw(dmw.msr_targ1) << m_strTarget;
-	*dna_stream << setw(dmw.msr_targ2) << " ";
-	*dna_stream << right << setw(dmw.msr_linear) << fixed << setprecision(4) << m_dValue;
-	*dna_stream << setw(dmw.msr_ang_d + dmw.msr_ang_m + dmw.msr_ang_s) << " ";
-	*dna_stream << setw(dmw.msr_stddev) << fixed << setprecision(3) << m_dStdDev;
-	
+	*dna_stream << std::left << std::setw(dmw.msr_inst) << m_strFirst;
+	*dna_stream << std::left << std::setw(dmw.msr_targ1) << m_strTarget;
+	*dna_stream << std::setw(dmw.msr_targ2) << " ";
+	*dna_stream << std::right << std::setw(dmw.msr_linear) << std::fixed << std::setprecision(4) << m_dValue;
+	*dna_stream << std::setw(dmw.msr_ang_d + dmw.msr_ang_m + dmw.msr_ang_s) << " ";
+
+	UINT32 m_stdDevPrec(3);
+	*dna_stream << std::setw(dmw.msr_stddev) << StringFromTW(m_dStdDev, dmw.msr_stddev, m_stdDevPrec);
+	//*dna_stream << std::setw(dmw.msr_stddev) << std::fixed << std::setprecision(3) << m_dStdDev;
+
 	// database id width
 	UINT32 width(dml.msr_gps_epoch - dml.msr_inst_ht);
 	
@@ -152,19 +155,19 @@ void CDnaDistance::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& 
 	switch (GetTypeC())
 	{
 	case 'S':
-		*dna_stream << setw(dmw.msr_inst_ht) << fixed << setprecision(3) << m_fInstHeight;
-		*dna_stream << setw(dmw.msr_targ_ht) << fixed << setprecision(3) << m_fTargHeight;
+		*dna_stream << std::setw(dmw.msr_inst_ht) << std::fixed << std::setprecision(3) << m_fInstHeight;
+		*dna_stream << std::setw(dmw.msr_targ_ht) << std::fixed << std::setprecision(3) << m_fTargHeight;
 		width = dml.msr_gps_epoch - dml.msr_targ_ht - dmw.msr_targ_ht;
 		break;
 	}
 	
-	*dna_stream << setw(width) << " ";
-	*dna_stream << setw(dmw.msr_gps_epoch) << m_epoch;
+	*dna_stream << std::setw(width) << " ";
+	*dna_stream << std::setw(dmw.msr_gps_epoch) << m_epoch;
 
 	if (m_msr_db_map.is_msr_id_set)
-		*dna_stream << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
+		*dna_stream << std::setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
 
-	*dna_stream << endl;
+	*dna_stream << std::endl;
 }
 	
 
@@ -313,12 +316,12 @@ void CDnaDistance::WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex
 }
 
 
-void CDnaDistance::SetValue(const string& str)
+void CDnaDistance::SetValue(const std::string& str)
 {
 	DoubleFromString(m_dValue, trimstr(str));
 }
 
-void CDnaDistance::SetStdDev(const string& str)
+void CDnaDistance::SetStdDev(const std::string& str)
 {
 	DoubleFromString(m_dStdDev, trimstr(str));
 }
@@ -328,12 +331,12 @@ void CDnaDistance::SetStdDev(const string& str)
 // Note: slope distances are derived from CDnaDistance, so
 // these methods are provided here, but don't need 
 // instrument height for 'C', 'E' and 'M'  measurements.
-void CDnaDistance::SetInstrumentHeight(const string& str)
+void CDnaDistance::SetInstrumentHeight(const std::string& str)
 {
 	FloatFromString(m_fInstHeight, trimstr(str));
 }
 
-void CDnaDistance::SetTargetHeight(const string& str)
+void CDnaDistance::SetTargetHeight(const std::string& str)
 {
 	DoubleFromString(m_fTargHeight, trimstr(str));
 }

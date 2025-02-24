@@ -126,6 +126,7 @@
       <AdditionalOptions>/Zm280 /permissive-</AdditionalOptions>
       <PrecompiledHeaderFile>precompile.h</PrecompiledHeaderFile>
       <MinimalRebuild>false</MinimalRebuild>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -145,6 +146,7 @@
       <AdditionalOptions>/Zm280 /permissive-</AdditionalOptions>
       <PrecompiledHeaderFile>precompile.h</PrecompiledHeaderFile>
       <MinimalRebuild>false</MinimalRebuild>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -167,6 +169,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <EnableMatrixMultiplyLibraryCall>Yes</EnableMatrixMultiplyLibraryCall>
       <Cpp0xSupport>true</Cpp0xSupport>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -194,6 +197,7 @@
       <OpenMP>GenerateParallelCode</OpenMP>
       <Cpp0xSupport>true</Cpp0xSupport>
       <Parallelization>true</Parallelization>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

@@ -32,20 +32,18 @@
 //FLT_MAX;
 
 //#include <limits>
-//cout << "Float  max: " << numeric_limits<float>::max() << endl;
-//cout << "Float  min: " << numeric_limits<float>::min() << endl;
-//cout << "Double max: " << numeric_limits<double>::max() << endl;
-//cout << "Double min: " << numeric_limits<double>::min() << endl;
-//cout << "UINT16 max: " << numeric_limits<unsigned short>::min() << endl;
-//cout << "UINT16 min: " << numeric_limits<unsigned short>::min() << endl;
-//cout << "UINT32 max: " << numeric_limits<unsigned long>::min() << endl;
-//cout << "UINT32 min: " << numeric_limits<unsigned long>::min() << endl;
-
-using namespace std;
+//cout << "Float  max: " << numeric_limits<float>::max() << std::endl;
+//cout << "Float  min: " << numeric_limits<float>::min() << std::endl;
+//cout << "Double max: " << numeric_limits<double>::max() << std::endl;
+//cout << "Double min: " << numeric_limits<double>::min() << std::endl;
+//cout << "UINT16 max: " << numeric_limits<unsigned short>::min() << std::endl;
+//cout << "UINT16 min: " << numeric_limits<unsigned short>::min() << std::endl;
+//cout << "UINT32 max: " << numeric_limits<unsigned long>::min() << std::endl;
+//cout << "UINT32 min: " << numeric_limits<unsigned long>::min() << std::endl;
 
 namespace dynadjust { namespace math {	
 
-ostream& operator<< (ostream& os, const matrix_2d& rhs)
+std::ostream& operator<< (std::ostream& os, const matrix_2d& rhs)
 {
 	if (os.iword(0) == binary)
 	{
@@ -68,7 +66,7 @@ ostream& operator<< (ostream& os, const matrix_2d& rhs)
 		case mtx_lower:
 			// output lower triangular part of a square matrix
 			if (rhs._mem_rows != rhs._mem_cols)
-				throw boost::enable_current_exception(runtime_error("matrix_2d operator<< (): Matrix is not square."));
+				throw boost::enable_current_exception(std::runtime_error("matrix_2d operator<< (): Matrix is not square."));
 			
 			// print each column
 			for (c=0; c<rhs._mem_cols; ++c)
@@ -94,42 +92,42 @@ ostream& operator<< (ostream& os, const matrix_2d& rhs)
 	{
 		// ASCII output
 
-		os << rhs._matrixType << " " << rhs._rows << " " << rhs._cols << " " << rhs._mem_rows << " " << rhs._mem_cols << endl;
+		os << rhs._matrixType << " " << rhs._rows << " " << rhs._cols << " " << rhs._mem_rows << " " << rhs._mem_cols << std::endl;
 		
 		for (UINT32 c, r=0; r<rhs._mem_rows; ++r)  
 		{
 			for (c=0; c<rhs._mem_cols; ++c) 
-				os << scientific << setprecision(16) << rhs.get(r,c) << " ";
-			os << endl;
+				os << std::scientific << std::setprecision(16) << rhs.get(r,c) << " ";
+			os << std::endl;
 		}
-		os << rhs._maxvalRow << " " << rhs._maxvalCol << endl;
-		os << endl;
+		os << rhs._maxvalRow << " " << rhs._maxvalCol << std::endl;
+		os << std::endl;
 	}
 	return os;
 }
 	
 // Commented IO operators which are useful but unused.
-//ostream& operator<< (ostream& os, const matrix_2d* rhs)  
+//ostream& operator<< (std::ostream& os, const matrix_2d* rhs)  
 //{	
 //	os << *rhs;
 //	return os;
 //}
 
 //// Output to stream vectors of matrix_2d
-//ostream& operator<< (ostream& os, const v_mat_2d& rhs)
+//ostream& operator<< (std::ostream& os, const v_mat_2d& rhs)
 //{
 //	UINT32 vector_size(static_cast<UINT32>(rhs.size()));
 //	if (os.iword(0) == binary)
 //		os.write(reinterpret_cast<char *>(&vector_size), sizeof(UINT32));
 //	else
-//		os << vector_size << endl;
+//		os << vector_size << std::endl;
 //	for (_it_v_mat_2d_const iter = rhs.begin(); iter != rhs.end(); ++iter)
-//		os << *iter;	// calls ostream& operator<< (ostream& os, const matrix_2d& rhs)
+//		os << *iter;	// calls ostream& operator<< (std::ostream& os, const matrix_2d& rhs)
 //	return os;
 //}
 
 //// Output to stream vectors of matrix_2d
-//ostream& operator<< (ostream& os, const v_mat_2d* rhs)
+//ostream& operator<< (std::ostream& os, const v_mat_2d* rhs)
 //{
 //	os << *rhs;
 //	return os;
@@ -160,7 +158,7 @@ ostream& operator<< (ostream& os, const matrix_2d& rhs)
 //		case mtx_lower:
 //			// output lower triangular part of a square matrix
 //			if (rhs._mem_rows != rhs._mem_cols)
-//				throw boost::enable_current_exception(runtime_error("matrix_2d operator>> (): Matrix is not square."));
+//				throw boost::enable_current_exception(std::runtime_error("matrix_2d operator>> (): Matrix is not square."));
 //			
 //			// retrieve each column
 //			for (c=0; c<rhs._mem_cols; ++c)
@@ -184,9 +182,9 @@ ostream& operator<< (ostream& os, const matrix_2d& rhs)
 //	else
 //	{
 //		// ASCII input
-//		//throw boost::enable_current_exception(runtime_error("istream& operator>> has not been tested"));
+//		//throw boost::enable_current_exception(std::runtime_error("istream& operator>> has not been tested"));
 //		
-//		string str;
+//		std::string str;
 //		UINT32 type;
 //		is >> type;
 //		rhs._matrixType = static_cast<mtxType>(type);
@@ -243,13 +241,13 @@ UINT32 __col__;
 
 void out_of_memory_handler()
 {
-	stringstream ss("");
-	UINT32 mem(max(__row__, __col__));
-	mem *= min(__row__, __col__) * sizeof(UINT32);
+	std::stringstream ss("");
+	UINT32 mem(std::max(__row__, __col__));
+	mem *= std::min(__row__, __col__) * sizeof(UINT32);
 	
 	ss << "Insufficient memory available to create a " <<
 		__row__ << " x " << __col__ << " matrix (" << 
-		fixed << setprecision(2);
+		std::fixed << std::setprecision(2);
 
 	if (mem < MEGABYTE_SIZE)
 		ss << (mem/KILOBYTE_SIZE) << " KB).";
@@ -271,14 +269,14 @@ matrix_2d::matrix_2d()
 	, _maxvalRow(0)
 	, _matrixType(mtx_full)
 {
-	::set_new_handler(out_of_memory_handler);
+	std::set_new_handler(out_of_memory_handler);
 
 	// if this class were to be modified to use templates, each
 	// instance could be tested for an invalid data type as follows
 	// 
 	//if (strcmp(typeid(a(1,1)).name(), "double") != 0 && 
 	//	strcmp(typeid(a(1,1)).name(), "float") != 0 ) {
-	//	throw boost::enable_current_exception(runtime_error("Not a floating point type"));
+	//	throw boost::enable_current_exception(std::runtime_error("Not a floating point type"));
 }
 
 matrix_2d::matrix_2d(const UINT32& rows, const UINT32& columns)
@@ -291,7 +289,7 @@ matrix_2d::matrix_2d(const UINT32& rows, const UINT32& columns)
 	, _maxvalRow(0)
 	, _matrixType(mtx_full)
 {
-	::set_new_handler(out_of_memory_handler);
+	std::set_new_handler(out_of_memory_handler);
 
 	allocate(_rows, _cols);
 }
@@ -307,9 +305,9 @@ matrix_2d::matrix_2d(const UINT32& rows, const UINT32& columns,
 	, _maxvalRow(0)
 	, _matrixType(matrix_type)
 {
-	::set_new_handler(out_of_memory_handler);
+	std::set_new_handler(out_of_memory_handler);
 
-	stringstream ss;
+	std::stringstream ss;
 	UINT32 upperMatrixElements(sumOfConsecutiveIntegers(rows));
 	UINT32 j;
 
@@ -322,7 +320,7 @@ matrix_2d::matrix_2d(const UINT32& rows, const UINT32& columns,
 		if (upperMatrixElements != data_size)
 		{
 			ss << "Data size must be equivalent to upper matrix element count for " << rows << " x " << columns << ".";
-			throw boost::enable_current_exception(runtime_error(ss.str()));
+			throw boost::enable_current_exception(std::runtime_error(ss.str()));
 		}
 
 		// Create memory and store the data
@@ -339,7 +337,7 @@ matrix_2d::matrix_2d(const UINT32& rows, const UINT32& columns,
 
 	case mtx_sparse:
 		ss << "matrix_2d(): A sparse matrix cannot be initialised with a double array.";
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 		break;
 
 	case mtx_full:
@@ -348,7 +346,7 @@ matrix_2d::matrix_2d(const UINT32& rows, const UINT32& columns,
 		if (data_size != rows * columns)
 		{
 			ss << "Data size must be equivalent to matrix dimensions (" << rows << " x " << columns << ").";
-			throw boost::enable_current_exception(runtime_error(ss.str()));
+			throw boost::enable_current_exception(std::runtime_error(ss.str()));
 		}
 
 		// Create memory and store the data
@@ -371,7 +369,7 @@ matrix_2d::matrix_2d(const matrix_2d& newmat)
 	, _maxvalRow(newmat.maxvalueRow())
 	, _matrixType(newmat.matrixType())
 {
-	::set_new_handler(out_of_memory_handler);
+	std::set_new_handler(out_of_memory_handler);
 
 	allocate(_mem_rows, _mem_cols);
 
@@ -636,7 +634,7 @@ void matrix_2d::buy(const UINT32& rows, const UINT32& columns, double** mem_spac
 	
 	if ((*mem_space) == NULL)	
 	{
-		stringstream ss;
+		std::stringstream ss;
 		ss << "Insufficient memory for a " << rows << " x " << columns << " matrix.";
 		throw boost::enable_current_exception(NetMemoryException(ss.str()));
 	}
@@ -669,39 +667,39 @@ void matrix_2d::submatrix(const UINT32& row_begin, const UINT32& col_begin,
 	matrix_2d* dest, const UINT32& subrows, const UINT32& subcolumns) const
 {
 	if (row_begin >= _rows) {
-		stringstream ss;
+		std::stringstream ss;
 		ss << row_begin << ", " << col_begin << " lies outside the range of the matrix (" << _rows << ", " << _cols << ").";
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	
 	if (col_begin >= _cols) {	
-		stringstream ss;
+		std::stringstream ss;
 		ss << row_begin << ", " << col_begin << " lies outside the range of the matrix (" << _rows << ", " << _cols << ").";
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 
 	if (subrows > dest->rows()) {
-		stringstream ss;
+		std::stringstream ss;
 		ss << subrows << ", " << subcolumns << " exceeds the size of the matrix (" << dest->rows() << ", " << dest->columns() << ").";
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 
 	if (subcolumns > dest->columns()) {
-		stringstream ss;
+		std::stringstream ss;
 		ss << subrows << ", " << subcolumns << " exceeds the size of the matrix (" << dest->rows() << ", " << dest->columns() << ").";
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 
 	if (row_begin + subrows > _rows) {	
-		stringstream ss;
+		std::stringstream ss;
 		ss << row_begin + subrows << ", " << col_begin + subcolumns << " lies outside the range of the matrix (" << _rows << ", " << _cols << ").";
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	
 	if (col_begin + subcolumns > _cols) {	
-		stringstream ss;
+		std::stringstream ss;
 		ss << row_begin + subrows << ", " << col_begin + subcolumns << " lies outside the range of the matrix (" << _rows << ", " << _cols << ").";
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	
 	UINT32 i, j, m(0), n(0), row_end(row_begin+subrows), col_end(col_begin+subcolumns);
@@ -736,7 +734,7 @@ void matrix_2d::redim(const UINT32& rows, const UINT32& columns)
 	//deallocate();
 	//_buffer = new_buffer;
 
-	::set_new_handler(out_of_memory_handler);
+	std::set_new_handler(out_of_memory_handler);
 
 	deallocate();
 	allocate(rows, columns);
@@ -750,13 +748,13 @@ void matrix_2d::shrink(const UINT32& rows, const UINT32& columns)
 {
 	if (rows > _rows || columns > _cols)
 	{
-		stringstream ss;
-		ss << " " << endl;
+		std::stringstream ss;
+		ss << " " << std::endl;
 		if (rows >= _rows)
-			ss << "    Cannot shrink by " << rows << " rows on a matrix of " << _rows << " rows. " << endl;
+			ss << "    Cannot shrink by " << rows << " rows on a matrix of " << _rows << " rows. " << std::endl;
 		if (columns >= _cols)
 			ss << "    Cannot shrink by " << columns << " columns on a matrix of " << _cols << " columns.";
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 
 	_rows -= rows;
@@ -768,13 +766,13 @@ void matrix_2d::grow(const UINT32& rows, const UINT32& columns)
 {
 	if ((rows+_rows) > _mem_rows || (columns+_cols) > _mem_cols)
 	{
-		stringstream ss;
-		ss << " " << endl;
+		std::stringstream ss;
+		ss << " " << std::endl;
 		if (rows >= _rows)
 			ss << "    Cannot grow matrix by " << rows << " rows: growth exceeds row memory limit (" << _mem_rows << ").";
 		if (columns >= _cols)
 			ss << "    Cannot grow matrix by " << columns << " columns: growth exceeds column memory limit (" << _mem_cols << ").";
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 
 	_rows += rows;
@@ -866,13 +864,13 @@ void matrix_2d::copybuffer(const UINT32& rowstart, const UINT32& columnstart, co
 	UINT32 rowend(rowstart+rows), columnend(columnstart+columns);
 	if (rowend > _rows || columnend > _cols)
 	{
-		stringstream ss;
-		ss << " " << endl;
+		std::stringstream ss;
+		ss << " " << std::endl;
 		if (rowend >= _rows)
-			ss << "    Row index " << rowend << " exceeds the matrix row count (" << _rows << "). " << endl;
+			ss << "    Row index " << rowend << " exceeds the matrix row count (" << _rows << "). " << std::endl;
 		if (columnend >= _cols)
 			ss << "    Column index " << columnend << " exceeds the matrix column count (" << _cols << ").";
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 
 #if defined(DNAMATRIX_ROW_WISE)
@@ -938,17 +936,17 @@ void matrix_2d::copyelements(const UINT32& row_dest, const UINT32& column_dest,
 //	UINT32 rowend_src(row_src+rows), columnend_src(column_src+columns);
 //	if (rowend_src > _rows || columnend_src > _cols || rowend_dest > _rows || columnend_dest > _cols)
 //	{
-//		stringstream ss;
-//		ss << "copyelements(): " << endl;
+//		std::stringstream ss;
+//		ss << "copyelements(): " << std::endl;
 //		if (rowend_src >= _rows)
-//			ss << "    Row index (source) " << rowend_src << " exceeds the matrix row count (" << _rows << "). " << endl;
+//			ss << "    Row index (source) " << rowend_src << " exceeds the matrix row count (" << _rows << "). " << std::endl;
 //		if (columnend_src >= _cols)
 //			ss << "    Column index (source) " << columnend_src << " exceeds the matrix column count (" << _cols << ").";
 //		if (rowend_dest >= _rows)
-//			ss << "    Row index (destination) " << rowend_dest << " exceeds the matrix row count (" << _rows << "). " << endl;
+//			ss << "    Row index (destination) " << rowend_dest << " exceeds the matrix row count (" << _rows << "). " << std::endl;
 //		if (columnend_dest >= _cols)
 //			ss << "    Column index (destination) " << columnend_dest << " exceeds the matrix column count (" << _cols << ").";
-//		throw boost::enable_current_exception(runtime_error(ss.str()));
+//		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 //	}
 //
 //	UINT32 m, n;
@@ -967,24 +965,24 @@ void matrix_2d::copyelements(const UINT32& row_dest, const UINT32& column_dest,
 //	UINT32 rowend_src(row_src+rows), columnend_src(column_src+columns);
 //	if (rowend_src > src.rows() || columnend_src > src.columns())
 //	{
-//		stringstream ss;
-//		ss << "copyelements(): " << endl;
+//		std::stringstream ss;
+//		ss << "copyelements(): " << std::endl;
 //		if (rowend_src >= src.rows())
-//			ss << "    Row index (source) " << rowend_src << " exceeds the matrix row count (" << src.rows() << "). " << endl;
+//			ss << "    Row index (source) " << rowend_src << " exceeds the matrix row count (" << src.rows() << "). " << std::endl;
 //		if (columnend_src >= src.columns())
 //			ss << "    Column index (source) " << columnend_src << " exceeds the matrix column count (" << src.columns() << ").";
-//		throw boost::enable_current_exception(runtime_error(ss.str()));
+//		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 //	}
 //
 //	if (rowend_dest > _rows || columnend_dest > _cols)
 //	{
-//		stringstream ss;
-//		ss << "copyelements(): " << endl;
+//		std::stringstream ss;
+//		ss << "copyelements(): " << std::endl;
 //		if (rowend_dest >= _rows)
-//			ss << "    Row index (destination) " << rowend_dest << " exceeds the matrix row count (" << _rows << "). " << endl;
+//			ss << "    Row index (destination) " << rowend_dest << " exceeds the matrix row count (" << _rows << "). " << std::endl;
 //		if (columnend_dest >= _cols)
 //			ss << "    Column index (destination) " << columnend_dest << " exceeds the matrix column count (" << _cols << ").";
-//		throw boost::enable_current_exception(runtime_error(ss.str()));
+//		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 //	}
 //
 //	UINT32 m, n;
@@ -1001,13 +999,13 @@ void matrix_2d::copyelements(const UINT32& row_dest, const UINT32& column_dest,
 //{
 //	if (row >= _rows || column >= _cols)
 //	{
-//		stringstream ss;
-//		ss << " " << endl;
+//		std::stringstream ss;
+//		ss << " " << std::endl;
 //		if (row >= _rows)
-//			ss << "    Row index " << row << " exceeds the matrix row count (" << _rows << "). " << endl;
+//			ss << "    Row index " << row << " exceeds the matrix row count (" << _rows << "). " << std::endl;
 //		if (column >= _cols)
 //			ss << "    Column index " << column << " exceeds the matrix column count (" << _cols << ").";
-//		throw boost::enable_current_exception(runtime_error(ss.str()));
+//		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 //	}
 //
 //	return get(row, column);
@@ -1016,13 +1014,13 @@ void matrix_2d::copyelements(const UINT32& row_dest, const UINT32& column_dest,
 
 //void matrix_2d::put(const double data[], const UINT32& data_size)
 //{
-//	::set_new_handler(out_of_memory_handler);
+//	std::set_new_handler(out_of_memory_handler);
 //
 //	if (data_size != _rows * _cols)
 //	{
-//		stringstream ss;
+//		std::stringstream ss;
 //		ss << "Data size must be equivalent to matrix dimensions (" << _rows << " x " << _cols << ").";
-//		throw boost::enable_current_exception(runtime_error(ss.str()));
+//		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 //	}
 //
 //	UINT32 i, j, k(0);
@@ -1036,13 +1034,13 @@ void matrix_2d::copyelements(const UINT32& row_dest, const UINT32& column_dest,
 //{
 //	if (row >= _rows || column >= _cols)
 //	{
-//		stringstream ss;
-//		ss << " " << endl;
+//		std::stringstream ss;
+//		ss << " " << std::endl;
 //		if (row >= _rows)
-//			ss << "    Row index " << row << " exceeds the matrix row count (" << _rows << "). " << endl;
+//			ss << "    Row index " << row << " exceeds the matrix row count (" << _rows << "). " << std::endl;
 //		if (column >= _cols)
 //			ss << "    Column index " << column << " exceeds the matrix column count (" << _cols << ").";
-//		throw boost::enable_current_exception(runtime_error(ss.str()));
+//		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 //	}
 //
 //	put(row, column, value); 
@@ -1052,9 +1050,9 @@ void matrix_2d::copyelements(const UINT32& row_dest, const UINT32& column_dest,
 //void matrix_2d::elementadd_safe(const UINT32& row, const UINT32& column, const double& increment)
 //{
 //	if (row >= _rows || column >= _cols) {
-//		stringstream ss;
+//		std::stringstream ss;
 //		ss << row << ", " << column << " lies outside the range of the matrix (" << _rows << ", " << _cols << ").";
-//		throw boost::enable_current_exception(runtime_error(ss.str()));
+//		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 //	}
 //	elementadd(row, column, increment);
 //}
@@ -1063,28 +1061,28 @@ void matrix_2d::copyelements(const UINT32& row_dest, const UINT32& column_dest,
 //						 const UINT32& row_src, const UINT32& col_src, const UINT32& rows, const UINT32& cols)
 //{
 //	if (row_dest >= _rows || col_dest >= _cols) {
-//		stringstream ss;
+//		std::stringstream ss;
 //		ss << row_dest << ", " << col_dest << " lies outside the range of the destination matrix (" << 
 //			_rows << ", " << _cols << ").";
-//		throw boost::enable_current_exception(runtime_error(ss.str()));
+//		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 //	}
 //	if (row_dest+rows > _rows || col_dest+cols > _cols) {
-//		stringstream ss;
+//		std::stringstream ss;
 //		ss << "Adding a " << rows << ", " << cols << " matrix extends beyond the range of the destination matrix (" << 
 //			_rows << ", " << _cols << ").";
-//		throw boost::enable_current_exception(runtime_error(ss.str()));
+//		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 //	}
 //	if (row_src >= mat_src.rows() || col_src >= mat_src.columns()) {
-//		stringstream ss;
+//		std::stringstream ss;
 //		ss << mat_src.rows() << ", " << mat_src.columns() << " lies outside the range of the source matrix (" << 
 //			mat_src.rows() << ", " << mat_src.columns() << ").";
-//		throw boost::enable_current_exception(runtime_error(ss.str()));
+//		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 //	}
 //	if (row_src+rows > mat_src.rows() || col_src+cols > mat_src.columns()) {
-//		stringstream ss;
+//		std::stringstream ss;
 //		ss << "Adding a " << rows << ", " << cols << " matrix extends beyond the range of the destination matrix (" << 
 //			mat_src.rows() << ", " << mat_src.columns() << ").";
-//		throw boost::enable_current_exception(runtime_error(ss.str()));
+//		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 //	}
 //
 //	blockadd(row_dest, col_dest, mat_src, row_src, col_src, rows, cols);
@@ -1094,30 +1092,30 @@ void matrix_2d::copyelements(const UINT32& row_dest, const UINT32& column_dest,
 //						 const UINT32& row_src, const UINT32& col_src, const UINT32& rows, const UINT32& cols)
 //{
 //	if (rows != cols)
-//		throw boost::enable_current_exception(runtime_error("The source matrix is not square."));
+//		throw boost::enable_current_exception(std::runtime_error("The source matrix is not square."));
 //	if (row_dest >= _rows || col_dest >= _cols) {
-//		stringstream ss;
+//		std::stringstream ss;
 //		ss << row_dest << ", " << col_dest << " lies outside the range of the destination matrix (" << 
 //			_rows << ", " << _cols << ").";
-//		throw boost::enable_current_exception(runtime_error(ss.str()));
+//		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 //	}
 //	if (row_dest+rows > _rows || col_dest+cols > _cols) {
-//		stringstream ss;
+//		std::stringstream ss;
 //		ss << "Adding a " << rows << ", " << cols << " matrix extends beyond the range of the destination matrix (" << 
 //			_rows << ", " << _cols << ").";
-//		throw boost::enable_current_exception(runtime_error(ss.str()));
+//		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 //	}
 //	if (row_src >= mat_src.rows() || col_src >= mat_src.columns()) {
-//		stringstream ss;
+//		std::stringstream ss;
 //		ss << mat_src.rows() << ", " << mat_src.columns() << " lies outside the range of the source matrix (" << 
 //			mat_src.rows() << ", " << mat_src.columns() << ").";
-//		throw boost::enable_current_exception(runtime_error(ss.str()));
+//		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 //	}
 //	if (row_src+rows > mat_src.rows() || col_src+cols > mat_src.columns()) {
-//		stringstream ss;
+//		std::stringstream ss;
 //		ss << "Adding a " << rows << ", " << cols << " matrix extends beyond the range of the destination matrix (" << 
 //			mat_src.rows() << ", " << mat_src.columns() << ").";
-//		throw boost::enable_current_exception(runtime_error(ss.str()));
+//		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 //	}
 //
 //	blockTadd(row_dest, col_dest, mat_src, row_src, col_src, rows, cols);
@@ -1129,15 +1127,15 @@ void matrix_2d::copyelements(const UINT32& row_dest, const UINT32& column_dest,
 //{
 //	// comparison of unsigned expression < 0 is always false
 //	if (row_begin >= _rows) {
-//		stringstream ss;
+//		std::stringstream ss;
 //		ss << row_begin << ", " << col_begin << " lies outside the range of the matrix (" << _rows << ", " << _cols << ").";
-//		throw boost::enable_current_exception(runtime_error(ss.str()));
+//		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 //	}
 //	// comparison of unsigned expression < 0 is always false
 //	if (col_begin >= _cols) {	
-//		stringstream ss;
+//		std::stringstream ss;
 //		ss << row_begin << ", " << col_begin << " lies outside the range of the matrix (" << _rows << ", " << _cols << ").";
-//		throw boost::enable_current_exception(runtime_error(ss.str()));
+//		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 //	}
 //	if (rows < 1)
 //		rows = _rows - row_begin;		// apply scale from row_begin to end
@@ -1145,14 +1143,14 @@ void matrix_2d::copyelements(const UINT32& row_dest, const UINT32& column_dest,
 //		columns = _cols - col_begin; // apply scale from col_begin to end
 //
 //	if (row_begin + rows > _rows || rows < 0) {	
-//		stringstream ss;
+//		std::stringstream ss;
 //		ss << row_begin + rows << ", " << col_begin + rows << " lies outside the range of the matrix (" << _rows << ", " << _cols << ").";
-//		throw boost::enable_current_exception(runtime_error(ss.str()));
+//		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 //	}
 //	if (col_begin + columns > _cols || columns < 0) {	
-//		stringstream ss;
+//		std::stringstream ss;
 //		ss << row_begin + rows << ", " << col_begin + rows << " lies outside the range of the matrix (" << _rows << ", " << _cols << ").";
-//		throw boost::enable_current_exception(runtime_error(ss.str()));
+//		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 //	}
 //	
 //	UINT32 i, j, row_end(row_begin+rows), col_end(col_begin+columns);
@@ -1231,7 +1229,7 @@ void matrix_2d::sweep(UINT32 k1, UINT32 k2)
 matrix_2d matrix_2d::sweepinverse()
 {
 	if (_rows != _cols)
-		throw boost::enable_current_exception(runtime_error("sweepinverse(): Matrix is not square."));
+		throw boost::enable_current_exception(std::runtime_error("sweepinverse(): Matrix is not square."));
 
 	sweep(0, _rows);
 	return *this;	
@@ -1250,7 +1248,7 @@ matrix_2d matrix_2d::sweepinverse()
 //matrix_2d matrix_2d::gaussianinverse()
 //{
 //	if (_rows != _cols)
-//		throw boost::enable_current_exception(runtime_error("gaussinverse(): Matrix is not square."));
+//		throw boost::enable_current_exception(std::runtime_error("gaussinverse(): Matrix is not square."));
 //
 //	// create copy of upper triangular
 //	matrix_2d matcopy(*this);
@@ -1268,7 +1266,7 @@ matrix_2d matrix_2d::sweepinverse()
 //		for (nCol = nRow+1; nCol<columns; nCol++)
 //		{
 //			if (fabs(matcopy.get(nRow, nRow)) < epsilon)
-//				throw boost::enable_current_exception(runtime_error("gaussinverse(): Matrix inversion failed."));
+//				throw boost::enable_current_exception(std::runtime_error("gaussinverse(): Matrix inversion failed."));
 //			
 //			dTemp = matcopy.get(nRow, nCol) / matcopy.get(nRow, nRow);
 //			
@@ -1285,7 +1283,7 @@ matrix_2d matrix_2d::sweepinverse()
 //	for (nRow = columns-1; nRow>=0; nRow--)
 //	{
 //		if (fabs(matcopy.get(nRow, nRow)) < epsilon)
-//			throw boost::enable_current_exception(runtime_error("gaussinverse(): Matrix inversion failed."));
+//			throw boost::enable_current_exception(std::runtime_error("gaussinverse(): Matrix inversion failed."));
 //		
 //		for (nCol = 0; nCol<nRow+1; nCol++)
 //			put(nCol, nRow, get(nCol, nRow) / matcopy.get(nRow, nRow));
@@ -1321,7 +1319,7 @@ matrix_2d matrix_2d::choleskyinverse_mkl(bool LOWER_IS_CLEARED /*=false*/)
 		return *this;
 
 	if (_rows != _cols)
-		throw boost::enable_current_exception(runtime_error("choleskyinverse_mkl(): Matrix is not square."));
+		throw boost::enable_current_exception(std::runtime_error("choleskyinverse_mkl(): Matrix is not square."));
 
 	char uplo(LOWER_TRIANGLE);
 
@@ -1338,12 +1336,12 @@ matrix_2d matrix_2d::choleskyinverse_mkl(bool LOWER_IS_CLEARED /*=false*/)
 	// Perform Cholesky factorisation
 	dpotrf(&uplo, &n, _buffer, &n, &info);
 	if(info != 0)
-		throw boost::enable_current_exception(runtime_error("choleskyinverse_mkl(): Cholesky factorisation failed."));
+		throw boost::enable_current_exception(std::runtime_error("choleskyinverse_mkl(): Cholesky factorisation failed."));
 	
 	// Perform Cholesky inverse
 	dpotri(&uplo, &n, _buffer, &n, &info); 
 	if(info != 0)
-		throw boost::enable_current_exception(runtime_error("choleskyinverse_mkl(): Cholesky inversion failed."));
+		throw boost::enable_current_exception(std::runtime_error("choleskyinverse_mkl(): Cholesky inversion failed."));
 
 	// Copy empty triangle part
 	if (LOWER_IS_CLEARED)
@@ -1368,7 +1366,7 @@ matrix_2d matrix_2d::choleskyinverse_mkl(bool LOWER_IS_CLEARED /*=false*/)
 //matrix_2d matrix_2d::choleskyinverse(bool LOWER_IS_CLEARED /*=false*/)
 //{
 //	if (_rows != _cols)
-//		throw boost::enable_current_exception(runtime_error("choleskyinverse(): Matrix is not square."));
+//		throw boost::enable_current_exception(std::runtime_error("choleskyinverse(): Matrix is not square."));
 //
 //	// fill lower triangle with zeros
 //	if (!LOWER_IS_CLEARED)
@@ -1385,10 +1383,10 @@ matrix_2d matrix_2d::choleskyinverse_mkl(bool LOWER_IS_CLEARED /*=false*/)
 //	{
 //		if (get(i, i) < 0.)
 //		{
-//			stringstream ss;
-//			ss << "choleskyinverse(): Diagonal terms cannot be negative:" << endl <<
+//			std::stringstream ss;
+//			ss << "choleskyinverse(): Diagonal terms cannot be negative:" << std::endl <<
 //				"  " << "element " << i << ", " << i << " = " << get(i, i);
-//			throw boost::enable_current_exception(runtime_error(ss.str()));
+//			throw boost::enable_current_exception(std::runtime_error(ss.str()));
 //		}
 //		_factors[i] = sqrt(get(i,i));
 //	}
@@ -1472,13 +1470,13 @@ matrix_2d matrix_2d::choleskyinverse_mkl(bool LOWER_IS_CLEARED /*=false*/)
 //					tmp += get(k, i) * get(k, i);
 //				if ((get(i, j) - tmp) < -0.) 
 //				{
-//					stringstream ss;
-//					ss << "choleskyinverse(): Matrix is not positive definite:" << endl <<
+//					std::stringstream ss;
+//					ss << "choleskyinverse(): Matrix is not positive definite:" << std::endl <<
 //						"  " << "decomposition value (" << i << ", " << j << " = " << 
-//						scientific << setprecision(6) << (get(i, j) - tmp) << ")" <<
+//						scientific << std::setprecision(6) << (get(i, j) - tmp) << ")" <<
 //						"  must be greater than zero.";			
 //					throw boost::enable_current_exception(
-//					runtime_error(ss.str()));
+//					std::runtime_error(ss.str()));
 //				}
 //				put(i, j, pow((get(i, j) - tmp), .5));
 //			}
@@ -1596,7 +1594,7 @@ void matrix_2d::zero(const UINT32& row_begin, const UINT32& col_begin,
 //{
 //	// Turn matrix into an identity matrix:
 //	if (_rows != _cols)
-//		throw boost::enable_current_exception(runtime_error("identity(): Matrix is not square."));
+//		throw boost::enable_current_exception(std::runtime_error("identity(): Matrix is not square."));
 //	zero();
 //	for (UINT32 row=0; row<_rows; row++)
 //		put(row, row, 1.0);
@@ -1606,7 +1604,7 @@ void matrix_2d::zero(const UINT32& row_begin, const UINT32& col_begin,
 //void matrix_2d::identity(const UINT32& row_begin, const UINT32& col_begin)
 //{
 //	if (_rows-row_begin != _cols-col_begin)
-//		throw boost::enable_current_exception(runtime_error("identity(): the sub-matrix from [rowstart,columnstart] to the end is not square."));
+//		throw boost::enable_current_exception(std::runtime_error("identity(): the sub-matrix from [rowstart,columnstart] to the end is not square."));
 //
 //	UINT32 row, column;
 //
@@ -1623,19 +1621,19 @@ void matrix_2d::zero(const UINT32& row_begin, const UINT32& col_begin,
 //void matrix_2d::identity(const UINT32& rowstart, const UINT32& columnstart,	const UINT32& rows, const UINT32& columns)
 //{
 //	if (rows != columns)
-//		throw boost::enable_current_exception(runtime_error("identity(): the specified sub-matrix is not square."));
+//		throw boost::enable_current_exception(std::runtime_error("identity(): the specified sub-matrix is not square."));
 //
 //	UINT32 rowend(rowstart+rows), columnend(columnstart+columns);
 //
 //	if (rowend > _rows || columnend > _cols)
 //	{
-//		stringstream ss;
-//		ss << "identity(): " << endl;
+//		std::stringstream ss;
+//		ss << "identity(): " << std::endl;
 //		if (rowend >= _rows)
-//			ss << "    Row index (destination) " << rowend << " exceeds the matrix row count (" << _rows << "). " << endl;
+//			ss << "    Row index (destination) " << rowend << " exceeds the matrix row count (" << _rows << "). " << std::endl;
 //		if (columnend >= _cols)
 //			ss << "    Column index (destination) " << columnend << " exceeds the matrix column count (" << _cols << ").";
-//		throw boost::enable_current_exception(runtime_error(ss.str()));
+//		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 //	}
 //
 //	UINT32 row, column;
@@ -1655,29 +1653,29 @@ void matrix_2d::zero(const UINT32& row_begin, const UINT32& col_begin,
 
 //// coutMatrix()
 ////
-//void matrix_2d::coutmatrix(const string& sTitle, const short& precision) const
+//void matrix_2d::coutmatrix(const std::string& sTitle, const short& precision) const
 //{
-//	cout << sTitle << " (" << _rows << "x" << _cols << ")" << endl;
+//	std::cout << sTitle << " (" << _rows << "x" << _cols << ")" << std::endl;
 //	UINT32 column, row;
-//	stringstream ss;
+//	std::stringstream ss;
 //	for (row=0; row<_rows; row++) {
 //		for (column=0; column<_cols; column++) {
 //			ss.str("");
-//			ss << fixed << setprecision(precision) << get(row, column) << " ";
+//			ss << std::fixed << std::setprecision(precision) << get(row, column) << " ";
 //			if (precision < 1)
-//				cout << setw(3) << ss.str();
+//				std::cout << std::setw(3) << ss.str();
 //			else
-//				cout << setw(precision + 4) << right << ss.str();
+//				std::cout << std::setw(precision + 4) << std::right << ss.str();
 //
 //			if (column > 20)
 //				break;
 //		}
-//		cout << endl;
+//		std::cout << std::endl;
 //		if (row > 20)
 //			break;
 //		
 //	}
-//	cout << endl;
+//	std::cout << std::endl;
 //
 //} // coutMatrix()
 	
@@ -1738,7 +1736,7 @@ matrix_2d matrix_2d::operator*(const double& rhs) const
 //matrix_2d matrix_2d::operator*(const matrix_2d& rhs) const
 //{
 //	if (_cols != rhs.rows())
-//		throw boost::enable_current_exception(runtime_error("operator*(): Matrix dimensions are incompatible."));
+//		throw boost::enable_current_exception(std::runtime_error("operator*(): Matrix dimensions are incompatible."));
 //	
 //	matrix_2d m(_rows, rhs.columns());
 //	
@@ -1760,7 +1758,7 @@ matrix_2d matrix_2d::operator*(const double& rhs) const
 //matrix_2d matrix_2d::operator+(const matrix_2d& rhs) const
 //{
 //	if (_cols != rhs.rows())
-//		throw boost::enable_current_exception(runtime_error("operator+(): Matrix dimensions are incompatible."));
+//		throw boost::enable_current_exception(std::runtime_error("operator+(): Matrix dimensions are incompatible."));
 //	
 //	matrix_2d m(_rows, rhs.columns());
 //	
@@ -1780,7 +1778,7 @@ matrix_2d matrix_2d::operator*(const double& rhs) const
 //matrix_2d matrix_2d::operator-(const matrix_2d& rhs) const
 //{
 //	if (_cols != rhs.rows())
-//		throw boost::enable_current_exception(runtime_error("operator-(): Matrix dimensions are incompatible."));
+//		throw boost::enable_current_exception(std::runtime_error("operator-(): Matrix dimensions are incompatible."));
 //	
 //	matrix_2d m(_rows, rhs.columns());
 //	
@@ -1801,7 +1799,7 @@ matrix_2d matrix_2d::operator*(const double& rhs) const
 //matrix_2d matrix_2d::operator*=(const matrix_2d& rhs) 
 //{			
 //	if (_cols != rhs.rows())
-//		throw boost::enable_current_exception(runtime_error("operator*=(): Matrix dimensions are incompatible."));
+//		throw boost::enable_current_exception(std::runtime_error("operator*=(): Matrix dimensions are incompatible."));
 //	
 //	matrix_2d m(_rows, rhs.columns());
 //	
@@ -1822,7 +1820,7 @@ matrix_2d matrix_2d::operator*(const double& rhs) const
 //matrix_2d matrix_2d::operator+=(const matrix_2d& rhs) 
 //{			
 //	if (_cols != rhs.columns() || _rows != rhs.rows())
-//		throw boost::enable_current_exception(runtime_error("operator+=(): Matrix dimensions are incompatible."));
+//		throw boost::enable_current_exception(std::runtime_error("operator+=(): Matrix dimensions are incompatible."));
 //	
 //	// Perform the addition
 //	UINT32 row, column;
@@ -1837,7 +1835,7 @@ matrix_2d matrix_2d::operator*(const double& rhs) const
 //matrix_2d matrix_2d::operator-=(const matrix_2d& rhs) 
 //{			
 //	if (_cols != rhs.columns() || _rows != rhs.rows())
-//		throw boost::enable_current_exception(runtime_error("operator-=(): Matrix dimensions are incompatible."));
+//		throw boost::enable_current_exception(std::runtime_error("operator-=(): Matrix dimensions are incompatible."));
 //	
 //	// Perform the addition
 //	UINT32 row, column;
@@ -1850,7 +1848,7 @@ matrix_2d matrix_2d::operator*(const double& rhs) const
 matrix_2d matrix_2d::add(const matrix_2d& rhs)
 {
 	if (_rows != rhs.rows() || _cols != rhs.columns())
-		throw boost::enable_current_exception(runtime_error("add(): Result matrix dimensions are incompatible."));
+		throw boost::enable_current_exception(std::runtime_error("add(): Result matrix dimensions are incompatible."));
 	
 	UINT32 row, column;
 	for (row=0; row<_rows; row++) {
@@ -1865,10 +1863,10 @@ matrix_2d matrix_2d::add(const matrix_2d& rhs)
 //matrix_2d matrix_2d::add(const matrix_2d& lhs, const matrix_2d& rhs)
 //{
 //	if (_rows != lhs.rows() || _cols != lhs.columns())
-//		throw boost::enable_current_exception(runtime_error("add(): Result matrix dimensions are incompatible."));
+//		throw boost::enable_current_exception(std::runtime_error("add(): Result matrix dimensions are incompatible."));
 //	
 //	if (_rows != rhs.rows() || _cols != rhs.columns())
-//		throw boost::enable_current_exception(runtime_error("add(): Result matrix dimensions are incompatible."));
+//		throw boost::enable_current_exception(std::runtime_error("add(): Result matrix dimensions are incompatible."));
 //	
 //	UINT32 row, column;
 //	for (row=0; row<_rows; row++) {
@@ -1884,7 +1882,7 @@ matrix_2d matrix_2d::add(const matrix_2d& rhs)
 //matrix_2d matrix_2d::multiply(const matrix_2d& rhs)
 //{
 //	if (_cols != rhs.rows())
-//		throw boost::enable_current_exception(runtime_error("multiply(): Matrix dimensions are incompatible."));
+//		throw boost::enable_current_exception(std::runtime_error("multiply(): Matrix dimensions are incompatible."));
 //	
 //	matrix_2d m(_rows, rhs.columns());
 //	
@@ -1937,9 +1935,9 @@ matrix_2d matrix_2d::multiply_mkl(const char* lhs_trans, const matrix_2d& rhs, c
 	}
 
 	if (lhs_cols != rhs_rows)
-		throw boost::enable_current_exception(runtime_error("multiply_mkl(): Matrix dimensions are incompatible."));
+		throw boost::enable_current_exception(std::runtime_error("multiply_mkl(): Matrix dimensions are incompatible."));
 	else if (_rows != lhs_rows || _cols != rhs_cols)
-		throw boost::enable_current_exception(runtime_error("multiply_mkl(): Result matrix dimensions are incompatible."));
+		throw boost::enable_current_exception(std::runtime_error("multiply_mkl(): Result matrix dimensions are incompatible."));
 
 	dgemm(lhs_trans, rhs_trans,         // Type of matrices  
 		&lhs_rows,                      // rows of A
@@ -1961,9 +1959,9 @@ matrix_2d matrix_2d::multiply_mkl(const char* lhs_trans, const matrix_2d& rhs, c
 //matrix_2d matrix_2d::multiply(const matrix_2d& lhs, const matrix_2d& rhs)
 //{
 //	if (lhs.columns() != rhs.rows())
-//		throw boost::enable_current_exception(runtime_error("multiply(): Matrix dimensions are incompatible."));
+//		throw boost::enable_current_exception(std::runtime_error("multiply(): Matrix dimensions are incompatible."));
 //	else if (_rows != lhs.rows() || _cols != rhs.columns())
-//		throw boost::enable_current_exception(runtime_error("multiply(): Result matrix dimensions are incompatible."));
+//		throw boost::enable_current_exception(std::runtime_error("multiply(): Result matrix dimensions are incompatible."));
 //	
 //	// Perform the multiplication
 //	UINT32 row, column, i;
@@ -2014,9 +2012,9 @@ matrix_2d matrix_2d::multiply_mkl(const matrix_2d& lhs, const char* lhs_trans,
 	}
 
 	if (lhs_cols != rhs_rows)
-		throw boost::enable_current_exception(runtime_error("multiply_mkl(): Matrix dimensions are incompatible."));
+		throw boost::enable_current_exception(std::runtime_error("multiply_mkl(): Matrix dimensions are incompatible."));
 	else if (_rows != lhs_rows || _cols != rhs_cols)
-		throw boost::enable_current_exception(runtime_error("multiply_mkl(): Result matrix dimensions are incompatible."));
+		throw boost::enable_current_exception(std::runtime_error("multiply_mkl(): Result matrix dimensions are incompatible."));
 
 	dgemm(lhs_trans, rhs_trans,         // Type of matrices  
 		&lhs_rows,                      // rows of A
@@ -2041,11 +2039,11 @@ matrix_2d matrix_2d::multiply_mkl(const matrix_2d& lhs, const char* lhs_trans,
 //matrix_2d matrix_2d::multiply_square(const matrix_2d& lhs, const matrix_2d& rhs)
 //{
 //	//if (lhs.columns() != rhs.rows())
-//	//	throw boost::enable_current_exception(runtime_error("multiply_square(): Matrix dimensions are incompatible."));
+//	//	throw boost::enable_current_exception(std::runtime_error("multiply_square(): Matrix dimensions are incompatible."));
 //	//else if (_rows != lhs.rows() || _cols != rhs.columns())
-//	//	throw boost::enable_current_exception(runtime_error("multiply_square(): Result matrix dimensions are incompatible."));
+//	//	throw boost::enable_current_exception(std::runtime_error("multiply_square(): Result matrix dimensions are incompatible."));
 //	//else if (_rows != _cols)
-//	//	throw boost::enable_current_exception(runtime_error("multiply_square(): Result matrix must be square."));
+//	//	throw boost::enable_current_exception(std::runtime_error("multiply_square(): Result matrix must be square."));
 //	//
 //	//// Perform the multiplication:
 //	//UINT32 row, column, i;
@@ -2070,11 +2068,11 @@ matrix_2d matrix_2d::multiply_mkl(const matrix_2d& lhs, const char* lhs_trans,
 //matrix_2d matrix_2d::multiply_square_triangular(const matrix_2d& lhs, const matrix_2d& rhs)
 //{
 //	if (lhs.columns() != rhs.rows())
-//		throw boost::enable_current_exception(runtime_error("multiply_square_triangular(): Matrix dimensions are incompatible."));
+//		throw boost::enable_current_exception(std::runtime_error("multiply_square_triangular(): Matrix dimensions are incompatible."));
 //	else if (_rows != lhs.rows() || _cols != rhs.columns())
-//		throw boost::enable_current_exception(runtime_error("multiply_square_triangular(): Result matrix dimensions are incompatible."));
+//		throw boost::enable_current_exception(std::runtime_error("multiply_square_triangular(): Result matrix dimensions are incompatible."));
 //	else if (_rows != _cols)
-//		throw boost::enable_current_exception(runtime_error("multiply_square_triangular(): Result matrix must be square."));
+//		throw boost::enable_current_exception(std::runtime_error("multiply_square_triangular(): Result matrix must be square."));
 //	
 //	// Perform the multiplication:
 //	UINT32 row, column, i;
@@ -2097,11 +2095,11 @@ matrix_2d matrix_2d::multiply_mkl(const matrix_2d& lhs, const char* lhs_trans,
 //matrix_2d matrix_2d::multiply_square_t(const matrix_2d& lhs, const matrix_2d& rhs)
 //{
 //	if (lhs.columns() != rhs.rows())
-//		throw boost::enable_current_exception(runtime_error("multiply_square_t(): Matrix dimensions are incompatible."));
+//		throw boost::enable_current_exception(std::runtime_error("multiply_square_t(): Matrix dimensions are incompatible."));
 //	else if (_rows != lhs.rows() || _cols != rhs.columns())
-//		throw boost::enable_current_exception(runtime_error("multiply_square_t(): Result matrix dimensions are incompatible."));
+//		throw boost::enable_current_exception(std::runtime_error("multiply_square_t(): Result matrix dimensions are incompatible."));
 //	else if (_rows != _cols)
-//		throw boost::enable_current_exception(runtime_error("multiply_square_t(): Result matrix must be square."));
+//		throw boost::enable_current_exception(std::runtime_error("multiply_square_t(): Result matrix must be square."));
 //	
 //	// Perform the multiplication:
 //	UINT32 row, column, i;
@@ -2121,7 +2119,7 @@ matrix_2d matrix_2d::multiply_mkl(const matrix_2d& lhs, const char* lhs_trans,
 matrix_2d matrix_2d::transpose(const matrix_2d& matA)
 {
 	if ((matA.columns() != _rows) || (matA.rows() != _cols))
-		throw boost::enable_current_exception(runtime_error("transpose(): Matrix dimensions are incompatible."));
+		throw boost::enable_current_exception(std::runtime_error("transpose(): Matrix dimensions are incompatible."));
 
 	UINT32 column, row;
 	for (row=0; row<_rows; row++)
@@ -2163,7 +2161,7 @@ double matrix_2d::compute_maximum_value()
 //double matrix_2d::vectordifference(const matrix_2d& rhs)
 //{
 //	if (_rows != rhs.rows() && _cols != rhs.columns())
-//		throw boost::enable_current_exception(runtime_error("vectordifference(): Matrix dimensions are incompatible."));
+//		throw boost::enable_current_exception(std::runtime_error("vectordifference(): Matrix dimensions are incompatible."));
 //
 //	double diffPrev(0.), diff(0.);
 //	for (UINT32 row=0; row<_rows; ++row)
@@ -2178,10 +2176,10 @@ double matrix_2d::compute_maximum_value()
 //void matrix_2d::difference(const matrix_2d* lhs, const matrix_2d* rhs)
 //{
 //	if (_rows != rhs->rows() && _cols != rhs->columns())
-//		throw boost::enable_current_exception(runtime_error("difference(): Matrix dimensions are incompatible."));
+//		throw boost::enable_current_exception(std::runtime_error("difference(): Matrix dimensions are incompatible."));
 //
 //	if (_rows != lhs->rows() && _cols != lhs->columns())
-//		throw boost::enable_current_exception(runtime_error("difference(): Matrix dimensions are incompatible."));
+//		throw boost::enable_current_exception(std::runtime_error("difference(): Matrix dimensions are incompatible."));
 //
 //	UINT32 i, j;
 //	for (i=0; i<_rows; ++i)
@@ -2193,7 +2191,7 @@ double matrix_2d::compute_maximum_value()
 //void matrix_2d::difference(const UINT32& row_begin, const UINT32& col_begin, const matrix_2d& lhs, const matrix_2d& rhs)
 //{
 //	if (lhs.rows() != rhs.rows() && lhs.columns() != rhs.columns())
-//		throw boost::enable_current_exception(runtime_error("differenceabs(): Matrix dimensions are incompatible."));
+//		throw boost::enable_current_exception(std::runtime_error("differenceabs(): Matrix dimensions are incompatible."));
 //	if (row_begin >= _rows)
 //		return;
 //	if (col_begin >= _cols)
@@ -2214,10 +2212,10 @@ double matrix_2d::compute_maximum_value()
 //void matrix_2d::differenceabs(const matrix_2d& lhs, const matrix_2d& rhs)
 //{
 //	if (_rows != rhs.rows() && _cols != rhs.columns())
-//		throw boost::enable_current_exception(runtime_error("differenceabs(): Matrix dimensions are incompatible."));
+//		throw boost::enable_current_exception(std::runtime_error("differenceabs(): Matrix dimensions are incompatible."));
 //
 //	if (_rows != lhs.rows() && _cols != lhs.columns())
-//		throw boost::enable_current_exception(runtime_error("differenceabs(): Matrix dimensions are incompatible."));
+//		throw boost::enable_current_exception(std::runtime_error("differenceabs(): Matrix dimensions are incompatible."));
 //
 //	UINT32 i, j;
 //	for (i=0; i<_rows; ++i)
@@ -2228,10 +2226,10 @@ double matrix_2d::compute_maximum_value()
 //void matrix_2d::differenceabs(const matrix_2d& lhs, const matrix_2d* rhs)
 //{
 //	if (_rows != rhs->rows() && _cols != rhs->columns())
-//		throw boost::enable_current_exception(runtime_error("differenceabs(): Matrix dimensions are incompatible."));
+//		throw boost::enable_current_exception(std::runtime_error("differenceabs(): Matrix dimensions are incompatible."));
 //
 //	if (_rows != lhs.rows() && _cols != lhs.columns())
-//		throw boost::enable_current_exception(runtime_error("differenceabs(): Matrix dimensions are incompatible."));
+//		throw boost::enable_current_exception(std::runtime_error("differenceabs(): Matrix dimensions are incompatible."));
 //
 //	UINT32 i, j;
 //	for (i=0; i<_rows; ++i)
@@ -2240,7 +2238,7 @@ double matrix_2d::compute_maximum_value()
 //}
 
 #ifdef _MSDEBUG
-void matrix_2d::trace(const string& comment, const string& format) const
+void matrix_2d::trace(const std::string& comment, const std::string& format) const
 {
 	UINT32 i, j;
 	if (comment.empty())
@@ -2256,7 +2254,7 @@ void matrix_2d::trace(const string& comment, const string& format) const
 #endif
 
 #ifdef _MSDEBUG
-void matrix_2d::trace(const string& comment, const string& submat_comment, const string& format, 
+void matrix_2d::trace(const std::string& comment, const std::string& submat_comment, const std::string& format, 
 					  const UINT32& row_begin, const UINT32& col_begin, const UINT32& rows, const UINT32& columns) const
 {
 	// comparison of unsigned expression < 0 is always false

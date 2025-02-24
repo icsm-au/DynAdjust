@@ -36,9 +36,6 @@
 
 #include <boost/shared_ptr.hpp>
 
-using namespace std;
-using namespace boost;
-
 namespace dynadjust {
 namespace measurements {
 
@@ -61,33 +58,34 @@ public:
 	CDnaDirectionSet(const UINT32 lsetID);
 
 	//CDnaDirectionSet(bool bIgnore,
-	//		const string& strFirst, const string& strTarget,
+	//		const std::string& strFirst, const std::string& strTarget,
 	//		const double& drValue, const double& dStdDev,
 	//		const float& fInstrHeight, const float& fTargetHeight);
 
 	bool operator==(const CDnaDirectionSet& rhs) const;
-	virtual bool operator<(const CDnaDirectionSet& rhs) const;
+	bool operator<(const CDnaDirectionSet& rhs) const;
 
 	//inline CDnaDirectionSet& operator[](int iIndex) { return this[iIndex]; }
 
-	void LoadDirectionSet(const char* const, const int&, const string&, const string&, bool, const int&);
+	void LoadDirectionSet(const char* const, const int&, const std::string&, const std::string&, bool, const int&);
 
 	inline UINT32 GetClusterID() const { return m_lsetID; }
-	inline string GetTarget() const { return m_strTarget; }
+	inline std::string GetTarget() const { return m_strTarget; }
 	inline UINT32 GetTotal() const { return m_lRecordedTotal; }
 	inline double GetValue() const { return m_drValue; }
 	inline double GetStdDev() const { return m_dStdDev; }
 	
 	inline size_t GetNumDirections() const { return m_vTargetDirections.size(); }
-	inline vector<CDnaDirection>* GetDirections_ptr() { return &m_vTargetDirections; }
+	inline std::vector<CDnaDirection>* GetDirections_ptr() { return &m_vTargetDirections; }
 
 	inline void SetClusterID(const UINT32& id) { m_lsetID = id; }
-	inline void SetTarget(const string& str) { m_strTarget = trimstr(str); }
+	inline void SetTarget(const std::string& str) { m_strTarget = trimstr(str); }
 	inline void SetTotal(const UINT32& l) { m_lRecordedTotal = l; }
+	inline void SetNonIgnoredDirns(const UINT32& n) { m_lNonIgnoredDirns = n; }
 
-	void SetTotal(const string& str);
-	void SetValue(const string& str);
-	void SetStdDev(const string& str);
+	void SetTotal(const std::string& str);
+	void SetValue(const std::string& str);
+	void SetStdDev(const std::string& str);
 	
 	void AddDirection(const CDnaMeasurement* pDirection);
 	void ClearDirections();
@@ -96,7 +94,7 @@ public:
 	virtual UINT32 CalcBinaryRecordCount() const;
 	virtual void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) const;
 	virtual UINT32 SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr, it_vdbid_t& dbidmap);
-	virtual void WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool) const;
+	virtual void WriteDynaMLMsr(std::ofstream* dynaml_stream, const std::string& comment, bool) const;
 	virtual void WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool) const;
 	virtual void SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* ellipsoid);
 
@@ -104,13 +102,14 @@ public:
 
 	void SetDatabaseMaps(it_vdbid_t& dbidmap);
 
-	string m_strTarget;
+	std::string m_strTarget;
 
 protected:
 	double m_drValue;
 	double m_dStdDev;
 	UINT32 m_lRecordedTotal;
-	vector<CDnaDirection> m_vTargetDirections;
+	UINT32 m_lNonIgnoredDirns;
+	std::vector<CDnaDirection> m_vTargetDirections;
 	UINT32 m_lsetID;
 
 	it_vdbid_t m_dbidmap;

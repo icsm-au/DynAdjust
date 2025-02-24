@@ -32,8 +32,6 @@
 #include <include/measurement_types/dnameasurement.hpp>
 #include <include/config/dnatypes.hpp>
 
-using namespace std;
-
 namespace dynadjust {
 namespace measurements {
 
@@ -53,42 +51,42 @@ private:
 	//CDnaGpsPoint& operator=(const CDnaGpsPoint& rhs);
 
 public:
-	//CDnaGpsPoint(const bool bIgnore, const string& strType, const string& strFirstStation);
+	//CDnaGpsPoint(const bool bIgnore, const std::string& strType, const std::string& strFirstStation);
 
 	//virtual inline CDnaGpsPoint* clone() const { return new CDnaGpsPoint(*this); }
 	bool operator==(const CDnaGpsPoint& rhs) const;
-	virtual bool operator<(const CDnaGpsPoint& rhs) const;
+	bool operator<(const CDnaGpsPoint& rhs) const;
 
 	//inline CDnaGpsPoint& operator[](int iIndex) { return this[iIndex]; }
 
 	void AddPointCovariance(const CDnaCovariance* pGpsCovariance);
 
 	inline UINT32 GetClusterID() const { return m_lclusterID; }
-	inline string GetCoordType() const { return m_strCoordType; }
+	inline std::string GetCoordType() const { return m_strCoordType; }
 	
-	inline vector<CDnaCovariance>* GetCovariances_ptr() { return &m_vPointCovariances; }
+	inline std::vector<CDnaCovariance>* GetCovariances_ptr() { return &m_vPointCovariances; }
 
 	inline void SetClusterID(const UINT32& id) { m_lclusterID = id; }
-	void SetX(const string& str);
-	void SetY(const string& str);
-	void SetZ(const string& str);
-	void SetSigmaXX(const string& str);
-	void SetSigmaXY(const string& str);
-	void SetSigmaXZ(const string& str);
-	void SetSigmaYY(const string& str);
-	void SetSigmaYZ(const string& str);
-	void SetSigmaZZ(const string& str);
+	void SetX(const std::string& str);
+	void SetY(const std::string& str);
+	void SetZ(const std::string& str);
+	void SetSigmaXX(const std::string& str);
+	void SetSigmaXY(const std::string& str);
+	void SetSigmaXZ(const std::string& str);
+	void SetSigmaYY(const std::string& str);
+	void SetSigmaYZ(const std::string& str);
+	void SetSigmaZZ(const std::string& str);
 	
-	void SetReferenceFrame(const string& refFrame);
-	//void SetEpoch(const string& epoch);
-	void SetEpsg(const string& epsg);	
-	inline string GetReferenceFrame() const { return m_referenceFrame; }
-	//inline string GetEpoch() const { return m_epoch; }
+	void SetReferenceFrame(const std::string& refFrame);
+	//void SetEpoch(const std::string& epoch);
+	void SetEpsg(const std::string& epsg);	
+	inline std::string GetReferenceFrame() const { return m_referenceFrame; }
+	//inline std::string GetEpoch() const { return m_epoch; }
 		
-	//void SetPscale(const string& str);
-	//void SetLscale(const string& str);
-	//void SetHscale(const string& str);
-	//void SetVscale(const string& str);
+	//void SetPscale(const std::string& str);
+	//void SetLscale(const std::string& str);
+	//void SetHscale(const std::string& str);
+	//void SetVscale(const std::string& str);
 
 	inline void SetTotal(const UINT32& l) { m_lRecordedTotal = l; }
 
@@ -107,7 +105,7 @@ public:
 	inline void SetLscale(const double& dbl) { m_dLscale = dbl; }
 	inline void SetHscale(const double& dbl) { m_dHscale = dbl; }
 	inline void SetVscale(const double& dbl) { m_dVscale = dbl; }
-	void SetCoordType(const string& str);
+	void SetCoordType(const std::string& str);
 
 	inline void SetRecordedTotal(const UINT32& total) { m_lRecordedTotal = total; }
 
@@ -117,10 +115,10 @@ public:
 	void ResizeGpsCovariancesCount(const UINT32& size = 0);
 
 	virtual UINT32 CalcBinaryRecordCount() const;
-	//void coutPointData(ostream &os) const;
+	//void coutPointData(std::ostream &os) const;
 	virtual void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) const;
 	virtual UINT32 SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr, it_vdbid_t& dbidmap);
-	virtual void WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool) const;
+	virtual void WriteDynaMLMsr(std::ofstream* dynaml_stream, const std::string& comment, bool) const;
 	virtual void WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool) const;
 	virtual void SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* ellipsoid);
 	virtual void PopulateMsr(pvstn_t bstRecords, uint32_uint32_map* blockStationsMap, vUINT32* blockStations,
@@ -155,16 +153,16 @@ protected:
 	double m_dLscale;
 	double m_dHscale;
 	double m_dVscale;
-	string m_strCoordType;
+	std::string m_strCoordType;
 
 	COORD_TYPE m_ctType;
 
-	string	m_referenceFrame;
+	std::string	m_referenceFrame;
 	//string	m_epoch;
 
 	UINT32 m_lclusterID;
 
-	vector<CDnaCovariance> m_vPointCovariances;
+	std::vector<CDnaCovariance> m_vPointCovariances;
 };
 
 
@@ -184,43 +182,43 @@ private:
 	CDnaGpsPointCluster& operator=(const CDnaGpsPointCluster& rhs);
 
 public:
-	//CDnaGpsPointCluster(const bool bIgnore, const string& strType, const string& strFirstStation);
-	CDnaGpsPointCluster(const UINT32 lclusterID, const string& referenceframe, const string& epoch);
+	//CDnaGpsPointCluster(const bool bIgnore, const std::string& strType, const std::string& strFirstStation);
+	CDnaGpsPointCluster(const UINT32 lclusterID, const std::string& referenceframe, const std::string& epoch);
 
 	//virtual inline CDnaGpsPointCluster* clone() const { return new CDnaGpsPointCluster(*this); }
 	bool operator==(const CDnaGpsPointCluster& rhs) const;
-	virtual bool operator<(const CDnaGpsPointCluster& rhs) const;
+	bool operator<(const CDnaGpsPointCluster& rhs) const;
 
 	//inline CDnaGpsPointCluster& operator[](int iIndex) { return this[iIndex]; }
 
 	//inline UINT32 GetNumPoints() { return m_vGpsPoints.size(); }
-	inline vector<CDnaGpsPoint>& GetPoints() { return m_vGpsPoints; }
-	inline vector<CDnaGpsPoint>* GetPoints_ptr() { return &m_vGpsPoints; }
+	inline std::vector<CDnaGpsPoint>& GetPoints() { return m_vGpsPoints; }
+	inline std::vector<CDnaGpsPoint>* GetPoints_ptr() { return &m_vGpsPoints; }
 
 	inline UINT32 GetClusterID() const { return m_lclusterID; }
-	inline string GetCoordType() const { return m_strCoordType; }
+	inline std::string GetCoordType() const { return m_strCoordType; }
 	inline UINT32 GetTotal() const { return m_lRecordedTotal; }
 	inline double GetPscale() const { return m_dPscale; }
 	inline double GetLscale() const { return m_dLscale; }
 	inline double GetHscale() const { return m_dHscale; }
 	inline double GetVscale() const { return m_dVscale; }
 
-	void SetCoordType(const string& str);
+	void SetCoordType(const std::string& str);
 
 	_COORD_TYPE_ GetMyCoordTypeC();
 
-	void SetReferenceFrame(const string& refFrame);
-	//void SetEpoch(const string& epoch);
-	void SetEpsg(const string& epsg);	
-	inline string GetReferenceFrame() const { return m_referenceFrame; }
-	//inline string GetEpoch() const { return m_epoch; }
+	void SetReferenceFrame(const std::string& refFrame);
+	//void SetEpoch(const std::string& epoch);
+	void SetEpsg(const std::string& epsg);	
+	inline std::string GetReferenceFrame() const { return m_referenceFrame; }
+	//inline std::string GetEpoch() const { return m_epoch; }
 	
-	//inline void SetPoints(const vector<CDnaGpsPoint>& d) { m_vGpsPoints = d; }
-	void SetTotal(const string& str);
-	void SetPscale(const string& str);
-	void SetLscale(const string& str);
-	void SetHscale(const string& str);
-	void SetVscale(const string& str);
+	//inline void SetPoints(const std::vector<CDnaGpsPoint>& d) { m_vGpsPoints = d; }
+	void SetTotal(const std::string& str);
+	void SetPscale(const std::string& str);
+	void SetLscale(const std::string& str);
+	void SetHscale(const std::string& str);
+	void SetVscale(const std::string& str);
 
 	inline void SetTotal(const UINT32& u) { m_lRecordedTotal = u; }
 
@@ -235,7 +233,7 @@ public:
 	virtual UINT32 CalcBinaryRecordCount() const;
 	virtual void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) const;
 	virtual UINT32 SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr, it_vdbid_t& dbidmap);
-	virtual void WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool) const;
+	virtual void WriteDynaMLMsr(std::ofstream* dynaml_stream, const std::string& comment, bool) const;
 	virtual void WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool) const;
 	virtual void SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* ellipsoid);
 	virtual void PopulateMsr(pvstn_t bstRecords, uint32_uint32_map* blockStationsMap, vUINT32* blockStations,
@@ -252,13 +250,13 @@ protected:
 	double m_dLscale;
 	double m_dHscale;
 	double m_dVscale;
-	string m_strCoordType;
+	std::string m_strCoordType;
 
 	COORD_TYPE m_ctType;
 
-	vector<CDnaGpsPoint> m_vGpsPoints;
+	std::vector<CDnaGpsPoint> m_vGpsPoints;
 
-	string	m_referenceFrame;
+	std::string	m_referenceFrame;
 	//string	m_epoch;
 
 	UINT32 m_lclusterID;

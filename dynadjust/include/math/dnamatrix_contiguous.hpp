@@ -26,6 +26,13 @@
 #ifndef DNAMATRIX_CONTIGUOUS_H_
 #define DNAMATRIX_CONTIGUOUS_H_
 
+// prevent conflict with std::min(...) std::max(...)
+#ifdef _WIN32
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#endif
+
 #if defined(_MSC_VER)
 	#if defined(LIST_INCLUDES_ON_BUILD) 
 		#pragma message("  " __FILE__) 
@@ -59,18 +66,16 @@
 #include <math.h>
 #include <cstring>		// memset
 
-using namespace std;
-using namespace boost;
 using namespace dynadjust::memory;
 using namespace dynadjust::exception;
 
 namespace dynadjust { namespace math {
 
 class matrix_2d;
-typedef vector<matrix_2d> v_mat_2d, *pv_mat_2d;
+typedef std::vector<matrix_2d> v_mat_2d, *pv_mat_2d;
 typedef v_mat_2d::iterator _it_v_mat_2d;
 typedef v_mat_2d::const_iterator _it_v_mat_2d_const;
-typedef vector<v_mat_2d> vv_mat_2d;
+typedef std::vector<v_mat_2d> vv_mat_2d;
 
 // Uncomment the following to store matrices in row-wise fashion
 //#define DNAMATRIX_ROW_WISE
@@ -305,11 +310,11 @@ public:
 	double compute_maximum_value();
 
 	// Printing
-	//void coutmatrix(const string& sTitle, const short& precision) const;
-	friend ostream& operator<< (ostream& os, const matrix_2d& rhs);
-	//friend ostream& operator<< (ostream& os, const matrix_2d* rhs);
-	//friend ostream& operator<< (ostream& os, const v_mat_2d& rhs);
-	//friend ostream& operator<< (ostream& os, const v_mat_2d* rhs);
+	//void coutmatrix(const std::string& sTitle, const short& precision) const;
+	friend std::ostream& operator<< (std::ostream& os, const matrix_2d& rhs);
+	//friend ostream& operator<< (std::ostream& os, const matrix_2d* rhs);
+	//friend ostream& operator<< (std::ostream& os, const v_mat_2d& rhs);
+	//friend ostream& operator<< (std::ostream& os, const v_mat_2d* rhs);
 
 	//// Reading
 	//friend istream& operator>> (istream& is, matrix_2d& rhs);
@@ -325,8 +330,8 @@ public:
 
 	// debug
 #ifdef _MSDEBUG
-	void trace(const string& comment, const string& format) const;
-	void trace(const string& comment, const string& submat_comment, const string& format,
+	void trace(const std::string& comment, const std::string& format) const;
+	void trace(const std::string& comment, const std::string& submat_comment, const std::string& format,
 		const UINT32& row_begin, const UINT32& col_begin, 
 		const UINT32& rows, const UINT32& columns) const;
 #endif

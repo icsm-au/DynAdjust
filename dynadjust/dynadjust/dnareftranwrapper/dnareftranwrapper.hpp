@@ -37,6 +37,8 @@
 #include <string>
 #include <time.h>
 
+#include <dynadjust/dnareftran/dnareftran.hpp>
+
 #include <boost/timer/timer.hpp>
 #include <boost/date_time/local_time/local_time.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
@@ -59,17 +61,6 @@
 #include <include/functions/dnatemplatedatetimefuncs.hpp>
 #include <include/functions/dnafilepathfuncs.hpp>
 #include <include/functions/dnastrmanipfuncs.hpp>
-
-#include <dynadjust/dnareftran/dnareftran.hpp>
-
-using namespace std;
-using namespace boost;
-using namespace boost::gregorian;
-using namespace boost::filesystem;
-using namespace boost::posix_time;
-using namespace boost::local_time;
-using namespace boost::program_options;
-namespace po = boost::program_options;
 
 using namespace dynadjust::referenceframe;
 using namespace dynadjust::exception;

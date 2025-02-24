@@ -32,7 +32,7 @@ namespace datum_parameters {
 CDnaDatum::CDnaDatum(void)
 	// "GDA2020 (3D)" - geographic
 	: epsgCode_(DEFAULT_EPSG_U)
-	, epoch_(date(2020, 1, 1))
+	, epoch_(boost::gregorian::date(2020, 1, 1))
 	, datumType_(STATIC_DATUM)
 	, datumName_(DEFAULT_DATUM)
 {
@@ -45,19 +45,19 @@ CDnaDatum::CDnaDatum(const UINT32& epsgCode)
 	SetDatum(epsgCode);
 }
 
-CDnaDatum::CDnaDatum(const UINT32& epsgCode, const date& epoch)
+CDnaDatum::CDnaDatum(const UINT32& epsgCode, const boost::gregorian::date& epoch)
 {
 	SetDatum(epsgCode, epoch);
 }
 
-CDnaDatum::CDnaDatum(const string& epsgCode, const string& epoch)
+CDnaDatum::CDnaDatum(const std::string& epsgCode, const std::string& epoch)
 {
 	SetDatumFromEpsg(epsgCode, epoch);
 }
 	
 //// datumName corresponds to the name given in epsg
 //// epoch is a space delimited string: YYY MM DD
-//CDnaDatum::CDnaDatum(const string& datumName, const string& epoch)
+//CDnaDatum::CDnaDatum(const std::string& datumName, const std::string& epoch)
 //{
 //	datumName_ = datumName;
 //	SetDatumFromName(datumName, epoch);
@@ -117,38 +117,38 @@ void CDnaDatum::initialiseDatumFromEpsgCode()
 		datumType_ = DYNAMIC_DATUM;
 	
 	// Set name
-	datumName_ = datumFromEpsgCode<string, UINT32>(epsgCode_);
+	datumName_ = datumFromEpsgCode<std::string, UINT32>(epsgCode_);
 }
 	
 // returns:
 //  - dd.mm.yyyy for datums that have a reference epoch
 //  - "" for ensembles that do not have an epoch
-string CDnaDatum::GetEpoch_s() const
+std::string CDnaDatum::GetEpoch_s() const
 {
 	if (isEpsgWGS84Ensemble(epsgCode_) && isTimeImmemorial(epoch_))
 		return "";
 	else if (isTimeImmemorial(epoch_))
 		return "";
-	return stringFromDate<date>(epoch_);
+	return stringFromDate<boost::gregorian::date>(epoch_);
 }
 	
-string CDnaDatum::GetEpsgCode_s() const 
+std::string CDnaDatum::GetEpsgCode_s() const 
 {
 	char epsgCode[8];
 	sprintf(epsgCode, "%d", epsgCode_);
-	return string(epsgCode); 
+	return std::string(epsgCode); 
 }
 
 void CDnaDatum::SetDatum(const UINT32& epsgCode)
 {
 	epsgCode_ = epsgCode;
-	epoch_ = dateFromString<date>(referenceepochFromEpsgCode(epsgCode_));
+	epoch_ = dateFromString<boost::gregorian::date>(referenceepochFromEpsgCode(epsgCode_));
 
 	// set datum parameters using epsg code
 	initialiseDatumFromEpsgCode();
 }
 
-void CDnaDatum::SetDatum(const UINT32& epsgCode, const date& epoch)
+void CDnaDatum::SetDatum(const UINT32& epsgCode, const boost::gregorian::date& epoch)
 {
 	epsgCode_ = epsgCode;
 	epoch_ = epoch;
@@ -157,42 +157,42 @@ void CDnaDatum::SetDatum(const UINT32& epsgCode, const date& epoch)
 	initialiseDatumFromEpsgCode();
 }
 
-void CDnaDatum::SetDatum(const string& epsgCode)
+void CDnaDatum::SetDatum(const std::string& epsgCode)
 {
 	// Reuse
 	SetDatum(LongFromString<UINT32>(trimstr(epsgCode)));
 }
 
-//void CDnaDatum::SetDatum(const string& epsgCode, const date& epoch)
+//void CDnaDatum::SetDatum(const std::string& epsgCode, const boost::gregorian::date& epoch)
 //{
 //	// Reuse
 //	SetDatum(LongFromString<UINT32>(trimstr(epsgCode)), epoch);
 //}
 
-void CDnaDatum::SetEpoch(const string& epoch)
+void CDnaDatum::SetEpoch(const std::string& epoch)
 {
 	// Parse epoch
 	if (epoch.empty())
 	{
 		if (isEpsgWGS84Ensemble(epsgCode_))
-			epoch_ = timeImmemorial<date>();
+			epoch_ = timeImmemorial<boost::gregorian::date>();
 		else
-			epoch_ = dateFromString<date>(referenceepochFromEpsgCode(epsgCode_));
+			epoch_ = dateFromString<boost::gregorian::date>(referenceepochFromEpsgCode(epsgCode_));
 	}
 	else
-		epoch_ = dateFromString<date>(epoch);
+		epoch_ = dateFromString<boost::gregorian::date>(epoch);
 }
 
 //void CDnaDatum::SetEpoch(const double& decimal_year)
 //{
-//	epoch_ = dateFromDouble_doy_year<date, double>(decimal_year);
+//	epoch_ = dateFromDouble_doy_year<boost::gregorian::date, double>(decimal_year);
 //
 //}
 
-void CDnaDatum::SetDatumFromName(const string& datumName, const string& epoch)
+void CDnaDatum::SetDatumFromName(const std::string& datumName, const std::string& epoch)
 {
 	// Get epsg code
-	epsgCode_ = epsgCodeFromName<UINT32, string>(datumName);
+	epsgCode_ = epsgCodeFromName<UINT32, std::string>(datumName);
 
 	// Parse epoch
 	SetEpoch(epoch);
@@ -201,7 +201,7 @@ void CDnaDatum::SetDatumFromName(const string& datumName, const string& epoch)
 	initialiseDatumFromEpsgCode();
 }
 
-void CDnaDatum::SetDatumFromEpsg(const string& epsgCode, const string& epoch)
+void CDnaDatum::SetDatumFromEpsg(const std::string& epsgCode, const std::string& epoch)
 {
 	// Get epsg code
 	epsgCode_ = LongFromString<UINT32>(trimstr(epsgCode));

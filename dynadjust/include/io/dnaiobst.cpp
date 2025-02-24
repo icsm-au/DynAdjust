@@ -29,9 +29,9 @@ namespace iostreams {
 UINT16 dna_io_bst::create_stn_input_file_meta(vifm_t& vinput_file_meta, input_file_meta_t** input_file_meta)
 {
 	UINT16 stn_file_count(0);
-	stringstream ss;
-	ss << "create_stn_input_file_meta(): An error was encountered when creating " << endl <<
-		"  the binary station file metadata." << endl;
+	std::stringstream ss;
+	ss << "create_stn_input_file_meta(): An error was encountered when creating " << std::endl <<
+		"  the binary station file metadata." << std::endl;
 
 	// Determine how many station files were supplied
 	try {
@@ -58,32 +58,32 @@ UINT16 dna_io_bst::create_stn_input_file_meta(vifm_t& vinput_file_meta, input_fi
 	
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 
 	return stn_file_count;
 }
 
-void dna_io_bst::load_bst_file_meta(const string& bst_filename, binary_file_meta_t& bst_meta) 
+void dna_io_bst::load_bst_file_meta(const std::string& bst_filename, binary_file_meta_t& bst_meta) 
 {
 	std::ifstream bst_file;
-	stringstream ss;
-	ss << "load_bst_file(): An error was encountered when opening " << bst_filename << "." << endl;
+	std::stringstream ss;
+	ss << "load_bst_file(): An error was encountered when opening " << bst_filename << "." << std::endl;
 
 	try {
 		// open binary stations file.  Throws runtime_error on failure.
-		file_opener(bst_file, bst_filename, ios::in | ios::binary, binary, true);
+		file_opener(bst_file, bst_filename, std::ios::in | std::ios::binary, binary, true);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 
 	ss.str("");
-	ss << "load_bst_file(): An error was encountered when reading from " << bst_filename << "." << endl;
+	ss << "load_bst_file(): An error was encountered when reading from " << bst_filename << "." << std::endl;
 
 	try {
 		// read the file information
@@ -92,45 +92,45 @@ void dna_io_bst::load_bst_file_meta(const string& bst_filename, binary_file_meta
 		// read the metadata
 		readFileMetadata(bst_file, bst_meta);
 	}
-	catch (const ios_base::failure& f) {
+	catch (const std::ios_base::failure& f) {
 		ss << f.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	
 	bst_file.close();
 }
 	
 
-UINT32 dna_io_bst::load_bst_file(const string& bst_filename, pvstn_t vbinary_stn, binary_file_meta_t& bst_meta) 
+UINT32 dna_io_bst::load_bst_file(const std::string& bst_filename, pvstn_t vbinary_stn, binary_file_meta_t& bst_meta) 
 {	
 	std::ifstream bst_file;
-	stringstream ss;
-	ss << "load_bst_file(): An error was encountered when opening " << bst_filename << "." << endl;
+	std::stringstream ss;
+	ss << "load_bst_file(): An error was encountered when opening " << bst_filename << "." << std::endl;
 
 	try {
 		// open binary stations file.  Throws runtime_error on failure.
-		file_opener(bst_file, bst_filename, ios::in | ios::binary, binary, true);
+		file_opener(bst_file, bst_filename, std::ios::in | std::ios::binary, binary, true);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	
 	station_t stationRecord;
 	UINT32 stn;
 
 	ss.str("");
-	ss << "load_bst_file(): An error was encountered when reading from " << bst_filename << "." << endl;
+	ss << "load_bst_file(): An error was encountered when reading from " << bst_filename << "." << std::endl;
 
 	try {
 		// read the file information
@@ -147,16 +147,16 @@ UINT32 dna_io_bst::load_bst_file(const string& bst_filename, pvstn_t vbinary_stn
 			vbinary_stn->push_back(stationRecord);
 		}
 	}
-	catch (const ios_base::failure& f) {
+	catch (const std::ios_base::failure& f) {
 		ss << f.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	
 	bst_file.close();
@@ -164,27 +164,27 @@ UINT32 dna_io_bst::load_bst_file(const string& bst_filename, pvstn_t vbinary_stn
 	return bst_meta.binCount;
 }
 
-void dna_io_bst::write_bst_file(const string& bst_filename, pvstn_t vbinary_stn, binary_file_meta_t& bst_meta)
+void dna_io_bst::write_bst_file(const std::string& bst_filename, pvstn_t vbinary_stn, binary_file_meta_t& bst_meta)
 {
 	std::ofstream bst_file;
-	stringstream ss;
-	ss << "write_bst_file(): An error was encountered when opening " << bst_filename << "." << endl;
+	std::stringstream ss;
+	ss << "write_bst_file(): An error was encountered when opening " << bst_filename << "." << std::endl;
 
 	try {
 		// open binary stations file.  Throws runtime_error on failure.
 		file_opener(bst_file, bst_filename,
-			ios::out | ios::binary, binary);
+			std::ios::out | std::ios::binary, binary);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	
 	ss.str("");
-	ss << "write_bst_file(): An error was encountered when writing to " << bst_filename << "." << endl;
+	ss << "write_bst_file(): An error was encountered when writing to " << bst_filename << "." << std::endl;
 
 	try {
 		// write version
@@ -198,42 +198,42 @@ void dna_io_bst::write_bst_file(const string& bst_filename, pvstn_t vbinary_stn,
 		for (; _it_stn!=vbinary_stn->end(); ++_it_stn)
 			bst_file.write(reinterpret_cast<char *>(&(*_it_stn)), sizeof(station_t));
 	}
-	catch (const ios_base::failure& f) {
+	catch (const std::ios_base::failure& f) {
 		ss << f.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	
 	bst_file.close();
 }
 
-bool dna_io_bst::write_bst_file(const string& bst_filename, vdnaStnPtr* vStations, pvstring vUnusedStns, binary_file_meta_t& bst_meta, bool flagUnused)
+bool dna_io_bst::write_bst_file(const std::string& bst_filename, vdnaStnPtr* vStations, pvstring vUnusedStns, binary_file_meta_t& bst_meta, bool flagUnused)
 {
 	std::ofstream bst_file;
-	stringstream ss;
-	ss << "write_bst_file(): An error was encountered when opening " << bst_filename << "." << endl;
+	std::stringstream ss;
+	ss << "write_bst_file(): An error was encountered when opening " << bst_filename << "." << std::endl;
 
 	try {
 		// open binary stations file.  Throws runtime_error on failure.
 		file_opener(bst_file, bst_filename,
-			ios::out | ios::binary, binary);
+			std::ios::out | std::ios::binary, binary);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	
 	ss.str("");
-	ss << "write_bst_file(): An error was encountered when writing to " << bst_filename << "." << endl;
+	ss << "write_bst_file(): An error was encountered when writing to " << bst_filename << "." << std::endl;
 
 	_it_vdnastnptr _it_stn;
 	
@@ -247,7 +247,7 @@ bool dna_io_bst::write_bst_file(const string& bst_filename, vdnaStnPtr* vStation
 		// write the bst data
 		if (flagUnused)
 		{
-			sort(vUnusedStns->begin(), vUnusedStns->end());
+			std::sort(vUnusedStns->begin(), vUnusedStns->end());
 			for (_it_stn=vStations->begin(); _it_stn!=vStations->end(); _it_stn++)
 			{
 				if (binary_search(vUnusedStns->begin(), vUnusedStns->end(), _it_stn->get()->GetName()))
@@ -263,16 +263,16 @@ bool dna_io_bst::write_bst_file(const string& bst_filename, vdnaStnPtr* vStation
 			for (_it_stn=vStations->begin(); _it_stn!=vStations->end(); _it_stn++)
 				_it_stn->get()->WriteBinaryStn(&bst_file);
 	}
-	catch (const ios_base::failure& f) {
+	catch (const std::ios_base::failure& f) {
 		ss << f.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	
 	bst_file.close();

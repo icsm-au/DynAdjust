@@ -50,7 +50,7 @@ CFileProc::~CFileProc()
 	ClearFileArrayMemory();
 }
 
-void CFileProc::BuildFileArray(const char* filedir, const vector<string>& filetypes, const int& no_filetypes)
+void CFileProc::BuildFileArray(const char* filedir, const std::vector<std::string>& filetypes, const int& no_filetypes)
 {
 	char chFilter[_MAX_PATH];
 	struct _finddata_t _fFile;    

@@ -53,7 +53,7 @@ CDnaGpsPoint::CDnaGpsPoint(void)
 	
 {
 	SetEpoch(DEFAULT_EPOCH);
-	SetEpsg(epsgStringFromName<string>(m_referenceFrame));
+	SetEpsg(epsgStringFromName<std::string>(m_referenceFrame));
 
 	m_vPointCovariances.clear();
 	m_vPointCovariances.reserve(0);
@@ -155,7 +155,7 @@ bool CDnaGpsPoint::operator== (const CDnaGpsPoint& rhs) const
 		fabs(m_dX - rhs.m_dX) < PRECISION_1E4 &&
 		fabs(m_dY - rhs.m_dY) < PRECISION_1E4 &&
 		fabs(m_dZ - rhs.m_dZ) < PRECISION_1E4 &&
-		iequals(m_referenceFrame, rhs.m_referenceFrame)
+		boost::iequals(m_referenceFrame, rhs.m_referenceFrame)
 		);
 }
 	
@@ -198,7 +198,7 @@ void CDnaGpsPoint::ResizeGpsCovariancesCount(const UINT32& size)
 }
 
 
-void CDnaGpsPoint::SetCoordType(const string& sType) {
+void CDnaGpsPoint::SetCoordType(const std::string& sType) {
 	m_strCoordType = trimstr(sType);
 	m_ctType = GetMyCoordTypeC();
 }
@@ -219,145 +219,145 @@ void CDnaGpsPoint::AddPointCovariance(const CDnaCovariance* pGpsCovariance)
 UINT32 CDnaGpsPoint::CalcBinaryRecordCount() const
 {
 	UINT32 RecordCount = 3;
-	vector<CDnaCovariance>::const_iterator _it_cov = m_vPointCovariances.begin();
+	std::vector<CDnaCovariance>::const_iterator _it_cov = m_vPointCovariances.begin();
 	for (; _it_cov!=m_vPointCovariances.end(); ++_it_cov)
 		RecordCount += _it_cov->CalcBinaryRecordCount();
 	return RecordCount;
 }
 	
 
-void CDnaGpsPoint::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string&, bool) const
+void CDnaGpsPoint::WriteDynaMLMsr(std::ofstream* dynaml_stream, const std::string&, bool) const
 {
 	UINT32 precision(4);
 	
-	*dynaml_stream << "    <First>" << m_strFirst << "</First>" << endl;
-	*dynaml_stream << "    <Clusterpoint>" << endl;
+	*dynaml_stream << "    <First>" << m_strFirst << "</First>" << std::endl;
+	*dynaml_stream << "    <Clusterpoint>" << std::endl;
 	
 	if (m_ctType == LLH_type_i || m_ctType == LLh_type_i)
 	{
 		precision = 10;
-		*dynaml_stream << "      <X>" << fixed << setprecision(precision) << RadtoDms(m_dX) << "</X>" << endl;
-		*dynaml_stream << "      <Y>" << RadtoDmsL(m_dY) << "</Y>" << endl;
+		*dynaml_stream << "      <X>" << std::fixed << std::setprecision(precision) << RadtoDms(m_dX) << "</X>" << std::endl;
+		*dynaml_stream << "      <Y>" << RadtoDmsL(m_dY) << "</Y>" << std::endl;
 	}
 	else
 	{
-		*dynaml_stream << "      <X>" << fixed << setprecision(precision) << m_dX << "</X>" << endl;
-		*dynaml_stream << "      <Y>" << m_dY << "</Y>" << endl;
+		*dynaml_stream << "      <X>" << std::fixed << std::setprecision(precision) << m_dX << "</X>" << std::endl;
+		*dynaml_stream << "      <Y>" << m_dY << "</Y>" << std::endl;
 	}
 
-	*dynaml_stream << "      <Z>" << setprecision(4) << m_dZ << "</Z>" << endl;
+	*dynaml_stream << "      <Z>" << std::setprecision(4) << m_dZ << "</Z>" << std::endl;
 
 	if (m_msr_db_map.is_msr_id_set)
-		*dynaml_stream << "      <MeasurementID>" << m_msr_db_map.msr_id << "</MeasurementID>" << endl;
+		*dynaml_stream << "      <MeasurementID>" << m_msr_db_map.msr_id << "</MeasurementID>" << std::endl;
 	
-	*dynaml_stream << "      <SigmaXX>" << scientific << setprecision(13) << m_dSigmaXX << "</SigmaXX>" << endl;
-	*dynaml_stream << "      <SigmaXY>" << m_dSigmaXY << "</SigmaXY>" << endl;
-	*dynaml_stream << "      <SigmaXZ>" << m_dSigmaXZ << "</SigmaXZ>" << endl;
-	*dynaml_stream << "      <SigmaYY>" << m_dSigmaYY << "</SigmaYY>" << endl;
-	*dynaml_stream << "      <SigmaYZ>" << m_dSigmaYZ << "</SigmaYZ>" << endl;
-	*dynaml_stream << "      <SigmaZZ>" << m_dSigmaZZ << "</SigmaZZ>" << endl;
+	*dynaml_stream << "      <SigmaXX>" << std::scientific << std::setprecision(13) << m_dSigmaXX << "</SigmaXX>" << std::endl;
+	*dynaml_stream << "      <SigmaXY>" << m_dSigmaXY << "</SigmaXY>" << std::endl;
+	*dynaml_stream << "      <SigmaXZ>" << m_dSigmaXZ << "</SigmaXZ>" << std::endl;
+	*dynaml_stream << "      <SigmaYY>" << m_dSigmaYY << "</SigmaYY>" << std::endl;
+	*dynaml_stream << "      <SigmaYZ>" << m_dSigmaYZ << "</SigmaYZ>" << std::endl;
+	*dynaml_stream << "      <SigmaZZ>" << m_dSigmaZZ << "</SigmaZZ>" << std::endl;
 	
 	// write GPSPoint covariances
-	vector<CDnaCovariance>::const_iterator _it_cov = m_vPointCovariances.begin();
+	std::vector<CDnaCovariance>::const_iterator _it_cov = m_vPointCovariances.begin();
 	for (; _it_cov!=m_vPointCovariances.end(); ++_it_cov)
 		_it_cov->WriteDynaMLMsr(dynaml_stream);
 	
-	*dynaml_stream << "    </Clusterpoint>" << endl;
+	*dynaml_stream << "    </Clusterpoint>" << std::endl;
 }
 	
 void CDnaGpsPoint::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool) const
 {
-	*dna_stream << setw(dmw.msr_type) << m_strType;
+	*dna_stream << std::setw(dmw.msr_type) << m_strType;
 	if (m_bIgnore)
-		*dna_stream << setw(dmw.msr_ignore) << "*";
+		*dna_stream << std::setw(dmw.msr_ignore) << "*";
 	else
-		*dna_stream << setw(dmw.msr_ignore) << " ";
+		*dna_stream << std::setw(dmw.msr_ignore) << " ";
 
-	*dna_stream << left << setw(dmw.msr_inst) << m_strFirst;
+	*dna_stream << std::left << std::setw(dmw.msr_inst) << m_strFirst;
 	
 	// Print header for first cluster point
 	if (m_lRecordedTotal == m_vPointCovariances.size() + 1)
 	{
 		if (m_ctType == LLH_type_i)
-			*dna_stream << left << setw(dmw.msr_targ1) << LLH_type;
+			*dna_stream << std::left << std::setw(dmw.msr_targ1) << LLH_type;
 		else if (m_ctType == LLh_type_i)
-			*dna_stream << left << setw(dmw.msr_targ1) << LLh_type;
+			*dna_stream << std::left << std::setw(dmw.msr_targ1) << LLh_type;
 		else
-			*dna_stream << left << setw(dmw.msr_targ1) << XYZ_type;
+			*dna_stream << std::left << std::setw(dmw.msr_targ1) << XYZ_type;
 
-		*dna_stream << left << setw(dmw.msr_targ2) << m_lRecordedTotal;
+		*dna_stream << std::left << std::setw(dmw.msr_targ2) << m_lRecordedTotal;
 
 		// print scaling
 		*dna_stream << 
-			fixed << setprecision(2) << 
-			right << setw(dmw.msr_gps_vscale) << double_string_width<double, UINT32, string>(m_dVscale, dmw.msr_gps_vscale) <<
-			right << setw(dmw.msr_gps_pscale) << double_string_width<double, UINT32, string>(m_dPscale, dmw.msr_gps_vscale) <<
-			right << setw(dmw.msr_gps_lscale) << double_string_width<double, UINT32, string>(m_dLscale, dmw.msr_gps_vscale) <<
-			right << setw(dmw.msr_gps_hscale) << double_string_width<double, UINT32, string>(m_dHscale, dmw.msr_gps_vscale);
+			std::fixed << std::setprecision(2) << 
+			std::right << std::setw(dmw.msr_gps_vscale) << double_string_width<double, UINT32, std::string>(m_dVscale, dmw.msr_gps_vscale) <<
+			std::right << std::setw(dmw.msr_gps_pscale) << double_string_width<double, UINT32, std::string>(m_dPscale, dmw.msr_gps_vscale) <<
+			std::right << std::setw(dmw.msr_gps_lscale) << double_string_width<double, UINT32, std::string>(m_dLscale, dmw.msr_gps_vscale) <<
+			std::right << std::setw(dmw.msr_gps_hscale) << double_string_width<double, UINT32, std::string>(m_dHscale, dmw.msr_gps_vscale);
 		
 		// print reference frame and epoch
 		*dna_stream <<
-			right << setw(dmw.msr_gps_reframe) << m_referenceFrame <<
-			right << setw(dmw.msr_gps_epoch) << m_epoch;
+			std::right << std::setw(dmw.msr_gps_reframe) << m_referenceFrame <<
+			std::right << std::setw(dmw.msr_gps_epoch) << m_epoch;
 
 		// print database ids
 		if (m_msr_db_map.is_msr_id_set)
-			*dna_stream << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
+			*dna_stream << std::setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
 		if (m_msr_db_map.is_cls_id_set)
-			*dna_stream << setw(dmw.msr_id_cluster) << m_msr_db_map.cluster_id;
+			*dna_stream << std::setw(dmw.msr_id_cluster) << m_msr_db_map.cluster_id;
 	}
 	else
 	{
 		// print database ids
 		if (m_msr_db_map.is_msr_id_set)
-			*dna_stream << setw(dml.msr_id_msr - dml.msr_targ1) << " " <<
-				right << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
+			*dna_stream << std::setw(dml.msr_id_msr - dml.msr_targ1) << " " <<
+				std::right << std::setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
 		if (m_msr_db_map.is_cls_id_set)
-			*dna_stream << setw(dmw.msr_id_cluster) << m_msr_db_map.cluster_id;
+			*dna_stream << std::setw(dmw.msr_id_cluster) << m_msr_db_map.cluster_id;
 	}
 
-	*dna_stream << endl;
+	*dna_stream << std::endl;
 
 	UINT32 precision = 4;
 	UINT32 pad(dmw.msr_type + dmw.msr_ignore + dmw.msr_inst + dmw.msr_targ1 + dmw.msr_targ2);
 
 	// X
-	*dna_stream << setw(pad) << " ";
+	*dna_stream << std::setw(pad) << " ";
 	if (m_ctType == LLH_type_i || m_ctType == LLh_type_i)
 	{
 		precision = 13;
-		*dna_stream << right << setw(dmw.msr_gps) << fixed << setprecision(precision) << RadtoDms(m_dX);
+		*dna_stream << std::right << std::setw(dmw.msr_gps) << std::fixed << std::setprecision(precision) << RadtoDms(m_dX);
 	}
 	else
-		*dna_stream << right << setw(dmw.msr_gps) << fixed << setprecision(precision) << m_dX;
+		*dna_stream << std::right << std::setw(dmw.msr_gps) << std::fixed << std::setprecision(precision) << m_dX;
 
-	*dna_stream << right << setw(dmw.msr_gps_vcv_1) << scientific << setprecision(13) << m_dSigmaXX;
-	*dna_stream << endl;
+	*dna_stream << std::right << std::setw(dmw.msr_gps_vcv_1) << std::scientific << std::setprecision(13) << m_dSigmaXX;
+	*dna_stream << std::endl;
 
 	// Y
-	*dna_stream << setw(pad) << " ";
+	*dna_stream << std::setw(pad) << " ";
 	if (m_ctType == LLH_type_i || m_ctType == LLh_type_i)
-		*dna_stream << right << setw(dmw.msr_gps) << fixed << setprecision(precision) << RadtoDmsL(m_dY);
+		*dna_stream << std::right << std::setw(dmw.msr_gps) << std::fixed << std::setprecision(precision) << RadtoDmsL(m_dY);
 	else
-		*dna_stream << right << setw(dmw.msr_gps) << fixed << setprecision(precision) << m_dY;
+		*dna_stream << std::right << std::setw(dmw.msr_gps) << std::fixed << std::setprecision(precision) << m_dY;
 
 	*dna_stream << 
-		right << setw(dmw.msr_gps_vcv_1) << scientific << setprecision(13) << m_dSigmaXY << 
-		right << setw(dmw.msr_gps_vcv_2) << m_dSigmaYY;
-	*dna_stream << endl;
+		std::right << std::setw(dmw.msr_gps_vcv_1) << std::scientific << std::setprecision(13) << m_dSigmaXY << 
+		std::right << std::setw(dmw.msr_gps_vcv_2) << m_dSigmaYY;
+	*dna_stream << std::endl;
 
 	// Z
 	precision = 4;	// whether XYZ or LLH, precision only needs to be at 4
-	*dna_stream << setw(pad) << " ";
-	*dna_stream << right << setw(dmw.msr_gps) << fixed << setprecision(precision) << m_dZ;
+	*dna_stream << std::setw(pad) << " ";
+	*dna_stream << std::right << std::setw(dmw.msr_gps) << std::fixed << std::setprecision(precision) << m_dZ;
 	*dna_stream << 
-		right << setw(dmw.msr_gps_vcv_1) << scientific << setprecision(13) << m_dSigmaXZ <<
-		right << setw(dmw.msr_gps_vcv_2) << m_dSigmaYZ << 
-		right << setw(dmw.msr_gps_vcv_3) << m_dSigmaZZ;
-	*dna_stream << endl;
+		std::right << std::setw(dmw.msr_gps_vcv_1) << std::scientific << std::setprecision(13) << m_dSigmaXZ <<
+		std::right << std::setw(dmw.msr_gps_vcv_2) << m_dSigmaYZ << 
+		std::right << std::setw(dmw.msr_gps_vcv_3) << m_dSigmaZZ;
+	*dna_stream << std::endl;
 
 	// write GPSPoint covariances (not supported by DNA format)
-	vector<CDnaCovariance>::const_iterator _it_cov = m_vPointCovariances.begin();
+	std::vector<CDnaCovariance>::const_iterator _it_cov = m_vPointCovariances.begin();
 	for (_it_cov=m_vPointCovariances.begin(); _it_cov!=m_vPointCovariances.end(); ++_it_cov)
 		_it_cov->WriteDNAMsr(dna_stream, dmw, dml);
 }
@@ -395,7 +395,7 @@ void CDnaGpsPoint::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* ellip
 		m_dSigmaZZ = 6.803E-04;
 	}
 
-	vector<CDnaCovariance>::iterator _it_cov = m_vPointCovariances.begin();
+	std::vector<CDnaCovariance>::iterator _it_cov = m_vPointCovariances.begin();
 	for (_it_cov=m_vPointCovariances.begin(); _it_cov!=m_vPointCovariances.end(); ++_it_cov)
 		_it_cov->SimulateMsr(vStations, ellipsoid);
 }
@@ -439,7 +439,7 @@ void CDnaGpsPoint::PopulateMsr(pvstn_t bstRecords, uint32_uint32_map* blockStati
 	m_vPointCovariances.clear();
 	m_vPointCovariances.resize(covariance_count);
 
-	vector<CDnaCovariance>::iterator _it_cov = m_vPointCovariances.begin();
+	std::vector<CDnaCovariance>::iterator _it_cov = m_vPointCovariances.begin();
 	matrix_2d variances_cart(3, 3);
 	UINT32 ic, jc;
 
@@ -478,7 +478,7 @@ UINT32 CDnaGpsPoint::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_ms
 
 	m_epoch = it_msr->epoch;
 	m_epsgCode = it_msr->epsgCode;
-	m_referenceFrame = datumFromEpsgCode<string, UINT32>(LongFromString<UINT32>(it_msr->epsgCode));
+	m_referenceFrame = datumFromEpsgCode<std::string, UINT32>(LongFromString<UINT32>(it_msr->epsgCode));
 
 	m_lclusterID = it_msr->clusterID;
 	m_MSmeasurementStations = (MEASUREMENT_STATIONS)it_msr->measurementStations;
@@ -514,7 +514,7 @@ UINT32 CDnaGpsPoint::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_ms
 	dbidmap += (it_msr->vectorCount2 * 3);
 
 	// now covariances
-	vector<CDnaCovariance>::iterator _it_cov = m_vPointCovariances.begin();
+	std::vector<CDnaCovariance>::iterator _it_cov = m_vPointCovariances.begin();
 	for (; _it_cov!=m_vPointCovariances.end(); ++_it_cov)
 		_it_cov->SetMeasurementRec(binaryStn, it_msr);
 
@@ -591,7 +591,7 @@ void CDnaGpsPoint::WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex
 	binary_stream->write(reinterpret_cast<char *>(&measRecord), sizeof(measurement_t));
 
 	// now write covariance elements
-	vector<CDnaCovariance>::const_iterator _it_cov;
+	std::vector<CDnaCovariance>::const_iterator _it_cov;
 	for (_it_cov=m_vPointCovariances.begin(); _it_cov!=m_vPointCovariances.end(); ++_it_cov)
 		_it_cov->WriteBinaryMsr(binary_stream, msrIndex, m_epsgCode, m_epoch);
 }
@@ -615,20 +615,20 @@ void CDnaGpsPoint::SerialiseDatabaseMap(std::ofstream* os)
 }
 	
 
-void CDnaGpsPoint::SetEpsg(const string& epsg) 
+void CDnaGpsPoint::SetEpsg(const std::string& epsg) 
 {
 	m_epsgCode = epsg;
 }
 
 
-void CDnaGpsPoint::SetReferenceFrame(const string& refFrame) 
+void CDnaGpsPoint::SetReferenceFrame(const std::string& refFrame) 
 {
 	m_referenceFrame = refFrame;
-	SetEpsg(epsgStringFromName<string>(refFrame));
+	SetEpsg(epsgStringFromName<std::string>(refFrame));
 }
 	
 
-void CDnaGpsPoint::SetX(const string& str)
+void CDnaGpsPoint::SetX(const std::string& str)
 {
 	if (m_ctType == LLH_type_i || m_ctType == LLh_type_i)
 	{
@@ -640,7 +640,7 @@ void CDnaGpsPoint::SetX(const string& str)
 		DoubleFromString(m_dX, trimstr(str));
 }
 
-void CDnaGpsPoint::SetY(const string& str)
+void CDnaGpsPoint::SetY(const std::string& str)
 {
 	if (m_ctType == LLH_type_i || m_ctType == LLh_type_i)
 	{
@@ -652,14 +652,14 @@ void CDnaGpsPoint::SetY(const string& str)
 		DoubleFromString(m_dY, trimstr(str));
 }
 	
-void CDnaGpsPoint::SetZ(const string& str)
+void CDnaGpsPoint::SetZ(const std::string& str)
 {
 	// if (m_ctType == LLH_type_i)
 	// then height should be ellipsoid height (but input files show height to be orthometric!)
 	DoubleFromString(m_dZ, trimstr(str));
 }
 	
-void CDnaGpsPoint::SetSigmaXX(const string& str)
+void CDnaGpsPoint::SetSigmaXX(const std::string& str)
 {
 	// if <Coords>LLH</Coords>, then SigmaXX is in radians^2
 	// if <Coords>XYZ</Coords>, then SigmaXX is in metres^2
@@ -667,17 +667,17 @@ void CDnaGpsPoint::SetSigmaXX(const string& str)
 		throw XMLInteropException("SetSigmaXX(): Variances cannot be zero.", 0);
 }
 
-void CDnaGpsPoint::SetSigmaXY(const string& str)
+void CDnaGpsPoint::SetSigmaXY(const std::string& str)
 {
 	DoubleFromString(m_dSigmaXY, trimstr(str));
 }
 
-void CDnaGpsPoint::SetSigmaXZ(const string& str)
+void CDnaGpsPoint::SetSigmaXZ(const std::string& str)
 {
 	DoubleFromString(m_dSigmaXZ, trimstr(str));
 }
 
-void CDnaGpsPoint::SetSigmaYY(const string& str)
+void CDnaGpsPoint::SetSigmaYY(const std::string& str)
 {
 	// if <Coords>LLH</Coords>, then SigmaYY is in radians^2
 	// if <Coords>XYZ</Coords>, then SigmaYY is in metres^2
@@ -685,12 +685,12 @@ void CDnaGpsPoint::SetSigmaYY(const string& str)
 		throw XMLInteropException("SetSigmaYY(): Variances cannot be zero.", 0);
 }
 
-void CDnaGpsPoint::SetSigmaYZ(const string& str)
+void CDnaGpsPoint::SetSigmaYZ(const std::string& str)
 {
 	DoubleFromString(m_dSigmaYZ, trimstr(str));
 }
 
-void CDnaGpsPoint::SetSigmaZZ(const string& str)
+void CDnaGpsPoint::SetSigmaZZ(const std::string& str)
 {
 	// if <Coords>LLH</Coords>, then SigmaZZ is in radians^2
 	// if <Coords>XYZ</Coords>, then SigmaZZ is in metres^2
@@ -722,7 +722,7 @@ CDnaGpsPointCluster::CDnaGpsPointCluster(void)
 	, m_lclusterID(0)
 {
 	SetEpoch(DEFAULT_EPOCH);
-	SetEpsg(epsgStringFromName<string>(m_referenceFrame));
+	SetEpsg(epsgStringFromName<std::string>(m_referenceFrame));
 
 	m_strType = "Y";
 	m_MSmeasurementStations = ONE_STATION;	
@@ -793,7 +793,7 @@ CDnaGpsPointCluster& CDnaGpsPointCluster::operator= (CDnaGpsPointCluster&& rhs)
 }
 	
 
-CDnaGpsPointCluster::CDnaGpsPointCluster(const UINT32 lclusterID, const string& referenceframe, const string& epoch)
+CDnaGpsPointCluster::CDnaGpsPointCluster(const UINT32 lclusterID, const std::string& referenceframe, const std::string& epoch)
 	: m_lRecordedTotal(0)
 	, m_dPscale(1.)
 	, m_dLscale(1.)
@@ -805,7 +805,7 @@ CDnaGpsPointCluster::CDnaGpsPointCluster(const UINT32 lclusterID, const string& 
 	, m_lclusterID(lclusterID)
 {
 	SetEpoch(epoch);
-	SetEpsg(epsgStringFromName<string>(referenceframe));
+	SetEpsg(epsgStringFromName<std::string>(referenceframe));
 
 	m_strType = "Y";
 	m_MSmeasurementStations = ONE_STATION;	
@@ -851,7 +851,7 @@ bool CDnaGpsPointCluster::operator< (const CDnaGpsPointCluster& rhs) const
 		return m_strFirst < rhs.m_strFirst;
 }
 
-void CDnaGpsPointCluster::SetCoordType(const string& sType) {
+void CDnaGpsPointCluster::SetCoordType(const std::string& sType) {
 	m_strCoordType = trimstr(sType);
 	m_ctType = GetMyCoordTypeC();
 }
@@ -903,67 +903,67 @@ UINT32 CDnaGpsPointCluster::CalcBinaryRecordCount() const
 }
 	
 
-void CDnaGpsPointCluster::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool) const
+void CDnaGpsPointCluster::WriteDynaMLMsr(std::ofstream* dynaml_stream, const std::string& comment, bool) const
 {
 	const size_t pntCount = m_vGpsPoints.size();
 
 	if (comment.empty())
 	{
-		*dynaml_stream << "  <!-- Type " << measurement_name<char, string>(GetTypeC());
+		*dynaml_stream << "  <!-- Type " << measurement_name<char, std::string>(GetTypeC());
 		if (pntCount > 1)
 			*dynaml_stream << " (set of " << pntCount << ")";
 		else
 			*dynaml_stream << "  (single)";
-		*dynaml_stream << " -->" << endl;
+		*dynaml_stream << " -->" << std::endl;
 	}
 	else
-		*dynaml_stream << "  <!-- " << comment << " -->" << endl;
+		*dynaml_stream << "  <!-- " << comment << " -->" << std::endl;
 
-	*dynaml_stream << "  <DnaMeasurement>" << endl;
-	*dynaml_stream << "    <Type>" << m_strType << "</Type>" << endl;
+	*dynaml_stream << "  <DnaMeasurement>" << std::endl;
+	*dynaml_stream << "    <Type>" << m_strType << "</Type>" << std::endl;
 	// Source file from which the measurement came
-	*dynaml_stream << "    <Source>" << m_sourceFile << "</Source>" << endl;
+	*dynaml_stream << "    <Source>" << m_sourceFile << "</Source>" << std::endl;
 	if (m_bIgnore)
-		*dynaml_stream << "    <Ignore>*</Ignore>" << endl;
+		*dynaml_stream << "    <Ignore>*</Ignore>" << std::endl;
 	else
-		*dynaml_stream << "    <Ignore/>" << endl;
+		*dynaml_stream << "    <Ignore/>" << std::endl;
 	
 	// Reference frame and epoch
-	*dynaml_stream << "    <ReferenceFrame>" << m_referenceFrame << "</ReferenceFrame>" << endl;
-	*dynaml_stream << "    <Epoch>" << m_epoch << "</Epoch>" << endl;
+	*dynaml_stream << "    <ReferenceFrame>" << m_referenceFrame << "</ReferenceFrame>" << std::endl;
+	*dynaml_stream << "    <Epoch>" << m_epoch << "</Epoch>" << std::endl;
 
 	// Scalars
-	*dynaml_stream << "    <Vscale>" << fixed << setprecision(3) << m_dVscale << "</Vscale>" << endl;
-	*dynaml_stream << "    <Pscale>" << m_dPscale << "</Pscale>" << endl;
-	*dynaml_stream << "    <Lscale>" << m_dLscale << "</Lscale>" << endl;
-	*dynaml_stream << "    <Hscale>" << m_dHscale << "</Hscale>" << endl;
+	*dynaml_stream << "    <Vscale>" << std::fixed << std::setprecision(3) << m_dVscale << "</Vscale>" << std::endl;
+	*dynaml_stream << "    <Pscale>" << m_dPscale << "</Pscale>" << std::endl;
+	*dynaml_stream << "    <Lscale>" << m_dLscale << "</Lscale>" << std::endl;
+	*dynaml_stream << "    <Hscale>" << m_dHscale << "</Hscale>" << std::endl;
 	
 	if (m_msr_db_map.is_cls_id_set)
-		*dynaml_stream << "    <ClusterID>" << m_msr_db_map.cluster_id << "</ClusterID>" << endl;
+		*dynaml_stream << "    <ClusterID>" << m_msr_db_map.cluster_id << "</ClusterID>" << std::endl;
 	
-	*dynaml_stream << "    <Coords>" << m_strCoordType << "</Coords>" << endl;
-	*dynaml_stream << "    <Total>" << pntCount << "</Total>" << endl;
+	*dynaml_stream << "    <Coords>" << m_strCoordType << "</Coords>" << std::endl;
+	*dynaml_stream << "    <Total>" << pntCount << "</Total>" << std::endl;
 	
 	// write GpsPoints
-	vector<CDnaGpsPoint>::const_iterator _it_pnt;
+	std::vector<CDnaGpsPoint>::const_iterator _it_pnt;
 	for (_it_pnt=m_vGpsPoints.begin(); _it_pnt!=m_vGpsPoints.end(); ++_it_pnt)
 		_it_pnt->WriteDynaMLMsr(dynaml_stream, comment, true);
 	
-	*dynaml_stream << "  </DnaMeasurement>" << endl;
+	*dynaml_stream << "  </DnaMeasurement>" << std::endl;
 }
 
 void CDnaGpsPointCluster::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, 
 		const dna_msr_fields& dml, bool) const
 {
 	// write GpsPoints
-	vector<CDnaGpsPoint>::const_iterator _it_pnt;
+	std::vector<CDnaGpsPoint>::const_iterator _it_pnt;
 	for (_it_pnt=m_vGpsPoints.begin(); _it_pnt!=m_vGpsPoints.end(); ++_it_pnt)
 		_it_pnt->WriteDNAMsr(dna_stream, dmw, dml, true);
 }
 
 void CDnaGpsPointCluster::SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* ellipsoid)
 {
-	vector<CDnaGpsPoint>::iterator _it_pnt = m_vGpsPoints.begin();
+	std::vector<CDnaGpsPoint>::iterator _it_pnt = m_vGpsPoints.begin();
 	for (_it_pnt=m_vGpsPoints.begin(); _it_pnt!=m_vGpsPoints.end(); ++_it_pnt)
 		_it_pnt->SimulateMsr(vStations, ellipsoid);
 }
@@ -990,7 +990,7 @@ void CDnaGpsPointCluster::PopulateMsr(pvstn_t bstRecords, uint32_uint32_map* blo
 	m_dHscale = 1.0;
 	m_dVscale = 1.0;
 
-	vector<CDnaGpsPoint>::iterator _it_pnt = m_vGpsPoints.begin();
+	std::vector<CDnaGpsPoint>::iterator _it_pnt = m_vGpsPoints.begin();
 	for (UINT32 i(0); i<m_lRecordedTotal; ++i)
 	{
 		_it_pnt->SetClusterID(block);
@@ -1010,7 +1010,7 @@ UINT32 CDnaGpsPointCluster::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t
 	m_vGpsPoints.clear();
 	m_vGpsPoints.resize(m_lRecordedTotal);
 
-	m_referenceFrame = datumFromEpsgCode<string, UINT32>(LongFromString<UINT32>(it_msr->epsgCode));
+	m_referenceFrame = datumFromEpsgCode<std::string, UINT32>(LongFromString<UINT32>(it_msr->epsgCode));
 	m_epoch = it_msr->epoch;
 	m_epsgCode = it_msr->epsgCode;
 
@@ -1043,7 +1043,7 @@ UINT32 CDnaGpsPointCluster::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t
 
 void CDnaGpsPointCluster::WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) const
 {
-	vector< CDnaGpsPoint >::const_iterator _it_pnt;
+	std::vector< CDnaGpsPoint >::const_iterator _it_pnt;
 	for (_it_pnt=m_vGpsPoints.begin(); _it_pnt!=m_vGpsPoints.end(); ++_it_pnt)
 		_it_pnt->WriteBinaryMsr(binary_stream, msrIndex);
 
@@ -1054,42 +1054,42 @@ void CDnaGpsPointCluster::WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 m
 }
 	
 
-void CDnaGpsPointCluster::SetEpsg(const string& epsg) 
+void CDnaGpsPointCluster::SetEpsg(const std::string& epsg) 
 {
 	m_epsgCode = epsg;
 }
 
 
-void CDnaGpsPointCluster::SetReferenceFrame(const string& refFrame) 
+void CDnaGpsPointCluster::SetReferenceFrame(const std::string& refFrame) 
 {
 	m_referenceFrame = refFrame;
-	SetEpsg(epsgStringFromName<string>(refFrame));
+	SetEpsg(epsgStringFromName<std::string>(refFrame));
 }
 
 
-void CDnaGpsPointCluster::SetTotal(const string& str)
+void CDnaGpsPointCluster::SetTotal(const std::string& str)
 {
 	m_lRecordedTotal = LongFromString<UINT32>(trimstr(str));
 	m_vGpsPoints.reserve(m_lRecordedTotal);
 }
 
 
-void CDnaGpsPointCluster::SetPscale(const string& str)
+void CDnaGpsPointCluster::SetPscale(const std::string& str)
 {
 	DoubleFromString(m_dPscale, trimstr(str));
 }
 
-void CDnaGpsPointCluster::SetLscale(const string& str)
+void CDnaGpsPointCluster::SetLscale(const std::string& str)
 {
 	DoubleFromString(m_dLscale, trimstr(str));
 }
 
-void CDnaGpsPointCluster::SetHscale(const string& str)
+void CDnaGpsPointCluster::SetHscale(const std::string& str)
 {
 	DoubleFromString(m_dHscale, trimstr(str));
 }
 
-void CDnaGpsPointCluster::SetVscale(const string& str)
+void CDnaGpsPointCluster::SetVscale(const std::string& str)
 {
 	DoubleFromString(m_dVscale, trimstr(str));
 }

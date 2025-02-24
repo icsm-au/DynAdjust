@@ -79,62 +79,65 @@ bool CDnaAngle::operator< (const CDnaAngle& rhs) const
 }
 	
 
-void CDnaAngle::WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool) const
+void CDnaAngle::WriteDynaMLMsr(std::ofstream* dynaml_stream, const std::string& comment, bool) const
 {
 	if (comment.empty())
-		*dynaml_stream << "  <!-- Type " << measurement_name<char, string>(GetTypeC()) << " -->" << endl;
+		*dynaml_stream << "  <!-- Type " << measurement_name<char, std::string>(GetTypeC()) << " -->" << std::endl;
 	else
-		*dynaml_stream << "  <!-- " << comment << " -->" << endl;
+		*dynaml_stream << "  <!-- " << comment << " -->" << std::endl;
 
-	*dynaml_stream << "  <DnaMeasurement>" << endl;
-	*dynaml_stream << "    <Type>" << m_strType << "</Type>" << endl;
+	*dynaml_stream << "  <DnaMeasurement>" << std::endl;
+	*dynaml_stream << "    <Type>" << m_strType << "</Type>" << std::endl;
 	// Source file from which the measurement came
-	*dynaml_stream << "    <Source>" << m_sourceFile << "</Source>" << endl;
+	*dynaml_stream << "    <Source>" << m_sourceFile << "</Source>" << std::endl;
 	if (m_bIgnore)
-		*dynaml_stream << "    <Ignore>*</Ignore>" << endl;
+		*dynaml_stream << "    <Ignore>*</Ignore>" << std::endl;
 	else
-		*dynaml_stream << "    <Ignore/>" << endl;
+		*dynaml_stream << "    <Ignore/>" << std::endl;
 
 	if (m_epoch.empty())
-		*dynaml_stream << "    <Epoch/>" << endl;
+		*dynaml_stream << "    <Epoch/>" << std::endl;
 	else
-		*dynaml_stream << "    <Epoch>" << m_epoch << "</Epoch>" << endl;
+		*dynaml_stream << "    <Epoch>" << m_epoch << "</Epoch>" << std::endl;
 
-	*dynaml_stream << "    <First>" << m_strFirst << "</First>" << endl;
-	*dynaml_stream << "    <Second>" << m_strTarget << "</Second>" << endl;
-	*dynaml_stream << "    <Third>" << m_strTarget2 << "</Third>" << endl;
-	*dynaml_stream << "    <Value>" << setprecision(8) << fixed << RadtoDms(m_drValue) << "</Value>" << endl;
-	*dynaml_stream << "    <StdDev>" << scientific << setprecision(6) << Seconds(m_dStdDev) << "</StdDev>" << endl;
+	*dynaml_stream << "    <First>" << m_strFirst << "</First>" << std::endl;
+	*dynaml_stream << "    <Second>" << m_strTarget << "</Second>" << std::endl;
+	*dynaml_stream << "    <Third>" << m_strTarget2 << "</Third>" << std::endl;
+	*dynaml_stream << "    <Value>" << std::setprecision(8) << std::fixed << RadtoDms(m_drValue) << "</Value>" << std::endl;
+	*dynaml_stream << "    <StdDev>" << std::scientific << std::setprecision(6) << Seconds(m_dStdDev) << "</StdDev>" << std::endl;
 	
 	if (m_msr_db_map.is_msr_id_set)
-		*dynaml_stream << "    <MeasurementID>" << m_msr_db_map.msr_id << "</MeasurementID>" << endl;
+		*dynaml_stream << "    <MeasurementID>" << m_msr_db_map.msr_id << "</MeasurementID>" << std::endl;
 	
-	*dynaml_stream << "  </DnaMeasurement>" << endl;
+	*dynaml_stream << "  </DnaMeasurement>" << std::endl;
 }
 	
 
 void CDnaAngle::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool) const
 {
-	*dna_stream << setw(dmw.msr_type) << m_strType;
+	*dna_stream << std::setw(dmw.msr_type) << m_strType;
 	if (m_bIgnore)
-		*dna_stream << setw(dmw.msr_ignore) << "*";
+		*dna_stream << std::setw(dmw.msr_ignore) << "*";
 	else
-		*dna_stream << setw(dmw.msr_ignore) << " ";
-	*dna_stream << left << setw(dmw.msr_inst) << m_strFirst;
-	*dna_stream << left << setw(dmw.msr_targ1) << m_strTarget;
-	*dna_stream << left << setw(dmw.msr_targ2) << m_strTarget2;
-	*dna_stream << setw(dmw.msr_linear) << " ";	// linear measurement value
-	*dna_stream << setw(dmw.msr_ang_d + dmw.msr_ang_m + dmw.msr_ang_s) << 
-		right << FormatDnaDmsString(RadtoDms(m_drValue), 8);
-	*dna_stream << setw(dmw.msr_stddev) << fixed << setprecision(3) << Seconds(m_dStdDev);
+		*dna_stream << std::setw(dmw.msr_ignore) << " ";
+	*dna_stream << std::left << std::setw(dmw.msr_inst) << m_strFirst;
+	*dna_stream << std::left << std::setw(dmw.msr_targ1) << m_strTarget;
+	*dna_stream << std::left << std::setw(dmw.msr_targ2) << m_strTarget2;
+	*dna_stream << std::setw(dmw.msr_linear) << " ";	// linear measurement value
+	*dna_stream << std::setw(dmw.msr_ang_d + dmw.msr_ang_m + dmw.msr_ang_s) << 
+		std::right << FormatDnaDmsString(RadtoDms(m_drValue), 8);
 	
-	*dna_stream << setw(dml.msr_gps_epoch - dml.msr_inst_ht) << " ";
-	*dna_stream << setw(dmw.msr_gps_epoch) << m_epoch;
+	UINT32 m_stdDevPrec(3);
+	*dna_stream << std::setw(dmw.msr_stddev) << StringFromTW(Seconds(m_dStdDev), dmw.msr_stddev, m_stdDevPrec);
+	//*dna_stream << std::setw(dmw.msr_stddev) << std::fixed << std::setprecision(3) << Seconds(m_dStdDev);
+	
+	*dna_stream << std::setw(dml.msr_gps_epoch - dml.msr_inst_ht) << " ";
+	*dna_stream << std::setw(dmw.msr_gps_epoch) << m_epoch;
 
 	if (m_msr_db_map.is_msr_id_set)
-		*dna_stream << setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
+		*dna_stream << std::setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
 	
-	*dna_stream << endl;
+	*dna_stream << std::endl;
 }
 	
 
@@ -277,13 +280,13 @@ void CDnaAngle::WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) c
 	binary_stream->write(reinterpret_cast<char *>(&measRecord), sizeof(measurement_t));
 }
 
-void CDnaAngle::SetValue(const string& str)
+void CDnaAngle::SetValue(const std::string& str)
 {
 	// convert to radians
 	RadFromDmsString(&m_drValue, trimstr(str));
 }
 
-void CDnaAngle::SetStdDev(const string& str)
+void CDnaAngle::SetStdDev(const std::string& str)
 {
 	// convert seconds to radians
 	RadFromSecondsString(&m_dStdDev, trimstr(str));

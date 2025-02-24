@@ -83,11 +83,6 @@
 #include <include/io/dnaioseg.hpp>
 #include <include/io/dnaiotpb.hpp>
 
-using namespace std;
-using namespace boost;
-using namespace boost::posix_time;
-using namespace boost::filesystem;
-
 using namespace dynadjust::measurements;
 using namespace dynadjust::epsg;
 using namespace dynadjust::exception;
@@ -140,7 +135,7 @@ private:
 	// Gnuplot plotting methods
 	void PlotGnuplotDatFileStns();
 	void PlotGnuplotDatFileMsrs();
-	void PrintGnuplotCommandFile(const string& gnuplot_cmd_file, const plotGraphMode& graphMode);
+	void PrintGnuplotCommandFile(const std::string& gnuplot_cmd_file, const plotGraphMode& graphMode);
 	void PrintGnuplotCommandFileStns(const UINT32& fontSize);
 	void PrintGnuplotCommandFileMsrs(const UINT32& fontSize);
 
@@ -179,11 +174,11 @@ private:
 	void FormGMTDataFileNames(const UINT32& block=0);
 	void PrintGMTParameters();
 	
-	void PrintStationDataFile(ostream& os, it_vstn_t_const _it_stn);
+	void PrintStationDataFile(std::ostream& os, it_vstn_t_const _it_stn);
 	void PrintStationsDataFile();
 	void PrintStationsDataFileBlock(const UINT32& block);
 	
-	void PrintStationLabel(ostream& os, it_vstn_t_const _it_stn);
+	void PrintStationLabel(std::ostream& os, it_vstn_t_const _it_stn);
 	void PrintStationLabels();
 	void PrintStationLabelsBlock(const UINT32& block);
 	
@@ -199,21 +194,21 @@ private:
 	void PrintMeasurementsDatFileBlock(const UINT32& block, char msrType, std::ofstream* msr_file_stream);
 	
 	//void PrintGMTPlotCoords(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements, ostream& osStn, ostream& osStn2, ostream& osMsr); 
-	//void PrintGMTPlotCoords_D(vdnaStnPtr* vStations, vector<CDnaDirection>* vDirections, ostream& osMsr); 
-	//void PrintGMTPlotCoords_GX(vdnaStnPtr* vStations, vector<CDnaGpsBaseline>* vBaselines, ostream& osMsr); 
+	//void PrintGMTPlotCoords_D(vdnaStnPtr* vStations, std::vector<CDnaDirection>* vDirections, ostream& osMsr); 
+	//void PrintGMTPlotCoords_GX(vdnaStnPtr* vStations, std::vector<CDnaGpsBaseline>* vBaselines, ostream& osMsr); 
 
 	void CalculateLimitsFromStation();
 	void CalculateLimitsFromPoint();
 	void DetermineBoundingBox();
 
-	void SignalExceptionPlot(const string& msg, const int& line_no, const char *streamType, ...);
+	void SignalExceptionPlot(const std::string& msg, const int& line_no, const char *streamType, ...);
 
 	void ReduceStationCoordinates(station_t* stationRecord);
 
 	void NormaliseScale(double& scale);
 	void NormaliseScaleBar(double& scale_bar_width);
 	void NormaliseGraticule(double& graticule_width, UINT32& graticule_width_precision);
-	void SelectCoastlineResolution(const double& dDimension, string& coastResolution, plot_settings* plotCriteria);
+	void SelectCoastlineResolution(const double& dDimension, std::string& coastResolution, plot_settings* plotCriteria);
 
 	bool WithinLimits(const double& latitude, const double& longitude);
 
@@ -225,19 +220,19 @@ private:
 	std::ofstream			gnuplotbat_file_;
 
 	MsrTally				parsemsrTally_;		// total network tally
-	vector<MsrTally>		v_msr_tally_;		// per block tally
+	std::vector<MsrTally>		v_msr_tally_;		// per block tally
 
 	vstn_t					bstBinaryRecords_;
 	vmsr_t					bmsBinaryRecords_;
 	binary_file_meta_t		bst_meta_;
 	binary_file_meta_t		bms_meta_;
-	string					output_folder_;
-	string					network_name_;
+	std::string					output_folder_;
+	std::string					network_name_;
 	v_string_uint32_pair	stnsMap_;		// Station Name Map sorted on name (string)
 	_PLOT_STATUS_			plotStatus_;
 	project_settings		projectSettings_;
 	project_settings*		pprj_;
-	string					reference_frame_;
+	std::string					reference_frame_;
 	
 	double					lowerDeg_;
 	double					leftDeg_;
@@ -267,8 +262,8 @@ private:
 	double					default_paper_width_;
 	double					default_paper_height_;
 
-	string					seg_stn_graph_file_;
-	string					seg_msr_graph_file_;
+	std::string					seg_stn_graph_file_;
+	std::string					seg_msr_graph_file_;
 
 	vstring					v_isl_pts_file_;
 	vstring					v_isl_const_file_;
@@ -311,34 +306,34 @@ private:
 	vUINT32					v_measurementCount_;		// number of raw measurements and constrained stations
 	vUINT32					v_unknownsCount_;			// number of all stations (constrained and free)
 
-	string					_APP_GMTSET_;
-	string					_APP_PSCOAST_;
-	string					_APP_PSCONVERT_;
-	string					_APP_PSTEXT_;
-	string					_APP_PSVELO_;
-	string					_APP_PSXY_;
-	string					_APP_PSLEGEND_;
-	string					_PDF_AGGREGATE_;
-	string					_CMD_EXT_;
-	string 					_ECHO_CMD_;
-	string 					_LEGEND_ECHO_;
-	string 					_LEGEND_CMD_1_;
-	string 					_LEGEND_CMD_2_;
+	std::string					_APP_GMTSET_;
+	std::string					_APP_PSCOAST_;
+	std::string					_APP_PSCONVERT_;
+	std::string					_APP_PSTEXT_;
+	std::string					_APP_PSVELO_;
+	std::string					_APP_PSXY_;
+	std::string					_APP_PSLEGEND_;
+	std::string					_PDF_AGGREGATE_;
+	std::string					_CMD_EXT_;
+	std::string 					_ECHO_CMD_;
+	std::string 					_LEGEND_ECHO_;
+	std::string 					_LEGEND_CMD_1_;
+	std::string 					_LEGEND_CMD_2_;
 
-	string 					_COMMENT_PREFIX_;
+	std::string 					_COMMENT_PREFIX_;
 
-	string					_CMD_HEADER_;
-	string 					_DELETE_CMD_;
-	string 					_CHMOD_CMD_;
-	string 					_COPY_CMD_;
-	string 					_MOVE_CMD_;
-	string					_NULL_OUTPUT_;
-	string 					_MAKEDIR_CMD_;
-	string 					_RMDIR_CMD_;
-	string 					_MAKEENV_CMD_;
-	string 					_MAKETEMP_CMD_;
-	string 					_ENV_GMT_TMP_DIR_;
-	string 					_GMT_TMP_DIR_;
+	std::string					_CMD_HEADER_;
+	std::string 					_DELETE_CMD_;
+	std::string 					_CHMOD_CMD_;
+	std::string 					_COPY_CMD_;
+	std::string 					_MOVE_CMD_;
+	std::string					_NULL_OUTPUT_;
+	std::string 					_MAKEDIR_CMD_;
+	std::string 					_RMDIR_CMD_;
+	std::string 					_MAKEENV_CMD_;
+	std::string 					_MAKETEMP_CMD_;
+	std::string 					_ENV_GMT_TMP_DIR_;
+	std::string 					_GMT_TMP_DIR_;
 
 	double					dWidth_;
 	double					dHeight_;
@@ -357,7 +352,7 @@ private:
 	double 					circle_radius_2_;
 	double 					circle_line_width_;
 
-	string 					coastResolution_;
+	std::string 					coastResolution_;
 	
 };
 

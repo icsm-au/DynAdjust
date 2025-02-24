@@ -56,16 +56,6 @@
 #include <boost/filesystem.hpp>
 #include <boost/iostreams/detail/absolute_path.hpp>
 
-using namespace std;
-using namespace boost;
-using namespace boost::filesystem;
-using namespace boost::timer;
-using namespace boost::posix_time;
-using namespace boost::program_options;
-using namespace boost::iostreams::detail;
-
-namespace po = boost::program_options;
-
 #include <include/config/dnaversion.hpp>
 #include <include/config/dnaconsts.hpp>
 #include <include/config/dnaconsts-interface.hpp>
@@ -88,52 +78,53 @@ extern boost::mutex cout_mutex;
 class dna_import_thread
 {
 public:
-	dna_import_thread(dna_import* dnaParse, project_settings* p, const string& filename,
+	dna_import_thread(dna_import* dnaParse, project_settings* p, const std::string& filename,
 		vdnaStnPtr* vStations, PUINT32 stnCount, vdnaMsrPtr* vMeasurements, PUINT32 msrCount,
-		PUINT32 clusterID, input_file_meta_t* input_file_meta, string* status_msg,
-		milliseconds* ms)
+		PUINT32 clusterID, input_file_meta_t* input_file_meta, bool firstFile, std::string* status_msg,
+		boost::posix_time::milliseconds* ms)
 		: _dnaParse(dnaParse), _p(p), _filename(filename)
 		, _vStations(vStations), _stnCount(stnCount), _vMeasurements(vMeasurements), _msrCount(msrCount)
-		, _clusterID(clusterID), _input_file_meta(input_file_meta)
+		, _clusterID(clusterID), _input_file_meta(input_file_meta), _firstFile(firstFile)
 		, _status_msg(status_msg), _ms(ms) {};
 	void operator()()
 	{
-		cpu_timer time;	// constructor of boost::timer::cpu_timer calls start()
+		boost::timer::cpu_timer time;	// constructor of boost::timer::cpu_timer calls start()
 		try {
 			_dnaParse->ParseInputFile(_filename, 
 				_vStations, _stnCount, 
 				_vMeasurements, _msrCount, 
-				_clusterID, _input_file_meta,
+				_clusterID, _input_file_meta, _firstFile,
 				_status_msg, _p);
-			*_ms = milliseconds(time.elapsed().wall/MILLI_TO_NANO);
+			*_ms = boost::posix_time::milliseconds(time.elapsed().wall/MILLI_TO_NANO);
 		} 
 		catch (const XMLInteropException& e) {
 			running = false;
-			boost::this_thread::sleep(milliseconds(50));
-			stringstream err_msg;
+			boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+			std::stringstream err_msg;
 			cout_mutex.lock();
-			err_msg << endl << "- Error: " << e.what() << endl;
-			cout << err_msg.str();
+			err_msg << std::endl << "- Error: " << e.what() << std::endl;
+			std::cout << err_msg.str();
 			*_status_msg = err_msg.str();
 			cout_mutex.unlock();
 			return;
 		}
 		running = false;		
 	}
-	inline void SetFile(const string& file) { _filename = file; }
+	inline void SetFile(const std::string& file) { _filename = file; }
 
 private:
-	dna_import*		_dnaParse;
+	dna_import*			_dnaParse;
 	project_settings*	_p;
-	string				_filename;
+	std::string				_filename;
 	vdnaStnPtr*			_vStations;
 	PUINT32				_stnCount;
 	vdnaMsrPtr*			_vMeasurements;
 	PUINT32				_msrCount;
 	PUINT32				_clusterID;
 	input_file_meta_t*	_input_file_meta;
-	string*				_status_msg;
-	milliseconds*		_ms;
+	bool				_firstFile;
+	std::string*				_status_msg;
+	boost::posix_time::milliseconds*		_ms;
 };
 	
 class dna_import_progress_thread
@@ -144,7 +135,7 @@ public:
 	void operator()()
 	{
 		double percentComplete(0.);
-		ostringstream ss;
+		std::ostringstream ss;
 
 		int is_terminal(isatty(fileno(stdout)));
 
@@ -158,13 +149,13 @@ public:
 			if (is_terminal && !_p->g.quiet)
 			{
 				ss.str("");
-				ss << setw(3) << fixed << setprecision(0) << right << percentComplete << "%";
+				ss << std::setw(3) << std::fixed << std::setprecision(0) << std::right << percentComplete << "%";
 				cout_mutex.lock();
-				cout << PROGRESS_BACKSPACE_04 << setw(PROGRESS_PERCENT_04) << ss.str();
-				cout.flush();
+				std::cout << PROGRESS_BACKSPACE_04 << std::setw(PROGRESS_PERCENT_04) << ss.str();
+				std::cout.flush();
 				cout_mutex.unlock();
 			}
-			boost::this_thread::sleep(milliseconds(10));
+			boost::this_thread::sleep(boost::posix_time::milliseconds(10));
 			percentComplete = _dnaParse->GetProgress();
 		}
 	}

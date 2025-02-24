@@ -19,12 +19,6 @@
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 
-using namespace std;
-using namespace boost;
-using namespace boost::filesystem;
-using namespace boost::posix_time;
-using namespace boost::program_options;
-
 boost::mutex cout_mutex;
 
 #include <include/config/dnaversion.hpp>
@@ -44,66 +38,66 @@ boost::mutex cout_mutex;
 
 using namespace dynadjust;
 
-int CloseLogandReturn(std::ofstream& os, const int status, const string& output_file="")
+int CloseLogandReturn(std::ofstream& os, const int status, const std::string& output_file="")
 {
 	if (status == EXIT_FAILURE)
 	{
-		os << setw(25) << left << formattedDateTimeString<string>() << 
-			"Failed. " << endl << endl << 
+		os << std::setw(25) << std::left << formattedDateTimeString<std::string>() << 
+			"Failed. " << std::endl << std::endl << 
 			"+ DynAdjust ended prematurely. ";
 
 		if (!output_file.empty())
 		{
 			std::ifstream f(output_file);
-			os << " Contents of last output file:" << endl << endl << f.rdbuf();
+			os << " Contents of last output file:" << std::endl << std::endl << f.rdbuf();
 		}
 		else
-			 os << endl;
+			 os << std::endl;
 	}
 	else
-		os << endl << endl << "+ DynAdjust finished successfully." << endl;
+		os << std::endl << std::endl << "+ DynAdjust finished successfully." << std::endl;
 
 	os.close();
 	return status;
 }
 
-void PrintAppStartTimeMessage(std::ofstream& os, string&& app)
+void PrintAppStartTimeMessage(std::ofstream& os, std::string&& app)
 {
 	// App start time
-	os << setw(15) << left << string("+ " + app) << setw(25) << 
-		formattedDateTimeString<string>();
+	os << std::setw(15) << std::left << std::string("+ " + app) << std::setw(25) << 
+		formattedDateTimeString<std::string>();
 }
 
 void PrintSuccessStatusMessage(std::ofstream& os)
 {
 	// end time
-	os << setw(25) << left << formattedDateTimeString<string>() << 
-		"Ended successfully." << endl;
+	os << std::setw(25) << std::left << formattedDateTimeString<std::string>() << 
+		"Ended successfully." << std::endl;
 }
 
 int main(int argc, char* argv[])
 {
-	stringstream ss;
+	std::stringstream ss;
 
-	string cmd_line_banner;
+	std::string cmd_line_banner;
 	fileproc_help_header(&cmd_line_banner);
 
 	project_settings p;
-	variables_map vm;
-	positional_options_description positional_options;
+	boost::program_options::variables_map vm;
+	boost::program_options::positional_options_description positional_options;
 
-	options_description standard_options("+ " + string(ALL_MODULE_STDOPT), PROGRAM_OPTIONS_LINE_LENGTH);
-	options_description generic_options("+ " + string(ALL_MODULE_GENERIC), PROGRAM_OPTIONS_LINE_LENGTH);
+	boost::program_options::options_description standard_options("+ " + std::string(ALL_MODULE_STDOPT), PROGRAM_OPTIONS_LINE_LENGTH);
+	boost::program_options::options_description generic_options("+ " + std::string(ALL_MODULE_GENERIC), PROGRAM_OPTIONS_LINE_LENGTH);
 
-	string cmd_line_usage("+ ");
+	std::string cmd_line_usage("+ ");
 	cmd_line_usage.append(__BINARY_NAME__).append(" usage:  ").append(__BINARY_NAME__).append(" ").append(" [options]");
-	options_description allowable_options(cmd_line_usage, PROGRAM_OPTIONS_LINE_LENGTH);
+	boost::program_options::options_description allowable_options(cmd_line_usage, PROGRAM_OPTIONS_LINE_LENGTH);
 
 	try {
 		standard_options.add_options()
-			(PROJECT_FILE_P, value<string>(&p.g.project_file),
+			(PROJECT_FILE_P, boost::program_options::value<std::string>(&p.g.project_file),
 				"Project file containing all user options for import, segment, geoid, reftran, adjust and plot.")
-			(NETWORK_NAME_N, value<string>(&p.g.network_name),
+			(NETWORK_NAME_N, boost::program_options::value<std::string>(&p.g.network_name),
 				"Network name. User defined name for all input and output files. Default is \"network#\".")
 			(RUN_IMPORT,
 				"Run import - DynAdjust file exchange software.")
@@ -118,13 +112,13 @@ int main(int argc, char* argv[])
 			;
 
 		generic_options.add_options()
-			(VERBOSE, value<UINT16>(&p.g.verbose),
-				string("Give detailed information about what ").append(__BINARY_NAME__).append(" is doing.\n  0: No information (default)\n  1: Helpful information\n  2: Extended information\n  3: Debug level information").c_str())
+			(VERBOSE, boost::program_options::value<UINT16>(&p.g.verbose),
+				std::string("Give detailed information about what ").append(__BINARY_NAME__).append(" is doing.\n  0: No information (default)\n  1: Helpful information\n  2: Extended information\n  3: Debug level information").c_str())
 			(QUIET,
-				string("Suppresses all explanation of what ").append(__BINARY_NAME__).append(" is doing unless an error occurs.").c_str())
+				std::string("Suppresses all explanation of what ").append(__BINARY_NAME__).append(" is doing unless an error occurs.").c_str())
 			(VERSION_V, "Display the current program version.")
 			(HELP_H, "Show this help message.")
-			(HELP_MODULE, value<string>(),
+			(HELP_MODULE_H, boost::program_options::value<std::string>(),
 				"Provide help for a specific help category.")
 			;
 
@@ -133,52 +127,52 @@ int main(int argc, char* argv[])
 		// add "positional options" to handle command line tokens which have no option name
 		positional_options.add(NETWORK_NAME, -1);
 		
-		command_line_parser parser(argc, argv);
+		boost::program_options::command_line_parser parser(argc, argv);
 		store(parser.options(allowable_options).positional(positional_options).run(), vm);
 		notify(vm);
 	} 
 	catch (const std::exception& e) {
 		cout_mutex.lock();
-		cout << "- Error: " << e.what() << endl;
-		cout << cmd_line_banner << allowable_options << endl;
+		std::cout << "- Error: " << e.what() << std::endl;
+		std::cout << cmd_line_banner << allowable_options << std::endl;
 		cout_mutex.unlock();
 		return EXIT_FAILURE;
 	}
 	
 	if (argc < 2)
 	{
-		cout << endl << "- Nothing to do - no options provided. " << endl << endl;  
-		cout << cmd_line_banner << allowable_options << endl;
+		std::cout << std::endl << "- Nothing to do - no options provided. " << std::endl << std::endl;  
+		std::cout << cmd_line_banner << allowable_options << std::endl;
 		return EXIT_FAILURE;
 	}
 
 	if (vm.count(VERSION))
 	{
-		cout << cmd_line_banner << endl;
+		std::cout << cmd_line_banner << std::endl;
 		return EXIT_SUCCESS;
 	}
 
 	if (vm.count(HELP))
 	{
-		cout << cmd_line_banner << allowable_options << endl;
+		std::cout << cmd_line_banner << allowable_options << std::endl;
 		return EXIT_SUCCESS;
 	}
 
 	if (vm.count(HELP_MODULE))
 	{
-		cout << cmd_line_banner;
-		string original_text = vm[HELP_MODULE].as<string>();
-		string help_text = str_upper<string>(original_text);
+		std::cout << cmd_line_banner;
+		std::string original_text = vm[HELP_MODULE].as<std::string>();
+		std::string help_text = str_upper<std::string>(original_text);
 
-		if (str_upper<string, char>(ALL_MODULE_STDOPT).find(help_text) != string::npos) {
-			cout << standard_options << endl;
+		if (str_upper<std::string, char>(ALL_MODULE_STDOPT).find(help_text) != std::string::npos) {
+			std::cout << standard_options << std::endl;
 		}
-		else if (str_upper<string, char>(ALL_MODULE_GENERIC).find(help_text) != string::npos) {
-			cout << generic_options << endl;
+		else if (str_upper<std::string, char>(ALL_MODULE_GENERIC).find(help_text) != std::string::npos) {
+			std::cout << generic_options << std::endl;
 		}
 		else {
-			cout << endl << "- Error: Help module '" <<
-				original_text << "' is not in the list of options." << endl;
+			std::cout << std::endl << "- Error: Help module '" <<
+				original_text << "' is not in the list of options." << std::endl;
 			return EXIT_FAILURE;
 		}
 
@@ -188,11 +182,11 @@ int main(int argc, char* argv[])
 	if (vm.count(QUIET))
 		p.g.quiet = 1;
 	else
-		cout << endl << cmd_line_banner;
+		std::cout << std::endl << cmd_line_banner;
 
 	if (!vm.count(PROJECT_FILE) && !vm.count(NETWORK_NAME))
 	{
-		cout << endl << "- Nothing to do - no project file or network name specified. " << endl << endl;  
+		std::cout << std::endl << "- Nothing to do - no project file or network name specified. " << std::endl << std::endl;  
 		return EXIT_FAILURE;
 	}
 
@@ -202,29 +196,29 @@ int main(int argc, char* argv[])
 		!vm.count(RUN_SEGMENT) && 
 		!vm.count(RUN_ADJUST))
 	{
-		cout << endl << "- Nothing to do - no programs were specified. " << endl << endl;  
+		std::cout << std::endl << "- Nothing to do - no programs were specified. " << std::endl << std::endl;  
 		return EXIT_FAILURE;
 	}
 
 	if (vm.count(PROJECT_FILE) && vm.count(NETWORK_NAME))
 	{
-		if (equals(basename(p.g.project_file), p.g.network_name))
+		if (boost::equals(boost::filesystem::path(p.g.project_file).stem().string(), p.g.network_name))
 		{
-			cout << endl << "- Error: project file name doesn't match network name.  Provide" << endl;  
-			cout << endl << "         either a project file path or the network name. " << endl << endl;  
+			std::cout << std::endl << "- Error: project file name doesn't match network name.  Provide" << std::endl;  
+			std::cout << std::endl << "         either a project file path or the network name. " << std::endl << std::endl;  
 			return EXIT_FAILURE;
 		}
 	}
 	
 	// If a name was supplied, form full file path for project file using the current folder
 	if (vm.count(NETWORK_NAME))
-		p.g.project_file = formPath<string>(".", p.g.network_name, "dnaproj");
+		p.g.project_file = formPath<std::string>(".", p.g.network_name, "dnaproj");
 	
-	if (!exists(p.g.project_file))
+	if (!boost::filesystem::exists(p.g.project_file))
 	{
-		cout << endl << 
+		std::cout << std::endl << 
 			"- Error: Project file  " << p.g.project_file <<
-				"  does not exist. " << endl << endl;  
+				"  does not exist. " << std::endl << std::endl;  
 		return EXIT_FAILURE;
 	}
 
@@ -233,7 +227,7 @@ int main(int argc, char* argv[])
 	projectFile.LoadProjectFile(p.g.project_file);
 	p = projectFile.GetSettings();
 	
-	string dynadjustLogFilePath(formPath<string>(p.g.output_folder, "dynadjust", "log"));
+	std::string dynadjustLogFilePath(formPath<std::string>(p.g.output_folder, "dynadjust", "log"));
 	
 	p.g.log_file = dynadjustLogFilePath;
 	projectFile.UpdateSettingsGeneral(p.g);
@@ -241,36 +235,36 @@ int main(int argc, char* argv[])
 
 	std::ofstream dynadjust_log;
 
-	ss << "- Error: Could not open dynadjust.log for writing." << endl;
+	ss << "- Error: Could not open dynadjust.log for writing." << std::endl;
 	try {
 		// Create dynadjust log file.  Exit failure.
 		file_opener(dynadjust_log, dynadjustLogFilePath);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		cout << endl << ss.str() << endl << endl;
+		std::cout << std::endl << ss.str() << std::endl << std::endl;
 		return EXIT_FAILURE;
 	}
 	catch (...) {
-		cout << endl << ss.str() << endl << endl;
+		std::cout << std::endl << ss.str() << std::endl << std::endl;
 		return EXIT_FAILURE;
 	}
 
-	dynadjust_log << cmd_line_banner << endl;
+	dynadjust_log << cmd_line_banner << std::endl;
 
-	dynadjust_log << left << setw(15) << "+ Executable" << 
-		setw(25) << "Start date and time" << 
-		setw(25) << "End date and time" << 
-		setw(25) << "Exit status" << endl;
+	dynadjust_log << std::left << std::setw(15) << "+ Executable" << 
+		std::setw(25) << "Start date and time" << 
+		std::setw(25) << "End date and time" << 
+		std::setw(25) << "Exit status" << std::endl;
 
 	for (UINT32 d=0, linelen(15+25+25+25); d<linelen; ++d)
 		dynadjust_log << "-";
-	dynadjust_log << endl;
+	dynadjust_log << std::endl;
 	
 	// Run import (optional)
 	if (vm.count(RUN_IMPORT))
 	{
-		stringstream cmd;
+		std::stringstream cmd;
 		cmd << __import_app_name__ << " -p " << p.g.project_file;
 		
 		if (p.g.quiet)
@@ -281,20 +275,20 @@ int main(int argc, char* argv[])
 		
 		if (!run_command(cmd.str().c_str()), p.g.quiet)
 		{
-			p.i.imp_file = formPath<string>(p.g.output_folder, p.g.network_name, "imp");
+			p.i.imp_file = formPath<std::string>(p.g.output_folder, p.g.network_name, "imp");
 			return CloseLogandReturn(dynadjust_log, EXIT_FAILURE, p.i.imp_file);
 		}
 		
 		// end time
 		PrintSuccessStatusMessage(dynadjust_log);
 
-		boost::this_thread::sleep(milliseconds(40));
+		boost::this_thread::sleep(boost::posix_time::milliseconds(40));
 	}
 	
 	// Run reftran (optional)
 	if (vm.count(RUN_REFTRAN))
 	{
-		stringstream cmd;
+		std::stringstream cmd;
 		cmd << __reftran_app_name__ << " -p " << p.g.project_file;
 		
 		if (p.g.quiet)
@@ -309,13 +303,13 @@ int main(int argc, char* argv[])
 		// end time
 		PrintSuccessStatusMessage(dynadjust_log);
 
-		boost::this_thread::sleep(milliseconds(40));
+		boost::this_thread::sleep(boost::posix_time::milliseconds(40));
 	}
 	
 	// Run geoid (optional)
 	if (vm.count(RUN_GEOID))
 	{
-		stringstream cmd;
+		std::stringstream cmd;
 		cmd << __geoid_app_name__ << " -p " << p.g.project_file;
 		
 		if (p.g.quiet)
@@ -330,13 +324,13 @@ int main(int argc, char* argv[])
 		// end time
 		PrintSuccessStatusMessage(dynadjust_log);
 
-		boost::this_thread::sleep(milliseconds(40));
+		boost::this_thread::sleep(boost::posix_time::milliseconds(40));
 	}
 		
 	// Run segment (optional)
 	if (vm.count(RUN_SEGMENT))
 	{
-		stringstream cmd;
+		std::stringstream cmd;
 		cmd << __segment_app_name__ << " -p " << p.g.project_file;
 		
 		if (p.g.quiet)
@@ -351,13 +345,13 @@ int main(int argc, char* argv[])
 		// end time
 		PrintSuccessStatusMessage(dynadjust_log);
 
-		boost::this_thread::sleep(milliseconds(40));
+		boost::this_thread::sleep(boost::posix_time::milliseconds(40));
 	}
 	
 	// Run adjust (optional)
 	if (vm.count(RUN_ADJUST))
 	{		
-		stringstream cmd;
+		std::stringstream cmd;
 		cmd << __adjust_app_name__ << " -p " << p.g.project_file;
 		
 		if (p.g.quiet)
@@ -372,7 +366,7 @@ int main(int argc, char* argv[])
 		// end time
 		PrintSuccessStatusMessage(dynadjust_log);
 
-		boost::this_thread::sleep(milliseconds(40));
+		boost::this_thread::sleep(boost::posix_time::milliseconds(40));
 	}
 
 	return CloseLogandReturn(dynadjust_log, EXIT_SUCCESS);

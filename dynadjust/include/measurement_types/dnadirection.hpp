@@ -33,8 +33,6 @@
 #include <include/measurement_types/dnameasurement.hpp>
 #include <include/functions/dnatemplatefuncs.hpp>
 
-using namespace std;
-
 namespace dynadjust {
 namespace measurements {
 
@@ -54,15 +52,15 @@ private:
 	//CDnaDirection& operator=(const CDnaDirection& rhs);
 
 public:
-	//CDnaDirection(const bool bIgnore, const string& strFirst, const string& strTarget, const double& dValue, const double& dStdDev);
+	//CDnaDirection(const bool bIgnore, const std::string& strFirst, const std::string& strTarget, const double& dValue, const double& dStdDev);
 
 	//virtual inline CDnaDirection* clone() const { return new CDnaDirection(*this); }
 	bool operator==(const CDnaDirection& rhs) const;
-	virtual bool operator<(const CDnaDirection& rhs) const;
+	bool operator<(const CDnaDirection& rhs) const;
 
 	//inline CDnaDirection& operator[](int iIndex) { return this[iIndex]; }
 
-	inline string GetTarget() const { return m_strTarget; }
+	inline std::string GetTarget() const { return m_strTarget; }
 	inline double GetValue() const { return m_drValue; }
 	inline double GetStdDev() const { return m_dStdDev; }
 	inline float GetInstrHeight() const { return m_fInstHeight; }
@@ -70,23 +68,23 @@ public:
 
 	inline void SetRecordedTotal(const UINT32& l) { m_lRecordedTotal = l; }
 	inline void SetClusterID(const UINT32& id) { m_lsetID = id; }
-	inline void SetTarget(const string& str) { m_strTarget = trimstr(str); }
-	void SetValue(const string& str);
-	void SetStdDev(const string& str);
-	void SetInstrumentHeight(const string& str);
-	void SetTargetHeight(const string& str);
+	inline void SetTarget(const std::string& str) { m_strTarget = trimstr(str); }
+	void SetValue(const std::string& str);
+	void SetStdDev(const std::string& str);
+	void SetInstrumentHeight(const std::string& str);
+	void SetTargetHeight(const std::string& str);
 
 	inline virtual UINT32 CalcBinaryRecordCount() const { return 1; }
-	//void coutDirectionData(ostream &os) const;
+	//void coutDirectionData(std::ostream &os) const;
 	virtual void WriteBinaryMsr(std::ofstream* binary_stream, PUINT32 msrIndex) const;
 	virtual UINT32 SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr, it_vdbid_t& dbidmap);
-	virtual void WriteDynaMLMsr(std::ofstream* dynaml_stream, const string& comment, bool bSubMeasurement = false) const;
+	virtual void WriteDynaMLMsr(std::ofstream* dynaml_stream, const std::string& comment, bool bSubMeasurement = false) const;
 	virtual void WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& dmw, const dna_msr_fields& dml, bool bSubMeasurement = false) const;
 	virtual void SimulateMsr(vdnaStnPtr* vStations, const CDnaEllipsoid* ellipsoid);
 
 	//virtual inline void SetDatabaseMap_bmsIndex(const UINT32& bmsIndex) { m_msr_db_map.bms_index = bmsIndex; }
 public:
-	string	m_strTarget;
+	std::string	m_strTarget;
 
 protected:
 	double	m_drValue;
@@ -114,7 +112,7 @@ private:
 
 public:
 
-	//CDnaAzimuth(const bool bIgnore, const string& strFirst, const string& strTarget, const double& drValue, const double& dStdDev);
+	//CDnaAzimuth(const bool bIgnore, const std::string& strFirst, const std::string& strTarget, const double& drValue, const double& dStdDev);
 
 	bool operator==(const CDnaAzimuth& rhs) const;
 

@@ -36,11 +36,6 @@
 #include <boost/timer/timer.hpp>
 #include <boost/date_time/local_time/local_time.hpp>
 
-using namespace std;
-using namespace boost;
-using namespace boost::gregorian;
-using namespace boost::local_time;
-
 #include <include/config/dnatypes.hpp>
 #include <include/functions/dnastrmanipfuncs.hpp>
 #include <include/functions/dnatemplatedatetimefuncs.hpp>
@@ -56,8 +51,8 @@ public:
 
 	CDnaDatum(void);
 	CDnaDatum(const UINT32& epsgCode);
-	CDnaDatum(const UINT32& epsgCode, const date& epoch);
-	CDnaDatum(const string& epsgCode, const string& epoch);
+	CDnaDatum(const UINT32& epsgCode, const boost::gregorian::date& epoch);
+	CDnaDatum(const std::string& epsgCode, const std::string& epoch);
 	virtual inline ~CDnaDatum(void) {}
 
 private:	
@@ -78,26 +73,26 @@ public:
 	inline CDnaEllipsoid GetEllipsoid() const { return ellipsoid_; }
 	inline const CDnaEllipsoid* GetEllipsoidRef() const { return &ellipsoid_; }
 
-	string GetName() const { return datumName_; }
-	string GetEpsgCode_s() const;
-	string GetEpoch_s() const;
+	std::string GetName() const { return datumName_; }
+	std::string GetEpsgCode_s() const;
+	std::string GetEpoch_s() const;
 	inline UINT32 GetEpsgCode_i() const { return epsgCode_; }
-	inline date GetEpoch() const { return epoch_; }
+	inline boost::gregorian::date GetEpoch() const { return epoch_; }
 	inline DATUM_TYPE GetType() const { return datumType_; }
 	inline bool isStatic() const { return datumType_ == STATIC_DATUM; }
 	inline bool isDynamic() const { return datumType_ == DYNAMIC_DATUM; }
 
-	inline void SetEpoch(const date& epoch) { epoch_ = epoch; }
-	void SetEpoch(const string& epoch);
+	inline void SetEpoch(const boost::gregorian::date& epoch) { epoch_ = epoch; }
+	void SetEpoch(const std::string& epoch);
 	//void SetEpoch(const double& decimal_year);
 
 	void SetDatum(const UINT32& epsgCode);
-	void SetDatum(const UINT32& epsgCode, const date& epoch);
-	void SetDatum(const string& epsgCode);
-	//void SetDatum(const string& epsgCode, const date& epoch);
+	void SetDatum(const UINT32& epsgCode, const boost::gregorian::date& epoch);
+	void SetDatum(const std::string& epsgCode);
+	//void SetDatum(const std::string& epsgCode, const boost::gregorian::date& epoch);
 
-	void SetDatumFromName(const string& datumName, const string& epoch);
-	void SetDatumFromEpsg(const string& epsgCode, const string& epoch);
+	void SetDatumFromName(const std::string& datumName, const std::string& epoch);
+	void SetDatumFromEpsg(const std::string& epsgCode, const std::string& epoch);
 
 	//bool isSameFrame(const CDnaDatum& rhs) const;
 
@@ -106,9 +101,9 @@ private:
 	
 	UINT32			epsgCode_;
 	CDnaEllipsoid	ellipsoid_;
-	date			epoch_;
+	boost::gregorian::date	epoch_;
 	DATUM_TYPE		datumType_;
-	string			datumName_;
+	std::string			datumName_;
 
 };
 

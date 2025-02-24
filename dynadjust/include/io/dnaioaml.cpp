@@ -27,26 +27,26 @@
 namespace dynadjust { 
 namespace iostreams {
 
-void dna_io_aml::load_aml_file(const string& aml_filename, v_aml_pair* vbinary_aml, pvmsr_t bmsRecords)
+void dna_io_aml::load_aml_file(const std::string& aml_filename, v_aml_pair* vbinary_aml, pvmsr_t bmsRecords)
 {	
 	std::ifstream aml_file;
-	stringstream ss;
-	ss << "load_aml_file(): An error was encountered when opening " << aml_filename << "." << endl;
+	std::stringstream ss;
+	ss << "load_aml_file(): An error was encountered when opening " << aml_filename << "." << std::endl;
 
 	try {
 		// open stations aml file.  Throws runtime_error on failure.
-		file_opener(aml_file, aml_filename, ios::in | ios::binary, binary, true);
+		file_opener(aml_file, aml_filename, std::ios::in | std::ios::binary, binary, true);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	
 	ss.str("");
-	ss << "load_aml_file(): An error was encountered when reading from " << aml_filename << "." << endl;
+	ss << "load_aml_file(): An error was encountered when reading from " << aml_filename << "." << std::endl;
 
 	UINT32 msrValue;
 	
@@ -74,42 +74,42 @@ void dna_io_aml::load_aml_file(const string& aml_filename, v_aml_pair* vbinary_a
 		}
 
 	}
-	catch (const ios_base::failure& f) {
+	catch (const std::ios_base::failure& f) {
 		ss << f.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 
 	aml_file.close();
 }
 
-void dna_io_aml::write_aml_file(const string& aml_filename, pvUINT32 vbinary_aml) 
+void dna_io_aml::write_aml_file(const std::string& aml_filename, pvUINT32 vbinary_aml) 
 {	
 	std::ofstream aml_file;
-	stringstream ss;
-	ss << "write_aml_file(): An error was encountered when opening " << aml_filename << "." << endl;
+	std::stringstream ss;
+	ss << "write_aml_file(): An error was encountered when opening " << aml_filename << "." << std::endl;
 
 	try {
 		// create binary aml file.  Throws runtime_error on failure.
 		file_opener(aml_file, aml_filename,
-			ios::out | ios::binary, binary);
+			std::ios::out | std::ios::binary, binary);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	
 	ss.str("");
-	ss << "write_aml_file(): An error was encountered when writing to " << aml_filename << "." << endl;
+	ss << "write_aml_file(): An error was encountered when writing to " << aml_filename << "." << std::endl;
 
 	// Calculate number of measurement records and write to binary file
 	UINT32 amlCount(static_cast<UINT32>(vbinary_aml->size()));
@@ -128,16 +128,16 @@ void dna_io_aml::write_aml_file(const string& aml_filename, pvUINT32 vbinary_aml
 			aml_file.write(reinterpret_cast<char *>(&(*_it_aml)), sizeof(UINT32));
 		}
 	}
-	catch (const ios_base::failure& f) {
+	catch (const std::ios_base::failure& f) {
 		ss << f.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	
 	aml_file.close();
@@ -171,11 +171,11 @@ void dna_io_aml::create_msr_to_stn_tally(const pvASLPtr vAssocStnList, v_aml_pai
 }
 	
 	
-void dna_io_aml::write_msr_to_stn(ostream &os, pvstn_t bstBinaryRecords, 
+void dna_io_aml::write_msr_to_stn(std::ostream &os, pvstn_t bstBinaryRecords, 
 	pvUINT32 vStationList, vmsrtally& v_stnmsrTally, MsrTally* parsemsrTally)
 {
 	// Print measurement to station summary header
-	string header("MEASUREMENT TO STATIONS ");
+	std::string header("MEASUREMENT TO STATIONS ");
 	MsrToStnSummaryHeader(os, header);
 
 	it_vUINT32 _it_stn(vStationList->begin());
@@ -211,7 +211,7 @@ void dna_io_aml::write_msr_to_stn(ostream &os, pvstn_t bstBinaryRecords,
 	// Print the total count per measurement	
 	parsemsrTally->coutSummaryMsrToStn(os, "Totals");
 
-	os << endl << endl;
+	os << std::endl << std::endl;
 
 	if (msrRedundancies > 0)
 	{
@@ -221,11 +221,11 @@ void dna_io_aml::write_msr_to_stn(ostream &os, pvstn_t bstBinaryRecords,
 		else
 			os << " stations were";
 
-		os << " found to have GNSS measurements and absolute terrestrial measurements:" << endl << endl;
+		os << " found to have GNSS measurements and absolute terrestrial measurements:" << std::endl << std::endl;
 		
 		// Print header
-		os << setw(STATION) << left << "Station" << setw(30) << "Measurement types" << "Count" << endl;
-		os << "------------------------------------------------------------" << endl;
+		os << std::setw(STATION) << std::left << "Station" << std::setw(30) << "Measurement types" << "Count" << std::endl;
+		os << "------------------------------------------------------------" << std::endl;
 
 		// Print measurements to each station and the total count for each station
 		for (_it_stn=vStationList->begin(); _it_stn != vStationList->end(); ++_it_stn)
@@ -249,11 +249,11 @@ void dna_io_aml::write_msr_to_stn(ostream &os, pvstn_t bstBinaryRecords,
 }
 	
 
-void dna_io_aml::write_aml_file_txt(const string& bms_filename, const string& aml_filename, pvUINT32 vbinary_aml, const pvASLPtr vAssocStnList, vdnaStnPtr* vStations)
+void dna_io_aml::write_aml_file_txt(const std::string& bms_filename, const std::string& aml_filename, pvUINT32 vbinary_aml, const pvASLPtr vAssocStnList, vdnaStnPtr* vStations)
 {	
 	vmsr_t binaryMsrRecords;
-	stringstream ss;
-	ss << "write_aml_file(): An error was encountered when opening " << bms_filename << "." << endl;
+	std::stringstream ss;
+	ss << "write_aml_file(): An error was encountered when opening " << bms_filename << "." << std::endl;
 
 	binary_file_meta_t bms_meta;
 	try {
@@ -261,42 +261,42 @@ void dna_io_aml::write_aml_file_txt(const string& bms_filename, const string& am
 		// Load binary stations data.  Throws runtime_error on failure.
 		bms.load_bms_file(bms_filename, &binaryMsrRecords, bms_meta);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 
 	std::ofstream aml_file;
 	ss.str("");
-	ss << "write_aml_file(): An error was encountered when opening " << aml_filename << "." << endl;
+	ss << "write_aml_file(): An error was encountered when opening " << aml_filename << "." << std::endl;
 
 	try {
 		// create binary aml file.  Throws runtime_error on failure.
 		file_opener(aml_file, aml_filename,
-			ios::out | ios::binary, binary);
+			std::ios::out | std::ios::binary, binary);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	
 	ss.str("");
-	ss << "write_aml_file(): An error was encountered when writing to " << aml_filename << "." << endl;
+	ss << "write_aml_file(): An error was encountered when writing to " << aml_filename << "." << std::endl;
 
 	// Write number of measurement records to file
-	stringstream ss_aml;
+	std::stringstream ss_aml;
 	ss_aml << vbinary_aml->size() << " records";
-	aml_file << left << setw(HEADER_18) << ss_aml.str();
-	aml_file << left << setw(MSR) << "Msr index";
-	aml_file << left << setw(MSR) << "Msr type";
-	aml_file << left << setw(MSR) << "Cluster";
-	aml_file << left << setw(MSR) << "Ignored msr?" << endl;
+	aml_file << std::left << std::setw(HEADER_18) << ss_aml.str();
+	aml_file << std::left << std::setw(MSR) << "Msr index";
+	aml_file << std::left << std::setw(MSR) << "Msr type";
+	aml_file << std::left << std::setw(MSR) << "Cluster";
+	aml_file << std::left << std::setw(MSR) << "Ignored msr?" << std::endl;
 
 	it_vUINT32_const _it_aml(vbinary_aml->begin());
 	
@@ -340,11 +340,11 @@ void dna_io_aml::write_aml_file_txt(const string& bms_filename, const string& am
 			// may be unused.
 
 			// Print station name
-			aml_file << setw(HEADER_18) << left << vStations->at(stn_index)->GetName();
+			aml_file << std::setw(HEADER_18) << std::left << vStations->at(stn_index)->GetName();
 			
 			// print the bmsr index
 			// For clusters, this will be the index of the first binary element 
-			aml_file <<	setw(MSR) << left << *_it_aml;
+			aml_file <<	std::setw(MSR) << std::left << *_it_aml;
 
 			GetMsrIndices<UINT32>(binaryMsrRecords, *_it_aml, msrIndices);
 
@@ -356,18 +356,18 @@ void dna_io_aml::write_aml_file_txt(const string& bms_filename, const string& am
 				if (stn_index == binaryMsrRecords.at(*_it_msr).station1)
 				{
 					// All measurements have a first station
-					ss_aml << left << " (First)";
-					aml_file << setw(MSR) << left << ss_aml.str();
+					ss_aml << std::left << " (First)";
+					aml_file << std::setw(MSR) << std::left << ss_aml.str();
 					ss_aml.str("");
 					switch (binaryMsrRecords.at(*_it_msr).measType)
 					{
 					case 'D': // Direction set
 					case 'X': // GPS Baseline cluster
 					case 'Y': // GPS point cluster
-						ss_aml << setw(MSR) << left << binaryMsrRecords.at(*_it_msr).clusterID;
+						ss_aml << std::setw(MSR) << std::left << binaryMsrRecords.at(*_it_msr).clusterID;
 						break;
 					default:
-						ss_aml << setw(MSR) << left << " ";
+						ss_aml << std::setw(MSR) << std::left << " ";
 						break;
 					}
 					continue;
@@ -382,13 +382,13 @@ void dna_io_aml::write_aml_file_txt(const string& bms_filename, const string& am
 						if (stn_index == binaryMsrRecords.at(*_it_msr).station2)
 						{
 							if (binaryMsrRecords.at(*_it_msr).vectorCount1 > 0)
-								ss_aml << left << " (Second)";
+								ss_aml << std::left << " (Second)";
 							else
-								ss_aml << left << " (Target)";
+								ss_aml << std::left << " (Target)";
 						}
-						aml_file << setw(MSR) << left << ss_aml.str();
+						aml_file << std::setw(MSR) << std::left << ss_aml.str();
 						ss_aml.str("");
-						ss_aml << setw(MSR) << left << binaryMsrRecords.at(*_it_msr).clusterID;
+						ss_aml << std::setw(MSR) << std::left << binaryMsrRecords.at(*_it_msr).clusterID;
 						break;
 					case 'B': // Geodetic azimuth
 					case 'C': // Chord dist
@@ -398,40 +398,40 @@ void dna_io_aml::write_aml_file_txt(const string& bms_filename, const string& am
 					case 'L': // Level difference
 					case 'M': // MSL arc
 					case 'S': // Slope distance
-					case 'V': // Zenith angle
+					case 'V': // Zenith distance
 					case 'Z': // Vertical angle
 						if (stn_index == binaryMsrRecords.at(*_it_msr).station2)
-							ss_aml << left << " (Second)";
-						aml_file << setw(MSR) << left << ss_aml.str();
+							ss_aml << std::left << " (Second)";
+						aml_file << std::setw(MSR) << std::left << ss_aml.str();
 						ss_aml.str("");
-						ss_aml << setw(MSR) << left << " ";
+						ss_aml << std::setw(MSR) << std::left << " ";
 						break;	
 					case 'X': // GPS Baseline cluster
 						if (stn_index == binaryMsrRecords.at(*_it_msr).station2)
-							ss_aml << left << " (Second)";
-						aml_file << setw(MSR) << left << ss_aml.str();
+							ss_aml << std::left << " (Second)";
+						aml_file << std::setw(MSR) << std::left << ss_aml.str();
 						ss_aml.str("");
-						ss_aml << setw(MSR) << left << binaryMsrRecords.at(*_it_msr).clusterID;
+						ss_aml << std::setw(MSR) << std::left << binaryMsrRecords.at(*_it_msr).clusterID;
 						break;	
 					case 'A': // Horizontal angle
 						if (stn_index == binaryMsrRecords.at(*_it_msr).station2)
-							ss_aml << left << " (Second)";
+							ss_aml << std::left << " (Second)";
 						else if (stn_index == binaryMsrRecords.at(*_it_msr).station3)
-							ss_aml << left << " (Third)";
-						aml_file << setw(MSR) << left << ss_aml.str();
+							ss_aml << std::left << " (Third)";
+						aml_file << std::setw(MSR) << std::left << ss_aml.str();
 						ss_aml.str("");
-						ss_aml << setw(MSR) << left << " ";
+						ss_aml << std::setw(MSR) << std::left << " ";
 						break;
 					}
 				}
 			}			
 
-			aml_file << setw(MSR) << left << ss_aml.str();
+			aml_file << std::setw(MSR) << std::left << ss_aml.str();
 
 			if (binaryMsrRecords.at(*_it_aml).ignore)
-				aml_file << setw(MSR) << left << "*" << endl;	// Ignored
+				aml_file << std::setw(MSR) << std::left << "*" << std::endl;	// Ignored
 			else
-				aml_file << setw(MSR) << left << " " << endl;
+				aml_file << std::setw(MSR) << std::left << " " << std::endl;
 			
 			// Move to the next AML record
 			if (++_it_aml == vbinary_aml->end())
@@ -443,16 +443,16 @@ void dna_io_aml::write_aml_file_txt(const string& bms_filename, const string& am
 		} while (_it_aml != vbinary_aml->end());
 
 	}
-	catch (const ios_base::failure& f) {
+	catch (const std::ios_base::failure& f) {
 		ss << f.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	catch (...) {
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 	
 	aml_file.close();

@@ -121,24 +121,24 @@ bool CDnaCovariance::operator== (const CDnaCovariance& rhs) const
 void CDnaCovariance::WriteDynaMLMsr(std::ofstream* dynaml_stream) const
 {
 	if (GetTypeC() == 'X')
-		*dynaml_stream << "      <GPSCovariance>" << endl;
+		*dynaml_stream << "      <GPSCovariance>" << std::endl;
 	else
-		*dynaml_stream << "      <PointCovariance>" << endl;
+		*dynaml_stream << "      <PointCovariance>" << std::endl;
 		
-	*dynaml_stream << "        <m11>" << scientific << setprecision(13) << m_dM11 << "</m11>" << endl;
-	*dynaml_stream << "        <m12>" << m_dM12 << "</m12>" << endl;
-	*dynaml_stream << "        <m13>" << m_dM13 << "</m13>" << endl;
-	*dynaml_stream << "        <m21>" << m_dM21 << "</m21>" << endl;
-	*dynaml_stream << "        <m22>" << m_dM22 << "</m22>" << endl;
-	*dynaml_stream << "        <m23>" << m_dM23 << "</m23>" << endl;
-	*dynaml_stream << "        <m31>" << m_dM31 << "</m31>" << endl;
-	*dynaml_stream << "        <m32>" << m_dM32 << "</m32>" << endl;
-	*dynaml_stream << "        <m33>" << m_dM33 << "</m33>" << endl;
+	*dynaml_stream << "        <m11>" << std::scientific << std::setprecision(13) << m_dM11 << "</m11>" << std::endl;
+	*dynaml_stream << "        <m12>" << m_dM12 << "</m12>" << std::endl;
+	*dynaml_stream << "        <m13>" << m_dM13 << "</m13>" << std::endl;
+	*dynaml_stream << "        <m21>" << m_dM21 << "</m21>" << std::endl;
+	*dynaml_stream << "        <m22>" << m_dM22 << "</m22>" << std::endl;
+	*dynaml_stream << "        <m23>" << m_dM23 << "</m23>" << std::endl;
+	*dynaml_stream << "        <m31>" << m_dM31 << "</m31>" << std::endl;
+	*dynaml_stream << "        <m32>" << m_dM32 << "</m32>" << std::endl;
+	*dynaml_stream << "        <m33>" << m_dM33 << "</m33>" << std::endl;
 	
 	if (GetTypeC() == 'X')
-		*dynaml_stream << "      </GPSCovariance>" << endl;
+		*dynaml_stream << "      </GPSCovariance>" << std::endl;
 	else
-		*dynaml_stream << "      </PointCovariance>" << endl;
+		*dynaml_stream << "      </PointCovariance>" << std::endl;
 }
 	
 
@@ -147,28 +147,28 @@ void CDnaCovariance::WriteDNAMsr(std::ofstream* dna_stream,
 {
 	UINT32 pad(dmw.msr_type + dmw.msr_ignore + dmw.msr_inst + dmw.msr_targ1 + dmw.msr_targ2 + dmw.msr_gps);
 	// X
-	*dna_stream << setw(pad) << " ";
+	*dna_stream << std::setw(pad) << " ";
 	*dna_stream <<
-		right << setw(dmw.msr_gps_vcv_1) << scientific << setprecision(13) << m_dM11 <<
-		right << setw(dmw.msr_gps_vcv_2) << m_dM12 <<
-		right << setw(dmw.msr_gps_vcv_3) << m_dM13;
-	*dna_stream << endl;
+		std::right << std::setw(dmw.msr_gps_vcv_1) << std::scientific << std::setprecision(13) << m_dM11 <<
+		std::right << std::setw(dmw.msr_gps_vcv_2) << m_dM12 <<
+		std::right << std::setw(dmw.msr_gps_vcv_3) << m_dM13;
+	*dna_stream << std::endl;
 		
 	// Y
-	*dna_stream << setw(pad) << " ";
+	*dna_stream << std::setw(pad) << " ";
 	*dna_stream << 
-		right << setw(dmw.msr_gps_vcv_1) << scientific << setprecision(13) << m_dM21 <<
-		right << setw(dmw.msr_gps_vcv_2) << m_dM22 <<
-		right << setw(dmw.msr_gps_vcv_3) << m_dM23;
-	*dna_stream << endl;
+		std::right << std::setw(dmw.msr_gps_vcv_1) << std::scientific << std::setprecision(13) << m_dM21 <<
+		std::right << std::setw(dmw.msr_gps_vcv_2) << m_dM22 <<
+		std::right << std::setw(dmw.msr_gps_vcv_3) << m_dM23;
+	*dna_stream << std::endl;
 
 	// Z
-	*dna_stream << setw(pad) << " ";
+	*dna_stream << std::setw(pad) << " ";
 	*dna_stream << 
-		right << setw(dmw.msr_gps_vcv_1) << scientific << setprecision(13) << m_dM31 <<
-		right << setw(dmw.msr_gps_vcv_2) << m_dM32 <<
-		right << setw(dmw.msr_gps_vcv_3) << m_dM33;
-	*dna_stream << endl;
+		std::right << std::setw(dmw.msr_gps_vcv_1) << std::scientific << std::setprecision(13) << m_dM31 <<
+		std::right << std::setw(dmw.msr_gps_vcv_2) << m_dM32 <<
+		std::right << std::setw(dmw.msr_gps_vcv_3) << m_dM33;
+	*dna_stream << std::endl;
 }
 	
 
@@ -221,7 +221,7 @@ UINT32 CDnaCovariance::SetMeasurementRec(const vstn_t&, it_vmsr_t& it_msr)
 }
 	
 
-void CDnaCovariance::WriteBinaryMsr(std::ofstream *binary_stream, PUINT32 msrIndex, const string& epsgCode, const string& epoch) const
+void CDnaCovariance::WriteBinaryMsr(std::ofstream *binary_stream, PUINT32 msrIndex, const std::string& epsgCode, const std::string& epoch) const
 {
 	*msrIndex += 3;
 	measurement_t measRecord;
@@ -283,47 +283,47 @@ void CDnaCovariance::SerialiseDatabaseMap(std::ofstream* os, const msr_database_
 	os->write(reinterpret_cast<const char *>(&cls), sizeof(UINT16));
 }
 
-void CDnaCovariance::SetM11(const string& str)
+void CDnaCovariance::SetM11(const std::string& str)
 {
 	DoubleFromString(m_dM11, trimstr(str));
 }
 
-void CDnaCovariance::SetM12(const string& str)
+void CDnaCovariance::SetM12(const std::string& str)
 {
 	DoubleFromString(m_dM12, trimstr(str));
 }
 
-void CDnaCovariance::SetM13(const string& str)
+void CDnaCovariance::SetM13(const std::string& str)
 {
 	DoubleFromString(m_dM13, trimstr(str));
 }
 
-void CDnaCovariance::SetM21(const string& str)
+void CDnaCovariance::SetM21(const std::string& str)
 {
 	DoubleFromString(m_dM21, trimstr(str));
 }
 
-void CDnaCovariance::SetM22(const string& str)
+void CDnaCovariance::SetM22(const std::string& str)
 {
 	DoubleFromString(m_dM22, trimstr(str));
 }
 
-void CDnaCovariance::SetM23(const string& str)
+void CDnaCovariance::SetM23(const std::string& str)
 {
 	DoubleFromString(m_dM23, trimstr(str));
 }
 
-void CDnaCovariance::SetM31(const string& str)
+void CDnaCovariance::SetM31(const std::string& str)
 {
 	DoubleFromString(m_dM31, trimstr(str));
 }
 
-void CDnaCovariance::SetM32(const string& str)
+void CDnaCovariance::SetM32(const std::string& str)
 {
 	DoubleFromString(m_dM32, trimstr(str));
 }
 
-void CDnaCovariance::SetM33(const string& str)
+void CDnaCovariance::SetM33(const std::string& str)
 {
 	DoubleFromString(m_dM33, trimstr(str));
 }
@@ -359,6 +359,7 @@ CDnaMeasurement::CDnaMeasurement()
 	, m_preAdjCorr(0)
 	, m_epsgCode(DEFAULT_EPSG_S)
 	, m_epoch("")
+	, m_bInsufficient(false)
 {
 }
 	
@@ -389,6 +390,8 @@ CDnaMeasurement::CDnaMeasurement(CDnaMeasurement&& m)
 	m_epsgCode = m.m_epsgCode;
 
 	m_msr_db_map = m.m_msr_db_map;
+
+	m_bInsufficient = m.m_bInsufficient;
 }
 
 // move assignment operator
@@ -418,16 +421,18 @@ CDnaMeasurement& CDnaMeasurement::operator= (CDnaMeasurement&& rhs)
 
 	m_msr_db_map = rhs.m_msr_db_map;
 
+	m_bInsufficient = rhs.m_bInsufficient;
+
 	return *this;
 }
 	
 
-void CDnaMeasurement::coutMeasurement(ostream& os) const
+void CDnaMeasurement::coutMeasurement(std::ostream& os) const
 {
-	os << setw(2) << left << "+ " << setw(2) << m_strType;
+	os << std::setw(2) << std::left << "+ " << std::setw(2) << m_strType;
 }
 
-void CDnaMeasurement::SetMeasurementDBID(const string& str)
+void CDnaMeasurement::SetMeasurementDBID(const std::string& str)
 {
 	if (str.empty())
 	{
@@ -441,7 +446,7 @@ void CDnaMeasurement::SetMeasurementDBID(const string& str)
 	}
 }
 
-void CDnaMeasurement::SetClusterDBID(const string& str)
+void CDnaMeasurement::SetClusterDBID(const std::string& str)
 {
 	if (str.empty())
 	{
@@ -461,7 +466,7 @@ void CDnaMeasurement::SetClusterDBID(const UINT32& u, bool s)
 	m_msr_db_map.is_cls_id_set = s;
 }
 
-void CDnaMeasurement::SetType(const string& str)
+void CDnaMeasurement::SetType(const std::string& str)
 { 
 	m_strType = trimstr(str);
 	str_toupper<int>(m_strType);
@@ -490,7 +495,7 @@ void CDnaMeasurement::SerialiseDatabaseMap(std::ofstream* os)
 	os->write(reinterpret_cast<const char*>(&val), sizeof(UINT16));
 }
 
-void CDnaMeasurement::SetEpoch(const string& epoch)
+void CDnaMeasurement::SetEpoch(const std::string& epoch)
 {
 	m_epoch = epoch;
 }

@@ -44,7 +44,7 @@ CDnaEllipsoid::CDnaEllipsoid(const UINT32& epsgCode)
 	CalculateEllipsoidParams();
 }
 
-CDnaEllipsoid::CDnaEllipsoid(const string& epsgCode) 
+CDnaEllipsoid::CDnaEllipsoid(const std::string& epsgCode) 
 {
 	UINT32 epsgCode_uint32 = LongFromString<UINT32>(trimstr(epsgCode));
 	SetEllipsoid(epsgCode_uint32);

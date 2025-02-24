@@ -57,7 +57,7 @@ epoch
 
 #geoid (35)                        VALUE                                        
 --------------------------------------------------------------------------------
-ntv2-file                          ../../sampleData/urban-network-geoid.gsb
+ntv2-file                          urban-network-geoid.gsb
 interpolation-method               1                                            
 decimal-degrees                    0                                            
 direction                          0                                            

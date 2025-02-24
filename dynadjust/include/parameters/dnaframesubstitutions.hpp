@@ -39,7 +39,7 @@ namespace frame_substitutions {
 
 /////////////////////////////////////////////////////////////
 // Custom type to manage frame substitutions
-template <class T1 = string, class T2 = UINT32, class T3 = double>
+template <class T1 = std::string, class T2 = UINT32, class T3 = double>
 class frame_substitutions_t
 {
 public:
@@ -75,15 +75,15 @@ protected:
     T3 parameters_[7];		    // transformation parameters (if any)
 };
 
-typedef frame_substitutions_t<string, UINT32, double> frame_substitutions;
+typedef frame_substitutions_t<std::string, UINT32, double> frame_substitutions;
 
-typedef boost::shared_ptr< frame_substitutions_t<string, UINT32, double> > frameSubsPtr;
-typedef vector<frameSubsPtr> vframeSubsPtr, *pvframeSubsPtr;
+typedef boost::shared_ptr< frame_substitutions_t<std::string, UINT32, double> > frameSubsPtr;
+typedef std::vector<frameSubsPtr> vframeSubsPtr, *pvframeSubsPtr;
 typedef vframeSubsPtr::iterator _it_vframesubptr;
 
 
 // WGS84 (Transit) to ITRF90
-template <class T1 = string, class T2 = UINT32, class T3 = double>
+template <class T1 = std::string, class T2 = UINT32, class T3 = double>
 class WGS84_TRANSIT_ITRF90 : public frame_substitutions_t<T1, T2, T3>
 {
 public:
@@ -103,8 +103,8 @@ public:
 		frame_substitutions::parameters_[5] = -0.0003;
 		frame_substitutions::parameters_[6] = 0.0070;
 		
-		frame_substitutions::from_epoch = dateFromString<date>("01.01.1987");
-		frame_substitutions::to_epoch = dateFromString<date>("01.01.1994");
+		frame_substitutions::from_epoch = dateFromString<boost::gregorian::date>("01.01.1987");
+		frame_substitutions::to_epoch = dateFromString<boost::gregorian::date>("01.01.1994");
 
 	};
 	~WGS84_TRANSIT_ITRF90() {}
@@ -112,7 +112,7 @@ public:
 
 
 // WGS84 to ITRF90
-template <class T1 = string, class T2 = UINT32, class T3 = double>
+template <class T1 = std::string, class T2 = UINT32, class T3 = double>
 class WGS84_ITRF90 : public frame_substitutions_t<T1, T2, T3>
 {
 public:
@@ -132,8 +132,8 @@ public:
 		frame_substitutions::parameters_[5] = -0.0003;
 		frame_substitutions::parameters_[6] = 0.0070;
 
-		frame_substitutions::from_epoch = dateFromString<date>("01.01.1987");
-		frame_substitutions::to_epoch = dateFromString<date>("01.01.1994");
+		frame_substitutions::from_epoch = dateFromString<boost::gregorian::date>("01.01.1987");
+		frame_substitutions::to_epoch = dateFromString<boost::gregorian::date>("01.01.1994");
 
 	};
 	~WGS84_ITRF90() {}
@@ -141,7 +141,7 @@ public:
 
 
 // WGS84 (G730) to ITRF91
-template <class T1 = string, class T2 = UINT32, class T3 = double>
+template <class T1 = std::string, class T2 = UINT32, class T3 = double>
 class WGS84_G730_ITRF91 : public frame_substitutions_t<T1, T2, T3>
 {
 public:
@@ -153,8 +153,8 @@ public:
 		frame_substitutions::substitute_name = ITRF1991_s_brief;
 		frame_substitutions::substitute_epsg = ITRF1991_i_xyz;
 
-		frame_substitutions::from_epoch = dateFromString<date>("02.01.1994");
-		frame_substitutions::to_epoch = dateFromString<date>("28.09.1996");
+		frame_substitutions::from_epoch = dateFromString<boost::gregorian::date>("02.01.1994");
+		frame_substitutions::to_epoch = dateFromString<boost::gregorian::date>("28.09.1996");
 
 	};
 	virtual ~WGS84_G730_ITRF91() {}
@@ -162,7 +162,7 @@ public:
 
 
 // WGS84 to ITRF91
-template <class T1 = string, class T2 = UINT32, class T3 = double>
+template <class T1 = std::string, class T2 = UINT32, class T3 = double>
 class WGS84_ITRF91 : public frame_substitutions_t<T1, T2, T3>
 {
 public:
@@ -174,8 +174,8 @@ public:
 		frame_substitutions::substitute_name = ITRF1991_s_brief;
 		frame_substitutions::substitute_epsg = ITRF1991_i_xyz;
 
-		frame_substitutions::from_epoch = dateFromString<date>("02.01.1994");
-		frame_substitutions::to_epoch = dateFromString<date>("28.09.1996");
+		frame_substitutions::from_epoch = dateFromString<boost::gregorian::date>("02.01.1994");
+		frame_substitutions::to_epoch = dateFromString<boost::gregorian::date>("28.09.1996");
 
 	};
 	virtual ~WGS84_ITRF91() {}
@@ -183,7 +183,7 @@ public:
 
 
 // WGS84 (G873) to ITRF94
-template <class T1 = string, class T2 = UINT32, class T3 = double>
+template <class T1 = std::string, class T2 = UINT32, class T3 = double>
 class WGS84_G873_ITRF94 : public frame_substitutions_t<T1, T2, T3>
 {
 public:
@@ -195,15 +195,15 @@ public:
 		frame_substitutions::substitute_name = ITRF1994_s_brief;
 		frame_substitutions::substitute_epsg = ITRF1994_i_xyz;
 
-		frame_substitutions::from_epoch = dateFromString<date>("29.09.1996");
-		frame_substitutions::to_epoch = dateFromString<date>("19.01.2002");
+		frame_substitutions::from_epoch = dateFromString<boost::gregorian::date>("29.09.1996");
+		frame_substitutions::to_epoch = dateFromString<boost::gregorian::date>("19.01.2002");
 
 	};
 	virtual ~WGS84_G873_ITRF94() {}
 };
 
 // WGS84 to ITRF94
-template <class T1 = string, class T2 = UINT32, class T3 = double>
+template <class T1 = std::string, class T2 = UINT32, class T3 = double>
 class WGS84_ITRF94 : public frame_substitutions_t<T1, T2, T3>
 {
 public:
@@ -215,15 +215,15 @@ public:
 		frame_substitutions::substitute_name = ITRF1994_s_brief;
 		frame_substitutions::substitute_epsg = ITRF1994_i_xyz;
 
-		frame_substitutions::from_epoch = dateFromString<date>("29.09.1996");
-		frame_substitutions::to_epoch = dateFromString<date>("19.01.2002");
+		frame_substitutions::from_epoch = dateFromString<boost::gregorian::date>("29.09.1996");
+		frame_substitutions::to_epoch = dateFromString<boost::gregorian::date>("19.01.2002");
 
 	};
 	virtual ~WGS84_ITRF94() {}
 };
 
 // WGS84 (G1150) to ITRF2000
-template <class T1 = string, class T2 = UINT32, class T3 = double>
+template <class T1 = std::string, class T2 = UINT32, class T3 = double>
 class WGS84_G1150_ITRF2000 : public frame_substitutions_t<T1, T2, T3>
 {
 public:
@@ -235,15 +235,15 @@ public:
 		frame_substitutions::substitute_name = ITRF2000_s;
 		frame_substitutions::substitute_epsg = ITRF2000_i_xyz;
 
-		frame_substitutions::from_epoch = dateFromString<date>("20.01.2002");
-		frame_substitutions::to_epoch = dateFromString<date>("06.05.2012");
+		frame_substitutions::from_epoch = dateFromString<boost::gregorian::date>("20.01.2002");
+		frame_substitutions::to_epoch = dateFromString<boost::gregorian::date>("06.05.2012");
 
 	};
 	virtual ~WGS84_G1150_ITRF2000() {}
 };
 
 // WGS84 to ITRF2000
-template <class T1 = string, class T2 = UINT32, class T3 = double>
+template <class T1 = std::string, class T2 = UINT32, class T3 = double>
 class WGS84_ITRF2000 : public frame_substitutions_t<T1, T2, T3>
 {
 public:
@@ -255,15 +255,15 @@ public:
 		frame_substitutions::substitute_name = ITRF2000_s;
 		frame_substitutions::substitute_epsg = ITRF2000_i_xyz;
 
-		frame_substitutions::from_epoch = dateFromString<date>("20.01.2002");
-		frame_substitutions::to_epoch = dateFromString<date>("06.05.2012");
+		frame_substitutions::from_epoch = dateFromString<boost::gregorian::date>("20.01.2002");
+		frame_substitutions::to_epoch = dateFromString<boost::gregorian::date>("06.05.2012");
 
 	};
 	virtual ~WGS84_ITRF2000() {}
 };
 
 // WGS84 (G1674) to ITRF2008
-template <class T1 = string, class T2 = UINT32, class T3 = double>
+template <class T1 = std::string, class T2 = UINT32, class T3 = double>
 class WGS84_G1674_ITRF2008 : public frame_substitutions_t<T1, T2, T3>
 {
 public:
@@ -275,15 +275,15 @@ public:
 		frame_substitutions::substitute_name = ITRF2008_s;
 		frame_substitutions::substitute_epsg = ITRF2008_i_xyz;
 
-		frame_substitutions::from_epoch = dateFromString<date>("07.05.2012");
-		frame_substitutions::to_epoch = dateFromString<date>("15.10.2013");
+		frame_substitutions::from_epoch = dateFromString<boost::gregorian::date>("07.05.2012");
+		frame_substitutions::to_epoch = dateFromString<boost::gregorian::date>("15.10.2013");
 
 	};
 	virtual ~WGS84_G1674_ITRF2008() {}
 };
 
 // WGS84 to ITRF2008
-template <class T1 = string, class T2 = UINT32, class T3 = double>
+template <class T1 = std::string, class T2 = UINT32, class T3 = double>
 class WGS84_ITRF2008_1 : public frame_substitutions_t<T1, T2, T3>
 {
 public:
@@ -295,15 +295,15 @@ public:
 		frame_substitutions::substitute_name = ITRF2008_s;
 		frame_substitutions::substitute_epsg = ITRF2008_i_xyz;
 
-		frame_substitutions::from_epoch = dateFromString<date>("07.05.2012");
-		frame_substitutions::to_epoch = dateFromString<date>("15.10.2013");
+		frame_substitutions::from_epoch = dateFromString<boost::gregorian::date>("07.05.2012");
+		frame_substitutions::to_epoch = dateFromString<boost::gregorian::date>("15.10.2013");
 
 	};
 	virtual ~WGS84_ITRF2008_1() {}
 };
 
 // WGS84 (G1762) to ITRF2008
-template <class T1 = string, class T2 = UINT32, class T3 = double>
+template <class T1 = std::string, class T2 = UINT32, class T3 = double>
 class WGS84_G1762_ITRF2008 : public frame_substitutions_t<T1, T2, T3>
 {
 public:
@@ -315,15 +315,15 @@ public:
 		frame_substitutions::substitute_name = ITRF2008_s;
 		frame_substitutions::substitute_epsg = ITRF2008_i_xyz;
 
-		frame_substitutions::from_epoch = dateFromString<date>("16.10.2013");
-		frame_substitutions::to_epoch = dateFromString<date>("02.01.2021");
+		frame_substitutions::from_epoch = dateFromString<boost::gregorian::date>("16.10.2013");
+		frame_substitutions::to_epoch = dateFromString<boost::gregorian::date>("02.01.2021");
 
 	};
 	virtual ~WGS84_G1762_ITRF2008() {}
 };
 
 // WGS84 to ITRF2008
-template <class T1 = string, class T2 = UINT32, class T3 = double>
+template <class T1 = std::string, class T2 = UINT32, class T3 = double>
 class WGS84_ITRF2008_2 : public frame_substitutions_t<T1, T2, T3>
 {
 public:
@@ -335,15 +335,15 @@ public:
 		frame_substitutions::substitute_name = ITRF2008_s;
 		frame_substitutions::substitute_epsg = ITRF2008_i_xyz;
 
-		frame_substitutions::from_epoch = dateFromString<date>("16.10.2013");
-		frame_substitutions::to_epoch = dateFromString<date>("02.01.2021");
+		frame_substitutions::from_epoch = dateFromString<boost::gregorian::date>("16.10.2013");
+		frame_substitutions::to_epoch = dateFromString<boost::gregorian::date>("02.01.2021");
 
 	};
 	virtual ~WGS84_ITRF2008_2() {}
 };
 
 // WGS84 (G2139) to ITRF2014
-template <class T1 = string, class T2 = UINT32, class T3 = double>
+template <class T1 = std::string, class T2 = UINT32, class T3 = double>
 class WGS84_G2139_ITRF2014 : public frame_substitutions_t<T1, T2, T3>
 {
 public:
@@ -355,15 +355,15 @@ public:
 		frame_substitutions::substitute_name = ITRF2014_s;
 		frame_substitutions::substitute_epsg = ITRF2014_i_xyz;
 
-		frame_substitutions::from_epoch = dateFromString<date>("02.01.2021");
-		frame_substitutions::to_epoch = day_clock::local_day() + years(100);
+		frame_substitutions::from_epoch = dateFromString<boost::gregorian::date>("02.01.2021");
+		frame_substitutions::to_epoch = boost::gregorian::day_clock::local_day() + boost::gregorian::years(100);
 
 	};
 	virtual ~WGS84_G2139_ITRF2014() {}
 };
 
 // WGS84 to ITRF2014
-template <class T1 = string, class T2 = UINT32, class T3 = double>
+template <class T1 = std::string, class T2 = UINT32, class T3 = double>
 class WGS84_ITRF2014 : public frame_substitutions_t<T1, T2, T3>
 {
 public:
@@ -375,8 +375,8 @@ public:
 		frame_substitutions::substitute_name = ITRF2014_s;
 		frame_substitutions::substitute_epsg = ITRF2014_i_xyz;
 
-		frame_substitutions::from_epoch = dateFromString<date>("02.01.2021");
-		frame_substitutions::to_epoch = day_clock::local_day() + years(100);
+		frame_substitutions::from_epoch = dateFromString<boost::gregorian::date>("02.01.2021");
+		frame_substitutions::to_epoch = boost::gregorian::day_clock::local_day() + boost::gregorian::years(100);
 
 	};
 	virtual ~WGS84_ITRF2014() {}
@@ -425,7 +425,7 @@ struct CompareSubstituteOnFrameName
 template<typename T, typename S>
 T binary_search_substitution(T begin, T end, S value)
 {
-	T i = lower_bound(begin, end, value, CompareSubstituteOnFrameName< frame_substitutions_t<string, UINT32, double> , string>());
+	T i = lower_bound(begin, end, value, CompareSubstituteOnFrameName< frame_substitutions_t<std::string, UINT32, double> , std::string>());
 	if (i != end && i->get()->getFrameName() == value)
 		return i;
 	else

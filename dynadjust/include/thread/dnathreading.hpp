@@ -33,9 +33,6 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
 
-using namespace std;
-using namespace boost;
-
 template<typename T>
 class concurrent_block_adjustment
 {
@@ -94,31 +91,31 @@ public:
 		reset_reverse_run();
 	}
 
-	inline string print_adjusted_forward_blocks() {
-		stringstream ss("");
+	inline std::string print_adjusted_forward_blocks() {
+		std::stringstream ss("");
 		boost::lock_guard<boost::mutex> lock(forward_mutex);
-		ss << "Forward blocks (" << v_fwd_blocks.size() << "):" << endl;
+		ss << "Forward blocks (" << v_fwd_blocks.size() << "):" << std::endl;
 		for (UINT32 i=0; i<v_fwd_blocks.size(); ++i)
 			if (v_fwd_blocks.at(i).adjusted)
 				ss << v_fwd_blocks.at(i).block_index << " ";
 		return ss.str();
 	}
 
-	inline string print_adjusted_reverse_blocks() {
+	inline std::string print_adjusted_reverse_blocks() {
 		boost::lock_guard<boost::mutex> lock(reverse_mutex);
-		stringstream ss;
-		ss << "Reverse blocks (" << v_fwd_blocks.size() << "):" << endl;
+		std::stringstream ss;
+		ss << "Reverse blocks (" << v_fwd_blocks.size() << "):" << std::endl;
 		for (UINT32 i=0; i<v_rev_blocks.size(); ++i)
 			if (v_rev_blocks.at(i).adjusted)
 				ss << v_rev_blocks.at(i).block_index << " ";
 		return ss.str();
 	}
 
-	inline string print_adjusted_blocks() {
-		stringstream ss;
-		ss << endl <<
-			print_adjusted_forward_blocks() << endl <<
-			print_adjusted_reverse_blocks() << endl;
+	inline std::string print_adjusted_blocks() {
+		std::stringstream ss;
+		ss << std::endl <<
+			print_adjusted_forward_blocks() << std::endl <<
+			print_adjusted_reverse_blocks() << std::endl;
 		return ss.str();
 	}
 
@@ -211,8 +208,8 @@ private:
 	bool reverse_is_running;
 	bool combine_is_running;
 
-	vector< sequential_adj_t<T, bool> > v_fwd_blocks;
-	vector< sequential_adj_t<T, bool> > v_rev_blocks;
+	std::vector< sequential_adj_t<T, bool> > v_fwd_blocks;
+	std::vector< sequential_adj_t<T, bool> > v_rev_blocks;
 
 	mutable boost::mutex forward_mutex, reverse_mutex, combine_mutex;
 	mutable boost::mutex fwd_state_mutex, rev_state_mutex, cmb_state_mutex;
@@ -228,7 +225,7 @@ public:
 		: more_blocks_coming_(true) {}
 	virtual ~concurrent_queue() {}
 
-	inline void push_data(const vector<T>& data)
+	inline void push_data(const std::vector<T>& data)
 	{
 		boost::lock_guard<boost::mutex> ql(queue_mutex);
 		// push a vector of data elements
@@ -335,7 +332,7 @@ private:
 	bool more_blocks_coming_;
 };
 
-template<typename T = string>
+template<typename T = std::string>
 class concurrent_ofstream
 {
 public:
@@ -386,7 +383,7 @@ public:
 	}
 
 private:
-	vector<T> messages;
+	std::vector<T> messages;
 	mutable boost::mutex message_mutex;
 };
 

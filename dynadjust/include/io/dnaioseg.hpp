@@ -47,13 +47,13 @@ public:
 
 	dna_io_seg& operator=(const dna_io_seg& rhs);
 
-	void load_seg_file_header(const string& seg_filename, istream& seg_file, UINT32& blockCount, 
+	void load_seg_file_header(const std::string& seg_filename, std::istream& seg_file, UINT32& blockCount, 
 		UINT32& blockThreshold, UINT32& minInnerStns);
 
-	void load_seg_file_header_f(const string& seg_filename, UINT32& blockCount, 
+	void load_seg_file_header_f(const std::string& seg_filename, UINT32& blockCount, 
 		UINT32& blockThreshold, UINT32& minInnerStns);
 
-	void load_seg_file(const string& seg_filename, UINT32& blockCount, 
+	void load_seg_file(const std::string& seg_filename, UINT32& blockCount, 
 		UINT32& blockThreshold, UINT32& minInnerStns,
 		vvUINT32& v_ISL, vvUINT32& v_JSL, vvUINT32& v_CML,
 		bool loadMetrics,
@@ -65,23 +65,23 @@ public:
 		const vvUINT32& paramStationList,
 		vASL& assocStnList);
 
-	void write_seg_block(ostream &os, 
+	void write_seg_block(std::ostream &os, 
 		const vUINT32& vISL, const vUINT32& vJSL, const vUINT32& vCML, 
 		const UINT32& currentBlock, 
 		const vstn_t* bstBinaryRecords, const vmsr_t* bmsBinaryRecords, 
 		bool PRINT_NAMES=false);
 
-	void write_seg_file(const string& seg_filename, const string& bst_filename, const string& bms_filename,
+	void write_seg_file(const std::string& seg_filename, const std::string& bst_filename, const std::string& bms_filename,
 		const UINT32& min_inner_stns, const UINT32& max_block_stns,
-		const string& seg_starting_stns, const vstring& vinitialStns,
-		const string& command_line_arguments,
+		const std::string& seg_starting_stns, const vstring& vinitialStns,
+		const std::string& command_line_arguments,
 		vvUINT32& v_ISL, vvUINT32& v_JSL, vvUINT32& v_CML,
 		vUINT32& v_ContiguousNetList, const pvstn_t bstBinaryRecords, const pvmsr_t bmsBinaryRecords);
 
 	void build_free_stn_availability(vASL& assocStnList, v_freestn_pair& freeStnList);
 
-	void write_stn_appearance(const string& sap_filename, const v_stn_block_map& stnAppearance);
-	void load_stn_appearance(const string& sap_filename, v_stn_block_map& stnAppearance);
+	void write_stn_appearance(const std::string& sap_filename, const v_stn_block_map& stnAppearance);
+	void load_stn_appearance(const std::string& sap_filename, v_stn_block_map& stnAppearance);
 
 protected:
 

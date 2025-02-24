@@ -45,11 +45,6 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/filesystem.hpp>
 
-using namespace std;
-using namespace boost;
-using namespace boost::posix_time;
-using namespace boost::filesystem;
-
 #include <include/config/dnaexports.hpp>
 #include <include/config/dnaversion.hpp>
 #include <include/exception/dnaexception.hpp>
@@ -109,26 +104,26 @@ public:
 	inline UINT32 minBlockSize() const { return minBlockSize_; }
 	
 	void coutSummary() const;
-	void coutCurrentBlockSummary(ostream &os);
+	void coutCurrentBlockSummary(std::ostream &os);
 
 
 	void LoadNetFile();
-	void LoadBinaryFiles(const string& bstrfileName, const string& bmsrfileName);
-	void LoadAssociationFiles(const string& aslfileName, const string& amlfileName);
-	void LoadStationMap(const string& stnmap_file);
+	void LoadBinaryFiles(const std::string& bstrfileName, const std::string& bmsrfileName);
+	void LoadAssociationFiles(const std::string& aslfileName, const std::string& amlfileName);
+	void LoadStationMap(const std::string& stnmap_file);
 
-	void WriteSegmentedNetwork(const string& segfileName);
+	void WriteSegmentedNetwork(const std::string& segfileName);
 	void WriteFreeStnListSortedbyASLMsrCount();
 
 	void VerifyStationConnections();
 
-	string DefaultStartingStation();
+	std::string DefaultStartingStation();
 	vstring StartingStations();
 	
 	inline _SEGMENT_STATUS_ GetStatus() const { return segmentStatus_; }
 
 private:
-	void SignalExceptionSerialise(const string& msg, const int& i, const char *streamType, ...);
+	void SignalExceptionSerialise(const std::string& msg, const int& i, const char *streamType, ...);
 	void ParseStartingStations();
 	void BuildFirstBlock();
 	void BuildNextBlock();
@@ -140,7 +135,7 @@ private:
 	void SelectJunction();
 	
 	it_vUINT32 MoveStation(vUINT32& fromList, it_vUINT32 it_from, vUINT32& toList, const UINT32& stn_index);
-	void MoveFreeStn(it_vUINT32 it_freeisl, vUINT32& toList, const UINT32& stn_index, const string& type);
+	void MoveFreeStn(it_vUINT32 it_freeisl, vUINT32& toList, const UINT32& stn_index, const std::string& type);
 	void MoveFreeStnToInnerList(it_vUINT32 it_freeisl, const UINT32& stn_index);
 	void MoveFreeStnToJunctionList(it_vUINT32 it_freeisl, const UINT32& stn_index);
 
@@ -150,12 +145,12 @@ private:
 	void IdentifyLowestStationAssociation(pvUINT32 vStnList, vUINT32& totalStations,const int currentLevel, const int maxLevel, pvUINT32 vStnCount);
 	void IdentifyInnerMsrsandAssociatedStns(const UINT32& innerStation, vUINT32& totalStations);
 	void AddtoJunctionStnList(const vUINT32& msrStations);
-	void AddtoJunctionStnList_sortedbyMsrCount(measurement_t* msr, const UINT32& innerStation);
-	void AddtoJunctionStnList_sortedbyName(measurement_t* msr, const UINT32& innerStation);
+	//void AddtoJunctionStnList_sortedbyMsrCount(measurement_t* msr, const UINT32& innerStation);
+	//void AddtoJunctionStnList_sortedbyName(measurement_t* msr, const UINT32& innerStation);
 	bool AddtoCurrentMsrList(const UINT32& amlindex, const vUINT32& msrStations);
 	UINT32 GetAvailableMsrCount(const UINT32& stn_index);
 	void FindCommonMeasurements();
-	void MoveJuncttoInnerStnList();
+	//void MoveJuncttoInnerStnList();
 	void MoveJunctiontoISL();
 	void SetAvailableMsrCount();
 	void RemoveDuplicateStations(pvstring vStations);
@@ -163,8 +158,8 @@ private:
 	//void RemoveNonMeasurements();
 	//void RemoveIgnoredMeasurements();
 	void BuildFreeStationAvailabilityList();
-	void BuildFreeStationAvailabilityList(vASL& assocStnList, v_freestn_pair& freeStnList);
-	void BuildStationAppearanceList();
+	//void BuildFreeStationAvailabilityList(vASL& assocStnList, v_freestn_pair& freeStnList);
+	//void BuildStationAppearanceList();
 	void CalculateAverageBlockSize();
 
 
@@ -178,10 +173,10 @@ private:
 	UINT32				currentBlock_;
 	UINT32				currentNetwork_;			// current contiguous network ID
 
-	string				network_name_;				// network name
+	std::string				network_name_;				// network name
 	UINT16				debug_level_;
 
-	string				output_folder_;
+	std::string				output_folder_;
 	
 	// functors
 	CompareClusterID<measurement_t, UINT32> clusteridCompareFunc_;

@@ -73,65 +73,65 @@ UINT32 StnTally::TotalCount() {
 	return CCC + FFF + CCF + CFF + FFC + FCC + CFC + FCF;
 }
 
-void StnTally::addstation(const string& constraint) {
+void StnTally::addstation(const std::string& constraint) {
 		
-	if (iequals(constraint, "CCC"))
+	if (boost::iequals(constraint, "CCC"))
 		CCC += 1;
-	else if (iequals(constraint, "FFF"))
+	else if (boost::iequals(constraint, "FFF"))
 		FFF += 1;
-	else if (iequals(constraint, "CCF"))
+	else if (boost::iequals(constraint, "CCF"))
 		CCF += 1;
-	else if (iequals(constraint, "CFF"))
+	else if (boost::iequals(constraint, "CFF"))
 		CFF += 1;
-	else if (iequals(constraint, "FFC"))
+	else if (boost::iequals(constraint, "FFC"))
 		FFC += 1;
-	else if (iequals(constraint, "FCC"))
+	else if (boost::iequals(constraint, "FCC"))
 		FCC += 1;
-	else if (iequals(constraint, "CFC"))
+	else if (boost::iequals(constraint, "CFC"))
 		CFC += 1;
-	else if (iequals(constraint, "FCF"))
+	else if (boost::iequals(constraint, "FCF"))
 		FCF += 1;
 }
 	
 
-void StnTally::removestation(const string& constraint) {
+void StnTally::removestation(const std::string& constraint) {
 
-	if (iequals(constraint, "CCC"))
+	if (boost::iequals(constraint, "CCC"))
 	{
 		if (CCC > 0)
 			CCC -= 1;
 	}
-	else if (iequals(constraint, "FFF"))
+	else if (boost::iequals(constraint, "FFF"))
 	{
 		if (FFF > 0)
 			FFF -= 1;
 	}
-	else if (iequals(constraint, "CCF"))
+	else if (boost::iequals(constraint, "CCF"))
 	{
 		if (CCF > 0)
 			CCF -= 1;
 	}
-	else if (iequals(constraint, "CFF"))
+	else if (boost::iequals(constraint, "CFF"))
 	{
 		if (CFF > 0)
 			CFF -= 1;
 	}
-	else if (iequals(constraint, "FFC"))
+	else if (boost::iequals(constraint, "FFC"))
 	{
 		if (FFC > 0)
 			FFC -= 1;
 	}
-	else if (iequals(constraint, "FCC"))
+	else if (boost::iequals(constraint, "FCC"))
 	{
 		if (FCC > 0)
 			FCC -= 1;
 	}
-	else if (iequals(constraint, "CFC"))
+	else if (boost::iequals(constraint, "CFC"))
 	{
 		if (CFC > 0)
 			CFC -= 1;
 	}
-	else if (iequals(constraint, "FCF"))
+	else if (boost::iequals(constraint, "FCF"))
 	{
 		if (FCF > 0)
 			FCF -= 1;
@@ -139,36 +139,36 @@ void StnTally::removestation(const string& constraint) {
 }
 	
 
-void StnTally::coutSummary(ostream &os, const string& title) 
+void StnTally::coutSummary(std::ostream &os, const std::string& title) 
 {
 	// Print title
-	os << title << " " << TotalCount() << " stations:" << endl;
+	os << title << " " << TotalCount() << " stations:" << std::endl;
 	UINT32 i, w(PRINT_VAR_PAD+NUMERIC_WIDTH);
 	// Print line
 	os << " ";
 	for (i=0; i<w; ++i)
 		os << "-";
-	os << endl;
+	os << std::endl;
 	// Print stations
 	if (CCC)
-		os << left << setw(PRINT_VAR_PAD) << "  (CCC) 3D constrained:" << right << setw(NUMERIC_WIDTH) << CCC << endl;
+		os << std::left << std::setw(PRINT_VAR_PAD) << "  (CCC) 3D constrained:" << std::right << std::setw(NUMERIC_WIDTH) << CCC << std::endl;
 	if (FFF)
-		os << left << setw(PRINT_VAR_PAD) << "  (FFF) 3D free:" << right << setw(NUMERIC_WIDTH) << FFF << endl;
+		os << std::left << std::setw(PRINT_VAR_PAD) << "  (FFF) 3D free:" << std::right << std::setw(NUMERIC_WIDTH) << FFF << std::endl;
 	if (CCF)
-		os << left << setw(PRINT_VAR_PAD) << "  (CCF) 2D constrained, 1D free:" << right << setw(NUMERIC_WIDTH) << CCF << endl;
+		os << std::left << std::setw(PRINT_VAR_PAD) << "  (CCF) 2D constrained, 1D free:" << std::right << std::setw(NUMERIC_WIDTH) << CCF << std::endl;
 	if (FFC)
-		os << left << setw(PRINT_VAR_PAD) << "  (FFC) 2D free, 1D constrained:" << right << setw(NUMERIC_WIDTH) << FFC << endl;
+		os << std::left << std::setw(PRINT_VAR_PAD) << "  (FFC) 2D free, 1D constrained:" << std::right << std::setw(NUMERIC_WIDTH) << FFC << std::endl;
 	if (FCF)
-		os << left << setw(PRINT_VAR_PAD) << "  (FCF) custom 2D constraints:" << right << setw(NUMERIC_WIDTH) << FCF << endl;
+		os << std::left << std::setw(PRINT_VAR_PAD) << "  (FCF) custom 2D constraints:" << std::right << std::setw(NUMERIC_WIDTH) << FCF << std::endl;
 	if (CFF)
-		os << left << setw(PRINT_VAR_PAD) << "  (CFF) custom 2D constraints:" << right << setw(NUMERIC_WIDTH) << CFF << endl;
+		os << std::left << std::setw(PRINT_VAR_PAD) << "  (CFF) custom 2D constraints:" << std::right << std::setw(NUMERIC_WIDTH) << CFF << std::endl;
 	if (CFC)
-		os << left << setw(PRINT_VAR_PAD) << "  (CFC) custom 3D constraints:" << right << setw(NUMERIC_WIDTH) << CFC << endl;
+		os << std::left << std::setw(PRINT_VAR_PAD) << "  (CFC) custom 3D constraints:" << std::right << std::setw(NUMERIC_WIDTH) << CFC << std::endl;
 	os << " ";
 	for (i=0; i<w; ++i)
 		os << "-";
-	os << endl;
-	os << left << setw(PRINT_VAR_PAD) << "  Total" << right << setw(NUMERIC_WIDTH) << TotalCount() << endl;
+	os << std::endl;
+	os << std::left << std::setw(PRINT_VAR_PAD) << "  Total" << std::right << std::setw(NUMERIC_WIDTH) << TotalCount() << std::endl;
 }
 	
 void StnTally::CreateTally(const vdnaStnPtr& vStations)	{

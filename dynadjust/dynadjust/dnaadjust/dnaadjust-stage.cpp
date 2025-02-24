@@ -46,15 +46,15 @@ void dna_adjust::PrepareMappedRegions(const UINT32& block)
 	try {
 		PrepareMemoryMapRegions(block);
 	}
-	catch (interprocess_exception& e){
-		stringstream ss;
-		ss << "PrepareMappedRegions() terminated while creating memory map" << endl;
-		ss << "  regions from .mtx stage files. Details:\n  " << e.what() << endl << endl;
-		ss << "  Please ensure the .mtx stage files from a previous staged" << endl;
-		ss << "  adjustment exist, or re-run the adjustment using the" << endl;
-		ss << "  --" << RECREATE_STAGE_FILES << " option." << endl;
-		adj_file << endl << "- Error: " << ss.str() << endl;
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+	catch (boost::interprocess::interprocess_exception& e){
+		std::stringstream ss;
+		ss << "PrepareMappedRegions() terminated while creating memory map" << std::endl;
+		ss << "  regions from .mtx stage files. Details:\n  " << e.what() << std::endl << std::endl;
+		ss << "  Please ensure the .mtx stage files from a previous staged" << std::endl;
+		ss << "  adjustment exist, or re-run the adjustment using the" << std::endl;
+		ss << "  --" << RECREATE_STAGE_FILES << " option." << std::endl;
+		adj_file << std::endl << "- Error: " << ss.str() << std::endl;
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 }
 	
@@ -397,12 +397,12 @@ void dna_adjust::OpenStageFileStreams(const UINT16 file_count, ...)
 		return;
 	}
 
-	stringstream ss;
+	std::stringstream ss;
 	ss << projectSettings_.g.output_folder << FOLDER_SLASH << projectSettings_.g.network_name << "-";
-	string filePath(ss.str());
+	std::string filePath(ss.str());
 
 	v_stageFileStreams_.clear();
-	string fullfilePath;
+	std::string fullfilePath;
 
 	va_list vlist;
 	va_start(vlist, file_count);
@@ -419,7 +419,7 @@ void dna_adjust::OpenStageFileStreams(const UINT16 file_count, ...)
 				fullfilePath = filePath + "neqr.mtx";
 				v_stageFileStreams_.push_back(fullfilePath);
 				if (projectSettings_.a.recreate_stage_files)
-					file_opener(f_normalsR_, fullfilePath, ios::out | ios::binary, binary);
+					file_opener(f_normalsR_, fullfilePath, std::ios::out | std::ios::binary, binary);
 				normalsR_map_.setnewFilePath(fullfilePath, projectSettings_.a.purge_stage_files);
 			
 				break;
@@ -429,7 +429,7 @@ void dna_adjust::OpenStageFileStreams(const UINT16 file_count, ...)
 				fullfilePath = filePath + "mmc.mtx";
 				v_stageFileStreams_.push_back(fullfilePath);
 				if (projectSettings_.a.recreate_stage_files)
-					file_opener(f_measMinusComp_, fullfilePath, ios::out | ios::binary, binary);
+					file_opener(f_measMinusComp_, fullfilePath, std::ios::out | std::ios::binary, binary);
 				measMinusComp_map_.setnewFilePath(fullfilePath, projectSettings_.a.purge_stage_files);
 		
 				break;
@@ -439,7 +439,7 @@ void dna_adjust::OpenStageFileStreams(const UINT16 file_count, ...)
 				fullfilePath = filePath + "est.mtx";
 				v_stageFileStreams_.push_back(fullfilePath);
 				if (projectSettings_.a.recreate_stage_files)
-					file_opener(f_estimatedStations_, fullfilePath, ios::out | ios::binary, binary);
+					file_opener(f_estimatedStations_, fullfilePath, std::ios::out | std::ios::binary, binary);
 				estimatedStations_map_.setnewFilePath(fullfilePath, projectSettings_.a.purge_stage_files);
 
 				break;
@@ -449,7 +449,7 @@ void dna_adjust::OpenStageFileStreams(const UINT16 file_count, ...)
 				fullfilePath = filePath + "ost.mtx";
 				v_stageFileStreams_.push_back(fullfilePath);
 				if (projectSettings_.a.recreate_stage_files)
-					file_opener(f_originalStations_, fullfilePath, ios::out | ios::binary, binary);
+					file_opener(f_originalStations_, fullfilePath, std::ios::out | std::ios::binary, binary);
 				originalStations_map_.setnewFilePath(fullfilePath, projectSettings_.a.purge_stage_files);
 
 				break;
@@ -459,7 +459,7 @@ void dna_adjust::OpenStageFileStreams(const UINT16 file_count, ...)
 				fullfilePath = filePath + "rst.mtx";
 				v_stageFileStreams_.push_back(fullfilePath);
 				if (projectSettings_.a.recreate_stage_files)
-					file_opener(f_rigorousStations_, fullfilePath, ios::out | ios::binary, binary);
+					file_opener(f_rigorousStations_, fullfilePath, std::ios::out | std::ios::binary, binary);
 				rigorousStations_map_.setnewFilePath(fullfilePath, projectSettings_.a.purge_stage_files);
 
 				break;
@@ -469,7 +469,7 @@ void dna_adjust::OpenStageFileStreams(const UINT16 file_count, ...)
 				fullfilePath = filePath + "jva.mtx";
 				v_stageFileStreams_.push_back(fullfilePath);
 				if (projectSettings_.a.recreate_stage_files)
-					file_opener(f_junctionVariances_, fullfilePath, ios::out | ios::binary, binary);
+					file_opener(f_junctionVariances_, fullfilePath, std::ios::out | std::ios::binary, binary);
 				junctionVariances_map_.setnewFilePath(fullfilePath, projectSettings_.a.purge_stage_files);
 
 				break;
@@ -479,7 +479,7 @@ void dna_adjust::OpenStageFileStreams(const UINT16 file_count, ...)
 				fullfilePath = filePath + "jvf.mtx";
 				v_stageFileStreams_.push_back(fullfilePath);
 				if (projectSettings_.a.recreate_stage_files)
-					file_opener(f_junctionVariancesFwd_, fullfilePath, ios::out | ios::binary, binary);
+					file_opener(f_junctionVariancesFwd_, fullfilePath, std::ios::out | std::ios::binary, binary);
 				junctionVariancesFwd_map_.setnewFilePath(fullfilePath, projectSettings_.a.purge_stage_files);
 
 				break;
@@ -489,7 +489,7 @@ void dna_adjust::OpenStageFileStreams(const UINT16 file_count, ...)
 				fullfilePath = filePath + "jef.mtx";
 				v_stageFileStreams_.push_back(fullfilePath);
 				if (projectSettings_.a.recreate_stage_files)
-					file_opener(f_junctionEstimatesFwd_, fullfilePath, ios::out | ios::binary, binary);
+					file_opener(f_junctionEstimatesFwd_, fullfilePath, std::ios::out | std::ios::binary, binary);
 				junctionEstimatesFwd_map_.setnewFilePath(fullfilePath, projectSettings_.a.purge_stage_files);
 
 				break;
@@ -499,7 +499,7 @@ void dna_adjust::OpenStageFileStreams(const UINT16 file_count, ...)
 				fullfilePath = filePath + "jer.mtx";
 				v_stageFileStreams_.push_back(fullfilePath);
 				if (projectSettings_.a.recreate_stage_files)
-					file_opener(f_junctionEstimatesRev_, fullfilePath, ios::out | ios::binary, binary);
+					file_opener(f_junctionEstimatesRev_, fullfilePath, std::ios::out | std::ios::binary, binary);
 				junctionEstimatesRev_map_.setnewFilePath(fullfilePath, projectSettings_.a.purge_stage_files);
 
 				break;
@@ -509,7 +509,7 @@ void dna_adjust::OpenStageFileStreams(const UINT16 file_count, ...)
 				fullfilePath = filePath + "rva.mtx";
 				v_stageFileStreams_.push_back(fullfilePath);
 				if (projectSettings_.a.recreate_stage_files)
-					file_opener(f_rigorousVariances_, fullfilePath, ios::out | ios::binary, binary);
+					file_opener(f_rigorousVariances_, fullfilePath, std::ios::out | std::ios::binary, binary);
 				rigorousVariances_map_.setnewFilePath(fullfilePath, projectSettings_.a.purge_stage_files);
 
 				break;
@@ -519,7 +519,7 @@ void dna_adjust::OpenStageFileStreams(const UINT16 file_count, ...)
 				fullfilePath = filePath + "pam.mtx";
 				v_stageFileStreams_.push_back(fullfilePath);
 				if (projectSettings_.a.recreate_stage_files)
-					file_opener(f_precAdjMsrs_, fullfilePath, ios::out | ios::binary, binary);
+					file_opener(f_precAdjMsrs_, fullfilePath, std::ios::out | std::ios::binary, binary);
 				precAdjMsrs_map_.setnewFilePath(fullfilePath, projectSettings_.a.purge_stage_files);
 
 				break;
@@ -529,7 +529,7 @@ void dna_adjust::OpenStageFileStreams(const UINT16 file_count, ...)
 				fullfilePath = filePath + "cor.mtx";
 				v_stageFileStreams_.push_back(fullfilePath);
 				if (projectSettings_.a.recreate_stage_files)
-					file_opener(f_corrections_, fullfilePath, ios::out | ios::binary, binary);
+					file_opener(f_corrections_, fullfilePath, std::ios::out | std::ios::binary, binary);
 				corrections_map_.setnewFilePath(fullfilePath, projectSettings_.a.purge_stage_files);
 
 				break;
@@ -537,7 +537,7 @@ void dna_adjust::OpenStageFileStreams(const UINT16 file_count, ...)
 		}
 		va_end(vlist);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		va_end(vlist);
 		SignalExceptionAdjustment(e.what(), 0);
 	}
@@ -887,8 +887,8 @@ void dna_adjust::SerialiseBlockToDisk(const UINT32& block)
 		f_corrections_ << v_corrections_.at(block);						// ...cor.mtx
 	}
 	catch (...) {
-		stringstream ss;
-		ss << "SerialiseBlockToDisk(): An error was encountered when writing matrix data to disk." << endl;
+		std::stringstream ss;
+		ss << "SerialiseBlockToDisk(): An error was encountered when writing matrix data to disk." << std::endl;
 		SignalExceptionAdjustment(ss.str(), 0);
 	}	
 }

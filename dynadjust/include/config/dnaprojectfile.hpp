@@ -34,11 +34,6 @@
 #include <iomanip>
 
 #include <boost/timer/timer.hpp>
-
-using namespace std;
-using namespace boost;
-using namespace boost::timer;
-
 #include <include/config/dnatypes.hpp>
 #include <include/config/dnaoptions-interface.hpp>
 #include <include/config/dnaoptions.hpp>
@@ -51,7 +46,7 @@ class CDnaProjectFile
 public:
 
 	CDnaProjectFile(void);
-	CDnaProjectFile(const string& projectFile, const UINT16& verifyContext);
+	CDnaProjectFile(const std::string& projectFile, const UINT16& verifyContext);
 	
 	virtual inline ~CDnaProjectFile(void) {}
 	//virtual inline CDnaProjectFile* clone() const { 
@@ -69,16 +64,16 @@ public:
 	inline project_settings GetSettings() const { return settings_; }
 	//inline CDnaProjectFile& operator[](int iIndex) { return this[iIndex]; }
 
-	void LoadProjectFile(const string& projectFile);
+	void LoadProjectFile(const std::string& projectFile);
 	void LoadProjectFile();
 	void PrintProjectFile();
 
 	template <typename T, typename U>
-	void PrintRecord(ostream& os, const T& variable, const U& value);
+	void PrintRecord(std::ostream& os, const T& variable, const U& value);
 	template <typename T>
-	void PrintVariable(ostream& os, const T& variable);
+	void PrintVariable(std::ostream& os, const T& variable);
 	template <typename T>
-	void PrintValue(ostream& os, const T& value);
+	void PrintValue(std::ostream& os, const T& value);
 
 	inline void UpdateSettingsGeneral(const general_settings& g) { 
 		settings_.g = g;
@@ -113,12 +108,12 @@ public:
 	}
 
 	template <typename T>
-	void AddOptionValue(ostream& os, const char* const option, const T& value);
+	void AddOptionValue(std::ostream& os, const char* const option, const T& value);
 	template <typename T>
-	void AddDefaultValue(ostream& os, const T& value);
+	void AddDefaultValue(std::ostream& os, const T& value);
 
-	string FormCommandLineOptionsStringImport();
-	string FormCommandLineOptionsStringGeneral();
+	std::string FormCommandLineOptionsStringImport();
+	std::string FormCommandLineOptionsStringGeneral();
 
 private:
 	void InitialiseGeneralSettings();
@@ -128,15 +123,15 @@ private:
 	void InitialiseSegmentSettings();
 	void InitialiseAdjustSettings();
 
-	void LoadSettingGeneral(const settingMode mSetting, const string& var, string& val);
-	void LoadSettingImport(const settingMode mSetting, const string& var, string& val);
-	void LoadSettingReftran(const string& var, string& val);
-	void LoadSettingGeoid(const string& var, string& val);
-	void LoadSettingSegment(const string& var, string& val);
-	void LoadSettingAdjust(const string& var, string& val);
-	void LoadSettingOutput(const string& var, string& val);
-	//void LoadSettingPlot(const string& var, string& val);
-	//void LoadSettingDisplay(const string& var, string& val);
+	void LoadSettingGeneral(const settingMode mSetting, const std::string& var, std::string& val);
+	void LoadSettingImport(const settingMode mSetting, const std::string& var, std::string& val);
+	void LoadSettingReftran(const std::string& var, std::string& val);
+	void LoadSettingGeoid(const std::string& var, std::string& val);
+	void LoadSettingSegment(const std::string& var, std::string& val);
+	void LoadSettingAdjust(const std::string& var, std::string& val);
+	void LoadSettingOutput(const std::string& var, std::string& val);
+	//void LoadSettingPlot(const std::string& var, std::string& val);
+	//void LoadSettingDisplay(const std::string& var, std::string& val);
 	
 	project_settings settings_;
 };

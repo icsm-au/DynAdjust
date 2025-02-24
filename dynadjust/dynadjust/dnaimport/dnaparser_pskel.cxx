@@ -42,7 +42,6 @@
 
 #include <include/io/DynaML-schema.hxx>
 
-using namespace std;
 using namespace dynadjust::measurements;
 
 // Clusterpoint_pskel
@@ -2045,8 +2044,10 @@ bool DnaXmlFormat_pskel::_start_element_impl (const ::xml_schema::ro_string& ns,
 		{
 			this->DnaStation_parser_->InitparentStnVector(_pStns);
 			
-			// Set default reference frame and epoch for this measurement
-			this->DnaStation_parser_->SetDefaultReferenceFrame(_referenceframe);
+			// Set the default reference frame and epoch for this station
+			this->DnaStation_parser_->InitfileEpsg(_fileEpsg);
+			this->DnaStation_parser_->InitfileEpoch(_fileEpoch);
+			this->DnaStation_parser_->SetDefaultReferenceFrame(_referenceframe, _overridereferenceframe);
 			this->DnaStation_parser_->SetDefaultEpoch(_epoch);
 
 			this->DnaStation_parser_->pre ();
@@ -2065,6 +2066,8 @@ bool DnaXmlFormat_pskel::_start_element_impl (const ::xml_schema::ro_string& ns,
 			this->DnaMeasurement_parser_->InitparentMsrVector(_pMsrs);
 			this->DnaMeasurement_parser_->InitparentClusterID(&(_clusterID));
 			// Set default reference frame and epoch for this measurement
+			this->DnaMeasurement_parser_->InitfileEpsg(_fileEpsg);
+			this->DnaMeasurement_parser_->InitfileEpoch(_fileEpoch);
 			this->DnaMeasurement_parser_->SetDefaultReferenceFrame(_referenceframe, _overridereferenceframe);
 			this->DnaMeasurement_parser_->SetDefaultEpoch(_epoch);
 
@@ -2143,8 +2146,11 @@ bool DnaXmlFormat_pskel::_attribute_impl (const ::xml_schema::ro_string& ns,
 			this->epoch_parser_->_pre_impl ();
 			this->epoch_parser_->_characters (v);
 			this->epoch_parser_->_post_impl ();
-			this->epoch_parser_->post_type (_epoch, _overridereferenceframe);
+			this->epoch_parser_->post_type (_epoch, _fileEpoch,
+				_userspecifiedreferenceframe, _userspecifiedepoch,
+				_firstFile);
 			this->epoch();
+			_filespecifiedepoch = true;
 		}
 
 		return true;
@@ -2163,10 +2169,10 @@ bool DnaXmlFormat_pskel::_attribute_impl (const ::xml_schema::ro_string& ns,
 			this->referenceframe_parser_->_pre_impl ();
 			this->referenceframe_parser_->_characters (v);
 			this->referenceframe_parser_->_post_impl ();
-			this->referenceframe_parser_->post_type (_referenceframe, _userspecifiedreferenceframe,  _overridereferenceframe);
+			this->referenceframe_parser_->post_type (_referenceframe, _fileEpsg,
+				_userspecifiedreferenceframe, _firstFile);
 			this->referenceframe ();
-
-
+			_filespecifiedreferenceframe = true;
 		}
 
 		return true;
@@ -3187,15 +3193,15 @@ void type_pskel::post_type ()
 }
 
 // referenceframe_pskel
-// string& referenceframe, bool user_specified, bool override_referenceframe
-void referenceframe_pskel::post_type (string&, bool, bool)
+// std::string& referenceframe, bool user_specified, bool override_referenceframe
+void referenceframe_pskel::post_type (std::string&, std::string&, bool, bool)
 {
 
 }
 
 // epoch_pskel
-// string& epoch, bool override_referenceframe
-void epoch_pskel::post_type (string&, bool)
+// std::string& epoch, bool override_referenceframe
+void epoch_pskel::post_type (std::string&, std::string&, bool, bool, bool)
 {
 }
 

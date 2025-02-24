@@ -31,13 +31,10 @@
 
 #include <vector>
 
-using namespace std;
-using namespace boost;
-
 #include <include/config/dnatypes.hpp>
 
 template <class T>
-void initialiseIncrementingIntegerVector(vector<T>& vt, const T& size)
+void initialiseIncrementingIntegerVector(std::vector<T>& vt, const T& size)
 {
 	vt.resize(size);
 	T t(0);
@@ -48,15 +45,15 @@ void initialiseIncrementingIntegerVector(vector<T>& vt, const T& size)
 }
 
 template <class T>
-void initialiseIncrementingIntegerVector(vector<T>* vt, const T& size)
+void initialiseIncrementingIntegerVector(std::vector<T>* vt, const T& size)
 {
 	initialiseIncrementingIntegerVector(*vt, size);
 }
 
 template <class T>
-vector<T> createIncrementingIntegerVector(const T& size)
+std::vector<T> createIncrementingIntegerVector(const T& size)
 {
-	vector<T> vt(size);
+	std::vector<T> vt(size);
 	initialiseIncrementingIntegerVector(vt, size);
 	return vt;
 }

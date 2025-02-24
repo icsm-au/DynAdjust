@@ -99,10 +99,10 @@ done
 # opt installation folder
 OPT_DYNADJUST_PATH=/opt/dynadjust
 OPT_DYNADJUST_GCC_PATH=/opt/dynadjust/gcc
-DYNADJUST_INSTALL_PATH=/opt/dynadjust/gcc/1_2_7
+DYNADJUST_INSTALL_PATH=/opt/dynadjust/gcc/1_2_8
 
 # version info
-_version="1.2.7"
+_version="1.2.8"
 
 echo -e "\n==========================================================================="
 echo -e "DynAdjust $_version build configuration options..."
@@ -260,11 +260,25 @@ fi
 
 cd "$_build_dir"
 
-# 3. copy files:
+# 3. copy cmake files:
 echo "Copying Find*.cmake files to build directory..."
 cp ../FindXercesC.cmake ./
 #cp ../FindMKL.cmake ./
 cp ../FindXSD.cmake ./
+
+# check if MKLROOT environment variable has been set, which means
+# intel MKL has been installed.
+if [ -z "$MKLROOT" ]
+then
+    # If not, find setvars.h and execute to set environment variables
+	if [ -e /opt/intel/oneapi/setvars.sh ]
+	then
+		echo "Setting environment variables for intel..."
+		source /opt/intel/oneapi/setvars.sh
+	fi
+else
+	echo "Intel root: $MKLROOT"
+fi
 
 REL_BUILD_TYPE="Release"
 DBG_BUILD_TYPE="Debug"

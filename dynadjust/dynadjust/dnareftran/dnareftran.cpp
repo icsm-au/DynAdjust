@@ -59,7 +59,7 @@ dna_reftran::~dna_reftran()
 
 }
 
-void dna_reftran::TransformBinaryFiles(const string& bstFile, const string& bmsFile, const string& newFrame, const string& newEpoch)
+void dna_reftran::TransformBinaryFiles(const std::string& bstFile, const std::string& bmsFile, const std::string& newFrame, const std::string& newEpoch)
 {
 	// TODO - Would it be faster to use memory mapping instead of reading
 	// binary files into memory?  Not sure.
@@ -88,23 +88,14 @@ void dna_reftran::TransformBinaryFiles(const string& bstFile, const string& bmsF
 	// coordinates are required)
 	TransformMeasurementRecords(newFrame, newEpoch);
 
-	// Were any measurements updated?
-	if (transformationPerformed_)
-	{
-		// write the binary measurement file
-		WriteBinaryMeasurementFile(bmsFile);
-	}
+	// write the binary measurement file
+	WriteBinaryMeasurementFile(bmsFile);
 
 	// 3. Transform stations
 	TransformStationRecords(newFrame, newEpoch);
 
-	// Were any coordinates updated?
-	if (transformationPerformed_)
-	{
-		// write the binary station file
-		WriteBinaryStationFile(bstFile);
-	}
-
+	// write the binary station file
+	WriteBinaryStationFile(bstFile);
 }
 	
 // Obtain the two-character ID for the tectonic plate on which each station lies, and assign
@@ -121,7 +112,7 @@ void dna_reftran::IdentifyStationPlate()
 	it_v_string_v_doubledouble_pair _it_plates;
 	dnaGeometryPoint<double> point;
 
-	//cout << endl;
+	//cout << std::endl;
 
 	size_t plateCount(global_plates_.size());
 	string_uint32_pair stnPlate;
@@ -151,9 +142,9 @@ void dna_reftran::IdentifyStationPlate()
 		stnPlate.second = p++;
 		vplateMap_.push_back(stnPlate);		
 
-		//if (iequals(_it_plates->first, "AU"))
-		//	cout << endl << _it_plates->first << endl << 
-		//		boost::geometry::wkt(platePolygon) << endl;
+		//if (boost::iequals(_it_plates->first, "AU"))
+		//	std::cout << std::endl << _it_plates->first << std::endl << 
+		//		boost::geometry::wkt(platePolygon) << std::endl;
 
 		for (stn_it=bstBinaryRecords_.begin(); stn_it!=bstBinaryRecords_.end(); ++stn_it)
 		{
@@ -166,21 +157,21 @@ void dna_reftran::IdentifyStationPlate()
 			if (boost::geometry::within(point, platePolygon))
 			{
 				sprintf(stn_it->plate, "%s", _it_plates->first.c_str());
-				//cout << "Station " << stn_it->stationName << " is on plate " << _it_plates->first << endl;
+				//cout << "Station " << stn_it->stationName << " is on plate " << _it_plates->first << std::endl;
 			}	
 		}
 	}
 
-	sort(vplateMap_.begin(), vplateMap_.end());
+	std::sort(vplateMap_.begin(), vplateMap_.end());
 }
 
 	
-void dna_reftran::LoadTectonicPlateParameters(const string& pltfileName, const string& pmmfileName)
+void dna_reftran::LoadTectonicPlateParameters(const std::string& pltfileName, const std::string& pmmfileName)
 {
 	dna_io_tpb tpb;
-	stringstream ss;
-	ss << "LoadTectonicPlateParameters(): An error was encountered when loading" << endl <<
-		"  tectonic plate information." << endl;
+	std::stringstream ss;
+	ss << "LoadTectonicPlateParameters(): An error was encountered when loading" << std::endl <<
+		"  tectonic plate information." << std::endl;
 	
 	projectSettings_.r.plate_model_option = 1;
 
@@ -188,30 +179,30 @@ void dna_reftran::LoadTectonicPlateParameters(const string& pltfileName, const s
 	
 		// Load tectonic plate parameters.  Throws runtime_error on failure.
 		tpb.load_tpp_file(pmmfileName, plate_motion_eulers_);
-		sort(plate_motion_eulers_.begin(), plate_motion_eulers_.end());
+		std::sort(plate_motion_eulers_.begin(), plate_motion_eulers_.end());
 
 		// Load tectonic plate polygons.  Throws runtime_error on failure.
 		tpb.load_tpb_file(pltfileName, global_plates_);
-		sort(global_plates_.begin(), global_plates_.end());		
+		std::sort(global_plates_.begin(), global_plates_.end());		
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 
-	string message;
+	std::string message;
 	if (!tpb.validate_plate_files(global_plates_, plate_motion_eulers_, message))
 	{
-		ss << "         " << message << endl;
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		ss << "         " << message << std::endl;
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 
 	try {
 		CalculateRotations();
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 }
 	
@@ -226,21 +217,21 @@ void dna_reftran::CalculateRotations()
 	if (projectSettings_.g.verbose > 1)
 	{
 		j = PAD + (HEADER_18 * 6) + PAD + COMMENT;
-		*rft_file << endl << endl << "Euler pole rotation parameters" << endl <<
-			"-------------------------------------------" << endl << endl;
-		*rft_file << setw(PAD) << left << "Plate" << 
-			setw(HEADER_18) << right << "Pole Latitude" <<
-			setw(HEADER_18) << right << "Pole Longitude" <<
-			setw(HEADER_18) << right << "Euler Rot. Rate" <<
-			setw(HEADER_18) << right << "X Rot. Rate" <<
-			setw(HEADER_18) << right << "Y Rot. Rate" <<
-			setw(HEADER_18) << right << "Z Rot. Rate" <<
-			setw(PAD) << " " <<
-			setw(COMMENT) << left << "Reference" << endl;
+		*rft_file << std::endl << std::endl << "Euler pole rotation parameters" << std::endl <<
+			"-------------------------------------------" << std::endl << std::endl;
+		*rft_file << std::setw(PAD) << std::left << "Plate" << 
+			std::setw(HEADER_18) << std::right << "Pole Latitude" <<
+			std::setw(HEADER_18) << std::right << "Pole Longitude" <<
+			std::setw(HEADER_18) << std::right << "Euler Rot. Rate" <<
+			std::setw(HEADER_18) << std::right << "X Rot. Rate" <<
+			std::setw(HEADER_18) << std::right << "Y Rot. Rate" <<
+			std::setw(HEADER_18) << std::right << "Z Rot. Rate" <<
+			std::setw(PAD) << " " <<
+			std::setw(COMMENT) << std::left << "Reference" << std::endl;
 		UINT32 i;
 		for (i=0; i<j; ++i)
 			*rft_file << "-";
-		*rft_file << endl;
+		*rft_file << std::endl;
 	}
 	
 	for (it_plate_motion_euler i = plate_motion_eulers_.begin();
@@ -260,17 +251,16 @@ void dna_reftran::CalculateRotations()
 		plate_motion_cartesians_.push_back(pmm);
 
 		if (projectSettings_.g.verbose > 1)
-			*rft_file << setw(PAD) << left << i->plate_name << 
-				setw(HEADER_18) << right << fixed << setprecision(4) << i->pole_latitude <<
-				setw(HEADER_18) << right << fixed << setprecision(4) << i->pole_longitude <<
-				setw(HEADER_18) << right << fixed << setprecision(4) << i->pole_rotation_rate <<
-				setw(HEADER_18) << right << fixed << setprecision(6) << pmm.x_rotation <<
-				setw(HEADER_18) << right << fixed << setprecision(6) << pmm.y_rotation <<
-				setw(HEADER_18) << right << fixed << setprecision(6) << pmm.z_rotation <<
-				setw(PAD) << " " <<
-				left << i->pole_param_author << endl;
+			*rft_file << std::setw(PAD) << std::left << i->plate_name << 
+				std::setw(HEADER_18) << std::right << std::fixed << std::setprecision(4) << i->pole_latitude <<
+				std::setw(HEADER_18) << std::right << std::fixed << std::setprecision(4) << i->pole_longitude <<
+				std::setw(HEADER_18) << std::right << std::fixed << std::setprecision(4) << i->pole_rotation_rate <<
+				std::setw(HEADER_18) << std::right << std::fixed << std::setprecision(6) << pmm.x_rotation <<
+				std::setw(HEADER_18) << std::right << std::fixed << std::setprecision(6) << pmm.y_rotation <<
+				std::setw(HEADER_18) << std::right << std::fixed << std::setprecision(6) << pmm.z_rotation <<
+				std::setw(PAD) << " " <<
+				std::left << i->pole_param_author << std::endl;
 	}
-
 }
 
 // Load substitutions for WGS84 and WGS84 (...)
@@ -281,61 +271,61 @@ void dna_reftran::LoadWGS84FrameSubstitutions()
 	_frameSubstitutions.clear();
 	
 	// WGS84 (transit) and WGS84 to ITRF90
-	frameSubstitution.reset(new WGS84_TRANSIT_ITRF90<string, UINT32, double>);
+	frameSubstitution.reset(new WGS84_TRANSIT_ITRF90<std::string, UINT32, double>);
 	_frameSubstitutions.push_back(frameSubstitution);
-	frameSubstitution.reset(new WGS84_ITRF90<string, UINT32, double>);
+	frameSubstitution.reset(new WGS84_ITRF90<std::string, UINT32, double>);
 	_frameSubstitutions.push_back(frameSubstitution);
 
 	// WGS84 (G730) and WGS84 to ITRF91
-	frameSubstitution.reset(new WGS84_G730_ITRF91<string, UINT32, double>);
+	frameSubstitution.reset(new WGS84_G730_ITRF91<std::string, UINT32, double>);
 	_frameSubstitutions.push_back(frameSubstitution);
-	frameSubstitution.reset(new WGS84_ITRF91<string, UINT32, double>);
+	frameSubstitution.reset(new WGS84_ITRF91<std::string, UINT32, double>);
 	_frameSubstitutions.push_back(frameSubstitution);
 
 	// WGS84 (G873) and WGS84 to ITRF94
-	frameSubstitution.reset(new WGS84_G873_ITRF94<string, UINT32, double>);
+	frameSubstitution.reset(new WGS84_G873_ITRF94<std::string, UINT32, double>);
 	_frameSubstitutions.push_back(frameSubstitution);
-	frameSubstitution.reset(new WGS84_ITRF94<string, UINT32, double>);
+	frameSubstitution.reset(new WGS84_ITRF94<std::string, UINT32, double>);
 	_frameSubstitutions.push_back(frameSubstitution);
 
 	// WGS84 (G1150) and WGS84 to ITRF2000
-	frameSubstitution.reset(new WGS84_G1150_ITRF2000<string, UINT32, double>);
+	frameSubstitution.reset(new WGS84_G1150_ITRF2000<std::string, UINT32, double>);
 	_frameSubstitutions.push_back(frameSubstitution);
-	frameSubstitution.reset(new WGS84_ITRF2000<string, UINT32, double>);
+	frameSubstitution.reset(new WGS84_ITRF2000<std::string, UINT32, double>);
 	_frameSubstitutions.push_back(frameSubstitution);
 
 	// WGS84 (G1674) and WGS84 to ITRF2008
-	frameSubstitution.reset(new WGS84_G1674_ITRF2008<string, UINT32, double>);
+	frameSubstitution.reset(new WGS84_G1674_ITRF2008<std::string, UINT32, double>);
 	_frameSubstitutions.push_back(frameSubstitution);
-	frameSubstitution.reset(new WGS84_ITRF2008_1<string, UINT32, double>);
+	frameSubstitution.reset(new WGS84_ITRF2008_1<std::string, UINT32, double>);
 	_frameSubstitutions.push_back(frameSubstitution);
 
 	// WGS84 (G1762) and WGS84 to ITRF2008
-	frameSubstitution.reset(new WGS84_G1762_ITRF2008<string, UINT32, double>);
+	frameSubstitution.reset(new WGS84_G1762_ITRF2008<std::string, UINT32, double>);
 	_frameSubstitutions.push_back(frameSubstitution);
-	frameSubstitution.reset(new WGS84_ITRF2008_2<string, UINT32, double>);
+	frameSubstitution.reset(new WGS84_ITRF2008_2<std::string, UINT32, double>);
 	_frameSubstitutions.push_back(frameSubstitution);
 
 	// WGS84 (G2139) and WGS84 to ITRF2014
-	frameSubstitution.reset(new WGS84_G2139_ITRF2014<string, UINT32, double>);
+	frameSubstitution.reset(new WGS84_G2139_ITRF2014<std::string, UINT32, double>);
 	_frameSubstitutions.push_back(frameSubstitution);
-	frameSubstitution.reset(new WGS84_ITRF2014<string, UINT32, double>);
+	frameSubstitution.reset(new WGS84_ITRF2014<std::string, UINT32, double>);
 	_frameSubstitutions.push_back(frameSubstitution);
 
-	sort(_frameSubstitutions.begin(), _frameSubstitutions.end(), 
-		CompareSubstituteOnFrameName< frame_substitutions_t<string, UINT32, double>, string>());
+	std::sort(_frameSubstitutions.begin(), _frameSubstitutions.end(), 
+		CompareSubstituteOnFrameName< frame_substitutions_t<std::string, UINT32, double>, std::string>());
 
 }
 
-void dna_reftran::LogFrameSubstitutions(vector<string_string_pair>& substitutions, const string& type)
+void dna_reftran::LogFrameSubstitutions(std::vector<string_string_pair>& substitutions, const std::string& type)
 {
 	// Sort, count and remove duplicates
-	vector<string_string_pair>::iterator _it_sub_1, _it_sub_2, _it_sub_newend;
+	std::vector<string_string_pair>::iterator _it_sub_1, _it_sub_2, _it_sub_newend;
 	UINT32 i(0);
 	vUINT32 subs;
 
 	// sort
-	sort(substitutions.begin(), substitutions.end());
+	std::sort(substitutions.begin(), substitutions.end());
 
 	// count unique pairs
 	for (_it_sub_1 = substitutions.begin();
@@ -370,23 +360,23 @@ void dna_reftran::LogFrameSubstitutions(vector<string_string_pair>& substitution
 
 	// print
 	vUINT32::iterator _it_subs = subs.begin();
-	stringstream ss1, ss2;
+	std::stringstream ss1, ss2;
 	ss1 << type << " reference frame substitutions";
 	ss2 << "(" << subs_count << ")";
 	
-	*rft_file << endl << endl <<
-		setw(PRINT_VAL_PAD) << left << ss1.str() <<
-		setw(NUMERIC_WIDTH) << right << ss2.str() << endl;
-	*rft_file << string(PRINT_VAL_PAD + NUMERIC_WIDTH, '-') << endl;
+	*rft_file << std::endl << std::endl <<
+		std::setw(PRINT_VAL_PAD) << std::left << ss1.str() <<
+		std::setw(NUMERIC_WIDTH) << std::right << ss2.str() << std::endl;
+	*rft_file << std::string(PRINT_VAL_PAD + NUMERIC_WIDTH, '-') << std::endl;
 
 	for_each(
 		substitutions.begin(),
 		substitutions.end(),
 		[this, &_it_subs](string_string_pair& substitution) {
-			*rft_file << setw(BLOCK) << left << substitution.first <<
+			*rft_file << std::setw(BLOCK) << std::left << substitution.first <<
 				" --> " <<
-				setw(BLOCK) << substitution.second <<
-				setw(HEADER_20) << right << *(_it_subs++) << endl;
+				std::setw(BLOCK) << substitution.second <<
+				std::setw(HEADER_20) << std::right << *(_it_subs++) << std::endl;
 		}
 	);
 	
@@ -398,7 +388,7 @@ void dna_reftran::ApplyStationFrameSubstitutions()
 	// loop through binary station records and replace occurrences of 
 	// the frame to be replaced with a substitute
 	it_vstn_t stn_it;
-	string epsgSubstitute;
+	std::string epsgSubstitute;
 
 	_v_stn_substitutions.clear();
 	
@@ -408,25 +398,25 @@ void dna_reftran::ApplyStationFrameSubstitutions()
 			if (IsolateandApplySubstitute(stn_it->epsgCode, stn_it->epoch, epsgSubstitute))
 			{
 				_v_stn_substitutions.push_back(string_string_pair(
-					datumFromEpsgString(string(stn_it->epsgCode)),
+					datumFromEpsgString(std::string(stn_it->epsgCode)),
 					datumFromEpsgString(epsgSubstitute)));
 				strcpy(stn_it->epsgCode, epsgSubstitute.c_str());
 			}
 		}
 		catch (const RefTranException& e) 
 		{
-			stringstream error_msg;
-			error_msg << endl <<
-				"    - Station:          " << stn_it->stationName << endl <<
-				"    - Frame and epoch:  " << datumFromEpsgString<string>(stn_it->epsgCode) << 
-				" (no epoch)" << endl;
+			std::stringstream error_msg;
+			error_msg << std::endl <<
+				"    - Station:          " << stn_it->stationName << std::endl <<
+				"    - Frame and epoch:  " << datumFromEpsgString<std::string>(stn_it->epsgCode) << 
+				" (no epoch)" << std::endl;
 
 			switch (e.exception_type())
 			{
 			case REFTRAN_WGS84_TRANS_UNSUPPORTED:
 			{
-				stringstream throw_msg;
-				throw_msg << e.what() << error_msg.str() << endl;
+				std::stringstream throw_msg;
+				throw_msg << e.what() << error_msg.str() << std::endl;
 				throw RefTranException(throw_msg.str(), REFTRAN_WGS84_TRANS_UNSUPPORTED);
 				break;
 			}
@@ -450,7 +440,7 @@ void dna_reftran::ApplyMeasurementFrameSubstitutions()
 	// loop through binary station records and replace occurrences of 
 	// the frame to be replaced with a substitute
 	it_vmsr_t msr_it;
-	string epsgSubstitute;
+	std::string epsgSubstitute;
 
 	_v_msr_substitutions.clear();
 
@@ -461,27 +451,27 @@ void dna_reftran::ApplyMeasurementFrameSubstitutions()
 			{
 				if (msr_it->measStart == xMeas)
 					_v_msr_substitutions.push_back(string_string_pair(
-						datumFromEpsgString(string(msr_it->epsgCode)),
+						datumFromEpsgString(std::string(msr_it->epsgCode)),
 						datumFromEpsgString(epsgSubstitute)));
 				strcpy(msr_it->epsgCode, epsgSubstitute.c_str());
 			}
 		}
 		catch (const RefTranException& e)
 		{
-			stringstream error_msg;
-			error_msg << endl <<
-				"    - Measurement type: " << measurement_name<char, string>(msr_it->measType) << endl <<
-				"    - From:             " << bstBinaryRecords_.at(msr_it->station1).stationName << endl <<
-				"    - To:               " << bstBinaryRecords_.at(msr_it->station2).stationName << endl <<
-				"    - Frame and epoch:  " << datumFromEpsgString<string>(msr_it->epsgCode) << 
-				" (no epoch)" << endl;
+			std::stringstream error_msg;
+			error_msg << std::endl <<
+				"    - Measurement type: " << measurement_name<char, std::string>(msr_it->measType) << std::endl <<
+				"    - From:             " << bstBinaryRecords_.at(msr_it->station1).stationName << std::endl <<
+				"    - To:               " << bstBinaryRecords_.at(msr_it->station2).stationName << std::endl <<
+				"    - Frame and epoch:  " << datumFromEpsgString<std::string>(msr_it->epsgCode) << 
+				" (no epoch)" << std::endl;
 
 			switch (e.exception_type())
 			{
 			case REFTRAN_WGS84_TRANS_UNSUPPORTED:
 			{
-				stringstream throw_msg;
-				throw_msg << e.what() << error_msg.str() << endl;
+				std::stringstream throw_msg;
+				throw_msg << e.what() << error_msg.str() << std::endl;
 				throw RefTranException(throw_msg.str(), REFTRAN_WGS84_TRANS_UNSUPPORTED);
 				break;
 			}
@@ -501,12 +491,12 @@ void dna_reftran::ApplyMeasurementFrameSubstitutions()
 }
 	
 
-bool dna_reftran::IsolateandApplySubstitute(const string& epsgCode, const string& stnEpoch, string& epsgSubstitute)
+bool dna_reftran::IsolateandApplySubstitute(const std::string& epsgCode, const std::string& stnEpoch, std::string& epsgSubstitute)
 {
 	_it_vframesubptr _it_subst = _frameSubstitutions.begin();
 
-	string frame;
-	frame = datumFromEpsgCode<string, UINT32>(LongFromString<UINT32>(epsgCode));
+	std::string frame;
+	frame = datumFromEpsgCode<std::string, UINT32>(LongFromString<UINT32>(epsgCode));
 
 	// first, find the first occurrence of the substitute in _frameSubstitutions 
 	if ((_it_subst = binary_search_substitution(
@@ -524,18 +514,18 @@ bool dna_reftran::IsolateandApplySubstitute(const string& epsgCode, const string
 	{
 		if (stnEpoch.empty())
 		{
-			stringstream throw_msg;
-			throw_msg << " Cannot perform a reference frame substitution for data on '" << frame << "'" << endl <<
-				"  without a valid epoch.  '" << frame << "' refers to the \"World Geodetic System 1984" << endl <<
-				"  (WGS 84) ensemble\".  When transforming stations and measurements from the" << endl <<
-				"  WGS 84 ensemble, each record must be accompanied with an epoch.  Refer to" << endl <<
-				"  the DynAdjust User's Guide (\"Configuring import options\") for information" << endl <<
-				"  on how to achieve reliable transformation results using WGS 84." << endl;
+			std::stringstream throw_msg;
+			throw_msg << " Cannot perform a reference frame substitution for data on '" << frame << "'" << std::endl <<
+				"  without a valid epoch.  '" << frame << "' refers to the \"World Geodetic System 1984" << std::endl <<
+				"  (WGS 84) ensemble\".  When transforming stations and measurements from the" << std::endl <<
+				"  WGS 84 ensemble, each record must be accompanied with an epoch.  Refer to" << std::endl <<
+				"  the DynAdjust User's Guide (\"Configuring import options\") for information" << std::endl <<
+				"  on how to achieve reliable transformation results using WGS 84." << std::endl;
 			throw RefTranException(throw_msg.str(), REFTRAN_WGS84_TRANS_UNSUPPORTED);
 		}
 
 		// In this case, use the epoch to identify the correct substitution
-		boost::gregorian::date epoch = dateFromString<date>(stnEpoch);
+		boost::gregorian::date epoch = dateFromString<boost::gregorian::date>(stnEpoch);
 
 		while (_it_subst != _frameSubstitutions.end())
 		{
@@ -554,87 +544,89 @@ bool dna_reftran::IsolateandApplySubstitute(const string& epsgCode, const string
 	if (epsgSubstitute.empty())
 		return false;
 
-	epsgSubstitute = epsgStringFromName<string>(epsgSubstitute);
+	epsgSubstitute = epsgStringFromName<std::string>(epsgSubstitute);
 
 	return true;
 }
 
 
-void dna_reftran::LoadBinaryStationFile(const string& bstfileName)
+void dna_reftran::LoadBinaryStationFile(const std::string& bstfileName)
 {
 	try {
 		// Load binary stations data.  Throws runtime_error on failure.
 		dna_io_bst bst;
 		bst.load_bst_file(bstfileName, &bstBinaryRecords_, bst_meta_);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		throw RefTranException(e.what());
 	}
 }
 
 
-void dna_reftran::WriteBinaryStationFile(const string& bstfileName)
+void dna_reftran::WriteBinaryStationFile(const std::string& bstfileName)
 {
-	string strEpsg(datumTo_.GetEpsgCode_s());
-	string strEpoch(datumTo_.GetEpoch_s());
+	std::string strEpsg(datumTo_.GetEpsgCode_s());
+	std::string strEpoch(datumTo_.GetEpoch_s());
 
 	// update binary file meta
 	sprintf(bst_meta_.modifiedBy, "%s", __BINARY_NAME__);
 	sprintf(bst_meta_.epsgCode, "%s", strEpsg.substr(0, STN_EPSG_WIDTH).c_str());
 	sprintf(bst_meta_.epoch, "%s", strEpoch.substr(0, STN_EPOCH_WIDTH).c_str());
-	
+	bst_meta_.reftran = true;
+
 	try {
 		// write binary stations data.  Throws runtime_error on failure.
 		dna_io_bst bst;
 		bst.write_bst_file(bstfileName, &bstBinaryRecords_, bst_meta_);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		throw RefTranException(e.what());
 	}
 }
 
-void dna_reftran::LoadBinaryMeasurementFile(const string& bmsfileName)
+void dna_reftran::LoadBinaryMeasurementFile(const std::string& bmsfileName)
 {
 	try {
 		// Load binary measurements data.  Throws runtime_error on failure.
 		dna_io_bms bms;
 		bms.load_bms_file(bmsfileName, &bmsBinaryRecords_, bms_meta_);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		throw RefTranException(e.what());
 	}
 }
 	
 
-void dna_reftran::WriteBinaryMeasurementFile(const string& bmsfileName)
+void dna_reftran::WriteBinaryMeasurementFile(const std::string& bmsfileName)
 {
-	string strEpsg(datumTo_.GetEpsgCode_s());
-	string strEpoch(datumTo_.GetEpoch_s());
+	std::string strEpsg(datumTo_.GetEpsgCode_s());
+	std::string strEpoch(datumTo_.GetEpoch_s());
 
 	// update binary file meta
 	sprintf(bms_meta_.modifiedBy, "%s", __BINARY_NAME__);
 	sprintf(bms_meta_.epsgCode, "%s", strEpsg.substr(0, STN_EPSG_WIDTH).c_str());
 	sprintf(bms_meta_.epoch, "%s", strEpoch.substr(0, STN_EPOCH_WIDTH).c_str());
-	
+	bms_meta_.reftran = true;
+
 	try {
 		// write binary measurement data.  Throws runtime_error on failure.
 		dna_io_bms bms;
 		bms.write_bms_file(bmsfileName, &bmsBinaryRecords_, bms_meta_);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		throw RefTranException(e.what());
 	}
 }
 	
 
-UINT32 dna_reftran::DetermineTectonicPlate(const string& plate)
+UINT32 dna_reftran::DetermineTectonicPlate(const std::string& plate)
 {
 	it_pair_string_vUINT32 it_plate = equal_range(vplateMap_.begin(), vplateMap_.end(), 
 		plate, StationNameIDCompareName());
 
 	if (it_plate.first == it_plate.second)
 	{
-		stringstream error_msg;
+		std::stringstream error_msg;
 		error_msg << "An attempt to find plate motion model parameters failed for " << 
 			plate << ".";
 		throw RefTranException(error_msg.str());
@@ -680,7 +672,7 @@ void dna_reftran::JoinTransformationParameters(it_vstn_t& stn_it, double* reduce
 {
 	
 	transformation_parameter_set transP_a, transP_b;
-	CDnaDatum datumStep(epsgCodeFromName<UINT32, string>(ITRF2014_s));
+	CDnaDatum datumStep(epsgCodeFromName<UINT32, std::string>(ITRF2014_s));
 	
 	// Set the reference epoch to the epoch of the data
 	switch (transType)
@@ -701,7 +693,7 @@ void dna_reftran::JoinTransformationParameters(it_vstn_t& stn_it, double* reduce
 
 	double reduced_parameters_step[7];
 	double timeElapsed_a(0.0), timeElapsed_b(0.0);
-	string epoch_step;
+	std::string epoch_step;
 
 	transformationType transformation_type;
 
@@ -751,9 +743,9 @@ void dna_reftran::JoinTransformationParameters(it_vstn_t& stn_it, double* reduce
 			epoch_step = datumTo.GetEpoch_s();
 			break;
 		default:
-			stringstream error_msg;
+			std::stringstream error_msg;
 			error_msg << "Attempting to join parameters between " << 
-				datumFrom_.GetName() << " and " << datumStep.GetName() << ":" << endl <<
+				datumFrom_.GetName() << " and " << datumStep.GetName() << ":" << std::endl <<
 				"    " << rft.what();
 			throw RefTranException(error_msg.str());
 		}
@@ -764,28 +756,28 @@ void dna_reftran::JoinTransformationParameters(it_vstn_t& stn_it, double* reduce
 		matrix_2d coordinates_step(3, 1);
 		Transform_7parameter<double>(coordinates, coordinates_step, reduced_parameters);
 
-		*rft_file << setw(PAD3) << left << "JN" << 
-			setw(STATION) << left << stn_it->stationName << 
-			setw(REL) << right << ITRF2014_s <<
-			setw(REL) << right << epoch_step <<
-			setw(PAD3) << " " <<
-			setw(PAD) << left << stn_it->plate << 
-			setw(MEASR) << right << fixed << setprecision(4) << coordinates_step.get(0, 0) <<
-			setw(MEASR) << right << fixed << setprecision(4) << coordinates_step.get(1, 0) <<
-			setw(MEASR) << right << fixed << setprecision(4) << coordinates_step.get(2, 0);
+		*rft_file << std::setw(PAD3) << std::left << "JN" << 
+			std::setw(STATION) << std::left << stn_it->stationName << 
+			std::setw(REL) << std::right << ITRF2014_s <<
+			std::setw(REL) << std::right << epoch_step <<
+			std::setw(PAD3) << " " <<
+			std::setw(PAD) << std::left << stn_it->plate << 
+			std::setw(MEASR) << std::right << std::fixed << std::setprecision(4) << coordinates_step.get(0, 0) <<
+			std::setw(MEASR) << std::right << std::fixed << std::setprecision(4) << coordinates_step.get(1, 0) <<
+			std::setw(MEASR) << std::right << std::fixed << std::setprecision(4) << coordinates_step.get(2, 0);
 
 		if (projectSettings_.g.verbose > 2)
 		{
-			*rft_file << setw(PACORR) << right << fixed << setprecision(4) << reduced_parameters[0] <<
-				setw(PACORR) << right << fixed << setprecision(4) << reduced_parameters[1] <<
-				setw(PACORR) << right << fixed << setprecision(4) << reduced_parameters[2] <<
-				setw(PACORR) << right << scientific << setprecision(4) << reduced_parameters[3] <<
-				setw(PACORR) << right << scientific << setprecision(4) << reduced_parameters[4] <<
-				setw(PACORR) << right << scientific << setprecision(4) << reduced_parameters[5] <<
-				setw(PACORR) << right << scientific << setprecision(4) << reduced_parameters[6] <<
-				setw(PACORR) << right << fixed << setprecision(4) << timeElapsed_a;
+			*rft_file << std::setw(PACORR) << std::right << std::fixed << std::setprecision(4) << reduced_parameters[0] <<
+				std::setw(PACORR) << std::right << std::fixed << std::setprecision(4) << reduced_parameters[1] <<
+				std::setw(PACORR) << std::right << std::fixed << std::setprecision(4) << reduced_parameters[2] <<
+				std::setw(PACORR) << std::right << std::scientific << std::setprecision(4) << reduced_parameters[3] <<
+				std::setw(PACORR) << std::right << std::scientific << std::setprecision(4) << reduced_parameters[4] <<
+				std::setw(PACORR) << std::right << std::scientific << std::setprecision(4) << reduced_parameters[5] <<
+				std::setw(PACORR) << std::right << std::scientific << std::setprecision(4) << reduced_parameters[6] <<
+				std::setw(PACORR) << std::right << std::fixed << std::setprecision(4) << timeElapsed_a;
 		}
-		*rft_file << endl;
+		*rft_file << std::endl;
 	}
 
 	// Step -> datumTo
@@ -828,9 +820,9 @@ void dna_reftran::JoinTransformationParameters(it_vstn_t& stn_it, double* reduce
 			ObtainPlateMotionParameters(stn_it, reduced_parameters_step, datumFrom, datumTo, transformParameters, timeElapsed_b);
 			break;
 		default:
-			stringstream error_msg;
+			std::stringstream error_msg;
 			error_msg << "Attempting to join parameters between " <<
-				datumStep.GetName() << " and " << datumTo.GetName() << ":" << endl <<
+				datumStep.GetName() << " and " << datumTo.GetName() << ":" << std::endl <<
 				"    " << rft.what();
 			throw RefTranException(error_msg.str());
 		}
@@ -889,32 +881,32 @@ void dna_reftran::TransformEpochs_PlateMotionModel(it_vstn_t& stn_it, const matr
 
 	if (projectSettings_.g.verbose > 1 && data_type_ == stn_data)
 	{
-		*rft_file << setw(PAD3) << left << "PM" << 
-			setw(STATION) << left << stn_it->stationName << 
-			setw(REL) << right << datumTo.GetName() <<
-			setw(REL) << right << datumTo.GetEpoch_s() <<
-			setw(PAD3) << " " <<
-			setw(PAD) << left << stn_it->plate << 
-			setw(MEASR) << right << fixed << setprecision(4) << coordinates_mod.get(0, 0) <<
-			setw(MEASR) << right << fixed << setprecision(4) << coordinates_mod.get(1, 0) <<
-			setw(MEASR) << right << fixed << setprecision(4) << coordinates_mod.get(2, 0);
+		*rft_file << std::setw(PAD3) << std::left << "PM" << 
+			std::setw(STATION) << std::left << stn_it->stationName << 
+			std::setw(REL) << std::right << datumTo.GetName() <<
+			std::setw(REL) << std::right << datumTo.GetEpoch_s() <<
+			std::setw(PAD3) << " " <<
+			std::setw(PAD) << std::left << stn_it->plate << 
+			std::setw(MEASR) << std::right << std::fixed << std::setprecision(4) << coordinates_mod.get(0, 0) <<
+			std::setw(MEASR) << std::right << std::fixed << std::setprecision(4) << coordinates_mod.get(1, 0) <<
+			std::setw(MEASR) << std::right << std::fixed << std::setprecision(4) << coordinates_mod.get(2, 0);
 
 		if (projectSettings_.g.verbose > 2)
 		{
-			*rft_file << setw(PACORR) << right << fixed << setprecision(4) << reduced_parameters[0] <<
-				setw(PACORR) << right << fixed << setprecision(4) << reduced_parameters[1] <<
-				setw(PACORR) << right << fixed << setprecision(4) << reduced_parameters[2] <<
-				setw(PACORR) << right << scientific << setprecision(4) << reduced_parameters[3] <<
-				setw(PACORR) << right << scientific << setprecision(4) << reduced_parameters[4] <<
-				setw(PACORR) << right << scientific << setprecision(4) << reduced_parameters[5] <<
-				setw(PACORR) << right << scientific << setprecision(4) << reduced_parameters[6] <<
-				setw(PACORR) << right << fixed << setprecision(4) << timeElapsed;
+			*rft_file << std::setw(PACORR) << std::right << std::fixed << std::setprecision(4) << reduced_parameters[0] <<
+				std::setw(PACORR) << std::right << std::fixed << std::setprecision(4) << reduced_parameters[1] <<
+				std::setw(PACORR) << std::right << std::fixed << std::setprecision(4) << reduced_parameters[2] <<
+				std::setw(PACORR) << std::right << std::scientific << std::setprecision(4) << reduced_parameters[3] <<
+				std::setw(PACORR) << std::right << std::scientific << std::setprecision(4) << reduced_parameters[4] <<
+				std::setw(PACORR) << std::right << std::scientific << std::setprecision(4) << reduced_parameters[5] <<
+				std::setw(PACORR) << std::right << std::scientific << std::setprecision(4) << reduced_parameters[6] <<
+				std::setw(PACORR) << std::right << std::fixed << std::setprecision(4) << timeElapsed;
 		}
-		*rft_file << endl;
+		*rft_file << std::endl;
 	}
 
 #ifdef _MSDEBUG
-	stringstream ss;
+	std::stringstream ss;
 	ss << "coords, " << datumFrom.GetName() << " @ " << referenceEpoch<double>(datumFrom.GetEpoch());
 	coordinates.trace(ss.str(), "%.4f ");
 	ss.str("");
@@ -936,8 +928,8 @@ void dna_reftran::TransformFrames_PlateMotionModel(it_vstn_t& stn_it, const matr
 	//  3. Transform ITRF2014 to datumTo (using the epoch of the output dynamic frame)
 
 	// Create the step datum and set the epoch to the epoch of the input data
-	CDnaDatum datumStep1(epsgCodeFromName<UINT32, string>(ITRF2014_s), datumFrom.GetEpoch());
-	CDnaDatum datumStep2(epsgCodeFromName<UINT32, string>(ITRF2014_s), datumTo.GetEpoch());
+	CDnaDatum datumStep1(epsgCodeFromName<UINT32, std::string>(ITRF2014_s), datumFrom.GetEpoch());
+	CDnaDatum datumStep2(epsgCodeFromName<UINT32, std::string>(ITRF2014_s), datumTo.GetEpoch());
 
 	matrix_2d coordinates_tmp(coordinates);
 
@@ -955,8 +947,8 @@ void dna_reftran::TransformFrames_PlateMotionModel(it_vstn_t& stn_it, const matr
 
 #ifdef _MSDEBUG
 	TRACE("Step 2: Plate motion model transformation on ITRF from epoch of input frame to epoch of output frame\n");
-	stringstream ss;
-	ss << "Transforming from " << datumStep1.GetName() << " @ " << datumStep1.GetEpoch() << endl;
+	std::stringstream ss;
+	ss << "Transforming from " << datumStep1.GetName() << " @ " << datumStep1.GetEpoch() << std::endl;
 	ss << "               to " << datumStep2.GetName() << " @ " << datumStep2.GetEpoch();
 	TRACE("%s\n", ss.str().c_str());
 #endif
@@ -1003,9 +995,9 @@ void dna_reftran::TransformFrames_WithoutPlateMotionModel(it_vstn_t& stn_it, con
 			timeElapsed, transType);
 
 #ifdef _MSDEBUG
-		stringstream ss;
-		ss << "Transforming from " << datumFrom.GetName() << " @ " << fixed << setprecision(4) << referenceEpoch<double>(datumFrom.GetEpoch()) << endl;
-		ss << "               to " << datumTo.GetName() << " @ " << fixed << setprecision(4) << transformParameters.reference_epoch_;
+		std::stringstream ss;
+		ss << "Transforming from " << datumFrom.GetName() << " @ " << std::fixed << std::setprecision(4) << referenceEpoch<double>(datumFrom.GetEpoch()) << std::endl;
+		ss << "               to " << datumTo.GetName() << " @ " << std::fixed << std::setprecision(4) << transformParameters.reference_epoch_;
 		TRACE("%s\n", ss.str().c_str());
 
 		//TRACE("Raw parameters:\n");
@@ -1047,28 +1039,28 @@ void dna_reftran::TransformFrames_WithoutPlateMotionModel(it_vstn_t& stn_it, con
 
 		if (projectSettings_.g.verbose > 1 && data_type_ == stn_data)
 		{
-			*rft_file << setw(PAD3) << left << TransformationType<string, transformationType>(transType) << 
-				setw(STATION) << left << stn_it->stationName << 
-				setw(REL) << right << datumTo.GetName() <<
-				setw(REL) << right << datumTo.GetEpoch_s() <<
-				setw(PAD3) << " " <<
-				setw(PAD) << left << stn_it->plate << 
-				setw(MEASR) << right << fixed << setprecision(4) << coordinates_mod.get(0, 0) <<
-				setw(MEASR) << right << fixed << setprecision(4) << coordinates_mod.get(1, 0) <<
-				setw(MEASR) << right << fixed << setprecision(4) << coordinates_mod.get(2, 0);
+			*rft_file << std::setw(PAD3) << std::left << TransformationType<std::string, transformationType>(transType) << 
+				std::setw(STATION) << std::left << stn_it->stationName << 
+				std::setw(REL) << std::right << datumTo.GetName() <<
+				std::setw(REL) << std::right << datumTo.GetEpoch_s() <<
+				std::setw(PAD3) << " " <<
+				std::setw(PAD) << std::left << stn_it->plate << 
+				std::setw(MEASR) << std::right << std::fixed << std::setprecision(4) << coordinates_mod.get(0, 0) <<
+				std::setw(MEASR) << std::right << std::fixed << std::setprecision(4) << coordinates_mod.get(1, 0) <<
+				std::setw(MEASR) << std::right << std::fixed << std::setprecision(4) << coordinates_mod.get(2, 0);
 
 			if (projectSettings_.g.verbose > 2)
 			{
-				*rft_file << setw(PACORR) << right << fixed << setprecision(4) << reduced_parameters[0] <<
-					setw(PACORR) << right << fixed << setprecision(4) << reduced_parameters[1] <<
-					setw(PACORR) << right << fixed << setprecision(4) << reduced_parameters[2] <<
-					setw(PACORR) << right << scientific << setprecision(4) << reduced_parameters[3] <<
-					setw(PACORR) << right << scientific << setprecision(4) << reduced_parameters[4] <<
-					setw(PACORR) << right << scientific << setprecision(4) << reduced_parameters[5] <<
-					setw(PACORR) << right << scientific << setprecision(4) << reduced_parameters[6] <<
-					setw(PACORR) << right << fixed << setprecision(4) << timeElapsed;
+				*rft_file << std::setw(PACORR) << std::right << std::fixed << std::setprecision(4) << reduced_parameters[0] <<
+					std::setw(PACORR) << std::right << std::fixed << std::setprecision(4) << reduced_parameters[1] <<
+					std::setw(PACORR) << std::right << std::fixed << std::setprecision(4) << reduced_parameters[2] <<
+					std::setw(PACORR) << std::right << std::scientific << std::setprecision(4) << reduced_parameters[3] <<
+					std::setw(PACORR) << std::right << std::scientific << std::setprecision(4) << reduced_parameters[4] <<
+					std::setw(PACORR) << std::right << std::scientific << std::setprecision(4) << reduced_parameters[5] <<
+					std::setw(PACORR) << std::right << std::scientific << std::setprecision(4) << reduced_parameters[6] <<
+					std::setw(PACORR) << std::right << std::fixed << std::setprecision(4) << timeElapsed;
 			}
-			*rft_file << endl;
+			*rft_file << std::endl;
 		}
 	
 
@@ -1125,8 +1117,8 @@ void dna_reftran::TransformDynamic(it_vstn_t& stn_it, const matrix_2d& coordinat
 		frame_similarity = __frame_frame_diff__;
 
 #ifdef _MSDEBUG
-	stringstream ss;
-	ss << "Transforming from " << datumFrom.GetName() << " @ " << datumFrom.GetEpoch() << endl;
+	std::stringstream ss;
+	ss << "Transforming from " << datumFrom.GetName() << " @ " << datumFrom.GetEpoch() << std::endl;
 	ss << "               to " << datumTo.GetName() << " @ " << datumTo.GetEpoch();
 	TRACE("%s\n", ss.str().c_str());
 #endif
@@ -1236,7 +1228,7 @@ void dna_reftran::TransformFrames_Join(it_vstn_t& stn_it, const matrix_2d& coord
 double dna_reftran::DetermineElapsedTime(const CDnaDatum& datumFrom, const CDnaDatum& datumTo, 
 	transformation_parameter_set& transParams, transformationType transType)
 {
-	stringstream ss;
+	std::stringstream ss;
 	double dTime(0.0);
 
 	try
@@ -1292,7 +1284,7 @@ double dna_reftran::DetermineElapsedTime(const CDnaDatum& datumFrom, const CDnaD
 #endif
 		ss.str("");
 
-		date dt;
+		boost::gregorian::date dt;
 		double dt0(transParams.reference_epoch_);
 		
 		switch (transType)
@@ -1359,8 +1351,8 @@ double dna_reftran::DetermineElapsedTime(const CDnaDatum& datumFrom, const CDnaD
 		dTime = elapsedTime<double>(dt, dt0);
 
 #ifdef _MSDEBUG
-		ss << "From epoch: " << fixed << setprecision(4) << referenceEpoch<double>(dt) << " -> to epoch: " << fixed << setprecision(4) << dt0 <<
-			" = " << setprecision(4) << fixed << dTime;
+		ss << "From epoch: " << std::fixed << std::setprecision(4) << referenceEpoch<double>(dt) << " -> to epoch: " << std::fixed << std::setprecision(4) << dt0 <<
+			" = " << std::setprecision(4) << std::fixed << dTime;
 		TRACE("%s\n", ss.str().c_str());
 #endif
 
@@ -1371,7 +1363,7 @@ double dna_reftran::DetermineElapsedTime(const CDnaDatum& datumFrom, const CDnaD
 	}
 	catch (...)
 	{
-		stringstream ss;
+		std::stringstream ss;
 		ss << "DetermineElapsedTime(): an error occurred whilst computing the elapsed time.";
 		throw RefTranException(ss.str());
 	}
@@ -1405,7 +1397,7 @@ void dna_reftran::ObtainHelmertParameters(const CDnaDatum& datumFrom, const CDna
 		timeElapsed = 0.;
 }
 
-void dna_reftran::TransformStationRecords(const string& newFrame, const string& newEpoch)
+void dna_reftran::TransformStationRecords(const std::string& newFrame, const std::string& newEpoch)
 {
 	it_vstn_t stn_it;
 	CDnaDatum datumFrom;
@@ -1416,38 +1408,38 @@ void dna_reftran::TransformStationRecords(const string& newFrame, const string& 
 	if (projectSettings_.g.verbose > 1)
 	{
 		j = (PAD3 * 2) + PAD + STATION + (REL * 2) + (MEASR * 3);
-		*rft_file << endl << endl << "Station coordinate transformations" << endl <<
-			"-------------------------------------------" << endl << endl;
-		*rft_file << setw(PAD3) << left << "ID" << 
-			setw(STATION) << left << "Station" << 
-			setw(REL) << right << "Frame" <<
-			setw(REL) << right << "Epoch" <<
-			setw(PAD3) << " " <<
-			setw(PAD) << left << "Plate" << 
-			setw(MEASR) << right << "X" <<
-			setw(MEASR) << right << "Y" <<
-			setw(MEASR) << right << "Z";
+		*rft_file << std::endl << std::endl << "Station coordinate transformations" << std::endl <<
+			"-------------------------------------------" << std::endl << std::endl;
+		*rft_file << std::setw(PAD3) << std::left << "ID" << 
+			std::setw(STATION) << std::left << "Station" << 
+			std::setw(REL) << std::right << "Frame" <<
+			std::setw(REL) << std::right << "Epoch" <<
+			std::setw(PAD3) << " " <<
+			std::setw(PAD) << std::left << "Plate" << 
+			std::setw(MEASR) << std::right << "X" <<
+			std::setw(MEASR) << std::right << "Y" <<
+			std::setw(MEASR) << std::right << "Z";
 		
 		// Print reduced transformation parameters
 		if (projectSettings_.g.verbose > 2)
 		{
-			*rft_file << setw(PACORR) << right << "dX" <<
-				setw(PACORR) << right << "dY" <<
-				setw(PACORR) << right << "dZ" <<
-				setw(PACORR) << right << "Sc" <<
-				setw(PACORR) << right << "rX" <<
-				setw(PACORR) << right << "rY" <<
-				setw(PACORR) << right << "rZ" <<
-				setw(PACORR) << right << "dt";
+			*rft_file << std::setw(PACORR) << std::right << "dX" <<
+				std::setw(PACORR) << std::right << "dY" <<
+				std::setw(PACORR) << std::right << "dZ" <<
+				std::setw(PACORR) << std::right << "Sc" <<
+				std::setw(PACORR) << std::right << "rX" <<
+				std::setw(PACORR) << std::right << "rY" <<
+				std::setw(PACORR) << std::right << "rZ" <<
+				std::setw(PACORR) << std::right << "dt";
 			j += (8 * PACORR);
 		}
 
-		*rft_file << endl;
+		*rft_file << std::endl;
 
 		UINT32 i;
 		for (i=0; i<j; ++i)
 			*rft_file << "-";
-		*rft_file << endl;
+		*rft_file << std::endl;
 	}
 
 	// Create the transformation parameters to be used for the
@@ -1471,7 +1463,7 @@ void dna_reftran::TransformStationRecords(const string& newFrame, const string& 
 		for (stn_it=bstBinaryRecords_.begin(); stn_it!=bstBinaryRecords_.end(); ++stn_it)
 		{
 			// a. Get datum of current station
-			if (trimstr(string(stn_it->epoch)).empty())
+			if (trimstr(std::string(stn_it->epoch)).empty())
 				datumFrom.SetDatum(stn_it->epsgCode);
 			else
 				datumFrom.SetDatumFromEpsg(stn_it->epsgCode, stn_it->epoch);
@@ -1493,22 +1485,22 @@ void dna_reftran::TransformStationRecords(const string& newFrame, const string& 
 			m_stnsTransformed++;
 		}
 	}
-	catch (const runtime_error& e)
+	catch (const std::runtime_error& e)
 	{
-		stringstream error_msg;
-		error_msg << e.what() << endl <<
-			"    - Station:          " << stn_it->stationName << endl <<
-			"    - Frame and epoch:  " << datumFromEpsgString<string>(stn_it->epsgCode) << " @ " <<
-			stn_it->epoch << endl;
+		std::stringstream error_msg;
+		error_msg << e.what() << std::endl <<
+			"    - Station:          " << stn_it->stationName << std::endl <<
+			"    - Frame and epoch:  " << datumFromEpsgString<std::string>(stn_it->epsgCode) << " @ " <<
+			stn_it->epoch << std::endl;
 		throw RefTranException(e.what());
 	}
 	catch (const RefTranException& e)
 	{
-		stringstream error_msg;
-		error_msg << e.what() << endl <<
-			"    - Station:          " << stn_it->stationName << endl <<
-			"    - Frame and epoch:  " << datumFromEpsgString<string>(stn_it->epsgCode) << " @ " <<
-			stn_it->epoch << endl;		
+		std::stringstream error_msg;
+		error_msg << e.what() << std::endl <<
+			"    - Station:          " << stn_it->stationName << std::endl <<
+			"    - Frame and epoch:  " << datumFromEpsgString<std::string>(stn_it->epsgCode) << " @ " <<
+			stn_it->epoch << std::endl;		
 		throw RefTranException(e.what());
 				
 	}
@@ -1530,29 +1522,29 @@ void dna_reftran::TransformStation(it_vstn_t& stn_it, const CDnaDatum& datumFrom
 		datumFrom.GetEllipsoidRef());
 
 	if (projectSettings_.g.verbose > 1)
-		*rft_file << setw(PAD3) << left << "FR" << 
-			setw(STATION) << left << stn_it->stationName << 
-			setw(REL) << right << datumFrom.GetName() <<
-			setw(REL) << right << datumFrom.GetEpoch_s() <<
-			setw(PAD3) << " " <<
-			setw(PAD) << left << stn_it->plate << 
-			setw(MEASR) << right << fixed << setprecision(4) << coordinates.get(0, 0) <<
-			setw(MEASR) << right << fixed << setprecision(4) << coordinates.get(1, 0) <<
-			setw(MEASR) << right << fixed << setprecision(4) << coordinates.get(2, 0) << endl;
+		*rft_file << std::setw(PAD3) << std::left << "FR" << 
+			std::setw(STATION) << std::left << stn_it->stationName << 
+			std::setw(REL) << std::right << datumFrom.GetName() <<
+			std::setw(REL) << std::right << datumFrom.GetEpoch_s() <<
+			std::setw(PAD3) << " " <<
+			std::setw(PAD) << std::left << stn_it->plate << 
+			std::setw(MEASR) << std::right << std::fixed << std::setprecision(4) << coordinates.get(0, 0) <<
+			std::setw(MEASR) << std::right << std::fixed << std::setprecision(4) << coordinates.get(1, 0) <<
+			std::setw(MEASR) << std::right << std::fixed << std::setprecision(4) << coordinates.get(2, 0) << std::endl;
 
 	// 2. Transform!
 	Transform(stn_it, coordinates, coordinates_mod, datumFrom, transformParameters);
 
 	if (projectSettings_.g.verbose > 1)
-		*rft_file << setw(PAD3) << left << "TO" << 
-			setw(STATION) << left << stn_it->stationName << 
-			setw(REL) << right << datumTo_.GetName() <<
-			setw(REL) << right << datumTo_.GetEpoch_s() <<
-			setw(PAD3) << " " <<
-			setw(PAD) << left << stn_it->plate << 
-			setw(MEASR) << right << fixed << setprecision(4) << coordinates_mod.get(0, 0) <<
-			setw(MEASR) << right << fixed << setprecision(4) << coordinates_mod.get(1, 0) <<
-			setw(MEASR) << right << fixed << setprecision(4) << coordinates_mod.get(2, 0) << endl;
+		*rft_file << std::setw(PAD3) << std::left << "TO" << 
+			std::setw(STATION) << std::left << stn_it->stationName << 
+			std::setw(REL) << std::right << datumTo_.GetName() <<
+			std::setw(REL) << std::right << datumTo_.GetEpoch_s() <<
+			std::setw(PAD3) << " " <<
+			std::setw(PAD) << std::left << stn_it->plate << 
+			std::setw(MEASR) << std::right << std::fixed << std::setprecision(4) << coordinates_mod.get(0, 0) <<
+			std::setw(MEASR) << std::right << std::fixed << std::setprecision(4) << coordinates_mod.get(1, 0) <<
+			std::setw(MEASR) << std::right << std::fixed << std::setprecision(4) << coordinates_mod.get(2, 0) << std::endl;
 
 	// 3. Convert back to geographic
 	CartToGeo<double>(coordinates_mod.get(0, 0), 
@@ -1562,7 +1554,7 @@ void dna_reftran::TransformStation(it_vstn_t& stn_it, const CDnaDatum& datumFrom
 }
 	
 
-void dna_reftran::TransformMeasurementRecords(const string& newFrame, const string& newEpoch)
+void dna_reftran::TransformMeasurementRecords(const std::string& newFrame, const std::string& newEpoch)
 {
 	it_vmsr_t msr_it;
 	CDnaDatum datumFrom;
@@ -1607,7 +1599,7 @@ void dna_reftran::TransformMeasurementRecords(const string& newFrame, const stri
 			case 'Q':	// Geodetic longitude
 			case 'R':	// Ellipsoidal height
 			case 'S':	// Slope distance
-			case 'V':	// Zenith angle
+			case 'V':	// Zenith distance
 			case 'Z':	// Vertical angle
 				continue;
 			}
@@ -1616,7 +1608,7 @@ void dna_reftran::TransformMeasurementRecords(const string& newFrame, const stri
 				continue;
 
 			// b. Get datum of current measurement
-			if (trimstr(string(msr_it->epoch)).empty())
+			if (trimstr(std::string(msr_it->epoch)).empty())
 				datumFrom.SetDatum(msr_it->epsgCode);
 			else
 				datumFrom.SetDatumFromEpsg(msr_it->epsgCode, msr_it->epoch);
@@ -1635,26 +1627,26 @@ void dna_reftran::TransformMeasurementRecords(const string& newFrame, const stri
 			transformationPerformed_ = true;
 		}
 	}
-	catch (const runtime_error& e)
+	catch (const std::runtime_error& e)
 	{
-		stringstream error_msg;
-		error_msg << e.what() << endl <<
-			"    - Measurement type: " << measurement_name<char, string>(msr_it->measType) << endl <<
-			"    - From:             " << bstBinaryRecords_.at(msr_it->station1).stationName << endl <<
-			"    - To:               " << bstBinaryRecords_.at(msr_it->station2).stationName << endl <<
-			"    - Frame and epoch:  " << datumFromEpsgString<string>(msr_it->epsgCode) << " @ " << 
-			msr_it->epoch << endl;
+		std::stringstream error_msg;
+		error_msg << e.what() << std::endl <<
+			"    - Measurement type: " << measurement_name<char, std::string>(msr_it->measType) << std::endl <<
+			"    - From:             " << bstBinaryRecords_.at(msr_it->station1).stationName << std::endl <<
+			"    - To:               " << bstBinaryRecords_.at(msr_it->station2).stationName << std::endl <<
+			"    - Frame and epoch:  " << datumFromEpsgString<std::string>(msr_it->epsgCode) << " @ " << 
+			msr_it->epoch << std::endl;
 		throw RefTranException(error_msg.str());
 	}
 	catch (const RefTranException& e) 
 	{
-		stringstream error_msg;
-		error_msg << e.what() << endl <<
-			"    - Measurement type: " << measurement_name<char, string>(msr_it->measType) << endl <<
-			"    - From:             " << bstBinaryRecords_.at(msr_it->station1).stationName << endl <<
-			"    - To:               " << bstBinaryRecords_.at(msr_it->station2).stationName << endl <<
-			"    - Frame and epoch:  " << datumFromEpsgString<string>(msr_it->epsgCode) << " @ " <<
-			msr_it->epoch << endl;
+		std::stringstream error_msg;
+		error_msg << e.what() << std::endl <<
+			"    - Measurement type: " << measurement_name<char, std::string>(msr_it->measType) << std::endl <<
+			"    - From:             " << bstBinaryRecords_.at(msr_it->station1).stationName << std::endl <<
+			"    - To:               " << bstBinaryRecords_.at(msr_it->station2).stationName << std::endl <<
+			"    - Frame and epoch:  " << datumFromEpsgString<std::string>(msr_it->epsgCode) << " @ " <<
+			msr_it->epoch << std::endl;
 
 		throw RefTranException(error_msg.str());
 	}
@@ -1871,21 +1863,21 @@ void dna_reftran::LoadDatabaseId()
 	if (databaseIDsLoaded_)
 		return;
 
-	string dbid_filename = formPath<string>(projectSettings_.g.output_folder,
+	std::string dbid_filename = formPath<std::string>(projectSettings_.g.output_folder,
 		projectSettings_.g.network_name, "dbid");
 
-	stringstream ss;
+	std::stringstream ss;
 	v_msr_db_map_.clear();
 
 	std::ifstream dbid_file;
 	try {
 		// Create geoid file.  Throws runtime_error on failure.
 		file_opener(dbid_file, dbid_filename,
-			ios::in | ios::binary, binary);
+			std::ios::in | std::ios::binary, binary);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		ss << e.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 
 	UINT32 r, recordCount;
@@ -1921,18 +1913,18 @@ void dna_reftran::LoadDatabaseId()
 	}
 	catch (const std::ifstream::failure& f) {
 		ss << f.what();
-		throw boost::enable_current_exception(runtime_error(ss.str()));
+		throw boost::enable_current_exception(std::runtime_error(ss.str()));
 	}
 }
 	
 
-void dna_reftran::SerialiseDNA(const string& stnfilename, const string& msrfilename, bool flagUnused)
+void dna_reftran::SerialiseDNA(const std::string& stnfilename, const std::string& msrfilename, bool flagUnused)
 {
 	try {
 		// Load Database IDs
 		LoadDatabaseId();
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		throw RefTranException(e.what());
 	}
 
@@ -1940,7 +1932,7 @@ void dna_reftran::SerialiseDNA(const string& stnfilename, const string& msrfilen
 	try {
 		// write binary stations data.  Throws runtime_error on failure.
 		dna_io_dna dna;
-		string comment(" transformed to ");
+		std::string comment(" transformed to ");
 		comment.append(datumTo_.GetName());
 		if (datumTo_.isDynamic())
 			comment.append(", epoch ").append(datumTo_.GetEpoch_s());
@@ -1950,18 +1942,18 @@ void dna_reftran::SerialiseDNA(const string& stnfilename, const string& msrfilen
 			stnfilename, msrfilename, projectSettings_.g.network_name,
 			datumTo_, projection, flagUnused, "Station coordinates" + comment, "GNSS measurements" + comment);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		throw RefTranException(e.what());
 	}
 }
 
-void dna_reftran::SerialiseDynaML(const string& stnfilename, const string& msrfilename, bool flagUnused)
+void dna_reftran::SerialiseDynaML(const std::string& stnfilename, const std::string& msrfilename, bool flagUnused)
 {
 	try {
 		// Load Database IDs
 		LoadDatabaseId();
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		throw RefTranException(e.what());
 	}
 
@@ -1976,14 +1968,14 @@ void dna_reftran::SerialiseDynaML(const string& stnfilename, const string& msrfi
 		dynaml_comment(dynaml_stn_file, "File type:    Station file");
 		dynaml_comment(dynaml_stn_file, "Project name: " + projectSettings_.g.network_name);
 		// Write header comment line
-		string comment("Station coordinates transformed to ");
+		std::string comment("Station coordinates transformed to ");
 		comment.append(datumTo_.GetName());
 		if (datumTo_.isDynamic())
 			comment.append(", epoch ").append(datumTo_.GetEpoch_s());
 		comment.append(".  Exported by reftran.");
 		dynaml_comment(dynaml_stn_file, comment);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		throw RefTranException(e.what());
 	}
 
@@ -1995,7 +1987,7 @@ void dna_reftran::SerialiseDynaML(const string& stnfilename, const string& msrfi
 		dynaml_footer(dynaml_stn_file);
 		dynaml_stn_file.close();
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		throw RefTranException(e.what());
 	}
 
@@ -2009,14 +2001,14 @@ void dna_reftran::SerialiseDynaML(const string& stnfilename, const string& msrfi
 		dynaml_comment(dynaml_msr_file, "File type:    Measurement file");
 		dynaml_comment(dynaml_msr_file, "Project name: " + projectSettings_.g.network_name);
 		// Write header comment line
-		string comment("GNSS measurements transformed to ");
+		std::string comment("GNSS measurements transformed to ");
 		comment.append(datumTo_.GetName());
 		if (datumTo_.isDynamic())
 			comment.append(", epoch ").append(datumTo_.GetEpoch_s());
 		comment.append(".  Exported by reftran.");
 		dynaml_comment(dynaml_msr_file, comment);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		throw RefTranException(e.what());
 	}
 	
@@ -2026,19 +2018,19 @@ void dna_reftran::SerialiseDynaML(const string& stnfilename, const string& msrfi
 		dynaml_footer(dynaml_msr_file);
 		dynaml_msr_file.close();
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		throw RefTranException(e.what());
 	}	
 }
 	
 
-void dna_reftran::SerialiseDynaML(const string& xmlfilename, bool flagUnused)
+void dna_reftran::SerialiseDynaML(const std::string& xmlfilename, bool flagUnused)
 {
 	try {
 		// Load Database IDs
 		LoadDatabaseId();
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		throw RefTranException(e.what());
 	}
 
@@ -2049,14 +2041,14 @@ void dna_reftran::SerialiseDynaML(const string& xmlfilename, bool flagUnused)
 		// write header
 		dynaml_header(dynaml_xml_file, "Combined File", datumTo_.GetName(), datumTo_.GetEpoch_s());
 		// Write header comment line
-		string comment("Station coordinates and measurements transformed to ");
+		std::string comment("Station coordinates and measurements transformed to ");
 		comment.append(datumTo_.GetName());
 		if (datumTo_.isDynamic())
 			comment.append(", epoch ").append(datumTo_.GetEpoch_s());
 		comment.append(".  Exported by reftran.");
 		dynaml_comment(dynaml_xml_file, comment);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		throw RefTranException(e.what());
 	}
 
@@ -2071,7 +2063,7 @@ void dna_reftran::SerialiseDynaML(const string& xmlfilename, bool flagUnused)
 		// 2. Measurements
 		SerialiseDynaMLMsr(&dynaml_xml_file);
 	}
-	catch (const runtime_error& e) {
+	catch (const std::runtime_error& e) {
 		throw RefTranException(e.what());
 	}
 
@@ -2084,8 +2076,8 @@ void dna_reftran::SerialiseDynaML(const string& xmlfilename, bool flagUnused)
 void dna_reftran::SerialiseDynaMLStn(std::ofstream* xml_file, CDnaProjection& projection, bool flagUnused/*=false*/)
 {
 	UINT32 epsgCode(LongFromString<UINT32>(bstBinaryRecords_.at(0).epsgCode));
-	string datum(datumFromEpsgCode<string, UINT32>(epsgCode));
-	string epoch(referenceepochFromEpsgCode<UINT32>(epsgCode));
+	std::string datum(datumFromEpsgCode<std::string, UINT32>(epsgCode));
+	std::string epoch(referenceepochFromEpsgCode<UINT32>(epsgCode));
 	dnaStnPtr stnPtr(new CDnaStation(datum, epoch));
 	
 	it_vstn_t _it_stn;
@@ -2117,7 +2109,7 @@ void dna_reftran::SerialiseDynaMLMsr(std::ofstream* xml_file)
 {
 	dnaMsrPtr msrPtr;
 	it_vmsr_t _it_msr;
-	string comment("");
+	std::string comment("");
 	size_t dbindex;
 	it_vdbid_t _it_dbid;
 	
@@ -2144,7 +2136,7 @@ void dna_reftran::SerialiseDynaMLMsr(std::ofstream* xml_file)
 //		// Open output file stream.  Throws runtime_error on failure.
 //		file_opener(sinex_file, projectSettings_.o._snx_file);
 //	}
-//	catch (const runtime_error& e) {
+//	catch (const std::runtime_error& e) {
 //		throw RefTranException(e.what());
 //	}
 //

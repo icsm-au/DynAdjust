@@ -40,8 +40,6 @@
 #include <math.h>
 #include <typeinfo>
 
-using namespace std;
-
 const int wt[16][16] =	{
 	1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 	0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,
