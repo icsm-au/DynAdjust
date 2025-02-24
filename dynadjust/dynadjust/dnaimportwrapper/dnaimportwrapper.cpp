@@ -247,7 +247,16 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
 			p.i.epoch.insert(0, "01.01.");
 		
 		if (p.i.epoch.length() < 10)
-			p.i.epoch = FormatDateString(p.i.epoch);
+		{
+			std::string dateStr = FormatDateString(p.i.epoch);			
+			if (dateStr.empty())
+			{
+				std::cout << std::endl << "- Error: Cannot parse date '" << p.i.epoch << "'." << std::endl <<
+					"  Please supply date in the format dd.mm.yyyy" << std::endl << std::endl;
+				return EXIT_FAILURE;
+			}
+			p.i.epoch = dateStr;
+		}
 
 		p.i.user_supplied_epoch = 1;
 	}	
@@ -616,7 +625,7 @@ void ExportStationsandMeasurements(dna_import* parserDynaML, const project_setti
 	std::string epsgCode(epsgStringFromName<std::string>(p.i.reference_frame));
 
 	// Check inconsistent reference frames
-	if ((p.i.export_dynaml || p.i.export_dna_files) && !p.i.override_input_rfame && !p.i.user_supplied_frame)
+	if ((p.i.export_dynaml || p.i.export_dna_files) && !p.i.override_input_rfame)
 	{
 		for (UINT32 i(0); i<vinput_file_meta->size(); ++i)
 		{
@@ -1115,8 +1124,7 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 					if (!boost::iequals(projectEpsgCode, input_file_meta.epsgCode))
 					{
 						std::stringstream ssEpsgWarning;
-						ssEpsgWarning << "  - Warning: Input file reference frame (" << inputFileDatum << ") does not match the " << std::endl <<
-							"    project reference frame (" << p.i.reference_frame << ").";
+						ssEpsgWarning << "  - Warning: File reference frame (" << inputFileDatum << ") differs from project frame (" << p.i.reference_frame << ").";
 						if (!p.g.quiet)
 							std::cout << ssEpsgWarning.str() << std::endl;
 						*imp_file << ssEpsgWarning.str() << std::endl;
@@ -1128,10 +1136,22 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 				{
 					// epoch
 					std::stringstream epochSource;
-					if (!isStaticFrame)
+					if (isStaticFrame)
+					{
+						epochSource << "  - Warning: File epoch (" << inputFileEpoch << ") will be ignored." << std::endl;
+						if (!p.g.quiet)
+							std::cout << epochSource.str() << std::endl;
+						*imp_file << epochSource.str() << std::endl;
+					}
+					else
 					{
 						if (parserDynaML.filespecifiedEpoch())
-							epochSource << ". Taken from " << FormatFileType<std::string>(input_file_meta.filetype) << " header.";
+						{
+							if (isEpsgDatumStatic(inputFileEpsgi))
+								epochSource << " (adopted reference epoch of " << inputFileDatum << ").";
+							else
+								epochSource << ". Taken from " << FormatFileType<std::string>(input_file_meta.filetype) << " header.";
+						}
 						else
 							epochSource << ". Epoch not supplied in " << FormatFileType<std::string>(input_file_meta.filetype) << " header.";
 						if (!p.g.quiet)
@@ -1156,8 +1176,7 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 					if (!boost::iequals(p.i.epoch, input_file_meta.epoch))
 					{
 						std::stringstream ssEpochWarning;
-						ssEpochWarning << "  - Warning: Input file epoch (" << inputFileEpoch << ") does not match the " << std::endl <<
-							"    project epoch (" << p.i.epoch << ").";
+						ssEpochWarning << "  - Warning: File epoch (" << inputFileEpoch << ") differs from project epoch (" << p.i.epoch << ").";
 						if (!p.g.quiet)
 							std::cout << ssEpochWarning.str() << std::endl;
 						*imp_file << ssEpochWarning.str() << std::endl;
@@ -1199,8 +1218,7 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 					}
 					else
 					{
-						ssEpsgWarning << "  - Warning: Input file reference frame (" << inputFileDatum << ") does not match the " << std::endl <<
-							"    project reference frame (" << p.i.reference_frame << ").";
+						ssEpsgWarning << "  - Warning: File reference frame (" << inputFileDatum << ") differs from project frame (" << p.i.reference_frame << ").";
 					}
 
 					if (!p.g.quiet)
@@ -1222,8 +1240,7 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
 				{
 					std::stringstream ssEpochWarning;
 					
-					ssEpochWarning << "  - Warning: Input file epoch (" << inputFileEpoch << ") does not match the " << std::endl <<
-						"    project epoch (" << p.i.epoch << ").";
+					ssEpochWarning << "  - Warning: File epoch (" << inputFileEpoch << ") differs from project epoch (" << p.i.epoch << ").";
 
 					if (!p.g.quiet)
 						std::cout << ssEpochWarning.str() << std::endl;
@@ -1318,7 +1335,8 @@ int main(int argc, char* argv[])
 			(std::string("Project epoch for all stations and measurements when input files do not specify an epoch. Default is ") +
 				p.i.epoch + ".").c_str())
 			(OVERRIDE_INPUT_FRAME,
-				"Override the reference frame specified for each measurement in input files.")
+				(std::string("Replace the reference frame specified in the input files with the reference frame specified by arg in --") +
+				std::string(REFERENCE_FRAME)).c_str())
 			;
 
 		data_screening_options.add_options()
@@ -1594,10 +1612,18 @@ int main(int argc, char* argv[])
 	}
 	else
 	{
-		if (p.i.user_supplied_epoch)
-			p.r.epoch = p.i.epoch;
-		else
-			p.r.epoch = referenceepochFromEpsgCode<UINT32>(epsgCode);
+		// Dynamic reference frame.  For this code to be reached, which
+		// is prior to the input files been parsed, the user must have
+		// supplied a dynamic reference frame on the command line.
+		// 
+		// Has the user not supplied an epoch?
+		if (!p.i.user_supplied_epoch)
+			// No, so set the "default" epoch for the project to be the
+			// reference epoch of the supplied dynamic reference frame
+			p.i.epoch = referenceepochFromEpsgCode<UINT32>(epsgCode);
+		
+		// Set the project epoch for reftran also
+		p.r.epoch = p.i.epoch;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////

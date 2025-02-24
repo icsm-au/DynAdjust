@@ -1394,8 +1394,15 @@ void referenceframe_pimpl::post_type(std::string& referenceframe, std::string& f
 		// to the default reference frame passed from import
 		_referenceframe = referenceframe;
 
-	// Capture epsg code for the file
-	fileEpsg = epsgStringFromName<std::string>(_referenceframe);
+	try {
+		// Capture epsg code for the file
+		fileEpsg = epsgStringFromName<std::string>(_referenceframe);
+	}
+	catch (std::runtime_error& e) {
+		std::stringstream ss("");
+		ss << e.what() << std::endl;
+		throw XMLInteropException(ss.str(), 0);
+	}
 
 	if (!userspecifiedreferenceframe)
 	{

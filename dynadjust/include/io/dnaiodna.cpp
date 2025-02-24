@@ -400,7 +400,7 @@ void dna_io_dna::read_dna_header(std::ifstream* ptr, std::string& version, INPUT
 	}
 	catch (const std::runtime_error& e) {
 		std::stringstream ssError;
-		ssError << "The supplied frame is not recognised" << std::endl <<
+		ssError << "The supplied frame (" << file_referenceframe << ") is not recognised" << std::endl <<
 			e.what() << std::endl;
 		throw boost::enable_current_exception(std::runtime_error(ssError.str()));
 	}	

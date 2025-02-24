@@ -194,6 +194,9 @@ S FormatDateString(const S& datestring)
 	S delimiter(".");
 	SplitDelimitedString<S>(datestring, delimiter, &tokenList);
 
+	if (tokenList.size() < 3)
+		return "";
+
 	if (tokenList.at(0).size() < 2)
 		tokenList.at(0).insert(0, "0");
 	if (tokenList.at(1).size() < 2)

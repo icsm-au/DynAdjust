@@ -24,7 +24,7 @@
 
 using namespace dynadjust;
 
-void PrintOutputFileHeaderInfo(std::ofstream* f_out, const std::string& out_file, project_settings* p, const std::string& header, UINT32& epsgCode)
+void PrintOutputFileHeaderInfo(std::ofstream* f_out, const std::string& out_file, project_settings* p, const std::string& header, UINT32& epsgCode, bool userSuppliedFrame, bool userSuppliedEpoch)
 {
 	// Print formatted header
 	print_file_header(*f_out, header);
@@ -39,7 +39,12 @@ void PrintOutputFileHeaderInfo(std::ofstream* f_out, const std::string& out_file
 	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Output folder: " << boost::filesystem::system_complete(p->g.output_folder).string() << std::endl;
 	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Stations file:" << boost::filesystem::system_complete(p->r.bst_file).string() << std::endl;
 	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Measurements file:" << boost::filesystem::system_complete(p->r.bms_file).string() << std::endl;
-	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Target reference frame:" << p->r.reference_frame << std::endl;
+	*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Target reference frame:" << p->r.reference_frame;
+
+	if (userSuppliedFrame)
+		*f_out << " (user supplied)" << std::endl;
+	else
+		*f_out << " (project reference frame)" << std::endl;
 
 	if (!p->r.epoch.empty())
 	{
@@ -50,6 +55,18 @@ void PrintOutputFileHeaderInfo(std::ofstream* f_out, const std::string& out_file
 		*f_out << std::setw(PRINT_VAR_PAD) << std::left << "Target epoch: " << p->r.epoch;
 		if (isEpsgDatumStatic(epsgCode))
 			*f_out << " (adopted reference epoch of " << p->r.reference_frame << ")";
+		else
+		{
+			if (userSuppliedEpoch)
+				*f_out << " (user supplied)" << std::endl;
+			else
+			{
+				if (userSuppliedFrame)
+					*f_out << " (adopted reference epoch of " << p->r.reference_frame << ")" << std::endl;
+				else
+					*f_out << " (project epoch)" << std::endl;
+			}
+		}
 		*f_out << std::endl;
 	}
 	
@@ -501,7 +518,7 @@ int main(int argc, char* argv[])
 		if (vm.count(REFERENCE_FRAME))
 			std::cout << " (user supplied)" << std::endl;
 		else
-			std::cout << " (project default)" << std::endl;
+			std::cout << " (project reference frame)" << std::endl;
 
 		// try to parse user supplied string.  If this fails, then there's not much point in attempting
 		// to transform stations and measurements
@@ -517,7 +534,12 @@ int main(int argc, char* argv[])
 					if (vm.count(EPOCH))
 						std::cout << " (user supplied)" << std::endl;
 					else
-						std::cout << " (project default)" << std::endl;
+					{
+						if (vm.count(REFERENCE_FRAME))
+							std::cout << " (adopted reference epoch of " << p.r.reference_frame << ")" << std::endl;
+						else
+							std::cout << " (project epoch)" << std::endl;
+					}
 				}
 				std::cout << std::endl;				
 			}
@@ -567,7 +589,7 @@ int main(int argc, char* argv[])
 		std::cout << std::endl;
 	}
 
-	PrintOutputFileHeaderInfo(&rft_file, p.r.rft_file, &p, "DYNADJUST REFTRAN LOG FILE", epsgCode);
+	PrintOutputFileHeaderInfo(&rft_file, p.r.rft_file, &p, "DYNADJUST REFTRAN LOG FILE", epsgCode, vm.count(REFERENCE_FRAME), vm.count(EPOCH));
 
 	dna_reftran refTran(p, &rft_file);
 	std::stringstream ss_msg;
