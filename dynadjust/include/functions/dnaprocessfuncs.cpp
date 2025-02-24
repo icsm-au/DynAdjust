@@ -21,7 +21,7 @@
 //============================================================================
 
 #include <include/functions/dnaprocessfuncs.hpp>
-
+#include <iostream>
 #include <boost/process.hpp>
 
 bool run_command(const std::string& executable_path, const UINT16& quiet)
@@ -61,12 +61,20 @@ bool run_command(const std::string& executable_path, const UINT16& quiet)
 #elif defined(__linux) || defined(sun) || defined(__unix__) || defined(__APPLE__)		
 
 	int return_value(0);
-		
-	if (quiet)
-		return_value = boost::process::system(executable_path, boost::process::std_out > boost::process::null);
-	else
-		return_value = boost::process::system(executable_path, boost::process::std_out > stdout);
-		
+
+	try {	
+		if (quiet)
+			return_value = boost::process::system(executable_path, boost::process::std_out > boost::process::null);
+		else
+			return_value = boost::process::system(executable_path, boost::process::std_out > stdout);
+		}
+	catch (const boost::process::process_error& e)
+	{
+		std::cout << std::endl << "- Error: Cannot find " << executable_path << "\n" <<
+			"  " << e.what() << std::endl;
+		return EXIT_FAILURE;
+	}
+
 	return (return_value == EXIT_SUCCESS);
 
 #endif
