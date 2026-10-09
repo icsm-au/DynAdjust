@@ -183,11 +183,6 @@ public:
 	void InitialiseDatum(const std::string& reference_frame, const std::string epoch="",
 		const std::string observation_epoch="");
 
-	// Applies the project-level observation epoch (from --observation-epoch) to every
-	// measurement whose observation_epoch is empty or equal to its reference-frame epoch
-	// (i.e. was auto-defaulted). Explicit file-level values set via <EpochOfObservation>
-	// or DNA v3.02 column 25 that differ from epoch are preserved. No-op if the CLI flag
-	// was not supplied.
 	void ApplyProjectObservationEpoch(vdnaMsrPtr* vMeasurements);
 
 	void PrintMeasurementsToStations(std::string& m2s_file, MsrTally* parsemsrTally,

@@ -380,6 +380,7 @@ public:
 	virtual inline std::string GetReferenceFrame() const { return ""; }
 	inline std::string GetEpoch() const { return m_epoch; }
 	inline std::string GetObservationEpoch() const { return m_observation_epoch; }
+	inline bool ObservationEpochSupplied() const { return m_observation_epoch_supplied; }
 	
 	virtual inline std::vector<CDnaGpsBaseline>* GetBaselines_ptr() { return 0; }
 	virtual inline std::vector<CDnaDirection>* GetDirections_ptr() { return 0; }
@@ -408,7 +409,7 @@ public:
 	
 	virtual void SetReferenceFrame(const std::string&) {}
 	void SetEpoch(const std::string& epoch);
-	void SetObservationEpoch(const std::string& observation_epoch);
+	void SetObservationEpoch(const std::string& observation_epoch, bool explicitly_supplied = true);
 	
 	virtual void SetLscale(const std::string&) {}
 	virtual void SetLscale(const double&) {}
@@ -467,6 +468,9 @@ public:
 
 protected:
 	void coutMeasurement(std::ostream &os) const;
+	void WriteDynaMLObservationEpoch(std::ofstream* dynaml_stream) const;
+	void WriteDNAIdsAndObservationEpoch(std::ofstream* dna_stream,
+		const dna_msr_fields& dmw) const;
 
 public:
 	std::string	m_strFirst;
@@ -493,6 +497,7 @@ protected:
 
 	std::string	m_epoch;
 	std::string	m_observation_epoch;
+	bool	m_observation_epoch_supplied;
 
 	msr_database_id_map		m_msr_db_map;
 

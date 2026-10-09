@@ -35,6 +35,9 @@ void Clusterpoint_pimpl::pre()
 	
 	_dnaGpsPoint->SetReferenceFrame(_parent_dnaGpsPointCluster->GetReferenceFrame());
 	_dnaGpsPoint->SetEpoch(_parent_dnaGpsPointCluster->GetEpoch()); 
+	_dnaGpsPoint->SetObservationEpoch(
+		_parent_dnaGpsPointCluster->GetObservationEpoch(),
+		_parent_dnaGpsPointCluster->ObservationEpochSupplied());
 		
 	_dnaGpsPoint->SetClusterDBID(
 		_parent_dnaGpsPointCluster->GetClusterDBID(),
@@ -521,6 +524,19 @@ void DnaMeasurement_pimpl::post_DnaMeasurement()
 	if (!_dnaCurrentMsr)
 		throw XMLInteropException("\"Type\" element must be the first element within \"DnaMeasurement\".", 0);
 
+	if (auto* baselines = _dnaCurrentMsr->GetBaselines_ptr())
+		for (auto& baseline : *baselines)
+			baseline.SetObservationEpoch(_dnaCurrentMsr->GetObservationEpoch(),
+				_dnaCurrentMsr->ObservationEpochSupplied());
+	if (auto* points = _dnaCurrentMsr->GetPoints_ptr())
+		for (auto& point : *points)
+			point.SetObservationEpoch(_dnaCurrentMsr->GetObservationEpoch(),
+				_dnaCurrentMsr->ObservationEpochSupplied());
+	if (auto* directions = _dnaCurrentMsr->GetDirections_ptr())
+		for (auto& direction : *directions)
+			direction.SetObservationEpoch(_dnaCurrentMsr->GetObservationEpoch(),
+				_dnaCurrentMsr->ObservationEpochSupplied());
+
 	// Ignored empty direction set — skip silently
 	if (_dnaCurrentMsr->GetTypeC() == 'D' &&
 		_dnaCurrentMsr->GetTotal() == 0 && _dnaCurrentMsr->GetIgnore())
@@ -688,6 +704,9 @@ void GPSBaseline_pimpl::pre()
 	
 	_dnaGpsBaseline->SetReferenceFrame(_parent_dnaGpsBaselineCluster->GetReferenceFrame());
 	_dnaGpsBaseline->SetEpoch(_parent_dnaGpsBaselineCluster->GetEpoch()); 
+	_dnaGpsBaseline->SetObservationEpoch(
+		_parent_dnaGpsBaselineCluster->GetObservationEpoch(),
+		_parent_dnaGpsBaselineCluster->ObservationEpochSupplied());
 	
 	_dnaGpsBaseline->SetClusterID(_parent_dnaGpsBaselineCluster->GetClusterID());
 
