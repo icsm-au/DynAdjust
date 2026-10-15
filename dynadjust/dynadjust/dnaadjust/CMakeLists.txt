@@ -33,6 +33,7 @@ add_library (${PROJECT_NAME} SHARED
              dnaadjust-stage.cpp
              dnaadjust.cpp
              dnaadjust_printer.cpp
+             ymsr_report.cpp
              dnaadjust_json_printer.cpp
              ${CMAKE_SOURCE_DIR}/dynadjust.rc)
 

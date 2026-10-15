@@ -19,16 +19,19 @@
 // Description  : DynAdjust Network Adjustment Printer Module Implementation
 //============================================================================
 
-#include "dnaadjust.hpp"
 #include "dnaadjust_printer.hpp"
 
 #include <algorithm>
-#include <iomanip>
-#include <sstream>
 #include <filesystem>
-#include <include/functions/dnaiostreamfuncs.hpp>
 #include <include/functions/dnafilepathfuncs.hpp>
+#include <include/functions/dnaiostreamfuncs.hpp>
 #include <include/io/adj_file.hpp>
+#include <iomanip>
+#include <limits>
+#include <set>
+#include <sstream>
+
+#include "dnaadjust.hpp"
 
 namespace dynadjust {
 namespace networkadjust {
@@ -382,7 +385,8 @@ void DynAdjustPrinter::PrintPositionUncertaintyHeader(std::ostream& os) {
 }
 
 void DynAdjustPrinter::PrintAdjMeasurementsHeader(bool printHeader, const std::string& table_heading,
-    printMeasurementsMode printMode, UINT32 block, bool printBlocks) {
+    printMeasurementsMode printMode, UINT32 block, bool printBlocks,
+                                                  bool yLocal) {
     
     if (printHeader)
         adjust_.adj_file << std::endl << table_heading << std::endl <<
@@ -397,6 +401,10 @@ void DynAdjustPrinter::PrintAdjMeasurementsHeader(bool printHeader, const std::s
             break;
         }
     }
+
+    if (yLocal)
+        adjust_.adj_file << "Y local: Pn=latitude/north, Le=longitude/east, Hu/hu=height/up.\n"
+                         << "Measured/Adjusted are geographic; Correction and all SDs are in metres.\n\n";
 
     std::string col1_heading, col2_heading;
 
@@ -1702,13 +1710,27 @@ void DynAdjustPrinter::PrintAdjMeasurements(v_uint32_u32u32_pair msr_block, bool
 
     // Print header using printer module method
     PrintAdjMeasurementsHeader(printHeader, table_heading,
-        adjustedMsrs, msr_block.at(0).second.first + 1, true);
+        adjustedMsrs, msr_block.at(0).second.first + 1, true,
+        adjust_.projectSettings_.o._adj_ymsr_units == ENU_adj_ymsr_ui &&
+            std::any_of(msr_block.begin(), msr_block.end(), [&](const uint32_u32u32_pair& measurement) {
+                return adjust_.bmsBinaryRecords_.at(measurement.first).measType == 'Y';
+            }));
 
     // When sorting by n-stat and displaying GNSS in non-cartesian units,
     // update GNSS n-stat values to match the displayed frame before sorting
     if (adjust_.projectSettings_.o._adj_gnss_units != XYZ_adj_gnss_ui &&
         adjust_.projectSettings_.o._sort_adj_msr == n_st_adj_msr_sort_ui)
         UpdateGNSSNstatsForAlternateUnits(msr_block);
+
+    if ((adjust_.projectSettings_.o._adj_ymsr_units != AS_MEASURED_adj_ymsr_ui ||
+         adjust_.projectSettings_.o._sort_adj_ymsr_points) &&
+        std::any_of(msr_block.begin(), msr_block.end(), [&](const uint32_u32u32_pair& measurement) {
+            return adjust_.bmsBinaryRecords_.at(measurement.first).measType == 'Y';
+        })) {
+        PrintAdjMeasurementsWithYUnits(msr_block);
+        adjust_.adj_file << std::endl;
+        return;
+    }
 
     // Sort measurements according to project settings
     try {
@@ -1779,6 +1801,192 @@ void DynAdjustPrinter::PrintAdjMeasurements(v_uint32_u32u32_pair msr_block, bool
     PrintMeasurementRecords(msr_block, true);
     
     adjust_.adj_file << std::endl;
+}
+
+void DynAdjustPrinter::PrintAdjustedYPoint(UINT32 original_index, const YReportTriplet& rows) {
+    const auto& options = adjust_.projectSettings_.o;
+    for (UINT32 component = 0; component < 3; ++component) {
+        const auto& row = rows[component];
+        const auto original = adjust_.bmsBinaryRecords_.begin() + original_index + component;
+        adjust_.adj_file << std::left << std::setw(PAD2) << 'Y' << std::setw(STATION)
+                         << adjust_.bstBinaryRecords_.at(original->station1).stationName << std::setw(STATION) << " "
+                         << std::setw(STATION) << " " << std::setw(PAD3) << (original->ignore ? "*" : " ")
+                         << std::setw(PAD2) << row.label;
+        const auto coordinate = [&](double value) {
+            if (!row.angular_coordinate) return StringFromT(value, adjust_.PRECISION_MTR_MSR);
+            if (options._angular_type_msr != DMS) return StringFromT(Degrees(value), 4 + adjust_.PRECISION_SEC_MSR);
+            if (options._dms_format_msr == HP_NOTATION)
+                return StringFromT(RadtoDms(value), 4 + adjust_.PRECISION_SEC_MSR);
+            return FormatDmsString(RadtoDms(value), 4 + adjust_.PRECISION_SEC_MSR, true,
+                                   options._dms_format_msr == SEPARATED_WITH_SYMBOLS);
+        };
+        adjust_.adj_file << std::right << std::setw(MSR) << coordinate(row.measured) << std::setw(MSR)
+                         << coordinate(row.adjusted);
+        const auto statistic = [&](double value, UINT16 width) {
+            if (row.angular_statistics) value = options._angular_type_msr == DMS ? Seconds(value) : Degrees(value);
+            const UINT16 precision = row.angular_statistics ? adjust_.PRECISION_SEC_MSR : adjust_.PRECISION_MTR_MSR;
+            const bool questionable =
+                adjust_.isAdjustmentQuestionable_ || std::fabs(row.nstat) > adjust_.criticalValue_ * 4;
+            return questionable ? StringFromTW(removeNegativeZero(value, precision), width, precision)
+                                : StringFromT(removeNegativeZero(value, precision), precision);
+        };
+        adjust_.adj_file << std::setw(CORR) << statistic(row.correction, CORR) << std::setw(PREC)
+                         << statistic(std::sqrt(row.measured_variance), PREC) << std::setw(PREC)
+                         << statistic(std::sqrt(row.adjusted_variance), PREC) << std::setw(PREC)
+                         << statistic(std::sqrt(row.residual_variance), PREC);
+
+        // Reuse the existing statistics/flag formatter, but keep ID lookup on original records.
+        vmsr_t temporary(1, *original);
+        temporary[0].NStat = row.nstat;
+        temporary[0].TStat = row.tstat;
+        temporary[0].PelzerRel = row.reliability;
+        temporary[0].preAdjCorr = row.pre_adjustment_correction;
+        if (options._database_ids) adjust_._it_dbid = adjust_.v_msr_db_map_.begin() + original_index + component;
+        PrintAdjMeasurementStatistics(row.coordinate, temporary.begin(), false);
+    }
+}
+
+void DynAdjustPrinter::PrintAdjMeasurementsWithYUnits(const v_uint32_u32u32_pair& msr_block) {
+    struct Point {
+        UINT32 index;
+        YReportTriplet rows;
+    };
+    struct Entry {
+        uint32_u32u32_pair source;
+        UINT32 cluster;
+        std::vector<Point> points;
+        double key = 0.0;
+    };
+    const auto& options = adjust_.projectSettings_.o;
+    const UINT16 field = options._sort_adj_msr;
+    std::vector<Entry> entries;
+    std::set<UINT32> loaded_blocks;
+    const auto unload = [&]() {
+        for (UINT32 block : loaded_blocks) adjust_.UnloadBlock(block, 1, sf_prec_adj_msrs);
+        loaded_blocks.clear();
+    };
+    const auto maximum = [](double lhs, double rhs) {
+        return std::isnan(lhs) || std::isnan(rhs) ? std::numeric_limits<double>::quiet_NaN() : std::max(lhs, rhs);
+    };
+    const auto legacy_key = [&](UINT32 index) {
+        auto it = adjust_.bmsBinaryRecords_.begin() + index;
+        const auto value = [&](const measurement_t& record) {
+            switch (field) {
+            case meas_adj_msr_sort_ui: return std::fabs(record.term1);
+            case corr_adj_msr_sort_ui: return std::fabs(record.measCorr);
+            case a_sd_adj_msr_sort_ui: return std::sqrt(std::fabs(record.measAdjPrec));
+            case n_st_adj_msr_sort_ui: return std::fabs(record.NStat);
+            default: return 0.0;
+            }
+        };
+        double key = 0.0;
+        if (it->measType == 'G' || it->measType == 'X') {
+            const UINT32 count = it->vectorCount1;
+            for (UINT32 point = 0; point < count; ++point) {
+                const UINT32 covariances = it->vectorCount2;
+                for (UINT32 component = 0; component < 3; ++component) key = maximum(key, value(*(it + component)));
+                it += 3 + covariances * 3;
+            }
+        } else if (it->measType == 'D') {
+            const UINT32 count = it->vectorCount1;
+            for (UINT32 direction = 0; direction < count; ++direction) key = maximum(key, value(*(it + direction)));
+        } else {
+            key = value(*it);
+        }
+        return key;
+    };
+
+    auto sources = msr_block;
+    std::stable_sort(sources.begin(), sources.end(), [](const uint32_u32u32_pair& lhs, const uint32_u32u32_pair& rhs) {
+        return lhs.second.first < rhs.second.first;
+    });
+    UINT32 active_block = UINT_MAX;
+    try {
+        for (const auto& source : sources) {
+            if (source.second.first != active_block) {
+                unload();
+                active_block = source.second.first;
+            }
+            const auto start = adjust_.bmsBinaryRecords_.begin() + source.first;
+            if (start->measStart != xMeas || (start->measType == 'D' && start->vectorCount1 < 1)) continue;
+            if (start->measType != 'Y') {
+                entries.push_back({source, source.first, {}, legacy_key(source.first)});
+                continue;
+            }
+            const UINT32 block = source.second.first;
+            if (adjust_.projectSettings_.a.stage && !adjust_.v_precAdjMsrsFull_.at(block).getbuffer()) {
+                adjust_.DeserialiseBlockFromMappedFile(block, 1, sf_prec_adj_msrs);
+                loaded_blocks.insert(block);
+            }
+            Entry cluster{source, source.first, {}, 0.0};
+            auto it = start;
+            for (UINT32 ordinal = 0; ordinal < start->vectorCount1; ++ordinal) {
+                YReportInput input;
+                input.mode = options._adj_ymsr_units;
+                input.supplied_type = static_cast<_COORD_TYPE_>(start->station3);
+                input.geoid_separation = adjust_.bstBinaryRecords_.at(it->station1).geoidSep;
+                input.pre_adjustment_correction = (it + 2)->preAdjCorr;
+                input.sigma_zero = adjust_.sigmaZeroSqRt_;
+                for (UINT32 component = 0; component < 3; ++component) {
+                    input.measured[component] = (it + component)->term1;
+                    input.adjusted[component] = (it + component)->measAdj;
+                    input.correction[component] = (it + component)->measCorr;
+                    input.supplied_geographic[component] = (it + component)->preAdjMeas;
+                }
+                input.measured_covariance = {it->term2,       (it + 1)->term2, (it + 2)->term2,
+                                             (it + 1)->term3, (it + 2)->term3, (it + 2)->term4};
+                const auto buffer =
+                    adjust_.v_precAdjMsrsFull_.at(block).getbuffer(source.second.second + ordinal * 6, 0);
+                std::copy_n(buffer, 6, input.adjusted_covariance.begin());
+                Point point{static_cast<UINT32>(it - adjust_.bmsBinaryRecords_.begin()),
+                            BuildYReportTriplet(input, *adjust_.datum_.GetEllipsoidRef())};
+                const double key = YReportSortKey(point.rows, field);
+                if (options._sort_adj_ymsr_points) {
+                    const uint32_u32u32_pair point_source(
+                        point.index, uint32_uint32_pair(block, source.second.second + ordinal * 6));
+                    entries.push_back({point_source, source.first, {std::move(point)}, key});
+                } else {
+                    cluster.key = maximum(cluster.key, key);
+                    cluster.points.push_back(std::move(point));
+                }
+                it += 3 + it->vectorCount2 * 3;
+            }
+            if (!options._sort_adj_ymsr_points) entries.push_back(std::move(cluster));
+        }
+    } catch (...) {
+        unload();
+        throw;
+    }
+    unload();
+
+    std::sort(entries.begin(), entries.end(),
+              [](const Entry& lhs, const Entry& rhs) { return lhs.source < rhs.source; });
+    auto* records = &adjust_.bmsBinaryRecords_;
+    std::stable_sort(entries.begin(), entries.end(), [&](const Entry& lhs, const Entry& rhs) {
+        switch (field) {
+        case type_adj_msr_sort_ui:
+            return CompareMeasType_PairFirst<measurement_t, UINT32>(records)(lhs.source, rhs.source);
+        case inst_adj_msr_sort_ui:
+            return CompareMeasToStn_PairFirst<measurement_t, UINT32>(records)(lhs.source, rhs.source);
+        case targ_adj_msr_sort_ui:
+            return CompareMeasFromStn_PairFirst<measurement_t, UINT32>(records)(lhs.source, rhs.source);
+        case meas_adj_msr_sort_ui:
+        case corr_adj_msr_sort_ui:
+        case a_sd_adj_msr_sort_ui:
+        case n_st_adj_msr_sort_ui: return ReportKeyGreater(lhs.key, rhs.key);
+        default: return false;
+        }
+    });
+    std::set<std::pair<UINT32, UINT32>> emitted;
+    for (const auto& entry : entries) {
+        if (entry.points.empty()) {
+            PrintMeasurementRecords(v_uint32_u32u32_pair{entry.source}, true);
+        } else {
+            for (const auto& point : entry.points) PrintAdjustedYPoint(point.index, point.rows);
+            if (emitted.emplace(entry.source.second.first, entry.cluster).second)
+                OnAdjustedMeasurement(adjust_.bmsBinaryRecords_.begin() + entry.cluster);
+        }
+    }
 }
 
 void DynAdjustPrinter::PrintIgnoredAdjMeasurements(bool printHeader) {

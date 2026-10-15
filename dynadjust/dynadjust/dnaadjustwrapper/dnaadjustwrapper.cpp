@@ -579,9 +579,13 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
 		p.o._adj_stat_iteration = 1;
 	if (vm.count(OUTPUT_ADJ_MSR) ||				// print adjusted measurements?
 		vm.count(OUTPUT_ADJ_GNSS_UNITS) ||		// print alternative units for adjusted GNSS measurements?
+		vm.count(OUTPUT_ADJ_YMSR_UNITS) ||
+		vm.count(OUTPUT_ADJ_YMSR_SORT_POINTS) ||
 		vm.count(OUTPUT_ADJ_MSR_SORTBY) ||		// print sort adjusted measurements?
 		vm.count(OUTPUT_ADJ_MSR_TSTAT))			// print t-statistic for adjusted measurements?
 		p.o._adj_msr_final = 1;
+	if (vm.count(OUTPUT_ADJ_YMSR_SORT_POINTS))
+		p.o._sort_adj_ymsr_points = 1;
 
 	if (vm.count(OUTPUT_ADJ_STN_BLOCKS))
 		p.o._output_stn_blocks = 1;
@@ -922,6 +926,16 @@ int main(int argc, char* argv[])
 					StringFromT(ENU_adj_gnss_ui) + ": Local [east, north, up]\n  " + 
 					StringFromT(AED_adj_gnss_ui) + ": Polar [azimuth, vert. angle, slope dist]\n  " + 
 					StringFromT(ADU_adj_gnss_ui) + ": Polar [azimuth, slope dist, up]").c_str())
+			(OUTPUT_ADJ_YMSR_UNITS, boost::program_options::value<UINT16>(&p.o._adj_ymsr_units),
+				"Units for adjusted GNSS point (Y) measurements in the .adj file.\n"
+				"  0: As measured (default)\n"
+				"  1: Geographic coordinates; local corrections and SDs [north, east, up]\n"
+				"  2: Geographic [latitude, longitude, height]\n"
+				"  3: Cartesian [X, Y, Z]\n"
+				"Geographic output retains supplied H/h; XYZ input uses ellipsoidal h.")
+			(OUTPUT_ADJ_YMSR_SORT_POINTS,
+				"Sort Y point triplets independently using --sort-adj-msr-field. Uses full covariance statistics, "
+				"including with Y units 0; default retains cluster grouping.")
 			(OUTPUT_ADJ_MSR_TSTAT,
 				"Output t-statistics for adjusted measurements.")
 			(OUTPUT_ADJ_MSR_DBID,
@@ -1137,6 +1151,10 @@ int main(int argc, char* argv[])
 
 	if (ParseCommandLineOptions(argc, argv, vm, p) != EXIT_SUCCESS)
 		return EXIT_FAILURE;
+    if (p.o._adj_ymsr_units > XYZ_adj_ymsr_ui) {
+        std::cout << std::endl << "- Error: Y measurement output units must be in the range 0 to 3." << std::endl;
+        return EXIT_FAILURE;
+    }
 
 	// Create an instance of the dna_adjust object exposed by the dnaadjust dll
 	dna_adjust netAdjust;

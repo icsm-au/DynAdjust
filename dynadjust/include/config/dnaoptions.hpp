@@ -502,6 +502,7 @@ public:
 		, _cor_json_file(""), _m2s_json_file("")
 		, _adj_stn_iteration(0), _adj_msr_iteration(0), _cmp_msr_iteration(0), _adj_stat_iteration(0)
 		, _adj_msr_final(0), _adj_msr_tstat(0), _database_ids(0), _print_ignored_msrs(0), _adj_gnss_units(0)
+		, _adj_ymsr_units(0), _sort_adj_ymsr_points(0)
 		, _output_stn_blocks(0), _output_msr_blocks(0), _sort_stn_file_order(0), _sort_adj_msr(0), _sort_msr_to_stn(0)
 		, _init_stn_corrections(0), _msr_to_stn(0), _stn_corr(0), _positional_uncertainty(0)
 		, _apu_vcv_units(0), _output_pu_covariances(0)
@@ -570,6 +571,8 @@ public:
 	UINT16			_database_ids;			// Output msr id and cluster id
 	UINT16			_print_ignored_msrs;	// Output adjusted measurement statistics for ignored measurements
 	UINT16			_adj_gnss_units;		// Units of output adjusted GNSS measurements
+	UINT16			_adj_ymsr_units;         // Units of output adjusted GNSS point measurements
+	UINT16			_sort_adj_ymsr_points;   // Sort GNSS point triplets independently of their clusters
 	UINT16			_output_stn_blocks;		// For phased adjustments, output station information for each segmented block.
 	UINT16			_output_msr_blocks;		// For phased adjustments, output adjusted measurement information for each segmented block.
 	UINT16			_sort_stn_file_order;	// Outputs stations in original station file sort order

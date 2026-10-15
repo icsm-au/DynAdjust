@@ -45,6 +45,7 @@
 #include <include/io/dnaiodna.hpp>
 #include <include/functions/dnaiostreamfuncs.hpp>
 #include <include/functions/dnatimer.hpp>
+#include <dynadjust/dnaadjust/ymsr_report.hpp>
 
 using namespace dynadjust::datum_parameters;
 using namespace dynadjust::measurements;
@@ -143,7 +144,7 @@ class DNAADJUST_API DynAdjustPrinter {
     
     // Stage 3: Header generation infrastructure
     void PrintMeasurementHeader(printMeasurementsMode printMode, std::string_view col1_heading, std::string_view col2_heading);
-    void PrintAdjMeasurementsHeader(bool printHeader, const std::string& table_heading, printMeasurementsMode printMode, UINT32 block, bool printBlocks = false);
+    void PrintAdjMeasurementsHeader(bool printHeader, const std::string& table_heading, printMeasurementsMode printMode, UINT32 block, bool printBlocks = false, bool yLocal = false);
     void PrintPositionUncertaintyHeader(std::ostream& os);
     
     // Stage 3: Output coordinators
@@ -153,6 +154,8 @@ class DNAADJUST_API DynAdjustPrinter {
     
     // Stage 5: Complex measurement handlers
     void PrintAdjMeasurements(v_uint32_u32u32_pair msr_block, bool printHeader);
+    void PrintAdjMeasurementsWithYUnits(const v_uint32_u32u32_pair& msr_block);
+    void PrintAdjustedYPoint(UINT32 original_index, const YReportTriplet& rows);
     void PrintIgnoredAdjMeasurements(bool printHeader);
     void PrintCompMeasurements(v_uint32_u32u32_pair msr_block, bool printHeader);
     void PrintMeasurementCorrection(const char cardinal, const it_vmsr_t& _it_msr);

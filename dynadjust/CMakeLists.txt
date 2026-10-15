@@ -918,6 +918,18 @@ if (BUILD_TESTING)
     target_link_libraries(test_gnss_nstat_sort PRIVATE ${DNA_LIBRARIES})
     target_compile_definitions(test_gnss_nstat_sort PRIVATE __BINARY_NAME__="test_gnss_nstat_sort" __BINARY_DESC__="Unit tests for GNSS n-stat sort in alternate units")
 
+    add_executable(test_ymsr_reporting
+        ${UNIT_TEST_DIR}/test_ymsr_reporting.cpp
+        ${CMAKE_SOURCE_DIR}/dynadjust/dnaadjust/ymsr_report.cpp
+        ${CMAKE_SOURCE_DIR}/include/parameters/dnaellipsoid.cpp
+        ${CMAKE_SOURCE_DIR}/include/math/dnamatrix_contiguous.cpp
+        ${CMAKE_SOURCE_DIR}/include/ide/trace.cpp
+    )
+    target_include_directories(test_ymsr_reporting PRIVATE ${UNIT_TEST_DIR} ${CMAKE_SOURCE_DIR})
+    target_link_libraries(test_ymsr_reporting PRIVATE ${DNA_LIBRARIES})
+    target_compile_definitions(test_ymsr_reporting PRIVATE
+        __BINARY_NAME__="test_ymsr_reporting" __BINARY_DESC__="Y measurement reporting tests")
+
     # Test: test_dnaparser_jsonl
     add_executable(test_dnaparser_jsonl
         ${UNIT_TEST_DIR}/test_dnaparser_jsonl.cpp
@@ -986,7 +998,7 @@ if (BUILD_TESTING)
     set(UNIT_TEST_TARGETS
         test_matrix test_msr_to_stn_sort test_bst_file test_asl_file
         test_aml_file_loader test_bms_file test_network_data_loader
-        test_measurement_processor test_dnaadjust_printer test_gnss_nstat_sort
+        test_measurement_processor test_dnaadjust_printer test_gnss_nstat_sort test_ymsr_reporting
         test_dnaparser_jsonl test_bst_file_loader test_asl_file_loader test_bms_file_loader
         test_snx_file_writer test_format_elapsed_time
     )
@@ -1011,6 +1023,15 @@ if (BUILD_TESTING)
     add_test(NAME unit-MeasurementProcessorTest COMMAND $<TARGET_FILE:test_measurement_processor>)
     add_test(NAME unit-DynAdjustPrinterTest COMMAND $<TARGET_FILE:test_dnaadjust_printer>)
     add_test(NAME unit-GNSSNstatSortTest COMMAND $<TARGET_FILE:test_gnss_nstat_sort>)
+    add_test(NAME unit-YMsrReportingTest COMMAND $<TARGET_FILE:test_ymsr_reporting>)
+    find_package(Python3 3.8 REQUIRED COMPONENTS Interpreter)
+    add_test(NAME adjust-ymsr-reporting
+        COMMAND ${Python3_EXECUTABLE} ${UNIT_TEST_DIR}/check_ymsr_reporting.py
+            --importer $<TARGET_FILE:${DNAIMPORT_TARGET}>
+            --adjust $<TARGET_FILE:${DNAADJUST_TARGET}>
+            --segment $<TARGET_FILE:${DNASEGMENT_TARGET}>
+            --geoid $<TARGET_FILE:${DNAGEOID_TARGET}>
+            --data ${CMAKE_SOURCE_DIR}/../sampleData)
     add_test(NAME unit-DnaParserJsonlTest COMMAND $<TARGET_FILE:test_dnaparser_jsonl>)
     add_test(NAME unit-BstFileLoaderTest COMMAND $<TARGET_FILE:test_bst_file_loader>)
     add_test(NAME unit-AslFileLoaderTest COMMAND $<TARGET_FILE:test_asl_file_loader>)
@@ -2093,7 +2114,7 @@ if (BUILD_TESTING)
     set(UNIT_TESTS
         unit-MatrixTest unit-MsrToStnSortTest unit-BstFileTest unit-AslFileTest
         unit-AmlFileLoaderTest unit-BmsFileTest unit-NetworkDataLoaderTest
-        unit-MeasurementProcessorTest unit-DynAdjustPrinterTest unit-GNSSNstatSortTest
+        unit-MeasurementProcessorTest unit-DynAdjustPrinterTest unit-GNSSNstatSortTest unit-YMsrReportingTest
         unit-BstFileLoaderTest unit-AslFileLoaderTest unit-BmsFileLoaderTest
         unit-SnxFileWriterTest unit-FormatElapsedTimeTest
     )

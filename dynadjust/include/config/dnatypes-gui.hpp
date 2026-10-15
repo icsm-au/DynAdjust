@@ -44,6 +44,13 @@ typedef enum ADJ_GNSS_UNITS_UI
 	ADU_adj_gnss_ui = 3			// Polar (Az, dist, ht)
 } _ADJ_GNSS_UNITS_UI_;
 
+typedef enum ADJ_YMSR_UNITS_UI {
+    AS_MEASURED_adj_ymsr_ui = 0,
+    ENU_adj_ymsr_ui = 1,
+    PLH_adj_ymsr_ui = 2,
+    XYZ_adj_ymsr_ui = 3
+} _ADJ_YMSR_UNITS_UI_;
+
 typedef enum ADJ_MSR_SORT_UI
 {
 	orig_adj_msr_sort_ui = 0,		// original file order

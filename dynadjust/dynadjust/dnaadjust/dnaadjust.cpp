@@ -257,7 +257,9 @@ void dna_adjust::CreateMeasurementTally(const UINT32& block)
 
 void dna_adjust::PrepareAdjustment(const project_settings& projectSettings)
 {
-	isPreparing_ = true;
+    if (projectSettings.o._adj_ymsr_units > XYZ_adj_ymsr_ui)
+        throw std::runtime_error("Y measurement output units must be in the range 0 to 3.");
+    isPreparing_ = true;
 	isAdjusting_ = true;
 	isCombining_ = false;
 	rebuildingDesign_ = false;
@@ -2299,7 +2301,8 @@ void dna_adjust::FormUniqueMsrList()
 					uint32_uint32_pair(block, 0)));		// block, precision adj msr row
 
 	// Is the index to the first row of the precision of adjusted measurements vector needed?
-	if (projectSettings_.o._adj_gnss_units == XYZ_adj_gnss_ui)
+	if (projectSettings_.o._adj_gnss_units == XYZ_adj_gnss_ui &&
+        projectSettings_.o._adj_ymsr_units == AS_MEASURED_adj_ymsr_ui && !projectSettings_.o._sort_adj_ymsr_points)
 		return;
 
 	it_vmsr_t _it_msr;

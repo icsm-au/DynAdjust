@@ -1468,6 +1468,20 @@ void CDnaProjectFile::LoadSettingOutput(const std::string& var, std::string& val
 			return;
 		settings_.o._adj_gnss_units = lexical_cast<UINT16, std::string>(val);
 	}
+	else if (iequals(var, OUTPUT_ADJ_YMSR_UNITS))
+	{
+		if (val.empty())
+			return;
+		settings_.o._adj_ymsr_units = lexical_cast<UINT16, std::string>(val);
+		if (settings_.o._adj_ymsr_units > XYZ_adj_ymsr_ui)
+			throw std::runtime_error("Y measurement output units must be in the range 0 to 3.");
+	}
+	else if (iequals(var, OUTPUT_ADJ_YMSR_SORT_POINTS))
+	{
+		if (val.empty())
+			return;
+		settings_.o._sort_adj_ymsr_points = yesno_uint<UINT16, std::string>(val);
+	}
 	else if (iequals(var, OUTPUT_ADJ_MSR_TSTAT))
 	{
 		if (val.empty())
@@ -1961,7 +1975,9 @@ void CDnaProjectFile::PrintProjectFile()
 		yesno_string(settings_.o._adj_msr_final));
 	PrintRecord(dnaproj_file, OUTPUT_ADJ_GNSS_UNITS, 
 		settings_.o._adj_gnss_units);	
-	PrintRecord(dnaproj_file, OUTPUT_ADJ_MSR_TSTAT, 
+	PrintRecord(dnaproj_file, OUTPUT_ADJ_YMSR_UNITS, settings_.o._adj_ymsr_units);
+	PrintRecord(dnaproj_file, OUTPUT_ADJ_YMSR_SORT_POINTS, yesno_string(settings_.o._sort_adj_ymsr_points));
+	PrintRecord(dnaproj_file, OUTPUT_ADJ_MSR_TSTAT,
 		yesno_string(settings_.o._adj_msr_tstat));
 
 	PrintRecord(dnaproj_file, OUTPUT_ADJ_MSR_SORTBY, settings_.o._sort_adj_msr);
