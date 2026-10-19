@@ -80,6 +80,28 @@ time_t file_time_to_time_t(const std::filesystem::file_time_type& ftime) {
     return system_clock::to_time_t(sctp);
 }
 
+void PrintImportSummary(std::ostream& os, const std::string& heading, const std::string& action,
+                        StnTally& stnTally, MsrTally& msrTally) {
+    os << heading << std::endl << std::endl;
+    stnTally.coutSummary(os, action);
+    os << std::endl;
+    msrTally.coutSummary(os, action);
+    os << std::endl;
+}
+
+void PrintFinalImportSummary(const vdnaStnPtr& stations, const vdnaMsrPtr& measurements,
+                             std::ostream& imp_file, bool quiet) {
+    StnTally stnTally;
+    MsrTally msrTally;
+    stnTally.CreateTally(stations);
+    msrTally.CreateTally(measurements);
+    // CreateTally counts measurement types; the parser counts ignored records separately.
+    msrTally.ignored = static_cast<UINT32>(std::count_if(
+        measurements.begin(), measurements.end(), [](const dnaMsrPtr& msr) { return msr->GetIgnore(); }));
+    if (!quiet) PrintImportSummary(std::cout, "\n+ Final import summary:", "  Retained", stnTally, msrTally);
+    PrintImportSummary(imp_file, "\n+ Final import summary:", "  Retained", stnTally, msrTally);
+}
+
 void PrintOutputFileHeaderInfo(std::ofstream* f_out, const std::string& out_file, project_settings* p,
                                const std::string& header) {
     // Print formatted header
@@ -1801,6 +1823,13 @@ int main(int argc, char* argv[]) {
     if (!p.g.quiet) std::cout << std::endl;
     imp_file << std::endl;
 
+    // Report parsed inputs before any filtering or duplicate removal.
+    const std::string parsingHeading = (p.i.import_block || p.i.import_network)
+                                          ? "+ Binary file parsing summary:"
+                                          : "+ File parsing summary:";
+    if (!p.g.quiet) PrintImportSummary(std::cout, parsingHeading, "  Read", parsestnTally, parsemsrTally);
+    PrintImportSummary(imp_file, parsingHeading, "  Read", parsestnTally, parsemsrTally);
+
     vstring vPoorlyConstrainedStns;
 
     // Ignore measurements that do not sufficiently (in themselves) allow for a station to be estimated
@@ -2034,48 +2063,10 @@ int main(int argc, char* argv[]) {
     if (!p.g.quiet) std::cout << std::endl;
     imp_file << std::endl;
 
-    ///////////////////////////////////////////////////////////////////////
-    // Ok, now that unwanted stations and measurements have been stripped,
-    // provide station and measurement Summary
-    //
-    if ((stnCount + msrCount) > 0) {
-        if (p.i.import_block || p.i.import_network) {
-            if (!p.g.quiet) std::cout << "+ Binary file ";
-            imp_file << "+ Binary file ";
-        } else {
-            if (!p.g.quiet) std::cout << "+ File ";
-            imp_file << "+ File ";
-        }
-
-        if (!p.g.quiet) std::cout << "parsing summary:" << std::endl << std::endl;
-        imp_file << "parsing summary:" << std::endl << std::endl;
-    }
-
-    //
-    // Station summary
-    if (stnCount) {
-        if (!p.g.quiet) {
-            parsestnTally.coutSummary(std::cout, std::string("  Read"));
-            std::cout << std::endl;
-        }
-        parsestnTally.coutSummary(imp_file, std::string("  Read"));
-        imp_file << std::endl;
-    }
-
-    //
-    // Measurement summary
-    if (msrCount) {
-        if (!p.g.quiet) {
-            parsemsrTally.coutSummary(std::cout, std::string("  Read"));
-            std::cout << std::endl;
-        }
-        parsemsrTally.coutSummary(imp_file, std::string("  Read"));
-        imp_file << std::endl;
-    }
-
     ////////////////////////////////////////////////////////////////////////
     // Can we proceed?
     if (stnCount < 1) {
+        PrintFinalImportSummary(vstationsTotal, vmeasurementsTotal, imp_file, p.g.quiet);
         imp_file << "- No further processing can be done as no stations were loaded." << std::endl;
         if (!p.g.quiet) std::cout << "- No further processing can be done as no stations were loaded." << std::endl;
         imp_file.close();
@@ -2515,6 +2506,9 @@ int main(int argc, char* argv[]) {
             return EXIT_FAILURE;
         }
     }
+
+    // Recount the retained data, including changes made by duplicate and similar-measurement checks.
+    PrintFinalImportSummary(vstationsTotal, vmeasurementsTotal, imp_file, p.g.quiet);
 
     // Create association lists
     if (measurements_mapped) {
