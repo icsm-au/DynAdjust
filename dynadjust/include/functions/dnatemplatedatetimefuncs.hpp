@@ -531,6 +531,20 @@ T dateFromString(const std::string& dateString)
 	
 }
 
+// Keep absent epochs absent and avoid reparsing already formatted dates.
+inline std::string formatEpoch(const std::string& epoch)
+{
+	std::string value(trimstr(epoch));
+	if (value.empty() || value.length() == 10)
+		return value;
+	// Data objects also accept decimal epochs; retain that representation.
+	if (std::count(value.begin(), value.end(), '.') == 1)
+		return value;
+	if (value.find('.') == std::string::npos && !iequals(value, "today"))
+		value.insert(0, "01.01.");
+	return stringFromDate(dateFromString<boost::gregorian::date>(value));
+}
+
 template <class T>
 // dateString = dd.mm.yyyy
 std::string formattedDateStringFromNumericString(const std::string& dateString)

@@ -1000,6 +1000,13 @@ if (BUILD_TESTING)
     add_custom_target(unit_tests)
     add_dependencies(unit_tests ${UNIT_TEST_TARGETS})
 
+    add_executable(test_dnaimport_io ${UNIT_TEST_DIR}/test_dnaimport_io.cpp)
+    target_include_directories(test_dnaimport_io PRIVATE ${UNIT_TEST_DIR})
+    target_link_libraries(test_dnaimport_io PRIVATE dnaimport ${DNA_LIBRARIES})
+    target_compile_definitions(test_dnaimport_io PRIVATE
+        __BINARY_NAME__="test_dnaimport_io" __BINARY_DESC__="Import/export regression tests")
+    add_dependencies(unit_tests test_dnaimport_io)
+
     # Register unit tests with CTest
     add_test(NAME unit-MatrixTest COMMAND $<TARGET_FILE:test_matrix>)
     add_test(NAME unit-MsrToStnSortTest COMMAND $<TARGET_FILE:test_msr_to_stn_sort>)
@@ -1012,6 +1019,7 @@ if (BUILD_TESTING)
     add_test(NAME unit-DynAdjustPrinterTest COMMAND $<TARGET_FILE:test_dnaadjust_printer>)
     add_test(NAME unit-GNSSNstatSortTest COMMAND $<TARGET_FILE:test_gnss_nstat_sort>)
     add_test(NAME unit-DnaParserJsonlTest COMMAND $<TARGET_FILE:test_dnaparser_jsonl>)
+    add_test(NAME unit-DnaImportIoTest COMMAND $<TARGET_FILE:test_dnaimport_io>)
     add_test(NAME unit-BstFileLoaderTest COMMAND $<TARGET_FILE:test_bst_file_loader>)
     add_test(NAME unit-AslFileLoaderTest COMMAND $<TARGET_FILE:test_asl_file_loader>)
     add_test(NAME unit-BmsFileLoaderTest COMMAND $<TARGET_FILE:test_bms_file_loader>)
@@ -1189,6 +1197,21 @@ if (BUILD_TESTING)
     # Check results with dnadiff
     add_test (NAME test-urban-phased-network COMMAND $<TARGET_FILE:${DNADIFF_TARGET}> urban.phased.adj urban.phased.adj.expected --skip-to-marker "M Station 1" -t 0.001)
     add_test (NAME test-urban-thread-network COMMAND $<TARGET_FILE:${DNADIFF_TARGET}> urban_mt.phased-mt.adj urban_mt.phased-mt.adj.expected --skip-to-marker "M Station 1" -t 0.01 -v)
+
+    add_test(NAME import-observation-epoch-discontinuity
+        COMMAND ${CMAKE_COMMAND}
+            "-DIMPORT_EXE=$<TARGET_FILE:${DNAIMPORT_TARGET}>"
+            "-DOUTPUT_DIR=${CMAKE_BINARY_DIR}/observation-epoch-tests/alic"
+            -P "${UNIT_TEST_DIR}/repro_observation_epoch/reproduce.cmake")
+    foreach(epoch_test block network)
+        add_test(NAME import-observation-epoch-${epoch_test}
+            COMMAND ${CMAKE_COMMAND}
+                "-DIMPORT_EXE=$<TARGET_FILE:${DNAIMPORT_TARGET}>"
+                "-DSEGMENT_EXE=$<TARGET_FILE:${DNASEGMENT_TARGET}>"
+                "-DTEST_DIR=${CMAKE_BINARY_DIR}/observation-epoch-tests"
+                "-DTEST_MODE=${epoch_test}"
+                -P "${UNIT_TEST_DIR}/test_import_observation_epoch.cmake")
+    endforeach()
 
     # Source tag preservation in --export-xml (issue #317)
     # Import XML data with <Source> tags and verify they are preserved in export
@@ -2096,6 +2119,7 @@ if (BUILD_TESTING)
         unit-MeasurementProcessorTest unit-DynAdjustPrinterTest unit-GNSSNstatSortTest
         unit-BstFileLoaderTest unit-AslFileLoaderTest unit-BmsFileLoaderTest
         unit-SnxFileWriterTest unit-FormatElapsedTimeTest
+        unit-DnaImportIoTest
     )
     set_tests_properties(${UNIT_TESTS} PROPERTIES
         RUN_SERIAL FALSE

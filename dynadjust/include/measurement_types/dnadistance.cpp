@@ -109,6 +109,7 @@ void CDnaDistance::WriteDynaMLMsr(std::ofstream* dynaml_stream, const std::strin
 		*dynaml_stream << "    <Epoch/>" << std::endl;
 	else
 		*dynaml_stream << "    <Epoch>" << m_epoch << "</Epoch>" << std::endl;
+	WriteDynaMLObservationEpoch(dynaml_stream);
 
 	*dynaml_stream << "    <First>" << m_strFirst << "</First>" << std::endl;
 	*dynaml_stream << "    <Second>" << m_strTarget << "</Second>" << std::endl;
@@ -164,9 +165,7 @@ void CDnaDistance::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& 
 	*dna_stream << std::setw(width) << " ";
 	*dna_stream << std::setw(dmw.msr_gps_epoch) << m_epoch;
 
-	if (m_msr_db_map.is_msr_id_set)
-		*dna_stream << std::setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
-
+	WriteDNAIdsAndObservationEpoch(dna_stream, dmw);
 	*dna_stream << std::endl;
 }
 	
@@ -282,8 +281,9 @@ UINT32 CDnaDistance::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_ms
 	m_dValue = it_msr->term1;
 	m_dStdDev = sqrt(it_msr->term2);
 
-	m_epoch = it_msr->epoch;
-	m_observation_epoch = it_msr->observation_epoch;
+	m_epoch = formatEpoch(it_msr->epoch);
+	m_observation_epoch = formatEpoch(it_msr->observation_epoch);
+	m_observation_epoch_supplied = !m_observation_epoch.empty();
 	m_sourceFileIndex = it_msr->sourceFileIndex;
 
 	CDnaMeasurement::SetDatabaseMap(*dbidmap);

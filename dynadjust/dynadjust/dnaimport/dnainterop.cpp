@@ -227,18 +227,12 @@ void dna_import::ApplyProjectObservationEpoch(vdnaMsrPtr* vMeasurements)
 
 	const std::string& obsEpoch = m_strProjectObservationEpoch;
 
-	// A measurement's observation_epoch is treated as "not explicitly set" when it is
-	// empty or equal to the reference-frame epoch (the auto-default from SetEpoch).
-	auto needs_override = [](const std::string& msrObsEpoch, const std::string& msrEpoch) {
-		return msrObsEpoch.empty() || msrObsEpoch == msrEpoch;
-	};
-
 	for (auto& msr_ptr : *vMeasurements)
 	{
 		if (!msr_ptr)
 			continue;
 
-		if (needs_override(msr_ptr->GetObservationEpoch(), msr_ptr->GetEpoch()))
+		if (!msr_ptr->ObservationEpochSupplied())
 			msr_ptr->SetObservationEpoch(obsEpoch);
 
 		// GPS baseline cluster (G/X): propagate to every baseline element
@@ -246,7 +240,7 @@ void dna_import::ApplyProjectObservationEpoch(vdnaMsrPtr* vMeasurements)
 		{
 			for (auto& bsl : *baselines)
 			{
-				if (needs_override(bsl.GetObservationEpoch(), bsl.GetEpoch()))
+				if (!bsl.ObservationEpochSupplied())
 					bsl.SetObservationEpoch(obsEpoch);
 			}
 		}
@@ -256,13 +250,19 @@ void dna_import::ApplyProjectObservationEpoch(vdnaMsrPtr* vMeasurements)
 		{
 			for (auto& pnt : *points)
 			{
-				if (needs_override(pnt.GetObservationEpoch(), pnt.GetEpoch()))
+				if (!pnt.ObservationEpochSupplied())
 					pnt.SetObservationEpoch(obsEpoch);
 			}
 		}
 
-		// Direction set (D): directions inherit from the parent measurement; no per-direction
-		// observation_epoch field exists beyond what the set-level value already carries.
+		if (auto* directions = msr_ptr->GetDirections_ptr())
+		{
+			for (auto& direction : *directions)
+			{
+				if (!direction.ObservationEpochSupplied())
+					direction.SetObservationEpoch(obsEpoch);
+			}
+		}
 	}
 }
 	
@@ -273,6 +273,7 @@ _PARSE_STATUS_ dna_import::ParseInputFile(const std::string& fileName, vdnaStnPt
 							   std::string* success_msg, project_settings* p)
 {
 	projectSettings_ = *p;
+	*input_file_meta = input_file_meta_t{};
 	*success_msg = "";
 
 	DetermineBoundingBox();
@@ -442,6 +443,9 @@ _PARSE_STATUS_ dna_import::ParseInputFile(const std::string& fileName, vdnaStnPt
 	}
 	///////////////////////////////////
 
+	if (p->i.user_supplied_observation_epoch)
+		ApplyProjectObservationEpoch(vMeasurements);
+
 	// Apply discontinuities (if they exist) to each file except SINEX
 	// SINEX files are automatically handled
 	if (m_ift != sinex)
@@ -452,6 +456,8 @@ _PARSE_STATUS_ dna_import::ParseInputFile(const std::string& fileName, vdnaStnPt
 	
 	// Populate metadata
     snprintf(input_file_meta->filename, sizeof(input_file_meta->filename), "%s", fileName.c_str());
+	snprintf(input_file_meta->observation_epoch, sizeof(input_file_meta->observation_epoch), "%s",
+		m_strProjectObservationEpoch.substr(0, STN_EPOCH_WIDTH).c_str());
 	if (*stnCount > 0 && *msrCount > 0)
 		input_file_meta->datatype = stn_msr_data;
 	else if (*stnCount > 0)
@@ -2022,7 +2028,7 @@ void dna_import::ParseDNAMSRGPSBaselines(std::string& sBuf, dnaMsrPtr& msr_ptr, 
 
 	bslTmp.SetReferenceFrame(msr_ptr->GetReferenceFrame());
 	bslTmp.SetEpoch(msr_ptr->GetEpoch());
-	bslTmp.SetObservationEpoch(msr_ptr->GetObservationEpoch());
+	bslTmp.SetObservationEpoch(msr_ptr->GetObservationEpoch(), msr_ptr->ObservationEpochSupplied());
 
 	// Measurement type
 	std::string tmp;
@@ -2252,7 +2258,7 @@ void dna_import::ParseDNAMSRGPSPoints(std::string& sBuf, dnaMsrPtr& msr_ptr, boo
 
 	pntTmp.SetReferenceFrame(msr_ptr->GetReferenceFrame());
 	pntTmp.SetEpoch(msr_ptr->GetEpoch());
-	pntTmp.SetObservationEpoch(msr_ptr->GetObservationEpoch());
+	pntTmp.SetObservationEpoch(msr_ptr->GetObservationEpoch(), msr_ptr->ObservationEpochSupplied());
 
 	// Measurement type
 	std::string tmp;
@@ -2347,7 +2353,7 @@ void dna_import::ParseDNAMSRGPSPoints(std::string& sBuf, dnaMsrPtr& msr_ptr, boo
 		// Set the point frame
 		pntTmp.SetReferenceFrame(projectSettings_.i.reference_frame);
 		pntTmp.SetEpoch(msr_ptr->GetEpoch());
-		pntTmp.SetObservationEpoch(msr_ptr->GetObservationEpoch());
+		pntTmp.SetObservationEpoch(msr_ptr->GetObservationEpoch(), msr_ptr->ObservationEpochSupplied());
 	}
 	else //if (!projectSettings_.i.override_input_rfame)
 	{
@@ -3111,6 +3117,10 @@ UINT32 dna_import::ParseDNAMSRDirections(std::string& sBuf, dnaMsrPtr& msr_ptr, 
 		msr_ptr->SetDatabaseMap(m_msr_db_map);
 		dirnTmp.SetClusterID(msr_ptr->GetClusterID());
 	}
+
+	dirnTmp.SetEpoch(msr_ptr->GetEpoch());
+	dirnTmp.SetObservationEpoch(msr_ptr->GetObservationEpoch(),
+		msr_ptr->ObservationEpochSupplied());
 
 	bool subignoreMsr;
 	dirnCountLessIgnored = dirnCount;
@@ -4211,6 +4221,9 @@ void dna_import::ImportStnsMsrsFromNetwork(vdnaStnPtr* vStations, vdnaMsrPtr* vM
 
 		segmentedBlock++;
 	}
+
+	if (p.i.user_supplied_observation_epoch)
+		ApplyProjectObservationEpoch(vMeasurements);
 }
 	
 
@@ -4367,6 +4380,9 @@ void dna_import::ImportStnsMsrsFromBlock(vdnaStnPtr* vStations, vdnaMsrPtr* vMea
 		msrPtr->ResolveSourceFile(bms_meta_.sourceFileMeta, bms_meta_.sourceFileCount);
 		vMeasurements->push_back(msrPtr);
 	}
+
+	if (p.i.user_supplied_observation_epoch)
+		ApplyProjectObservationEpoch(vMeasurements);
 }
 
 
@@ -4474,6 +4490,8 @@ void dna_import::SignalExceptionInterop(std::string msg, int i, const char *stre
 void dna_import::SerialiseMSR(vdnaMsrPtr* vMeasurements, const std::string& msrfilename, 
 	const project_settings& p, vifm_t* vinput_file_meta)
 {
+	determineDNAMSRFieldParameters<UINT16>("3.02", dml_, dmw_);
+
 	// Measurements
 	std::ofstream dna_msr_file;
 	try {
@@ -4488,7 +4506,7 @@ void dna_import::SerialiseMSR(vdnaMsrPtr* vMeasurements, const std::string& msrf
 
 	try {
 		// Write version line
-		dna_header(dna_msr_file, "3.01", "MSR", datum_.GetName(), datum_.GetEpoch_s(), vMeasurements->size());
+		dna_header(dna_msr_file, "3.02", "MSR", datum_.GetName(), datum_.GetEpoch_s(), vMeasurements->size());
 
 		// Capture source files
 		std::string source_files(formatStnMsrFileSourceString<std::string>(vinput_file_meta, msr_data));
@@ -4528,7 +4546,6 @@ void dna_import::SerialiseSTN(vdnaStnPtr* vStations, const std::string& stnfilen
 	}
 
 	determineDNASTNFieldParameters<UINT16>("3.01", dsl_, dsw_);
-	determineDNAMSRFieldParameters<UINT16>("3.01", dml_, dmw_);
 
 	_it_vdnastnptr _it_stn(vStations->begin());
 	CDnaProjection projection(UTM);
@@ -6034,7 +6051,7 @@ void dna_import::SimulateMSR(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements,
 		SignalExceptionInterop(ss.str(), 0, NULL);
 	}
 
-	determineDNAMSRFieldParameters<UINT16>("3.01", dml_, dmw_);
+	determineDNAMSRFieldParameters<UINT16>("3.02", dml_, dmw_);
 
 	// Print simulated measurements
 	std::ofstream dna_msr_file;
@@ -6048,7 +6065,7 @@ void dna_import::SimulateMSR(vdnaStnPtr* vStations, vdnaMsrPtr* vMeasurements,
 
 	try {	
 		// Write version line
-		dna_header(dna_msr_file, "3.01", "MSR", datum_.GetName(), datum_.GetEpoch_s(), vMeasurements->size());
+		dna_header(dna_msr_file, "3.02", "MSR", datum_.GetName(), datum_.GetEpoch_s(), vMeasurements->size());
 
 		// Write header line
 		dna_comment(dna_msr_file, p.g.network_name + " measurement file.");
@@ -7566,4 +7583,3 @@ _PARSE_STATUS_ dna_import::LoadDNAGeoidFile(const std::string& fileName, vdnaStn
 }	// namespace dynamlinterop
 }	// namespace dynadjust
 	
-

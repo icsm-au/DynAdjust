@@ -80,6 +80,28 @@ time_t file_time_to_time_t(const std::filesystem::file_time_type& ftime) {
     return system_clock::to_time_t(sctp);
 }
 
+void PrintImportSummary(std::ostream& os, const std::string& heading, const std::string& action,
+                        StnTally& stnTally, MsrTally& msrTally) {
+    os << heading << std::endl << std::endl;
+    stnTally.coutSummary(os, action);
+    os << std::endl;
+    msrTally.coutSummary(os, action);
+    os << std::endl;
+}
+
+void PrintFinalImportSummary(const vdnaStnPtr& stations, const vdnaMsrPtr& measurements,
+                             std::ostream& imp_file, bool quiet) {
+    StnTally stnTally;
+    MsrTally msrTally;
+    stnTally.CreateTally(stations);
+    msrTally.CreateTally(measurements);
+    // CreateTally counts measurement types; the parser counts ignored records separately.
+    msrTally.ignored = static_cast<UINT32>(std::count_if(
+        measurements.begin(), measurements.end(), [](const dnaMsrPtr& msr) { return msr->GetIgnore(); }));
+    if (!quiet) PrintImportSummary(std::cout, "\n+ Final import summary:", "  Retained", stnTally, msrTally);
+    PrintImportSummary(imp_file, "\n+ Final import summary:", "  Retained", stnTally, msrTally);
+}
+
 void PrintOutputFileHeaderInfo(std::ofstream* f_out, const std::string& out_file, project_settings* p,
                                const std::string& header) {
     // Print formatted header
@@ -207,7 +229,7 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
     if (vm.count(PROJECT_FILE)) {
         if (std::filesystem::exists(p.g.project_file)) {
             try {
-                CDnaProjectFile projectFile(p.g.project_file, importSetting);
+                CDnaProjectFile projectFile(p.g.project_file, importSetting, vm.count(CONSISTENT_EXPORT_NAMES) != 0);
                 p = projectFile.GetSettings();
             } catch (const std::runtime_error& e) {
                 std::cout << std::endl << "- Error: " << e.what() << std::endl;
@@ -406,6 +428,8 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
     //////////////////////////////////////////////////////////////////////////////
     // Export options
 
+    if (vm.count(CONSISTENT_EXPORT_NAMES)) p.i.consistent_export_names = 1;
+
     if (vm.count(OUTPUT_MSR_TO_STN)) p.o._msr_to_stn = 1;
 
     p.o._m2s_file = formPath<std::string>(p.g.output_folder, p.g.network_name, "m2s");  // measurement to stations table
@@ -438,8 +462,9 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
         // unique files for stations and measurements
         else {
             p.i.export_single_xml_file = 0;
-            p.i.xml_stnfile = formPath<std::string>(p.g.output_folder, fileName + "stn", "xml");
-            p.i.xml_msrfile = formPath<std::string>(p.g.output_folder, fileName + "msr", "xml");
+            const std::string separator(p.i.consistent_export_names ? "." : "");
+            p.i.xml_stnfile = formPath<std::string>(p.g.output_folder, fileName + separator + "stn", "xml");
+            p.i.xml_msrfile = formPath<std::string>(p.g.output_folder, fileName + separator + "msr", "xml");
         }
     }
 
@@ -889,7 +914,7 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
     size_t i, nfiles(p.i.input_files.size());  // for each file...
     std::string input_file, ss, status_msg;
     std::ostringstream ss_time, ss_msg;
-    input_file_meta_t input_file_meta;
+    input_file_meta_t input_file_meta{};
     boost::posix_time::milliseconds elapsed_time(boost::posix_time::milliseconds(0));
     boost::posix_time::ptime pt;
 
@@ -990,7 +1015,7 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
                 inputFileDatum = datumFromEpsgString<std::string>(input_file_meta.epsgCode);
                 inputFileEpsg = input_file_meta.epsgCode;
                 inputFileEpsgi = LongFromString<UINT32>(inputFileEpsg);
-                inputFileEpoch = input_file_meta.epoch;
+                inputFileEpoch = formatEpoch(input_file_meta.epoch);
             } catch (...) {
                 // Do nothing, revert to defaults
                 // p.i.reference_frame
@@ -1148,7 +1173,7 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
                 }
                 // when epoch has been supplied and the value in the file doesn't match
                 else if (p.i.user_supplied_epoch) {
-                    if (!iequals(p.i.epoch, input_file_meta.epoch)) {
+                    if (!iequals(p.i.epoch, inputFileEpoch)) {
                         std::stringstream ssEpochWarning;
                         ssEpochWarning << "  - Warning: File epoch (" << inputFileEpoch
                                        << ") differs from project epoch (" << p.i.epoch << ").";
@@ -1200,7 +1225,7 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
                     *imp_file << ssEpochWarning.str() << std::endl;
                 }
                 // Is the epoch in the file different to the project epoch?
-                else if (!iequals(p.i.epoch, input_file_meta.epoch)) {
+                else if (!iequals(p.i.epoch, inputFileEpoch)) {
                     std::stringstream ssEpochWarning;
 
                     ssEpochWarning << "  - Warning: File epoch (" << inputFileEpoch << ") differs from project epoch ("
@@ -1391,6 +1416,7 @@ int main(int argc, char* argv[]) {
         export_options.add_options()(EXPORT_XML_FILES,
                                      "Export stations and measurements to DynaML (DynAdjust XML) format.")(
             EXPORT_SINGLE_XML_FILE, "Create a single DynaML file for stations and measurements.")
+            (CONSISTENT_EXPORT_NAMES, "Use dotted .stn.xml and .msr.xml export suffixes (legacy names by default).")
             // Nice, but somewhat redundant functionality that offers no
             // benefit to the user
             //(EXPORT_FROM_BINARY,
@@ -1797,6 +1823,13 @@ int main(int argc, char* argv[]) {
     if (!p.g.quiet) std::cout << std::endl;
     imp_file << std::endl;
 
+    // Report parsed inputs before any filtering or duplicate removal.
+    const std::string parsingHeading = (p.i.import_block || p.i.import_network)
+                                          ? "+ Binary file parsing summary:"
+                                          : "+ File parsing summary:";
+    if (!p.g.quiet) PrintImportSummary(std::cout, parsingHeading, "  Read", parsestnTally, parsemsrTally);
+    PrintImportSummary(imp_file, parsingHeading, "  Read", parsestnTally, parsemsrTally);
+
     vstring vPoorlyConstrainedStns;
 
     // Ignore measurements that do not sufficiently (in themselves) allow for a station to be estimated
@@ -2030,48 +2063,10 @@ int main(int argc, char* argv[]) {
     if (!p.g.quiet) std::cout << std::endl;
     imp_file << std::endl;
 
-    ///////////////////////////////////////////////////////////////////////
-    // Ok, now that unwanted stations and measurements have been stripped,
-    // provide station and measurement Summary
-    //
-    if ((stnCount + msrCount) > 0) {
-        if (p.i.import_block || p.i.import_network) {
-            if (!p.g.quiet) std::cout << "+ Binary file ";
-            imp_file << "+ Binary file ";
-        } else {
-            if (!p.g.quiet) std::cout << "+ File ";
-            imp_file << "+ File ";
-        }
-
-        if (!p.g.quiet) std::cout << "parsing summary:" << std::endl << std::endl;
-        imp_file << "parsing summary:" << std::endl << std::endl;
-    }
-
-    //
-    // Station summary
-    if (stnCount) {
-        if (!p.g.quiet) {
-            parsestnTally.coutSummary(std::cout, std::string("  Read"));
-            std::cout << std::endl;
-        }
-        parsestnTally.coutSummary(imp_file, std::string("  Read"));
-        imp_file << std::endl;
-    }
-
-    //
-    // Measurement summary
-    if (msrCount) {
-        if (!p.g.quiet) {
-            parsemsrTally.coutSummary(std::cout, std::string("  Read"));
-            std::cout << std::endl;
-        }
-        parsemsrTally.coutSummary(imp_file, std::string("  Read"));
-        imp_file << std::endl;
-    }
-
     ////////////////////////////////////////////////////////////////////////
     // Can we proceed?
     if (stnCount < 1) {
+        PrintFinalImportSummary(vstationsTotal, vmeasurementsTotal, imp_file, p.g.quiet);
         imp_file << "- No further processing can be done as no stations were loaded." << std::endl;
         if (!p.g.quiet) std::cout << "- No further processing can be done as no stations were loaded." << std::endl;
         imp_file.close();
@@ -2512,6 +2507,9 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    // Recount the retained data, including changes made by duplicate and similar-measurement checks.
+    PrintFinalImportSummary(vstationsTotal, vmeasurementsTotal, imp_file, p.g.quiet);
+
     // Create association lists
     if (measurements_mapped) {
         try {
@@ -2580,12 +2578,6 @@ int main(int argc, char* argv[]) {
             return EXIT_FAILURE;
         }
     }
-
-    // Apply the project-level observation_epoch (from --observation-epoch) to measurements
-    // whose observation_epoch is empty or auto-defaulted from the reference-frame epoch.
-    // No-op when --observation-epoch was not supplied.
-    if (p.i.user_supplied_observation_epoch)
-        parserDynaML.ApplyProjectObservationEpoch((vdnaMsrPtr*)&vmeasurementsTotal);
 
     // Create binary measurement file.
     // Binary measurement file can be serialised without stations

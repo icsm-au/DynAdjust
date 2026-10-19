@@ -362,6 +362,7 @@ CDnaMeasurement::CDnaMeasurement()
 	, m_sourceFileIndex(0)
 	, m_epoch("")
 	, m_observation_epoch("")
+	, m_observation_epoch_supplied(false)
 	, m_bInsufficient(false)
 {
 }
@@ -391,6 +392,7 @@ CDnaMeasurement::CDnaMeasurement(CDnaMeasurement&& m)
 
 	m_epoch = m.m_epoch;
 	m_observation_epoch = m.m_observation_epoch;
+	m_observation_epoch_supplied = m.m_observation_epoch_supplied;
 	m_epsgCode = m.m_epsgCode;
 	m_sourceFileIndex = m.m_sourceFileIndex;
 
@@ -423,6 +425,7 @@ CDnaMeasurement& CDnaMeasurement::operator= (CDnaMeasurement&& rhs)
 
 	m_epoch = rhs.m_epoch;
 	m_observation_epoch = rhs.m_observation_epoch;
+	m_observation_epoch_supplied = rhs.m_observation_epoch_supplied;
 	m_epsgCode = rhs.m_epsgCode;
 	m_sourceFileIndex = rhs.m_sourceFileIndex;
 
@@ -504,20 +507,45 @@ void CDnaMeasurement::SerialiseDatabaseMap(std::ofstream* os)
 
 void CDnaMeasurement::SetEpoch(const std::string& epoch)
 {
-	m_epoch = epoch;
+	m_epoch = formatEpoch(epoch);
 	// Default the (immutable) observation epoch to the reference-frame epoch
 	// when it has not been explicitly supplied. Legacy DNA v3.01 / DynaML
 	// files without <EpochOfObservation> thus behave identically to before.
-	if (m_observation_epoch.empty())
-		m_observation_epoch = epoch;
+	if (!m_observation_epoch_supplied)
+		m_observation_epoch = m_epoch;
 }
 
-void CDnaMeasurement::SetObservationEpoch(const std::string& observation_epoch)
+void CDnaMeasurement::SetObservationEpoch(const std::string& observation_epoch, bool explicitly_supplied)
 {
-	m_observation_epoch = observation_epoch;
+	m_observation_epoch = formatEpoch(observation_epoch);
+	m_observation_epoch_supplied = explicitly_supplied;
+}
+
+void CDnaMeasurement::WriteDynaMLObservationEpoch(std::ofstream* dynaml_stream) const
+{
+	if (m_observation_epoch.empty())
+		*dynaml_stream << "    <EpochOfObservation/>" << std::endl;
+	else
+		*dynaml_stream << "    <EpochOfObservation>" << m_observation_epoch
+			<< "</EpochOfObservation>" << std::endl;
+}
+
+void CDnaMeasurement::WriteDNAIdsAndObservationEpoch(std::ofstream* dna_stream,
+	const dna_msr_fields& dmw) const
+{
+	if (m_msr_db_map.is_msr_id_set)
+		*dna_stream << std::setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
+	else
+		*dna_stream << std::setw(dmw.msr_id_msr) << " ";
+
+	if (m_msr_db_map.is_cls_id_set)
+		*dna_stream << std::setw(dmw.msr_id_cluster) << m_msr_db_map.cluster_id;
+	else
+		*dna_stream << std::setw(dmw.msr_id_cluster) << " ";
+
+	if (dmw.msr_gps_obs_epoch > 0)
+		*dna_stream << std::setw(dmw.msr_gps_obs_epoch) << m_observation_epoch;
 }
 
 }	// namespace measurements
 }	// namespace dynadjust
-
-
