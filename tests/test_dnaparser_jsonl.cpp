@@ -26,11 +26,15 @@
 #include <fstream>
 #include <string>
 #include <system_error>
+#include <utility>
 
 #include <dynadjust/dnaimport/dnaparser_jsonl.hpp>
+#include <include/io/dnaiodnatypes.hpp>
 #include <include/measurement_types/dnadirection.hpp>
+#include <include/measurement_types/dnadirectionset.hpp>
 #include <include/measurement_types/dnagpsbaseline.hpp>
 #include <include/measurement_types/dnagpspoint.hpp>
+#include <include/measurement_types/dnaheight.hpp>
 #include <include/measurement_types/dnameasurement.hpp>
 #include <include/measurement_types/dnastntally.hpp>
 
@@ -290,10 +294,111 @@ TEST_CASE("JSONL parser preserves measurement observation epochs") {
   auto* baselines = measurements[2]->GetBaselines_ptr();
   REQUIRE(baselines != nullptr);
   REQUIRE(baselines->at(0).GetObservationEpoch() == "17.07.2021");
+  REQUIRE(baselines->at(0).ObservationEpochSupplied());
 
   auto* points = measurements[3]->GetPoints_ptr();
   REQUIRE(points != nullptr);
   REQUIRE(points->at(0).GetObservationEpoch() == "18.07.2021");
+  REQUIRE(points->at(0).ObservationEpochSupplied());
+}
+
+TEST_CASE("Explicit observation epoch is distinct from an automatic default") {
+  dynadjust::measurements::CDnaHeight measurement;
+  measurement.SetEpoch("01.01.2020");
+
+  REQUIRE(measurement.GetObservationEpoch() == "01.01.2020");
+  REQUIRE(!measurement.ObservationEpochSupplied());
+
+  measurement.SetObservationEpoch("01.01.2020");
+  REQUIRE(measurement.ObservationEpochSupplied());
+
+  measurement.SetEpoch("01.01.2025");
+  REQUIRE(measurement.GetObservationEpoch() == "01.01.2020");
+
+  dynadjust::measurements::CDnaHeight automatic;
+  automatic.SetEpoch("01.01.2020");
+  automatic.SetEpoch("01.01.2025");
+  REQUIRE(automatic.GetObservationEpoch() == "01.01.2025");
+  REQUIRE(!automatic.ObservationEpochSupplied());
+}
+
+TEST_CASE("Moving a direction set preserves its observation epoch state") {
+  dynadjust::measurements::CDnaDirectionSet original;
+  original.SetEpoch("01.01.2020");
+  original.SetObservationEpoch("15.07.2021");
+
+  dynadjust::measurements::CDnaDirectionSet moved(std::move(original));
+  REQUIRE(moved.GetEpoch() == "01.01.2020");
+  REQUIRE(moved.GetObservationEpoch() == "15.07.2021");
+  REQUIRE(moved.ObservationEpochSupplied());
+}
+
+TEST_CASE("Binary measurements distinguish missing and supplied observation epochs") {
+  using namespace dynadjust::measurements;
+  vstn_t stations(1);
+  snprintf(stations[0].stationName, sizeof(stations[0].stationName), "STN1");
+  vmsr_t records(1);
+  records[0].measType = 'H';
+  records[0].measurementStations = ONE_STATION;
+  records[0].station1 = 0;
+  snprintf(records[0].epoch, sizeof(records[0].epoch), "01.01.2020");
+  v_msr_database_id_map ids(1);
+  auto record = records.begin();
+  auto id = ids.begin();
+
+  CDnaHeight measurement;
+  measurement.SetMeasurementRec(stations, record, id);
+  REQUIRE(measurement.GetObservationEpoch().empty());
+  REQUIRE(!measurement.ObservationEpochSupplied());
+
+  snprintf(records[0].observation_epoch, sizeof(records[0].observation_epoch), "01.01.2020");
+  measurement.SetMeasurementRec(stations, record, id);
+  REQUIRE(measurement.ObservationEpochSupplied());
+  measurement.SetEpoch("01.01.2025");
+  REQUIRE(measurement.GetObservationEpoch() == "01.01.2020");
+}
+
+TEST_CASE("DynaML and DNA 3.02 exports preserve observation epoch") {
+  using dynadjust::measurements::CDnaHeight;
+
+  CDnaHeight measurement;
+  measurement.m_strFirst = "STN1";
+  measurement.SetEpoch("01.01.2020");
+  measurement.SetObservationEpoch("15.07.2021");
+  measurement.SetValue("123.4567");
+  measurement.SetStdDev("0.001");
+
+  TempJsonlFile xml("dynadjust-observation-epoch-export.xml");
+  {
+    std::ofstream out(xml.path);
+    measurement.WriteDynaMLMsr(&out, "", false);
+  }
+  {
+    std::ifstream in(xml.path);
+    const std::string content((std::istreambuf_iterator<char>(in)),
+                              std::istreambuf_iterator<char>());
+    REQUIRE(content.find("<EpochOfObservation>15.07.2021</EpochOfObservation>") !=
+            std::string::npos);
+  }
+
+  dna_msr_fields locations{};
+  dna_msr_fields widths{};
+  determineDNAMSRFieldParameters<UINT16>("3.02", locations, widths);
+
+  TempJsonlFile dna("dynadjust-observation-epoch-export.msr");
+  {
+    std::ofstream out(dna.path);
+    measurement.WriteDNAMsr(&out, widths, locations, false);
+  }
+  {
+    std::ifstream in(dna.path);
+    std::string line;
+    std::getline(in, line);
+    REQUIRE(line.size() >= locations.msr_gps_obs_epoch + 10);
+    REQUIRE(line.substr(locations.msr_gps_obs_epoch,
+                        widths.msr_gps_obs_epoch)
+                .find("15.07.2021") != std::string::npos);
+  }
 }
 
 TEST_CASE("JSONL parser preserves grouped adjustment direction sets") {

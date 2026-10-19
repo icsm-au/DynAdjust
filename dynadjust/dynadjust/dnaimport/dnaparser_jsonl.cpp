@@ -246,7 +246,7 @@ void parseGPSBaselines(const json& msr_obj, dnaMsrPtr& msr,
 
     bsl.SetReferenceFrame(msr->GetReferenceFrame());
     bsl.SetEpoch(msr->GetEpoch());
-    bsl.SetObservationEpoch(msr->GetObservationEpoch());
+    bsl.SetObservationEpoch(msr->GetObservationEpoch(), msr->ObservationEpochSupplied());
     bsl.SetClusterID(msr->GetClusterID());
     bsl.SetClusterDBID(msr->GetClusterDBID(), msr->GetClusterDBIDset());
 
@@ -335,7 +335,7 @@ void parseClusterpoints(const json& msr_obj, dnaMsrPtr& msr,
     pt.SetClusterDBID(msr->GetClusterDBID(), msr->GetClusterDBIDset());
     pt.SetReferenceFrame(msr->GetReferenceFrame());
     pt.SetEpoch(msr->GetEpoch());
-    pt.SetObservationEpoch(msr->GetObservationEpoch());
+    pt.SetObservationEpoch(msr->GetObservationEpoch(), msr->ObservationEpochSupplied());
 
     // Set X, Y, Z components — each increments tally 1x
     pt.SetX(jstr(pt_obj, "X"));
@@ -396,7 +396,7 @@ void parseDirections(const json& msr_obj, dnaMsrPtr& msr,
     dir.SetClusterID(msr->GetClusterID());
     dir.SetClusterDBID(msr->GetClusterDBID(), msr->GetClusterDBIDset());
     dir.SetEpoch(msr->GetEpoch());
-    dir.SetObservationEpoch(msr->GetObservationEpoch());
+    dir.SetObservationEpoch(msr->GetObservationEpoch(), msr->ObservationEpochSupplied());
 
     // Ignore for individual directions
     bool dir_ignored = jignore(dir_obj, "Ignore");

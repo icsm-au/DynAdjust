@@ -79,6 +79,7 @@ CDnaGpsPoint::CDnaGpsPoint(CDnaGpsPoint&& p)
 	m_epsgCode = p.m_epsgCode;
 	m_epoch = p.m_epoch;
 	m_observation_epoch = p.m_observation_epoch;
+	m_observation_epoch_supplied = p.m_observation_epoch_supplied;
 
 	m_dX = p.m_dX;
 	m_dY = p.m_dY;
@@ -119,6 +120,7 @@ CDnaGpsPoint& CDnaGpsPoint::operator= (CDnaGpsPoint&& rhs)
 	m_epsgCode = rhs.m_epsgCode;
 	m_epoch = rhs.m_epoch;
 	m_observation_epoch = rhs.m_observation_epoch;
+	m_observation_epoch_supplied = rhs.m_observation_epoch_supplied;
 
 	m_dX = rhs.m_dX;
 	m_dY = rhs.m_dY;
@@ -303,20 +305,12 @@ void CDnaGpsPoint::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fields& 
 			std::right << std::setw(dmw.msr_gps_reframe) << m_referenceFrame <<
 			std::right << std::setw(dmw.msr_gps_epoch) << m_epoch;
 
-		// print database ids
-		if (m_msr_db_map.is_msr_id_set)
-			*dna_stream << std::setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
-		if (m_msr_db_map.is_cls_id_set)
-			*dna_stream << std::setw(dmw.msr_id_cluster) << m_msr_db_map.cluster_id;
+		WriteDNAIdsAndObservationEpoch(dna_stream, dmw);
 	}
 	else
 	{
-		// print database ids
-		if (m_msr_db_map.is_msr_id_set)
-			*dna_stream << std::setw(dml.msr_id_msr - dml.msr_targ1) << " " <<
-				std::right << std::setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
-		if (m_msr_db_map.is_cls_id_set)
-			*dna_stream << std::setw(dmw.msr_id_cluster) << m_msr_db_map.cluster_id;
+		*dna_stream << std::setw(dml.msr_id_msr - dml.msr_targ1) << " ";
+		WriteDNAIdsAndObservationEpoch(dna_stream, dmw);
 	}
 
 	*dna_stream << std::endl;
@@ -481,6 +475,7 @@ UINT32 CDnaGpsPoint::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_ms
 
 	m_epoch = it_msr->epoch;
 	m_observation_epoch = it_msr->observation_epoch;
+	m_observation_epoch_supplied = !m_observation_epoch.empty();
 	m_epsgCode = it_msr->epsgCode;
 	m_referenceFrame = datumFromEpsgCode<std::string, UINT32>(LongFromString<UINT32>(it_msr->epsgCode));
 
@@ -761,6 +756,7 @@ CDnaGpsPointCluster::CDnaGpsPointCluster(CDnaGpsPointCluster&& p)
 	m_epsgCode = p.m_epsgCode;
 	m_epoch = p.m_epoch;
 	m_observation_epoch = p.m_observation_epoch;
+	m_observation_epoch_supplied = p.m_observation_epoch_supplied;
 
 	m_msr_db_map = p.m_msr_db_map;
 
@@ -782,6 +778,7 @@ CDnaGpsPointCluster& CDnaGpsPointCluster::operator= (CDnaGpsPointCluster&& rhs)
 	m_epsgCode = rhs.m_epsgCode;
 	m_epoch = rhs.m_epoch;
 	m_observation_epoch = rhs.m_observation_epoch;
+	m_observation_epoch_supplied = rhs.m_observation_epoch_supplied;
 
 	m_dPscale = rhs.m_dPscale;
 	m_dLscale = rhs.m_dLscale;
@@ -939,6 +936,7 @@ void CDnaGpsPointCluster::WriteDynaMLMsr(std::ofstream* dynaml_stream, const std
 	// Reference frame and epoch
 	*dynaml_stream << "    <ReferenceFrame>" << m_referenceFrame << "</ReferenceFrame>" << std::endl;
 	*dynaml_stream << "    <Epoch>" << m_epoch << "</Epoch>" << std::endl;
+	WriteDynaMLObservationEpoch(dynaml_stream);
 
 	// Scalars
 	*dynaml_stream << "    <Vscale>" << std::fixed << std::setprecision(3) << m_dVscale << "</Vscale>" << std::endl;
@@ -1021,6 +1019,7 @@ UINT32 CDnaGpsPointCluster::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t
 	m_referenceFrame = datumFromEpsgCode<std::string, UINT32>(LongFromString<UINT32>(it_msr->epsgCode));
 	m_epoch = it_msr->epoch;
 	m_observation_epoch = it_msr->observation_epoch;
+	m_observation_epoch_supplied = !m_observation_epoch.empty();
 	m_epsgCode = it_msr->epsgCode;
 	m_sourceFileIndex = it_msr->sourceFileIndex;
 

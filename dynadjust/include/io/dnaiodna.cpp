@@ -58,7 +58,7 @@ void dna_io_dna::create_file_stn(std::ofstream* ptr, const std::string& filename
 	
 void dna_io_dna::create_file_msr(std::ofstream* ptr, const std::string& filename)
 {
-	determineDNAMSRFieldParameters<UINT16>("3.01", dml_, dmw_);
+	determineDNAMSRFieldParameters<UINT16>("3.02", dml_, dmw_);
 	create_file_pointer(ptr, filename);
 }
 
@@ -530,7 +530,7 @@ void dna_io_dna::write_msr_header_data(std::ofstream* ptr, const std::string& ne
 	const std::string& epoch, const size_t& count, const std::string& comment)
 {
 	// Write version line
-	dna_header(*ptr, "3.01", "MSR", datum, epoch, count);
+	dna_header(*ptr, "3.02", "MSR", datum, epoch, count);
 
 	// Write comments
 	dna_comment(*ptr, "File type:    Measurement file");
@@ -654,4 +654,3 @@ void dna_io_dna::set_dbid_ptr(pv_msr_database_id_map pv_msr_db_map)
 
 } // dnaiostreams
 } // dynadjust
-

@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<DnaXmlFormat type="Combined File" referenceframe="GDA2020" epoch="01.01.2020">
+  <DnaStation>
+    <Name>ALIC</Name>
+    <Constraints>FFF</Constraints>
+    <Type>XYZ</Type>
+    <StationCoord>
+      <Name>ALIC</Name>
+      <XAxis>-4052052.7379</XAxis>
+      <YAxis>4212835.9824</YAxis>
+      <Height>-2545104.5871</Height>
+    </StationCoord>
+  </DnaStation>
+  <DnaMeasurement>
+    <Type>R</Type>
+    <Epoch>01.01.2020</Epoch>
+    <First>ALIC</First>
+    <Value>603.3</Value>
+    <StdDev>0.01</StdDev>
+  </DnaMeasurement>
+</DnaXmlFormat>

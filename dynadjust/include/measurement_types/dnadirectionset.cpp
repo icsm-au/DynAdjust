@@ -81,6 +81,9 @@ CDnaDirectionSet::CDnaDirectionSet(CDnaDirectionSet&& d)
 	m_vTargetDirections = std::move(d.m_vTargetDirections);
 
 	m_msr_db_map = d.m_msr_db_map;
+	m_epoch = d.m_epoch;
+	m_observation_epoch = d.m_observation_epoch;
+	m_observation_epoch_supplied = d.m_observation_epoch_supplied;
 
 	m_dbidmap = d.m_dbidmap;
 }
@@ -247,6 +250,7 @@ void CDnaDirectionSet::WriteDynaMLMsr(std::ofstream* dynaml_stream, const std::s
 		*dynaml_stream << "    <Epoch/>" << std::endl;
 	else
 		*dynaml_stream << "    <Epoch>" << m_epoch << "</Epoch>" << std::endl;
+	WriteDynaMLObservationEpoch(dynaml_stream);
 
 	*dynaml_stream << "    <First>" << m_strFirst << "</First>" << std::endl;
 	*dynaml_stream << "    <Second>" << m_strTarget << "</Second>" << std::endl;
@@ -292,11 +296,7 @@ void CDnaDirectionSet::WriteDNAMsr(std::ofstream* dna_stream, const dna_msr_fiel
 	*dna_stream << std::setw(dml.msr_gps_epoch - dml.msr_inst_ht) << " ";
 	*dna_stream << std::setw(dmw.msr_gps_epoch) << m_epoch;
 
-	if (m_msr_db_map.is_msr_id_set)
-		*dna_stream << std::setw(dmw.msr_id_msr) << m_msr_db_map.msr_id;
-	if (m_msr_db_map.is_cls_id_set)
-		*dna_stream << std::setw(dmw.msr_id_cluster) << m_msr_db_map.cluster_id;
-	
+	WriteDNAIdsAndObservationEpoch(dna_stream, dmw);
 	*dna_stream << std::endl;
 	
 	// write directions
@@ -395,6 +395,7 @@ UINT32 CDnaDirectionSet::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& i
 
 	m_epoch = it_msr->epoch;
 	m_observation_epoch = it_msr->observation_epoch;
+	m_observation_epoch_supplied = !m_observation_epoch.empty();
 	m_sourceFileIndex = it_msr->sourceFileIndex;
 
 	m_vTargetDirections.clear();

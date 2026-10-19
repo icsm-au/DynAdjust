@@ -889,7 +889,7 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
     size_t i, nfiles(p.i.input_files.size());  // for each file...
     std::string input_file, ss, status_msg;
     std::ostringstream ss_time, ss_msg;
-    input_file_meta_t input_file_meta;
+    input_file_meta_t input_file_meta{};
     boost::posix_time::milliseconds elapsed_time(boost::posix_time::milliseconds(0));
     boost::posix_time::ptime pt;
 
@@ -2580,12 +2580,6 @@ int main(int argc, char* argv[]) {
             return EXIT_FAILURE;
         }
     }
-
-    // Apply the project-level observation_epoch (from --observation-epoch) to measurements
-    // whose observation_epoch is empty or auto-defaulted from the reference-frame epoch.
-    // No-op when --observation-epoch was not supplied.
-    if (p.i.user_supplied_observation_epoch)
-        parserDynaML.ApplyProjectObservationEpoch((vdnaMsrPtr*)&vmeasurementsTotal);
 
     // Create binary measurement file.
     // Binary measurement file can be serialised without stations
