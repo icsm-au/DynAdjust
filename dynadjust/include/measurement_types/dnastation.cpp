@@ -120,7 +120,7 @@ CDnaStation::CDnaStation(const std::string& referenceframe, const std::string& e
 	, m_fgeoidSep(0.), m_dmeridianDef(0.), m_dverticalDef(0.)
 	, m_lfileOrder(0), m_lnameOrder(0)
 	, m_zone(0), m_unusedStation(INVALID_STATION)
-	, m_referenceFrame(referenceframe), m_epoch(epoch), m_observation_epoch(epoch)
+	, m_referenceFrame(referenceframe), m_epoch(formatEpoch(epoch)), m_observation_epoch(m_epoch)
 	, m_constraintType(free_3D)
 {
 	m_epsgCode = epsgStringFromName<std::string>(referenceframe);
@@ -951,8 +951,8 @@ void CDnaStation::SetStationRec(const station_t& stationRecord)
 	m_lnameOrder = stationRecord.nameOrder;
 	m_unusedStation = (stationRecord.unusedStation == VALID_STATION ? true : false);
 
-	m_epoch = stationRecord.epoch;
-	m_observation_epoch = stationRecord.observation_epoch;
+	m_epoch = formatEpoch(stationRecord.epoch);
+	m_observation_epoch = formatEpoch(stationRecord.observation_epoch);
 	m_epsgCode = stationRecord.epsgCode;
 	m_referenceFrame = datumFromEpsgCode<std::string, UINT32>(LongFromString<UINT32>(m_epsgCode));
 }

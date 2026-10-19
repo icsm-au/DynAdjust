@@ -25,11 +25,13 @@
 #include <include/functions/dnaiostreamfuncs.hpp>
 #include <fstream>
 #include <include/functions/dnatemplatefuncs.hpp>
+#include <include/functions/dnatemplatedatetimefuncs.hpp>
 #include <include/functions/dnastringfuncs.hpp>
 #include <include/functions/dnastrutils.hpp>
 #include <include/functions/dnastrmanipfuncs.hpp>
 #include <include/functions/dnafilepathfuncs.hpp>
 #include <include/config/dnaoptions-helper.hpp>
+#include <include/parameters/dnaepsg.hpp>
 
 // Undefine any system macros that might conflict (macOS defines these)
 #ifdef LSCALE
@@ -53,9 +55,11 @@ CDnaProjectFile::CDnaProjectFile(void)
 }
 
 // Create instance and initialise settings based on context
-CDnaProjectFile::CDnaProjectFile(const std::string& projectFile, const UINT16& verifyContext)
+CDnaProjectFile::CDnaProjectFile(const std::string& projectFile, const UINT16& verifyContext, bool consistentExportNames)
 {
 	LoadProjectFile(projectFile);
+	if (consistentExportNames)
+		settings_.i.consistent_export_names = 1;
 
 	switch (verifyContext)
 	{
@@ -268,6 +272,10 @@ void CDnaProjectFile::LoadProjectFile()
 			val.clear();
 
 		try {
+			// Project epochs use the same representation as command-line epochs.
+			if ((mSetting == importSetting || mSetting == reftranSetting) &&
+				iequals(var, EPOCH) && !val.empty())
+				val = formatEpoch(val);
 			switch (mSetting)
 			{
 			case generalSetting:
@@ -417,10 +425,11 @@ void CDnaProjectFile::InitialiseImportSettings()
 				fileName, "xml");
 		else
 		{
+			const std::string separator(settings_.i.consistent_export_names ? "." : "");
 			settings_.i.xml_stnfile = formPath<std::string>(settings_.g.output_folder, 
-				fileName + "stn", "xml");
+				fileName + separator + "stn", "xml");
 			settings_.i.xml_msrfile = formPath<std::string>(settings_.g.output_folder, 
-				fileName + "msr", "xml");
+				fileName + separator + "msr", "xml");
 		}
 	}
 
@@ -454,23 +463,37 @@ void CDnaProjectFile::InitialiseReftranSettings()
 	settings_.r.bms_file = firstPart + "bms";	// binary measurements file
 	settings_.r.rft_file = firstPart + "rft";	// log
 
+	// Consistent naming matches CLI reftran; legacy project exports use the network name.
+	str_toupper<int>(settings_.r.reference_frame);
+	const UINT32 epsgCode(epsg::epsgCodeFromName<UINT32>(settings_.r.reference_frame));
+	std::string fileName(settings_.g.network_name);
+	if (epsg::isEpsgDatumStatic(epsgCode))
+		settings_.r.epoch = epsg::referenceepochFromEpsgCode<UINT32>(epsgCode);
+	if (settings_.i.consistent_export_names)
+	{
+		fileName.append(".").append(settings_.r.reference_frame);
+		if (!epsg::isEpsgDatumStatic(epsgCode))
+			fileName.append(".").append(settings_.r.epoch);
+	}
+
 	if (settings_.i.export_dynaml == 1)
 	{
 		if (settings_.i.export_single_xml_file == 1)
-			settings_.i.xml_outfile = firstPart + "xml";		// single XML file
+			settings_.i.xml_outfile = formPath<std::string>(settings_.g.output_folder, fileName, "xml");
 		else
 		{
+			const std::string separator(settings_.i.consistent_export_names ? "." : "");
 			settings_.i.xml_stnfile = formPath<std::string>(settings_.g.output_folder,
-				settings_.g.network_name + "stn", "xml");
+				fileName + separator + "stn", "xml");
 			settings_.i.xml_msrfile = formPath<std::string>(settings_.g.output_folder,
-				settings_.g.network_name + "msr", "xml");;
+				fileName + separator + "msr", "xml");
 		}
 	}
 
 	if (settings_.i.export_dna_files == 1)
 	{
-		settings_.i.dna_stnfile = firstPart + "stn";	// station file
-		settings_.i.dna_msrfile = firstPart + "msr";	// measurement file
+		settings_.i.dna_stnfile = formPath<std::string>(settings_.g.output_folder, fileName, "stn");
+		settings_.i.dna_msrfile = formPath<std::string>(settings_.g.output_folder, fileName, "msr");
 	}
 	
 	if (settings_.o._export_snx_file == 1)
@@ -1048,6 +1071,12 @@ void CDnaProjectFile::LoadSettingImport(const settingMode mSetting, const std::s
 		if (val.empty())
 			return;			
 		settings_.i.export_from_bfiles = yesno_uint<UINT16, std::string>(val);
+	}
+	else if (iequals(var, CONSISTENT_EXPORT_NAMES))
+	{
+		if (val.empty())
+			return;
+		settings_.i.consistent_export_names = yesno_uint<UINT16, std::string>(val);
 	}
 	else if (iequals(var, EXPORT_DNA_FILES))
 	{
@@ -1824,6 +1853,7 @@ void CDnaProjectFile::PrintProjectFile()
 	PrintRecord(dnaproj_file, SCALAR_FILE, leafStr<std::string>(settings_.i.scalar_file));
 
 	// export options
+	PrintRecord(dnaproj_file, CONSISTENT_EXPORT_NAMES, yesno_string(settings_.i.consistent_export_names));
 	PrintRecord(dnaproj_file, EXPORT_XML_FILES, 
 		yesno_string(settings_.i.export_dynaml));						// Create DynaML output file
 	PrintRecord(dnaproj_file, EXPORT_SINGLE_XML_FILE, 

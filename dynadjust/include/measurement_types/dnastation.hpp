@@ -46,6 +46,7 @@
 #include <include/config/dnaconsts-iostream.hpp>
 #include <include/config/dnaoptions.hpp>
 #include <include/functions/dnastrmanipfuncs.hpp>
+#include <include/functions/dnatemplatedatetimefuncs.hpp>
 #include <include/functions/dnatemplatecalcfuncs.hpp>
 #include <include/functions/dnatemplategeodesyfuncs.hpp>
 #include <include/parameters/dnaellipsoid.hpp>
@@ -283,11 +284,11 @@ public:
 	// prior behaviour; once set, observation_epoch is immutable under reftran.
 	inline void SetEpoch(const std::string& e)
 	{
-		m_epoch = trimstr(e);
+		m_epoch = formatEpoch(e);
 		if (m_observation_epoch.empty())
 			m_observation_epoch = m_epoch;
 	}
-	inline void SetObservationEpoch(const std::string& e) { m_observation_epoch = trimstr(e); }
+	inline void SetObservationEpoch(const std::string& e) { m_observation_epoch = formatEpoch(e); }
 	inline void SetEpsg(const std::string& e) { m_epsgCode = trimstr(e); }
 
 	std::string m_strName;

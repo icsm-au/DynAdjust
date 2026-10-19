@@ -366,8 +366,8 @@ UINT32 CDnaGpsBaseline::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it
 	m_dHscale = it_msr->scale3;
 	m_dVscale = it_msr->scale4;
 
-	m_epoch = it_msr->epoch;
-	m_observation_epoch = it_msr->observation_epoch;
+	m_epoch = formatEpoch(it_msr->epoch);
+	m_observation_epoch = formatEpoch(it_msr->observation_epoch);
 	m_observation_epoch_supplied = !m_observation_epoch.empty();
 	m_epsgCode = it_msr->epsgCode;
 	m_referenceFrame = datumFromEpsgString<std::string>(it_msr->epsgCode);
@@ -894,8 +894,8 @@ UINT32 CDnaGpsBaselineCluster::SetMeasurementRec(const vstn_t& binaryStn, it_vms
 	m_vGpsBaselines.resize(m_lRecordedTotal);
 
 	m_referenceFrame = datumFromEpsgString<std::string>(it_msr->epsgCode);
-	m_epoch = it_msr->epoch;
-	m_observation_epoch = it_msr->observation_epoch;
+	m_epoch = formatEpoch(it_msr->epoch);
+	m_observation_epoch = formatEpoch(it_msr->observation_epoch);
 	m_observation_epoch_supplied = !m_observation_epoch.empty();
 	m_epsgCode = it_msr->epsgCode;
 	m_sourceFileIndex = it_msr->sourceFileIndex;

@@ -507,17 +507,17 @@ void CDnaMeasurement::SerialiseDatabaseMap(std::ofstream* os)
 
 void CDnaMeasurement::SetEpoch(const std::string& epoch)
 {
-	m_epoch = epoch;
+	m_epoch = formatEpoch(epoch);
 	// Default the (immutable) observation epoch to the reference-frame epoch
 	// when it has not been explicitly supplied. Legacy DNA v3.01 / DynaML
 	// files without <EpochOfObservation> thus behave identically to before.
 	if (!m_observation_epoch_supplied)
-		m_observation_epoch = epoch;
+		m_observation_epoch = m_epoch;
 }
 
 void CDnaMeasurement::SetObservationEpoch(const std::string& observation_epoch, bool explicitly_supplied)
 {
-	m_observation_epoch = observation_epoch;
+	m_observation_epoch = formatEpoch(observation_epoch);
 	m_observation_epoch_supplied = explicitly_supplied;
 }
 

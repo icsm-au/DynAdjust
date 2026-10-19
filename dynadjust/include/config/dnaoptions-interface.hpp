@@ -208,6 +208,7 @@ const char* const EXPORT_XML_STN_FILE = "export-xml-stn-file";
 const char* const EXPORT_XML_MSR_FILE = "export-xml-msr-file";
 const char* const EXPORT_FROM_BINARY = "export-from-binary";
 const char* const EXPORT_SINGLE_XML_FILE = "single-xml-file";
+const char* const CONSISTENT_EXPORT_NAMES = "consistent-export-names";
 const char* const PREFER_X_MSR_AS_G = "prefer-single-x-as-g";
 const char* const EXPORT_DNA_FILES = "export-dna-files";
 const char* const EXPORT_DNA_STN_FILE = "export-dna-stn-file";

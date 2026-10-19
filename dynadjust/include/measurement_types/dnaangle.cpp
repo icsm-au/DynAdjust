@@ -248,8 +248,8 @@ UINT32 CDnaAngle::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& it_msr, 
 	m_drValue = it_msr->term1;
 	m_dStdDev = sqrt(it_msr->term2);
 	
-	m_epoch = it_msr->epoch;
-	m_observation_epoch = it_msr->observation_epoch;
+	m_epoch = formatEpoch(it_msr->epoch);
+	m_observation_epoch = formatEpoch(it_msr->observation_epoch);
 	m_observation_epoch_supplied = !m_observation_epoch.empty();
 	m_sourceFileIndex = it_msr->sourceFileIndex;
 

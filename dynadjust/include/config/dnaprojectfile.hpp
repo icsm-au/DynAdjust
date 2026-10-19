@@ -47,7 +47,7 @@ class CDnaProjectFile
 public:
 
 	CDnaProjectFile(void);
-	CDnaProjectFile(const std::string& projectFile, const UINT16& verifyContext);
+	CDnaProjectFile(const std::string& projectFile, const UINT16& verifyContext, bool consistentExportNames = false);
 	
 	virtual inline ~CDnaProjectFile(void) {}
 	//virtual inline CDnaProjectFile* clone() const { 
@@ -90,6 +90,7 @@ public:
 	inline void UpdateSettingsReftran(const project_settings& p) { 
 		UpdateSettingsGeneral(p.g);
 		settings_.r = p.r;
+		settings_.i.consistent_export_names = p.i.consistent_export_names;
 	}
 	inline void UpdateSettingsAdjust(const project_settings& p) { 
 		UpdateSettingsGeneral(p.g);
