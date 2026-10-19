@@ -3446,21 +3446,9 @@ void DynAdjustPrinter::PrintOutputFileHeaderInfo()
     adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Command line arguments: ";
     adjust_.adj_file << adjust_.projectSettings_.a.command_line_arguments << std::endl << std::endl;
 
-    if (adjust_.projectSettings_.i.input_files.empty())
-    {
-        adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Stations file:" << safe_absolute_path(adjust_.projectSettings_.a.bst_file) << std::endl;
-        adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Measurements file:" << safe_absolute_path(adjust_.projectSettings_.a.bms_file) << std::endl;
-    }
-    else
-    {
-        _it_vstr _it_files(adjust_.projectSettings_.i.input_files.begin());
-        std::string s("Input files:");
-        while (_it_files!=adjust_.projectSettings_.i.input_files.end())
-        {
-            adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << s << *_it_files++ << std::endl;
-            s = " ";
-        }
-    }	
+    // Adjustment consumes the binary files, rather than the original import sources.
+    adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Stations file:" << safe_absolute_path(adjust_.projectSettings_.a.bst_file) << std::endl;
+    adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Measurements file:" << safe_absolute_path(adjust_.projectSettings_.a.bms_file) << std::endl;
 
     // Reference frame
     adjust_.adj_file << std::setw(PRINT_VAR_PAD) << std::left << "Reference frame: " << adjust_.datum_.GetName() << std::endl;
