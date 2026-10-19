@@ -207,7 +207,7 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
     if (vm.count(PROJECT_FILE)) {
         if (std::filesystem::exists(p.g.project_file)) {
             try {
-                CDnaProjectFile projectFile(p.g.project_file, importSetting);
+                CDnaProjectFile projectFile(p.g.project_file, importSetting, vm.count(CONSISTENT_EXPORT_NAMES) != 0);
                 p = projectFile.GetSettings();
             } catch (const std::runtime_error& e) {
                 std::cout << std::endl << "- Error: " << e.what() << std::endl;
@@ -406,6 +406,8 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
     //////////////////////////////////////////////////////////////////////////////
     // Export options
 
+    if (vm.count(CONSISTENT_EXPORT_NAMES)) p.i.consistent_export_names = 1;
+
     if (vm.count(OUTPUT_MSR_TO_STN)) p.o._msr_to_stn = 1;
 
     p.o._m2s_file = formPath<std::string>(p.g.output_folder, p.g.network_name, "m2s");  // measurement to stations table
@@ -438,8 +440,9 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
         // unique files for stations and measurements
         else {
             p.i.export_single_xml_file = 0;
-            p.i.xml_stnfile = formPath<std::string>(p.g.output_folder, fileName + "stn", "xml");
-            p.i.xml_msrfile = formPath<std::string>(p.g.output_folder, fileName + "msr", "xml");
+            const std::string separator(p.i.consistent_export_names ? "." : "");
+            p.i.xml_stnfile = formPath<std::string>(p.g.output_folder, fileName + separator + "stn", "xml");
+            p.i.xml_msrfile = formPath<std::string>(p.g.output_folder, fileName + separator + "msr", "xml");
         }
     }
 
@@ -990,7 +993,7 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
                 inputFileDatum = datumFromEpsgString<std::string>(input_file_meta.epsgCode);
                 inputFileEpsg = input_file_meta.epsgCode;
                 inputFileEpsgi = LongFromString<UINT32>(inputFileEpsg);
-                inputFileEpoch = input_file_meta.epoch;
+                inputFileEpoch = formatEpoch(input_file_meta.epoch);
             } catch (...) {
                 // Do nothing, revert to defaults
                 // p.i.reference_frame
@@ -1148,7 +1151,7 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
                 }
                 // when epoch has been supplied and the value in the file doesn't match
                 else if (p.i.user_supplied_epoch) {
-                    if (!iequals(p.i.epoch, input_file_meta.epoch)) {
+                    if (!iequals(p.i.epoch, inputFileEpoch)) {
                         std::stringstream ssEpochWarning;
                         ssEpochWarning << "  - Warning: File epoch (" << inputFileEpoch
                                        << ") differs from project epoch (" << p.i.epoch << ").";
@@ -1200,7 +1203,7 @@ int ImportDataFiles(dna_import& parserDynaML, vdnaStnPtr* vStations, vdnaMsrPtr*
                     *imp_file << ssEpochWarning.str() << std::endl;
                 }
                 // Is the epoch in the file different to the project epoch?
-                else if (!iequals(p.i.epoch, input_file_meta.epoch)) {
+                else if (!iequals(p.i.epoch, inputFileEpoch)) {
                     std::stringstream ssEpochWarning;
 
                     ssEpochWarning << "  - Warning: File epoch (" << inputFileEpoch << ") differs from project epoch ("
@@ -1391,6 +1394,7 @@ int main(int argc, char* argv[]) {
         export_options.add_options()(EXPORT_XML_FILES,
                                      "Export stations and measurements to DynaML (DynAdjust XML) format.")(
             EXPORT_SINGLE_XML_FILE, "Create a single DynaML file for stations and measurements.")
+            (CONSISTENT_EXPORT_NAMES, "Use dotted .stn.xml and .msr.xml export suffixes (legacy names by default).")
             // Nice, but somewhat redundant functionality that offers no
             // benefit to the user
             //(EXPORT_FROM_BINARY,

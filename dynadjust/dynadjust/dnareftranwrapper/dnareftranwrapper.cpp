@@ -114,8 +114,9 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
 		if (std::filesystem::exists(p.g.project_file))
 		{
 			try {
-				CDnaProjectFile projectFile(p.g.project_file, reftranSetting);
+				CDnaProjectFile projectFile(p.g.project_file, reftranSetting, vm.count(CONSISTENT_EXPORT_NAMES) != 0);
 				p = projectFile.GetSettings();
+				epsgCode = epsgCodeFromName<UINT32>(p.r.reference_frame);
 			}
 			catch (const std::runtime_error& e) {
 				std::cout << std::endl << "- Error: " << e.what() << std::endl;
@@ -251,6 +252,9 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
 	//////////////////////////////////////////////////////////////////////////////
 	// Export options
 	
+	if (vm.count(CONSISTENT_EXPORT_NAMES))
+		p.i.consistent_export_names = 1;
+
 	// Create file name based on the provided block
 	std::string fileName(p.g.network_name);
 	fileName.append(".").append(p.r.reference_frame);
@@ -278,10 +282,11 @@ int ParseCommandLineOptions(const int& argc, char* argv[], const boost::program_
 		else
 		{
 			p.i.export_single_xml_file = 0;
+			const std::string separator(p.i.consistent_export_names ? "." : "");
 			p.i.xml_stnfile = formPath<std::string>(p.g.output_folder, 
-				fileName + "stn", "xml");
+				fileName + separator + "stn", "xml");
 			p.i.xml_msrfile = formPath<std::string>(p.g.output_folder, 
-				fileName + "msr", "xml");
+				fileName + separator + "msr", "xml");
 		}
 	}
 
@@ -369,6 +374,8 @@ int main(int argc, char* argv[])
 				"Export transformed stations and measurements to DynaML (DynAdjust XML) format.")
 			(EXPORT_SINGLE_XML_FILE,
 				"Create a single DynaML file for stations and measurements.")
+			(CONSISTENT_EXPORT_NAMES,
+				"Use dotted XML suffixes and frame/epoch-qualified project-file exports (legacy names by default).")
 			(EXPORT_DNA_FILES,
 				"Export transformed stations and measurements to DNA STN and MSR format.")
 			//(EXPORT_SNX_FILE,

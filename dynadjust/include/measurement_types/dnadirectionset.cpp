@@ -393,8 +393,8 @@ UINT32 CDnaDirectionSet::SetMeasurementRec(const vstn_t& binaryStn, it_vmsr_t& i
 	
 	m_lsetID = it_msr->clusterID;
 
-	m_epoch = it_msr->epoch;
-	m_observation_epoch = it_msr->observation_epoch;
+	m_epoch = formatEpoch(it_msr->epoch);
+	m_observation_epoch = formatEpoch(it_msr->observation_epoch);
 	m_observation_epoch_supplied = !m_observation_epoch.empty();
 	m_sourceFileIndex = it_msr->sourceFileIndex;
 

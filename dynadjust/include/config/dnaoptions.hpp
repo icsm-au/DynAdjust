@@ -187,7 +187,7 @@ public:
 	import_settings()
 		: reference_frame(DEFAULT_DATUM), epoch(DEFAULT_EPOCH), observation_epoch(""), user_supplied_frame(0), user_supplied_epoch(0), user_supplied_observation_epoch(0), override_input_rfame(0)
 		, test_integrity(0), verify_coordinates(0), export_dynaml(0), export_from_bfiles(0)
-		, export_single_xml_file(0), prefer_single_x_as_g(0), export_asl_file(0), export_aml_file(0), export_map_file(0)
+		, export_single_xml_file(0), consistent_export_names(0), prefer_single_x_as_g(0), export_asl_file(0), export_aml_file(0), export_map_file(0)
 		, export_dna_files(0), export_discont_file(0), import_geo_file(0), simulate_measurements(0), split_clusters(0), include_transcending_msrs(0)
 		, apply_scaling(0), map_file(""), asl_file(""), aml_file(""), bst_file(""), bms_file("")
 		, dst_file(""), dms_file(""), imp_file(""), geo_file(""), seg_file(""), dbid_file("")
@@ -243,6 +243,7 @@ public:
 	UINT16		export_dynaml;				// Create DynaML output file
 	UINT16		export_from_bfiles;			// Create DynaML output file using binary files. Default option uses internal memory
 	UINT16		export_single_xml_file;		// Create separate station and measurement DynaML output files
+	UINT16		consistent_export_names;	// Opt in to dotted XML suffixes and consistent reftran export basenames
 	UINT16		prefer_single_x_as_g;		// Prefer single baseline cluster measurements (X) as single baseline measurements (G)
 	UINT16		export_asl_file;			// Create a text file of the ASL
 	UINT16		export_aml_file;			// Create a text file of the AML
